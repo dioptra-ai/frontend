@@ -1,14 +1,14 @@
 import React from "react"
+import {Switch, Route} from "react-router-dom"
+import Login from "./pages/Login"
 
 const App = () => {
   return (
-    <div className="App">
-      Hello MLM :)
-      <span
-        className="Icon-Experimentations"
-        style={{ color: "orange", fontSize: "30px" }}
-      ></span>
-    </div>
+    <>
+      <Switch>
+        <Route exact path="/login" component={Login} />
+      </Switch>
+    </>
   )
 }
 
