@@ -1,0 +1,54 @@
+{
+    "editor.detectIndentation": false,
+    "json.format.enable": false,
+    "javascript.suggest.autoImports": true,
+    "javascript.suggest.paths": false,
+    "javascript.preferences.importModuleSpecifier": "non-relative",
+    "javascript.updateImportsOnFileMove.enabled": "always",
+    "[json]": {
+        "editor.quickSuggestions": {
+            "strings": true
+        },
+        "editor.suggest.insertMode": "replace",
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.fixAll": true
+        }
+    },
+    "[jsonc]": {
+        "editor.quickSuggestions": {
+            "strings": true
+        },
+        "editor.suggest.insertMode": "replace",
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.fixAll": true
+        }
+    },
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.fixAll": true
+        }
+    },
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true,
+        "node_modules": true,
+        "dist": true,
+        "**/*.spec.ts": true,
+        "coverage": true,
+        "heapdumps": true,
+        ".*": false,
+        "bin": false,
+        "www": false,
+        "*.json": false
+    },
+    "debug.javascript.usePreview": true
+}
