@@ -1,14 +1,31 @@
-import React from "react"
-import {Switch, Route} from "react-router-dom"
-import Login from "./pages/Login"
-import Test from "./pages/test"
+import React from 'react'
+import {Redirect, Route, Switch} from 'react-router-dom'
+import AuthorizedTemplate from './pages/templates/AuthorizedTemplate'
+import {
+  AuthorizedRouteConfigs,
+  UnauthorizedRouteConfigs
+} from './configs/routeConfig'
+import {Paths} from './Constants'
 
 const App = () => {
   return (
     <>
       <Switch>
-        <Route exact path="/login" component={Login} />
-        <Route exact path="/test" component={Test} />
+        {UnauthorizedRouteConfigs.map(({path, isExact, component}) => (
+          <Route key={path} exact={isExact} path={path} component={component} />
+        ))}
+        {AuthorizedRouteConfigs.map(({path, isExact, component}) => (
+          <Route
+            key={path}
+            exact={isExact}
+            path={path}
+            component={() => <AuthorizedTemplate>{component}</AuthorizedTemplate>}
+          />
+        ))}
+        />
+        <Route path="/">
+          <Redirect to={Paths.HOME} />
+        </Route>
       </Switch>
     </>
   )
