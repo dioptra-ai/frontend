@@ -10,40 +10,24 @@ const style = {
   container: {
     height: "100vh"
   },
-  row: {
-    height: "100%",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: "0 15px"
-  },
-  col: {
-    backgroundColor: "white",
-    padding: "50px 20px",
-    borderRadius: "0.25rem",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center"
-  },
   logo: {
-    width: "80px",
-    marginBottom: "30px"
-  },
-  form: {
-    width: "100%",
-    button: {
-      width: "100%",
-      color: "white"
-    }
+    width: "80px"
   }
 }
 
-export default function Login() {
+export default () => {
   return (
     <Container style={style.container}>
-      <Row style={style.row}>
-        <Col sm={12} md={8} lg={6} xl={4} style={style.col}>
-          <Image src={Logo} style={style.logo} />
-          <Form style={style.form}>
+      <Row className="h-100 p-2 align-items-center justify-content-center">
+        <Col
+          sm={12}
+          md={8}
+          lg={6}
+          xl={4}
+          className="bg-white rounded px-3 py-5 d-flex flex-column align-items-center"
+        >
+          <Image src={Logo} className="mb-5" style={style.logo} />
+          <Form className="w-100">
             <Form.Group className="mb-3" controlId="formBasicEmail">
               <Form.Label>Email address</Form.Label>
               <Form.Control type="email" name="email" />
@@ -54,7 +38,11 @@ export default function Login() {
               <Form.Control type="password" name="password" />
             </Form.Group>
 
-            <Button variant="primary" type="submit" style={style.form.button}>
+            <Button
+              variant="primary"
+              type="submit"
+              className="w-100 mt-3 text-white"
+            >
               Log In
             </Button>
           </Form>
