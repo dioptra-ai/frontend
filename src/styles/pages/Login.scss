@@ -1,0 +1,21 @@
+.Login {
+    height: 100vh;
+    button {
+        opacity: 0.5;
+    }
+    .form-control {
+        &.error {
+            border: 1px solid #F8886C !important;
+        }
+        &:focus {
+            border: 1px solid #405364 !important;
+            box-shadow: none;
+        }
+        &::placeholder {
+            color: #8C9AA7 !important;
+        }
+    }
+    .password-link {
+        text-decoration: none;
+    }
+}

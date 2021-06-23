@@ -1,5 +1,5 @@
 import React from 'react'
-import Logo from './Logo'
+import LogoSymbol from './LogoSymbol'
 import MenuItem from './MenuItem'
 import {BottomMenuItemsConfig, TopMenuItemsConfig} from '../configs/menuConfig'
 import {Link, useLocation} from 'react-router-dom'
@@ -29,7 +29,7 @@ const Menu = () => {
   return (
     <div className="menu py-3 d-flex flex-column">
       <div className="d-flex justify-content-center">
-        <Logo width={65} height={65} />
+        <LogoSymbol width={40} />
       </div>
       <div className="d-flex flex-column justify-content-between flex-grow-1 my-2">
         <div>{renderItems(TopMenuItemsConfig)}</div>

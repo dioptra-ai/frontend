@@ -7,7 +7,7 @@ const MenuItem = ({icon, isActive, size, className}) => {
       <FontIcon
         icon={icon}
         size={size}
-        className={`text-${isActive ? 'primary' : 'muted'}`}
+        className={`text-${isActive ? 'primary' : 'dark'}`}
       />
     </div>
   )
