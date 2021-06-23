@@ -22,7 +22,6 @@ const App = () => {
             component={() => <AuthorizedTemplate>{component}</AuthorizedTemplate>}
           />
         ))}
-        />
         <Route path="/">
           <Redirect to={Paths.HOME} />
         </Route>
