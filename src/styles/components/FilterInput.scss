@@ -11,7 +11,7 @@
         outline: none;
         background-color: transparent;
         &::placeholder {
-            color: #8C9AA7;
+            color: $secondary;
         }
     }
     .btn {
@@ -25,7 +25,7 @@
     height: 45px;
     background-color: white;
     border-radius: 5px;
-    color: #405364;
+    color: $dark;
     border: 1px solid #E5E5E5;
     button {
         margin-left: 10px;
@@ -37,12 +37,12 @@
         cursor: pointer;
         border: none;
         outline: none;
-        color: #405364;
+        color: $dark;
     }
 }
 .clear {
     font-weight: bold;
-    border-bottom: 1px solid #405364;
+    border-bottom: 1px solid $dark;
     padding-bottom: 2px;
     cursor: pointer;
 }

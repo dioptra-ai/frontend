@@ -4,15 +4,16 @@
         opacity: 0.5;
     }
     .form-control {
+        border: 1px solid transparent;
         &.error {
-            border: 1px solid #F8886C !important;
+            border: 1px solid $warning;
         }
         &:focus {
-            border: 1px solid #405364 !important;
+            border: 1px solid $dark;
             box-shadow: none;
         }
         &::placeholder {
-            color: #8C9AA7 !important;
+            color: $secondary;
         }
     }
     .password-link {
