@@ -40,15 +40,14 @@ workflows:
   "Integration":
     jobs:
       - build_test:
-        filters:
-          branches:
-            ignore:
-              - main
+          filters:
+            branches:
+              ignore:
+                - main
   "Distribution":
     jobs:
       - build_test_push:
-        filters:
-          branches:
-            only:
-              - main
-
+          filters:
+            branches:
+              only:
+                - main
