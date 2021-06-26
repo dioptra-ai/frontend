@@ -39,13 +39,13 @@ jobs:
 workflows:
   "Integration":
     jobs:
-      - build-test
-    triggers:
-      - ignore:
-        - main
+      - build-test:
+        filters:
+          branches:
+            ignore: main
   "Distribution":
     jobs:
-      - build-test-push
-    triggers:
-      - only:
-        - main
+      - build-test-push:
+        filters:
+          branches:
+            only: main
