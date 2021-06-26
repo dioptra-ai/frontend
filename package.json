@@ -4,7 +4,8 @@
   "description": "",
   "main": "src/index.js",
   "scripts": {
-    "test": "echo \"TODO: add tests...\""
+    "test": "echo \"TODO: add tests...\"",
+    "lint": "eslint . --fix --ext .js"
   },
   "repository": {
     "type": "git",
@@ -15,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/dioptra-ai/frontend/issues"
   },
-  "homepage": "https://github.com/dioptra-ai/frontend#readme"
+  "homepage": "https://github.com/dioptra-ai/frontend#readme",
+  "dependencies": {
+    "eslint": "^7.29.0"
+  }
 }
