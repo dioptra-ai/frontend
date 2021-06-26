@@ -41,13 +41,13 @@ workflows:
     jobs:
       - build-test
     triggers:
-      branches:
+      - branches:
         ignore:
           - main
   "Distribution":
     jobs:
       - build-test-push
     triggers:
-      branches:
+      - branches:
         only:
           - main
