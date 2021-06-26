@@ -2,47 +2,44 @@
 # See: https://circleci.com/docs/2.0/configuration-reference
 version: 2.1
 
-orbs:
-  # The Node.js orb contains a set of prepackaged CircleCI configuration you can utilize
-  # Orbs reduce the amount of configuration required for common tasks. 
-  # See the orb documentation here: https://circleci.com/developer/orbs/orb/circleci/node
-  node: circleci/node@4.1
-
-
 jobs:
-  # Below is the definition of your job to build and test your app, you can rename and customize it as you want.
-  build-and-test:  
-    # These next lines define a Docker executor: https://circleci.com/docs/2.0/executor-types/
-    # You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
-    # A list of available CircleCI Docker Convenience Images are available here: https://circleci.com/developer/images/image/cimg/node
+  build-test:
     docker:
-      - image: cimg/node:15.1
-    # Then run your tests!
-    # CircleCI will report the results back to your VCS provider.
+      - image: circleci/golang:1.15
     steps:
-      # Checkout the code as the first step.
       - checkout
-      # Next, the node orb's install-packages step will install the dependencies from a package.json.
-      # The orb install-packages step will also automatically cache them for faster future runs.
-      - node/install-packages
+      - setup_remote_docker:
+          version: 19.03.13
+          # Not available in Free plan
+          # docker_layer_caching: true
+      - run: |
+          TAG=0.1.1.$CIRCLE_BUILD_NUM
+          docker build -t dioptraai/frontend:$TAG .
+          docker run dioptraai/frontend:$TAG -t npm run test
 
-      - run:
-          name: Lint code
-          command: npm run lint
-      # If you are using yarn instead npm, remove the line above and uncomment the two lines below.
-      # - node/install-packages:
-      #     pkg-manager: yarn 
-      - run:
-          name: Run tests
-          command: npm test
+  build-test-push:
+    docker:
+      - image: circleci/golang:1.15
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 19.03.13
+          # Not available in Free plan
+          # docker_layer_caching: true
+      - run: |
+          TAG=0.1.1.$CIRCLE_BUILD_NUM
+          docker build -t dioptraai/frontend:$TAG .
+          docker run dioptraai/frontend:$TAG -t npm run test
+          echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+          docker push dioptraai/frontend:$TAG
 
 workflows:
-  # Below is the definition of your workflow.
-  # Inside the workflow, you provide the jobs you want to run, e.g this workflow runs the build-and-test job above.
-  # CircleCI will run this workflow on every commit.
-  # For more details on extending your workflow, see the configuration docs: https://circleci.com/docs/2.0/configuration-reference/#workflows
-  "Continuous Integration Workflow":
+  "Integration":
     jobs:
-      - build-and-test
-      # For running simple node tests, you could optionally use the node/test job from the orb to replicate and replace the job above in fewer lines.
-      # - node/test
+      - build-test
+  "Distribution":
+    jobs:
+      - build-test-push
