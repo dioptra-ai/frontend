@@ -3,7 +3,7 @@
 version: 2.1
 
 jobs:
-  build-test:
+  build_test:
     docker:
       - image: circleci/golang:1.15
     steps:
@@ -15,9 +15,9 @@ jobs:
       - run: |
           TAG=0.1.1.$CIRCLE_BUILD_NUM
           docker build -t dioptraai/frontend:$TAG .
-          docker run  -t dioptraai/frontend:$TAG npm run test
+          docker run dioptraai/frontend:$TAG npm run test
 
-  build-test-push:
+  build_test_push:
     docker:
       - image: circleci/golang:1.15
         auth:
@@ -32,20 +32,23 @@ jobs:
       - run: |
           TAG=0.1.1.$CIRCLE_BUILD_NUM
           docker build -t dioptraai/frontend:$TAG .
-          docker run  -t dioptraai/frontend:$TAG npm run test
+          docker run dioptraai/frontend:$TAG npm run test
           echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
           docker push dioptraai/frontend:$TAG
 
 workflows:
   "Integration":
     jobs:
-      - build-test:
+      - build_test:
         filters:
           branches:
-            ignore: main
+            ignore:
+              - main
   "Distribution":
     jobs:
-      - build-test-push:
+      - build_test_push:
         filters:
           branches:
-            only: main
+            only:
+              - main
+
