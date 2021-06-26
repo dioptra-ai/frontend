@@ -1,0 +1,82 @@
+@font-face {
+    font-family: 'MLM-Icons';
+    src:  url('/assets/fonts/MLM/MLM-Icons.eot?vl4nxv');
+    src:  url('/assets/fonts/MLM/MLM-Icons.eot?vl4nxv#iefix') format('embedded-opentype'),
+      url('/assets/fonts/MLM/MLM-Icons.ttf?vl4nxv') format('truetype'),
+      url('/assets/fonts/MLM/MLM-Icons.woff?vl4nxv') format('woff'),
+      url('/assets/fonts/MLM/MLM-Icons.svg?vl4nxv#MLM-Icons') format('svg');
+    font-weight: normal;
+    font-style: normal;
+    font-display: block;
+  }
+  
+  [class^="Icon-"], [class*=" Icon-"] {
+    /* use !important to prevent issues with browser extensions that change fonts */
+    font-family: 'MLM-Icons' !important;
+    speak: never;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+  
+    /* Better Font Rendering =========== */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  .Icon-Alerts-Bell:before {
+    content: "\e900";
+  }
+  .Icon-Arrow-Down:before {
+    content: "\e901";
+  }
+  .Icon-Arrow-Up:before {
+    content: "\e902";
+  }
+  .Icon-Bin:before {
+    content: "\e903";
+  }
+  .Icon-Check:before {
+    content: "\e904";
+  }
+  .Icon-Date:before {
+    content: "\e905";
+  }
+  .Icon-Edit:before {
+    content: "\e906";
+  }
+  .Icon-Experimentations:before {
+    content: "\e907";
+  }
+  .Icon-Home:before {
+    content: "\e908";
+  }
+  .Icon-Info:before {
+    content: "\e909";
+  }
+  .Icon-Plus-Minus:before {
+    content: "\e90a";
+  }
+  .Icon-Models:before {
+    content: "\e90b";
+  }
+  .Icon-Plus:before {
+    content: "\e90c";
+  }
+  .Icon-Refresh:before {
+    content: "\e90d";
+  }
+  .Icon-Search:before {
+    content: "\e90e";
+  }
+  .Icon-Setting:before {
+    content: "\e90f";
+  }
+  .Icon-User:before {
+    content: "\e910";
+  }
+  .Icon-Warning:before {
+    content: "\e911";
+  }
+  

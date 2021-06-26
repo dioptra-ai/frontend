@@ -1,0 +1,21 @@
+.menu {
+  height: 100vh;
+  position: fixed;
+  width: $menu-width;
+  background-color: $gray-300;
+
+  a {
+    text-decoration: none !important;
+  }
+
+  .menu-item {
+
+    :hover {
+      cursor: pointer;
+    }
+  }
+}
+
+.authorized-content {
+  margin-left: $menu-width;
+}
