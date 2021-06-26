@@ -1,11 +1,17 @@
 import {useState} from 'react';
 import Button from 'react-bootstrap/Button';
+import PropTypes from 'prop-types';
 
 const Filter = ({filter, onDelete}) => (
-    <span className='Filter'>
+    <span className='filter'>
         {filter} <button onClick={onDelete}>x</button>
     </span>
 );
+
+Filter.propTypes = {
+    filter: PropTypes.string,
+    onDelete: PropTypes.func
+};
 
 const FilterInput = ({
     inputPlaceholder = 'Enter Filter (example: US, $100-$1,000...)'
@@ -57,7 +63,7 @@ const FilterInput = ({
 
     return (
         <>
-            <div className='Filter-Input'>
+            <div className='filter-input'>
                 {filters.map((filter, index) => (
                     <Filter filter={filter} key={index} onDeconste={handleRemoveFilter} />
                 ))}
@@ -89,6 +95,10 @@ const FilterInput = ({
             )}
         </>
     );
+};
+
+FilterInput.propTypes = {
+    inputPlaceholder: PropTypes.string
 };
 
 export default FilterInput;

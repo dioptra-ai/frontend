@@ -10,7 +10,7 @@ import {Link} from 'react-router-dom';
 
 const Login = () => {
     return (
-        <Container className='Login'>
+        <Container className='login'>
             <Row className='h-100 p-2 align-items-center justify-content-center'>
                 <Col
                     className='bg-white rounded px-3 py-5 d-flex flex-column align-items-center'
