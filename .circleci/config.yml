@@ -15,7 +15,7 @@ jobs:
       - run: |
           TAG=0.1.1.$CIRCLE_BUILD_NUM
           docker build -t dioptraai/frontend:$TAG .
-          docker run dioptraai/frontend:$TAG -t npm run test
+          docker run  -t dioptraai/frontend:$TAG npm run test
 
   build-test-push:
     docker:
@@ -32,7 +32,7 @@ jobs:
       - run: |
           TAG=0.1.1.$CIRCLE_BUILD_NUM
           docker build -t dioptraai/frontend:$TAG .
-          docker run dioptraai/frontend:$TAG -t npm run test
+          docker run  -t dioptraai/frontend:$TAG npm run test
           echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
           docker push dioptraai/frontend:$TAG
 
@@ -40,6 +40,14 @@ workflows:
   "Integration":
     jobs:
       - build-test
+    triggers:
+      branches:
+        ignore:
+          - main
   "Distribution":
     jobs:
       - build-test-push
+    triggers:
+      branches:
+        only:
+          - main
