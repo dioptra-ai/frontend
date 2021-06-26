@@ -1,0 +1,22 @@
+.login {
+    height: 100vh;
+    button {
+        opacity: 0.5;
+    }
+    .form-control {
+        border: 1px solid transparent;
+        &.error {
+            border: 1px solid $warning;
+        }
+        &:focus {
+            border: 1px solid $dark;
+            box-shadow: none;
+        }
+        &::placeholder {
+            color: $secondary;
+        }
+    }
+    .password-link {
+        text-decoration: none;
+    }
+}

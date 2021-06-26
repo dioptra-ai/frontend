@@ -1,0 +1,8 @@
+.tab {
+    cursor: pointer;
+    font-family: "Inter";
+    &.active {
+        cursor: auto;
+        font-family: "Inter Bold";
+    }
+}
