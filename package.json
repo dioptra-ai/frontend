@@ -1,7 +1,17 @@
 {
-  "name": "frontend",
-  "version": "0.1.0",
-  "private": true,
+  "name": "dioptra-frontend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dioptra-ai/frontend.git"
+  },
+  "author": "jacques@dioptra.ai",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/dioptra-ai/frontend/issues"
+  },
   "devDependencies": {
     "eslint": "^7.28.0",
     "eslint-plugin-prettier": "^3.4.0",
@@ -28,7 +38,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "lint": "eslint --fix --ext .js ."
+    "lint": "eslint . --fix --ext .js"
   },
   "eslintConfig": {
     "extends": [
