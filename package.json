@@ -6,9 +6,6 @@
   "engines": {
     "node": ">=16.0.0"
   },
-  "scripts": {
-    "test": "echo \"TODO: add tests...\""
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/dioptra-ai/frontend.git"
@@ -43,9 +40,9 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "test": "echo \"TODO: add tests...\"",
     "eject": "react-scripts eject",
-    "lint": "eslint . --fix --ext .js"
+    "lint": "eslint ./src --fix --ext .js"
   },
   "eslintConfig": {
     "extends": [
