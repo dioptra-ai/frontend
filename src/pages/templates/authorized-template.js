@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 
 const AuthorizedTemplate = ({children}) => {
     useEffect(() => {
-    //TODO LOGIN: Check user logged in status in app's global state, if false then redirect to Paths.LOGIN
+    // TODO LOGIN: Check user logged in status in app's global state, if false then redirect to Paths.LOGIN
     });
 
     return (
