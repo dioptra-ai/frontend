@@ -1,5 +1,18 @@
-import { ComposedChart, Area, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { ComposedChart, Area, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import PropTypes from 'prop-types';
+
+const CustomTooltip = ({ payload, label }) => {
+  if (payload && payload.length) {
+    return (
+      <div className="line-graph-tooltip bg-white p-3">
+        <p className="text-dark fw-bold fs-5 m-0">{payload[0].value}</p>
+        <p className="text-secondary m-0">{label}</p>
+      </div>
+    );
+  }
+
+  return null;
+};
 
 const LineGraph = ({title, dots, color='#1FA9C8', xAxisName='', yAxisName=''}) => {
 
@@ -19,7 +32,7 @@ const LineGraph = ({title, dots, color='#1FA9C8', xAxisName='', yAxisName=''}) =
             <CartesianGrid strokeDasharray='5 5'  />
             <XAxis dataKey='x' tick={{fill: '#8C9AA7'}} dy={5} label={{ fill: '#405364', value: xAxisName, dy: 30, fontSize: 12 }}  stroke='transparent'/>
             <YAxis domain={[0, 1]} stroke='transparent' dx={-5} tickCount={6} tick={{fill: '#8C9AA7'}} label={{ fill: '#405364', value: yAxisName, angle: -90, dx: -20, fontSize: 12 }}/>
-            <Tooltip />
+            <Tooltip content={<CustomTooltip />}/>
             <defs>
               <linearGradient id='color' x1='0' y1='0' x2='0' y2='1'>
                 <stop offset='5%' stopColor={color} stopOpacity={0.7}/>
