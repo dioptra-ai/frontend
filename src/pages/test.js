@@ -16,7 +16,7 @@ const incident = {
     ]
 };
 
-export default () => {
+const Test = () => {
     return (
         <div
             style={{
@@ -47,3 +47,5 @@ export default () => {
         </div>
     );
 };
+
+export default Test;
