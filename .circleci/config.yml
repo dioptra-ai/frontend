@@ -3,21 +3,17 @@ version: 2.1
 
 orbs:
   aws-ecr: circleci/aws-ecr@7.0.0
+  docker: circleci/docker@1.6.0
 
 jobs:
   build_test:
-    docker:
-      - image: docker:latest
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 19.03.13
-          # Not available in Free plan
-          # docker_layer_caching: true
+      - docker/build:
+          image: $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME
+      - docker/install-docker
       - run: |
-          TAG=0.1.1.$CIRCLE_BUILD_NUM
-          docker build -t dioptraai/frontend:$TAG .
-          docker run dioptraai/frontend:$TAG sh -c "npm run test"
+          docker run $CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME sh -c "npm run test"
 
 workflows:
   "Integration":
