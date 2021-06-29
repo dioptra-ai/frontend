@@ -1,7 +1,7 @@
 import PredictionAnalysis from '../../components/prediction-analysis';
 
 const Model = () => {
-    return(
+    return (
         <PredictionAnalysis />
     );
 };
