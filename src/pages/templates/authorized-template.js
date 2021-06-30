@@ -6,7 +6,7 @@ import Model from './model';
 
 const AuthorizedTemplate = ({children}) => {
     useEffect(() => {
-    // TODO LOGIN: Check user logged in status in app's global state, if false then redirect to Paths.LOGIN
+    //LOGIN: Check user logged in status in app's global state, if false then redirect to Paths.LOGIN
     });
 
     return (
