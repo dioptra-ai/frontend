@@ -5,8 +5,8 @@ const CustomTooltip = ({payload, label}) => {
     if (payload && payload.length) {
         return (
             <div className='line-graph-tooltip bg-white p-3'>
-                <p className='text-dark fw-bold fs-5 m-0'>{payload[0].value}</p>
-                <p className='text-secondary m-0'>{label}</p>
+                <p className='text-dark fw-bold fs-5 m-0'>{payload[0].value.toFixed(3)}</p>
+                <p className='text-secondary m-0 label'>{label}</p>
             </div>
         );
     }
@@ -15,14 +15,14 @@ const CustomTooltip = ({payload, label}) => {
 };
 
 CustomTooltip.propTypes = {
-    label: PropTypes.string.isRequired,
-    payload: PropTypes.array.isRequired
+    label: PropTypes.string,
+    payload: PropTypes.array
 };
 
 const LineGraph = ({title, dots, color = '#1FA9C8', xAxisName = '', yAxisName = ''}) => {
 
     return (
-        <div className='border rounded p-3' style={{height: '350px'}}>
+        <div className='border rounded p-3' style={{height: '425px'}}>
             <p className='text-dark fw-bold fs-5'>{title}</p>
             <ResponsiveContainer height='87%' width='100%'>
                 <ComposedChart

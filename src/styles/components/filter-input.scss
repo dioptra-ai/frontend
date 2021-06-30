@@ -4,7 +4,7 @@
     padding: 5px 0 5px 20px;
     background-color: #EEF4F6;
     border-radius: 5px;
-    margin-bottom: 30px;
+    position: relative;
     input {
         flex: 1;
         border: none;
@@ -18,8 +18,30 @@
         height: 45px;
         border-radius: 2px;
     }
+    .suggestions {
+        position: absolute;
+        top: 55px;
+        left: 0;
+        right: 0;
+        list-style: none;
+        box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.1);
+        padding-left: 0;
+        li {
+            padding-left: 20px;
+            height: 32px;
+            line-height: 32px;
+            cursor: pointer;
+            &.active {
+                background-color: #EEF4F6;
+            }
+            &:hover {
+                background-color: #EEF4F6;
+            }
+        }
+    }
 }
 .filter {
+    display: inline-block;
     margin-right: 20px;
     padding: 10px;
     height: 45px;
@@ -38,6 +60,9 @@
         border: none;
         outline: none;
         color: $dark;
+        &::after{
+            content: 'x';
+        }
     }
 }
 .clear {
@@ -46,6 +71,7 @@
     padding-bottom: 2px;
     cursor: pointer;
 }
+
 
 
 

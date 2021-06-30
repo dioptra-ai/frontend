@@ -17,7 +17,7 @@ const Menu = () => {
                                 className='my-5 d-flex justify-content-center'
                                 icon={icon}
                                 isActive={location.pathname.startsWith(url)}
-                                size={35}
+                                size={24}
                             />
                         </Link>
                     );
@@ -29,7 +29,7 @@ const Menu = () => {
     return (
         <div className='menu py-3 d-flex flex-column'>
             <div className='d-flex justify-content-center'>
-                <LogoSymbol width={40} />
+                <LogoSymbol height={38} width={41}/>
             </div>
             <div className='d-flex flex-column justify-content-between flex-grow-1 my-2'>
                 <div>{renderItems(TopMenuItemsConfig)}</div>

@@ -1,27 +1,30 @@
 import React, {useState} from 'react';
 import PropTypes from 'prop-types';
+import Container from 'react-bootstrap/Container';
 
-const Tabs = ({tabs = [], initial = ''}) => {
-    const [active, setActive] = useState(initial);
-
+const Tabs = ({tabs = []}) => {
+    const [active, setActive] = useState(tabs[0]);
 
     return (
-        <div className='d-flex bg-white border-bottom pt-4'>
-            {tabs.map((tab, i) => (
-                <div
-                    className={`tab ${active === tab ? 'active text-primary' : ''} px-4`}
-                    key={i}
-                    onClick={() => setActive(tab)}
-                >
-                    {tab}
-                    <span
-                        className={`d-block mt-4 border-bottom border-4 rounded-top ${
-                            active === tab ? 'border-primary' : 'border-white'
-                        }`}
-                    ></span>
-                </div>
-            ))}
-        </div>
+        <Container className='border-bottom' fluid>
+            <div className='d-flex pt-4' >
+                {tabs.map((tab, i) => (
+                    <div
+                        className={`tab ${active === tab ? 'active text-primary' : ''}`}
+                        key={i}
+                        onClick={() => setActive(tab)}
+                    >
+                        {tab}
+                        <span
+                            className={`d-block mt-4 border-bottom border-4 rounded-top ${
+                                active === tab ? 'border-primary' : 'border-white'
+                            }`}
+                        ></span>
+                    </div>
+                ))}
+            </div>
+        </Container>
+
     );
 };
 

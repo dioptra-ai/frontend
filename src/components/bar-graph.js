@@ -33,7 +33,7 @@ const BarGraph = ({title, bars, yAxisName}) => {
 
 
     return (
-        <div className='border rounded p-3' style={{height: '350px'}}>
+        <div className='border rounded p-3' style={{height: '425px'}}>
             <p className='text-dark fw-bold fs-5'>{title}</p>
             <ResponsiveContainer height='70%' width='100%'>
                 <BarChart

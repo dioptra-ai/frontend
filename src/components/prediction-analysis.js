@@ -6,7 +6,7 @@ import LineGraph from './line-graph';
 
 const PredictionAnalysis = () => {
     return (
-        <Container className='pt-5'>
+        <Container className='px-2 my-5' fluid>
             <p className='text-dark fw-bold fs-3'>Prediction analysis</p>
             <Row>
                 <Col lg={4} >
