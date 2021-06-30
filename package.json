@@ -15,7 +15,6 @@
   "bugs": {
     "url": "https://github.com/dioptra-ai/frontend/issues"
   },
-  "homepage": "https://github.com/dioptra-ai/frontend#readme",
   "devDependencies": {
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^12.0.0",
