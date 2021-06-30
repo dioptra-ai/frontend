@@ -1,22 +1,37 @@
 .login {
     height: 100vh;
-    button {
-        opacity: 0.5;
-    }
-    .form-control {
-        border: 1px solid transparent;
-        &.error {
-            border: 1px solid $warning;
+    font-size: 14px;
+    &-form {
+        width: 100%;
+        max-width: 500px;
+        .btn-submit {
+            border-radius: 5px;
+            height: 55px;
+            opacity: 0.5;
         }
-        &:focus {
-            border: 1px solid $dark;
-            box-shadow: none;
+        .input-group {
+            position: relative;
+            .form-control {
+                height: 55px;
+                border: 1px solid transparent;
+                border-radius: 5px !important;
+                &:focus {
+                    border: 1px solid $dark;
+                    box-shadow: none;
+                }
+                &.error {
+                    border: 1px solid $warning;
+                }
+                &::placeholder {
+                    color: $secondary;
+                }
+            }
+            .error-icon {
+                position: absolute;
+                right: 20px;
+                top: 17px;
+                z-index: 10;
+            }
         }
-        &::placeholder {
-            color: $secondary;
-        }
-    }
-    .password-link {
-        text-decoration: none;
     }
 }
