@@ -4,7 +4,6 @@
     padding: 5px 0 5px 20px;
     background-color: #EEF4F6;
     border-radius: 5px;
-    margin-bottom: 30px;
     position: relative;
     input {
         flex: 1;
@@ -42,6 +41,7 @@
     }
 }
 .filter {
+    display: inline-block;
     margin-right: 20px;
     padding: 10px;
     height: 45px;

@@ -1,6 +1,7 @@
 .menu {
   height: 100vh;
   position: fixed;
+  inset: 0;
   width: $menu-width;
   background-color: $gray-300;
 

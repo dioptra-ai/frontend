@@ -1,4 +1,5 @@
 import {useEffect, useState} from 'react';
+import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
 
@@ -94,8 +95,8 @@ const FilterInput = ({
     };
 
     return (
-        <>
-            <div className='filter-input'>
+        <Container className='my-5' fluid>
+            <div className='filter-input mb-4'>
                 {filters.map((filter, index) => (
                     <Filter filter={filter} key={index} onDelete={handleRemoveFilter} />
                 ))}
@@ -141,7 +142,7 @@ const FilterInput = ({
                     </span>
                 </div>
             )}
-        </>
+        </Container>
     );
 };
 

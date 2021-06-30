@@ -1,6 +1,7 @@
 .tab {
     cursor: pointer;
     font-family: "Inter";
+    margin-right: 40px;
     &.active {
         cursor: auto;
         font-family: "Inter Bold";
