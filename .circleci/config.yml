@@ -19,13 +19,13 @@ jobs:
           docker run dioptraai/frontend sh -c "npm run test"
 
 workflows:
-  # "Integration":
-  #   jobs:
-  #     - build_test:
-  #         filters:
-  #           branches:
-  #             ignore:
-  #               - main
+  "Integration":
+    jobs:
+      - build_test:
+          filters:
+            branches:
+              ignore:
+                - main
   "Distribution":
     jobs:
       - aws-ecr/build-and-push-image:
@@ -40,7 +40,7 @@ workflows:
           tag: 0.1.1.$CIRCLE_BUILD_NUM,latest
           context:
             - aws-creds
-          # filters:
-          #   branches:
-          #     only:
-          #       - main
+          filters:
+            branches:
+              only:
+                - main
