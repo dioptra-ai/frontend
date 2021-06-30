@@ -1,0 +1,35 @@
+version: '3'
+
+services:
+  db:
+    image: mongo:latest
+    container_name: dioptra-db
+    restart: unless-stopped
+    volumes:  
+      - dioptra-dbdata:/data/db
+    ports: 
+      - "4005:27017"
+    networks:
+      - app-network
+
+  nodejs:
+    depends_on:
+      - db
+    build: .
+    image: dioptrawebapp:latest
+    container_name: dioptra-web-app
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      MONGO_URL: "mongodb://dioptra-db:27017/dioptra"
+    ports:
+      - "4004:4004"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  dioptra-dbdata: {}

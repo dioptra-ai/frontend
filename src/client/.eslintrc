@@ -1,0 +1,30 @@
+{
+    "extends": [
+        "plugin:react/recommended"
+    ],
+        "globals": {
+        "React": true,
+        "Component": true,
+        "PropTypes": true
+    },
+    "plugins": [
+        "react"
+    ],
+    "settings": {
+        "react": {
+            "version": "detect"
+        }
+    },
+    "rules": {
+        "react/no-unescaped-entities": "off",
+        "react/react-in-jsx-scope": "off",
+        "react/default-props-match-prop-types": "error",
+        "react/sort-prop-types": ["error", {
+            "ignoreCase": true
+        }],
+        "react/jsx-sort-props": ["error", {
+            "ignoreCase": true
+        }],
+        "react/jsx-no-undef": ["error", {"allowGlobals": true}]
+    }
+}

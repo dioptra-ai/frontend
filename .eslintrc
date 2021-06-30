@@ -6,8 +6,7 @@
     "node": true
   },
   "extends": [
-      "eslint:recommended",
-      "plugin:react/recommended"
+      "eslint:recommended"
   ],
   "parser": "babel-eslint",
   "parserOptions": {
@@ -17,32 +16,11 @@
       "ecmaVersion": 9,
       "sourceType": "module"
   },
-  "plugins": [
-      "react"
-  ],
-  "settings": {
-      "react": {
-          "version": "detect"
-      }
-  },
   "globals": {
       "window": true,
-      "stickyfill": true,
-      "React": true,
-      "Component": true,
-      "PropTypes": true
+      "stickyfill": true
   },
   "rules": {
-      "react/no-unescaped-entities": "off",
-      "react/react-in-jsx-scope": "off",
-      "react/default-props-match-prop-types": "error",
-      "react/sort-prop-types": ["error", {
-          "ignoreCase": true
-      }],
-      "react/jsx-sort-props": ["error", {
-          "ignoreCase": true
-      }],
-      "react/jsx-no-undef": ["error", {"allowGlobals": true}],
       "accessor-pairs": "error",
       "array-bracket-newline": ["error", "consistent"],
       "array-bracket-spacing": "error",
