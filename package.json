@@ -44,7 +44,7 @@
     "build": "react-scripts build",
     "test": "echo \"TODO: add tests...\"",
     "eject": "react-scripts eject",
-    "lint": "eslint ./src --fix --ext .js",
+    "lint": "eslint ./src --fix --cache --ext .js",
     "prepare": "husky install"
   },
   "eslintConfig": {
