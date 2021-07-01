@@ -16,8 +16,8 @@ services:
     depends_on:
       - db
     build: .
-    image: dioptrawebapp:latest
-    container_name: dioptra-web-app
+    image: dioptra-frontend:latest
+    container_name: dioptra-frontend
     restart: unless-stopped
     env_file: .env
     environment:

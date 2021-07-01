@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const path = require('path');
 const mongoose = require('mongoose');
-const User = require('./src/api/models/user');
+const User = require('./src/server/models/user');
 
 require('dotenv').config();
 
@@ -19,16 +19,16 @@ mongoose.connect(process.env.MONGO_URL, {useNewUrlParser: true, useUnifiedTopolo
         });
     });
 
-app.use(express.static(path.join(__dirname, '/src/client/build')));
+app.use(express.static(path.join(__dirname, '/build')));
 
 // Serve frontend
 app.get('/', (req, res) => {
-    res.sendFile(path.resolve(__dirname, 'src', 'client', 'build', 'index.html'));
+    res.sendFile(path.resolve(__dirname, 'build', 'index.html'));
 });
 
 // Serve API
 // Register all controller routes to /api/ basepath
-require('./src/api/controllers')(app, '/api/');
+require('./src/server/controllersers')(app, '/api/');
 
 const port = 4004;
 
