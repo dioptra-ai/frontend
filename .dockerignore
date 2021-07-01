@@ -1,4 +1,4 @@
-**/node_modules
-src/client/build/
+node_modules
+build
 .env
 .vscode

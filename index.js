@@ -28,7 +28,7 @@ app.get('/', (req, res) => {
 
 // Serve API
 // Register all controller routes to /api/ basepath
-require('./src/server/controllersers')(app, '/api/');
+require('./src/server/controllers')(app, '/api/');
 
 const port = 4004;
 
