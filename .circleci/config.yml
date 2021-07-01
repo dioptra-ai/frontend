@@ -11,10 +11,6 @@ jobs:
       - image: docker:latest
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 19.03.13
-          # Not available in Free plan
-          # docker_layer_caching: true
       - run: |
           docker build -t dioptraai/frontend .
           docker run dioptraai/frontend sh -c "npm test"
