@@ -27,7 +27,7 @@ workflows:
           run-command: lint
       - test:
           requires:
-            - node/test
+            - lint
       - aws-ecr/build-and-push-image:
           name: package
           account-url: AWS_ECR_ACCOUNT_URL
