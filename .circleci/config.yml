@@ -43,7 +43,7 @@ workflows:
             - aws-creds
           requires:
             - test
-          # filters:
-          #   branches:
-          #     only:
-          #       - main
+          filters:
+            branches:
+              only:
+                - main
