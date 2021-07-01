@@ -16,12 +16,14 @@ const Login = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        if (loginData.email === '' || loginData.password === '') {
-            return;
+        if (loginData.email === '') {
+            setEmailError('Please enter your email address.');
+        } else if (loginData.password === '') {
+            setPasswordError('Please enter your password.');
+        } else {
+            setEmailError('Something went wrong!');
+            setPasswordError('Something went wrong!');
         }
-        console.log(loginData);
-        setEmailError('Something went wrong!');
-        setPasswordError('Something went wrong!');
     };
 
     return (
@@ -76,12 +78,12 @@ const Login = () => {
                             LOG IN
                     </Button>
                 </Form>
-                <Link className='text-dark mt-3' to='forgot password'>
+                <Link className='text-dark mt-3' to='forgot-password'>
                         Forgot password?
                 </Link>
                 <p className='text-secondary text-center border-top border-muted mt-5 p-2'>
                             If you need help with log in, please contact us at{' '}
-                    <a className='text-secondary' href=''>
+                    <a className='text-secondary' href='mailto:support@dioptra.com'>
                             support@dioptra.com
                     </a>
                 </p>
