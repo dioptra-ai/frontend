@@ -6,7 +6,7 @@ import ModelDescription from '../../components/model-description';
 const Model = () => {
     return (
         <>
-          <ModelDescription
+            <ModelDescription
                 deployed='May 5th, 2021 at 18:30'
                 description='Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque bibendum sem eget convallis malesuada. Quisque accumsan nisi ut ipsum tincidunt, a posuere nisi viverra. Quisque a lorem tellus.'
                 incidents={4}
