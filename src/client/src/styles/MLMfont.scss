@@ -1,15 +1,15 @@
 @font-face {
     font-family: 'MLM-Icons';
-    src:  url('/assets/fonts/MLM/MLM-Icons.eot?vl4nxv');
-    src:  url('/assets/fonts/MLM/MLM-Icons.eot?vl4nxv#iefix') format('embedded-opentype'),
-      url('/assets/fonts/MLM/MLM-Icons.ttf?vl4nxv') format('truetype'),
-      url('/assets/fonts/MLM/MLM-Icons.woff?vl4nxv') format('woff'),
-      url('/assets/fonts/MLM/MLM-Icons.svg?vl4nxv#MLM-Icons') format('svg');
+    src:  url('../assets/fonts/MLM/MLM-Icons.eot?vl4nxv');
+    src:  url('../assets/fonts/MLM/MLM-Icons.eot?vl4nxv#iefix') format('embedded-opentype'),
+      url('../assets/fonts/MLM/MLM-Icons.ttf?vl4nxv') format('truetype'),
+      url('../assets/fonts/MLM/MLM-Icons.woff?vl4nxv') format('woff'),
+      url('../assets/fonts/MLM/MLM-Icons.svg?vl4nxv#MLM-Icons') format('svg');
     font-weight: normal;
     font-style: normal;
     font-display: block;
   }
-  
+
   [class^="Icon-"], [class*=" Icon-"] {
     /* use !important to prevent issues with browser extensions that change fonts */
     font-family: 'MLM-Icons' !important;
@@ -19,12 +19,12 @@
     font-variant: normal;
     text-transform: none;
     line-height: 1;
-  
+
     /* Better Font Rendering =========== */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
-  
+
   .Icon-Alerts-Bell:before {
     content: "\e900";
   }
@@ -79,4 +79,3 @@
   .Icon-Warning:before {
     content: "\e911";
   }
-  
