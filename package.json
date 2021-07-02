@@ -59,7 +59,8 @@
     "start:frontend": "webpack serve --mode=development --open --hot",
     "build:frontend": "webpack --mode=production",
     "lint": "eslint ./src/client --cache --fix --ext .js",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "test": "echo \"TODO: add tests...\""
   },
   "eslintConfig": {
     "extends": [
