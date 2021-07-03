@@ -16,7 +16,7 @@ const App = () => {
                 ))}
                 {AuthorizedRouteConfigs.map(({path, isExact, component}) => (
                     <Route
-                        component={() => <AuthorizedTemplate>{component}</AuthorizedTemplate>}
+                        component={() => <AuthorizedTemplate>{component && component()}</AuthorizedTemplate>}
                         exact={isExact}
                         key={path}
                         path={path}

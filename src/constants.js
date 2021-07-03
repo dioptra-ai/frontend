@@ -2,6 +2,7 @@ export const Paths = {
     HOME: '/home',
     LOGIN: '/login',
     MODELS: '/models',
+    MODEL: '/models/:id',
     EXPERIMENTATIONS: '/experimentations',
     ALERTS: '/alerts',
     SETTINGS: '/settings',

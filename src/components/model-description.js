@@ -10,7 +10,7 @@ const ModelDescription = ({title, description, owner, version, tier, deployed, i
 
     return (
         <Container className='bg-light' fluid >
-            <Row className='align-items-center py-4'>
+            <Row className='align-items-center mb-5'>
                 <Col>
                     <span className='text-dark fs-2 fw-bold'>{title}</span>
                     <button className='btn-expand bg-transparent' onClick={() => setExpand(!expand)}>
