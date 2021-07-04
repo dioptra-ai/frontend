@@ -5,6 +5,8 @@ import {Route, useLocation} from 'react-router-dom';
 import {ModelTabs, ModelTabsConfigs, getModelTab} from '../../../configs/model-config';
 import Container from 'react-bootstrap/Container';
 import {Paths} from '../../../configs/route-config';
+import GeneralSearchBar from '../general-search-bar';
+import React from 'react';
 
 const model = {
     id: 1,
@@ -22,6 +24,7 @@ const Model = () => {
 
     return (
         <>
+            <GeneralSearchBar/>
             <Breadcrumb links={[
                 {name: 'Models', path: Paths().MODELS},
                 {name: model.name, path: Paths(model.id).MODEL_PERFORMANCE_OVERVIEW},
