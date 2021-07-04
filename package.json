@@ -2,7 +2,7 @@
   "name": "dioptra-frontend",
   "version": "1.0.0",
   "description": "",
-  "main": "src/index.js",
+  "main": "index.mjs",
   "engines": {
     "node": ">=16.0.0"
   },
@@ -54,7 +54,7 @@
     "recharts": "^2.0.9"
   },
   "scripts": {
-    "start": "node index.js",
+    "start": "node index.mjs",
     "dev-server": "nodemon --watch src/api --watch src/config --watch src/libs index.js",
     "start:frontend": "webpack serve --mode=development --open --hot",
     "build:frontend": "webpack --mode=production",
