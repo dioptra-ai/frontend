@@ -4,7 +4,7 @@ import Tabs from '../../../components/tabs';
 import {Route, useLocation} from 'react-router-dom';
 import {ModelTabs, ModelTabsConfigs, getModelTab} from '../../../configs/model-config';
 import Container from 'react-bootstrap/Container';
-import {useEffect, useState} from 'react';
+import {Paths} from '../../../configs/route-config';
 
 const model = {
     id: 1,
@@ -18,19 +18,14 @@ const model = {
 };
 
 const Model = () => {
-    const pathname = useLocation().pathname;
-    const [modelTab, setModelTab] = useState(getModelTab(model.id, pathname));
-
-    useEffect(() => {
-        setModelTab(getModelTab(model.id, pathname));
-    }, [pathname]);
+    const location = useLocation();
 
     return (
         <>
             <Breadcrumb links={[
-                {name: 'Models', path: '/models'},
-                {name: model.name, path: `/models/${model.id}/performance-overview`},
-                {...modelTab}
+                {name: 'Models', path: Paths().MODELS},
+                {name: model.name, path: Paths(model.id).MODEL_PERFORMANCE_OVERVIEW},
+                {...getModelTab(model.id, location.pathname)}
             ]}/>
             <ModelDescription
                 deployed={model.deployed}
@@ -52,7 +47,7 @@ const Model = () => {
                             <h2 className='text-dark fw-bold my-4'>{tab.name}</h2>
                             {component && component()}
                         </Container>)}
-                    exact={true}
+                    exact
                     key={tab.path}
                     path={tab.path}
                 />

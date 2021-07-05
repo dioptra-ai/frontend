@@ -14,7 +14,6 @@ const Breadcrumb = ({links = []}) => {
                     </span>
                 ))}
             </div>
-
         </Container>
     );
 };

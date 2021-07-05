@@ -1,3 +1,5 @@
+import {ModelTabNames} from '../constants';
+import {Paths} from './route-config';
 import PerformanceOverview from '../pages/templates/model-template/performance-overview';
 import PerformanceDetails from '../pages/templates/model-template/performance-details';
 import FeatureIntegrity from '../pages/templates/model-template/feature-integrity';
@@ -5,10 +7,10 @@ import IncidentsAndAlerts from '../pages/templates/model-template/incidents-and-
 
 export const ModelTabs = (id) => (
     [
-        {name: 'Performance Overview', path: `/models/${id}/performance-overview`},
-        {name: 'Performance Details', path: `/models/${id}/performance-details`},
-        {name: 'Feature Integrity', path: `/models/${id}/feature-integrity`},
-        {name: 'Incidents & Alerts', path: `/models/${id}/incidents-&-alerts`}
+        {name: ModelTabNames.PERFORMANCE_OVERVIEW, path: Paths(id).MODEL_PERFORMANCE_OVERVIEW},
+        {name: ModelTabNames.PERFORMANCE_DETAILS, path: Paths(id).MODEL_PERFORMANCE_DETAILS},
+        {name: ModelTabNames.FEATURE_INTEGRITY, path: Paths(id).MODEL_FEATURE_INTEGRITY},
+        {name: ModelTabNames.INCIDENTS_AND_ALERTS, path: Paths(id).MODEL_INCIDENTS_AND_ALERTS}
     ]
 );
 

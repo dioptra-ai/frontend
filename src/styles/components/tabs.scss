@@ -2,8 +2,14 @@
     font-family: "Inter";
     margin-right: 40px;
     text-decoration: none;
+    span {
+      border-bottom: 4px solid white;
+    }
     &.active {
         cursor: auto;
         font-family: "Inter Bold";
+        span {
+            border-color: $primary;
+        }
     }
 }
