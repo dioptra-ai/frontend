@@ -3,9 +3,8 @@ import {Redirect, Route, Switch} from 'react-router-dom';
 import AuthorizedTemplate from './pages/templates/authorized-template';
 import {
     AuthorizedRouteConfigs,
-    UnauthorizedRouteConfigs
+    Paths, UnauthorizedRouteConfigs
 } from './configs/route-config';
-import {Paths} from './constants';
 
 const App = () => {
     return (
@@ -16,14 +15,14 @@ const App = () => {
                 ))}
                 {AuthorizedRouteConfigs.map(({path, isExact, component}) => (
                     <Route
-                        component={() => <AuthorizedTemplate>{component}</AuthorizedTemplate>}
+                        component={() => <AuthorizedTemplate>{component && component()}</AuthorizedTemplate>}
                         exact={isExact}
                         key={path}
                         path={path}
                     />
                 ))}
                 <Route path='/'>
-                    <Redirect to={Paths.HOME} />
+                    <Redirect to={Paths().HOME} />
                 </Route>
             </Switch>
         </>

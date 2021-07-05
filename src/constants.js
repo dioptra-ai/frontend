@@ -1,13 +1,3 @@
-export const Paths = {
-    HOME: '/home',
-    LOGIN: '/login',
-    MODELS: '/models',
-    EXPERIMENTATIONS: '/experimentations',
-    ALERTS: '/alerts',
-    SETTINGS: '/settings',
-    PROFILE: '/profile'
-};
-
 export const IconNames = {
     ALERTS_BELL: 'Alerts-Bell',
     ARROW_DOWN: 'Arrow-Down',
@@ -27,4 +17,11 @@ export const IconNames = {
     SETTING: 'Setting',
     USER: 'User',
     WARNING: 'Warning'
+};
+
+export const ModelTabNames = {
+    PERFORMANCE_OVERVIEW: 'Performance Overview',
+    PERFORMANCE_DETAILS: 'Performance Details',
+    FEATURE_INTEGRITY: 'Feature Integrity',
+    INCIDENTS_AND_ALERTS: 'Incidents & Alerts'
 };

@@ -1,4 +1,3 @@
-import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import BarGraph from './bar-graph';
@@ -6,7 +5,7 @@ import LineGraph from './line-graph';
 
 const PredictionAnalysis = () => {
     return (
-        <Container className='px-2 my-5' fluid>
+        <div className='my-5'>
             <p className='text-dark fw-bold fs-3'>Prediction analysis</p>
             <Row>
                 <Col lg={4} >
@@ -42,7 +41,7 @@ const PredictionAnalysis = () => {
                     />
                 </Col>
             </Row>
-        </Container>
+        </div>
     );
 };
 
