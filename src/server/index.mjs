@@ -4,7 +4,9 @@ import {dbConfig} from './models/index.mjs';
 const serverConfig = function() {
     const result = dotenv.config();
 
-    if (result.error) throw result.error;
+    if (result.error) {
+        throw result.error;
+    }
 
     // // Ensure required ENV vars are set
     const requiredEnv = ['PORT', 'DB_CONNECTION_URI'];

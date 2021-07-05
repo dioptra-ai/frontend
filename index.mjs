@@ -16,7 +16,7 @@ import ApiRouter from './src/server/api-router.mjs';
 app.use('/api', ApiRouter);
 
 // Serve frontend
-app.get('*', (req, res) => {
+app.get('*', (req, res, next) => {
     res.sendFile(resolve(basePath, 'src', 'client', 'build', 'index.html'));
 });
 
