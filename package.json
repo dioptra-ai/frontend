@@ -58,7 +58,7 @@
     "dev-server": "nodemon --watch src/api --watch src/config --watch src/libs index.js",
     "start:frontend": "webpack serve --mode=development --open --hot",
     "build:frontend": "webpack --mode=production",
-    "lint": "eslint ./src/client --cache --fix --ext .js",
+    "lint": "eslint ./src --cache --fix --ext .js --ext .mjs",
     "prepare": "husky install",
     "test": "echo \"TODO: add tests...\""
   },
