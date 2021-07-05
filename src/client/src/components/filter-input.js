@@ -1,15 +1,18 @@
 import {useEffect, useState} from 'react';
-import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
+import FontIcon from './font-icon';
 
-const Filter = ({filter, onDelete}) => (
-    <span className='filter'>
-        {filter} <button onClick={onDelete}/>
+const Filter = ({filter, onDelete, applied = false}) => (
+    <span className={`filter ${applied ? 'applied' : ''}`}>
+        {filter} <button onClick={onDelete}>
+            <FontIcon className='text-dark' icon='Close' size={10}/>
+        </button>
     </span>
 );
 
 Filter.propTypes = {
+    applied: PropTypes.bool,
     filter: PropTypes.string,
     onDelete: PropTypes.func
 };
@@ -95,7 +98,7 @@ const FilterInput = ({
     };
 
     return (
-        <Container className='my-5' fluid>
+        <div className='my-5'>
             <div className='filter-input mb-4'>
                 {filters.map((filter, index) => (
                     <Filter filter={filter} key={index} onDelete={handleRemoveFilter} />
@@ -108,7 +111,7 @@ const FilterInput = ({
                     value={newFilter}
                 />
                 <Button
-                    className='bg-dark text-white border-0'
+                    className='bg-dark text-white border-0 fw-bold'
                     onClick={() => {
                         setApplied([...appliedFilters, ...filters]);
                         setFilters([]);
@@ -135,14 +138,14 @@ const FilterInput = ({
             {appliedFilters.length !== 0 && (
                 <div>
                     {appliedFilters.map((filter, index) => (
-                        <Filter filter={filter} key={index} onDelete={handleRemoveApplied} />
+                        <Filter applied={true} filter={filter} key={index} onDelete={handleRemoveApplied} />
                     ))}
                     <span className='text-dark clear' onClick={() => setApplied([])}>
                         CLEAR ALL
                     </span>
                 </div>
             )}
-        </Container>
+        </div>
     );
 };
 

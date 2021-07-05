@@ -1,8 +1,6 @@
 import React, {useEffect} from 'react';
 import Menu from '../../components/menu';
 import PropTypes from 'prop-types';
-import {Route} from 'react-router-dom';
-import Model from './model';
 
 const AuthorizedTemplate = ({children}) => {
     useEffect(() => {
@@ -13,14 +11,13 @@ const AuthorizedTemplate = ({children}) => {
         <div>
             <Menu />
             <div className='px-0 bg-white authorized-content'>{children}
-                <Route component={Model} path={'/models'}/>
             </div>
         </div>
     );
 };
 
 AuthorizedTemplate.propTypes = {
-    children: PropTypes.element
+    children: PropTypes.object
 };
 
 export default AuthorizedTemplate;
