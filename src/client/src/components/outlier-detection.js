@@ -1,4 +1,3 @@
-
 import {Area, CartesianGrid, ComposedChart, ResponsiveContainer, Scatter, XAxis, YAxis, ZAxis} from 'recharts';
 import Legend from './graph-legend';
 import Table from './table';
@@ -176,8 +175,6 @@ const tableData = [
 ];
 
 const OutlierDetection = () => {
-    console.log(theme);
-
     return (
         <div className='my-5'>
             <p className='text-dark fw-bold fs-3'>Outlier detection</p>
