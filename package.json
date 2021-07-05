@@ -55,7 +55,7 @@
   },
   "scripts": {
     "start": "node index.mjs",
-    "dev-server": "nodemon --watch src/api --watch src/config --watch src/libs index.js",
+    "dev-server": "nodemon --watch src/server index.mjs",
     "start:frontend": "webpack serve --mode=development --open --hot",
     "build:frontend": "webpack --mode=production",
     "lint": "eslint ./src --cache --fix --ext .js --ext .mjs",
