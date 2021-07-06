@@ -1,3 +1,5 @@
+import React from 'react';
+import GeneralSearchBar from '../general-search-bar';
 import ModelDescription from '../../../components/model-description';
 import Breadcrumb from '../../../components/breadcrumb';
 import Tabs from '../../../components/tabs';
@@ -22,6 +24,7 @@ const Model = () => {
 
     return (
         <>
+            <GeneralSearchBar/>
             <Breadcrumb links={[
                 {name: 'Models', path: Paths().MODELS},
                 {name: model.name, path: Paths(model.id).MODEL_PERFORMANCE_OVERVIEW},

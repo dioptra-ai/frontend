@@ -31,6 +31,7 @@
     "file-loader": "^6.2.0",
     "html-webpack-plugin": "^5.3.2",
     "husky": "^6.0.0",
+    "jest": "^27.0.6",
     "nodemon": "^2.0.9",
     "prettier": "^2.3.2",
     "sass": "^1.35.1",
@@ -43,12 +44,16 @@
   "dependencies": {
     "@babel/eslint-parser": "^7.14.7",
     "bootstrap": "^5.0.2",
+    "bootstrap-daterangepicker": "^3.1.0",
     "dotenv": "^10.0.0",
+    "jquery": "^3.6.0",
     "mobx": "^6.3.2",
+    "moment": "^2.29.1",
     "mongoose": "^5.13.0",
     "prop-types": "^15.7.2",
     "react": "^17.0.2",
     "react-bootstrap": "^1.6.1",
+    "react-bootstrap-daterangepicker": "^7.0.0",
     "react-dom": "^17.0.2",
     "react-router-dom": "^5.2.0",
     "recharts": "^2.0.9"
@@ -60,7 +65,8 @@
     "build:frontend": "webpack --mode=production",
     "lint": "eslint ./src --cache --fix --ext .js --ext .mjs",
     "prepare": "husky install",
-    "test": "echo \"TODO: add tests...\""
+    "test": "jest",
+    "tdd": "jest --watch"
   },
   "eslintConfig": {
     "extends": [
@@ -79,5 +85,13 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "jest": {
+    "testMatch": [
+      "**/**/__tests__/**/*-test.js?(x)"
+    ],
+    "transform": {
+      "^.+\\.[t|j]sx?$": "babel-jest"
+    }
   }
 }
