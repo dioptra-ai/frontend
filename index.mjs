@@ -2,11 +2,12 @@ import {serverConfig} from './src/server/index.mjs';
 serverConfig();
 
 import express from 'express';
+import passport from 'passport';
 import {dirname, join, resolve} from 'path';
 import {fileURLToPath} from 'url';
-
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
+import {userAuth} from './src/server/config/passport.mjs';
 
 const app = express();
 const basePath = dirname(fileURLToPath(import.meta.url));
@@ -26,12 +27,14 @@ const sessionHandler = session({
     saveUninitialized: true,
     store: sessionStore,
     cookie: {
-        maxAge: Number(process.env.COOKIE_MAX_AGE)
+        maxAge: 1000 * 60 * 60 * 24
     }
 });
 
+userAuth(passport);
+
 // Middleware to use Session only on api routes
-app.use(function(req, res, next) {
+app.use((req, res, next) => {
     if (req.url.indexOf('/api/') === 0) {
         return sessionHandler(req, res, next);
     } else {
@@ -39,13 +42,15 @@ app.use(function(req, res, next) {
     }
 });
 
+app.use(passport.initialize());
+app.use(passport.session());
+
 // Register all controller routes to /api/ basepath
 import ApiRouter from './src/server/api-router.mjs';
-
 app.use('/api', ApiRouter);
 
 // Serve frontend on all routes other than /api
-app.get('*', (req, res) => {
+app.get('*', (req, res, next) => {
     res.sendFile(resolve(basePath, 'src', 'client', 'build', 'index.html'));
 });
 

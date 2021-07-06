@@ -18,7 +18,9 @@ const dbConfig = function() {
             const userExists = await User.exists();
 
             if (!userExists) {
-                await User.create({username: 'admin', password: 'admin'});
+                const hashPass = await User.generateHash('admin');
+
+                await User.create({username: 'admin', password: hashPass});
                 console.log('Admin User Created');
             }
         } catch (error) {
