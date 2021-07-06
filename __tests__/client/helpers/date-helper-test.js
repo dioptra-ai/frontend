@@ -9,9 +9,8 @@ import {
     lastMinutes
 } from '../../../src/client/src/helpers/date-helper';
 import moment from 'moment';
-import {assertEmptyString} from '../_utils';
+import {assertEmptyString} from '../utils';
 
-/*eslint-disable no-undef*/
 describe('date-helper', () => {
     describe('formatDate', () => {
         test('should return empty string if non moment instance', () => {
@@ -40,9 +39,9 @@ describe('date-helper', () => {
             assertEmptyString(formatTime({}));
         });
         test('should return only time part formatted if valid moment object given', () => {
-            expect(formatTime(moment('2020-01-31 11:00'))).toEqual('11:00');
-            expect(formatTime(moment('2020-03-21 12:12'))).toEqual('12:12');
-            expect(formatTime(moment('2020-04-11 13:45'))).toEqual('13:45');
+            expect(formatTime(moment('2020-01-31 11:00'))).toEqual('11:00 AM');
+            expect(formatTime(moment('2020-03-21 12:12'))).toEqual('12:12 PM');
+            expect(formatTime(moment('2020-04-11 13:45'))).toEqual('13:45 PM');
         });
     });
     describe('formatDateTime', () => {
@@ -56,9 +55,9 @@ describe('date-helper', () => {
             assertEmptyString(formatDateTime({}));
         });
         test('should return full date-time formatted if valid moment object given', () => {
-            expect(formatDateTime(moment('2020-01-31 11:00'))).toEqual('01/31/2020 11:00');
-            expect(formatDateTime(moment('2020-03-21 12:12'))).toEqual('03/21/2020 12:12');
-            expect(formatDateTime(moment('2020-04-11 13:45'))).toEqual('04/11/2020 13:45');
+            expect(formatDateTime(moment('2020-01-31 11:00'))).toEqual('01/31/2020 11:00 AM');
+            expect(formatDateTime(moment('2020-03-21 12:12'))).toEqual('03/21/2020 12:12 PM');
+            expect(formatDateTime(moment('2020-04-11 13:45'))).toEqual('04/11/2020 13:45 PM');
         });
     });
     describe('formatDateRange', () => {
@@ -86,7 +85,7 @@ describe('date-helper', () => {
             assertEmptyString(formatDateTimeRange({}, moment()));
         });
         test('should return full date-time range formatted if valid moment object given', () => {
-            expect(formatDateTimeRange(moment('2020-01-31 11:00'), moment('2020-04-11 13:45'))).toEqual('01/31/2020 11:00 - 04/11/2020 13:45');
+            expect(formatDateTimeRange(moment('2020-01-31 11:00'), moment('2020-04-11 13:45'))).toEqual('01/31/2020 11:00 AM - 04/11/2020 13:45 PM');
         });
     });
     describe('lastDays', () => {

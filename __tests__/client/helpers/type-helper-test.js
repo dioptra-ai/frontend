@@ -1,4 +1,3 @@
-/*eslint-disable no-undef*/
 import {isMoment} from '../../../src/client/src/helpers/type-helper';
 import moment from 'moment';
 

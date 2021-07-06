@@ -21,7 +21,6 @@ const initialSettings = {
     opens: 'left',
     timePicker: true,
     linkedCalendars: false,
-    timePicker24Hour: true,
     alwaysShowCalendars: true,
     showCustomRangeLabel: false,
     applyButtonClasses: 'btn-primary px-4 py-2 text-white m-2',

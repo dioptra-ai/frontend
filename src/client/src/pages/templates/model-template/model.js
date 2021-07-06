@@ -1,3 +1,5 @@
+import React from 'react';
+import GeneralSearchBar from '../general-search-bar';
 import ModelDescription from '../../../components/model-description';
 import Breadcrumb from '../../../components/breadcrumb';
 import Tabs from '../../../components/tabs';
@@ -5,8 +7,6 @@ import {Route, useLocation} from 'react-router-dom';
 import {ModelTabs, ModelTabsConfigs, getModelTab} from '../../../configs/model-config';
 import Container from 'react-bootstrap/Container';
 import {Paths} from '../../../configs/route-config';
-import GeneralSearchBar from '../general-search-bar';
-import React from 'react';
 
 const model = {
     id: 1,

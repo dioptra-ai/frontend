@@ -2,7 +2,7 @@ import moment from 'moment';
 import {isMoment} from './type-helper';
 
 const DATE_FORMAT = 'MM/DD/YYYY';
-const TIME_FORMAT = 'HH:mm';
+const TIME_FORMAT = 'HH:mm A';
 const DATE_TIME_FORMAT = `${DATE_FORMAT} ${TIME_FORMAT}`;
 
 const last = (amount, periodName) => [moment(), moment().subtract(amount, periodName)];
