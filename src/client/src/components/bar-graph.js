@@ -1,24 +1,6 @@
 import {Bar, BarChart, CartesianGrid, ResponsiveContainer, YAxis} from 'recharts';
 import PropTypes from 'prop-types';
-
-const Legend = ({data}) => {
-    return (
-        <ul className='bar-graph-legend my-2 p-0'>
-            {
-                data.map((item, index) => (
-                    <li className='text-secondary mx-2' key={index}>
-                        <span className='square' style={{backgroundColor: item.fill}}></span>
-                        <p>{item.name}</p>
-                    </li>
-                ))
-            }
-        </ul>
-    );
-};
-
-Legend.propTypes = {
-    data: PropTypes.array
-};
+import Legend from './graph-legend';
 
 const BarGraph = ({title, bars, yAxisName}) => {
     const barValues = {};
@@ -48,9 +30,20 @@ const BarGraph = ({title, bars, yAxisName}) => {
                     }}
                 >
                     <CartesianGrid strokeDasharray='5 5' vertical={false}/>
-                    <YAxis domain={[0, 100]} dx={-5} label={{fill: '#405364', value: yAxisName, angle: -90, dx: -20, fontSize: 12}} stroke='transparent' tick={{fill: '#8C9AA7'}} tickCount={6}/>
+                    <YAxis
+                        domain={[0, 100]}
+                        dx={-5}
+                        label={{fill: '#405364', value: yAxisName, angle: -90, dx: -20, fontSize: 12}}
+                        stroke='transparent'
+                        tick={{fill: '#8C9AA7', fontSize: 12}}
+                        tickCount={6}
+                    />
                     {bars.map((bar, i) => (
-                        <Bar dataKey={`key_${i}`} fill={bar.fill} key={i} label={{fill: '#405364', fontSize: 18, position: 'top', fontWeight: 'bold'}}/>
+                        <Bar
+                            dataKey={`key_${i}`}
+                            fill={bar.fill} key={i}
+                            label={{fill: '#405364', fontSize: 18, position: 'top', fontWeight: 'bold'}}
+                        />
                     ))}
                 </BarChart>
             </ResponsiveContainer>

@@ -35,8 +35,21 @@ const LineGraph = ({title, dots, color = '#1FA9C8', xAxisName = '', yAxisName = 
                     }}
                 >
                     <CartesianGrid strokeDasharray='5 5' />
-                    <XAxis dataKey='x' dy={5} label={{fill: '#405364', value: xAxisName, dy: 30, fontSize: 12}} stroke='transparent' tick={{fill: '#8C9AA7'}}/>
-                    <YAxis domain={[0, 1]} dx={-5} label={{fill: '#405364', value: yAxisName, angle: -90, dx: -20, fontSize: 12}} stroke='transparent' tick={{fill: '#8C9AA7'}} tickCount={6}/>
+                    <XAxis
+                        dataKey='x'
+                        dy={5}
+                        label={{fill: '#405364', value: xAxisName, dy: 30, fontSize: 12}}
+                        stroke='transparent'
+                        tick={{fill: '#8C9AA7', fontSize: 12}}
+                    />
+                    <YAxis
+                        domain={[0, 1]}
+                        dx={-5}
+                        label={{fill: '#405364', value: yAxisName, angle: -90, dx: -20, fontSize: 12}}
+                        stroke='transparent'
+                        tick={{fill: '#8C9AA7', fontSize: 12}}
+                        tickCount={6}
+                    />
                     <Tooltip content={<CustomTooltip />}/>
                     <defs>
                         <linearGradient id='color' x1='0' x2='0' y1='0' y2='1'>
