@@ -1,0 +1,14 @@
+apiVersion: v1
+entries:
+  frontend:
+  - apiVersion: v2
+    appVersion: 0.1.1.65
+    created: "2021-07-06T15:53:24.53135731Z"
+    description: A Helm chart for Kubernetes
+    digest: 396f2aeb304c3b9ccd6e1fa47324ba20dbaaf001ef352c1e3e2fe5e44a76eac7
+    name: frontend
+    type: application
+    urls:
+    - https://github.com/dioptra-ai/frontend/releases/download/frontend-0.1.1/frontend-0.1.1.tgz
+    version: 0.1.1
+generated: "2021-07-06T15:53:24.53136901Z"
