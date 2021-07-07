@@ -3,8 +3,10 @@ const HtmlWebPackPlugin = require('html-webpack-plugin');
 
 module.exports = {
     devServer: {
-        historyApiFallback: true
+        historyApiFallback: true,
+        hot: true
     },
+    target: 'web',
     entry: './src/client/src/index.js',
     output: {
         path: path.resolve(__dirname, 'src/client/build'),
