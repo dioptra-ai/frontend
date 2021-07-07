@@ -8,6 +8,7 @@ import {fileURLToPath} from 'url';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
 import {userAuth} from './src/server/config/passport.mjs';
+import ApiRouter from './src/server/api-router.mjs';
 
 const app = express();
 const basePath = dirname(fileURLToPath(import.meta.url));
@@ -22,12 +23,12 @@ const sessionStore = new MongoStore({
 });
 
 const sessionHandler = session({
-    secret: 'some nice secret',
+    secret: process.env.COOKIE_SECRET,
     resave: false,
     saveUninitialized: true,
     store: sessionStore,
     cookie: {
-        maxAge: 1000 * 60 * 60 * 24
+        maxAge: 1000 * 60 * 60 * Number(process.env.COOKIE_DURATION_HRS)
     }
 });
 
@@ -46,7 +47,6 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Register all controller routes to /api/ basepath
-import ApiRouter from './src/server/api-router.mjs';
 app.use('/api', ApiRouter);
 
 // Serve frontend on all routes other than /api

@@ -8,8 +8,8 @@ const serverConfig = function() {
         throw result.error;
     }
 
-    // // Ensure required ENV vars are set
-    const requiredEnv = ['PORT', 'DB_CONNECTION_URI'];
+    // Ensure required ENV vars are set
+    const requiredEnv = ['PORT', 'DB_CONNECTION_URI', 'COOKIE_SECRET', 'COOKIE_DURATION_HRS'];
     const unsetEnv = requiredEnv.filter((env) => !(typeof process.env[env] !== 'undefined'));
 
     if (unsetEnv.length > 0) {
