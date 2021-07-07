@@ -1,6 +1,7 @@
 import {Bar, BarChart, CartesianGrid, ResponsiveContainer, YAxis} from 'recharts';
 import PropTypes from 'prop-types';
 import Legend from './graph-legend';
+import theme from '../styles/theme.module.scss';
 
 const BarGraph = ({title, bars, yAxisName}) => {
     const barValues = {};
@@ -33,16 +34,16 @@ const BarGraph = ({title, bars, yAxisName}) => {
                     <YAxis
                         domain={[0, 100]}
                         dx={-5}
-                        label={{fill: '#405364', value: yAxisName, angle: -90, dx: -20, fontSize: 12}}
+                        label={{fill: theme.dark, value: yAxisName, angle: -90, dx: -20, fontSize: 12}}
                         stroke='transparent'
-                        tick={{fill: '#8C9AA7', fontSize: 12}}
+                        tick={{fill: theme.secondary, fontSize: 12}}
                         tickCount={6}
                     />
                     {bars.map((bar, i) => (
                         <Bar
                             dataKey={`key_${i}`}
                             fill={bar.fill} key={i}
-                            label={{fill: '#405364', fontSize: 18, position: 'top', fontWeight: 'bold'}}
+                            label={{fill: theme.dark, fontSize: 18, position: 'top', fontWeight: 'bold'}}
                         />
                     ))}
                 </BarChart>

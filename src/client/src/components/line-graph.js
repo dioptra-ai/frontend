@@ -1,5 +1,6 @@
 import {Area, CartesianGrid, ComposedChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis} from 'recharts';
 import PropTypes from 'prop-types';
+import theme from '../styles/theme.module.scss';
 
 const CustomTooltip = ({payload, label}) => {
     if (payload && payload.length) {
@@ -19,7 +20,7 @@ CustomTooltip.propTypes = {
     payload: PropTypes.array
 };
 
-const LineGraph = ({title, dots, color = '#1FA9C8', xAxisName = '', yAxisName = ''}) => {
+const LineGraph = ({title, dots, color = theme.primary, xAxisName = '', yAxisName = ''}) => {
 
     return (
         <div className='border rounded p-3' style={{height: '425px'}}>
@@ -38,16 +39,16 @@ const LineGraph = ({title, dots, color = '#1FA9C8', xAxisName = '', yAxisName = 
                     <XAxis
                         dataKey='x'
                         dy={5}
-                        label={{fill: '#405364', value: xAxisName, dy: 30, fontSize: 12}}
+                        label={{fill: theme.dark, value: xAxisName, dy: 30, fontSize: 12}}
                         stroke='transparent'
-                        tick={{fill: '#8C9AA7', fontSize: 12}}
+                        tick={{fill: theme.secondary, fontSize: 12}}
                     />
                     <YAxis
                         domain={[0, 1]}
                         dx={-5}
-                        label={{fill: '#405364', value: yAxisName, angle: -90, dx: -20, fontSize: 12}}
+                        label={{fill: theme.dark, value: yAxisName, angle: -90, dx: -20, fontSize: 12}}
                         stroke='transparent'
-                        tick={{fill: '#8C9AA7', fontSize: 12}}
+                        tick={{fill: theme.secondary, fontSize: 12}}
                         tickCount={6}
                     />
                     <Tooltip content={<CustomTooltip />}/>

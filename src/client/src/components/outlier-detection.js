@@ -5,6 +5,7 @@ import Table from './table';
 import Dropdown from 'react-bootstrap/Dropdown';
 import FontIcon from './font-icon';
 import {IconNames} from '../constants';
+import theme from '../styles/theme.module.scss';
 
 const data = [
     {
@@ -175,6 +176,8 @@ const tableData = [
 ];
 
 const OutlierDetection = () => {
+    console.log(theme);
+
     return (
         <div className='my-5'>
             <p className='text-dark fw-bold fs-3'>Outlier detection</p>
@@ -193,16 +196,16 @@ const OutlierDetection = () => {
                             <XAxis
                                 dataKey='date'
                                 dy={5}
-                                label={{fill: '#405364', value: 'Date', dy: 30, fontSize: 12}}
+                                label={{fill: theme.dark, value: 'Date', dy: 30, fontSize: 12}}
                                 stroke='transparent'
-                                tick={{fill: '#8C9AA7', fontSize: 12}}
+                                tick={{fill: theme.secondary, fontSize: 12}}
                             />
                             <YAxis
                                 dataKey='y'
                                 domain={[0, 100]} dx={-5}
-                                label={{fill: '#405364', value: 'Majority Class Confidence', angle: -90, dx: -30, fontSize: 12}}
+                                label={{fill: theme.dark, value: 'Majority Class Confidence', angle: -90, dx: -30, fontSize: 12}}
                                 stroke='transparent'
-                                tick={{fill: '#8C9AA7', fontSize: 12}}
+                                tick={{fill: theme.secondary, fontSize: 12}}
                                 tickCount={6}
                                 unit='%'
                             />
@@ -211,16 +214,16 @@ const OutlierDetection = () => {
                                 range={[0, 400]}
                                 type='number'
                             />
-                            <Area dataKey='area_1' fill='#1FA9C8' fillOpacity='.3' stroke='none' type='monotone' />
-                            <Area dataKey='area_2' fill='#1FA9C8' fillOpacity='.15' stroke='none' type='monotone' />
-                            <Scatter data={data} fill='#F8886C'/>
+                            <Area dataKey='area_1' fill={theme.primary} fillOpacity='.3' stroke='none' type='monotone' />
+                            <Area dataKey='area_2' fill={theme.primary} fillOpacity='.15' stroke='none' type='monotone' />
+                            <Scatter data={data} fill={theme.warning}/>
                         </ComposedChart>
                     </ResponsiveContainer>
                 </div>
                 <Legend
                     data={[
-                        {name: 'Confidence of Class 25% - 75%', fill: '#1FA9C8', fillOpacity: '.3'},
-                        {name: 'Confidence of Class 10% - 90%', fill: '#1FA9C8', fillOpacity: '.15'}
+                        {name: 'Confidence of Class 25% - 75%', fill: theme.primary, fillOpacity: '.3'},
+                        {name: 'Confidence of Class 10% - 90%', fill: theme.primary, fillOpacity: '.15'}
                     ]}
                 />
                 <div className='d-flex justify-content-end my-3'>
