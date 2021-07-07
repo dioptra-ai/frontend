@@ -1,5 +1,6 @@
 import FilterInput from '../../../components/filter-input';
 import PredictionAnalysis from '../../../components/prediction-analysis';
+import OutlierDetection from '../../../components/outlier-detection';
 
 
 const PerformanceDetails = () => {
@@ -7,6 +8,7 @@ const PerformanceDetails = () => {
         <>
             <FilterInput/>
             <PredictionAnalysis />
+            <OutlierDetection />
         </>
     );
 };
