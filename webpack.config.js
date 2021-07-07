@@ -5,6 +5,7 @@ module.exports = {
     devServer: {
         historyApiFallback: true
     },
+    devtool: 'source-map',
     entry: './src/client/src/index.js',
     output: {
         path: path.resolve(__dirname, 'src/client/build'),
