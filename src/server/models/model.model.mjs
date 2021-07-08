@@ -16,18 +16,15 @@ const modelSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: 'user'
     },
-    offlineClassDistribution: {
+    offlineClassDistribution: [{
         _id: false,
-        fraudulent: {
-            type: Number
+        name: {
+            type: String, required: true
         },
-        nonFraudulent: {
-            type: Number
-        },
-        humanReview: {
-            type: Number
+        value: {
+            type: Number, required: true
         }
-    }
+    }]
 }, {timestamps: true});
 
 const Model = mongoose.model('Model', modelSchema);
