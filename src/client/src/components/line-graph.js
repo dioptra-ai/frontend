@@ -3,11 +3,14 @@ import PropTypes from 'prop-types';
 import theme from '../styles/theme.module.scss';
 
 const CustomTooltip = ({payload, label}) => {
+
     if (payload && payload.length) {
         return (
             <div className='line-graph-tooltip bg-white p-3'>
                 <p className='text-dark fw-bold fs-5 m-0'>{payload[0].value.toFixed(3)}</p>
-                <p className='text-secondary m-0 label'>{label}</p>
+                <p className='text-secondary m-0 label'>
+                    {label}
+                </p>
             </div>
         );
     }
@@ -16,11 +19,22 @@ const CustomTooltip = ({payload, label}) => {
 };
 
 CustomTooltip.propTypes = {
-    label: PropTypes.string,
+    label: PropTypes.any,
     payload: PropTypes.array
 };
 
-const LineGraph = ({title, dots, color = theme.primary, xAxisName = '', yAxisName = ''}) => {
+const LineGraph = ({
+    title,
+    dots,
+    hasDot = true,
+    color = theme.primary,
+    xAxisName = '',
+    tickFormatter,
+    xAxisInterval,
+    yAxisName = '',
+    yAxisDomain,
+    graphType = 'linear'
+}) => {
 
     return (
         <div className='border rounded p-3' style={{height: '425px'}}>
@@ -39,12 +53,14 @@ const LineGraph = ({title, dots, color = theme.primary, xAxisName = '', yAxisNam
                     <XAxis
                         dataKey='x'
                         dy={5}
+                        interval={xAxisInterval}
                         label={{fill: theme.dark, value: xAxisName, dy: 30, fontSize: 12}}
                         stroke='transparent'
                         tick={{fill: theme.secondary, fontSize: 12}}
+                        tickFormatter={(tick) => tickFormatter ? tickFormatter(tick) : tick}
                     />
                     <YAxis
-                        domain={[0, 1]}
+                        domain={yAxisDomain}
                         dx={-5}
                         label={{fill: theme.dark, value: yAxisName, angle: -90, dx: -20, fontSize: 12}}
                         stroke='transparent'
@@ -58,8 +74,8 @@ const LineGraph = ({title, dots, color = theme.primary, xAxisName = '', yAxisNam
                             <stop offset='95%' stopColor='#FFFFFF' stopOpacity={0.1}/>
                         </linearGradient>
                     </defs>
-                    <Line connectNulls dataKey='y' fill={color} stroke={color} strokeWidth={2} type='linear'/>
-                    <Area dataKey='y' fill='url(#color)' stroke={color} strokeWidth={2} type='linear' />
+                    <Line connectNulls dataKey='y' dot={hasDot} fill={color} stroke={color} strokeWidth={2} type={graphType}/>
+                    <Area dataKey='y' fill='url(#color)' stroke={color} strokeWidth={2} type={graphType} />
                 </ComposedChart>
             </ResponsiveContainer>
         </div>
@@ -69,8 +85,13 @@ const LineGraph = ({title, dots, color = theme.primary, xAxisName = '', yAxisNam
 LineGraph.propTypes = {
     color: PropTypes.string,
     dots: PropTypes.array,
+    graphType: PropTypes.string,
+    hasDot: PropTypes.bool,
+    tickFormatter: PropTypes.func,
     title: PropTypes.string,
+    xAxisInterval: PropTypes.number,
     xAxisName: PropTypes.string,
+    yAxisDomain: PropTypes.array,
     yAxisName: PropTypes.string
 };
 

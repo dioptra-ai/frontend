@@ -28,17 +28,20 @@ const PredictionAnalysis = () => {
                     />
                 </Col>
                 <Col lg={4}>
-                    <LineGraph dots={[
-                        {x: '17:28', y: 0.45},
-                        {x: '17:29', y: 0.6},
-                        {x: '17:30', y: 0.82},
-                        {x: '17:31', y: 0.57},
-                        {x: '17:32', y: 0.38},
-                        {x: '17:33', y: 0.3},
-                        {x: '17:34', y: 0.58}
-                    ]} title='KS Test'
-                    xAxisName='Time'
-                    yAxisName='KS Test Value'
+                    <LineGraph
+                        dots={[
+                            {x: '17:28', y: 0.45},
+                            {x: '17:29', y: 0.6},
+                            {x: '17:30', y: 0.82},
+                            {x: '17:31', y: 0.57},
+                            {x: '17:32', y: 0.38},
+                            {x: '17:33', y: 0.3},
+                            {x: '17:34', y: 0.58}
+                        ]}
+                        title='KS Test'
+                        xAxisName='Time'
+                        yAxisDomain={[0, 1]}
+                        yAxisName='KS Test Value'
                     />
                 </Col>
             </Row>
