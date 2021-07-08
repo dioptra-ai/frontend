@@ -5,9 +5,7 @@ import express from 'express';
 import passport from 'passport';
 import {dirname, join, resolve} from 'path';
 import {fileURLToPath} from 'url';
-import session from 'express-session';
-import MongoStore from 'connect-mongo';
-import {userAuth} from './src/server/config/passport.mjs';
+import {sessionHandler, userAuth} from './src/server/middleware/authentication.mjs';
 import ApiRouter from './src/server/api-router.mjs';
 
 const app = express();
@@ -17,31 +15,10 @@ app.use(express.static(join(basePath, '/src/client/build')));
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
-const sessionStore = new MongoStore({
-    mongoUrl: process.env.DB_CONNECTION_URI,
-    collectionName: 'sessions'
-});
-
-const sessionHandler = session({
-    secret: process.env.COOKIE_SECRET,
-    resave: false,
-    saveUninitialized: true,
-    store: sessionStore,
-    cookie: {
-        maxAge: 1000 * 60 * 60 * Number(process.env.COOKIE_DURATION_HRS)
-    }
-});
-
 userAuth(passport);
 
 // Middleware to use Session only on api routes
-app.use((req, res, next) => {
-    if (req.url.indexOf('/api/') === 0) {
-        return sessionHandler(req, res, next);
-    } else {
-        return next();
-    }
-});
+app.use(sessionHandler);
 
 app.use(passport.initialize());
 app.use(passport.session());
