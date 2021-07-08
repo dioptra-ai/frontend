@@ -9,6 +9,7 @@ module.exports = {
     entry: './src/client/src/index.js',
     output: {
         path: path.resolve(__dirname, 'src/client/build'),
+        publicPath: '/',
         filename: 'bundle.js'
     },
     resolve: {
