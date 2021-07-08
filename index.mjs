@@ -17,9 +17,7 @@ app.use(express.urlencoded({extended: true}));
 
 userAuth(passport);
 
-// Middleware to use Session only on api routes
 app.use(sessionHandler);
-
 app.use(passport.initialize());
 app.use(passport.session());
 
