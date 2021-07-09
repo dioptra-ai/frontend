@@ -62,15 +62,15 @@ ModelRouter.get('/:model/performanceDetails/', async function (req, res, next) {
         return res.status(422).send({error: 'invalid_model_id'});
     }
 
-    const fromDate = new Date(req.query.from);
+    const fromDate = Date.parse(req.query.from);
 
-    if (!fromDate) {
+    if (!(fromDate instanceof Date && isFinite(fromDate))) {
         return res.status(422).send({error: 'invalid_date_range_from'});
     }
 
     const toDate = new Date(req.query.to);
 
-    if (!toDate) {
+    if (!(fromDate instanceof Date && isFinite(toDate))) {
         return res.status(422).send({error: 'invalid_date_range_to'});
     }
 
