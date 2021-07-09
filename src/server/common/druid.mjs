@@ -7,13 +7,13 @@ class DruidClient {
         console.log('Executing Druid SQL Query:');
         console.log(query);
 
-        const averagesResult = await fetch(`${process.env.TIME_SERIES_DB}/druid/v2/sql/`, {
+        const result = await fetch(`${process.env.TIME_SERIES_DB}/druid/v2/sql/`, {
             method: 'post',
             body: JSON.stringify({query}),
             headers: {'Content-Type': 'application/json'}
         });
 
-        return averagesResult.json();
+        return result.json();
     }
 
     getDistributionClassesByModel(model) {
