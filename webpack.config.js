@@ -3,13 +3,14 @@ const HtmlWebPackPlugin = require('html-webpack-plugin');
 
 module.exports = {
     devServer: {
-        historyApiFallback: true,
-        hot: true
+        historyApiFallback: true
     },
     target: 'web',
+    devtool: 'source-map',
     entry: './src/client/src/index.js',
     output: {
         path: path.resolve(__dirname, 'src/client/build'),
+        publicPath: '/',
         filename: 'bundle.js'
     },
     resolve: {
