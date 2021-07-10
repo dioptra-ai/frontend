@@ -5,6 +5,7 @@ module.exports = {
     devServer: {
         historyApiFallback: true
     },
+    target: 'web',
     devtool: 'source-map',
     entry: './src/client/src/index.js',
     output: {
