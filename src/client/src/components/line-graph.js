@@ -26,58 +26,64 @@ CustomTooltip.propTypes = {
 const LineGraph = ({
     title,
     dots,
+    hasBorder = true,
     hasDot = true,
     color = theme.primary,
     xAxisName = '',
     tickFormatter,
     xAxisInterval,
+    xAxisTicks,
     yAxisName = '',
     yAxisDomain,
-    graphType = 'linear'
+    graphType = 'linear',
+    margin = {
+        top: 10,
+        right: 30,
+        left: 0,
+        bottom: 35
+    }
 }) => {
 
     return (
-        <div className='border rounded p-3' style={{height: '425px'}}>
-            <p className='text-dark fw-bold fs-5'>{title}</p>
-            <ResponsiveContainer height='87%' width='100%'>
-                <ComposedChart
-                    data={dots}
-                    margin={{
-                        top: 10,
-                        right: 30,
-                        left: 0,
-                        bottom: 35
-                    }}
-                >
-                    <CartesianGrid strokeDasharray='5 5' />
-                    <XAxis
-                        dataKey='x'
-                        dy={5}
-                        interval={xAxisInterval}
-                        label={{fill: theme.dark, value: xAxisName, dy: 30, fontSize: 12}}
-                        stroke='transparent'
-                        tick={{fill: theme.secondary, fontSize: 12}}
-                        tickFormatter={(tick) => tickFormatter ? tickFormatter(tick) : tick}
-                    />
-                    <YAxis
-                        domain={yAxisDomain}
-                        dx={-5}
-                        label={{fill: theme.dark, value: yAxisName, angle: -90, dx: -20, fontSize: 12}}
-                        stroke='transparent'
-                        tick={{fill: theme.secondary, fontSize: 12}}
-                        tickCount={6}
-                    />
-                    <Tooltip content={<CustomTooltip />}/>
-                    <defs>
-                        <linearGradient id='color' x1='0' x2='0' y1='0' y2='1'>
-                            <stop offset='5%' stopColor={color} stopOpacity={0.7}/>
-                            <stop offset='95%' stopColor='#FFFFFF' stopOpacity={0.1}/>
-                        </linearGradient>
-                    </defs>
-                    <Line connectNulls dataKey='y' dot={hasDot} fill={color} stroke={color} strokeWidth={2} type={graphType}/>
-                    <Area dataKey='y' fill='url(#color)' stroke={color} strokeWidth={2} type={graphType} />
-                </ComposedChart>
-            </ResponsiveContainer>
+        <div className={`${hasBorder ? 'border px-3' : ''} rounded py-3`} >
+            {title && <p className='text-dark fw-bold fs-5'>{title}</p>}
+            <div style={{height: '300px'}}>
+                <ResponsiveContainer height='100%' width='100%'>
+                    <ComposedChart
+                        data={dots}
+                        margin={margin}
+                    >
+                        <CartesianGrid strokeDasharray='5 5' />
+                        <XAxis
+                            dataKey='x'
+                            dy={5}
+                            interval={xAxisInterval}
+                            label={{fill: theme.dark, value: xAxisName, dy: 30, fontSize: 12}}
+                            stroke='transparent'
+                            tick={{fill: theme.secondary, fontSize: 12}}
+                            tickFormatter={(tick) => tickFormatter ? tickFormatter(tick) : tick}
+                            ticks={xAxisTicks}
+                        />
+                        <YAxis
+                            domain={yAxisDomain}
+                            dx={-5}
+                            label={{fill: theme.dark, value: yAxisName, angle: -90, dx: -20, fontSize: 12}}
+                            stroke='transparent'
+                            tick={{fill: theme.secondary, fontSize: 12}}
+                            tickCount={6}
+                        />
+                        <Tooltip content={<CustomTooltip />}/>
+                        <defs>
+                            <linearGradient id='color' x1='0' x2='0' y1='0' y2='1'>
+                                <stop offset='5%' stopColor={color} stopOpacity={0.7}/>
+                                <stop offset='95%' stopColor='#FFFFFF' stopOpacity={0.1}/>
+                            </linearGradient>
+                        </defs>
+                        <Line connectNulls dataKey='y' dot={hasDot} fill={color} stroke={color} strokeWidth={2} type={graphType}/>
+                        <Area connectNulls dataKey='y' fill='url(#color)' stroke={color} strokeWidth={2} type={graphType} />
+                    </ComposedChart>
+                </ResponsiveContainer>
+            </div>
         </div>
     );
 };
@@ -86,11 +92,14 @@ LineGraph.propTypes = {
     color: PropTypes.string,
     dots: PropTypes.array,
     graphType: PropTypes.string,
+    hasBorder: PropTypes.bool,
     hasDot: PropTypes.bool,
+    margin: PropTypes.object,
     tickFormatter: PropTypes.func,
     title: PropTypes.string,
     xAxisInterval: PropTypes.number,
     xAxisName: PropTypes.string,
+    xAxisTicks: PropTypes.array,
     yAxisDomain: PropTypes.array,
     yAxisName: PropTypes.string
 };
