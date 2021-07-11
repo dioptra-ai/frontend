@@ -47,8 +47,8 @@ const Model = () => {
                             <Tabs
                                 tabs={ModelTabs(model.id)}
                             />
-                            <div className='p-3'>
-                                <h2 className='text-dark fw-bold my-4'>{tab.name}</h2>
+                            <div className='px-3'>
+                                <h2 className='text-dark fw-bold fs-2 my-5'>{tab.name}</h2>
                                 {component && component()}
                             </div>
                         </Container>)}

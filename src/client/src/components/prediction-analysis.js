@@ -7,7 +7,7 @@ import theme from '../styles/theme.module.scss';
 const PredictionAnalysis = () => {
     return (
         <div className='my-5'>
-            <p className='text-dark fw-bold fs-3'>Prediction analysis</p>
+            <h3 className='text-dark fw-bold fs-3 mb-3'>Prediction analysis</h3>
             <Row>
                 <Col lg={4} >
                     <BarGraph bars={[

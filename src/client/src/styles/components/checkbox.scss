@@ -22,7 +22,7 @@
             color: $dark;
             position: absolute;
             left: 3px;
-            top: 3px;
+            top: calc(50% - 7px);
         }
     }
 }

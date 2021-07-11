@@ -5,8 +5,9 @@ import PropTypes from 'prop-types';
 const MenuItem = ({icon, isActive, size, className}) => {
     return (
         <div className={`${className} menu-item`}>
+            <span className={`left-border bg-${isActive ? 'primary' : 'transparent'}`}></span>
             <FontIcon
-                className={`text-${isActive ? 'primary' : 'dark'}`}
+                className={`text-${isActive ? 'primary' : (icon === 'User' ? 'secondary' : 'dark')}`}
                 icon={icon}
                 size={size}
             />

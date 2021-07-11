@@ -10,14 +10,14 @@ const ModelDescription = ({title, description, owner, version, tier, deployed, i
 
     return (
         <Container className='bg-light' fluid >
-            <Row className='align-items-center mb-5'>
-                <Col>
-                    <span className='text-dark fs-2 fw-bold'>{title}</span>
+            <Row className='align-items-center mb-5 px-3'>
+                <Col className='d-flex align-items-center'>
+                    <h1 className='text-dark fs-1 fw-bold m-0'>{title}</h1>
                     <button className='btn-expand bg-transparent' onClick={() => setExpand(!expand)}>
                         <FontIcon
                             className='text-dark'
                             icon={expand ? 'Arrow-Up' : 'Arrow-Down'}
-                            size={13}
+                            size={9}
                         />
                     </button>
                 </Col>
@@ -33,7 +33,7 @@ const ModelDescription = ({title, description, owner, version, tier, deployed, i
                     </div>
                 </Col>
             </Row>
-            <div className={`model-details ${expand ? 'show' : ''} text-dark`}>
+            <div className={`model-details ${expand ? 'show' : ''} text-dark mx-3`}>
                 <Row className='py-4'>
                     <Col className='details-col' lg={4}>
                         <p className='fw-bold'>Description</p>
