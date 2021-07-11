@@ -2,12 +2,13 @@ import PropTypes from 'prop-types';
 import FilterInput from '../../../components/filter-input';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import LineGraph from '../../../components/line-graph';
+import AreaGraph from '../../../components/area-graph';
 import {formatTime} from '../../../helpers/date-helper';
 import moment from 'moment';
 import DropdownMenu from '../../../components/dropdown';
 import FontIcon from '../../../components/font-icon';
 import {IconNames} from '../../../constants';
+import {useState} from 'react';
 
 const getData = (timeRange, yMaxValue, divider) => {
     let dateMili = Date.now();
@@ -26,6 +27,15 @@ const getData = (timeRange, yMaxValue, divider) => {
 
     return data;
 };
+
+const dataThroughput = getData(360, 50, 5);
+const dataLatency = getData(360, 25, 5);
+const dataAdoption = getData(600, 1000, 60);
+const dataAccuracy = getData(600, 100, 60);
+
+dataAccuracy[360] = {...dataAccuracy[360], warning: dataAccuracy[360]['y']};
+dataAccuracy[420] = {...dataAccuracy[420], warning: dataAccuracy[420]['y']};
+dataAccuracy[480] = {...dataAccuracy[480], warning: dataAccuracy[480]['y']};
 
 const MetricInfoBox = ({value, notifications, warnings, name, mark, unit}) => (
     <div className='border rounded p-3'>
@@ -69,10 +79,15 @@ const modelMetrics = [
     {name: 'Precision', mark: '21,638', value: 37.8, unit: undefined, notifications: 1, warnings: 0}
 ];
 const PerformanceOverview = () => {
-    const dataThroughput = getData(360, 50, 5);
-    const dataLatency = getData(360, 25, 5);
-    const dataAdoption = getData(600, 1000, 60);
-    const dataAccuracy = getData(600, 100, 60);
+    const [showIncidents, setShowIncidents] = useState(false);
+
+    const handleIncidents = (e) => {
+        if (e.target.checked) {
+            setShowIncidents(true);
+        } else {
+            setShowIncidents(false);
+        }
+    };
 
     return (
         <>
@@ -81,7 +96,7 @@ const PerformanceOverview = () => {
                 <h3 className='text-dark fw-bold fs-3 mb-3'>Service Performance</h3>
                 <Row>
                     <Col lg={6}>
-                        <LineGraph
+                        <AreaGraph
                             dots={dataThroughput}
                             graphType='monotone'
                             hasDot={false}
@@ -94,7 +109,7 @@ const PerformanceOverview = () => {
                         />
                     </Col>
                     <Col lg={6}>
-                        <LineGraph
+                        <AreaGraph
                             dots={dataLatency}
                             graphType='monotone'
                             hasDot={false}
@@ -127,7 +142,7 @@ const PerformanceOverview = () => {
                 <div className='border rounded p-3'>
                     <div className='d-flex justify-content-end my-3'>
                         <label className='checkbox mx-5'>
-                            <input type='checkbox' />
+                            <input onChange={handleIncidents} type='checkbox'/>
                             <span>Show past incidents</span>
                         </label>
                         <DropdownMenu label='Accuracy'
@@ -139,10 +154,11 @@ const PerformanceOverview = () => {
                             ]}
                         />
                     </div>
-                    <LineGraph
+                    <AreaGraph
                         dots={dataAccuracy}
                         graphType='linear'
                         hasBorder={false}
+                        hasWarnings={showIncidents}
                         margin = {
                             {right: 0, bottom: 30}
                         }
@@ -176,7 +192,7 @@ const PerformanceOverview = () => {
                             <span className='text-dark fw-bold fs-1'>37.6</span>
                         </Col>
                         <Col className='p-0' lg={8}>
-                            <LineGraph
+                            <AreaGraph
                                 dots={dataAdoption}
                                 graphType='linear'
                                 hasBorder={false}

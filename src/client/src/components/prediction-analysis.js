@@ -1,7 +1,7 @@
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import BarGraph from './bar-graph';
-import LineGraph from './line-graph';
+import AreaGraph from './area-graph';
 import theme from '../styles/theme.module.scss';
 
 const PredictionAnalysis = () => {
@@ -28,7 +28,7 @@ const PredictionAnalysis = () => {
                     />
                 </Col>
                 <Col lg={4}>
-                    <LineGraph
+                    <AreaGraph
                         dots={[
                             {x: '17:28', y: 0.45},
                             {x: '17:29', y: 0.6},

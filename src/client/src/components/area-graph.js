@@ -1,4 +1,4 @@
-import {Area, CartesianGrid, ComposedChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis} from 'recharts';
+import {Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis} from 'recharts';
 import PropTypes from 'prop-types';
 import theme from '../styles/theme.module.scss';
 
@@ -23,7 +23,7 @@ CustomTooltip.propTypes = {
     payload: PropTypes.array
 };
 
-const LineGraph = ({
+const AreaGraph = ({
     title,
     dots,
     hasBorder = true,
@@ -41,7 +41,8 @@ const LineGraph = ({
         right: 30,
         left: 0,
         bottom: 35
-    }
+    },
+    hasWarnings = false
 }) => {
 
     return (
@@ -49,7 +50,7 @@ const LineGraph = ({
             {title && <p className='text-dark fw-bold fs-5'>{title}</p>}
             <div style={{height: '300px'}}>
                 <ResponsiveContainer height='100%' width='100%'>
-                    <ComposedChart
+                    <AreaChart
                         data={dots}
                         margin={margin}
                     >
@@ -75,25 +76,48 @@ const LineGraph = ({
                         <Tooltip content={<CustomTooltip />}/>
                         <defs>
                             <linearGradient id='color' x1='0' x2='0' y1='0' y2='1'>
-                                <stop offset='5%' stopColor={color} stopOpacity={0.7}/>
-                                <stop offset='95%' stopColor='#FFFFFF' stopOpacity={0.1}/>
+                                <stop offset='10%' stopColor={color} stopOpacity={0.7}/>
+                                <stop offset='90%' stopColor='#FFFFFF' stopOpacity={0.1}/>
+                            </linearGradient>
+                            <linearGradient id='warning' x1='0' x2='0' y1='0' y2='1'>
+                                <stop offset='10%' stopColor={theme.warning} stopOpacity={0.7}/>
+                                <stop offset='90%' stopColor='#FFFFFF' stopOpacity={0.1}/>
                             </linearGradient>
                         </defs>
-                        <Line connectNulls dataKey='y' dot={hasDot} fill={color} stroke={color} strokeWidth={2} type={graphType}/>
-                        <Area connectNulls dataKey='y' fill='url(#color)' stroke={color} strokeWidth={2} type={graphType} />
-                    </ComposedChart>
+                        <Area
+                            connectNulls
+                            dataKey='y'
+                            dot={hasDot ? {fill: color} : false}
+                            fill='url(#color)'
+                            stroke={color}
+                            strokeWidth={2}
+                            type={graphType}
+                        />
+                        {hasWarnings &&
+                            <Area
+                                connectNulls
+                                dataKey='warning'
+                                dot={hasDot ? {fill: theme.warning} : false}
+                                fill='url(#warning)'
+                                stroke={theme.warning}
+                                strokeWidth={2}
+                                type={graphType}
+                            />
+                        }
+                    </AreaChart>
                 </ResponsiveContainer>
             </div>
         </div>
     );
 };
 
-LineGraph.propTypes = {
+AreaGraph.propTypes = {
     color: PropTypes.string,
     dots: PropTypes.array,
     graphType: PropTypes.string,
     hasBorder: PropTypes.bool,
     hasDot: PropTypes.bool,
+    hasWarnings: PropTypes.bool,
     margin: PropTypes.object,
     tickFormatter: PropTypes.func,
     title: PropTypes.string,
@@ -104,4 +128,4 @@ LineGraph.propTypes = {
     yAxisName: PropTypes.string
 };
 
-export default LineGraph;
+export default AreaGraph;
