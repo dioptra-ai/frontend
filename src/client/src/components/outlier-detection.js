@@ -1,9 +1,7 @@
 import {Area, CartesianGrid, ComposedChart, ResponsiveContainer, Scatter, XAxis, YAxis, ZAxis} from 'recharts';
 import Legend from './graph-legend';
 import Table from './table';
-import Dropdown from 'react-bootstrap/Dropdown';
-import FontIcon from './font-icon';
-import {IconNames} from '../constants';
+import DropdownMenu from './dropdown';
 import theme from '../styles/theme.module.scss';
 
 const data = [
@@ -177,7 +175,7 @@ const tableData = [
 const OutlierDetection = () => {
     return (
         <div className='my-5'>
-            <p className='text-dark fw-bold fs-3'>Outlier detection</p>
+            <h3 className='text-dark fw-bold fs-3 mb-3'>Outlier detection</h3>
             <div className='border rounded p-3' >
                 <div style={{height: '350px'}}>
                     <ResponsiveContainer height='100%' width='100%'>
@@ -224,24 +222,7 @@ const OutlierDetection = () => {
                     ]}
                 />
                 <div className='d-flex justify-content-end my-3'>
-                    <Dropdown>
-                        <Dropdown.Toggle
-                            bsPrefix='p-0'
-                            className='border-dark text-dark p-3 d-flex align-items-center align-left'
-                            style={{width: '200px'}}
-                            variant='white'
-                        >
-                            <span className='flex-grow-1' style={{textAlign: 'left'}}>Export</span>
-                            <FontIcon
-                                icon={IconNames.ARROW_DOWN}
-                                size={6}
-                            />
-                        </Dropdown.Toggle>
-                        <Dropdown.Menu className='p-0 w-100'>
-                            <Dropdown.Item>Download CSV</Dropdown.Item>
-                            <Dropdown.Item>Save to</Dropdown.Item>
-                        </Dropdown.Menu>
-                    </Dropdown>
+                    <DropdownMenu label='Export' options={['Download CSV', 'Save to']}/>
                 </div>
                 <Table
                     columns={tableColumns}
