@@ -27,6 +27,9 @@ services:
       - "4004:4004"
     networks:
       - app-network
+    volumes:
+      - ./src:/app/src
+    entrypoint: /bin/sleep 36000
 
 networks:
   app-network:
