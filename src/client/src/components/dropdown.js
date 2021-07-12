@@ -20,7 +20,7 @@ const DropdownMenu = ({label, options, onClick}) => {
             </Dropdown.Toggle>
             <Dropdown.Menu className='p-0 w-100'>
                 {options.map((option, i) => (
-                    <Dropdown.Item key={i} onClick={onClick}>{option}</Dropdown.Item>
+                    <Dropdown.Item key={i} name={option} onClick={onClick}>{option}</Dropdown.Item>
                 ))}
             </Dropdown.Menu>
         </Dropdown>

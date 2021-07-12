@@ -1,15 +1,16 @@
 import {Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis} from 'recharts';
 import PropTypes from 'prop-types';
 import theme from '../styles/theme.module.scss';
+import moment from 'moment';
+import {formatTime} from '../helpers/date-helper';
 
-const CustomTooltip = ({payload, label}) => {
-
+const CustomTooltip = ({payload, label, isTimeDependent}) => {
     if (payload && payload.length) {
         return (
             <div className='line-graph-tooltip bg-white p-3'>
                 <p className='text-dark fw-bold fs-5 m-0'>{payload[0].value.toFixed(3)}</p>
                 <p className='text-secondary m-0 label'>
-                    {label}
+                    {isTimeDependent ? formatTime(moment(label)) : label}
                 </p>
             </div>
         );
@@ -19,6 +20,7 @@ const CustomTooltip = ({payload, label}) => {
 };
 
 CustomTooltip.propTypes = {
+    isTimeDependent: PropTypes.bool,
     label: PropTypes.any,
     payload: PropTypes.array
 };
@@ -42,7 +44,9 @@ const AreaGraph = ({
         left: 0,
         bottom: 35
     },
-    hasWarnings = false
+    hasWarnings = false,
+    unit,
+    isTimeDependent = false
 }) => {
 
     return (
@@ -72,15 +76,16 @@ const AreaGraph = ({
                             stroke='transparent'
                             tick={{fill: theme.secondary, fontSize: 12}}
                             tickCount={6}
+                            unit={unit}
                         />
-                        <Tooltip content={<CustomTooltip />}/>
+                        <Tooltip content={<CustomTooltip isTimeDependent={isTimeDependent}/>}/>
                         <defs>
                             <linearGradient id='color' x1='0' x2='0' y1='0' y2='1'>
                                 <stop offset='10%' stopColor={color} stopOpacity={0.7}/>
                                 <stop offset='90%' stopColor='#FFFFFF' stopOpacity={0.1}/>
                             </linearGradient>
                             <linearGradient id='warning' x1='0' x2='0' y1='0' y2='1'>
-                                <stop offset='10%' stopColor={theme.warning} stopOpacity={0.7}/>
+                                <stop offset='10%' stopColor={theme.warning} stopOpacity={0.9}/>
                                 <stop offset='90%' stopColor='#FFFFFF' stopOpacity={0.1}/>
                             </linearGradient>
                         </defs>
@@ -99,6 +104,7 @@ const AreaGraph = ({
                                 dataKey='warning'
                                 dot={hasDot ? {fill: theme.warning} : false}
                                 fill='url(#warning)'
+                                isAnimationActive={false}
                                 stroke={theme.warning}
                                 strokeWidth={2}
                                 type={graphType}
@@ -118,9 +124,11 @@ AreaGraph.propTypes = {
     hasBorder: PropTypes.bool,
     hasDot: PropTypes.bool,
     hasWarnings: PropTypes.bool,
+    isTimeDependent: PropTypes.bool,
     margin: PropTypes.object,
     tickFormatter: PropTypes.func,
     title: PropTypes.string,
+    unit: PropTypes.string,
     xAxisInterval: PropTypes.number,
     xAxisName: PropTypes.string,
     xAxisTicks: PropTypes.array,
