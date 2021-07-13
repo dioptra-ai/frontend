@@ -3,6 +3,7 @@ import LogoSymbol from './logo-symbol';
 import MenuItem from './menu-item';
 import {BottomMenuItemsConfig, TopMenuItemsConfig} from '../configs/menu-config';
 import {Link, useLocation} from 'react-router-dom';
+import {getMatchingRouteConfig} from '../configs/route-config';
 
 const Menu = () => {
     const location = useLocation();
@@ -11,12 +12,15 @@ const Menu = () => {
         return (
             <div>
                 {configs.map(({icon, url}, idx) => {
+                    const matchingConfig = getMatchingRouteConfig(location.pathname);
+                    const isActive = location.pathname.startsWith(url) || matchingConfig.menuMatch === url;
+
                     return (
                         <Link key={idx} to={url}>
                             <MenuItem
                                 className='my-5 d-flex justify-content-center'
                                 icon={icon}
-                                isActive={location.pathname.startsWith(url)}
+                                isActive={isActive}
                                 size={24}
                             />
                         </Link>

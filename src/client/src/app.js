@@ -2,6 +2,7 @@ import React from 'react';
 import {Redirect, Route, Switch} from 'react-router-dom';
 import AuthorizedTemplate from './pages/templates/authorized-template';
 import {AuthorizedRouteConfigs, Paths, UnauthorizedRouteConfigs} from './configs/route-config';
+import {renderComponent} from './helpers/component-helper';
 
 const App = () => {
     return (
@@ -12,7 +13,7 @@ const App = () => {
                 ))}
                 {AuthorizedRouteConfigs.map(({path, isExact, component}) => (
                     <Route
-                        component={() => <AuthorizedTemplate>{component && component()}</AuthorizedTemplate>}
+                        component={() => <AuthorizedTemplate>{renderComponent(component)}</AuthorizedTemplate>}
                         exact={isExact}
                         key={path}
                         path={path}

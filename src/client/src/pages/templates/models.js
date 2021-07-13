@@ -1,6 +1,7 @@
 import {Link} from 'react-router-dom';
 import GeneralSearchBar from './general-search-bar';
 import React from 'react';
+import {setupComponent} from '../../helpers/component-helper';
 
 const Models = () => {
     return (
@@ -11,4 +12,4 @@ const Models = () => {
     );
 };
 
-export default Models;
+export default setupComponent(Models);

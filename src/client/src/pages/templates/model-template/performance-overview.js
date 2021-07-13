@@ -1,4 +1,5 @@
 import FilterInput from '../../../components/filter-input';
+import {setupComponent} from '../../../helpers/component-helper';
 
 const PerformanceOverview = () => {
     return (
@@ -8,4 +9,4 @@ const PerformanceOverview = () => {
     );
 };
 
-export default PerformanceOverview;
+export default setupComponent(PerformanceOverview);

@@ -6,6 +6,7 @@ import {Area, Bar, BarChart, Cell, ComposedChart, Line, Tooltip} from 'recharts'
 import {getRandomHexColor} from '../../../helpers/color-helper';
 import FontIcon from '../../../components/font-icon';
 import theme from '../../../styles/theme.module.scss';
+import {setupComponent} from '../../../helpers/component-helper';
 
 const FeatureIntegrityTableColumnConfigs = [
     {name: FeatureIntegrityTableColumnNames.FEATURE_NAME},
@@ -244,4 +245,4 @@ FeatureIntegrity.propTypes = {
     model: PropTypes.object
 };
 
-export default FeatureIntegrity;
+export default setupComponent(FeatureIntegrity);

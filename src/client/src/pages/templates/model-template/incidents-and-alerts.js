@@ -1,6 +1,8 @@
 import Alerts from './../../../components/alerts';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import {setupComponent} from '../../../helpers/component-helper';
+
 const IncidentsAndAlerts = () => {
     return (
         <Row>
@@ -11,4 +13,4 @@ const IncidentsAndAlerts = () => {
     );
 };
 
-export default IncidentsAndAlerts;
+export default setupComponent(IncidentsAndAlerts);
