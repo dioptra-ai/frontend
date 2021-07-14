@@ -2,6 +2,8 @@ import Button from 'react-bootstrap/Button';
 import FontIcon from './font-icon';
 import PropTypes from 'prop-types';
 import Pagination from './pagination';
+import {Link} from 'react-router-dom';
+import {Paths} from 'configs/route-config';
 
 const alerts = [
     {name: 'Alert logic available here', notify: 'PagerDuty'},
@@ -57,10 +59,12 @@ const Alerts = () => {
         <div className='alerts'>
             <div className='header py-3'>
                 <p className='fw-bold text-dark'>Alerts</p>
-                <Button className='text-white fw-bold' variant='primary'>
-                    <FontIcon className='text-white' icon='Plus' size={10}/>
+                <Link to={Paths().ADD_ALERT}>
+                    <Button className='text-white fw-bold' variant='primary'>
+                        <FontIcon className='text-white' icon='Plus' size={10}/>
                     ADD ALERT
-                </Button>
+                    </Button>
+                </Link>
             </div>
             <div className='border rounded px-3'>
                 <div className='table-row py-4 text-secondary fw-bold'>

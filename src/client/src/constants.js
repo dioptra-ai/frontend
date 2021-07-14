@@ -38,3 +38,5 @@ export const FeatureIntegrityTableColumnNames = {
     QUALITY_AND_OUTLIERS: 'Quality & Outliers',
     ACTION: 'Action'
 };
+
+export const noop = () => {};

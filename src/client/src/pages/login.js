@@ -7,6 +7,7 @@ import Logo from '../components/logo';
 import {Link} from 'react-router-dom';
 import Tooltip from '../components/tooltip';
 import FontIcon from '../components/font-icon';
+import {setupComponent} from '../helpers/component-helper';
 
 const Login = () => {
     const [loginData, setLoginData] = useState({email: '', password: ''});
@@ -92,4 +93,4 @@ const Login = () => {
     );
 };
 
-export default Login;
+export default setupComponent(Login);

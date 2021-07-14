@@ -7,20 +7,12 @@ import {Route, useLocation} from 'react-router-dom';
 import {ModelTabs, ModelTabsConfigs, getModelTab} from '../../../configs/model-config';
 import Container from 'react-bootstrap/Container';
 import {Paths} from '../../../configs/route-config';
+import {renderComponent, setupComponent} from '../../../helpers/component-helper';
+import PropTypes from 'prop-types';
 
-const model = {
-    id: 1,
-    name: 'Credit Card Transaction Fraud Detection',
-    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque bibendum sem eget convallis malesuada. Quisque accumsan nisi ut ipsum tincidunt, a posuere nisi viverra. Quisque a lorem tellus.',
-    deployed: 'May 5th, 2021 at 18:30',
-    incidents: 4,
-    owner: 'GG Team',
-    tier: 5,
-    version: 'V 1.01'
-};
-
-const Model = () => {
+const Model = ({modelStore}) => {
     const location = useLocation();
+    const model = modelStore.activeModel;
 
     return (
         <>
@@ -49,7 +41,7 @@ const Model = () => {
                             />
                             <div className='px-3'>
                                 <h2 className='text-dark fw-bold fs-2 my-5'>{tab.name}</h2>
-                                {component && component()}
+                                 {renderComponent(component)}
                             </div>
                         </Container>)}
                     exact
@@ -61,4 +53,8 @@ const Model = () => {
     );
 };
 
-export default Model;
+Model.propTypes = {
+    modelStore: PropTypes.object
+};
+
+export default setupComponent(Model);

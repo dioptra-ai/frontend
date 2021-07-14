@@ -11,6 +11,7 @@ import {IconNames} from '../../../constants';
 import {useEffect, useState} from 'react';
 import {Link} from 'react-router-dom';
 import {Paths} from '../../../configs/route-config';
+import {setupComponent} from '../../../helpers/component-helper';
 
 const getData = (timeRange, yMaxValue, divider) => {
     let dateMili = Date.now();
@@ -237,4 +238,4 @@ const PerformanceOverview = () => {
     );
 };
 
-export default PerformanceOverview;
+export default setupComponent(PerformanceOverview);
