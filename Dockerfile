@@ -4,6 +4,7 @@ MAINTAINER "Jacques Arnoux <jacques@dioptra.ai>"
 WORKDIR /app/
 COPY package.json .
 COPY package-lock.json .
+RUN touch /app/.env
 RUN npm ci
 
 COPY . .
