@@ -2,7 +2,7 @@ import {Strategy as LocalStrategy} from 'passport-local';
 import dotenv from 'dotenv';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
-import User from '../models/user.model.mjs';
+import User from '../models/user.mjs';
 
 dotenv.config();
 
@@ -19,7 +19,7 @@ const verifyCallback = async (username, password, done) => {
             return done('Wrong username or password.');
         }
 
-        const validPassword = await user.validPassword(password);
+        const validPassword = await user.validatePassword(password);
 
         if (!validPassword) {
             return done('Wrong username or password.');

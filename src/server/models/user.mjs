@@ -9,14 +9,25 @@ const userSchema = new mongoose.Schema({
     }}
 }, {timestamps: true});
 
+userSchema.statics.initializeCollection = async () => {
+
+    if (!await User.exists()) {
+        await User.create({username: 'admin', password: 'admin'});
+
+        console.log('Admin User Created');
+    }
+};
+
 // Instance Methods
 /**
  *
  * @param password
  * @returns promise
  */
-userSchema.methods.validPassword = function (password) {
+userSchema.methods.validatePassword = function (password) {
     return bcrypt.compare(password, this.password);
 };
 
-export default mongoose.model('User', userSchema);
+const User = mongoose.model('User', userSchema);
+
+export default User;
