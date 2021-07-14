@@ -8,7 +8,7 @@ import TextInput from 'components/text-input';
 
 const GeneralSearchBar = ({shouldShowOnlySearchInput}) => {
     return (
-        <div className='p-3 mb-2 d-flex align-items-center border-bottom'>
+        <div className='py-3 px-4 d-flex align-items-center border-bottom'>
             <FontIcon className='text-secondary' icon={IconNames.SEARCH} size={25}/>
             <div className='flex-grow-1 mx-3'>
                 <TextInput className='form-control border-0 py-3' placeholder='Search'/>

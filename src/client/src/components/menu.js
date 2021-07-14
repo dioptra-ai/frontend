@@ -18,7 +18,7 @@ const Menu = () => {
                     return (
                         <Link key={idx} to={url}>
                             <MenuItem
-                                className='my-5 d-flex justify-content-center'
+                                className='my-4 d-flex justify-content-center align-items-center'
                                 icon={icon}
                                 isActive={isActive}
                                 size={24}

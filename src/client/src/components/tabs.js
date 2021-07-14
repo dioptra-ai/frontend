@@ -4,8 +4,8 @@ import {NavLink} from 'react-router-dom';
 
 const Tabs = ({tabs = []}) => {
     return (
-        <Row className='border-bottom'>
-            <div className='d-flex pt-4' >
+        <Row className='border-bottom px-3'>
+            <div className='d-flex pt-4'>
                 {tabs.map((tab, i) => (
                     <NavLink
                         activeClassName='active text-primary'
