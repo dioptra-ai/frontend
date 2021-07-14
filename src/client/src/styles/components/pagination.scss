@@ -7,14 +7,14 @@
         button {
             border: none;
             background-color: transparent;
-            color: $secondary;
+            color: theme-color('secondary');
             padding: 0 10px 5px 10px;
             border-bottom: 2px solid transparent;
             margin-right: 10px;
             &.selected {
-                color: $dark;
+                color: theme-color('dark');
                 font-weight: bold;
-                border-bottom: 2px solid $primary;
+                border-bottom: 2px solid theme-color('primary');
             }
             &:disabled {
                 opacity: 0.7;
@@ -22,10 +22,10 @@
         }
     }
     .go-to-page {
-        color: $secondary;
+        color: theme-color('secondary');
         input {
             width: 30px;
-            border: 1px solid $border-color;
+            border: 1px solid theme-color('mercury');
             border-radius: 2px;
             padding-left: 5px;
             &:focus {

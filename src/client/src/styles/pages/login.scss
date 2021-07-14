@@ -16,14 +16,14 @@
                 border: 1px solid transparent;
                 border-radius: 5px !important;
                 &:focus {
-                    border: 1px solid $dark;
+                    border: 1px solid theme-color('dark');
                     box-shadow: none;
                 }
                 &.error {
-                    border: 1px solid $warning;
+                    border: 1px solid theme-color('warning');
                 }
                 &::placeholder {
-                    color: $secondary;
+                    color: theme-color('secondary');
                 }
             }
             .error-icon {

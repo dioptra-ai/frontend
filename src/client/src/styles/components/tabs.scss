@@ -1,5 +1,5 @@
 .tab {
-    font-family: "Inter";
+    font-family: 'Inter';
     margin-right: 40px;
     text-decoration: none;
     span {
@@ -7,9 +7,9 @@
     }
     &.active {
         cursor: auto;
-        font-family: "Inter Bold";
+        font-family: 'Inter Bold';
         span {
-            border-color: $primary;
+            border-color: theme-color('primary');
         }
     }
 }

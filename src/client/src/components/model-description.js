@@ -9,7 +9,7 @@ const ModelDescription = ({name, description, team, version, tier, lastDeployed,
     const [expand, setExpand] = useState(false);
 
     return (
-        <Container className='bg-light' fluid >
+        <Container className='bg-white-blue' fluid >
             <Row className='align-items-center mb-5 px-3'>
                 <Col className='d-flex align-items-center'>
                     <h1 className='text-dark fs-1 fw-bold m-0'>{name}</h1>

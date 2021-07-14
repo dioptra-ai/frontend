@@ -1,6 +1,15 @@
-$primary: #1FA9C8;
-$secondary: #8C9AA7;
-$warning: #F8886C;
-$success: #62BD6C;
-$dark: #405364;
-$light: #e8eced;
+$theme-colors: (
+    'primary': #1FA9C8,
+    'secondary': #8C9AA7,
+    'warning': #F8886C,
+    'success': #62BD6C,
+    'dark': #405364,
+    'light': #e8eced,
+    'light-blue': #EEF4F6,
+    'white-blue': #F7FAFB,
+    'mercury': #E5E5E5
+);
+
+@function theme-color($key) {
+    @return map-get($theme-colors, $key);
+}
