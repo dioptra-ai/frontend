@@ -30,6 +30,10 @@ spec:
               value: mongodb://db.default.svc.cluster.local:4005/dioptra
             - name: PORT
               value: "4004"
+            - name: COOKIE_SECRET
+              value: "12345"
+            - name: COOKIE_DURATION_HRS
+              value: "12"
           image: 641017132295.dkr.ecr.us-east-2.amazonaws.com/frontend:latest
           name: dioptra-frontend
           ports:
