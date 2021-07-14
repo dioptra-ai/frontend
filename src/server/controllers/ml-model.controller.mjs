@@ -22,7 +22,7 @@ MLModelRouter.put('/:model/offline-class-distribution/', async function(req, res
         const model = await MLModel.findById(req.params.model);
 
         if (!model) {
-            return res.status(422).send({error: 'invalid_model_id'});
+            return next(new Error('Invalid model'));
         }
 
         const total = _.sum(req.body.map((item) => item.value));
@@ -43,7 +43,7 @@ MLModelRouter.get('/:model/performance-details/', async function (req, res, next
         const model = await MLModel.findById(req.params.model);
 
         if (!model) {
-            return res.status(422).send({error: 'invalid_model_id'});
+            return next(new Error('Invalid model'));
         }
 
         const fromDate = new Date(req.query.from);
@@ -51,11 +51,11 @@ MLModelRouter.get('/:model/performance-details/', async function (req, res, next
         const period = req.query.period ?? 'MINUTE';
 
         if (!['SECOND', 'MINUTE', 'HOUR'].includes(period)) {
-            return res.status(422).send({error: 'invalid_period_type'});
+            return next(new Error('Invalid parameter value: period'));
         }
 
         if (fromDate >= toDate || (toDate.getTime() - fromDate.getTime()) / (1000 * 3600 * 24) > (process.env.TIME_SERIES_RANGE_MAX_DAYS ?? 30)) {
-            return res.status(422).send({error: 'invalid_date_range'});
+            return next(new Error('Invalid date range'));
         }
 
         const from = fromDate.toISOString().replace('Z', '').replace('T', ' ');
