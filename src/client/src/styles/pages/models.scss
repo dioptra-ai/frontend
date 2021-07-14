@@ -1,0 +1,11 @@
+/* React-Bootstrap Tooltip doesn't allow customization of the content wrapper div */
+div#modelsTooltip {
+  div.tooltip-inner {
+    background-color: theme-color('warning');
+    max-width: 300px;
+  }
+}
+
+.models-table {
+  table-layout: fixed;
+}

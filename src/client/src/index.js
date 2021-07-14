@@ -8,12 +8,10 @@ import {Provider} from 'mobx-react';
 
 
 ReactDOM.render(
-    <React.StrictMode>
-        <Router>
-            <Provider {...state}>
-                <App />
-            </Provider>
-        </Router>
-    </React.StrictMode>,
+    <Router>
+        <Provider {...state}>
+            <App />
+        </Provider>
+    </Router>,
     document.getElementById('root')
 );

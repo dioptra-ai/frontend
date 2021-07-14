@@ -17,3 +17,6 @@ export const lastDays = (days) => last(days, 'days');
 export const lastHours = (hours) => last(hours, 'hours');
 export const lastMinutes = (minutes) => last(minutes, 'minutes');
 
+export const reformat = (dateString, formatFrom, formatTo) => moment(dateString, formatFrom).format(formatTo);
+export const reformatWithAt = (date) => reformat(date, null, 'MM/DD/YYYY HH:mm'.replace(' ', ' [at] '));
+
