@@ -5,13 +5,15 @@ import Col from 'react-bootstrap/Col';
 import AreaGraph from '../../../components/area-graph';
 import {formatTime} from '../../../helpers/date-helper';
 import moment from 'moment';
-import DropdownMenu from '../../../components/dropdown';
+import Select from '../../../components/select';
 import FontIcon from '../../../components/font-icon';
 import {IconNames} from '../../../constants';
 import {useEffect, useState} from 'react';
 import {Link} from 'react-router-dom';
 import {Paths} from '../../../configs/route-config';
 import {setupComponent} from '../../../helpers/component-helper';
+import {ModelPerformanceMetrics} from '../../../enums/model-performance-metrics';
+import {ModelPerformanceIndicators} from '../../../enums/model-performance-indicators';
 
 const getData = (timeRange, yMaxValue, divider) => {
     let dateMili = Date.now();
@@ -74,10 +76,10 @@ const modelMetrics = [
     {name: 'Precision', mark: '21,638', value: 37.8, unit: undefined, notifications: 0, warnings: 0}
 ];
 const PerformanceOverview = () => {
-    const [selectedMetric, setSelectedMetric] = useState('Accuracy');
+    const [selectedMetric, setSelectedMetric] = useState(ModelPerformanceMetrics.ACCURACY.value);
     const [metricData, setMetricData] = useState(getData(600, 100, 60));
     const [showIncidents, setShowIncidents] = useState(false);
-    const [selectedIndicator, setSelectedIndicator] = useState('Adoption');
+    const [selectedIndicator, setSelectedIndicator] = useState(ModelPerformanceIndicators.ADOPTION.value);
     const [indicatorData, setIndicatorData] = useState(getData(600, 1000, 60));
 
     useEffect(() => {
@@ -163,16 +165,13 @@ const PerformanceOverview = () => {
                             <input checked={showIncidents} onChange={handleIncidents} type='checkbox'/>
                             <span>Show past incidents</span>
                         </label>
-                        <DropdownMenu
-                            label={selectedMetric}
-                            onClick={(e) => setSelectedMetric(e.target.name)}
-                            options={[
-                                'Accuracy',
-                                'F1 Score',
-                                'Precision',
-                                'Recall'
-                            ]}
-                        />
+                        <div style={{width: '200px'}}>
+                            <Select
+                                initialValue={selectedMetric}
+                                onChange={setSelectedMetric}
+                                options={Object.values(ModelPerformanceMetrics)}
+                            />
+                        </div>
                     </div>
                     <AreaGraph
                         dots={metricData}
@@ -196,16 +195,13 @@ const PerformanceOverview = () => {
                 <h3 className='text-dark fw-bold fs-3 mb-3'>Key Performance Indicators</h3>
                 <div className='border rounded p-3'>
                     <div className='d-flex justify-content-end my-3'>
-                        <DropdownMenu
-                            label={selectedIndicator}
-                            onClick={(e) => setSelectedIndicator(e.target.name)}
-                            options={[
-                                'Churn',
-                                'Adoption',
-                                'CTR',
-                                'Conversion'
-                            ]}
-                        />
+                        <div style={{width: '200px'}}>
+                            <Select
+                                initialValue={selectedIndicator}
+                                onChange={setSelectedIndicator}
+                                options={Object.values(ModelPerformanceIndicators)}
+                            />
+                        </div>
                     </div>
                     <Row className='m-0'>
                         <Col
