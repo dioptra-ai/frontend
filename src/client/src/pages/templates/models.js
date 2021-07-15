@@ -28,9 +28,9 @@ const Models = ({modelStore}) => {
                 {
                     modelStore.state === ModelStore.STATE_PENDING ? 'Loading...' :
                         modelStore.models.map((model) => (
-                            <Row key={model.mlModelId}>
+                            <Row key={model._id}>
                                 <Col>
-                                    <Link to={`/models/${model.mlModelId}/performance-overview`}><b>{model.name}</b></Link>
+                                    <Link to={`/models/${model._id}/performance-overview`}><b>{model.name}</b></Link>
                                 </Col>
                                 <Col xs={2}>
                                     {model.team?.name}
