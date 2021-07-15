@@ -17,7 +17,7 @@ const Model = ({modelStore}) => {
 
     useEffect(() => {
         modelStore.fetchModel(activeModelId);
-    }, []);
+    }, [activeModelId]);
 
     return model ? (
         <>

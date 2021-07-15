@@ -45,20 +45,23 @@ class ModelStore {
     }
 
     fetchModel(_id) {
-        this.state = ModelStore.STATE_PENDING;
 
-        window.fetch(`/api/ml-model/${_id}`)
-            .then((res) => res.json())
-            .then(action((model) => {
+        if (!this.modelsById[_id]) {
+            this.state = ModelStore.STATE_PENDING;
 
-                this.modelsById[model._id] = model;
+            window.fetch(`/api/ml-model/${_id}`)
+                .then((res) => res.json())
+                .then(action((model) => {
 
-                this.state = ModelStore.STATE_DONE;
-            })).catch(action((e) => {
-                console.error(e);
+                    this.modelsById[model._id] = model;
 
-                this.state = ModelStore.STATE_ERROR;
-            }));
+                    this.state = ModelStore.STATE_DONE;
+                })).catch(action((e) => {
+                    console.error(e);
+
+                    this.state = ModelStore.STATE_ERROR;
+                }));
+        }
     }
 }
 
