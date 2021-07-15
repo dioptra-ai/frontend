@@ -1,12 +1,18 @@
-import {serverConfig} from './src/server/index.mjs';
-serverConfig();
-
 import express from 'express';
 import passport from 'passport';
 import {dirname, join, resolve} from 'path';
 import {fileURLToPath} from 'url';
+import dotenv from 'dotenv';
+
 import {sessionHandler, userAuth} from './src/server/middleware/authentication.mjs';
 import ApiRouter from './src/server/api-router.mjs';
+import './src/server/models/index.mjs';
+
+const result = dotenv.config();
+
+if (result.error) {
+    throw result.error;
+}
 
 const app = express();
 const basePath = dirname(fileURLToPath(import.meta.url));

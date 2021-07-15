@@ -1,10 +1,8 @@
 import {Strategy as LocalStrategy} from 'passport-local';
-import dotenv from 'dotenv';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
 import User from '../models/user.mjs';
 
-dotenv.config();
 
 const customFields = {
     usernameField: 'username',
