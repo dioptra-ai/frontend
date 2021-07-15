@@ -11,7 +11,7 @@ import ApiRouter from './src/server/api-router.mjs';
 const app = express();
 const basePath = dirname(fileURLToPath(import.meta.url));
 
-app.use(express.static(join(basePath, '/src/client/build')));
+app.use(express.static(join(basePath, 'build')));
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 
@@ -26,11 +26,11 @@ app.use('/api', ApiRouter);
 
 // Serve frontend on all routes other than /api
 app.get('*', (req, res, next) => {
-    res.sendFile(resolve(basePath, 'src', 'client', 'build', 'index.html'));
+    res.sendFile(resolve(basePath, 'build', 'index.html'));
 });
 
 const port = process.env.PORT;
 
 app.listen(port, function () {
-    console.log(`Running Webpage EXPRESS, Listening on ${port}`);
+    console.log(`Listening on ${port}`);
 });

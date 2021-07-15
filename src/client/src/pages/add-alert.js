@@ -16,7 +16,6 @@ import {NotificationTypes} from 'enums/notification-types';
 import TextArea from 'components/text-area';
 import TextInput from 'components/text-input';
 import {setupComponent} from '../helpers/component-helper';
-import {Paths} from '../configs/route-config';
 import {noop} from '../constants';
 import DynamicArray from '../components/generic/dynamic-array';
 
@@ -189,7 +188,7 @@ TagRow.propTypes = {
     rowState: PropTypes.object
 };
 
-const AddAlertPage = ({modelStore}) => {
+const AddAlertPage = () => {
     const conditionInitialValue = {
         logicalOperator: LogicalOperators.AND.value,
         name: AlertConditions.PERCENT_DIFF_ABS.value,
@@ -210,7 +209,7 @@ const AddAlertPage = ({modelStore}) => {
     const [stateExecutionErrorOrTimeout, setStateExecutionErrorOrTimeout] = useState(AlertErrorHandlingStatuses.ALERTING.value);
 
     const goToPreviousRoute = useCallback(() => {
-        history.push(Paths(modelStore.activeModelId).MODEL_INCIDENTS_AND_ALERTS);
+        history.goBack();
     }, []);
     const handleCreate = useCallback(() => {
         const newAlert = {alertName, alertType, evaluationPeriod, conditions, conditionsPeriod, autoResolve,
@@ -280,10 +279,6 @@ const AddAlertPage = ({modelStore}) => {
             </Row>
         </Container>
     );
-};
-
-AddAlertPage.propTypes = {
-    modelStore: PropTypes.object
 };
 
 export default setupComponent(AddAlertPage, 'AddAlertPage');

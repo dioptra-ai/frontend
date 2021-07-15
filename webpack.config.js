@@ -9,7 +9,7 @@ module.exports = {
     devtool: 'source-map',
     entry: './src/client/src/index.js',
     output: {
-        path: path.resolve(__dirname, 'src/client/build'),
+        path: path.resolve(__dirname, 'build'),
         publicPath: '/',
         filename: 'bundle.js'
     },
