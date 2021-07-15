@@ -1,5 +1,5 @@
-import {ModelStore} from './model-store';
+import {modelStore} from './model-store';
 
 export default {
-    modelStore: ModelStore
+    modelStore
 };

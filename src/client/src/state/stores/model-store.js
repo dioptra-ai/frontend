@@ -1,35 +1,69 @@
-import {makeAutoObservable} from 'mobx';
+import {action, makeAutoObservable} from 'mobx';
 
-export const ModelStore = makeAutoObservable({
-    models: [
-        {
-            mlModelId: '1',
-            name: 'Credit Card Transaction Fraud Detection',
-            description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque bibendum sem eget convallis malesuada. Quisque accumsan nisi ut ipsum tincidunt, a posuere nisi viverra. Quisque a lorem tellus.',
-            lastDeployed: 'May 5th, 2021 at 18:30',
-            incidents: 4,
-            team: {
-                name: 'GG Team'
-            },
-            tier: 5,
-            version: 'V 1.01'
-        },
-        {
-            mlModelId: '2',
-            name: 'Product Recommendation',
-            description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque bibendum sem eget convallis malesuada. Quisque accumsan nisi ut ipsum tincidunt, a posuere nisi viverra. Quisque a lorem tellus.',
-            lastDeployed: 'May 4th, 2021 at 19:30',
-            incidents: 40,
-            team: {
-                name: 'GG Team'
-            },
-            tier: 3,
-            version: 'V 1.02'
-        }
-    ],
+class ModelStore {
+    modelsById = {};
 
-    getModelById(id) {
+    static STATE_DONE = 'STATE_DONE';
 
-        return this.models.find(({mlModelId}) => id === mlModelId);
+    static STATE_PENDING = 'STATE_PENDING';
+
+    static STATE_ERROR = 'STATE_ERROR';
+
+    state = ModelStore.STATE_DONE;
+
+    constructor() {
+        makeAutoObservable(this);
     }
-});
+
+    get models() {
+
+        return Object.values(this.modelsById);
+    }
+
+    getModelById(_id) {
+
+        return this.modelsById[_id];
+    }
+
+    fetchModels() {
+        this.state = ModelStore.STATE_PENDING;
+
+        window.fetch('/api/ml-model')
+            .then((res) => res.json())
+            .then(action((models) => {
+
+                models.forEach((model) => {
+                    this.modelsById[model._id] = model;
+                });
+
+                this.state = ModelStore.STATE_DONE;
+            })).catch(action((e) => {
+                console.error(e);
+
+                this.state = ModelStore.STATE_ERROR;
+            }));
+    }
+
+    fetchModel(_id) {
+
+        if (!this.modelsById[_id]) {
+            this.state = ModelStore.STATE_PENDING;
+
+            window.fetch(`/api/ml-model/${_id}`)
+                .then((res) => res.json())
+                .then(action((model) => {
+
+                    this.modelsById[model._id] = model;
+
+                    this.state = ModelStore.STATE_DONE;
+                })).catch(action((e) => {
+                    console.error(e);
+
+                    this.state = ModelStore.STATE_ERROR;
+                }));
+        }
+    }
+}
+
+export const modelStore = new ModelStore();
+export {ModelStore};

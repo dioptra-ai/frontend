@@ -16,25 +16,21 @@ const connectionOptions = {
     useUnifiedTopology: true
 };
 
-const dbConfig = function() {
-    mongoose.connect(process.env.DB_CONNECTION_URI, connectionOptions);
+mongoose.connect(process.env.DB_CONNECTION_URI, connectionOptions);
 
-    mongoose.connection.on('error', console.error.bind(console, 'DB connection error:'));
-    mongoose.connection.once('open', () => {
-        console.log('Connected to DB');
+mongoose.connection.on('error', console.error.bind(console, 'DB connection error:'));
+mongoose.connection.once('open', () => {
+    console.log('Connected to DB');
 
-        allModels.forEach(async (model) => {
+    allModels.forEach(async (model) => {
 
-            if (model.hasOwnProperty('initializeCollection')) {
+        if (model.hasOwnProperty('initializeCollection')) {
 
-                try {
-                    await model.initializeCollection();
-                } catch (e) {
-                    console.error(`Error initializing collection ${model.modelName}: ${e.message}`);
-                }
+            try {
+                await model.initializeCollection();
+            } catch (e) {
+                console.error(`Error initializing collection ${model.modelName}: ${e.message}`);
             }
-        });
+        }
     });
-};
-
-export {dbConfig};
+});

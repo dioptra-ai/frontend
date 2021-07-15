@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import GeneralSearchBar from '../general-search-bar';
 import ModelDescription from '../../../components/model-description';
 import Breadcrumb from '../../../components/breadcrumb';
@@ -12,10 +12,14 @@ import PropTypes from 'prop-types';
 
 const Model = ({modelStore}) => {
     const location = useLocation();
-    const activeModelId = useParams().mlModelId;
+    const activeModelId = useParams()._id;
     const model = modelStore.getModelById(activeModelId);
 
-    return (
+    useEffect(() => {
+        modelStore.fetchModel(activeModelId);
+    }, [activeModelId]);
+
+    return model ? (
         <>
             <GeneralSearchBar/>
             <Breadcrumb links={[
@@ -43,7 +47,7 @@ const Model = ({modelStore}) => {
                 />
             ))}
         </>
-    );
+    ) : 'Loading...';
 };
 
 Model.propTypes = {
