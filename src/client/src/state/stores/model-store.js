@@ -52,14 +52,20 @@ class ModelStore {
     fetchModels() {
         this.state = ModelStore.STATE_PENDING;
 
-        setTimeout(action('fetchModelsSuccess', () => {
+        window.fetch('/api/ml-model')
+            .then((res) => res.json())
+            .then(action((models) => {
 
-            Object.values(__HARD_CODED_MONGO_INDEX).forEach((model) => {
-                this.modelsById[model._id] = model;
-            });
+                models.forEach((model) => {
+                    this.modelsById[model._id] = model;
+                });
 
-            this.state = ModelStore.STATE_DONE;
-        }), 1000);
+                this.state = ModelStore.STATE_DONE;
+            })).catch(action((e) => {
+                console.error(e);
+
+                this.state = ModelStore.STATE_ERROR;
+            }));
     }
 
     fetchModel(id) {
