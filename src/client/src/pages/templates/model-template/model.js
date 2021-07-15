@@ -19,8 +19,8 @@ const Model = ({modelStore}) => {
             <GeneralSearchBar/>
             <Breadcrumb links={[
                 {name: 'Models', path: Paths().MODELS},
-                {name: model.name, path: Paths(model.id).MODEL_PERFORMANCE_OVERVIEW},
-                {...getModelTab(model.id, location.pathname)}
+                {name: model.name, path: Paths(model.mlModelId).MODEL_PERFORMANCE_OVERVIEW},
+                {...getModelTab(model.mlModelId, location.pathname)}
             ]}/>
             <ModelDescription
                 deployed={model.deployed}
@@ -32,12 +32,12 @@ const Model = ({modelStore}) => {
                 version={model.version}
             />
 
-            {ModelTabsConfigs(model.id).map(({tab, component}) => (
+            {ModelTabsConfigs(model.mlModelId).map(({tab, component}) => (
                 <Route
                     component={() => (
                         <Container fluid>
                             <Tabs
-                                tabs={ModelTabs(model.id)}
+                                tabs={ModelTabs(model.mlModelId)}
                             />
                             <div className='px-3'>
                                 <h2 className='text-dark fw-bold fs-2 my-5'>{tab.name}</h2>

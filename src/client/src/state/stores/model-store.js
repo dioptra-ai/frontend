@@ -30,8 +30,7 @@ export const ModelStore = makeAutoObservable({
     ],
 
     get activeModel() {
-        const activeModel = this.models.filter((m) => m.id === this.activeModelId);
 
-        return activeModel && activeModel.length ? activeModel[0] : {};
+        return this.models.find(({mlModelId}) => mlModelId === this.activeModelId);
     }
 });
