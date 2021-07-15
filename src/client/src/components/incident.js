@@ -4,6 +4,7 @@ import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
 import FontIcon from './font-icon';
 import PropTypes from 'prop-types';
+import {IconNames} from '../constants';
 
 const Incident = ({
     name = ' ',
@@ -22,7 +23,7 @@ const Incident = ({
                 <input className='mx-2' type='checkbox' />
                 <FontIcon
                     className={`text-${resolved ? 'success' : 'warning'} mx-2`}
-                    icon={resolved ? 'Check' : 'Warning'}
+                    icon={resolved ? IconNames.CHECK : IconNames.WARNING}
                     size={20}
                 />
                 <span className='flex-fill mx-2'>{name}</span>

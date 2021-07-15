@@ -4,6 +4,7 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import FontIcon from './font-icon';
 import PropTypes from 'prop-types';
+import {IconNames} from '../constants';
 
 const Expandable = ({content, expandedContent}) => {
     const [expand, setExpand] = useState(false);
@@ -15,7 +16,7 @@ const Expandable = ({content, expandedContent}) => {
                     <Col lg={11}>{content}</Col>
                     <Col className='text-center small' lg={1}>
                         <span onClick={() => setExpand(!expand)}>
-                            <FontIcon icon={expand ? 'Arrow-Up' : 'Arrow-Down'} />
+                            <FontIcon icon={expand ? IconNames.ARROW_UP : IconNames.ARROW_DOWN }/>
                         </span>
                     </Col>
                 </Row>

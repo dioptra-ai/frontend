@@ -8,6 +8,7 @@ import {Link} from 'react-router-dom';
 import Tooltip from '../components/tooltip';
 import FontIcon from '../components/font-icon';
 import {setupComponent} from '../helpers/component-helper';
+import {IconNames} from '../constants';
 
 const Login = () => {
     const [loginData, setLoginData] = useState({email: '', password: ''});
@@ -47,7 +48,7 @@ const Login = () => {
                         />
                         {emailError && <FontIcon
                             className='text-warning error-icon'
-                            icon='Warning'
+                            icon={IconNames.WARNING}
                             size={20}
                         />}
                     </InputGroup>
@@ -66,7 +67,7 @@ const Login = () => {
                         />
                         {passwordError && <FontIcon
                             className='text-warning error-icon'
-                            icon='Warning'
+                            icon={IconNames.WARNING}
                             size={20}
                         />}
                     </InputGroup>
