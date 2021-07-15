@@ -41,7 +41,7 @@ const ModelDescription = ({name, description, team, version, tier, lastDeployed,
                     </Col>
                     <Col className='details-col' lg={2}>
                         <p className='fw-bold'>Owner</p>
-                        <p>{team?.name}</p>
+                        <p>{team?.name || <>&nbsp;</>}</p>
                     </Col>
                     <Col className='details-col' lg={2}>
                         <p className='fw-bold'>Version</p>
