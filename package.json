@@ -28,6 +28,7 @@
     "eslint": "^7.29.0",
     "eslint-plugin-prettier": "^3.4.0",
     "eslint-plugin-react": "^7.24.0",
+    "eslint-watch": "^7.0.0",
     "file-loader": "^6.2.0",
     "html-webpack-plugin": "^5.3.2",
     "husky": "^6.0.0",
@@ -71,13 +72,14 @@
     "start": "node index.mjs",
     "dev-server": "nodemon --watch index.mjs --watch src/server index.mjs",
     "dev-client": "webpack --watch --mode=development",
+    "dev-lint": "esw --color --watch --cache --fix ./src",
     "start:frontend": "webpack serve --mode=development --open --hot",
     "build:frontend": "webpack --mode=production",
     "lint": "eslint ./src --cache --fix --ext .js --ext .mjs",
     "prepare": "husky install",
     "test": "jest",
     "tdd": "jest --watch",
-    "dev": "npm-run-all -p dev-server dev-client"
+    "dev": "npm-run-all -p dev-server dev-client dev-lint"
   },
   "eslintConfig": {
     "extends": [

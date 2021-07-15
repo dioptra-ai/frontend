@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 const FontIcon = ({icon = '', className = '', size = 15, onClick}) => (
-    <span className={`Icon-${icon} ${className}`} onClick={onClick} style={{fontSize: `${size}px`, cursor: onClick ? 'pointer' : 'auto'}}/>
+    <span className={`Icon-${icon} ${className}`} onClick={onClick} style={{fontSize: `${size}px`, cursor: onClick ? 'pointer' : ''}}/>
 );
 
 FontIcon.propTypes = {

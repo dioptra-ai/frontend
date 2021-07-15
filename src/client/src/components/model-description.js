@@ -5,14 +5,14 @@ import Col from 'react-bootstrap/Col';
 import PropTypes from 'prop-types';
 import FontIcon from './font-icon';
 
-const ModelDescription = ({title, description, owner, version, tier, deployed, incidents}) => {
+const ModelDescription = ({name, description, team, version, tier, lastDeployed, incidents}) => {
     const [expand, setExpand] = useState(false);
 
     return (
         <Container className='bg-light' fluid >
             <Row className='align-items-center mb-5 px-3'>
                 <Col className='d-flex align-items-center'>
-                    <h1 className='text-dark fs-1 fw-bold m-0'>{title}</h1>
+                    <h1 className='text-dark fs-1 fw-bold m-0'>{name}</h1>
                     <button className='btn-expand bg-transparent' onClick={() => setExpand(!expand)}>
                         <FontIcon
                             className='text-dark'
@@ -41,7 +41,7 @@ const ModelDescription = ({title, description, owner, version, tier, deployed, i
                     </Col>
                     <Col className='details-col' lg={2}>
                         <p className='fw-bold'>Owner</p>
-                        <p>{owner}</p>
+                        <p>{team?.name}</p>
                     </Col>
                     <Col className='details-col' lg={2}>
                         <p className='fw-bold'>Version</p>
@@ -53,7 +53,7 @@ const ModelDescription = ({title, description, owner, version, tier, deployed, i
                     </Col>
                     <Col className='details-col' lg={2}>
                         <p className='fw-bold'>Last Deployed</p>
-                        <p>{deployed}</p>
+                        <p>{lastDeployed}</p>
                     </Col>
                 </Row>
             </div>
@@ -63,12 +63,12 @@ const ModelDescription = ({title, description, owner, version, tier, deployed, i
 };
 
 ModelDescription.propTypes = {
-    deployed: PropTypes.string,
     description: PropTypes.string,
     incidents: PropTypes.number,
-    owner: PropTypes.string,
+    lastDeployed: PropTypes.string,
+    name: PropTypes.string,
+    team: PropTypes.object,
     tier: PropTypes.number,
-    title: PropTypes.string,
     version: PropTypes.string
 };
 
