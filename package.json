@@ -53,10 +53,13 @@
     "express": "^4.17.1",
     "express-session": "^1.17.2",
     "jquery": "^3.6.0",
+    "lodash": "^4.17.21",
+    "mathjs": "^9.4.3",
     "mobx": "^6.3.2",
     "mobx-react": "^7.2.0",
     "moment": "^2.29.1",
     "mongoose": "^5.13.0",
+    "node-fetch": "^2.6.1",
     "passport": "^0.4.1",
     "passport-local": "^1.0.0",
     "prop-types": "^15.7.2",
@@ -104,7 +107,9 @@
       "**/**/__tests__/**/*-test.js?(x)"
     ],
     "transform": {
-      "^.+\\.[t|j]sx?$": "babel-jest"
-    }
+      "^.+\\.[t|j]sx?$": "babel-jest",
+      "^.+\\.mjs$": "babel-jest"
+    },
+    "moduleFileExtensions": ["js", "jsx", "mjs"]
   }
 }
