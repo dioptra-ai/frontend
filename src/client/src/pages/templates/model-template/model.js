@@ -12,7 +12,7 @@ import PropTypes from 'prop-types';
 
 const Model = ({modelStore}) => {
     const location = useLocation();
-    const activeModelId = useParams().modelId;
+    const activeModelId = useParams()._id;
     const model = modelStore.getModelById(activeModelId);
 
     useEffect(() => {

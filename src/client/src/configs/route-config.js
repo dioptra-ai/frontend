@@ -8,7 +8,7 @@ export const Paths = (id) => (
         HOME: '/home',
         LOGIN: '/login',
         MODELS: '/models',
-        MODEL: '/models/:model_id',
+        MODEL: '/models/:_id',
         MODEL_PERFORMANCE_OVERVIEW: `/models/${id}/performance-overview`,
         MODEL_PERFORMANCE_DETAILS: `/models/${id}/performance-details`,
         MODEL_FEATURE_INTEGRITY: `/models/${id}/feature-integrity`,

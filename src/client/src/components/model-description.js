@@ -10,7 +10,7 @@ import {IconNames} from '../constants';
 
 const ModelDescription = ({name, description, team, version, tier, lastDeployed, incidents}) => {
     const [expand, setExpand] = useState(false);
-    const {modelId} = useParams();
+    const {_id} = useParams();
 
     return (
         <Container className='bg-white-blue' fluid >
@@ -26,7 +26,7 @@ const ModelDescription = ({name, description, team, version, tier, lastDeployed,
                     </button>
                 </Col>
                 <Col className='d-flex justify-content-end' lg={3}>
-                    <Link className='btn-incidents text-decoration-none text-dark fw-bold fs-5 p-3' to={Paths(modelId).MODEL_INCIDENTS_AND_ALERTS}>
+                    <Link className='btn-incidents text-decoration-none text-dark fw-bold fs-5 p-3' to={Paths(_id).MODEL_INCIDENTS_AND_ALERTS}>
                         Open Incidents
                         <FontIcon
                             className={`${incidents ? 'text-warning' : 'text-success'} mx-2`}
