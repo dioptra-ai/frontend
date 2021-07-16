@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import React, {useState} from 'react';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -10,7 +10,7 @@ import {IconNames} from '../constants';
 
 const ModelDescription = ({name, description, team, version, tier, lastDeployed, incidents}) => {
     const [expand, setExpand] = useState(false);
-    const {model_id} = useParams();
+    const {modelId} = useParams();
 
     return (
         <Container className='bg-white-blue' fluid >
@@ -26,7 +26,7 @@ const ModelDescription = ({name, description, team, version, tier, lastDeployed,
                     </button>
                 </Col>
                 <Col className='d-flex justify-content-end' lg={3}>
-                    <Link className='btn-incidents text-decoration-none text-dark fw-bold fs-5 p-3' to={Paths(model_id).MODEL_INCIDENTS_AND_ALERTS}>
+                    <Link className='btn-incidents text-decoration-none text-dark fw-bold fs-5 p-3' to={Paths(modelId).MODEL_INCIDENTS_AND_ALERTS}>
                         Open Incidents
                         <FontIcon
                             className={`${incidents ? 'text-warning' : 'text-success'} mx-2`}

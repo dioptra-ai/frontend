@@ -1,3 +1,4 @@
+import React, {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import FilterInput from '../../../components/filter-input';
 import Row from 'react-bootstrap/Row';
@@ -8,7 +9,6 @@ import moment from 'moment';
 import Select from '../../../components/select';
 import FontIcon from '../../../components/font-icon';
 import {IconNames} from '../../../constants';
-import {useEffect, useState} from 'react';
 import {Link} from 'react-router-dom';
 import {Paths} from '../../../configs/route-config';
 import {setupComponent} from '../../../helpers/component-helper';

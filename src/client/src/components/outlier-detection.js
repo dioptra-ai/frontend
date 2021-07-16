@@ -1,10 +1,10 @@
+import React, {useState} from 'react';
 import {Area, CartesianGrid, ComposedChart, ResponsiveContainer, Scatter, XAxis, YAxis, ZAxis} from 'recharts';
 import Legend from './graph-legend';
 import Table from './table';
 import Select from './select';
 import {OutlierDetectionOptions} from '../enums/outlier-detection-options';
 import theme from '../styles/theme.module.scss';
-import {useState} from 'react';
 
 const data = [
     {

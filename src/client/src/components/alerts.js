@@ -1,3 +1,4 @@
+import React, {useState} from 'react';
 import Button from 'react-bootstrap/Button';
 import FontIcon from './font-icon';
 import {IconNames} from '../constants';
@@ -5,7 +6,6 @@ import PropTypes from 'prop-types';
 import Pagination from './pagination';
 import {Link} from 'react-router-dom';
 import {Paths} from 'configs/route-config';
-import {useState} from 'react';
 import useModal from '../customHooks/useModal';
 import Modal from './modal';
 
@@ -92,7 +92,7 @@ const Alerts = () => {
                             name={alert.name}
                             notifyBy={alert.notify}
                             onDelete={() => {
-                                setSelectedAlert(alerts.find((a) => a.id === alert.id));
+                                setSelectedAlert(alert);
                                 setDeleteAlertModal(true);
                             }}
                             onEdit={handleAlertEdit}
