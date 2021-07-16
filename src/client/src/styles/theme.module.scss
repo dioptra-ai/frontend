@@ -1,10 +1,13 @@
 @import './theme.scss';
 
 :export {
-    primary: $primary;
-    secondary: $secondary;
-    warning: $warning;
-    success: $success;
-    dark: $dark;
-    light: $light;
+    primary: theme-color('primary');
+    secondary: theme-color('secondary');
+    warning: theme-color('warning');
+    success: theme-color('success');
+    dark: theme-color('dark');
+    light: theme-color('light');
+    light-blue: theme-color('light-blue');
+    mercury: theme-color('mercury');
+    white-blue: theme-color('white-blue');
 }

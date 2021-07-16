@@ -2,7 +2,7 @@
   position: fixed;
   inset: 0;
   width: $menu-width;
-  background-color: $gray-300;
+  background-color: theme-color('light-blue');
 
   a {
     text-decoration: none !important;

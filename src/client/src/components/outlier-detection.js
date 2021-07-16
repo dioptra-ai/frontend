@@ -1,7 +1,9 @@
+import React, {useState} from 'react';
 import {Area, CartesianGrid, ComposedChart, ResponsiveContainer, Scatter, XAxis, YAxis, ZAxis} from 'recharts';
 import Legend from './graph-legend';
 import Table from './table';
-import DropdownMenu from './dropdown';
+import Select from './select';
+import {OutlierDetectionOptions} from '../enums/outlier-detection-options';
 import theme from '../styles/theme.module.scss';
 
 const data = [
@@ -173,6 +175,9 @@ const tableData = [
 ];
 
 const OutlierDetection = () => {
+    const [selectedOption, setSelectedOption] = useState(OutlierDetectionOptions.EXPORT.value);
+
+
     return (
         <div className='my-5'>
             <h3 className='text-dark fw-bold fs-3 mb-3'>Outlier detection</h3>
@@ -221,8 +226,10 @@ const OutlierDetection = () => {
                         {name: 'Confidence of Class 10% - 90%', fill: theme.primary, fillOpacity: '.15'}
                     ]}
                 />
-                <div className='d-flex justify-content-end my-3'>
-                    <DropdownMenu label='Export' options={['Download CSV', 'Save to']}/>
+                <div className='d-flex justify-content-end my-3' >
+                    <div style={{width: '200px'}}>
+                        <Select initialValue={selectedOption} onChange={setSelectedOption} options={Object.values(OutlierDetectionOptions)}/>
+                    </div>
                 </div>
                 <Table
                     columns={tableColumns}

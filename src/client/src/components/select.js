@@ -4,6 +4,8 @@ import DropdownToggle from 'react-bootstrap/DropdownToggle';
 import Dropdown from 'react-bootstrap/Dropdown';
 import DropdownMenu from 'react-bootstrap/DropdownMenu';
 import DropdownItem from 'react-bootstrap/DropdownItem';
+import FontIcon from './font-icon';
+import {IconNames} from '../constants';
 import {noop} from 'constants';
 
 const Select = ({textColor = 'dark', backgroundColor = 'white', borderColor = 'light', onChange = noop, options, initialValue}) => {
@@ -20,11 +22,16 @@ const Select = ({textColor = 'dark', backgroundColor = 'white', borderColor = 'l
     }
 
     return (
-        <Dropdown>
-            <DropdownToggle className={`w-100 text-start py-3 ps-3 rounded-3 text-${textColor} border-1 border-${borderColor} d-flex align-items-center`} variant={backgroundColor}>
+        <Dropdown className='w-100'>
+            <DropdownToggle bsPrefix='p-0' className={`w-100 text-start p-3 rounded-3 text-${textColor} border-1 border-${borderColor} d-flex align-items-center`} variant={backgroundColor}>
                 <span className='pe-4 w-100'>{activeOption && activeOption.length ? activeOption[0].name : ''}</span>
+                <FontIcon
+                    className='text-dark'
+                    icon={IconNames.ARROW_DOWN}
+                    size={6}
+                />
             </DropdownToggle>
-            <DropdownMenu>
+            <DropdownMenu className='p-0 w-100 border-0 shadow'>
                 {options.map((o) => <DropdownItem
                     eventKey={o.value}
                     key={o.value}

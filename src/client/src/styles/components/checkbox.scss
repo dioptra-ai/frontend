@@ -10,7 +10,7 @@
         -moz-appearance: none;
         -o-appearance: none;
         appearance: none;
-        border: 1px solid $border-color;
+        border: 1px solid theme-color('mercury');
         border-radius: 2px;
         outline: none;
         margin-right: 10px;
@@ -19,7 +19,7 @@
             content: '\2713';
             display: block;
             text-align: center;
-            color: $dark;
+            color: theme-color('dark');
             position: absolute;
             left: 3px;
             top: calc(50% - 7px);

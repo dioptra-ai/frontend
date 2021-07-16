@@ -4,11 +4,11 @@ import Container from 'react-bootstrap/Container';
 
 const Breadcrumb = ({links = []}) => {
     return (
-        <Container className='bg-light text-secondary py-4' fluid>
+        <Container className='bg-white-blue text-secondary py-4' fluid>
             <div className='breadcrumb m-0 px-3'>
                 {links.map((link, i) => (
                     <span className='link' key={i}>
-                        <Link className='text-secondary' to={link.path}>
+                        <Link className='text-secondary fw-bold' to={link.path}>
                             {link.name}
                         </Link>
                     </span>
