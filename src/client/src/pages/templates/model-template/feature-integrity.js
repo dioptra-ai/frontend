@@ -108,7 +108,7 @@ const FeatureIntegrityRow = ({name}) => {
     const incidentCount = 4;
     const tdClasses = 'py-5 align-middle';
     const [featureType, setFeatureType] = useState(null);
-    const [featureOnlineDistribution] = useState(null);
+    const [featureOnlineDistribution, setFeatureOnlineDistribution] = useState(null);
     const {ref, inView} = useInView();
 
     useEffect(() => {
@@ -119,7 +119,7 @@ const FeatureIntegrityRow = ({name}) => {
 
                 timeseriesClient({
                     query: `
-                      SELECT "${name}" FROM "dioptra-combined-eventstream"
+                      SELECT "${name}" FROM "dioptra-gt-combined-eventstream"
                       WHERE "${name}" IS NOT NULL LIMIT 100
                     `
                 }).then((values) => {
@@ -129,7 +129,32 @@ const FeatureIntegrityRow = ({name}) => {
                     } else {
                         setFeatureType('Number');
                     }
-                });
+                }).catch(console.error);
+            }
+
+            if (!featureOnlineDistribution) {
+
+                timeseriesClient({
+                    query: `
+                            select 
+                              cast(my_table.my_count as float) / cast(my_count_table.total_count as float) AS "value", 
+                              my_table."${name}"
+                              from (
+                                  SELECT count(*) as my_count, "${name}"
+                                  FROM "dioptra-gt-combined-eventstream"
+                                  GROUP BY 2
+                                  LIMIT 100
+                              ) as my_table
+                              NATURAL JOIN (
+                                  SELECT count(*) as total_count
+                                  FROM "dioptra-gt-combined-eventstream"
+                                  LIMIT 100
+                              ) as my_count_table
+                            `
+                }).then((values) => {
+                    console.log(values);
+                    setFeatureOnlineDistribution(values.map((v) => v.value));
+                }).catch(console.error);
             }
         }
     }, [inView]);
