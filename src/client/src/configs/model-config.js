@@ -2,7 +2,7 @@ import {ModelTabNames} from '../constants';
 import {Paths} from './route-config';
 import PerformanceOverview from '../pages/templates/model-template/performance-overview';
 import PerformanceDetails from '../pages/templates/model-template/performance-details';
-import FeatureIntegrity from '../pages/templates/model-template/feature-integrity';
+import FeatureIntegrityTable from '../pages/templates/model-template/feature-integrity';
 import IncidentsAndAlerts from '../pages/templates/model-template/incidents-and-alerts';
 
 export const ModelTabs = (id) => (
@@ -22,9 +22,9 @@ export const getModelTab = (id, pathname) => {
 
 export const ModelTabsConfigs = (id) => (
     [
-        {tab: ModelTabs(id)[0], component: PerformanceOverview},
-        {tab: ModelTabs(id)[1], component: PerformanceDetails},
-        {tab: ModelTabs(id)[2], component: FeatureIntegrity},
-        {tab: ModelTabs(id)[3], component: IncidentsAndAlerts}
+        {tab: ModelTabs(id)[0], TabComponent: PerformanceOverview},
+        {tab: ModelTabs(id)[1], TabComponent: PerformanceDetails},
+        {tab: ModelTabs(id)[2], TabComponent: FeatureIntegrityTable},
+        {tab: ModelTabs(id)[3], TabComponent: IncidentsAndAlerts}
     ]
 );
