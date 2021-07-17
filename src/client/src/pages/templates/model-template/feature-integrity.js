@@ -75,7 +75,15 @@ const renderKSTestLineChart = (data, isValid) => {
 
 const OnlineDistributionTooltip = ({payload}) => {
     if (payload && payload.length) {
-        return (<div className='p-3 bg-white shadow-lg'>{payload[0].payload.dist}%</div>);
+        const {payload: {value, dist}} = payload[0];
+
+        return (
+            <div className='p-3 bg-white shadow-lg'>
+                {value || '<empty>'}
+                <br/>
+                {(100 * Number(dist)).toFixed(2)}%
+            </div>
+        );
     }
 
     return null;
@@ -137,8 +145,8 @@ const FeatureIntegrityRow = ({name}) => {
                 timeseriesClient({
                     query: `
                             select 
-                              cast(my_table.my_count as float) / cast(my_count_table.total_count as float) AS "value", 
-                              my_table."${name}"
+                              cast(my_table.my_count as float) / cast(my_count_table.total_count as float) AS "dist", 
+                              my_table."${name}" AS "value"
                               from (
                                   SELECT count(*) as my_count, "${name}"
                                   FROM "dioptra-gt-combined-eventstream"
@@ -153,7 +161,7 @@ const FeatureIntegrityRow = ({name}) => {
                             `
                 }).then((values) => {
                     console.log(values);
-                    setFeatureOnlineDistribution(values.map((v) => v.value));
+                    setFeatureOnlineDistribution(values);
                 }).catch(console.error);
             }
         }
@@ -173,7 +181,10 @@ const FeatureIntegrityRow = ({name}) => {
             </td>
             <td className={tdClasses}>{featureType}</td>
             <td className={tdClasses}>
-                <OnlineDistributionBarChart distribution={featureOnlineDistribution?.map((a) => ({dist: a, color: getRandomHexColor(0.65)}))}/>
+                <OnlineDistributionBarChart distribution={featureOnlineDistribution?.map(({value, dist}) => ({
+                    value, dist,
+                    color: getRandomHexColor(0.65)
+                }))}/>
             </td>
             <td className={tdClasses}>
                 {['Top 4 values', '5684: 15%', '8902: 29.7%', '0058: 2.1%', '6001: 0.12%']
