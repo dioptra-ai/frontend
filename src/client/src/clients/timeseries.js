@@ -22,11 +22,11 @@ export default ({query, resultFormat = 'object'}) => {
 
         if (resJson.error) {
 
-            return Promise.reject(new Error(resJson.error));
+            throw new Error(resJson.error);
         } else {
 
             // Removing the first row as it only contains the column names.
             return resJson.slice(1);
         }
-    }).catch(console.error);
+    });
 };
