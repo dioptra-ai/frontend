@@ -7,7 +7,7 @@ import {Route, useLocation, useParams} from 'react-router-dom';
 import {ModelTabs, ModelTabsConfigs, getModelTab} from '../../../configs/model-config';
 import Container from 'react-bootstrap/Container';
 import {Paths} from '../../../configs/route-config';
-import {renderComponent, setupComponent} from '../../../helpers/component-helper';
+import {setupComponent} from '../../../helpers/component-helper';
 import PropTypes from 'prop-types';
 
 const Model = ({modelStore}) => {
@@ -29,7 +29,7 @@ const Model = ({modelStore}) => {
             ]}/>
             <ModelDescription {...model}/>
 
-            {ModelTabsConfigs(activeModelId).map(({tab, component}) => (
+            {ModelTabsConfigs(activeModelId).map(({tab, TabComponent}) => (
                 <Route
                     component={() => (
                         <Container fluid>
@@ -38,7 +38,7 @@ const Model = ({modelStore}) => {
                             />
                             <div className='px-3'>
                                 <h2 className='text-dark fw-bold fs-2 my-5'>{tab.name}</h2>
-                                {renderComponent(component)}
+                                <TabComponent model={model}/>
                             </div>
                         </Container>)}
                     exact
