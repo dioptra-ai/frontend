@@ -38,7 +38,7 @@ const KSTestTooltip = ({payload}) => {
 
         return (
             <div className='p-3 bg-white shadow-lg'>
-                <div>{data.y.toFixed(3)}</div>
+                <div className='fw-bold'>{data.y.toFixed(2)}</div>
                 <div className='text-secondary'><small>{data.x}</small></div>
             </div>
         );
@@ -79,9 +79,8 @@ const OnlineDistributionTooltip = ({payload}) => {
 
         return (
             <div className='p-3 bg-white shadow-lg'>
-                {value || '<empty>'}
-                <br/>
-                {(100 * Number(dist)).toFixed(2)}%
+                <div>{(100 * Number(dist)).toFixed(2)}%</div>
+                <div className='text-secondary'><small>{value || '<empty>'}</small></div>
             </div>
         );
     }
