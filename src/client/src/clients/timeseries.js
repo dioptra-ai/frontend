@@ -15,6 +15,7 @@ export default ({query, resultFormat = 'object'}) => {
             query,
             resultFormat,
             header: true,
+            // TODO: Make this a config or a parameter
             context: {sqlOuterLimit: 100}
         }),
         method: 'post'
