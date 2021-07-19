@@ -14,7 +14,11 @@ module.exports = {
         filename: 'bundle.js'
     },
     resolve: {
-        modules: [path.join(__dirname, 'src', 'client', 'src'), 'node_modules'],
+        modules: [
+            path.join(__dirname, 'src', 'client', 'src'),
+            path.join(__dirname, 'src', 'server'),
+            'node_modules'
+        ],
         alias: {
             react: path.join(__dirname, 'node_modules', 'react')
         }

@@ -5,12 +5,12 @@ import {Area, Bar, BarChart, Cell, ComposedChart, Line, Tooltip} from 'recharts'
 import {useInView} from 'react-intersection-observer';
 
 
-import {FeatureIntegrityTableColumnNames, IconNames} from '../../../constants';
-import {getRandomHexColor} from '../../../helpers/color-helper';
-import FontIcon from '../../../components/font-icon';
-import theme from '../../../styles/theme.module.scss';
-import {setupComponent} from '../../../helpers/component-helper';
-import timeseriesClient from '../../../clients/timeseries';
+import {FeatureIntegrityTableColumnNames, IconNames} from 'constants';
+import {getRandomHexColor} from 'helpers/color-helper';
+import FontIcon from 'components/font-icon';
+import theme from 'styles/theme.module.scss';
+import {setupComponent} from 'helpers/component-helper';
+import timeseriesClient from 'clients/timeseries';
 
 const FeatureIntegrityTableColumnConfigs = [
     {name: FeatureIntegrityTableColumnNames.FEATURE_NAME},
@@ -111,7 +111,7 @@ OnlineDistributionBarChart.propTypes = {
     distribution: PropTypes.array
 };
 
-const FeatureIntegrityRow = ({name}) => {
+const FeatureIntegrityRow = ({name, timeStore}) => {
     const incidentCount = 4;
     const tdClasses = 'py-5 align-middle';
     const [featureType, setFeatureType] = useState(null);
@@ -127,7 +127,9 @@ const FeatureIntegrityRow = ({name}) => {
                 timeseriesClient({
                     query: `
                       SELECT "${name}" FROM "dioptra-gt-combined-eventstream"
-                      WHERE "${name}" IS NOT NULL LIMIT 100
+                      WHERE "${name}" IS NOT NULL
+                        AND ${timeStore.sQLTimeFilter}
+                      LIMIT 100
                     `
                 }).then((values) => {
 
@@ -149,17 +151,19 @@ const FeatureIntegrityRow = ({name}) => {
                               from (
                                   SELECT count(*) as my_count, "${name}"
                                   FROM "dioptra-gt-combined-eventstream"
+                                  WHERE ${timeStore.sQLTimeFilter}
                                   GROUP BY 2
                                   LIMIT 100
                               ) as my_table
                               NATURAL JOIN (
                                   SELECT count(*) as total_count
                                   FROM "dioptra-gt-combined-eventstream"
+                                  WHERE ${timeStore.sQLTimeFilter}
                                   LIMIT 100
                               ) as my_count_table
                             `
                 }).then((values) => {
-                    console.log(values);
+
                     setFeatureOnlineDistribution(values);
                 }).catch(console.error);
             }
@@ -187,7 +191,7 @@ const FeatureIntegrityRow = ({name}) => {
             </td>
             <td className={tdClasses}>
                 {['Top 4 values', '5684: 15%', '8902: 29.7%', '0058: 2.1%', '6001: 0.12%']
-                    .map((s) => <div key={s.name}>{s.name}</div>)}
+                    .map((s, i) => <div key={i}>{s.name}</div>)}
             </td>
             <td className={tdClasses}>{renderKSTestLineChart(mockKSTest, true)}</td>
             <td className={tdClasses}>
@@ -199,14 +203,17 @@ const FeatureIntegrityRow = ({name}) => {
 };
 
 FeatureIntegrityRow.propTypes = {
-    name: PropTypes.string
+    name: PropTypes.string,
+    timeStore: PropTypes.object
 };
 
-const FeatureIntegrityTable = ({errorStore, model}) => {
-    const [featureNames, setFeatureNames] = useState([]);
+const ObserverFeatureIntegrityRow = setupComponent(FeatureIntegrityRow);
+
+const FeatureIntegrityTable = ({errorStore, timeStore}) => {
+    const [allFeatureNames, setAllFeatureNames] = useState(null);
+    const [nonNullFeatureNames, setNonNullFeatureNames] = useState([]);
 
     useEffect(() => {
-
         timeseriesClient({
             query: `
                 SELECT COLUMN_NAME 
@@ -214,21 +221,27 @@ const FeatureIntegrityTable = ({errorStore, model}) => {
                 WHERE TABLE_NAME = 'dioptra-gt-combined-eventstream'
                 `
         }).then((res) => {
+            setAllFeatureNames(res.map((row) => row['COLUMN_NAME']));
+        }).catch(errorStore.reportError);
+    }, []);
 
-            const allFeatureNames = res.map((row) => row['COLUMN_NAME']);
+    useEffect(() => {
 
-            return timeseriesClient({
+        if (allFeatureNames) {
+
+            timeseriesClient({
                 query: `
                     SELECT ${allFeatureNames.map((f) => `COUNT("${f}")`).join(', ')}
                     FROM "dioptra-gt-combined-eventstream"
+                    WHERE ${timeStore.sQLTimeFilter}
                 `,
                 resultFormat: 'array'
-            }).then((nonNullCounts) => {
+            }).then(([nonNullCounts]) => {
 
-                setFeatureNames(allFeatureNames.filter((_, i) => nonNullCounts[0][i] !== 0));
-            });
-        }).catch(errorStore.reportError);
-    }, [model._id]);
+                setNonNullFeatureNames(allFeatureNames.filter((_, i) => nonNullCounts && nonNullCounts[i] !== 0));
+            }).catch((e) => errorStore.reportError(e));
+        }
+    }, [allFeatureNames, timeStore.sQLTimeFilter]);
 
     return (
         <div className='border border-1 p-3'>
@@ -239,7 +252,7 @@ const FeatureIntegrityTable = ({errorStore, model}) => {
                     </tr>
                 </thead>
                 <tbody>
-                    {featureNames.map((f) => <FeatureIntegrityRow key={f} name={f}/>)}
+                    {nonNullFeatureNames.map((f) => <ObserverFeatureIntegrityRow key={f} name={f}/>)}
                 </tbody>
             </Table>
         </div>
@@ -248,7 +261,7 @@ const FeatureIntegrityTable = ({errorStore, model}) => {
 
 FeatureIntegrityTable.propTypes = {
     errorStore: PropTypes.object,
-    model: PropTypes.object
+    timeStore: PropTypes.object
 };
 
 export default setupComponent(FeatureIntegrityTable);
