@@ -4,7 +4,7 @@ import Button from 'react-bootstrap/Button';
 
 const Pagination = ({totalPages, onPageChange}) => {
     const pages = Array.from({length: totalPages}, (_, i) => 1 + i);
-    const [selectedPage, setSelectedPage] = useState(1);
+    const [selectedPage, setSelectedPage] = useState(0);
     const [page, setPage] = useState('');
 
     useEffect(() => {
@@ -16,7 +16,7 @@ const Pagination = ({totalPages, onPageChange}) => {
             <div className='pages'>
                 <button
                     className='px-0'
-                    disabled={selectedPage <= 1}
+                    disabled={selectedPage <= 0}
                     onClick={() => setSelectedPage(selectedPage - 1)}
                 >
                 Previous
