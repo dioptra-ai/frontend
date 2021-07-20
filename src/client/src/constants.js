@@ -22,7 +22,8 @@ export const IconNames = {
 export const ModelTabNames = {
     PERFORMANCE_OVERVIEW: 'Performance Overview',
     PERFORMANCE_DETAILS: 'Performance Details',
-    FEATURE_INTEGRITY: 'Feature Integrity',
+    PREDICTION_ANALYSIS: 'Prediction Analysis',
+    FEATURE_ANALYSIS: 'Feature Analysis',
     INCIDENTS_AND_ALERTS: 'Incidents & Alerts'
 };
 
