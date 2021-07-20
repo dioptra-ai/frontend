@@ -7,7 +7,7 @@ jobs:
     steps:
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: dioptra-eks
-          aws-region: AWS_REGION
+          aws-region: us-east-2
       - helm/install-helm-chart:
           chart: ./helm
           helm-version: v3.6.0
@@ -26,11 +26,12 @@ workflows:
           name: lint
           version: 16.4.0 # This to be kept in sync with Dockerfile
           run-command: lint
-      - node/test:
-          name: test
-          version: 16.4.0 # This to be kept in sync with Dockerfile
-          requires:
-            - lint
+      # Skipping until we have tests worth the time.
+      # - node/test:
+      #     name: test
+      #     version: 16.4.0 # This to be kept in sync with Dockerfile
+      #     requires:
+      #       - lint
       - aws-ecr/build-and-push-image:
           name: package
           account-url: AWS_ECR_ACCOUNT_URL
@@ -45,7 +46,7 @@ workflows:
           context:
             - aws-creds
           requires:
-            - test
+            - lint
           filters:
             branches:
               only:
