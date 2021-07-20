@@ -4,6 +4,8 @@ version: 2.1
 orbs:
   aws-ecr: circleci/aws-ecr@7.0.0
   node: circleci/node@4.5
+  helm: circleci/helm@1.2.0
+  aws-eks: circleci/aws-eks@0.2
 
 workflows:
   "Integration":
@@ -35,4 +37,27 @@ workflows:
           filters:
             branches:
               only:
-                - main
+                - cicd
+      - aws-eks/update-kubeconfig-with-authenticator:
+          name: authenticate
+          cluster-name: dioptra-eks
+          context:
+            - aws-creds
+          requires:
+            - package
+          filters:
+            branches:
+              only:
+                - cicd
+      - helm/install-helm-chart:
+          chart: ./helm
+          helm-version: v3.6.0
+          release-name: frontend
+          context:
+            - aws-creds
+          requires:
+            - authenticate
+          filters:
+            branches:
+              only:
+                - cicd
