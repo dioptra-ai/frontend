@@ -101,7 +101,7 @@ const OnlineDistributionBarChart = ({distribution}) => {
                         <Cell accentHeight='0px' fill={d.color} key={i}/>
                     ))}
                 </Bar>
-                <Tooltip content={<OnlineDistributionTooltip />} />
+                <Tooltip content={<OnlineDistributionTooltip />} cursor={false}/>
             </BarChart>
         </div>
     ) : null;
@@ -177,7 +177,7 @@ const FeatureIntegrityRow = ({name, timeStore}) => {
                 <div className='text-secondary'><small>Lorem Ipsum</small></div>
             </td>
             <td className={tdClasses}>
-                <div className='d-flex align-items-center'>
+                <div className='d-flex align-items-center justify-content-center'>
                     {renderWarningCheckIcon(incidentCount === 0, 25)}
                     {incidentCount > 0 ? <span className='ms-1 text-warning'>{incidentCount}</span> : ''}
                 </div>
@@ -244,11 +244,11 @@ const FeatureIntegrityTable = ({errorStore, timeStore}) => {
     }, [allFeatureNames, timeStore.sQLTimeFilter]);
 
     return (
-        <div className='border border-1 p-3'>
+        <div className='border border-1 px-3 pb-3 pt-2'>
             <Table>
                 <thead>
                     <tr>
-                        {FeatureIntegrityTableColumnConfigs.map((c, idx) => (<th className={`text-secondary py-2 ${idx === 0 ? 'w-25' : ''}`} colSpan={idx > 0 ? 1 : 2} key={c.name}>{c.name}</th>))}
+                        {FeatureIntegrityTableColumnConfigs.map((c, idx) => (<th className={`text-secondary pb-3 ${idx === 0 ? 'w-25' : ''} ${idx === 1 ? 'text-center' : ''}`} colSpan={idx > 0 ? 1 : 2} key={c.name}>{c.name}</th>))}
                     </tr>
                 </thead>
                 <tbody>
