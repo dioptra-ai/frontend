@@ -116,7 +116,7 @@ const PerformanceDetails = ({errorStore, timeStore}) => {
         }).then((res) => {
             setPrecisionClasses(res);
             setPrecisionIndex(0);
-        }).catch(errorStore.reportError);
+        }).catch((e) => errorStore.reportError(e));
     }, [timeStore.sQLTimeFilter]);
 
     useEffect(() => {
@@ -147,7 +147,7 @@ const PerformanceDetails = ({errorStore, timeStore}) => {
         }).then((res) => {
             setRecallClasses(res);
             setRecallIndex(0);
-        }).catch(errorStore.reportError);
+        }).catch((e) => errorStore.reportError(e));
     }, [timeStore.sQLTimeFilter]);
 
     useEffect(() => {

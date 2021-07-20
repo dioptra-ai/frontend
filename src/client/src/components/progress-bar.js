@@ -1,21 +1,15 @@
 import PropTypes from 'prop-types';
 
 const ProgressBar = ({completed}) => {
-    const containerStyle = {
-        height: 10,
-        width: '100%',
-        borderRadius: 2,
-        overflow: 'hidden'
-    };
-
-    const fillerStyle = {
-        height: '100%',
-        width: `${completed}%`
-    };
-
     return (
-        <div className='bg-light-blue' style={containerStyle}>
-            <div className='bg-primary' style={fillerStyle}></div>
+        <div
+            className='bg-light-blue'
+            style={{height: 10, width: '100%', borderRadius: 2, overflow: 'hidden'}}
+        >
+            <div
+                className='bg-primary'
+                style={{height: '100%', width: `${completed}%`}}
+            ></div>
         </div>
     );
 };
