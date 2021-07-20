@@ -1,7 +1,4 @@
 import React, {useState} from 'react';
-import Container from 'react-bootstrap/Container';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
 import FontIcon from './font-icon';
 import PropTypes from 'prop-types';
 import {IconNames} from '../constants';
@@ -11,26 +8,25 @@ const Expandable = ({content, expandedContent}) => {
 
     return (
         <>
-            <Container>
-                <Row className='align-items-center'>
-                    <Col lg={11}>{content}</Col>
-                    <Col className='text-center small' lg={1}>
-                        <span onClick={() => setExpand(!expand)}>
-                            <FontIcon icon={expand ? IconNames.ARROW_UP : IconNames.ARROW_DOWN }/>
-                        </span>
-                    </Col>
-                </Row>
-            </Container>
-            <Container className='border-bottom bg-light'>
+            <div className='d-flex align-items-center'>
+                <div className='flex-grow-1'>{content}</div>
+                <FontIcon
+                    className='text-dark mx-3'
+                    icon={expand ? IconNames.ARROW_UP : IconNames.ARROW_DOWN }
+                    onClick={() => setExpand(!expand)}
+                    size={7}
+                />
+            </div>
+            <div className='bg-white-blue expand'>
                 {expand && expandedContent}
-            </Container>
+            </div>
         </>
     );
 };
 
 Expandable.propTypes = {
     content: PropTypes.element,
-    expandedContent: PropTypes.element
+    expandedContent: PropTypes.array
 };
 
 export default Expandable;

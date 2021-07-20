@@ -25,14 +25,14 @@ const alerts = [
 const Alert = ({name, notifyBy, onDelete, onEdit}) => {
     return (
         <div className='table-row py-4 text-dark'>
-            <div className='fw-bold'>
+            <div className='col fw-bold'>
                 <label className='checkbox'>
                     <input type='checkbox' />
                     <span>{name}</span>
                 </label>
             </div>
-            <div>{notifyBy ? notifyBy : '-'}</div>
-            <div className='actions-cell'>
+            <div className='col'>{notifyBy ? notifyBy : '-'}</div>
+            <div className='col actions-cell'>
                 <FontIcon className='text-dark mx-2' icon={IconNames.EDIT} onClick={onEdit} size={20}/>
                 <FontIcon className='text-dark mx-2' icon={IconNames.BIN} onClick={onDelete} size={20}/>
             </div>
@@ -66,7 +66,7 @@ const Alerts = () => {
     return (
         <>
             <div className='alerts'>
-                <div className='header py-3'>
+                <div className='header mb-3'>
                     <p className='fw-bold text-dark'>Alerts</p>
                     <Link to={Paths().ADD_ALERT}>
                         <Button className='text-white fw-bold' variant='primary'>
@@ -77,14 +77,14 @@ const Alerts = () => {
                 </div>
                 <div className='border rounded px-3'>
                     <div className='table-row py-4 text-secondary fw-bold'>
-                        <div>
+                        <div className='col'>
                             <label className='checkbox'>
                                 <input type='checkbox' />
                                 <span>Alert Name</span>
                             </label>
                         </div>
-                        <div>Notifications via</div>
-                        <div className='actions-cell'>Action</div>
+                        <div className='col'>Notifications via</div>
+                        <div className='actions-cell col'>Action</div>
                     </div>
                     {alerts.map((alert) => (
                         <Alert
