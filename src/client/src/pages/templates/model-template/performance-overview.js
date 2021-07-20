@@ -14,6 +14,7 @@ import {Paths} from '../../../configs/route-config';
 import {setupComponent} from '../../../helpers/component-helper';
 import {ModelPerformanceMetrics} from '../../../enums/model-performance-metrics';
 import {ModelPerformanceIndicators} from '../../../enums/model-performance-indicators';
+import timeseriesClient from 'clients/timeseries';
 
 const getData = (timeRange, yMaxValue, divider) => {
     let dateMili = Date.now();
@@ -33,7 +34,6 @@ const getData = (timeRange, yMaxValue, divider) => {
     return data;
 };
 
-const dataThroughput = getData(360, 50, 5);
 const dataLatency = getData(360, 25, 5);
 
 const MetricInfoBox = ({value, notifications, warnings, name, mark, unit}) => (
@@ -75,12 +75,28 @@ const modelMetrics = [
     {name: 'Recall', mark: '21,638', value: 31.6, unit: undefined, notifications: 0, warnings: 0},
     {name: 'Precision', mark: '21,638', value: 37.8, unit: undefined, notifications: 0, warnings: 0}
 ];
-const PerformanceOverview = () => {
+const PerformanceOverview = ({errorStore, timeStore}) => {
+    const [throughputData, setThroughputData] = useState([]);
     const [selectedMetric, setSelectedMetric] = useState(ModelPerformanceMetrics.ACCURACY.value);
     const [metricData, setMetricData] = useState(getData(600, 100, 60));
     const [showIncidents, setShowIncidents] = useState(false);
     const [selectedIndicator, setSelectedIndicator] = useState(ModelPerformanceIndicators.ADOPTION.value);
     const [indicatorData, setIndicatorData] = useState(getData(600, 1000, 60));
+
+    useEffect(() => {
+        timeseriesClient({
+            query: `
+                SELECT FLOOR(__time TO second) as "__time", COUNT(*) as throughput
+                FROM "dioptra-gt-combined-eventstream"
+                WHERE ${timeStore.sQLTimeFilter}
+                GROUP BY 1
+            `
+        }).then((res) => {
+            setThroughputData(res.map(({throughput, __time}) => (
+                {y: throughput, x: new Date(__time).getTime()}
+            )));
+        }).catch((e) => errorStore.reportError(e));
+    }, [timeStore.sQLTimeFilter]);
 
     useEffect(() => {
         setMetricData(getData(600, 100, 60));
@@ -113,20 +129,18 @@ const PerformanceOverview = () => {
             <div className='my-5'>
                 <h3 className='text-dark fw-bold fs-3 mb-3'>Service Performance</h3>
                 <Row>
-                    <Col lg={6}>
+                    {throughputData.length !== 0 && <Col lg={6}>
                         <AreaGraph
-                            dots={dataThroughput}
+                            dots={throughputData}
                             graphType='monotone'
                             hasDot={false}
                             isTimeDependent
                             tickFormatter={(tick) => formatTime(moment(tick))}
                             title='Throughput (QPS)'
-                            xAxisInterval={60}
                             xAxisName='Time'
-                            yAxisDomain={[0, 50]}
                             yAxisName='Daily average QPS'
                         />
-                    </Col>
+                    </Col>}
                     <Col lg={6}>
                         <AreaGraph
                             dots={dataLatency}
@@ -232,6 +246,11 @@ const PerformanceOverview = () => {
             </div>
         </>
     );
+};
+
+PerformanceOverview.propTypes = {
+    errorStore: PropTypes.object,
+    timeStore: PropTypes.object
 };
 
 export default setupComponent(PerformanceOverview);
