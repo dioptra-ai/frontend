@@ -32,7 +32,7 @@ const BarGraph = ({title, bars, yAxisName}) => {
                 >
                     <CartesianGrid strokeDasharray='5 5' vertical={false}/>
                     <YAxis
-                        domain={[0, 100]}
+                        domain={[0, (dataMax) => (dataMax + dataMax / 6)]}
                         dx={-5}
                         label={{fill: theme.dark, value: yAxisName, angle: -90, dx: -20, fontSize: 12}}
                         stroke='transparent'
