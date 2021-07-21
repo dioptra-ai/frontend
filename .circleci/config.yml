@@ -1,9 +1,26 @@
 # See: https://circleci.com/docs/2.0/configuration-reference
 version: 2.1
 
+jobs:
+  deploy-to-demo:
+    executor: aws-eks/python
+    steps:
+      - aws-eks/update-kubeconfig-with-authenticator:
+          cluster-name: dioptra-eks
+          aws-region: us-east-2
+      - checkout
+      - helm/upgrade-helm-chart:
+          atomic: true
+          chart: ./helm
+          helm-version: v3.6.0
+          release-name: frontend
+          update-repositories: false
+
 orbs:
   aws-ecr: circleci/aws-ecr@7.0.0
   node: circleci/node@4.5
+  helm: circleci/helm@1.2.0
+  aws-eks: circleci/aws-eks@0.2
 
 workflows:
   "Integration":
@@ -12,11 +29,12 @@ workflows:
           name: lint
           version: 16.4.0 # This to be kept in sync with Dockerfile
           run-command: lint
-      - node/test:
-          name: test
-          version: 16.4.0 # This to be kept in sync with Dockerfile
-          requires:
-            - lint
+      # Skipping until we have tests worth the time.
+      # - node/test:
+      #     name: test
+      #     version: 16.4.0 # This to be kept in sync with Dockerfile
+      #     requires:
+      #       - lint
       - aws-ecr/build-and-push-image:
           name: package
           account-url: AWS_ECR_ACCOUNT_URL
@@ -31,7 +49,16 @@ workflows:
           context:
             - aws-creds
           requires:
-            - test
+            - lint
+          filters:
+            branches:
+              only:
+                - main
+      - deploy-to-demo:
+          context:
+            - aws-creds
+          requires:
+            - package
           filters:
             branches:
               only:
