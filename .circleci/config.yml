@@ -9,10 +9,12 @@ jobs:
           cluster-name: dioptra-eks
           aws-region: us-east-2
       - checkout
-      - helm/install-helm-chart:
+      - helm/upgrade-helm-chart:
+          atomic: true
           chart: ./helm
           helm-version: v3.6.0
           release-name: frontend
+          update-repositories: false
 
 orbs:
   aws-ecr: circleci/aws-ecr@7.0.0
