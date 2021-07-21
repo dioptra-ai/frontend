@@ -19,11 +19,11 @@ const Models = ({modelStore}) => {
             <Container>
                 <Row>
                     <Col>
-                        Model Name
+                        <b>Model Name</b>
                     </Col>
-                    <Col xs={2}>Owner</Col>
-                    <Col xs={2}>Tier</Col>
-                    <Col xs={2}>Last Deployed</Col>
+                    <Col xs={2}><b>Owner</b></Col>
+                    <Col xs={2}><b>Tier</b></Col>
+                    <Col xs={2}><b>Last Deployed</b></Col>
                 </Row>
                 {
                     modelStore.state === ModelStore.STATE_PENDING ? 'Loading...' :
