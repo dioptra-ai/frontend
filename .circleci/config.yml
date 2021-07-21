@@ -2,7 +2,7 @@
 version: 2.1
 
 jobs:
-  install-helm-chart:
+  deploy-to-demo:
     executor: aws-eks/python
     steps:
       - aws-eks/update-kubeconfig-with-authenticator:
@@ -53,8 +53,8 @@ workflows:
           filters:
             branches:
               only:
-                - cicd
-      - install-helm-chart:
+                - main
+      - deploy-to-demo:
           context:
             - aws-creds
           requires:
@@ -62,4 +62,4 @@ workflows:
           filters:
             branches:
               only:
-                - cicd
+                - main
