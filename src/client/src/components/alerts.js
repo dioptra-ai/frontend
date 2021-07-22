@@ -103,7 +103,7 @@ const Alerts = () => {
                 <Pagination onPageChange={(page) => handlePageChange(page)} totalPages={8}/>
 
             </div>
-            {deleteAlertModal && <Modal>
+            {deleteAlertModal && <Modal className='bg-white rounded py-5 px-4'>
                 <p className='text-dark fw-bold fs-5 my-5 px-3 text-center'>
                     Are you sure you want do delete "{selectedAlert.name}" alert?
                 </p>

@@ -3,6 +3,7 @@ export const IconNames = {
     ARROW_DOWN: 'Arrow-Down',
     ARROW_UP: 'Arrow-Up',
     BIN: 'Bin',
+    CLOSE: 'Close',
     CHECK: 'Check',
     DATE: 'Date',
     EDIT: 'Edit',

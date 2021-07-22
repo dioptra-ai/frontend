@@ -10,6 +10,7 @@ import timeseriesClient from 'clients/timeseries';
 import {getName} from '../../../helpers/name-helper';
 import {IconNames} from '../../../constants';
 import BtnIcon from '../../../components/btn-icon';
+import ConfusionMatrix from '../../../components/confusion-matrix';
 
 const PerformanceBox = ({
     title = '',
@@ -30,14 +31,14 @@ const PerformanceBox = ({
                 <div className='w-100 d-flex align-items-center'>
                     <span className='d-flex flex-column'>
                         <BtnIcon
-                            className='text-dark my-1'
+                            className='text-dark my-1 border-0'
                             disabled={arrowUpDisabled}
                             icon={IconNames.ARROW_UP}
                             onClick={onArrowUp}
                             size={5}
                         />
                         <BtnIcon
-                            className='text-dark my-1'
+                            className='text-dark my-1 border-0'
                             disabled={arrowDownDisabled}
                             icon={IconNames.ARROW_DOWN}
                             onClick={onArrowDown}
@@ -90,7 +91,6 @@ const PerformanceDetails = ({errorStore, timeStore}) => {
     const [recallClasses, setRecallClasses] = useState([]);
     const [visibleRecallClasses, setVisibleRecallClasses] = useState([]);
     const [recallIndex, setRecallIndex] = useState(null);
-
 
     useEffect(() => {
         timeseriesClient({
@@ -197,9 +197,9 @@ const PerformanceDetails = ({errorStore, timeStore}) => {
                             ))}
                         </PerformanceBox>
                     </Col>
-
                 </Row>
             </div>
+            <ConfusionMatrix />
         </>
     );
 };
