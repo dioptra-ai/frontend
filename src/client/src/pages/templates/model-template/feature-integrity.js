@@ -222,7 +222,7 @@ const FeatureIntegrityTable = ({errorStore, timeStore}) => {
                 `
         }).then((res) => {
             setAllFeatureNames(res.map((row) => row['COLUMN_NAME']));
-        }).catch(errorStore.reportError);
+        }).catch((e) => errorStore.reportError(e));
     }, []);
 
     useEffect(() => {
