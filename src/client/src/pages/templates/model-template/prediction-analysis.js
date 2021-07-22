@@ -31,25 +31,35 @@ const PredictionAnalysis = ({errorStore, timeStore}) => {
 
     return (
         <Row className='my-5'>
-            <Col lg={4} >
+            <Col className='d-flex' lg={4} >
                 <BarGraph
                     bars={onlineDistribution.map((dist) => (
                         {name: getName(dist.prediction), value: dist.Count, fill: getRandomHexColor(1)}
                     ))}
+                    // bars={[
+                    //     {name: 'Fraudulent transaction', value: '46', fill: theme.primary},
+                    //     {name: 'Non fraudulent', value: '60', fill: '#F8C86C'},
+                    //     {name: 'Requires human review', value: '75', fill: theme.success},
+                    //     {name: 'Fraudulent transaction', value: '46', fill: theme.primary},
+                    //     {name: 'Requires human review', value: '75', fill: theme.success}
+                    // ]}
                     title='Online class distribution'
                     yAxisName='Count'
                 />
             </Col>
-            <Col lg={4}>
-                <BarGraph bars={[
-                    {name: 'Fraudulent transaction', value: '46', fill: theme.primary},
-                    {name: 'Non fraudulent', value: '60', fill: '#F8C86C'},
-                    {name: 'Requires human review', value: '75', fill: theme.success}
-                ]} title='Offline class distribution'
-                yAxisName='Count'
+            <Col className='d-flex' lg={4}>
+                <BarGraph
+                    bars={[
+                        {name: 'Fraudulent transaction', value: '46', fill: theme.primary},
+                        {name: 'Non fraudulent', value: '60', fill: '#F8C86C'},
+                        {name: 'Requires human review', value: '75', fill: theme.success}
+                    ]}
+                    title='Offline class distribution'
+                    yAxisDomain={[0, 100]}
+                    yAxisName='Count'
                 />
             </Col>
-            <Col lg={4}>
+            <Col className='d-flex' lg={4}>
                 <AreaGraph
                     dots={[
                         {x: '17:28', y: 0.45},

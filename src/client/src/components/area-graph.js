@@ -50,9 +50,9 @@ const AreaGraph = ({
 }) => {
 
     return (
-        <div className={`${hasBorder ? 'border px-3' : ''} rounded py-3`} >
+        <div className={`${hasBorder ? 'border px-3' : ''} rounded py-3 w-100`} >
             {title && <p className='text-dark fw-bold fs-5'>{title}</p>}
-            <div style={{height: '300px'}}>
+            <div style={{height: '355px'}}>
                 <ResponsiveContainer height='100%' width='100%'>
                     <AreaChart
                         data={dots}
