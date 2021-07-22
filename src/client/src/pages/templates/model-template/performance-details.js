@@ -95,23 +95,47 @@ const PerformanceDetails = ({errorStore, timeStore}) => {
     useEffect(() => {
         timeseriesClient({
             query: `
+                WITH
+                true_positive as (
+                  select
+                    'true_positive' as key,
+                    groundtruth as label,
+                    sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) as cnt_tp
+                  from
+                    "dioptra-gt-combined-eventstream"
+                  WHERE ${timeStore.sQLTimeFilter}
+                  group by groundtruth
+                  order by groundtruth
+                ),
+                true_sum as (
+                  select
+                    'true_sum' as key,
+                    prediction as label,
+                    count(1) as cnt_ts
+                  from
+                    "dioptra-gt-combined-eventstream"
+                  WHERE ${timeStore.sQLTimeFilter}
+                  group by prediction
+                  order by prediction
+                ),
+                pred_sum as (
+                  select
+                    'pred_sum' as key,
+                    groundtruth as label,
+                    count(1) as cnt_ps
+                  from
+                    "dioptra-gt-combined-eventstream"
+                  WHERE ${timeStore.sQLTimeFilter}
+                  group by groundtruth
+                  order by groundtruth
+                )
+
                 SELECT
-                relevantAndSelectedTable.prediction,
-                cast(relevantAndSelectedTable.c as FLOAT) / cast(selectedTable.c as FLOAT) as "precision"
-                FROM (
-                SELECT prediction, COUNT(*) AS c
-                FROM "dioptra-gt-combined-eventstream"
-                WHERE groundtruth = prediction
-                AND ${timeStore.sQLTimeFilter}
-                GROUP BY prediction
-                )  as relevantAndSelectedTable
-                LEFT JOIN (
-                SELECT prediction, COUNT(*) AS c
-                FROM "dioptra-gt-combined-eventstream"
-                WHERE ${timeStore.sQLTimeFilter}
-                GROUP BY prediction
-                ) AS selectedTable
-                ON relevantAndSelectedTable.prediction = selectedTable.prediction
+                  pred_sum.label,
+                  cast(true_positive.cnt_tp as double) / pred_sum.cnt_ps as "precision"
+                FROM true_positive
+                JOIN pred_sum
+                ON pred_sum.label = true_positive.label
             `
         }).then((res) => {
             setPrecisionClasses(res);
@@ -126,23 +150,47 @@ const PerformanceDetails = ({errorStore, timeStore}) => {
     useEffect(() => {
         timeseriesClient({
             query: `
+                WITH
+                true_positive as (
+                  select
+                    'true_positive' as key,
+                    groundtruth as label,
+                    sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) as cnt_tp
+                  from
+                    "dioptra-gt-combined-eventstream"
+                  WHERE ${timeStore.sQLTimeFilter}
+                  group by groundtruth
+                  order by groundtruth
+                ),
+                true_sum as (
+                  select
+                    'true_sum' as key,
+                    prediction as label,
+                    count(1) as cnt_ts
+                  from
+                    "dioptra-gt-combined-eventstream"
+                  WHERE ${timeStore.sQLTimeFilter}
+                  group by prediction
+                  order by prediction
+                ),
+                pred_sum as (
+                  select
+                    'pred_sum' as key,
+                    groundtruth as label,
+                    count(1) as cnt_ps
+                  from
+                    "dioptra-gt-combined-eventstream"
+                  WHERE ${timeStore.sQLTimeFilter}
+                  group by groundtruth
+                  order by groundtruth
+                )
+
                 SELECT
-                relevantAndSelectedTable.prediction,
-                cast(relevantAndSelectedTable.c as FLOAT) / cast(selectedTable.c as FLOAT) as "recall"
-                FROM (
-                SELECT prediction, COUNT(*) AS c
-                FROM "dioptra-gt-combined-eventstream"
-                WHERE groundtruth = prediction
-                AND ${timeStore.sQLTimeFilter}
-                GROUP BY prediction
-                )  as relevantAndSelectedTable
-                LEFT JOIN (
-                SELECT groundtruth, COUNT(*) AS c
-                FROM "dioptra-gt-combined-eventstream"
-                WHERE ${timeStore.sQLTimeFilter}
-                GROUP BY groundtruth
-                ) AS selectedTable
-                ON relevantAndSelectedTable.prediction = selectedTable.groundtruth
+                  true_sum.label,
+                  cast(true_positive.cnt_tp as double) / true_sum.cnt_ts as "recall"
+                FROM true_positive
+                JOIN true_sum
+                ON true_sum.label = true_positive.label
             `
         }).then((res) => {
             setRecallClasses(res);
@@ -173,7 +221,7 @@ const PerformanceDetails = ({errorStore, timeStore}) => {
                             {visiblePrecisionClasses.map((c, i) => (
                                 <ClassRow
                                     key={i}
-                                    name={getName(c.prediction)}
+                                    name={getName(c.label)}
                                     value={c.precision.toFixed(3)}
                                 />
                             ))}
@@ -191,7 +239,7 @@ const PerformanceDetails = ({errorStore, timeStore}) => {
                             {visibleRecallClasses.map((c, i) => (
                                 <ClassRow
                                     key={i}
-                                    name={getName(c.prediction)}
+                                    name={getName(c.label)}
                                     value={c.recall.toFixed(3)}
                                 />
                             ))}
