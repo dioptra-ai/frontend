@@ -66,6 +66,7 @@ const AreaGraph = ({
                             label={{fill: theme.dark, value: xAxisName, dy: 30, fontSize: 12}}
                             stroke='transparent'
                             tick={{fill: theme.secondary, fontSize: 12}}
+                            tickCount={5}
                             tickFormatter={(tick) => tickFormatter ? tickFormatter(tick) : tick}
                             ticks={xAxisTicks}
                         />
