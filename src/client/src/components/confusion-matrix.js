@@ -5,6 +5,11 @@ import timeseriesClient from 'clients/timeseries';
 import {getName} from '../helpers/name-helper';
 import {useTable} from 'react-table';
 import theme from '../styles/theme.module.scss';
+import BtnIcon from './btn-icon';
+import {IconNames} from '../constants';
+import CustomCarousel from './carousel';
+import Modal from './modal';
+import useModal from './../customHooks/useModal';
 
 const Table = ({columns, data, onCellClick}) => {
     const {
@@ -17,6 +22,7 @@ const Table = ({columns, data, onCellClick}) => {
             data
         }
     );
+    const [selectedCellKey, setSelectedCellKey] = useState('');
 
     const getCellBackground = (value) => {
         if (typeof value === 'number') {
@@ -26,6 +32,11 @@ const Table = ({columns, data, onCellClick}) => {
         } else {
             return 'transparent';
         }
+    };
+
+    const handleCellClick = (cell) => {
+        onCellClick(cell.column.id, cell.row.values.groundtruth);
+        setSelectedCellKey(cell.getCellProps().key);
     };
 
     return (
@@ -42,16 +53,22 @@ const Table = ({columns, data, onCellClick}) => {
                     prepareRow(row);
 
                     return (
-                        <tr className='border-white border-3' key={i}>
+                        <tr className='border-white border-2' key={i}>
                             {row.cells.map((cell, i) => {
                                 return (
                                     <td
-                                        className={`align-middle py-3 border-white border-3 text-${i === 0 ? 'left' : 'center'}`}
+                                        className='align-middle p-0 border-2 border-white'
                                         key={i}
-                                        onClick={() => cell.value && onCellClick(cell.column.id, cell.row.values.groundtruth)} {...cell.getCellProps()}
-                                        style={{backgroundColor: getCellBackground(cell.value), cursor: cell.value ? 'pointer' : 'auto'}}
+                                        onClick={() => i && cell.value && handleCellClick(cell)}
+                                        {...cell.getCellProps()}
+                                        style={{backgroundColor: getCellBackground(cell.value), cursor: (i && cell.value) ? 'pointer' : 'auto'}}
                                     >
-                                        {cell.render('Cell')}
+                                        <div
+                                            className={`d-flex align-items-center justify-content-${i ? 'center' : 'start'} -center border border-2 border-${cell.getCellProps().key === selectedCellKey ? 'dark' : 'white'}`}
+                                            style={{minHeight: '50px'}}
+                                        >
+                                            {cell.render('Cell')}
+                                        </div>
                                     </td>);
                             })}
                         </tr>
@@ -68,20 +85,51 @@ Table.propTypes = {
     onCellClick: PropTypes.func
 };
 
+const Examples = ({onClose, images}) => {
+    const [exampleInModal, setExampleInModal] = useModal(false);
+
+    return (
+        <div className='bg-white-blue p-3'>
+            <div className='d-flex align-items-center'>
+                <p className='text-dark m-0 fw-bold flex-grow-1'>Examples</p>
+                <BtnIcon
+                    className='text-dark border-0'
+                    icon={IconNames.CLOSE}
+                    onClick={onClose}
+                    size={15}
+                />
+            </div>
+            <CustomCarousel items={images} onItemClick={(example) => setExampleInModal(example)}/>
+            {exampleInModal && <Modal>
+                <div className='d-flex align-items-center my-3'>
+                    <p className='text-white m-0 flex-grow-1'>Example</p>
+                    <BtnIcon
+                        className='text-white mx-2 border-0'
+                        icon={IconNames.CLOSE}
+                        onClick={() => setExampleInModal(null)}
+                        size={15}
+                    />
+                </div>
+                <img alt='Example' className='rounded' src={exampleInModal} width='100%'/>
+            </Modal>}
+        </div>
+
+    );
+};
+
+Examples.propTypes = {
+    images: PropTypes.array,
+    onClose: PropTypes.func
+};
+
 const ConfusionMatrix = ({errorStore, timeStore}) => {
     const [groundtruthClasses, setGroundtruthClasses] = useState([]);
     const [predictionClasses, setPredictionClasses] = useState([]);
     const [matrixData, setMatrixData] = useState([]);
     const [tableData, setTableData] = useState([]);
-    const [columns, setColumns] = useState([{
-        Header: '',
-        accessor: 'groundtruth'
-    }]);
-    const [seletedCell, setSelectedCell] = useState({
-        prediction: '',
-        groundtruth: ''
-    });
-
+    const [columns, setColumns] = useState([]);
+    const [selectedCell, setSelectedCell] = useState(null);
+    const [examples, setExamples] = useState(null);
 
     const getClasses = (data, key) => {
         const classes = [];
@@ -127,12 +175,14 @@ const ConfusionMatrix = ({errorStore, timeStore}) => {
     useEffect(() => {
         const classes = predictionClasses.map((c) => ({
             Header: getName(c),
-            accessor: c
+            accessor: c,
+            Cell: ({value}) => !value ? 0 : `${(value * 100).toFixed(2)} %`
         }));
 
         setColumns([{
             Header: '',
-            accessor: 'groundtruth'
+            accessor: 'groundtruth',
+            Cell: ({value}) => getName(value)
         }, ...classes]);
 
     }, [predictionClasses]);
@@ -156,29 +206,47 @@ const ConfusionMatrix = ({errorStore, timeStore}) => {
     }, [matrixData]);
 
     useEffect(() => {
-        timeseriesClient({
-            query: `
+        if (selectedCell) {
+            timeseriesClient({
+                query: `
                 SELECT image_url FROM "dioptra-gt-combined-eventstream"
-                WHERE groundtruth = '${seletedCell.groundtruth}' AND prediction = '${seletedCell.prediction}'
+                WHERE groundtruth = '${selectedCell.groundtruth}' AND prediction = '${selectedCell.prediction}'
                 AND ${timeStore.sQLTimeFilter}
                 LIMIT 20
             `
-        }).then((res) => {
-            console.log(res);
-        }).catch((e) => errorStore.reportError(e));
-    }, [seletedCell]);
+            }).then((res) => {
+                console.log(res);
+                setExamples(res);
+            }).catch((e) => {
+                errorStore.reportError(e);
+                setExamples([
+                    'https://via.placeholder.com/150',
+                    'https://via.placeholder.com/150',
+                    'https://via.placeholder.com/150',
+                    'https://via.placeholder.com/150',
+                    'https://via.placeholder.com/150',
+                    'https://via.placeholder.com/150',
+                    'https://via.placeholder.com/150',
+                    'https://via.placeholder.com/150',
+                    'https://via.placeholder.com/150'
+                ]);
+            });
+        }
+    }, [selectedCell]);
 
     return (
 
         <div className='my-5'>
             <h3 className='text-dark fw-bold fs-3 mb-3'>Confusion matrix</h3>
-            {predictionClasses.length !== 0 && <Table
-                columns={columns}
-                data={tableData}
-                onCellClick={(prediction, groundtruth) => {
-                    setSelectedCell({prediction, groundtruth});
-                }}
-            />}
+            <div className='border rounded p-3'>
+                {predictionClasses.length !== 0 && <Table
+                    columns={columns}
+                    data={tableData}
+                    onCellClick={(prediction, groundtruth) => setSelectedCell({prediction, groundtruth})
+                    }
+                />}
+                {examples && <Examples images={examples} onClose={() => setExamples(null)}/>}
+            </div>
         </div>
     );
 };

@@ -4,7 +4,7 @@ import FontIcon from './font-icon';
 const BtnIcon = ({icon = '', className = '', size, onClick, disabled = false}) => {
     return (
         <button
-            className={`d-flex bg-transparent border-0 p-0 ${className}`}
+            className={`d-flex bg-transparent p-0 ${className}`}
             disabled={disabled}
             onClick={onClick}
         >

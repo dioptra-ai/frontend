@@ -1,0 +1,45 @@
+.carousel-wrapper {
+    position: relative;
+    padding: 0 80px;
+    .carousel-button-group {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        .left-arrow, .right-arrow {
+            position: absolute;
+            top: calc(50% - 25px);
+            width: 50px;
+            min-width: 50px;
+            height: 50px;
+            border: 1px solid theme-color('white');
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            &:disabled {
+                opacity: 0.5;
+            }
+        }
+        .left-arrow {
+            left: 0;
+            span {
+                transform: rotate(90deg);
+            }
+        }
+        .right-arrow {
+            right: 0;
+            span {
+                transform: rotate(-90deg);
+            }
+        }
+    }
+}
+.carousel-container {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    justify-content: center;
+}
