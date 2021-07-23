@@ -504,7 +504,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 xAxisInterval={60}
                                 xAxisName='Time'
                                 yAxisDomain={[0, 1000]}
-                                yAxisName={selectedIndicator}
+                                yAxisName={getName(selectedIndicator)}
                             />
                         </Col>
                     </Row>

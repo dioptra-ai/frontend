@@ -1,5 +1,6 @@
 export const getName = (string) => {
     const words = string
+        .toLowerCase()
         .replaceAll('-', ' ')
         .replaceAll('_', ' ')
         .split(' ');
