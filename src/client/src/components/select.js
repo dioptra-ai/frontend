@@ -8,7 +8,16 @@ import FontIcon from './font-icon';
 import {IconNames} from '../constants';
 import {noop} from 'constants';
 
-const Select = ({textColor = 'dark', backgroundColor = 'white', borderColor = 'light', onChange = noop, options, initialValue}) => {
+const Select = ({
+    textColor = 'dark',
+    backgroundColor = 'white',
+    borderColor = 'light',
+    onChange = noop,
+    options,
+    initialValue,
+    isTextBold
+}) => {
+
     const [value, setValue] = useState(initialValue ? initialValue : options[0].value);
     const handleSelect = useCallback((newValue) => {
         setValue(newValue);
@@ -24,9 +33,12 @@ const Select = ({textColor = 'dark', backgroundColor = 'white', borderColor = 'l
     return (
         <Dropdown className='w-100'>
             <DropdownToggle bsPrefix='p-0' className={`w-100 text-start p-3 rounded-3 text-${textColor} border-1 border-${borderColor} d-flex align-items-center`} variant={backgroundColor}>
-                <span className='pe-4 w-100'>{activeOption && activeOption.length ? activeOption[0].name : ''}</span>
+                <span
+                    className={`pe-4 w-100 fw-${isTextBold ? 'bold' : 'normal'}`}
+                    style={{fontSize: '14px'}}
+                >{activeOption && activeOption.length ? activeOption[0].name : ''}</span>
                 <FontIcon
-                    className='text-dark'
+                    className='text-dark fw-bold'
                     icon={IconNames.ARROW_DOWN}
                     size={6}
                 />
@@ -47,6 +59,7 @@ Select.propTypes = {
     backgroundColor: PropTypes.string,
     borderColor: PropTypes.string,
     initialValue: PropTypes.any,
+    isTextBold: PropTypes.bool,
     onChange: PropTypes.func,
     options: PropTypes.arrayOf(PropTypes.shape({
         name: PropTypes.any.isRequired,
