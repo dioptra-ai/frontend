@@ -37,7 +37,7 @@ const getData = (timeRange, yMaxValue, divider) => {
 const dataLatency = getData(360, 25, 5);
 
 const MetricInfoBox = ({value, notifications, warnings, name, mark, unit}) => (
-    <div className='border rounded p-3'>
+    <div className='border rounded p-3 w-100'>
         <div className='d-flex flex-wrap align-items-center'>
             <span className='text-dark-bold fw-bold'>{name}</span>
             <span className='text-primary mx-1'>{`(n=${mark})`}</span>
@@ -161,7 +161,7 @@ const PerformanceOverview = ({errorStore, timeStore}) => {
                 <h3 className='text-dark fw-bold fs-3 mb-3'>Model Performance</h3>
                 <Row className='mb-3 align-items-stretch'>
                     {modelMetrics.map((prop, i) => (
-                        <Col key={i} lg={12 / modelMetrics.length}>
+                        <Col className='d-flex' key={i} lg={12 / modelMetrics.length}>
                             <MetricInfoBox
                                 mark={prop.mark}
                                 name={prop.name}
@@ -221,11 +221,12 @@ const PerformanceOverview = ({errorStore, timeStore}) => {
                         <Col
                             className='border rounded d-flex flex-column align-items-center justify-content-center my-3 p-3'
                             lg={4}
+                            style={{height: '295px'}}
                         >
                             <p className='text-dark fw-bold'>Correlation to KPIs</p>
                             <span className='text-dark fw-bold fs-1'>37.6</span>
                         </Col>
-                        <Col className='p-0' lg={8}>
+                        <Col className='p-0 d-flex' lg={8}>
                             <AreaGraph
                                 dots={indicatorData}
                                 graphType='linear'
