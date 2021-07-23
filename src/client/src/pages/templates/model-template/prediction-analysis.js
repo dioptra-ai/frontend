@@ -24,7 +24,6 @@ const PredictionAnalysis = ({errorStore, timeStore}) => {
                 GROUP BY 1
             `
         }).then((res) => {
-            console.log(res);
             setOnlineDistribution(res);
         }).catch((e) => errorStore.reportError(e));
     }, [timeStore.sQLTimeFilter]);
