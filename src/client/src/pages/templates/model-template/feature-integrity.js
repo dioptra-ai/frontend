@@ -122,53 +122,48 @@ const FeatureIntegrityRow = ({name, timeStore}) => {
 
         if (inView) {
 
-            if (!featureType) {
 
-                timeseriesClient({
-                    query: `
-                      SELECT "${name}" FROM "dioptra-gt-combined-eventstream"
-                      WHERE "${name}" IS NOT NULL
-                        AND ${timeStore.sQLTimeFilter}
-                      LIMIT 100
-                    `
-                }).then((values) => {
+            timeseriesClient({
+                query: `
+                  SELECT "${name}" FROM "dioptra-gt-combined-eventstream"
+                  WHERE "${name}" IS NOT NULL
+                    AND ${timeStore.sQLTimeFilter}
+                  LIMIT 100
+                `
+            }).then((values) => {
 
-                    if (values.some((v) => isNaN(v[name]))) {
-                        setFeatureType('String');
-                    } else {
-                        setFeatureType('Number');
-                    }
-                }).catch(console.error);
-            }
+                if (values.some((v) => isNaN(v[name]))) {
+                    setFeatureType('String');
+                } else {
+                    setFeatureType('Number');
+                }
+            }).catch(console.error);
 
-            if (!featureOnlineDistribution) {
+            timeseriesClient({
+                query: `
+                        select 
+                          cast(my_table.my_count as float) / cast(my_count_table.total_count as float) AS "dist", 
+                          my_table."${name}" AS "value"
+                          from (
+                              SELECT count(*) as my_count, "${name}"
+                              FROM "dioptra-gt-combined-eventstream"
+                              WHERE ${timeStore.sQLTimeFilter}
+                              GROUP BY 2
+                              LIMIT 100
+                          ) as my_table
+                          NATURAL JOIN (
+                              SELECT count(*) as total_count
+                              FROM "dioptra-gt-combined-eventstream"
+                              WHERE ${timeStore.sQLTimeFilter}
+                              LIMIT 100
+                          ) as my_count_table
+                        `
+            }).then((values) => {
 
-                timeseriesClient({
-                    query: `
-                            select 
-                              cast(my_table.my_count as float) / cast(my_count_table.total_count as float) AS "dist", 
-                              my_table."${name}" AS "value"
-                              from (
-                                  SELECT count(*) as my_count, "${name}"
-                                  FROM "dioptra-gt-combined-eventstream"
-                                  WHERE ${timeStore.sQLTimeFilter}
-                                  GROUP BY 2
-                                  LIMIT 100
-                              ) as my_table
-                              NATURAL JOIN (
-                                  SELECT count(*) as total_count
-                                  FROM "dioptra-gt-combined-eventstream"
-                                  WHERE ${timeStore.sQLTimeFilter}
-                                  LIMIT 100
-                              ) as my_count_table
-                            `
-                }).then((values) => {
-
-                    setFeatureOnlineDistribution(values);
-                }).catch(console.error);
-            }
+                setFeatureOnlineDistribution(values);
+            }).catch(console.error);
         }
-    }, [inView]);
+    }, [inView, timeStore.sQLTimeFilter]);
 
     return (
         <tr className='py-5' ref={ref}>
