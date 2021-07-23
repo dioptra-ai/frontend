@@ -18,7 +18,7 @@ mlModelSchema.statics.initializeCollection = async () => {
     if (!await MlModel.exists()) {
         await MlModel.create({
             mlModelId: 1,
-            name: 'Credit Card Transaction Fraud Detection',
+            name: 'Document Classifier',
             description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque bibendum sem eget convallis malesuada. Quisque accumsan nisi ut ipsum tincidunt, a posuere nisi viverra. Quisque a lorem tellus.',
             lastDeployed: new Date('2021-07-14T01:20:51.873Z'),
             mlModelTier: 5,
