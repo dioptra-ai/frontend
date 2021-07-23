@@ -40,42 +40,55 @@ const Table = ({columns, data, onCellClick}) => {
     };
 
     return (
-        <table className='table' style={{fontSize: '14px'}}>
-            <thead className='text-dark fw-bold'>
-                <tr>
-                    {headers.map((column, i) => (
-                        <th className='align-middle py-3 border-0' key={i} >{column.render('Header')}</th>
-                    ))}
-                </tr>
-            </thead>
-            <tbody className='text-dark fw-bold'>
-                {rows.map((row, i) => {
-                    prepareRow(row);
-
-                    return (
-                        <tr className='border-white border-2' key={i}>
-                            {row.cells.map((cell, i) => {
-                                return (
-                                    <td
-                                        className='align-middle p-0 border-2 border-white'
-                                        key={i}
-                                        onClick={() => i && cell.value && handleCellClick(cell)}
-                                        {...cell.getCellProps()}
-                                        style={{backgroundColor: getCellBackground(cell.value), cursor: (i && cell.value) ? 'pointer' : 'auto'}}
-                                    >
-                                        <div
-                                            className={`d-flex align-items-center justify-content-${i ? 'center' : 'start'} -center border border-2 border-${cell.getCellProps().key === selectedCellKey ? 'dark' : 'white'}`}
-                                            style={{minHeight: '50px'}}
-                                        >
-                                            {cell.render('Cell')}
-                                        </div>
-                                    </td>);
-                            })}
+        <>
+            <div className='position-relative' style={{marginRight: '30px'}}>
+                <table className='table' style={{fontSize: '14px'}} >
+                    <thead className='text-dark fw-bold'>
+                        <tr>
+                            {headers.map((column, i) => (
+                                <th
+                                    className='align-middle py-3 border-0'
+                                    key={i}
+                                    style={{width: `${100 / columns.length}%`}}
+                                >
+                                    {column.render('Header')}
+                                </th>
+                            ))}
                         </tr>
-                    );
-                })}
-            </tbody>
-        </table>
+                    </thead>
+                    <tbody className='text-dark fw-bold'>
+                        {rows.map((row, i) => {
+                            prepareRow(row);
+
+                            return (
+                                <tr className='border-2 border-white' key={i}>
+                                    {row.cells.map((cell, i) => {
+                                        return (
+                                            <td
+                                                className={`border-white border-2 px-2 py-3 text-${i ? 'center' : 'left'} align-middle`}
+                                                key={i}
+                                                onClick={() => i && cell.value && handleCellClick(cell)}
+                                                {...cell.getCellProps()}
+                                                style={{backgroundColor: getCellBackground(cell.value), cursor: (i && cell.value) ? 'pointer' : 'auto', position: 'relative'}}
+                                            >
+                                                {cell.render('Cell')}
+                                                <div className={`border border-2 border-${cell.getCellProps().key === selectedCellKey ? 'dark' : 'white'}`} style={{position: 'absolute', inset: 0}}></div>
+                                            </td>);
+                                    })}
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </table>
+                <p
+                    className='position-absolute text-secondary m-0 text-center'
+                    style={{transform: 'rotate(-90deg)', top: '50%', right: '-70px'}}
+                >
+                   Ground Truth
+                </p>
+            </div>
+            <p className='text-secondary m-0 text-center'>Prediction</p>
+        </>
     );
 };
 
@@ -89,7 +102,7 @@ const Examples = ({onClose, images}) => {
     const [exampleInModal, setExampleInModal] = useModal(false);
 
     return (
-        <div className='bg-white-blue p-3'>
+        <div className='bg-white-blue my-3 p-3'>
             <div className='d-flex align-items-center'>
                 <p className='text-dark m-0 fw-bold flex-grow-1'>Examples</p>
                 <BtnIcon
@@ -168,7 +181,6 @@ const ConfusionMatrix = ({errorStore, timeStore}) => {
             setGroundtruthClasses(getClasses(res, 'groundtruth'));
             setPredictionClasses(getClasses(res, 'prediction'));
             setMatrixData(res);
-
         }).catch((e) => errorStore.reportError(e));
     }, [timeStore.sQLTimeFilter]);
 
