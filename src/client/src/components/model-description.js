@@ -30,7 +30,7 @@ const ModelDescription = ({name, description, team, version, tier, lastDeployed,
                         Open Incidents
                         <FontIcon
                             className={`${incidents ? 'text-warning' : 'text-success'} mx-2`}
-                            icon={IconNames.WARNING}
+                            icon={incidents ? IconNames.WARNING : IconNames.CHECK}
                             size={40}
                         />
                         <span className='text-warning'>{incidents !== 0 && incidents}</span>
