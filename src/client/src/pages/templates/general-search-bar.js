@@ -24,7 +24,7 @@ const GeneralSearchBar = ({shouldShowOnlySearchInput, timeStore}) => {
                         start={timeStore.start}
                     />
                     <Button
-                        className='text-white d-flex align-items-center justify-content-between px-4 ms-3' disabled={!timeStore.refreshable}
+                        className='text-white d-flex align-items-center justify-content-between px-4 py-2 ms-3' disabled={!timeStore.refreshable}
                         onClick={() => timeStore.refreshTimeRange()}
                         variant='primary'
                     >
