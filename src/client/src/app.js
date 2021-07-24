@@ -20,7 +20,7 @@ const App = () => {
                     />
                 ))}
                 <Route path='/'>
-                    <Redirect to={Paths().HOME} />
+                    <Redirect to={Paths().MODELS} />
                 </Route>
             </Switch>
         </>
