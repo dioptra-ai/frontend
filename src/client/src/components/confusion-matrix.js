@@ -221,14 +221,16 @@ const ConfusionMatrix = ({errorStore, timeStore}) => {
         if (selectedCell) {
             timeseriesClient({
                 query: `
-                SELECT image_url FROM "dioptra-gt-combined-eventstream"
+                SELECT distinct "feature.image_url"
+                FROM "dioptra-gt-combined-eventstream"
                 WHERE groundtruth = '${selectedCell.groundtruth}' AND prediction = '${selectedCell.prediction}'
                 AND ${timeStore.sQLTimeFilter}
                 LIMIT 20
             `
             }).then((res) => {
-                console.log(res);
-                setExamples(res);
+                const mapped_res = res.map((x) => x['feature.image_url']);
+
+                setExamples(mapped_res);
             }).catch((e) => {
                 errorStore.reportError(e);
                 setExamples([
