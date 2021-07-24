@@ -34,8 +34,20 @@ const DURATION_MAX_SEC_TO_GRANULARITY = [
     };
 });
 
-// TODO: restore this from local storage.
-const [initialStart, initialEnd] = lastHours(24);
+
+let [initialStart, initialEnd] = lastHours(24);
+
+let initialRefreshable = true;
+
+const localTimeStoreJSON = localStorage.getItem('timeStore');
+
+if (localTimeStoreJSON) {
+    const localTimeStore = JSON.parse(localTimeStoreJSON);
+
+    initialStart = moment(localTimeStore.start);
+    initialEnd = moment(localTimeStore.end);
+    initialRefreshable = localTimeStore.refreshable;
+}
 
 class TimeStore {
     start = initialStart;
@@ -43,7 +55,7 @@ class TimeStore {
     end = initialEnd;
 
     // This is true for all "Last xxx minute/hours/days" type time ranges, and false for custom, fixed ranges.
-    refreshable = true;
+    refreshable = initialRefreshable;
 
     constructor() {
         makeAutoObservable(this);
@@ -58,6 +70,8 @@ class TimeStore {
         // If the end is very close to now, assume we mean now and make it refreshable.
         // Date picker granulatiry is 1 minute == 60000 ms.
         this.refreshable = now.diff(end) <= 60000;
+
+        localStorage.setItem('timeStore', JSON.stringify(this));
     }
 
     refreshTimeRange() {
