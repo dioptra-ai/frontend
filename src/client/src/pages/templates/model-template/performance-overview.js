@@ -4,7 +4,7 @@ import FilterInput from '../../../components/filter-input';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import AreaGraph from '../../../components/area-graph';
-import {formatTime} from '../../../helpers/date-helper';
+import {formatDateTime} from '../../../helpers/date-helper';
 import moment from 'moment';
 import Select from '../../../components/select';
 import FontIcon from '../../../components/font-icon';
@@ -86,7 +86,8 @@ const PerformanceOverview = ({errorStore, timeStore}) => {
     useEffect(() => {
         timeseriesClient({
             query: `
-                SELECT FLOOR(__time TO second) as "__time", COUNT(*) as throughput
+                SELECT TIME_FLOOR(__time, '${timeStore.sQLTimeGranularity}') as "__time",
+                    COUNT(*) / ${timeStore.timeGranularity.asSeconds()} as throughput
                 FROM "dioptra-gt-combined-eventstream"
                 WHERE ${timeStore.sQLTimeFilter}
                 GROUP BY 1
@@ -135,10 +136,11 @@ const PerformanceOverview = ({errorStore, timeStore}) => {
                             graphType='monotone'
                             hasDot={false}
                             isTimeDependent
-                            tickFormatter={(tick) => formatTime(moment(tick))}
-                            title='Throughput (QPS)'
+                            tickFormatter={(tick) => formatDateTime(moment(tick))}
+                            title='Average Throughput (QPS)'
+                            xAxisDomain={timeStore.rangeMillisec}
                             xAxisName='Time'
-                            yAxisName='Daily average QPS'
+                            yAxisName='Average Throughput (QPS)'
                         />
                     </Col>}
                     <Col lg={6}>
@@ -147,12 +149,12 @@ const PerformanceOverview = ({errorStore, timeStore}) => {
                             graphType='monotone'
                             hasDot={false}
                             isTimeDependent
-                            tickFormatter={(tick) => formatTime(moment(tick))}
-                            title='Latency (ms)'
+                            tickFormatter={(tick) => formatDateTime(moment(tick))}
+                            title='Average Latency (ms)'
                             xAxisInterval={60}
                             xAxisName='Time'
                             yAxisDomain={[0, 25]}
-                            yAxisName='Daily average latency (ms)'
+                            yAxisName='Average Latency (ms)'
                         />
                     </Col>
                 </Row>
@@ -196,7 +198,7 @@ const PerformanceOverview = ({errorStore, timeStore}) => {
                         margin = {
                             {right: 0, bottom: 30}
                         }
-                        tickFormatter={(tick) => formatTime(moment(tick))}
+                        tickFormatter={(tick) => formatDateTime(moment(tick))}
                         unit='%'
                         xAxisInterval={60}
                         xAxisName='Time'
@@ -235,7 +237,7 @@ const PerformanceOverview = ({errorStore, timeStore}) => {
                                 margin = {
                                     {right: 0, bottom: 30, left: 5}
                                 }
-                                tickFormatter={(tick) => formatTime(moment(tick))}
+                                tickFormatter={(tick) => formatDateTime(moment(tick))}
                                 xAxisInterval={60}
                                 xAxisName='Time'
                                 yAxisDomain={[0, 1000]}

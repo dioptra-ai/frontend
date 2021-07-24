@@ -2,7 +2,7 @@ import {Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAx
 import PropTypes from 'prop-types';
 import theme from '../styles/theme.module.scss';
 import moment from 'moment';
-import {formatTime} from '../helpers/date-helper';
+import {formatDateTime} from '../helpers/date-helper';
 
 const CustomTooltip = ({payload, label, isTimeDependent}) => {
     if (payload && payload.length) {
@@ -10,7 +10,7 @@ const CustomTooltip = ({payload, label, isTimeDependent}) => {
             <div className='line-graph-tooltip bg-white p-3'>
                 <p className='text-dark fw-bold fs-5 m-0'>{payload[0].value.toFixed(3)}</p>
                 <p className='text-secondary m-0 label'>
-                    {isTimeDependent ? formatTime(moment(label)) : label}
+                    {isTimeDependent ? formatDateTime(moment(label)) : label}
                 </p>
             </div>
         );
