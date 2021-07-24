@@ -2,4 +2,4 @@ apiVersion: v2
 name: frontend
 description: A generated Helm Chart for helm from Skippbox Kompose
 version: 0.0.9
-appVersion: 0.1.9
+appVersion: 0.1.10
