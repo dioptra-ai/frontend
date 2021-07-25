@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 import timeseriesClient from 'clients/timeseries';
 
-const TimeseriesQuery = ({sql, children, renderData, renderNoData, renderError, renderLoading, ...rest}) => {
+const TimeseriesQuery = ({sql, children, renderData, defaultData, renderError, renderLoading, ...rest}) => {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -41,7 +41,7 @@ const TimeseriesQuery = ({sql, children, renderData, renderNoData, renderError, 
             return renderData(data);
         } else {
 
-            return renderNoData();
+            return renderData(defaultData);
         }
     } else if (loading) {
 
@@ -54,10 +54,10 @@ const TimeseriesQuery = ({sql, children, renderData, renderNoData, renderError, 
 
 TimeseriesQuery.propTypes = {
     children: PropTypes.func,
+    defaultData: PropTypes.any,
     renderData: PropTypes.func,
     renderError: PropTypes.func,
     renderLoading: PropTypes.func,
-    renderNoData: PropTypes.func,
     sql: PropTypes.shape({
         parameters: PropTypes.array.isRequired,
         query: PropTypes.string.isRequired
@@ -66,8 +66,7 @@ TimeseriesQuery.propTypes = {
 
 TimeseriesQuery.defaultProps = {
     renderError: String,
-    renderLoading: () => 'Loading...',
-    renderNoData: () => '<No Data>'
+    renderLoading: () => 'Loading...'
 };
 
 export default TimeseriesQuery;
