@@ -6,6 +6,10 @@ import state from './state/stores';
 import './styles/custom.scss';
 import {Provider} from 'mobx-react';
 
+window.onerror = () => {
+    // We don't want to be stuck with corrupted data that we can't replace.
+    localStorage.clear();
+};
 
 ReactDOM.render(
     <React.StrictMode>
