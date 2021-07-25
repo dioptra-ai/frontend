@@ -8,6 +8,10 @@ const TimeseriesQuery = ({sql, children, renderData, renderError = String, rende
     const [error, setError] = useState(null);
     const {query, parameters} = sql;
 
+    if (!query || !parameters) {
+        throw new Error('The "sql" prop must be a return value of the sql`...` tagged template from: import {sql} from \'components/timeseries-query\';');
+    }
+
     useEffect(() => {
 
         setLoading(true);
