@@ -1,5 +1,5 @@
 /* eslint-disable max-lines */
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import PropTypes from 'prop-types';
 import FilterInput from '../../../components/filter-input';
 import Row from 'react-bootstrap/Row';
@@ -26,24 +26,6 @@ const ModelPerformanceIndicators = {
     CHURN: {value: 'CHURN', name: 'Churn'},
     CTR: {value: 'CTR', name: 'CTR'},
     CONVERSION: {value: 'CONVERSION', name: 'Conversion'}
-};
-
-const getData = (timeRange, yMaxValue, divider) => {
-    let dateMili = Date.now();
-    const datesArray = [];
-
-    for (let index = 0; index < timeRange; index += 1) {
-        datesArray.push(dateMili += 1000);
-    }
-    const data = datesArray.map((date, i) => {
-        if (i % divider === 0) {
-            return {x: date, y: Math.random() * yMaxValue};
-        } else {
-            return {x: date, y: undefined};
-        }
-    });
-
-    return data;
 };
 
 const MetricInfoBox = ({value, notifications, warnings, name, sampleSize, unit}) => (
@@ -81,9 +63,7 @@ MetricInfoBox.propTypes = {
 
 const PerformanceOverview = ({timeStore, filtersStore}) => {
     const [selectedMetric, setSelectedMetric] = useState(ModelPerformanceMetrics.ACCURACY.value);
-    const [metricData, setMetricData] = useState(getData(600, 100, 60));
     const [selectedIndicator, setSelectedIndicator] = useState(ModelPerformanceIndicators.ADOPTION.value);
-    const [indicatorData, setIndicatorData] = useState(getData(600, 1000, 60));
     const sampleSizeComponent = (
         <TimeseriesQuery
             renderData={([{sampleSize}]) => sampleSize}
@@ -94,14 +74,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
             }
         />
     );
-
-    useEffect(() => {
-        setMetricData(getData(600, 100, 60));
-    }, [selectedMetric]);
-
-    useEffect(() => {
-        setIndicatorData(getData(600, 1000, 60));
-    }, [selectedIndicator]);
+    const sqlTimeGranularity = timeStore.getTimeGranularity().toISOString();
 
     return (
         <>
@@ -138,7 +111,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                     </Col>
                     <Col lg={6}>
                         <AreaGraph
-                            dots={getData(360, 25, 5)}
+                            dots={[]}
                             graphType='monotone'
                             hasDot={false}
                             isTimeDependent
@@ -334,20 +307,162 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                             />
                         </div>
                     </div>
-                    <AreaGraph
-                        dots={metricData}
-                        graphType='linear'
-                        hasBorder={false}
-                        isTimeDependent
-                        margin = {
-                            {right: 0, bottom: 30}
-                        }
-                        tickFormatter={(tick) => formatDateTime(moment(tick))}
-                        unit='%'
-                        xAxisInterval={60}
-                        xAxisName='Time'
-                        yAxisDomain={[0, 100]}
-                        yAxisName={`${selectedMetric} in percent`}
+                    <TimeseriesQuery
+                        renderData={(metric) => (
+                            <AreaGraph
+                                dots={metric}
+                                graphType='linear'
+                                hasBorder={false}
+                                isTimeDependent
+                                margin = {{right: 0, bottom: 30}}
+                                tickFormatter={(tick) => formatDateTime(moment(tick))}
+                                unit='%'
+                                xAxisInterval={60}
+                                xAxisName='Time'
+                                yAxisDomain={[0, 100]}
+                                yAxisName={selectedMetric}
+                            />
+                        )}
+                        sql={{
+                            [ModelPerformanceMetrics.ACCURACY.value]: sql`
+                                SELECT TIME_FLOOR(__time, '${sqlTimeGranularity}') as x,
+                                  100 * CAST(sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) AS DOUBLE) / CAST(sum(1) AS DOUBLE) AS y
+                                FROM "dioptra-gt-combined-eventstream"
+                                WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
+                                GROUP BY 1`,
+                            [ModelPerformanceMetrics.PRECISION.value]: sql`
+                                WITH true_positive as (
+                                  SELECT
+                                    TIME_FLOOR(__time, '${sqlTimeGranularity}') as "my_time",
+                                    groundtruth as label,
+                                    sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) as cnt_tp
+                                  FROM
+                                    "dioptra-gt-combined-eventstream"
+                                  WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
+                                  GROUP BY 1, 2
+                                  order by groundtruth
+                                ),
+                                true_sum as (
+                                  SELECT
+                                    TIME_FLOOR(__time, '${sqlTimeGranularity}') as "my_time",
+                                    prediction as label,
+                                    count(1) as cnt_ts
+                                  FROM
+                                    "dioptra-gt-combined-eventstream"
+                                  WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
+                                  GROUP BY 1, 2
+                                  order by prediction
+                                ),
+                                pred_sum as (
+                                  SELECT
+                                    TIME_FLOOR(__time, '${sqlTimeGranularity}') as "my_time",
+                                    groundtruth as label,
+                                    count(1) as cnt_ps
+                                  FROM
+                                    "dioptra-gt-combined-eventstream"
+                                  WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
+                                  GROUP BY 1, 2
+                                  ORDER BY groundtruth
+                                )
+                                SELECT
+                                  true_positive.my_time as x,
+                                  100 * AVG(cast(true_positive.cnt_tp as double) / pred_sum.cnt_ps) as y
+                                FROM true_positive
+                                JOIN pred_sum ON pred_sum.label = true_positive.label AND pred_sum.my_time = true_positive.my_time
+                                GROUP BY 1
+                            `,
+                            [ModelPerformanceMetrics.RECALL.value]: sql`
+                                WITH true_positive as (
+                                  SELECT
+                                    TIME_FLOOR(__time, '${sqlTimeGranularity}') as "my_time",
+                                    groundtruth as label,
+                                    sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) as cnt_tp
+                                  FROM
+                                    "dioptra-gt-combined-eventstream"
+                                  WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
+                                  GROUP BY 1, 2
+                                  order by groundtruth
+                                ),
+                                true_sum as (
+                                  SELECT
+                                    TIME_FLOOR(__time, '${sqlTimeGranularity}') as "my_time",
+                                    prediction as label,
+                                    count(1) as cnt_ts
+                                  FROM
+                                    "dioptra-gt-combined-eventstream"
+                                  WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
+                                  GROUP BY 1, 2
+                                  order by prediction
+                                ),
+                                pred_sum as (
+                                  SELECT
+                                    TIME_FLOOR(__time, '${sqlTimeGranularity}') as "my_time",
+                                    groundtruth as label,
+                                    count(1) as cnt_ps
+                                  FROM
+                                    "dioptra-gt-combined-eventstream"
+                                  WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
+                                  GROUP BY 1, 2
+                                  ORDER BY groundtruth
+                                )
+
+                                SELECT
+                                  true_positive.my_time as x,
+                                  100 * AVG(cast(true_positive.cnt_tp as double) / true_sum.cnt_ts) as y
+                                FROM true_positive
+                                JOIN true_sum ON true_sum.label = true_positive.label AND true_sum.my_time = true_positive.my_time
+                                GROUP BY 1
+                            `,
+                            [ModelPerformanceMetrics.F1_SCORE.value]: sql`
+                                WITH true_positive as (
+                                  SELECT
+                                    TIME_FLOOR(__time, '${sqlTimeGranularity}') as "my_time",
+                                    groundtruth as label,
+                                    sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) as cnt_tp
+                                  FROM
+                                    "dioptra-gt-combined-eventstream"
+                                  WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
+                                  GROUP BY 1, 2
+                                  order by groundtruth
+                                ),
+                                true_sum as (
+                                  SELECT
+                                    TIME_FLOOR(__time, '${sqlTimeGranularity}') as "my_time",
+                                    prediction as label,
+                                    count(1) as cnt_ts
+                                  FROM
+                                    "dioptra-gt-combined-eventstream"
+                                  WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
+                                  GROUP BY 1, 2
+                                  order by prediction
+                                ),
+                                pred_sum as (
+                                  SELECT
+                                    TIME_FLOOR(__time, '${sqlTimeGranularity}') as "my_time",
+                                    groundtruth as label,
+                                    count(1) as cnt_ps
+                                  FROM
+                                    "dioptra-gt-combined-eventstream"
+                                  WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
+                                  GROUP BY 1, 2
+                                  ORDER BY groundtruth
+                                )
+
+                                SELECT
+                                  my_table.my_time as x, 
+                                  100 * 2 * ((my_table.my_precision * my_table.my_recall) / (my_table.my_precision + my_table.my_recall)) as y
+                                FROM (
+                                  SELECT
+                                    true_positive.my_time as my_time,
+                                    AVG(cast(true_positive.cnt_tp as double) / true_sum.cnt_ts) as my_recall,
+                                    AVG(cast(true_positive.cnt_tp as double) / pred_sum.cnt_ps) as my_precision
+                                  FROM true_positive
+                                  JOIN pred_sum ON pred_sum.label = true_positive.label AND pred_sum.my_time = true_positive.my_time
+                                  JOIN true_sum ON true_sum.label = true_positive.label AND true_sum.my_time = true_positive.my_time
+                                  GROUP BY 1
+                                ) as my_table
+                            `
+                        }[selectedMetric]}
                     />
                 </div>
             </div>
@@ -374,7 +489,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                         </Col>
                         <Col className='p-0 d-flex' lg={8}>
                             <AreaGraph
-                                dots={indicatorData}
+                                dots={[]}
                                 graphType='linear'
                                 hasBorder={false}
                                 isTimeDependent

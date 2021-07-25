@@ -1,4 +1,5 @@
 import {useEffect, useState} from 'react';
+import PropTypes from 'prop-types';
 
 import timeseriesClient from 'clients/timeseries';
 
@@ -28,7 +29,7 @@ const TimeseriesQuery = ({sql, children, renderData, renderError = String, rende
             .finally(() => {
                 setLoading(false);
             });
-    }, parameters);
+    }, [query, ...parameters]);
 
     if (children) {
 
@@ -43,6 +44,17 @@ const TimeseriesQuery = ({sql, children, renderData, renderError = String, rende
 
         return renderError(error);
     } else return null;
+};
+
+TimeseriesQuery.propTypes = {
+    children: PropTypes.func,
+    renderData: PropTypes.func,
+    renderError: PropTypes.func,
+    renderLoading: PropTypes.func,
+    sql: PropTypes.shape({
+        parameters: PropTypes.array.isRequired,
+        query: PropTypes.string.isRequired
+    }).isRequired
 };
 
 export default TimeseriesQuery;
