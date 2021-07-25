@@ -8,7 +8,7 @@ const CustomTooltip = ({payload, label, isTimeDependent}) => {
     if (payload && payload.length) {
         return (
             <div className='line-graph-tooltip bg-white p-3'>
-                <p className='text-dark fw-bold fs-5 m-0'>{payload[0].value.toFixed(3)}</p>
+                <p className='text-dark fw-bold fs-5 m-0'>{payload[0].value.toFixed(1)}</p>
                 <p className='text-secondary m-0 label'>
                     {isTimeDependent ? formatDateTime(moment(label)) : label}
                 </p>

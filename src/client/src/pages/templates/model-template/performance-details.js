@@ -220,7 +220,7 @@ const PerformanceDetails = ({errorStore, timeStore, filtersStore}) => {
                                 <ClassRow
                                     key={i}
                                     name={getName(c.label)}
-                                    value={c.precision.toFixed(3)}
+                                    value={c.precision.toFixed(1)}
                                 />
                             ))}
                         </PerformanceBox>
@@ -238,7 +238,7 @@ const PerformanceDetails = ({errorStore, timeStore, filtersStore}) => {
                                 <ClassRow
                                     key={i}
                                     name={getName(c.label)}
-                                    value={c.recall.toFixed(3)}
+                                    value={c.recall.toFixed(1)}
                                 />
                             ))}
                         </PerformanceBox>
