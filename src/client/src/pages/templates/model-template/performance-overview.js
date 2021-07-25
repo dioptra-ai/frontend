@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import React, {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import FilterInput from '../../../components/filter-input';
@@ -47,17 +48,17 @@ const getData = (timeRange, yMaxValue, divider) => {
 
 const dataLatency = getData(360, 25, 5);
 
-const MetricInfoBox = ({value, notifications, warnings, name, mark, unit}) => (
+const MetricInfoBox = ({value, notifications, warnings, name, sampleSize, unit}) => (
     <div className='border rounded p-3 w-100'>
         <div className='d-flex flex-wrap align-items-center'>
             <span className='text-dark-bold fw-bold'>{name}</span>
-            <span className='text-primary mx-1'>{`(n=${mark})`}</span>
-            {notifications !== 0 && <FontIcon
+            <span className='text-primary mx-1'>{`(n=${sampleSize || '-'})`}</span>
+            {notifications && <FontIcon
                 className='text-dark flex-grow-1'
                 icon={IconNames.ALERTS_BELL}
                 size={16}
             />}
-            {warnings !== 0 && <div className='d-flex align-items-center'>
+            {warnings && <div className='d-flex align-items-center'>
                 <FontIcon
                     className='text-warning'
                     icon={IconNames.WARNING}
@@ -67,27 +68,26 @@ const MetricInfoBox = ({value, notifications, warnings, name, mark, unit}) => (
                 </Link>
             </div>}
         </div>
-        <span className='text-dark' style={{fontSize: '60px'}}>{value}{unit}</span>
+        <span className='text-dark' style={{fontSize: '60px'}}>{value ? value.toFixed(1) : '-'}{unit}</span>
     </div>
 );
 
 MetricInfoBox.propTypes = {
-    mark: PropTypes.any,
     name: PropTypes.string,
     notifications: PropTypes.number,
+    sampleSize: PropTypes.any,
     unit: PropTypes.string,
     value: PropTypes.number,
     warnings: PropTypes.number
 };
 
-const modelMetrics = [
-    {name: 'Accuracy', mark: '21,638', value: 30, unit: '%', notifications: 1, warnings: 3},
-    {name: 'F1 Score', mark: '21,638', value: 35.0, unit: undefined, notifications: 0, warnings: 0},
-    {name: 'Recall', mark: '21,638', value: 31.6, unit: undefined, notifications: 0, warnings: 0},
-    {name: 'Precision', mark: '21,638', value: 37.8, unit: undefined, notifications: 0, warnings: 0}
-];
 const PerformanceOverview = ({errorStore, timeStore, filtersStore}) => {
     const [throughputData, setThroughputData] = useState([]);
+    const [accuracy, setAccuracy] = useState(null);
+    const [f1score, setF1Score] = useState(null);
+    const [recall, setRecall] = useState(null);
+    const [precision, setPrecision] = useState(null);
+    const [sampleSize, setSampleSize] = useState(null);
     const [selectedMetric, setSelectedMetric] = useState(ModelPerformanceMetrics.ACCURACY.value);
     const [metricData, setMetricData] = useState(getData(600, 100, 60));
     const [showIncidents, setShowIncidents] = useState(false);
@@ -108,6 +108,154 @@ const PerformanceOverview = ({errorStore, timeStore, filtersStore}) => {
                 {y: throughput, x: new Date(__time).getTime()}
             )));
         }).catch((e) => errorStore.reportError(e));
+
+        timeseriesClient({
+            query: `
+                SELECT CAST(sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) AS DOUBLE) / sum(1) AS accuracy
+                FROM "dioptra-gt-combined-eventstream"
+                WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}`
+        }).then(([{accuracy}]) => {
+            setAccuracy(accuracy);
+        }).catch((e) => errorStore.reportError(e));
+
+        timeseriesClient({
+            query: `
+                WITH true_positive as (
+                  SELECT
+                    groundtruth as label,
+                    sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) as cnt_tp
+                  FROM "dioptra-gt-combined-eventstream"
+                  WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
+                  GROUP BY groundtruth
+                  ORDER by groundtruth
+                ),
+                true_sum as (
+                  SELECT
+                    prediction as label,
+                    count(1) as cnt_ts
+                  FROM "dioptra-gt-combined-eventstream"
+                  WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
+                  GROUP BY prediction
+                  ORDER by prediction
+                ),
+                pred_sum as (
+                  SELECT
+                    groundtruth as label,
+                    count(1) as cnt_ps
+                  FROM "dioptra-gt-combined-eventstream"
+                  WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
+                  GROUP BY groundtruth
+                  ORDER BY groundtruth
+                )
+                SELECT
+                  2 * ((my_table.my_precision * my_table.my_recall) / (my_table.my_precision + my_table.my_recall)) as f1score
+                FROM (
+                  SELECT
+                    AVG(cast(true_positive.cnt_tp as double) / true_sum.cnt_ts) as my_recall,
+                    AVG(cast(true_positive.cnt_tp as double) / pred_sum.cnt_ps) as my_precision
+                  FROM true_positive
+                  JOIN pred_sum ON pred_sum.label = true_positive.label
+                  JOIN true_sum ON true_sum.label = true_positive.label
+                ) as my_table
+            `
+        }).then(([{f1score}]) => {
+            setF1Score(f1score);
+        }).catch((e) => errorStore.reportError(e));
+
+        timeseriesClient({
+            query: `
+                WITH true_positive as (
+                  SELECT
+                    groundtruth as label,
+                    sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) as cnt_tp
+                  FROM
+                    "dioptra-gt-combined-eventstream"
+                  WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
+                  GROUP BY groundtruth
+                  order by groundtruth
+                ),
+                true_sum as (
+                  SELECT
+                    prediction as label,
+                    count(1) as cnt_ts
+                  FROM
+                    "dioptra-gt-combined-eventstream"
+                  WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
+                  GROUP BY prediction
+                  order by prediction
+                ),
+                pred_sum as (
+                  SELECT
+                    groundtruth as label,
+                    count(1) as cnt_ps
+                  FROM
+                    "dioptra-gt-combined-eventstream"
+                  WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
+                  GROUP BY groundtruth
+                  ORDER BY groundtruth
+                )
+
+                SELECT 
+                  AVG(cast(true_positive.cnt_tp as double) / true_sum.cnt_ts) as recall
+                FROM true_positive
+                JOIN true_sum
+                ON true_sum.label = true_positive.label
+            `
+        }).then(([{recall}]) => {
+            setRecall(recall);
+        }).catch((e) => errorStore.reportError(e));
+
+        timeseriesClient({
+            query: `WITH true_positive as (
+              SELECT
+                groundtruth as label,
+                sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) as cnt_tp
+              FROM
+                "dioptra-gt-combined-eventstream"
+              WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
+              GROUP BY groundtruth
+              ORDER BY groundtruth
+            ),
+            true_sum as (
+              SELECT
+                prediction as label,
+                count(1) as cnt_ts
+              FROM
+                "dioptra-gt-combined-eventstream"
+              WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
+              GROUP BY prediction
+              ORDER BY prediction
+            ),
+            pred_sum as (
+              SELECT
+                groundtruth as label,
+                count(1) as cnt_ps
+              FROM
+                "dioptra-gt-combined-eventstream"
+              WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
+              GROUP BY groundtruth
+              ORDER BY groundtruth
+            )
+
+            SELECT 
+              AVG(cast(true_positive.cnt_tp as double) / pred_sum.cnt_ps) as "precision"
+            FROM true_positive
+            JOIN pred_sum
+            ON pred_sum.label = true_positive.label`
+        }).then(([{precision}]) => {
+            setPrecision(precision);
+        }).catch((e) => errorStore.reportError(e));
+
+        timeseriesClient({
+            query: `
+                SELECT COUNT(*) as sampleSize 
+                FROM "dioptra-gt-combined-eventstream"
+                WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
+            `
+        }).then(([{sampleSize}]) => {
+            setSampleSize(sampleSize);
+        }).catch((e) => errorStore.reportError(e));
+
     }, [timeStore.sqlTimeFilter, filtersStore.sqlFilters]);
 
     useEffect(() => {
@@ -175,18 +323,38 @@ const PerformanceOverview = ({errorStore, timeStore, filtersStore}) => {
             <div className='my-5'>
                 <h3 className='text-dark fw-bold fs-3 mb-3'>Model Performance</h3>
                 <Row className='mb-3 align-items-stretch'>
-                    {modelMetrics.map((prop, i) => (
-                        <Col className='d-flex' key={i} lg={12 / modelMetrics.length}>
-                            <MetricInfoBox
-                                mark={prop.mark}
-                                name={prop.name}
-                                notifications={prop.notifications}
-                                unit={prop.unit}
-                                value={prop.value.toFixed(1)}
-                                warnings={prop.warnings}
-                            />
-                        </Col>
-                    ))}
+                    <Col className='d-flex' lg={3}>
+                        <MetricInfoBox
+                            name='Accuracy'
+                            sampleSize={sampleSize}
+                            unit='%'
+                            value={100 * accuracy}
+                        />
+                    </Col>
+                    <Col className='d-flex' lg={3}>
+                        <MetricInfoBox
+                            name='F1 Score'
+                            sampleSize={sampleSize}
+                            unit='%'
+                            value={100 * f1score}
+                        />
+                    </Col>
+                    <Col className='d-flex' lg={3}>
+                        <MetricInfoBox
+                            name='Recall'
+                            sampleSize={sampleSize}
+                            unit='%'
+                            value={100 * recall}
+                        />
+                    </Col>
+                    <Col className='d-flex' lg={3}>
+                        <MetricInfoBox
+                            name='Precision'
+                            sampleSize={sampleSize}
+                            unit='%'
+                            value={100 * precision}
+                        />
+                    </Col>
                 </Row>
                 <div className='border rounded p-3'>
                     <div className='d-flex justify-content-end my-3'>
