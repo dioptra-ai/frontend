@@ -86,7 +86,7 @@ const modelMetrics = [
     {name: 'Recall', mark: '21,638', value: 31.6, unit: undefined, notifications: 0, warnings: 0},
     {name: 'Precision', mark: '21,638', value: 37.8, unit: undefined, notifications: 0, warnings: 0}
 ];
-const PerformanceOverview = ({errorStore, timeStore}) => {
+const PerformanceOverview = ({errorStore, timeStore, filtersStore}) => {
     const [throughputData, setThroughputData] = useState([]);
     const [selectedMetric, setSelectedMetric] = useState(ModelPerformanceMetrics.ACCURACY.value);
     const [metricData, setMetricData] = useState(getData(600, 100, 60));
@@ -137,7 +137,7 @@ const PerformanceOverview = ({errorStore, timeStore}) => {
 
     return (
         <>
-            <FilterInput/>
+            <FilterInput defaultFilters={filtersStore.filters} onChange={(filters) => filtersStore.filters = filters}/>
             <div className='my-5'>
                 <h3 className='text-dark fw-bold fs-3 mb-3'>Service Performance</h3>
                 <Row>
@@ -263,8 +263,9 @@ const PerformanceOverview = ({errorStore, timeStore}) => {
 };
 
 PerformanceOverview.propTypes = {
-    errorStore: PropTypes.object,
-    timeStore: PropTypes.object
+    errorStore: PropTypes.object.isRequired,
+    filtersStore: PropTypes.object.isRequired,
+    timeStore: PropTypes.object.isRequired
 };
 
 export default setupComponent(PerformanceOverview);

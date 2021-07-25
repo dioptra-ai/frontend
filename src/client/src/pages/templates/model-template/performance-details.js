@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from 'react';
 import FilterInput from '../../../components/filter-input';
-// import OutlierDetection from '../../../components/outlier-detection';
 import {setupComponent} from '../../../helpers/component-helper';
 import PropTypes from 'prop-types';
 import Row from 'react-bootstrap/Row';
@@ -84,7 +83,7 @@ ClassRow.propTypes = {
 };
 
 
-const PerformanceDetails = ({errorStore, timeStore}) => {
+const PerformanceDetails = ({errorStore, timeStore, filtersStore}) => {
     const [precisionClasses, setPrecisionClasses] = useState([]);
     const [visiblePrecisionClasses, setVisiblePrecisionClasses] = useState([]);
     const [precisionIndex, setPrecisionIndex] = useState(null);
@@ -204,8 +203,7 @@ const PerformanceDetails = ({errorStore, timeStore}) => {
 
     return (
         <>
-            <FilterInput/>
-            {/* <OutlierDetection /> */}
+            <FilterInput defaultFilters={filtersStore.filters} onChange={(filters) => filtersStore.filters = filters}/>
             <div className='my-5'>
                 <h3 className='text-dark fw-bold fs-3 mb-3'>Performance per class</h3>
                 <Row>
@@ -253,8 +251,9 @@ const PerformanceDetails = ({errorStore, timeStore}) => {
 };
 
 PerformanceDetails.propTypes = {
-    errorStore: PropTypes.object,
-    timeStore: PropTypes.object
+    errorStore: PropTypes.object.isRequired,
+    filtersStore: PropTypes.object.isRequired,
+    timeStore: PropTypes.object.isRequired
 };
 
 export default setupComponent(PerformanceDetails);

@@ -18,37 +18,27 @@ Filter.propTypes = {
 };
 
 const FilterInput = ({
-    inputPlaceholder = 'Enter Filter'
+    inputPlaceholder = 'filter1=foo filter2=bar',
+    defaultFilters = [],
+    onChange
 }) => {
     const [newFilter, setNewFilter] = useState('');
     const [filters, setFilters] = useState([]);
-    const [appliedFilters, setApplied] = useState([]);
+    const [appliedFilters, setAppliedFilters] = useState(defaultFilters.map(({key, value}) => `${key}=${value}`));
     const [suggestions, setSuggestions] = useState([]);
     const [suggestionIndex, setSuggestionIndex] = useState(-1);
 
     const getSuggestions = () => {
-        const externals = ['apple', 'apricot', 'avocado', 'bananna', 'cherry', 'orange'];
-        //externals will be the response to get filtering suggestions request
+        const externals = ['apple', 'apricot', 'avocado', 'banana', 'cherry', 'orange'];
 
-        externals.forEach((ext, i) => {
-            if (filters.includes(ext) || appliedFilters.includes(ext)) {
-                externals.splice(i, 1);
-            }
-        });
-        // 35, 36 and 37 row will not be used since the filtering will be done on server side based on sent search query
-        const matchExp = new RegExp(newFilter, 'i');
-        const matchedSuggestions = externals.filter((suggestion) => !newFilter || matchExp.test(suggestion));
-
-        setSuggestions(matchedSuggestions);
-        // setSuggestions(externals);
-
+        setSuggestions(externals);
     };
 
     useEffect(() => {
         getSuggestions();
     }, [newFilter]);
 
-    const handleChange = (e) => {
+    const handleInputChange = (e) => {
         setNewFilter(e.target.value.trim());
     };
 
@@ -73,7 +63,7 @@ const FilterInput = ({
             }
             setNewFilter('');
         } else if (e.keyCode === 13) { //on enter
-            setApplied([...appliedFilters, ...filters]);
+            handleAppliedFiltersChange([...appliedFilters, ...filters]);
             setFilters([]);
         }
     };
@@ -88,13 +78,18 @@ const FilterInput = ({
         setNewFilter('');
     };
 
+    const handleAppliedFiltersChange = (appliedFilters) => {
+        setAppliedFilters(appliedFilters);
+        onChange(appliedFilters.map((f) => f.split('=')).map(([key, value]) => ({key, value})));
+    };
+
     const handleRemoveApplied = (e) => {
         const filter = e.target.parentNode.textContent.trim();
         const index = appliedFilters.indexOf(filter);
         const updatedApplied = [...appliedFilters];
 
         updatedApplied.splice(index, 1);
-        setApplied(updatedApplied);
+        handleAppliedFiltersChange(updatedApplied);
     };
 
     return (
@@ -104,7 +99,7 @@ const FilterInput = ({
                     <Filter filter={filter} key={index} onDelete={handleRemoveFilter} />
                 ))}
                 <input
-                    onChange={handleChange}
+                    onChange={handleInputChange}
                     onKeyUp={handleKeyUp}
                     placeholder={filters.length === 0 ? inputPlaceholder : ''}
                     type='text'
@@ -113,7 +108,7 @@ const FilterInput = ({
                 <Button
                     className='bg-dark text-white border-0 fw-bold'
                     onClick={() => {
-                        setApplied([...appliedFilters, ...filters]);
+                        handleAppliedFiltersChange([...appliedFilters, ...filters]);
                         setFilters([]);
                         setNewFilter('');
                         setSuggestionIndex(-1);
@@ -140,7 +135,7 @@ const FilterInput = ({
                     {appliedFilters.map((filter, index) => (
                         <Filter applied={true} filter={filter} key={index} onDelete={handleRemoveApplied} />
                     ))}
-                    <span className='text-dark clear' onClick={() => setApplied([])}>
+                    <span className='text-dark clear' onClick={() => handleAppliedFiltersChange([])}>
                         CLEAR ALL
                     </span>
                 </div>
@@ -150,7 +145,9 @@ const FilterInput = ({
 };
 
 FilterInput.propTypes = {
-    inputPlaceholder: PropTypes.string
+    defaultFilters: PropTypes.array,
+    inputPlaceholder: PropTypes.string,
+    onChange: PropTypes.func.isRequired
 };
 
 export default FilterInput;
