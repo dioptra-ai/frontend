@@ -76,7 +76,7 @@ class TimeStore {
         return [this.start.valueOf(), this.end.valueOf()];
     }
 
-    get sQLTimeFilter() {
+    get sqlTimeFilter() {
 
         return `"__time" >= TIME_PARSE('${this.start.toISOString()}') AND "__time" < TIME_PARSE('${this.end.toISOString()}')`;
     }

@@ -102,7 +102,7 @@ const PerformanceDetails = ({errorStore, timeStore, filtersStore}) => {
                     sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) as cnt_tp
                   from
                     "dioptra-gt-combined-eventstream"
-                  WHERE ${timeStore.sQLTimeFilter}
+                  WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
                   group by groundtruth
                   order by groundtruth
                 ),
@@ -113,7 +113,7 @@ const PerformanceDetails = ({errorStore, timeStore, filtersStore}) => {
                     count(1) as cnt_ts
                   from
                     "dioptra-gt-combined-eventstream"
-                  WHERE ${timeStore.sQLTimeFilter}
+                  WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
                   group by prediction
                   order by prediction
                 ),
@@ -124,7 +124,7 @@ const PerformanceDetails = ({errorStore, timeStore, filtersStore}) => {
                     count(1) as cnt_ps
                   from
                     "dioptra-gt-combined-eventstream"
-                  WHERE ${timeStore.sQLTimeFilter}
+                  WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
                   group by groundtruth
                   order by groundtruth
                 )
@@ -140,7 +140,7 @@ const PerformanceDetails = ({errorStore, timeStore, filtersStore}) => {
             setPrecisionClasses(res);
             setPrecisionIndex(0);
         }).catch((e) => errorStore.reportError(e));
-    }, [timeStore.sQLTimeFilter]);
+    }, [timeStore.sqlTimeFilter, filtersStore.sqlFilters]);
 
     useEffect(() => {
         setVisiblePrecisionClasses(precisionClasses.slice(precisionIndex, precisionIndex + 3));
@@ -157,7 +157,7 @@ const PerformanceDetails = ({errorStore, timeStore, filtersStore}) => {
                     sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) as cnt_tp
                   from
                     "dioptra-gt-combined-eventstream"
-                  WHERE ${timeStore.sQLTimeFilter}
+                  WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
                   group by groundtruth
                   order by groundtruth
                 ),
@@ -168,7 +168,7 @@ const PerformanceDetails = ({errorStore, timeStore, filtersStore}) => {
                     count(1) as cnt_ts
                   from
                     "dioptra-gt-combined-eventstream"
-                  WHERE ${timeStore.sQLTimeFilter}
+                  WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
                   group by prediction
                   order by prediction
                 ),
@@ -179,7 +179,7 @@ const PerformanceDetails = ({errorStore, timeStore, filtersStore}) => {
                     count(1) as cnt_ps
                   from
                     "dioptra-gt-combined-eventstream"
-                  WHERE ${timeStore.sQLTimeFilter}
+                  WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
                   group by groundtruth
                   order by groundtruth
                 )
@@ -195,7 +195,7 @@ const PerformanceDetails = ({errorStore, timeStore, filtersStore}) => {
             setRecallClasses(res);
             setRecallIndex(0);
         }).catch((e) => errorStore.reportError(e));
-    }, [timeStore.sQLTimeFilter]);
+    }, [timeStore.sqlTimeFilter, filtersStore.sqlFilters]);
 
     useEffect(() => {
         setVisibleRecallClasses(recallClasses.slice(recallIndex, recallIndex + 3));

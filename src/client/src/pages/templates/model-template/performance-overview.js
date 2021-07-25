@@ -100,7 +100,7 @@ const PerformanceOverview = ({errorStore, timeStore, filtersStore}) => {
                 SELECT TIME_FLOOR(__time, '${timeStore.getTimeGranularity().toISOString()}') as "__time",
                     COUNT(*) / ${timeStore.getTimeGranularity().asSeconds()} as throughput
                 FROM "dioptra-gt-combined-eventstream"
-                WHERE ${timeStore.sQLTimeFilter}
+                WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
                 GROUP BY 1
             `
         }).then((res) => {
@@ -108,7 +108,7 @@ const PerformanceOverview = ({errorStore, timeStore, filtersStore}) => {
                 {y: throughput, x: new Date(__time).getTime()}
             )));
         }).catch((e) => errorStore.reportError(e));
-    }, [timeStore.sQLTimeFilter]);
+    }, [timeStore.sqlTimeFilter, filtersStore.sqlFilters]);
 
     useEffect(() => {
         setMetricData(getData(600, 100, 60));

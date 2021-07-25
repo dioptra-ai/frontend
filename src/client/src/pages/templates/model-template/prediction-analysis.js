@@ -20,13 +20,13 @@ const PredictionAnalysis = ({errorStore, timeStore}) => {
                 prediction,
                 COUNT(*) AS "Count"
                 FROM "dioptra-gt-combined-eventstream"
-                WHERE ${timeStore.sQLTimeFilter} 
+                WHERE ${timeStore.sqlTimeFilter} 
                 GROUP BY 1
             `
         }).then((res) => {
             setOnlineDistribution(res);
         }).catch((e) => errorStore.reportError(e));
-    }, [timeStore.sQLTimeFilter]);
+    }, [timeStore.sqlTimeFilter]);
 
     return (
         <Row className='my-5'>

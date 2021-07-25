@@ -31,11 +31,13 @@ class FiltersStore {
             return agg;
         }, {});
 
-        return Object.keys(keyValues).map((key) => {
+        const filters = Object.keys(keyValues).map((key) => {
             const values = keyValues[key];
 
             return `(${values.map((v) => `"${key}"='${v}'`).join(' OR ')})`;
         }).join(' AND ');
+
+        return filters || ' TRUE ';
     }
 }
 

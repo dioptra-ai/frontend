@@ -166,13 +166,13 @@ const ConfusionMatrix = ({errorStore, timeStore}) => {
                 FROM (
                 SELECT groundtruth, prediction, COUNT(*) AS c
                 FROM "dioptra-gt-combined-eventstream"
-                WHERE ${timeStore.sQLTimeFilter}
+                WHERE ${timeStore.sqlTimeFilter}
                 GROUP BY groundtruth, prediction
                 )  as predictionTable
                 LEFT JOIN (
                 SELECT groundtruth, COUNT(*) AS c
                 FROM "dioptra-gt-combined-eventstream"
-                WHERE ${timeStore.sQLTimeFilter}
+                WHERE ${timeStore.sqlTimeFilter}
                 GROUP BY groundtruth
                 ) AS groundTable
                 ON groundTable.groundtruth = predictionTable.groundtruth
@@ -182,7 +182,7 @@ const ConfusionMatrix = ({errorStore, timeStore}) => {
             setPredictionClasses(getClasses(res, 'prediction'));
             setMatrixData(res);
         }).catch((e) => errorStore.reportError(e));
-    }, [timeStore.sQLTimeFilter]);
+    }, [timeStore.sqlTimeFilter]);
 
     useEffect(() => {
         const classes = predictionClasses.map((c) => ({
@@ -224,7 +224,7 @@ const ConfusionMatrix = ({errorStore, timeStore}) => {
                 SELECT distinct "feature.image_url"
                 FROM "dioptra-gt-combined-eventstream"
                 WHERE groundtruth = '${selectedCell.groundtruth}' AND prediction = '${selectedCell.prediction}'
-                AND ${timeStore.sQLTimeFilter}
+                AND ${timeStore.sqlTimeFilter}
                 LIMIT 20
             `
             }).then((res) => {
