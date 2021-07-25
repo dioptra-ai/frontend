@@ -5,7 +5,7 @@
  * @return {Any}
  *      see https://druid.apache.org/docs/latest/querying/sql.html#responses
  */
-const TimeseriesClient = ({query, resultFormat = 'object'}) => {
+const TimeseriesClient = ({query, resultFormat = 'object', sqlOuterLimit}) => {
 
     return window.fetch('/api/timeseries', {
         headers: {
@@ -17,7 +17,7 @@ const TimeseriesClient = ({query, resultFormat = 'object'}) => {
             header: true,
             // TODO: Make this a config or a parameter
             context: {
-                sqlOuterLimit: TimeseriesClient.SQL_OUTER_LIMIT
+                sqlOuterLimit: sqlOuterLimit || TimeseriesClient.SQL_OUTER_LIMIT
             }
         }),
         method: 'post'
@@ -36,4 +36,4 @@ const TimeseriesClient = ({query, resultFormat = 'object'}) => {
 
 export default TimeseriesClient;
 
-TimeseriesClient.SQL_OUTER_LIMIT = 100;
+TimeseriesClient.SQL_OUTER_LIMIT = 1000;
