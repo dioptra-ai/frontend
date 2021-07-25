@@ -1,10 +1,9 @@
 import moment from 'moment';
 
 const last = (amount, periodName) => {
-    const end = moment();
-    const start = end.clone().subtract(amount, periodName);
+    const start = moment().subtract(amount, periodName);
 
-    return [start, end];
+    return [start, undefined];
 };
 
 export const formatDate = (m) => moment(m).toDate().toLocaleDateString();

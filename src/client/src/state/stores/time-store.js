@@ -31,40 +31,49 @@ const granularityLadder = [
 const [initialStart, initialEnd] = lastHours(24);
 
 class TimeStore {
-    start = initialStart;
+    startMoment = moment(initialStart);
 
-    end = initialEnd;
+    endMoment = moment(initialEnd);
 
     // This is true for all "Last xxx minute/hours/days" type time ranges, and false for custom, fixed ranges.
     refreshable = true;
+
+    get start() {
+
+        return this.startMoment;
+    }
+
+    get end() {
+
+        return this.endMoment;
+    }
 
     constructor(initialValue) {
         if (initialValue) {
             const initialStore = JSON.parse(initialValue);
 
-            this.start = moment(initialStore.start);
-            this.end = moment(initialStore.end);
+            this.startMoment = moment(initialStore.startMoment);
+            this.endMoment = moment(initialStore.endMoment);
             this.refreshable = initialStore.refreshable;
         }
         makeAutoObservable(this);
     }
 
     setTimeRange({start, end}) {
-        const now = moment();
 
-        this.start = start;
-        this.end = end;
+        this.startMoment = moment(start);
+        this.endMoment = moment(end);
 
         // If the end is very close to now, assume we mean now and make it refreshable.
         // Date picker granulatiry is 1 minute == 60000 ms.
-        this.refreshable = now.diff(end) <= 60000;
+        this.refreshable = moment().diff(this.endMoment) <= 60000;
 
         localStorage.setItem('timeStore', JSON.stringify(this));
     }
 
     refreshTimeRange() {
         if (this.refreshable) {
-            const spanMillisec = this.end.diff(this.start);
+            const spanMillisec = this.endMoment.diff(this.startMoment);
             const [start, end] = lastSeconds(spanMillisec / 1000);
 
             this.setTimeRange({start, end});
@@ -73,17 +82,17 @@ class TimeStore {
 
     get rangeMillisec() {
 
-        return [this.start.valueOf(), this.end.valueOf()];
+        return [this.startMoment.valueOf(), this.endMoment.valueOf()];
     }
 
     get sqlTimeFilter() {
 
-        return `"__time" >= TIME_PARSE('${this.start.toISOString()}') AND "__time" < TIME_PARSE('${this.end.toISOString()}')`;
+        return `"__time" >= TIME_PARSE('${this.startMoment.toISOString()}') AND "__time" < TIME_PARSE('${this.endMoment.toISOString()}')`;
     }
 
     // TODO: Find a better way to deal with sparse data than adding 10x the max number of points.
     getTimeGranularity(maxTicks = 10 * SQL_OUTER_LIMIT) {
-        const rangeSeconds = this.end.diff(this.start) / 1000;
+        const rangeSeconds = this.endMoment.diff(this.startMoment) / 1000;
         const DURATION_MAX_SEC_TO_GRANULARITY = granularityLadder.map((duration) => {
 
             return {
