@@ -1,5 +1,5 @@
 import moment from 'moment';
-import {makeAutoObservable} from 'mobx';
+import {autorun, makeAutoObservable} from 'mobx';
 
 import {lastHours, lastSeconds} from 'helpers/date-helper';
 import TimeseriesClient from 'clients/timeseries';
@@ -28,20 +28,7 @@ const granularityLadder = [
     moment.duration(1, 'month')
 ];
 
-
-let [initialStart, initialEnd] = lastHours(24);
-
-let initialRefreshable = true;
-
-const localTimeStoreJSON = localStorage.getItem('timeStore');
-
-if (localTimeStoreJSON) {
-    const localTimeStore = JSON.parse(localTimeStoreJSON);
-
-    initialStart = moment(localTimeStore.start);
-    initialEnd = moment(localTimeStore.end);
-    initialRefreshable = localTimeStore.refreshable;
-}
+const [initialStart, initialEnd] = lastHours(24);
 
 class TimeStore {
     start = initialStart;
@@ -49,9 +36,16 @@ class TimeStore {
     end = initialEnd;
 
     // This is true for all "Last xxx minute/hours/days" type time ranges, and false for custom, fixed ranges.
-    refreshable = initialRefreshable;
+    refreshable = true;
 
-    constructor() {
+    constructor(initialValue) {
+        if (initialValue) {
+            const initialStore = JSON.parse(initialValue);
+
+            this.start = moment(initialStore.start);
+            this.end = moment(initialStore.end);
+            this.refreshable = initialStore.refreshable;
+        }
         makeAutoObservable(this);
     }
 
@@ -82,7 +76,7 @@ class TimeStore {
         return [this.start.valueOf(), this.end.valueOf()];
     }
 
-    get sQLTimeFilter() {
+    get sqlTimeFilter() {
 
         return `"__time" >= TIME_PARSE('${this.start.toISOString()}') AND "__time" < TIME_PARSE('${this.end.toISOString()}')`;
     }
@@ -109,4 +103,8 @@ class TimeStore {
     }
 }
 
-export const timeStore = new TimeStore();
+export const timeStore = new TimeStore(localStorage.getItem('timeStore'));
+
+autorun(() => {
+    localStorage.setItem('timeStore', JSON.stringify(timeStore));
+});

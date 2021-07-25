@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from 'react';
 import FilterInput from '../../../components/filter-input';
-// import OutlierDetection from '../../../components/outlier-detection';
 import {setupComponent} from '../../../helpers/component-helper';
 import PropTypes from 'prop-types';
 import Row from 'react-bootstrap/Row';
@@ -84,7 +83,7 @@ ClassRow.propTypes = {
 };
 
 
-const PerformanceDetails = ({errorStore, timeStore}) => {
+const PerformanceDetails = ({errorStore, timeStore, filtersStore}) => {
     const [precisionClasses, setPrecisionClasses] = useState([]);
     const [visiblePrecisionClasses, setVisiblePrecisionClasses] = useState([]);
     const [precisionIndex, setPrecisionIndex] = useState(null);
@@ -103,7 +102,7 @@ const PerformanceDetails = ({errorStore, timeStore}) => {
                     sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) as cnt_tp
                   from
                     "dioptra-gt-combined-eventstream"
-                  WHERE ${timeStore.sQLTimeFilter}
+                  WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
                   group by groundtruth
                   order by groundtruth
                 ),
@@ -114,7 +113,7 @@ const PerformanceDetails = ({errorStore, timeStore}) => {
                     count(1) as cnt_ts
                   from
                     "dioptra-gt-combined-eventstream"
-                  WHERE ${timeStore.sQLTimeFilter}
+                  WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
                   group by prediction
                   order by prediction
                 ),
@@ -125,7 +124,7 @@ const PerformanceDetails = ({errorStore, timeStore}) => {
                     count(1) as cnt_ps
                   from
                     "dioptra-gt-combined-eventstream"
-                  WHERE ${timeStore.sQLTimeFilter}
+                  WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
                   group by groundtruth
                   order by groundtruth
                 )
@@ -141,7 +140,7 @@ const PerformanceDetails = ({errorStore, timeStore}) => {
             setPrecisionClasses(res);
             setPrecisionIndex(0);
         }).catch((e) => errorStore.reportError(e));
-    }, [timeStore.sQLTimeFilter]);
+    }, [timeStore.sqlTimeFilter, filtersStore.sqlFilters]);
 
     useEffect(() => {
         setVisiblePrecisionClasses(precisionClasses.slice(precisionIndex, precisionIndex + 3));
@@ -158,7 +157,7 @@ const PerformanceDetails = ({errorStore, timeStore}) => {
                     sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) as cnt_tp
                   from
                     "dioptra-gt-combined-eventstream"
-                  WHERE ${timeStore.sQLTimeFilter}
+                  WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
                   group by groundtruth
                   order by groundtruth
                 ),
@@ -169,7 +168,7 @@ const PerformanceDetails = ({errorStore, timeStore}) => {
                     count(1) as cnt_ts
                   from
                     "dioptra-gt-combined-eventstream"
-                  WHERE ${timeStore.sQLTimeFilter}
+                  WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
                   group by prediction
                   order by prediction
                 ),
@@ -180,7 +179,7 @@ const PerformanceDetails = ({errorStore, timeStore}) => {
                     count(1) as cnt_ps
                   from
                     "dioptra-gt-combined-eventstream"
-                  WHERE ${timeStore.sQLTimeFilter}
+                  WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
                   group by groundtruth
                   order by groundtruth
                 )
@@ -196,7 +195,7 @@ const PerformanceDetails = ({errorStore, timeStore}) => {
             setRecallClasses(res);
             setRecallIndex(0);
         }).catch((e) => errorStore.reportError(e));
-    }, [timeStore.sQLTimeFilter]);
+    }, [timeStore.sqlTimeFilter, filtersStore.sqlFilters]);
 
     useEffect(() => {
         setVisibleRecallClasses(recallClasses.slice(recallIndex, recallIndex + 3));
@@ -204,8 +203,7 @@ const PerformanceDetails = ({errorStore, timeStore}) => {
 
     return (
         <>
-            <FilterInput/>
-            {/* <OutlierDetection /> */}
+            <FilterInput defaultFilters={filtersStore.filters} onChange={(filters) => filtersStore.filters = filters}/>
             <div className='my-5'>
                 <h3 className='text-dark fw-bold fs-3 mb-3'>Performance per class</h3>
                 <Row>
@@ -253,8 +251,9 @@ const PerformanceDetails = ({errorStore, timeStore}) => {
 };
 
 PerformanceDetails.propTypes = {
-    errorStore: PropTypes.object,
-    timeStore: PropTypes.object
+    errorStore: PropTypes.object.isRequired,
+    filtersStore: PropTypes.object.isRequired,
+    timeStore: PropTypes.object.isRequired
 };
 
 export default setupComponent(PerformanceDetails);

@@ -127,7 +127,7 @@ const FeatureIntegrityRow = ({name, timeStore}) => {
                 query: `
                   SELECT "${name}" FROM "dioptra-gt-combined-eventstream"
                   WHERE "${name}" IS NOT NULL
-                    AND ${timeStore.sQLTimeFilter}
+                    AND ${timeStore.sqlTimeFilter}
                   LIMIT 100
                 `
             }).then((values) => {
@@ -147,14 +147,14 @@ const FeatureIntegrityRow = ({name, timeStore}) => {
                           from (
                               SELECT count(*) as my_count, "${name}"
                               FROM "dioptra-gt-combined-eventstream"
-                              WHERE ${timeStore.sQLTimeFilter}
+                              WHERE ${timeStore.sqlTimeFilter}
                               GROUP BY 2
                               LIMIT 100
                           ) as my_table
                           NATURAL JOIN (
                               SELECT count(*) as total_count
                               FROM "dioptra-gt-combined-eventstream"
-                              WHERE ${timeStore.sQLTimeFilter}
+                              WHERE ${timeStore.sqlTimeFilter}
                               LIMIT 100
                           ) as my_count_table
                         `
@@ -163,7 +163,7 @@ const FeatureIntegrityRow = ({name, timeStore}) => {
                 setFeatureOnlineDistribution(values);
             }).catch(console.error);
         }
-    }, [inView, timeStore.sQLTimeFilter]);
+    }, [inView, timeStore.sqlTimeFilter]);
 
     return (
         <tr className='py-5' ref={ref}>
@@ -228,7 +228,7 @@ const FeatureIntegrityTable = ({errorStore, timeStore}) => {
                 query: `
                     SELECT ${allFeatureNames.map((f) => `COUNT("${f}")`).join(', ')}
                     FROM "dioptra-gt-combined-eventstream"
-                    WHERE ${timeStore.sQLTimeFilter}
+                    WHERE ${timeStore.sqlTimeFilter}
                 `,
                 resultFormat: 'array'
             }).then(([nonNullCounts]) => {
@@ -236,7 +236,7 @@ const FeatureIntegrityTable = ({errorStore, timeStore}) => {
                 setNonNullFeatureNames(allFeatureNames.filter((_, i) => nonNullCounts && nonNullCounts[i] !== 0));
             }).catch((e) => errorStore.reportError(e));
         }
-    }, [allFeatureNames, timeStore.sQLTimeFilter]);
+    }, [allFeatureNames, timeStore.sqlTimeFilter]);
 
     return (
         <div className='border border-1 px-3 pb-3 pt-2'>
