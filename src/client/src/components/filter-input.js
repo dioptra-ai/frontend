@@ -29,7 +29,7 @@ const FilterInput = ({
     const [suggestionIndex, setSuggestionIndex] = useState(-1);
 
     const getSuggestions = () => {
-        const externals = ['apple', 'apricot', 'avocado', 'banana', 'cherry', 'orange'];
+        const externals = [];
 
         setSuggestions(externals);
     };
