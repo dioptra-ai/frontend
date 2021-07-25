@@ -6,7 +6,7 @@ import TimeseriesClient from 'clients/timeseries';
 
 const {SQL_OUTER_LIMIT} = TimeseriesClient;
 
-const DURATION_MAX_SEC_TO_GRANULARITY = [
+const granularityLadder = [
     moment.duration(1, 'second'),
     moment.duration(5, 'second'),
     moment.duration(10, 'second'),
@@ -26,13 +26,7 @@ const DURATION_MAX_SEC_TO_GRANULARITY = [
     moment.duration(10, 'day'),
     moment.duration(15, 'day'),
     moment.duration(1, 'month')
-].map((duration) => {
-
-    return {
-        maxSpanSec: SQL_OUTER_LIMIT * duration.asSeconds(),
-        granularity: duration
-    };
-});
+];
 
 
 let [initialStart, initialEnd] = lastHours(24);
@@ -93,8 +87,16 @@ class TimeStore {
         return `"__time" >= TIME_PARSE('${this.start.toISOString()}') AND "__time" < TIME_PARSE('${this.end.toISOString()}')`;
     }
 
-    get timeGranularity() {
+    // TODO: Find a better way to deal with sparse data than adding 10x the max number of points.
+    getTimeGranularity(maxTicks = 10 * SQL_OUTER_LIMIT) {
         const rangeSeconds = this.end.diff(this.start) / 1000;
+        const DURATION_MAX_SEC_TO_GRANULARITY = granularityLadder.map((duration) => {
+
+            return {
+                maxSpanSec: maxTicks * duration.asSeconds(),
+                granularity: duration
+            };
+        });
 
         for (const {maxSpanSec, granularity} of DURATION_MAX_SEC_TO_GRANULARITY) {
             if (rangeSeconds < maxSpanSec) {
@@ -104,11 +106,6 @@ class TimeStore {
         }
 
         return moment.duration(1, 'month');
-    }
-
-    get sQLTimeGranularity() {
-
-        return this.timeGranularity.toISOString();
     }
 }
 

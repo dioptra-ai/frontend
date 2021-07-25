@@ -12,9 +12,20 @@ import {IconNames} from '../../../constants';
 import {Link} from 'react-router-dom';
 import {Paths} from '../../../configs/route-config';
 import {setupComponent} from '../../../helpers/component-helper';
-import {ModelPerformanceMetrics} from '../../../enums/model-performance-metrics';
-import {ModelPerformanceIndicators} from '../../../enums/model-performance-indicators';
 import timeseriesClient from 'clients/timeseries';
+
+const ModelPerformanceMetrics = {
+    ACCURACY: {value: 'ACCURACY', name: 'Accuracy'},
+    F1_SCORE: {value: 'F1_SCORE', name: 'F1 Score'},
+    PRECISION: {value: 'PRECISION', name: 'Precision'},
+    RECALL: {value: 'RECALL', name: 'Recall'}
+};
+const ModelPerformanceIndicators = {
+    ADOPTION: {value: 'ADOPTION', name: 'Adoption'},
+    CHURN: {value: 'CHURN', name: 'Churn'},
+    CTR: {value: 'CTR', name: 'CTR'},
+    CONVERSION: {value: 'CONVERSION', name: 'Conversion'}
+};
 
 const getData = (timeRange, yMaxValue, divider) => {
     let dateMili = Date.now();
@@ -86,8 +97,8 @@ const PerformanceOverview = ({errorStore, timeStore}) => {
     useEffect(() => {
         timeseriesClient({
             query: `
-                SELECT TIME_FLOOR(__time, '${timeStore.sQLTimeGranularity}') as "__time",
-                    COUNT(*) / ${timeStore.timeGranularity.asSeconds()} as throughput
+                SELECT TIME_FLOOR(__time, '${timeStore.getTimeGranularity().toISOString()}') as "__time",
+                    COUNT(*) / ${timeStore.getTimeGranularity().asSeconds()} as throughput
                 FROM "dioptra-gt-combined-eventstream"
                 WHERE ${timeStore.sQLTimeFilter}
                 GROUP BY 1
@@ -130,26 +141,28 @@ const PerformanceOverview = ({errorStore, timeStore}) => {
             <div className='my-5'>
                 <h3 className='text-dark fw-bold fs-3 mb-3'>Service Performance</h3>
                 <Row>
-                    {throughputData.length !== 0 && <Col lg={6}>
-                        <AreaGraph
-                            dots={throughputData}
-                            graphType='monotone'
-                            hasDot={false}
-                            isTimeDependent
-                            tickFormatter={(tick) => formatDateTime(moment(tick))}
-                            title='Average Throughput (QPS)'
-                            xAxisDomain={timeStore.rangeMillisec}
-                            xAxisName='Time'
-                            yAxisName='Average Throughput (QPS)'
-                        />
-                    </Col>}
+                    {throughputData.length !== 0 && (
+                        <Col lg={6}>
+                            <AreaGraph
+                                dots={throughputData}
+                                graphType='monotone'
+                                hasDot={false}
+                                isTimeDependent
+                                tickFormatter={(tick) => formatDateTime(moment(tick)).replace(' ', '\n')}
+                                title='Average Throughput (QPS)'
+                                xAxisDomain={timeStore.rangeMillisec}
+                                xAxisName='Time'
+                                yAxisName='Average Throughput (QPS)'
+                            />
+                        </Col>
+                    )}
                     <Col lg={6}>
                         <AreaGraph
                             dots={dataLatency}
                             graphType='monotone'
                             hasDot={false}
                             isTimeDependent
-                            tickFormatter={(tick) => formatDateTime(moment(tick))}
+                            tickFormatter={(tick) => formatDateTime(moment(tick)).replace(' ', '\n')}
                             title='Average Latency (ms)'
                             xAxisInterval={60}
                             xAxisName='Time'
@@ -169,7 +182,7 @@ const PerformanceOverview = ({errorStore, timeStore}) => {
                                 name={prop.name}
                                 notifications={prop.notifications}
                                 unit={prop.unit}
-                                value={prop.value}
+                                value={prop.value.toFixed(1)}
                                 warnings={prop.warnings}
                             />
                         </Col>
@@ -234,9 +247,7 @@ const PerformanceOverview = ({errorStore, timeStore}) => {
                                 graphType='linear'
                                 hasBorder={false}
                                 isTimeDependent
-                                margin = {
-                                    {right: 0, bottom: 30, left: 5}
-                                }
+                                margin = {{right: 0, bottom: 30, left: 5}}
                                 tickFormatter={(tick) => formatDateTime(moment(tick))}
                                 xAxisInterval={60}
                                 xAxisName='Time'
