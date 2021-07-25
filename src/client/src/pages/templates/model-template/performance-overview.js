@@ -66,6 +66,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
     const [selectedIndicator, setSelectedIndicator] = useState(ModelPerformanceIndicators.ADOPTION.value);
     const sampleSizeComponent = (
         <TimeseriesQuery
+            defaultData={[{sampleSize: 0}]}
             renderData={([{sampleSize}]) => sampleSize}
             sql={sql`
                 SELECT COUNT(*) as sampleSize 
@@ -84,6 +85,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                 <Row>
                     <Col lg={6}>
                         <TimeseriesQuery
+                            defaultData={[]}
                             renderData={(data) => (
                                 <AreaGraph
                                     dots={data.map(({throughput, __time}) => ({
@@ -130,6 +132,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                 <Row className='mb-3 align-items-stretch'>
                     <Col className='d-flex' lg={3}>
                         <TimeseriesQuery
+                            defaultData={[{accuracy: NaN}]}
                             renderData={([{accuracy}]) => (
                                 <MetricInfoBox
                                     name='Accuracy'
@@ -147,6 +150,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                     </Col>
                     <Col className='d-flex' lg={3}>
                         <TimeseriesQuery
+                            defaultData={[{f1Score: NaN}]}
                             renderData={([{f1Score}]) => (
                                 <MetricInfoBox
                                     name='F1 Score'
@@ -199,6 +203,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                     </Col>
                     <Col className='d-flex' lg={3}>
                         <TimeseriesQuery
+                            defaultData={[{recall: NaN}]}
                             renderData={([{recall}]) => (
                                 <MetricInfoBox
                                     name='Recall'
@@ -250,6 +255,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                     </Col>
                     <Col className='d-flex' lg={3}>
                         <TimeseriesQuery
+                            defaultData={[{precision: NaN}]}
                             renderData={([{precision}]) => (
                                 <MetricInfoBox
                                     name='Precision'
