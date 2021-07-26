@@ -21,6 +21,7 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                 <Row>
                     <Col className='d-flex' lg={2}>
                         <TimeseriesQuery
+                            defaultData={[{unique: NaN}]}
                             renderData={([{unique}]) => (
                                 <MetricInfoBox
                                     name='% Unique'
@@ -65,6 +66,7 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                     </Col>
                     <Col className='d-flex' lg={5}>
                         <TimeseriesQuery
+                            defaultData={[]}
                             renderData={(data) => (
                                 <BarGraph
                                     bars={data.map(({name, value}) => ({
