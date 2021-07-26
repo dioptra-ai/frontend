@@ -10,7 +10,12 @@ const mlModelSchema = new mongoose.Schema({
     description: String,
     mlModelVersion: String,
     lastDeployed: Date,
-    mlModelTier: Number
+    mlModelTier: Number,
+    mlModelType: {
+        type: String,
+        enum: ['IMAGE_CLASSIFIER'],
+        required: true
+    }
 }, {timestamps: true});
 
 mlModelSchema.statics.initializeCollection = async () => {
@@ -22,7 +27,8 @@ mlModelSchema.statics.initializeCollection = async () => {
             description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque bibendum sem eget convallis malesuada. Quisque accumsan nisi ut ipsum tincidunt, a posuere nisi viverra. Quisque a lorem tellus.',
             lastDeployed: new Date('2021-07-14T01:20:51.873Z'),
             mlModelTier: 5,
-            mlModelVersion: 'V 1.01'
+            mlModelVersion: 'V 1.01',
+            mlModelType: 'IMAGE_CLASSIFIER'
         });
 
         console.log('Credit Card Fraud model created.');
