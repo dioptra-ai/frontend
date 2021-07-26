@@ -54,7 +54,7 @@ const TimeseriesQuery = ({sql, children, renderData, defaultData, renderError, r
 
 TimeseriesQuery.propTypes = {
     children: PropTypes.func,
-    defaultData: PropTypes.any,
+    defaultData: PropTypes.any.isRequired,
     renderData: PropTypes.func,
     renderError: PropTypes.func,
     renderLoading: PropTypes.func,
