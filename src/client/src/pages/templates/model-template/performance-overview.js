@@ -14,6 +14,7 @@ import {Link} from 'react-router-dom';
 import {Paths} from '../../../configs/route-config';
 import {setupComponent} from '../../../helpers/component-helper';
 import TimeseriesQuery, {sql} from 'components/timeseries-query';
+import {getName} from './../../../helpers/name-helper';
 
 const ModelPerformanceMetrics = {
     ACCURACY: {value: 'ACCURACY', name: 'Accuracy'},
@@ -119,7 +120,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                             isTimeDependent
                             tickFormatter={(tick) => formatDateTime(moment(tick)).replace(' ', '\n')}
                             title='Average Latency (ms)'
-                            xAxisInterval={60}
+                            xAxisDomain={timeStore.rangeMillisec}
                             xAxisName='Time'
                             yAxisDomain={[0, 25]}
                             yAxisName='Average Latency (ms)'
@@ -323,10 +324,10 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 margin = {{right: 0, bottom: 30}}
                                 tickFormatter={(tick) => formatDateTime(moment(tick))}
                                 unit='%'
-                                xAxisInterval={60}
+                                xAxisDomain={timeStore.rangeMillisec}
                                 xAxisName='Time'
                                 yAxisDomain={[0, 100]}
-                                yAxisName={selectedMetric}
+                                yAxisName={getName(selectedMetric)}
                             />
                         )}
                         sql={{
@@ -501,7 +502,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 isTimeDependent
                                 margin = {{right: 0, bottom: 30, left: 5}}
                                 tickFormatter={(tick) => formatDateTime(moment(tick))}
-                                xAxisInterval={60}
+                                xAxisDomain={timeStore.rangeMillisec}
                                 xAxisName='Time'
                                 yAxisDomain={[0, 1000]}
                                 yAxisName={getName(selectedIndicator)}
