@@ -32,9 +32,9 @@ const AreaGraph = ({
     hasDot = true,
     color = theme.primary,
     xAxisName = '',
+    xAxisDomain,
     tickFormatter,
     xAxisInterval,
-    xAxisTicks,
     yAxisName = '',
     yAxisDomain,
     graphType = 'linear',
@@ -54,6 +54,7 @@ const AreaGraph = ({
             {title && <p className='text-dark fw-bold fs-5'>{title}</p>}
             <div style={{height: '355px'}}>
                 <ResponsiveContainer height='100%' width='100%'>
+
                     <AreaChart
                         data={dots}
                         margin={margin}
@@ -61,6 +62,7 @@ const AreaGraph = ({
                         <CartesianGrid strokeDasharray='5 5' />
                         <XAxis
                             dataKey='x'
+                            domain={xAxisDomain}
                             dy={5}
                             interval={xAxisInterval}
                             label={{fill: theme.dark, value: xAxisName, dy: 30, fontSize: 12}}
@@ -68,7 +70,7 @@ const AreaGraph = ({
                             tick={{fill: theme.secondary, fontSize: 12}}
                             tickCount={5}
                             tickFormatter={(tick) => tickFormatter ? tickFormatter(tick) : tick}
-                            ticks={xAxisTicks}
+                            type='number'
                         />
                         <YAxis
                             domain={yAxisDomain}
@@ -91,7 +93,7 @@ const AreaGraph = ({
                             </linearGradient>
                         </defs>
                         <Area
-                            connectNulls
+                            connectNulls={false}
                             dataKey='y'
                             dot={hasDot ? {fill: color} : false}
                             fill='url(#color)'
@@ -101,7 +103,7 @@ const AreaGraph = ({
                         />
                         {hasWarnings &&
                             <Area
-                                connectNulls
+                                connectNulls={false}
                                 dataKey='warning'
                                 dot={hasDot ? {fill: theme.warning} : false}
                                 fill='url(#warning)'
@@ -130,9 +132,9 @@ AreaGraph.propTypes = {
     tickFormatter: PropTypes.func,
     title: PropTypes.string,
     unit: PropTypes.string,
+    xAxisDomain: PropTypes.array,
     xAxisInterval: PropTypes.number,
     xAxisName: PropTypes.string,
-    xAxisTicks: PropTypes.array,
     yAxisDomain: PropTypes.array,
     yAxisName: PropTypes.string
 };
