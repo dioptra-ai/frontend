@@ -1,54 +1,60 @@
-import React, {useEffect, useState} from 'react';
-import {setupComponent} from 'helpers/component-helper';
+import PropTypes from 'prop-types';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+
 import BarGraph from 'components/bar-graph';
 import AreaGraph from 'components/area-graph';
-import theme from 'styles/theme.module.scss';
-import PropTypes from 'prop-types';
-import timeseriesClient from 'clients/timeseries';
+import TimeseriesQuery, {sql} from 'components/timeseries-query';
+import {setupComponent} from 'helpers/component-helper';
 import {getHexColor} from 'helpers/color-helper';
 import {getName} from 'helpers/name-helper';
 
-const PredictionAnalysis = ({errorStore, timeStore}) => {
-    const [onlineDistribution, setOnlineDistribution] = useState([]);
-
-    useEffect(() => {
-        timeseriesClient({
-            query: `
-                SELECT
-                prediction,
-                COUNT(*) AS "Count"
-                FROM "dioptra-gt-combined-eventstream"
-                WHERE ${timeStore.sqlTimeFilter} 
-                GROUP BY 1
-            `
-        }).then((res) => {
-            setOnlineDistribution(res);
-        }).catch((e) => errorStore.reportError(e));
-    }, [timeStore.sqlTimeFilter]);
+const PredictionAnalysis = ({timeStore}) => {
 
     return (
         <Row className='my-5'>
-            <Col className='d-flex' lg={4} >
-                <BarGraph
-                    bars={onlineDistribution.map(({prediction, Count}) => (
-                        {name: getName(prediction), value: Count, fill: getHexColor(prediction)}
-                    ))}
-                    title='Online class distribution'
-                    yAxisName='Count'
+            <Col className='d-flex' lg={4}>
+                <TimeseriesQuery
+                    defaultData={[]}
+                    renderData={(data) => (
+                        <BarGraph
+                            bars={data.map(({prediction, Count}) => (
+                                {name: getName(prediction), value: Count, fill: getHexColor(prediction)}
+                            ))}
+                            title='Online Class Distribution'
+                            yAxisName='Count'
+                        />
+                    )}
+                    sql={sql`
+                        SELECT
+                        prediction,
+                        COUNT(*) AS "Count"
+                        FROM "dioptra-gt-combined-eventstream"
+                        WHERE ${timeStore.sqlTimeFilter} 
+                        GROUP BY 1`
+                    }
                 />
             </Col>
             <Col className='d-flex' lg={4}>
-                <BarGraph
-                    bars={[
-                        {name: 'Fraudulent transaction', value: '46', fill: theme.primary},
-                        {name: 'Non fraudulent', value: '60', fill: '#F8C86C'},
-                        {name: 'Requires human review', value: '75', fill: theme.success}
-                    ]}
-                    title='Offline class distribution'
-                    yAxisDomain={[0, 100]}
-                    yAxisName='Count'
+                <TimeseriesQuery
+                    defaultData={[]}
+                    renderData={(data) => (
+                        <BarGraph
+                            bars={data.map(({prediction, Count}) => (
+                                {name: getName(prediction), value: Count, fill: getHexColor(prediction)}
+                            ))}
+                            title='Offline Class Distribution'
+                            yAxisName='Count'
+                        />
+                    )}
+                    sql={sql`
+                        SELECT
+                        prediction,
+                        COUNT(*) AS "Count"
+                        FROM "dioptra-gt-combined-eventstream"
+                        WHERE "__time" >= TIME_PARSE('2021-07-23T00:00:00.000Z') AND "__time" < TIME_PARSE('2021-07-24T00:00:00.000Z')
+                        GROUP BY 1`
+                    }
                 />
             </Col>
             <Col className='d-flex' lg={4}>
@@ -73,7 +79,6 @@ const PredictionAnalysis = ({errorStore, timeStore}) => {
 };
 
 PredictionAnalysis.propTypes = {
-    errorStore: PropTypes.object,
     timeStore: PropTypes.object
 };
 export default setupComponent(PredictionAnalysis);
