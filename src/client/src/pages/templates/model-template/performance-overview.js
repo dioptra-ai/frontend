@@ -279,6 +279,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                         </div>
                     </div>
                     <TimeseriesQuery
+                        defaultData={[]}
                         renderData={(metric) => (
                             <AreaGraph
                                 dots={metric}
