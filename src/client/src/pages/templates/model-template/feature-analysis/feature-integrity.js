@@ -6,7 +6,7 @@ import {useInView} from 'react-intersection-observer';
 
 
 import {FeatureIntegrityTableColumnNames, IconNames} from 'constants';
-import {getRandomHexColor} from 'helpers/color-helper';
+import {getHexColor} from 'helpers/color-helper';
 import FontIcon from 'components/font-icon';
 import theme from 'styles/theme.module.scss';
 import {setupComponent} from 'helpers/component-helper';
@@ -181,7 +181,7 @@ const FeatureIntegrityRow = ({name, timeStore}) => {
             <td className={tdClasses}>
                 <OnlineDistributionBarChart distribution={featureOnlineDistribution?.map(({value, dist}) => ({
                     value, dist,
-                    color: getRandomHexColor(0.65)
+                    color: getHexColor(value, 0.65)
                 }))}/>
             </td>
             <td className={tdClasses}>

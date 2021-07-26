@@ -1,14 +1,14 @@
 import React, {useEffect, useState} from 'react';
-import {setupComponent} from '../../../helpers/component-helper';
+import {setupComponent} from 'helpers/component-helper';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import BarGraph from './../../../components/bar-graph';
-import AreaGraph from './../../../components/area-graph';
-import theme from './../../../styles/theme.module.scss';
+import BarGraph from 'components/bar-graph';
+import AreaGraph from 'components/area-graph';
+import theme from 'styles/theme.module.scss';
 import PropTypes from 'prop-types';
 import timeseriesClient from 'clients/timeseries';
-import {getRandomHexColor} from 'helpers/color-helper';
-import {getName} from '../../../helpers/name-helper';
+import {getHexColor} from 'helpers/color-helper';
+import {getName} from 'helpers/name-helper';
 
 const PredictionAnalysis = ({errorStore, timeStore}) => {
     const [onlineDistribution, setOnlineDistribution] = useState([]);
@@ -33,7 +33,7 @@ const PredictionAnalysis = ({errorStore, timeStore}) => {
             <Col className='d-flex' lg={4} >
                 <BarGraph
                     bars={onlineDistribution.map(({prediction, Count}) => (
-                        {name: getName(prediction), value: Count, fill: getRandomHexColor(1)}
+                        {name: getName(prediction), value: Count, fill: getHexColor(prediction)}
                     ))}
                     title='Online class distribution'
                     yAxisName='Count'

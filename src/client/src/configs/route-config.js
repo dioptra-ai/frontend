@@ -1,26 +1,28 @@
 import Login from 'pages/login';
 import Models from 'pages/templates/models';
-import Model from 'pages/templates/model-template/model';
+import Model from 'pages/templates/model-template';
 import AddAlertPage from 'pages/add-alert';
 
-export const Paths = (id) => (
-    {
+export const Paths = (args = {}) => {
+    const {modelId = ':_id'} = args;
+
+    return {
         HOME: '/home',
         LOGIN: '/login',
         MODELS: '/models',
-        MODEL: '/models/:_id',
-        MODEL_PERFORMANCE_OVERVIEW: `/models/${id}/performance-overview`,
-        MODEL_PERFORMANCE_DETAILS: `/models/${id}/performance-details`,
-        MODEL_PREDICTION_ANALYSIS: `/models/${id}/prediction-analysis`,
-        MODEL_FEATURE_ANALYSIS: `/models/${id}/feature-analysis`,
-        MODEL_INCIDENTS_AND_ALERTS: `/models/${id}/incidents-&-alerts`,
+        MODEL: `/models/${modelId}`,
+        MODEL_PERFORMANCE_OVERVIEW: `/models/${modelId}/performance-overview`,
+        MODEL_PERFORMANCE_DETAILS: `/models/${modelId}/performance-details`,
+        MODEL_PREDICTION_ANALYSIS: `/models/${modelId}/prediction-analysis`,
+        MODEL_FEATURE_ANALYSIS: `/models/${modelId}/feature-analysis`,
+        MODEL_INCIDENTS_AND_ALERTS: `/models/${modelId}/incidents-&-alerts`,
         ADD_ALERT: '/add-alert',
         EXPERIMENTATIONS: '/experimentations',
         ALERTS: '/alerts',
         SETTINGS: '/settings',
         PROFILE: '/profile'
-    }
-);
+    };
+};
 
 export const UnauthorizedRouteConfigs = [
     {path: Paths().LOGIN, isExact: true, component: Login}

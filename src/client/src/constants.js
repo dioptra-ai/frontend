@@ -20,14 +20,6 @@ export const IconNames = {
     WARNING: 'Warning'
 };
 
-export const ModelTabNames = {
-    PERFORMANCE_OVERVIEW: 'Performance Overview',
-    PERFORMANCE_DETAILS: 'Performance Details',
-    PREDICTION_ANALYSIS: 'Prediction Analysis',
-    FEATURE_ANALYSIS: 'Feature Analysis',
-    INCIDENTS_AND_ALERTS: 'Incidents & Alerts'
-};
-
 export const FeatureIntegrityTableColumnNames = {
     FEATURE_NAME: 'Feature Name',
     INCIDENT_COUNT: 'Incident Count',
