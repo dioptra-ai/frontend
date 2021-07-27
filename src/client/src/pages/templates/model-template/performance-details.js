@@ -28,12 +28,12 @@ const PerformanceBox = ({
                 <div className='w-100 d-flex align-items-center'>
                     <span className='d-flex flex-column'>
                         <FontIcon
-                            className='text-dark my-1 border-0'
+                            className='text-muted my-1 border-0'
                             icon={IconNames.ARROW_UP}
                             size={5}
                         />
                         <FontIcon
-                            className='text-dark my-1 border-0'
+                            className='text-muted my-1 border-0'
                             icon={IconNames.ARROW_DOWN}
                             size={5}
                         />
@@ -42,7 +42,14 @@ const PerformanceBox = ({
                 </div>
             </div>
             <div className='py-5'>
-                <div className='hide-scrollbar' style={{height: '150px', overflowY: 'scroll'}}>
+                <div style={{
+                    height: '150px',
+                    overflowY: 'scroll',
+                    position: 'relative',
+                    left: 10,
+                    paddingRight: 10,
+                    marginLeft: -10
+                }}>
                     {children}
                 </div>
             </div>
