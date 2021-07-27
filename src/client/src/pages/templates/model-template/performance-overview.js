@@ -1,20 +1,18 @@
 /* eslint-disable max-lines */
 import React, {useState} from 'react';
 import PropTypes from 'prop-types';
-import FilterInput from '../../../components/filter-input';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import AreaGraph from '../../../components/area-graph';
-import {formatDateTime} from '../../../helpers/date-helper';
+import FilterInput from 'components/filter-input';
+import AreaGraph from 'components/area-graph';
+import {formatDateTime} from 'helpers/date-helper';
 import moment from 'moment';
-import Select from '../../../components/select';
-import FontIcon from '../../../components/font-icon';
-import {IconNames} from '../../../constants';
-import {Link} from 'react-router-dom';
-import {Paths} from '../../../configs/route-config';
-import {setupComponent} from '../../../helpers/component-helper';
+import Select from 'components/select';
+import {setupComponent} from 'helpers/component-helper';
 import TimeseriesQuery, {sql} from 'components/timeseries-query';
 import {getName} from './../../../helpers/name-helper';
+import MetricInfoBox from 'components/metric-info-box';
+
 
 const ModelPerformanceMetrics = {
     ACCURACY: {value: 'ACCURACY', name: 'Accuracy'},
@@ -27,39 +25,6 @@ const ModelPerformanceIndicators = {
     CHURN: {value: 'CHURN', name: 'Churn'},
     CTR: {value: 'CTR', name: 'CTR'},
     CONVERSION: {value: 'CONVERSION', name: 'Conversion'}
-};
-
-const MetricInfoBox = ({value, notifications, warnings, name, sampleSize, unit}) => (
-    <div className='border rounded p-3 w-100'>
-        <div className='d-flex flex-wrap align-items-center'>
-            <span className='text-dark-bold fw-bold'>{name}</span>
-            <span className='text-primary mx-1'>(n={sampleSize || '-'})</span>
-            {notifications && <FontIcon
-                className='text-dark flex-grow-1'
-                icon={IconNames.ALERTS_BELL}
-                size={16}
-            />}
-            {warnings && <div className='d-flex align-items-center'>
-                <FontIcon
-                    className='text-warning'
-                    icon={IconNames.WARNING}
-                    size={16}/>
-                <Link className='text-warning mx-1' style={{fontSize: '12px'}} to={Paths(1).MODEL_INCIDENTS_AND_ALERTS}>
-                    View Incidents
-                </Link>
-            </div>}
-        </div>
-        <span className='text-dark' style={{fontSize: '60px'}}>{value ? value.toFixed(1) : '-'}{unit}</span>
-    </div>
-);
-
-MetricInfoBox.propTypes = {
-    name: PropTypes.string,
-    notifications: PropTypes.number,
-    sampleSize: PropTypes.any,
-    unit: PropTypes.string,
-    value: PropTypes.number,
-    warnings: PropTypes.number
 };
 
 const PerformanceOverview = ({timeStore, filtersStore}) => {
@@ -315,6 +280,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                         </div>
                     </div>
                     <TimeseriesQuery
+                        defaultData={[]}
                         renderData={(metric) => (
                             <AreaGraph
                                 dots={metric}

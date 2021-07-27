@@ -1,3 +1,15 @@
-const convertToHex = (n) => Math.floor(n * 16777215).toString(16);
+const COLORS = [
+    '#1FA9C8',
+    '#8ED4E3',
+    '#F8C86C',
+    '#62BD6C',
+    '#B1EAB7',
+    '#F8886C'
+];
 
-export const getRandomHexColor = (opacity = 1) => `#${convertToHex(Math.random())}${convertToHex(opacity).substr(0, 2)}`;
+export const getHexColor = (fromValue) => {
+    const fromValueString = String(fromValue);
+    const sum = fromValueString.split('').reduce((agg, _, i) => fromValueString.charCodeAt(i) + agg, 0);
+
+    return COLORS[sum % COLORS.length];
+};
