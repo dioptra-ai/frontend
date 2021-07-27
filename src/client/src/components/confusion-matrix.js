@@ -26,7 +26,7 @@ const Table = ({columns, data, onCellClick}) => {
 
     const getCellBackground = (value) => {
         if (typeof value === 'number') {
-            return `rgba(31, 169, 200, ${value.toFixed(1)})`;
+            return `rgba(31, 169, 200, ${(0.1 + value).toFixed(1)})`;
         } else if (!value) {
             return theme.mercury;
         } else {
@@ -42,9 +42,10 @@ const Table = ({columns, data, onCellClick}) => {
     return (
         <>
             <div className='position-relative' style={{marginRight: '30px'}}>
-                <table className='table' style={{fontSize: '14px'}} >
+                <p className='text-secondary m-0 mb-2 text-center fw-bold'>Prediction</p>
+                <table className='table d-flex flex-column-reverse' style={{fontSize: '14px', marginBottom: '50px', position: 'relative'}} >
                     <thead className='text-dark fw-bold'>
-                        <tr>
+                        <tr className='w-100'>
                             {headers.map((column, i) => (
                                 <th
                                     className='align-middle py-3 border-0'
@@ -69,7 +70,7 @@ const Table = ({columns, data, onCellClick}) => {
                                                 key={i}
                                                 onClick={() => i && cell.value && handleCellClick(cell)}
                                                 {...cell.getCellProps()}
-                                                style={{backgroundColor: getCellBackground(cell.value), cursor: (i && cell.value) ? 'pointer' : 'auto', position: 'relative'}}
+                                                style={{backgroundColor: getCellBackground(cell.value), cursor: (i && cell.value) ? 'pointer' : 'auto', position: 'relative', width: `${100 / columns.length}%`}}
                                             >
                                                 {cell.render('Cell')}
                                                 <div className={`border border-2 border-${cell.getCellProps().key === selectedCellKey ? 'dark' : 'white'}`} style={{position: 'absolute', inset: 0}}></div>
@@ -81,13 +82,12 @@ const Table = ({columns, data, onCellClick}) => {
                     </tbody>
                 </table>
                 <p
-                    className='position-absolute text-secondary m-0 text-center'
+                    className='position-absolute text-secondary m-0 text-center fw-bold'
                     style={{transform: 'rotate(-90deg)', top: '50%', right: '-70px'}}
                 >
                    Ground Truth
                 </p>
             </div>
-            <p className='text-secondary m-0 text-center'>Prediction</p>
         </>
     );
 };
