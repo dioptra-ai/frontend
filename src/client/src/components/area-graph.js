@@ -35,7 +35,7 @@ const AreaGraph = ({
     tickFormatter,
     xAxisInterval,
     xAxisTicks,
-    XAxisDomain,
+    xAxisDomain,
     yAxisName = '',
     yAxisDomain,
     graphType = 'linear',
@@ -62,7 +62,7 @@ const AreaGraph = ({
                         <CartesianGrid strokeDasharray='5 5' />
                         <XAxis
                             dataKey='x'
-                            domain={XAxisDomain}
+                            domain={xAxisDomain}
                             dy={5}
                             interval={xAxisInterval}
                             label={{fill: theme.dark, value: xAxisName, dy: 30, fontSize: 12}}
@@ -132,7 +132,7 @@ AreaGraph.propTypes = {
     tickFormatter: PropTypes.func,
     title: PropTypes.string,
     unit: PropTypes.string,
-    XAxisDomain: PropTypes.array,
+    xAxisDomain: PropTypes.array,
     xAxisInterval: PropTypes.number,
     xAxisName: PropTypes.string,
     xAxisTicks: PropTypes.array,

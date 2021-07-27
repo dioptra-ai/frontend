@@ -501,7 +501,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 hasBorder={false}
                                 isTimeDependent
                                 margin = {{right: 0, bottom: 30, left: 5}}
-                                tickFormatter={(tick) => formatDateTime(moment(tick))}
+                                tickFormatter={(tick) => formatDateTime(moment(tick)).replace(' ', '\n')}
                                 xAxisDomain={timeStore.rangeMillisec}
                                 xAxisName='Time'
                                 yAxisDomain={[0, 1000]}
