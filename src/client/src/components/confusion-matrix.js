@@ -1,86 +1,51 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {setupComponent} from '../helpers/component-helper';
 import PropTypes from 'prop-types';
-import timeseriesClient from 'clients/timeseries';
 import {getName} from '../helpers/name-helper';
-import {useTable} from 'react-table';
-import theme from '../styles/theme.module.scss';
 import BtnIcon from './btn-icon';
 import {IconNames} from '../constants';
 import CustomCarousel from './carousel';
 import Modal from './modal';
 import useModal from './../customHooks/useModal';
+import TimeseriesQuery, {sql} from './timeseries-query';
+import MatrixTable from './matrix-table';
 
-const Table = ({columns, data, onCellClick}) => {
-    const {
-        headers,
-        rows,
-        prepareRow
-    } = useTable(
-        {
-            columns,
-            data
-        }
-    );
-    const [selectedCellKey, setSelectedCellKey] = useState('');
+const Table = ({data, onCellClick, groundtruthClasses, predictionClasses}) => {
+    const getColumns = (predictionClasses) => {
+        const classes = predictionClasses.map((c) => ({
+            Header: getName(c),
+            accessor: c,
+            Cell: ({value}) => !value ? 0 : `${(value * 100).toFixed(2)} %`
+        }));
 
-    const getCellBackground = (value) => {
-        if (typeof value === 'number') {
-            return `rgba(31, 169, 200, ${(0.1 + value).toFixed(1)})`;
-        } else if (!value) {
-            return theme.mercury;
-        } else {
-            return 'transparent';
-        }
+        return ([{
+            Header: '',
+            accessor: 'groundtruth',
+            Cell: ({value}) => getName(value)
+        }, ...classes]);
     };
 
-    const handleCellClick = (cell) => {
-        onCellClick(cell.column.id, cell.row.values.groundtruth);
-        setSelectedCellKey(cell.getCellProps().key);
+    const getTableRows = (groundtruthClasses, matrixData) => {
+        const rows = groundtruthClasses.map((c) => {
+            const filtered = matrixData.filter((d) => d.groundtruth === c);
+            const cells = {groundtruth: c};
+
+            filtered.forEach((e) => {
+                cells[e.prediction] = e.distribution;
+            });
+
+            return cells;
+
+        });
+
+        return (rows);
     };
 
     return (
         <>
             <div className='position-relative' style={{marginRight: '30px'}}>
                 <p className='text-secondary m-0 mb-2 text-center fw-bold'>Prediction</p>
-                <table className='table d-flex flex-column-reverse' style={{fontSize: '14px', marginBottom: '50px', position: 'relative'}} >
-                    <thead className='text-dark fw-bold'>
-                        <tr className='w-100'>
-                            {headers.map((column, i) => (
-                                <th
-                                    className='align-middle py-3 border-0'
-                                    key={i}
-                                    style={{width: `${100 / columns.length}%`}}
-                                >
-                                    {column.render('Header')}
-                                </th>
-                            ))}
-                        </tr>
-                    </thead>
-                    <tbody className='text-dark fw-bold'>
-                        {rows.map((row, i) => {
-                            prepareRow(row);
-
-                            return (
-                                <tr className='border-2 border-white' key={i}>
-                                    {row.cells.map((cell, i) => {
-                                        return (
-                                            <td
-                                                className={`border-white border-2 px-2 py-3 text-${i ? 'center' : 'left'} align-middle`}
-                                                key={i}
-                                                onClick={() => i && cell.value && handleCellClick(cell)}
-                                                {...cell.getCellProps()}
-                                                style={{backgroundColor: getCellBackground(cell.value), cursor: (i && cell.value) ? 'pointer' : 'auto', position: 'relative', width: `${100 / columns.length}%`}}
-                                            >
-                                                {cell.render('Cell')}
-                                                <div className={`border border-2 border-${cell.getCellProps().key === selectedCellKey ? 'dark' : 'white'}`} style={{position: 'absolute', inset: 0}}></div>
-                                            </td>);
-                                    })}
-                                </tr>
-                            );
-                        })}
-                    </tbody>
-                </table>
+                <MatrixTable columns={getColumns(predictionClasses)} data={getTableRows(groundtruthClasses, data)} onCellClick={onCellClick}/>
                 <p
                     className='position-absolute text-secondary m-0 text-center fw-bold'
                     style={{transform: 'rotate(-90deg)', top: '50%', right: '-70px'}}
@@ -93,9 +58,10 @@ const Table = ({columns, data, onCellClick}) => {
 };
 
 Table.propTypes = {
-    columns: PropTypes.array,
     data: PropTypes.array,
-    onCellClick: PropTypes.func
+    groundtruthClasses: PropTypes.array,
+    onCellClick: PropTypes.func,
+    predictionClasses: PropTypes.array
 };
 
 const Examples = ({onClose, images}) => {
@@ -103,7 +69,7 @@ const Examples = ({onClose, images}) => {
 
     return (
         <div className='bg-white-blue my-3 p-3'>
-            <div className='d-flex align-items-center'>
+            <div className='d-flex align-items-center mb-5'>
                 <p className='text-dark m-0 fw-bold flex-grow-1'>Examples</p>
                 <BtnIcon
                     className='text-dark border-0'
@@ -135,14 +101,8 @@ Examples.propTypes = {
     onClose: PropTypes.func
 };
 
-const ConfusionMatrix = ({errorStore, timeStore}) => {
-    const [groundtruthClasses, setGroundtruthClasses] = useState([]);
-    const [predictionClasses, setPredictionClasses] = useState([]);
-    const [matrixData, setMatrixData] = useState([]);
-    const [tableData, setTableData] = useState(null);
-    const [columns, setColumns] = useState(null);
+const ConfusionMatrix = ({timeStore}) => {
     const [selectedCell, setSelectedCell] = useState(null);
-    const [examples, setExamples] = useState(null);
 
     const getClasses = (data, key) => {
         const classes = [];
@@ -156,110 +116,57 @@ const ConfusionMatrix = ({errorStore, timeStore}) => {
         return classes;
     };
 
-    useEffect(() => {
-        timeseriesClient({
-            query: `
-                SELECT
-                predictionTable.groundtruth,
-                predictionTable.prediction,
-                cast(predictionTable.c as FLOAT) / cast(groundTable.c as FLOAT) as distribution
-                FROM (
-                SELECT groundtruth, prediction, COUNT(*) AS c
-                FROM "dioptra-gt-combined-eventstream"
-                WHERE ${timeStore.sqlTimeFilter}
-                GROUP BY groundtruth, prediction
-                )  as predictionTable
-                LEFT JOIN (
-                SELECT groundtruth, COUNT(*) AS c
-                FROM "dioptra-gt-combined-eventstream"
-                WHERE ${timeStore.sqlTimeFilter}
-                GROUP BY groundtruth
-                ) AS groundTable
-                ON groundTable.groundtruth = predictionTable.groundtruth
-            `
-        }).then((res) => {
-            setGroundtruthClasses(getClasses(res, 'groundtruth'));
-            setPredictionClasses(getClasses(res, 'prediction'));
-            setMatrixData(res);
-        }).catch((e) => errorStore.reportError(e));
-    }, [timeStore.sqlTimeFilter]);
-
-    useEffect(() => {
-        const classes = predictionClasses.map((c) => ({
-            Header: getName(c),
-            accessor: c,
-            Cell: ({value}) => !value ? 0 : `${(value * 100).toFixed(2)} %`
-        }));
-
-        setColumns([{
-            Header: '',
-            accessor: 'groundtruth',
-            Cell: ({value}) => getName(value)
-        }, ...classes]);
-
-    }, [predictionClasses]);
-
-    useEffect(() => {
-        const rows = groundtruthClasses.map((c) => {
-            const filtered = matrixData.filter((d) => d.groundtruth === c);
-
-            const cells = {groundtruth: c};
-
-            filtered.forEach((e) => {
-                cells[e.prediction] = e.distribution;
-            });
-
-            return cells;
-
-        });
-
-        setTableData(rows);
-
-    }, [matrixData]);
-
-    useEffect(() => {
-        if (selectedCell) {
-            timeseriesClient({
-                query: `
-                SELECT distinct "feature.image_url"
-                FROM "dioptra-gt-combined-eventstream"
-                WHERE groundtruth = '${selectedCell.groundtruth}' AND prediction = '${selectedCell.prediction}'
-                AND ${timeStore.sqlTimeFilter}
-                LIMIT 20
-            `
-            }).then((res) => {
-                const mapped_res = res.map((x) => x['feature.image_url']);
-
-                setExamples(mapped_res);
-            }).catch((e) => {
-                errorStore.reportError(e);
-                setExamples([
-                    'https://via.placeholder.com/150',
-                    'https://via.placeholder.com/150',
-                    'https://via.placeholder.com/150',
-                    'https://via.placeholder.com/150',
-                    'https://via.placeholder.com/150',
-                    'https://via.placeholder.com/150',
-                    'https://via.placeholder.com/150',
-                    'https://via.placeholder.com/150',
-                    'https://via.placeholder.com/150'
-                ]);
-            });
-        }
-    }, [selectedCell]);
-
     return (
 
         <div className='my-5'>
             <h3 className='text-dark fw-bold fs-3 mb-3'>Confusion matrix</h3>
             <div className='border rounded p-3'>
-                {columns && tableData && <Table
-                    columns={columns}
-                    data={tableData}
-                    onCellClick={(prediction, groundtruth) => setSelectedCell({prediction, groundtruth})
-                    }
+                <TimeseriesQuery
+                    defaultData={[]}
+                    renderData={(data) => (
+                        <Table
+                            data={data}
+                            groundtruthClasses={getClasses(data, 'groundtruth')}
+                            onCellClick={(prediction, groundtruth) => setSelectedCell({prediction, groundtruth})}
+                            predictionClasses = {getClasses(data, 'prediction')}
+                        />
+                    )}
+                    sql={sql`
+                        SELECT
+                        predictionTable.groundtruth,
+                        predictionTable.prediction,
+                        cast(predictionTable.c as FLOAT) / cast(groundTable.c as FLOAT) as distribution
+                        FROM (
+                        SELECT groundtruth, prediction, COUNT(*) AS c
+                        FROM "dioptra-gt-combined-eventstream"
+                        WHERE ${timeStore.sqlTimeFilter}
+                        GROUP BY groundtruth, prediction
+                        )  as predictionTable
+                        LEFT JOIN (
+                        SELECT groundtruth, COUNT(*) AS c
+                        FROM "dioptra-gt-combined-eventstream"
+                        WHERE ${timeStore.sqlTimeFilter}
+                        GROUP BY groundtruth
+                        ) AS groundTable
+                        ON groundTable.groundtruth = predictionTable.groundtruth
+                    `}
+                />
+                {selectedCell && <TimeseriesQuery
+                    defaultData={[]}
+                    renderData={(data) => (
+                        <Examples
+                            images={data.map((x) => x['feature.image_url'])}
+                            onClose={() => setSelectedCell(null)}
+                        />
+                    )}
+                    sql={sql`
+                        SELECT distinct "feature.image_url"
+                        FROM "dioptra-gt-combined-eventstream"
+                        WHERE groundtruth = '${selectedCell.groundtruth}' AND prediction = '${selectedCell.prediction}'
+                        AND ${timeStore.sqlTimeFilter}
+                        LIMIT 20
+                    `}
                 />}
-                {examples && <Examples images={examples} onClose={() => setExamples(null)}/>}
             </div>
         </div>
     );
