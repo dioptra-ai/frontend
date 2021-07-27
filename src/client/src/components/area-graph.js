@@ -1,7 +1,9 @@
-import {Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis} from 'recharts';
 import PropTypes from 'prop-types';
-import theme from '../styles/theme.module.scss';
 import moment from 'moment';
+import {Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis} from 'recharts';
+
+import {setupComponent} from 'helpers/component-helper';
+import theme from '../styles/theme.module.scss';
 import {formatDateTime} from '../helpers/date-helper';
 
 const CustomTooltip = ({payload, label, isTimeDependent}) => {
@@ -32,7 +34,6 @@ const AreaGraph = ({
     hasDot = true,
     color = theme.primary,
     xAxisName = '',
-    xAxisDomain,
     tickFormatter,
     xAxisInterval,
     yAxisName = '',
@@ -46,7 +47,8 @@ const AreaGraph = ({
     },
     hasWarnings = false,
     unit,
-    isTimeDependent = false
+    isTimeDependent = false,
+    timeStore
 }) => {
 
     return (
@@ -62,15 +64,16 @@ const AreaGraph = ({
                         <CartesianGrid strokeDasharray='5 5' />
                         <XAxis
                             dataKey='x'
-                            domain={xAxisDomain}
                             dy={5}
                             interval={xAxisInterval}
                             label={{fill: theme.dark, value: xAxisName, dy: 30, fontSize: 12}}
+                            scale='time'
                             stroke='transparent'
                             tick={{fill: theme.secondary, fontSize: 12}}
                             tickCount={5}
                             tickFormatter={(tick) => tickFormatter ? tickFormatter(tick) : tick}
                             type='number'
+                            xAxisDomain={timeStore.rangeMillisec}
                         />
                         <YAxis
                             domain={yAxisDomain}
@@ -93,7 +96,7 @@ const AreaGraph = ({
                             </linearGradient>
                         </defs>
                         <Area
-                            connectNulls={false}
+                            connectNulls
                             dataKey='y'
                             dot={hasDot ? {fill: color} : false}
                             fill='url(#color)'
@@ -103,7 +106,7 @@ const AreaGraph = ({
                         />
                         {hasWarnings &&
                             <Area
-                                connectNulls={false}
+                                connectNulls
                                 dataKey='warning'
                                 dot={hasDot ? {fill: theme.warning} : false}
                                 fill='url(#warning)'
@@ -130,13 +133,13 @@ AreaGraph.propTypes = {
     isTimeDependent: PropTypes.bool,
     margin: PropTypes.object,
     tickFormatter: PropTypes.func,
+    timeStore: PropTypes.object.isRequired,
     title: PropTypes.string,
     unit: PropTypes.string,
-    xAxisDomain: PropTypes.array,
     xAxisInterval: PropTypes.number,
     xAxisName: PropTypes.string,
     yAxisDomain: PropTypes.array,
     yAxisName: PropTypes.string
 };
 
-export default AreaGraph;
+export default setupComponent(AreaGraph);
