@@ -101,7 +101,7 @@ Examples.propTypes = {
     onClose: PropTypes.func
 };
 
-const ConfusionMatrix = ({timeStore}) => {
+const ConfusionMatrix = ({filtersStore, timeStore}) => {
     const [selectedCell, setSelectedCell] = useState(null);
 
     const getClasses = (data, key) => {
@@ -139,13 +139,13 @@ const ConfusionMatrix = ({timeStore}) => {
                         FROM (
                         SELECT groundtruth, prediction, COUNT(*) AS c
                         FROM "dioptra-gt-combined-eventstream"
-                        WHERE ${timeStore.sqlTimeFilter}
+                        WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
                         GROUP BY groundtruth, prediction
                         )  as predictionTable
                         LEFT JOIN (
                         SELECT groundtruth, COUNT(*) AS c
                         FROM "dioptra-gt-combined-eventstream"
-                        WHERE ${timeStore.sqlTimeFilter}
+                        WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
                         GROUP BY groundtruth
                         ) AS groundTable
                         ON groundTable.groundtruth = predictionTable.groundtruth
@@ -155,7 +155,7 @@ const ConfusionMatrix = ({timeStore}) => {
                     defaultData={[]}
                     renderData={(data) => (
                         <Examples
-                            images={data.map((x) => x['feature.image_url'])}
+                            images={data.map((x) => x['feature.image_url'].replace(/"/g, ''))}
                             onClose={() => setSelectedCell(null)}
                         />
                     )}
@@ -163,7 +163,7 @@ const ConfusionMatrix = ({timeStore}) => {
                         SELECT distinct "feature.image_url"
                         FROM "dioptra-gt-combined-eventstream"
                         WHERE groundtruth = '${selectedCell.groundtruth}' AND prediction = '${selectedCell.prediction}'
-                        AND ${timeStore.sqlTimeFilter}
+                        AND ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
                         LIMIT 20
                     `}
                 />}
@@ -173,7 +173,7 @@ const ConfusionMatrix = ({timeStore}) => {
 };
 
 ConfusionMatrix.propTypes = {
-    errorStore: PropTypes.object,
+    filtersStore: PropTypes.object.isRequired,
     timeStore: PropTypes.object
 };
 
