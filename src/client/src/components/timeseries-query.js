@@ -29,7 +29,7 @@ const TimeseriesQuery = ({sql, children, renderData, defaultData, renderError, r
             .finally(() => {
                 setLoading(false);
             });
-    }, [query, ...parameters]);
+    }, [query, JSON.stringify(parameters)]);
 
     if (children) {
 

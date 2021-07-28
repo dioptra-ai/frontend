@@ -116,7 +116,8 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                               on my_table.join_key = my_count_table.join_key
                             )
 
-                            select my_online_table.my_time as x, sqrt(sum(POWER(my_online_table.my_percentage - my_offline_table.my_percentage, 2))) as y
+                            select my_online_table.my_time as x, 
+                                sqrt(sum(POWER(100 * my_online_table.my_percentage - 100 * my_offline_table.my_percentage, 2))) as y
                             from my_online_table
                             join my_offline_table
                             on my_offline_table.my_field = my_online_table.my_field

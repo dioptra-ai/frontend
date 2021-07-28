@@ -1,20 +1,20 @@
 import React from 'react';
-import FilterInput from '../../../components/filter-input';
-import {setupComponent} from '../../../helpers/component-helper';
+import FilterInput from 'components/filter-input';
+import {setupComponent} from 'helpers/component-helper';
 import PropTypes from 'prop-types';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import ProgressBar from '../../../components/progress-bar';
-import {getName} from '../../../helpers/name-helper';
-import {IconNames} from '../../../constants';
-import FontIcon from '../../../components/font-icon';
-import ConfusionMatrix from '../../../components/confusion-matrix';
+import ProgressBar from 'components/progress-bar';
+import {getName} from 'helpers/name-helper';
+import {IconNames} from 'constants';
+import FontIcon from 'components/font-icon';
+import ConfusionMatrix from 'components/confusion-matrix';
 import TimeseriesQuery, {sql} from 'components/timeseries-query';
 
 
 const PerformanceBox = ({
     title = '',
-    mark,
+    sampleSize,
     children
 }) => {
 
@@ -22,7 +22,7 @@ const PerformanceBox = ({
         <div className='border rounded p-3 pb-0'>
             <span className='text-dark fw-bold fs-5'>{title}
             </span>
-            {mark && <span className='text-primary mx-1'>{`(n=${mark})`}</span>}
+            {sampleSize && <span className='text-primary mx-1'>(n={sampleSize})</span>}
             <div className='d-flex py-3 text-secondary fw-bold border-bottom'>
                 <span className='w-100'>Label</span>
                 <div className='w-100 d-flex align-items-center'>
@@ -62,9 +62,9 @@ PerformanceBox.propTypes = {
     arrowDownDisabled: PropTypes.bool,
     arrowUpDisabled: PropTypes.bool,
     children: PropTypes.array,
-    mark: PropTypes.any,
     onArrowDown: PropTypes.func,
     onArrowUp: PropTypes.func,
+    sampleSize: PropTypes.any,
     title: PropTypes.string
 };
 
@@ -90,6 +90,18 @@ ClassRow.propTypes = {
 
 
 const PerformanceDetails = ({timeStore, filtersStore}) => {
+    const sampleSizeComponent = (
+        <TimeseriesQuery
+            defaultData={[{sampleSize: 0}]}
+            renderData={([{sampleSize}]) => sampleSize}
+            sql={sql`
+                SELECT COUNT(*) as sampleSize 
+                FROM "dioptra-gt-combined-eventstream"
+                WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}`
+            }
+        />
+    );
+
     return (
         <>
             <FilterInput defaultFilters={filtersStore.filters} onChange={(filters) => filtersStore.filters = filters}/>
@@ -101,16 +113,18 @@ const PerformanceDetails = ({timeStore, filtersStore}) => {
                             defaultData={[]}
                             renderData={(data) => (
                                 <PerformanceBox
-                                    mark='21,638'
+                                    sampleSize={sampleSizeComponent}
                                     title='Precision per class'
                                 >
-                                    {data.sort((c1, c2) => (c1.precision < c2.precision) ? 1 : ((c2.precision < c1.precision) ? -1 : 0)).map((c, i) => (
-                                        <ClassRow
-                                            key={i}
-                                            name={getName(c.label)}
-                                            value={c.precision.toFixed(1)}
-                                        />
-                                    ))}
+                                    {
+                                        data.sort((c1, c2) => c2.precision - c1.precision).map((c, i) => (
+                                            <ClassRow
+                                                key={i}
+                                                name={getName(c.label)}
+                                                value={c.precision.toFixed(1)}
+                                            />
+                                        ))
+                                    }
                                 </PerformanceBox>
                             )}
                             sql={sql`
@@ -163,10 +177,10 @@ const PerformanceDetails = ({timeStore, filtersStore}) => {
                             defaultData={[]}
                             renderData={(data) => (
                                 <PerformanceBox
-                                    mark='21,638'
+                                    sampleSize={sampleSizeComponent}
                                     title='Recall per class'
                                 >
-                                    {data.sort((c1, c2) => (c1.recall < c2.recall) ? 1 : ((c2.recall < c1.recall) ? -1 : 0)).map((c, i) => (
+                                    {data.sort((c1, c2) => c2.recall - c1.recall).map((c, i) => (
                                         <ClassRow
                                             key={i}
                                             name={getName(c.label)}
