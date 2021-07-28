@@ -35,6 +35,8 @@ const AreaGraph = ({
     xAxisName = '',
     tickFormatter,
     xAxisInterval,
+    xAxisTicks,
+    xAxisDomain,
     yAxisName = '',
     yAxisDomain,
     graphType = 'linear',
@@ -88,6 +90,8 @@ const AreaGraph = ({
                         </defs>
                         <XAxis
                             dataKey='x'
+                            domain={xAxisDomain}
+                            dy={5}
                             domain={domain}
                             interval={xAxisInterval}
                             label={{fill: theme.dark, value: xAxisName, dy: 30, fontSize: 12}}
@@ -133,6 +137,7 @@ AreaGraph.propTypes = {
     timeStore: PropTypes.object.isRequired,
     title: PropTypes.string,
     unit: PropTypes.string,
+    xAxisDomain: PropTypes.array,
     xAxisInterval: PropTypes.number,
     xAxisName: PropTypes.string,
     yAxisDomain: PropTypes.array,

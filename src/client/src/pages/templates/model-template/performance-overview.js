@@ -3,7 +3,6 @@ import React, {useState} from 'react';
 import PropTypes from 'prop-types';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-
 import FilterInput from 'components/filter-input';
 import AreaGraph from 'components/area-graph';
 import {formatDateTime} from 'helpers/date-helper';
@@ -11,7 +10,9 @@ import moment from 'moment';
 import Select from 'components/select';
 import {setupComponent} from 'helpers/component-helper';
 import TimeseriesQuery, {sql} from 'components/timeseries-query';
+import {getName} from './../../../helpers/name-helper';
 import MetricInfoBox from 'components/metric-info-box';
+
 
 const ModelPerformanceMetrics = {
     ACCURACY: {value: 'ACCURACY', name: 'Accuracy'},
@@ -84,7 +85,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                             isTimeDependent
                             tickFormatter={(tick) => formatDateTime(moment(tick)).replace(' ', '\n')}
                             title='Average Latency (ms)'
-                            xAxisInterval={60}
+                            xAxisDomain={timeStore.rangeMillisec}
                             xAxisName='Time'
                             yAxisDomain={[0, 25]}
                             yAxisName='Average Latency (ms)'
@@ -289,10 +290,10 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 margin = {{right: 0, bottom: 30}}
                                 tickFormatter={(tick) => formatDateTime(moment(tick))}
                                 unit='%'
-                                xAxisInterval={60}
+                                xAxisDomain={timeStore.rangeMillisec}
                                 xAxisName='Time'
                                 yAxisDomain={[0, 100]}
-                                yAxisName={selectedMetric}
+                                yAxisName={getName(selectedMetric)}
                             />
                         )}
                         sql={{
@@ -465,10 +466,11 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 hasBorder={false}
                                 isTimeDependent
                                 margin = {{right: 0, bottom: 30, left: 5}}
-                                tickFormatter={(tick) => formatDateTime(moment(tick))}
+                                tickFormatter={(tick) => formatDateTime(moment(tick)).replace(' ', '\n')}
+                                xAxisDomain={timeStore.rangeMillisec}
                                 xAxisName='Time'
                                 yAxisDomain={[0, 1000]}
-                                yAxisName={selectedIndicator}
+                                yAxisName={getName(selectedIndicator)}
                             />
                         </Col>
                     </Row>
