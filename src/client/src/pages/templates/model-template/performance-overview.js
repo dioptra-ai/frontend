@@ -61,7 +61,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                     graphType='monotone'
                                     hasDot={false}
                                     isTimeDependent
-                                    tickFormatter={(tick) => formatDateTime(moment(tick)).replace(' ', '\n')}
+                                    tickFormatter={(tick) => formatDateTime(tick).replace(' ', '\n')}
                                     title='Average Throughput (QPS)'
                                     xAxisDomain={timeStore.rangeMillisec}
                                     xAxisName='Time'
@@ -463,7 +463,6 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                         <Col className='p-0 d-flex' lg={8}>
                             <AreaGraph
                                 dots={[]}
-                                graphType='linear'
                                 hasBorder={false}
                                 isTimeDependent
                                 margin = {{right: 0, bottom: 30, left: 5}}

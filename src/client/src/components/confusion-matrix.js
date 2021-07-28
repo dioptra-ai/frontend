@@ -139,8 +139,8 @@ const ConfusionMatrix = ({errorStore, timeStore}) => {
     const [groundtruthClasses, setGroundtruthClasses] = useState([]);
     const [predictionClasses, setPredictionClasses] = useState([]);
     const [matrixData, setMatrixData] = useState([]);
-    const [tableData, setTableData] = useState([]);
-    const [columns, setColumns] = useState([]);
+    const [tableData, setTableData] = useState(null);
+    const [columns, setColumns] = useState(null);
     const [selectedCell, setSelectedCell] = useState(null);
     const [examples, setExamples] = useState(null);
 
@@ -148,7 +148,7 @@ const ConfusionMatrix = ({errorStore, timeStore}) => {
         const classes = [];
 
         data.forEach((obj) => {
-            if (classes.indexOf(obj[key]) === -1) {
+            if (classes.indexOf(obj[key]) === -1 && obj[key]) {
                 classes.push(obj[key]);
             }
         });
@@ -253,7 +253,7 @@ const ConfusionMatrix = ({errorStore, timeStore}) => {
         <div className='my-5'>
             <h3 className='text-dark fw-bold fs-3 mb-3'>Confusion matrix</h3>
             <div className='border rounded p-3'>
-                {predictionClasses.length !== 0 && <Table
+                {columns && tableData && <Table
                     columns={columns}
                     data={tableData}
                     onCellClick={(prediction, groundtruth) => setSelectedCell({prediction, groundtruth})

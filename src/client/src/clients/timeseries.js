@@ -21,7 +21,16 @@ const TimeseriesClient = ({query, resultFormat = 'object', sqlOuterLimit}) => {
             }
         }),
         method: 'post'
-    }).then((res) => res.json()).then((resJson) => {
+    }).then((res) => {
+
+        if (res.ok) {
+
+            return res.json();
+        } else {
+
+            throw new Error(res.statusText);
+        }
+    }).then((resJson) => {
 
         if (resJson.error) {
 
@@ -36,4 +45,4 @@ const TimeseriesClient = ({query, resultFormat = 'object', sqlOuterLimit}) => {
 
 export default TimeseriesClient;
 
-TimeseriesClient.SQL_OUTER_LIMIT = 1000;
+TimeseriesClient.SQL_OUTER_LIMIT = 100;
