@@ -18,17 +18,17 @@ const PerformanceBox = ({
     data,
     performanceType
 }) => {
-    const [sort, setSort] = useState(true);
+    const [sortAcs, setSortAsc] = useState(true);
     const [classes, setClasses] = useState([...data]);
 
     useEffect(() => {
-        if (sort) {
+        if (sortAcs) {
             setClasses([...data.sort((c1, c2) => c2[performanceType] - c1[performanceType])]);
         } else {
             setClasses([...data.sort((c1, c2) => c1[performanceType] - c2[performanceType])]);
 
         }
-    }, [sort]);
+    }, [sortAcs]);
 
     return (
         <div className='border rounded p-3 pb-0'>
@@ -38,7 +38,7 @@ const PerformanceBox = ({
             <div className='d-flex py-3 text-secondary fw-bold border-bottom'>
                 <span className='w-100'>Label</span>
                 <div className='w-100 d-flex align-items-center'
-                    onClick={() => setSort(!sort)}
+                    onClick={() => setSortAsc(!sortAcs)}
                     style={{cursor: 'pointer'}}
                 >
                     <span className='d-flex flex-column'>
