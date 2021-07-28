@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import FilterInput from 'components/filter-input';
 import {setupComponent} from 'helpers/component-helper';
 import PropTypes from 'prop-types';
@@ -15,8 +15,20 @@ import TimeseriesQuery, {sql} from 'components/timeseries-query';
 const PerformanceBox = ({
     title = '',
     sampleSize,
-    children
+    data,
+    performanceType
 }) => {
+    const [sortAcs, setSortAsc] = useState(true);
+    const [classes, setClasses] = useState([...data]);
+
+    useEffect(() => {
+        if (sortAcs) {
+            setClasses([...data.sort((c1, c2) => c2[performanceType] - c1[performanceType])]);
+        } else {
+            setClasses([...data.sort((c1, c2) => c1[performanceType] - c2[performanceType])]);
+
+        }
+    }, [sortAcs]);
 
     return (
         <div className='border rounded p-3 pb-0'>
@@ -25,7 +37,10 @@ const PerformanceBox = ({
             {sampleSize && <span className='text-primary mx-1'>(n={sampleSize})</span>}
             <div className='d-flex py-3 text-secondary fw-bold border-bottom'>
                 <span className='w-100'>Label</span>
-                <div className='w-100 d-flex align-items-center'>
+                <div className='w-100 d-flex align-items-center'
+                    onClick={() => setSortAsc(!sortAcs)}
+                    style={{cursor: 'pointer'}}
+                >
                     <span className='d-flex flex-column'>
                         <FontIcon
                             className='text-muted my-1 border-0'
@@ -50,7 +65,13 @@ const PerformanceBox = ({
                     paddingRight: 10,
                     marginLeft: -10
                 }}>
-                    {children}
+                    {classes.map((c, i) => (
+                        <ClassRow
+                            key={i}
+                            name={getName(c.label)}
+                            value={c[performanceType].toFixed(1)}
+                        />
+                    ))}
                 </div>
             </div>
 
@@ -59,11 +80,8 @@ const PerformanceBox = ({
 };
 
 PerformanceBox.propTypes = {
-    arrowDownDisabled: PropTypes.bool,
-    arrowUpDisabled: PropTypes.bool,
-    children: PropTypes.array,
-    onArrowDown: PropTypes.func,
-    onArrowUp: PropTypes.func,
+    data: PropTypes.array,
+    performanceType: PropTypes.string,
     sampleSize: PropTypes.any,
     title: PropTypes.string
 };
@@ -113,19 +131,11 @@ const PerformanceDetails = ({timeStore, filtersStore}) => {
                             defaultData={[]}
                             renderData={(data) => (
                                 <PerformanceBox
+                                    data={data}
+                                    performanceType='precision'
                                     sampleSize={sampleSizeComponent}
                                     title='Precision per class'
-                                >
-                                    {
-                                        data.sort((c1, c2) => c2.precision - c1.precision).map((c, i) => (
-                                            <ClassRow
-                                                key={i}
-                                                name={getName(c.label)}
-                                                value={c.precision.toFixed(1)}
-                                            />
-                                        ))
-                                    }
-                                </PerformanceBox>
+                                />
                             )}
                             sql={sql`
                                 WITH
@@ -177,17 +187,12 @@ const PerformanceDetails = ({timeStore, filtersStore}) => {
                             defaultData={[]}
                             renderData={(data) => (
                                 <PerformanceBox
+                                    data={data}
+                                    performanceType='recall'
                                     sampleSize={sampleSizeComponent}
                                     title='Recall per class'
-                                >
-                                    {data.sort((c1, c2) => c2.recall - c1.recall).map((c, i) => (
-                                        <ClassRow
-                                            key={i}
-                                            name={getName(c.label)}
-                                            value={c.recall.toFixed(1)}
-                                        />
-                                    ))}
-                                </PerformanceBox>
+
+                                />
                             )}
                             sql={sql`
                                 WITH
