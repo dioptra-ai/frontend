@@ -80,7 +80,7 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                                 />
                             )}
                             sql={sql`
-                            SELECT "feature.rotation" as "name",
+                            SELECT CAST("feature.rotation" AS INTEGER) as "name",
                               COUNT(*) AS "value"
                                 FROM "dioptra-gt-combined-eventstream"
                                 WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}

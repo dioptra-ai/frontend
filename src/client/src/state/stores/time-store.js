@@ -91,7 +91,7 @@ class TimeStore {
     }
 
     // TODO: Find a better way to deal with sparse data than adding 10x the max number of points.
-    getTimeGranularity(maxTicks = 10 * SQL_OUTER_LIMIT) {
+    getTimeGranularity(maxTicks = 3 * SQL_OUTER_LIMIT) {
         const rangeSeconds = this.endMoment.diff(this.startMoment) / 1000;
         const DURATION_MAX_SEC_TO_GRANULARITY = granularityLadder.map((duration) => {
 

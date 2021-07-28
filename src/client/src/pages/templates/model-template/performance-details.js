@@ -1,14 +1,14 @@
 import React from 'react';
-import FilterInput from '../../../components/filter-input';
-import {setupComponent} from '../../../helpers/component-helper';
+import FilterInput from 'components/filter-input';
+import {setupComponent} from 'helpers/component-helper';
 import PropTypes from 'prop-types';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import ProgressBar from '../../../components/progress-bar';
-import {getName} from '../../../helpers/name-helper';
-import {IconNames} from '../../../constants';
-import FontIcon from '../../../components/font-icon';
-import ConfusionMatrix from '../../../components/confusion-matrix';
+import ProgressBar from 'components/progress-bar';
+import {getName} from 'helpers/name-helper';
+import {IconNames} from 'constants';
+import FontIcon from 'components/font-icon';
+import ConfusionMatrix from 'components/confusion-matrix';
 import TimeseriesQuery, {sql} from 'components/timeseries-query';
 
 

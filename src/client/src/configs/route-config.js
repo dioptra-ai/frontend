@@ -1,4 +1,5 @@
 import Login from 'pages/login';
+import Home from 'pages/home';
 import Models from 'pages/templates/models';
 import Model from 'pages/templates/model-template';
 import AddAlertPage from 'pages/add-alert';
@@ -28,7 +29,7 @@ export const UnauthorizedRouteConfigs = [
     {path: Paths().LOGIN, isExact: true, component: Login}
 ];
 export const AuthorizedRouteConfigs = [
-    {path: Paths().HOME, isExact: true},
+    {path: Paths().HOME, isExact: true, component: Home},
     {path: Paths().MODELS, isExact: true, component: Models},
     {path: Paths().MODEL, isExact: false, component: Model},
     {path: Paths().EXPERIMENTATIONS, isExact: false},
