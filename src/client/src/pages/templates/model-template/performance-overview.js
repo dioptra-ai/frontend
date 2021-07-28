@@ -63,7 +63,6 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                     isTimeDependent
                                     tickFormatter={(tick) => formatDateTime(tick).replace(' ', '\n')}
                                     title='Average Throughput (QPS)'
-                                    xAxisDomain={timeStore.rangeMillisec}
                                     xAxisName='Time'
                                     yAxisName='Average Throughput (QPS)'
                                 />
@@ -85,7 +84,6 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                             isTimeDependent
                             tickFormatter={(tick) => formatDateTime(moment(tick)).replace(' ', '\n')}
                             title='Average Latency (ms)'
-                            xAxisDomain={timeStore.rangeMillisec}
                             xAxisName='Time'
                             yAxisDomain={[0, 25]}
                             yAxisName='Average Latency (ms)'
@@ -290,7 +288,6 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 margin = {{right: 0, bottom: 30}}
                                 tickFormatter={(tick) => formatDateTime(moment(tick))}
                                 unit='%'
-                                xAxisDomain={timeStore.rangeMillisec}
                                 xAxisName='Time'
                                 yAxisDomain={[0, 100]}
                                 yAxisName={getName(selectedMetric)}
@@ -467,7 +464,6 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 isTimeDependent
                                 margin = {{right: 0, bottom: 30, left: 5}}
                                 tickFormatter={(tick) => formatDateTime(moment(tick)).replace(' ', '\n')}
-                                xAxisDomain={timeStore.rangeMillisec}
                                 xAxisName='Time'
                                 yAxisDomain={[0, 1000]}
                                 yAxisName={getName(selectedIndicator)}
