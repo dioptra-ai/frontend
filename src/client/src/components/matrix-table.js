@@ -32,7 +32,7 @@ const MatrixTable = ({columns, data, onCellClick}) => {
     };
 
     return (
-        <table className='table d-flex flex-column-reverse' style={{fontSize: '14px', marginBottom: '50px', position: 'relative'}} >
+        <table className='table' style={{fontSize: '14px', marginBottom: '50px', position: 'relative'}} >
             <thead className='text-dark fw-bold'>
                 <tr className='w-100'>
                     {headers.map((column, i) => (

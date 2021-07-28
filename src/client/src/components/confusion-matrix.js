@@ -43,12 +43,12 @@ const Table = ({data, onCellClick, groundtruthClasses, predictionClasses}) => {
 
     return (
         <>
-            <div className='position-relative' style={{marginRight: '30px'}}>
+            <div className='position-relative' style={{marginLeft: '30px'}}>
                 <p className='text-secondary m-0 mb-2 text-center fw-bold'>Prediction</p>
                 <MatrixTable columns={getColumns(predictionClasses)} data={getTableRows(groundtruthClasses, data)} onCellClick={onCellClick}/>
                 <p
                     className='position-absolute text-secondary m-0 text-center fw-bold'
-                    style={{transform: 'rotate(-90deg)', top: '50%', right: '-70px'}}
+                    style={{transform: 'rotate(-90deg)', top: '50%', left: '-70px'}}
                 >
                    Ground Truth
                 </p>
