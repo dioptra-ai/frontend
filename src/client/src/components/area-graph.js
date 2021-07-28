@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import {Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis} from 'recharts';
-
 import {setupComponent} from 'helpers/component-helper';
 import theme from '../styles/theme.module.scss';
 import {formatDateTime} from '../helpers/date-helper';
@@ -35,8 +34,6 @@ const AreaGraph = ({
     xAxisName = '',
     tickFormatter,
     xAxisInterval,
-    xAxisTicks,
-    xAxisDomain,
     yAxisName = '',
     yAxisDomain,
     graphType = 'linear',
@@ -90,9 +87,8 @@ const AreaGraph = ({
                         </defs>
                         <XAxis
                             dataKey='x'
-                            domain={xAxisDomain}
-                            dy={5}
                             domain={domain}
+                            dy={5}
                             interval={xAxisInterval}
                             label={{fill: theme.dark, value: xAxisName, dy: 30, fontSize: 12}}
                             scale='time'
@@ -137,7 +133,6 @@ AreaGraph.propTypes = {
     timeStore: PropTypes.object.isRequired,
     title: PropTypes.string,
     unit: PropTypes.string,
-    xAxisDomain: PropTypes.array,
     xAxisInterval: PropTypes.number,
     xAxisName: PropTypes.string,
     yAxisDomain: PropTypes.array,
