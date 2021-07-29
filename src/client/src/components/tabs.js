@@ -8,8 +8,8 @@ const Tabs = ({tabs = []}) => {
             <div className='d-flex pt-4'>
                 {tabs.map((tab, i) => (
                     <NavLink
-                        activeClassName='active text-primary'
-                        className='tab text-dark fs-5'
+                        activeClassName='active'
+                        className='tab fs-5'
                         key={i}
                         to={tab.path}
                     >

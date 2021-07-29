@@ -37,7 +37,7 @@ const Select = ({
                     className={`pe-4 fs-6 w-100 fw-${isTextBold ? 'bold' : 'normal'}`}
                 >{activeOption && activeOption.length ? activeOption[0].name : ''}</span>
                 <FontIcon
-                    className='text-dark fw-bold'
+                    className='text-dark bold-text'
                     icon={IconNames.ARROW_DOWN}
                     size={6}
                 />

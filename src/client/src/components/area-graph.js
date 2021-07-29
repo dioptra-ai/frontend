@@ -10,7 +10,7 @@ const CustomTooltip = ({payload, label}) => {
     if (payload && payload.length) {
         return (
             <div className='line-graph-tooltip bg-white p-3'>
-                <p className='text-dark fw-bold fs-5 m-0'>{payload[0].value.toFixed(1)}</p>
+                <p className='text-dark bold-text fs-5 m-0'>{payload[0].value.toFixed(1)}</p>
                 <p className='text-secondary m-0 fs-7'>
                     {formatDateTime(moment(label))}
                 </p>
@@ -70,7 +70,7 @@ const AreaGraph = ({
 
     return (
         <div className={`${hasBorder ? 'border px-3' : ''} rounded py-3 w-100`} >
-            {title && <p className='text-dark fw-bold fs-4'>{title}</p>}
+            {title && <p className='text-dark bold-text fs-4'>{title}</p>}
             <div style={{height: '355px'}}>
                 <ResponsiveContainer height='100%' width='100%'>
                     <AreaChart data={filledData}

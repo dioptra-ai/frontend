@@ -181,7 +181,7 @@ const OutlierDetection = () => {
 
     return (
         <div className='my-5'>
-            <h3 className='text-dark fw-bold fs-3 mb-3'>Outlier detection</h3>
+            <h3 className='text-dark bold-text fs-3 mb-3'>Outlier detection</h3>
             <div className='border rounded p-3' >
                 <div style={{height: '350px'}}>
                     <ResponsiveContainer height='100%' width='100%'>

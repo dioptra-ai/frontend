@@ -14,10 +14,10 @@ const ModelDescription = ({name, description, team, version, tier, lastDeployed,
     const {_id} = useParams();
 
     return (
-        <Container className='bg-white-blue' fluid >
+        <Container className='bg-white-blue model-desc' fluid >
             <Row className='align-items-center mb-4 px-3'>
                 <Col className='d-flex align-items-center'>
-                    <h1 className='text-dark fs-1 fw-bold m-0'>{name}</h1>
+                    <h1 className='text-dark fs-1 m-0 bold-text'>{name}</h1>
                     <button className='btn-expand bg-transparent' onClick={() => setExpand(!expand)}>
                         <FontIcon
                             className='text-dark'
@@ -27,7 +27,7 @@ const ModelDescription = ({name, description, team, version, tier, lastDeployed,
                     </button>
                 </Col>
                 <Col className='d-flex justify-content-end' lg={3}>
-                    <Link className='btn-incidents text-decoration-none text-dark fw-bold fs-4 p-3' to={Paths(_id).MODEL_INCIDENTS_AND_ALERTS}>
+                    <Link className='btn-incidents text-decoration-none text-dark bold-text fs-4 p-3' to={Paths(_id).MODEL_INCIDENTS_AND_ALERTS}>
                         Open Incidents
                         <FontIcon
                             className={`${incidents ? 'text-warning' : 'text-success'} mx-2`}
@@ -41,23 +41,23 @@ const ModelDescription = ({name, description, team, version, tier, lastDeployed,
             <div className={`model-details ${expand ? 'show' : ''} text-dark mx-3`}>
                 <Row className='mt-3 py-3'>
                     <Col className='details-col' lg={4}>
-                        <p className='fw-bold fs-4'>Description</p>
+                        <p className='bold-text fs-4'>Description</p>
                         <p className='description fs-6'>{description}</p>
                     </Col>
-                    <Col className='details-col' lg={2}>
-                        <p className='fw-bold fs-5'>Owner</p>
+                    <Col className='details-col p-3 justify-content-start' lg={2}>
+                        <p className='bold-text fs-5'>Owner</p>
                         <p className='fs-6'>{team?.name || <>&nbsp;</>}</p>
                     </Col>
-                    <Col className='details-col' lg={2}>
-                        <p className='fw-bold fs-5'>Version</p>
+                    <Col className='details-col p-3 justify-content-start' lg={2}>
+                        <p className='bold-text fs-5'>Version</p>
                         <p className='fs-6'>{version}</p>
                     </Col>
-                    <Col className='details-col' lg={2}>
-                        <p className='fw-bold fs-5'>Tier of the model</p>
+                    <Col className='details-col p-3 justify-content-start' lg={2}>
+                        <p className='bold-text fs-5'>Tier of the model</p>
                         <p className='fs-6'>{tier}</p>
                     </Col>
-                    <Col className='details-col' lg={2}>
-                        <p className='fw-bold fs-5'>Last Deployed</p>
+                    <Col className='details-col p-3 justify-content-start' lg={2}>
+                        <p className='bold-text fs-5'>Last Deployed</p>
                         <p className='fs-6'>{formatDateTime(lastDeployed)}</p>
                     </Col>
                 </Row>

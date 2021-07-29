@@ -2,12 +2,17 @@
     font-family: 'Inter';
     margin-right: 40px;
     text-decoration: none;
+    color: theme-color('dark');
+    &:hover {
+        color: theme-color('dark');
+    }
     span {
       border-bottom: 4px solid white;
     }
     &.active {
         cursor: auto;
         font-family: 'Inter Bold';
+        color: theme-color('primary');
         span {
             border-color: theme-color('primary');
         }

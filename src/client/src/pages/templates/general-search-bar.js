@@ -29,7 +29,7 @@ const GeneralSearchBar = ({shouldShowOnlySearchInput, timeStore}) => {
                         variant='primary'
                     >
                         <FontIcon className='text-white m-2' icon={IconNames.REFRESH} size={15}/>
-                        <span className='fs-6 fw-bold'>REFRESH</span>
+                        <span className='fs-6 bold-text'>REFRESH</span>
                     </Button>
                 </>
             }

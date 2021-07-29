@@ -44,10 +44,10 @@ const Table = ({data, onCellClick, groundtruthClasses, predictionClasses}) => {
     return (
         <>
             <div className='position-relative' style={{marginLeft: '30px'}}>
-                <p className='text-secondary m-0 mb-2 text-center fw-bold'>Prediction</p>
+                <p className='text-secondary m-0 mb-2 text-center bold-text'>Prediction</p>
                 <MatrixTable columns={getColumns(predictionClasses)} data={getTableRows(groundtruthClasses, data)} onCellClick={onCellClick}/>
                 <p
-                    className='position-absolute text-secondary m-0 text-center fw-bold'
+                    className='position-absolute text-secondary m-0 text-center bold-text'
                     style={{transform: 'rotate(-90deg)', top: '50%', left: '-70px'}}
                 >
                    Ground Truth
@@ -70,7 +70,7 @@ const Examples = ({onClose, images}) => {
     return (
         <div className='bg-white-blue my-3 p-3'>
             <div className='d-flex align-items-center mb-5'>
-                <p className='text-dark m-0 fw-bold flex-grow-1'>Examples</p>
+                <p className='text-dark m-0 bold-text flex-grow-1'>Examples</p>
                 <BtnIcon
                     className='text-dark border-0'
                     icon={IconNames.CLOSE}
@@ -119,7 +119,7 @@ const ConfusionMatrix = ({filtersStore, timeStore}) => {
     return (
 
         <div className='my-5'>
-            <h3 className='text-dark fw-bold fs-3 mb-3'>Confusion matrix</h3>
+            <h3 className='text-dark bold-text fs-3 mb-3'>Confusion matrix</h3>
             <div className='border rounded p-3'>
                 <TimeseriesQuery
                     defaultData={[]}

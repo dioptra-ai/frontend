@@ -47,7 +47,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
         <>
             <FilterInput defaultFilters={filtersStore.filters} onChange={(filters) => filtersStore.filters = filters}/>
             <div className='my-5'>
-                <h3 className='text-dark fw-bold fs-3 mb-3'>Service Performance</h3>
+                <h3 className='text-dark bold-text fs-3 mb-3'>Service Performance</h3>
                 <Row>
                     <Col lg={6}>
                         <TimeseriesQuery
@@ -92,7 +92,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                 </Row>
             </div>
             <div className='my-5'>
-                <h3 className='text-dark fw-bold fs-3 mb-3'>Model Performance</h3>
+                <h3 className='text-dark bold-text fs-3 mb-3'>Model Performance</h3>
                 <Row className='mb-3 align-items-stretch'>
                     <Col className='d-flex' lg={3}>
                         <TimeseriesQuery
@@ -437,7 +437,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                 </div>
             </div>
             <div className='my-5'>
-                <h3 className='text-dark fw-bold fs-3 mb-3'>Key Performance Indicators</h3>
+                <h3 className='text-dark bold-text fs-3 mb-3'>Key Performance Indicators</h3>
                 <div className='border rounded p-3'>
                     <div className='d-flex justify-content-end my-3'>
                         <div style={{width: '200px'}}>
@@ -454,8 +454,8 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                             lg={4}
                             style={{height: '295px'}}
                         >
-                            <p className='text-dark fw-bold fs-6'>Correlation to KPIs</p>
-                            <span className='text-dark fw-bold fs-1'>37.6</span>
+                            <p className='text-dark bold-text fs-6'>Correlation to KPIs</p>
+                            <span className='text-dark bold-text fs-1'>37.6</span>
                         </Col>
                         <Col className='p-0 d-flex' lg={8}>
                             <AreaGraph

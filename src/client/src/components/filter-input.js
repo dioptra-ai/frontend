@@ -106,7 +106,7 @@ const FilterInput = ({
                     value={newFilter}
                 />
                 <Button
-                    className='bg-dark text-white border-0 fw-bold fs-7'
+                    className='bg-dark text-white border-0 bold-text fs-7'
                     onClick={() => {
                         handleAppliedFiltersChange([...appliedFilters, ...filters]);
                         setFilters([]);

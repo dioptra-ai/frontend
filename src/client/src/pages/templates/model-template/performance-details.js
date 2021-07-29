@@ -33,10 +33,10 @@ const PerformanceBox = ({
 
     return (
         <div className='border rounded p-3 pb-0'>
-            <span className='text-dark fw-bold fs-5'>{title}
+            <span className='text-dark bold-text fs-5'>{title}
             </span>
             {sampleSize && <span className='text-primary mx-1'>(n={sampleSize})</span>}
-            <div className='d-flex py-3 text-secondary fw-bold border-bottom'>
+            <div className='d-flex py-3 text-secondary bold-text border-bottom'>
                 <span className='w-100'>Label</span>
                 <div className='w-100 d-flex align-items-center'
                     onClick={() => setSortAsc(!sortAcs)}
@@ -125,7 +125,7 @@ const PerformanceDetails = ({timeStore, filtersStore}) => {
         <>
             <FilterInput defaultFilters={filtersStore.filters} onChange={(filters) => filtersStore.filters = filters}/>
             <div className='my-5'>
-                <h3 className='text-dark fw-bold fs-3 mb-3'>Performance per class</h3>
+                <h3 className='text-dark bold-text fs-3 mb-3'>Performance per class</h3>
                 <Row>
                     <Col lg={6}>
                         <TimeseriesQuery

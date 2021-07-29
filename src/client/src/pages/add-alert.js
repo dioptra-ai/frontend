@@ -57,7 +57,7 @@ LabelBox.propTypes = {
 
 const FormSection = ({name = '', children}) => (
     <Row className='py-4'>
-        <Col xl={12}><h6 className='mb-0 text-dark fw-bold'>{name}</h6></Col>
+        <Col xl={12}><h6 className='mb-0 text-dark bold-text'>{name}</h6></Col>
         {children}
     </Row>
 );
@@ -228,7 +228,7 @@ const AddAlertPage = () => {
         <Container className='py-5 px-4' fluid>
             <Row>
                 <Col className='d-flex align-items center' lg={12}>
-                    <h3 className='text-dark fw-bold flex-grow-1'>Add Alert</h3>
+                    <h3 className='text-dark bold-text flex-grow-1'>Add Alert</h3>
                     <BtnIcon
                         className='text-dark border-0'
                         icon={IconNames.CLOSE}
@@ -239,11 +239,11 @@ const AddAlertPage = () => {
             </Row>
             <Row className='py-5  justify-content-between'>
                 <Col className='d-flex align-items-center' xl={8}>
-                    <div>{<h6 className='mb-0 text-dark fw-bold'>{'Alert name'}</h6>}</div>
+                    <div>{<h6 className='mb-0 text-dark bold-text'>{'Alert name'}</h6>}</div>
                     <div className='flex-grow-1 ms-3'><TextInput className={inputStyling} onChange={setAlertName} placeholder='Enter Alert Name'/> </div>
                 </Col>
                 <Col className='d-flex align-items-center' xl={4}>
-                    <div>{<h6 className='mb-0 text-dark fw-bold'>{'Evaluate every'}</h6>}</div>
+                    <div>{<h6 className='mb-0 text-dark bold-text'>{'Evaluate every'}</h6>}</div>
                     <div className='flex-grow-1 ms-3'><TextInput className={inputStyling} onChange={setEvaluationPeriod} placeholder='Enter Time (example: 30sec or 5min)' /> </div>
                 </Col>
             </Row>

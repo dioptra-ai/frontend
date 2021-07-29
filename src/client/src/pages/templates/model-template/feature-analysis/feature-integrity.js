@@ -38,7 +38,7 @@ const KSTestTooltip = ({payload}) => {
 
         return (
             <div className='p-3 bg-white shadow-lg'>
-                <div className='fw-bold'>{data.y.toFixed(2)}</div>
+                <div className='bold-text'>{data.y.toFixed(2)}</div>
                 <div className='text-secondary'><small>{data.x}</small></div>
             </div>
         );
@@ -168,7 +168,7 @@ const FeatureIntegrityRow = ({name, timeStore}) => {
     return (
         <tr className='py-5' ref={ref}>
             <td className={tdClasses} colSpan={2}>
-                <div className='fw-bold'>{name}</div>
+                <div className='bold-text'>{name}</div>
                 <div className='text-secondary'><small>Lorem Ipsum</small></div>
             </td>
             <td className={tdClasses}>

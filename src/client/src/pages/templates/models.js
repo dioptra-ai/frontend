@@ -101,8 +101,8 @@ const Models = ({modelStore}) => {
                 modelStore.state === modelStore.STATE_PENDING ? 'Loading...' : (
                     <div className='p-4 mt-5'>
                         <div className='d-flex justify-content-between'>
-                            <span className='h2 fs-1 text-dark fw-bold'>Models</span>
-                            <span><Button className='py-3 fs-6 fw-bold px-5 text-white' variant='primary'>REGISTER MODEL</Button></span>
+                            <span className='h2 fs-1 text-dark bold-text'>Models</span>
+                            <span><Button className='py-3 fs-6 bold-text px-5 text-white' variant='primary'>REGISTER MODEL</Button></span>
                         </div>
                         <div className='mt-5'>
                             <Table className='models-table'>

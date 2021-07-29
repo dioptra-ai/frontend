@@ -7,7 +7,7 @@ import {IconNames} from 'constants';
 const MetricInfoBox = ({value, notifications, warnings, name, sampleSize, unit}) => (
     <div className='border rounded p-3 w-100 d-flex flex-column align-items-center justify-content-center'>
         <div className='d-flex flex-wrap'>
-            <span className='text-dark-bold fw-bold'>{name}</span>
+            <span className='text-dark-bold bold-text'>{name}</span>
             {sampleSize && <span className='text-primary mx-1'>(n={sampleSize})</span>}
             {notifications && <FontIcon
                 className='text-dark flex-grow-1'
