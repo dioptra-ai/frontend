@@ -9,7 +9,7 @@ const Tabs = ({tabs = []}) => {
                 {tabs.map((tab, i) => (
                     <NavLink
                         activeClassName='active text-primary'
-                        className='tab text-dark fs-6'
+                        className='tab text-dark fs-5'
                         key={i}
                         to={tab.path}
                     >

@@ -5,6 +5,7 @@ import Table from './table';
 import Select from './select';
 import {OutlierDetectionOptions} from '../enums/outlier-detection-options';
 import theme from '../styles/theme.module.scss';
+import fontSizes from '../styles/font-sizes.module.scss';
 
 const data = [
     {
@@ -196,16 +197,16 @@ const OutlierDetection = () => {
                             <XAxis
                                 dataKey='date'
                                 dy={5}
-                                label={{fill: theme.dark, value: 'Date', dy: 30, fontSize: 12}}
+                                label={{fill: theme.dark, value: 'Date', dy: 30, fontSize: fontSizes.fs_7}}
                                 stroke='transparent'
-                                tick={{fill: theme.secondary, fontSize: 12}}
+                                tick={{fill: theme.secondary, fontSize: fontSizes.fs_7}}
                             />
                             <YAxis
                                 dataKey='y'
                                 domain={[0, 100]} dx={-5}
-                                label={{fill: theme.dark, value: 'Majority Class Confidence', angle: -90, dx: -30, fontSize: 12}}
+                                label={{fill: theme.dark, value: 'Majority Class Confidence', angle: -90, dx: -30, fontSize: fontSizes.fs_7}}
                                 stroke='transparent'
-                                tick={{fill: theme.secondary, fontSize: 12}}
+                                tick={{fill: theme.secondary, fontSize: fontSizes.fs_7}}
                                 tickCount={6}
                                 unit='%'
                             />

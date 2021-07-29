@@ -4,6 +4,7 @@ import {Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAx
 import {setupComponent} from 'helpers/component-helper';
 import theme from '../styles/theme.module.scss';
 import {formatDateTime} from '../helpers/date-helper';
+import fontSizes from '../styles/font-sizes.module.scss';
 
 const CustomTooltip = ({payload, label}) => {
     if (payload && payload.length) {
@@ -69,7 +70,7 @@ const AreaGraph = ({
 
     return (
         <div className={`${hasBorder ? 'border px-3' : ''} rounded py-3 w-100`} >
-            {title && <p className='text-dark fw-bold fs-5'>{title}</p>}
+            {title && <p className='text-dark fw-bold fs-4'>{title}</p>}
             <div style={{height: '355px'}}>
                 <ResponsiveContainer height='100%' width='100%'>
                     <AreaChart data={filledData}
@@ -90,10 +91,10 @@ const AreaGraph = ({
                             domain={domain}
                             dy={5}
                             interval={xAxisInterval}
-                            label={{fill: theme.dark, value: xAxisName, dy: 30, fontSize: 12}}
+                            label={{fill: theme.dark, value: xAxisName, dy: 30, fontSize: fontSizes.fs_7}}
                             scale='time'
                             stroke='transparent'
-                            tick={{fill: theme.secondary, fontSize: 12}}
+                            tick={{fill: theme.secondary, fontSize: fontSizes.fs_7}}
                             tickCount={5}
                             tickFormatter={(tick) => tickFormatter ? tickFormatter(tick) : tick}
                             type='number'
@@ -101,9 +102,9 @@ const AreaGraph = ({
                         <YAxis
                             domain={yAxisDomain}
                             dx={-5}
-                            label={{fill: theme.dark, value: yAxisName, angle: -90, dx: -20, fontSize: 12}}
+                            label={{fill: theme.dark, value: yAxisName, angle: -90, dx: -20, fontSize: fontSizes.fs_7}}
                             stroke='transparent'
-                            tick={{fill: theme.secondary, fontSize: 12}}
+                            tick={{fill: theme.secondary, fontSize: fontSizes.fs_7}}
                             tickCount={6}
                             unit={unit}/>
                         <Tooltip content={<CustomTooltip/>}/>

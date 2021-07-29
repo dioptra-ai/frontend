@@ -454,7 +454,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                             lg={4}
                             style={{height: '295px'}}
                         >
-                            <p className='text-dark fw-bold'>Correlation to KPIs</p>
+                            <p className='text-dark fw-bold fs-6'>Correlation to KPIs</p>
                             <span className='text-dark fw-bold fs-1'>37.6</span>
                         </Col>
                         <Col className='p-0 d-flex' lg={8}>

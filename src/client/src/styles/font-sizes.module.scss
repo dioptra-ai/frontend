@@ -1,0 +1,11 @@
+@import './font-sizes.scss';
+
+:export {
+    fs_1: font-size('1');
+    fs_2: font-size('2');
+    fs_3: font-size('3');
+    fs_4: font-size('4');
+    fs_5: font-size('5');
+    fs_6: font-size('6');
+    fs_7: font-size('7');
+}
