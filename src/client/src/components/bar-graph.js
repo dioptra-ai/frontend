@@ -7,7 +7,7 @@ const CustomTooltip = ({payload, label}) => {
         return (
             <div className='line-graph-tooltip bg-white p-3'>
                 <p className='text-dark fw-bold fs-5 m-0'>{payload[0].value}</p>
-                <p className='text-secondary m-0 label'>{label || '<empty>'}</p>
+                <p className='text-secondary m-0 fs-7'>{label || '<empty>'}</p>
             </div>
         );
     } else return null;

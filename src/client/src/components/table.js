@@ -16,8 +16,8 @@ const Table = ({columns, data}) => {
     );
 
     return (
-        <table {...getTableProps()} className='table' style={{fontSize: '14px'}}>
-            <thead className='text-secondary border-bottom'>
+        <table {...getTableProps()} className='table fs-6'>
+            <thead className='text-secondary border-top border-bottom'>
                 <tr>
                     {headers.map((column, i) => (
                         <th className='align-middle py-3 border-0' key={i} {...column.getHeaderProps()} style={{maxWidth: '200px'}}>

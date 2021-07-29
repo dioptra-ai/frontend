@@ -38,9 +38,9 @@ const ModelRow = ({model, idx, color}) => {
     const [shouldShowTooltip, setShouldShowTooltip] = useState(false);
 
     return (
-        <tr className='py-5' key={idx}>
-            <td className='py-2 align-middle'><Link className='cursor-pointer' to={`/models/${model._id}/performance-overview`}>{model.name}</Link></td>
-            <td className='py-2 align-middle'>
+        <tr className='border-0 border-bottom border-mercury py-5' key={idx}>
+            <td className='fs-6 py-2 align-middle'><Link className='cursor-pointer' to={`/models/${model._id}/performance-overview`}>{model.name}</Link></td>
+            <td className='fs-6 py-2 align-middle'>
                 <div className='d-flex align-items-center justify-content-center cursor-pointer'
                     onMouseEnter={() => setShouldShowTooltip(hasIncidents && true)}
                     onMouseLeave={() => setShouldShowTooltip(hasIncidents && false)}
@@ -54,11 +54,11 @@ const ModelRow = ({model, idx, color}) => {
                     </Overlay> :
                     null }
             </td>
-            <td className='py-2 align-middle'>{model.project}</td>
-            <td className='py-2 align-middle'>{model.owner}</td>
-            <td className='py-2 align-middle'>{model.mlModelTier}</td>
-            <td className='py-2 align-middle'>{formatDateTime(model.lastDeployed)}</td>
-            <td className='py-2 align-middle'>
+            <td className='fs-6 py-2 align-middle'>{model.project}</td>
+            <td className='fs-6 py-2 align-middle'>{model.owner}</td>
+            <td className='fs-6 py-2 align-middle'>{model.mlModelTier}</td>
+            <td className='fs-6 py-2 align-middle'>{formatDateTime(model.lastDeployed)}</td>
+            <td className='fs-6 py-2 align-middle'>
                 <div className='d-flex align-items-center justify-content-center'>
                     <ComposedChart data={model.traffic} height={65} width={140}>
                         <defs>
@@ -101,15 +101,15 @@ const Models = ({modelStore}) => {
                 modelStore.state === modelStore.STATE_PENDING ? 'Loading...' : (
                     <div className='p-4 mt-5'>
                         <div className='d-flex justify-content-between'>
-                            <span className='h2 fs-2 fw-bold'>Models</span>
-                            <span><Button className='py-3 px-5 text-white' variant='primary'>REGISTER MODEL</Button></span>
+                            <span className='h2 fs-1 text-dark fw-bold'>Models</span>
+                            <span><Button className='py-3 fs-6 fw-bold px-5 text-white' variant='primary'>REGISTER MODEL</Button></span>
                         </div>
-                        <div className='my-5'>
+                        <div className='mt-5'>
                             <Table className='models-table'>
-                                <thead className='text-secondary border-bottom border-light'>
-                                    <tr>
+                                <thead className='align-middle text-secondary'>
+                                    <tr className='border-0 border-bottom border-mercury'>
                                         {['Model Name', 'Open Incidents', 'Project', 'Owner', 'Tier', 'Last Deployed', 'Traffic'].map((c, idx) => (
-                                            <th className={`text-secondary py-4 ${idx === 0 ? 'w-25' : ''} ${idx === 1 || idx === 6 ? 'text-center' : ''}`} key={c}>{c}</th>))
+                                            <th className={`text-secondary border-0 fs-6 py-4 ${idx === 0 ? 'w-25' : ''} ${idx === 1 || idx === 6 ? 'text-center' : ''}`} key={c}>{c}</th>))
                                         }
                                     </tr>
                                 </thead>

@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import FontIcon from './font-icon';
 
 const Filter = ({filter, onDelete, applied = false}) => (
-    <span className={`filter ${applied ? 'applied' : ''}`}>
+    <span className={`filter fs-6 ${applied ? 'applied' : ''}`}>
         {filter} <button onClick={onDelete}>
             <FontIcon className='text-dark' icon='Close' size={10}/>
         </button>
@@ -106,7 +106,7 @@ const FilterInput = ({
                     value={newFilter}
                 />
                 <Button
-                    className='bg-dark text-white border-0 fw-bold'
+                    className='bg-dark text-white border-0 fw-bold fs-7'
                     onClick={() => {
                         handleAppliedFiltersChange([...appliedFilters, ...filters]);
                         setFilters([]);

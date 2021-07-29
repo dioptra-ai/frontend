@@ -43,7 +43,7 @@ AddButton.propTypes = {
     onClick: PropTypes.func
 };
 const LabelBox = ({text, isUnderlined = false, color = 'primary', isBold = true}) => (
-    <div className={`text-${color} fw-${isBold ? 'bold' : 'normal'} rounded-3 p-3 border border-1 border-light ${isUnderlined ? 'text-decoration-underline' : ''}`} style={{fontSize: '14px', wordBreak: 'break-all'}}>
+    <div className={`text-${color} fs-6 fw-${isBold ? 'bold' : 'normal'} rounded-3 p-3 border border-1 border-light ${isUnderlined ? 'text-decoration-underline' : ''}`} style={{wordBreak: 'break-all'}}>
         {text}
     </div>
 );

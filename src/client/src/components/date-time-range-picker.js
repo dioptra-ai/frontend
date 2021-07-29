@@ -48,7 +48,7 @@ const DateTimeRangePicker = ({onChange, start, end}) => {
 
                 <div className='d-flex border border-secondary py-1 px-3 align-items-center rounded-3'>
                     <FontIcon className='text-secondary' icon={IconNames.DATE} size={25}/>
-                    <span className='text-secondary py-2 px-4'>
+                    <span className='text-secondary py-2 px-4 fs-5'>
                         {formatDateTimeRange(start, end)}</span>
                     <FontIcon className='text-secondary' icon={isCalendarVisible ? IconNames.ARROW_UP : IconNames.ARROW_DOWN} size={10}/>
                 </div>

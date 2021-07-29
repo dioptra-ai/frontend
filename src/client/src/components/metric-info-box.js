@@ -19,7 +19,7 @@ const MetricInfoBox = ({value, notifications, warnings, name, sampleSize, unit})
                     className='text-warning'
                     icon={IconNames.WARNING}
                     size={16}/>
-                <Link className='text-warning mx-1' style={{fontSize: '12px'}} to='/'>
+                <Link className='text-warning mx-1 fs-7' to='/'>
                     View Incidents
                 </Link>
             </div>}

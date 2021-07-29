@@ -7,6 +7,7 @@ import FontIcon from './font-icon';
 import {Link, useParams} from 'react-router-dom';
 import {Paths} from '../configs/route-config';
 import {IconNames} from '../constants';
+import {formatDateTime} from 'helpers/date-helper';
 
 const ModelDescription = ({name, description, team, version, tier, lastDeployed, incidents}) => {
     const [expand, setExpand] = useState(false);
@@ -26,7 +27,7 @@ const ModelDescription = ({name, description, team, version, tier, lastDeployed,
                     </button>
                 </Col>
                 <Col className='d-flex justify-content-end' lg={3}>
-                    <Link className='btn-incidents text-decoration-none text-dark fw-bold fs-5 p-3' to={Paths(_id).MODEL_INCIDENTS_AND_ALERTS}>
+                    <Link className='btn-incidents text-decoration-none text-dark fw-bold fs-4 p-3' to={Paths(_id).MODEL_INCIDENTS_AND_ALERTS}>
                         Open Incidents
                         <FontIcon
                             className={`${incidents ? 'text-warning' : 'text-success'} mx-2`}
@@ -40,24 +41,24 @@ const ModelDescription = ({name, description, team, version, tier, lastDeployed,
             <div className={`model-details ${expand ? 'show' : ''} text-dark mx-3`}>
                 <Row className='mt-3 py-3'>
                     <Col className='details-col' lg={4}>
-                        <p className='fw-bold fs-5'>Description</p>
-                        <p className='description'>{description}</p>
+                        <p className='fw-bold fs-4'>Description</p>
+                        <p className='description fs-6'>{description}</p>
                     </Col>
                     <Col className='details-col' lg={2}>
-                        <p className='fw-bold'>Owner</p>
-                        <p>{team?.name || <>&nbsp;</>}</p>
+                        <p className='fw-bold fs-5'>Owner</p>
+                        <p className='fs-6'>{team?.name || <>&nbsp;</>}</p>
                     </Col>
                     <Col className='details-col' lg={2}>
-                        <p className='fw-bold'>Version</p>
-                        <p>{version}</p>
+                        <p className='fw-bold fs-5'>Version</p>
+                        <p className='fs-6'>{version}</p>
                     </Col>
                     <Col className='details-col' lg={2}>
-                        <p className='fw-bold'>Tier of the model</p>
-                        <p>{tier}</p>
+                        <p className='fw-bold fs-5'>Tier of the model</p>
+                        <p className='fs-6'>{tier}</p>
                     </Col>
                     <Col className='details-col' lg={2}>
-                        <p className='fw-bold'>Last Deployed</p>
-                        <p>{lastDeployed}</p>
+                        <p className='fw-bold fs-5'>Last Deployed</p>
+                        <p className='fs-6'>{formatDateTime(lastDeployed)}</p>
                     </Col>
                 </Row>
             </div>

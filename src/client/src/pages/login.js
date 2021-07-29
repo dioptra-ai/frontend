@@ -29,7 +29,7 @@ const Login = () => {
     };
 
     return (
-        <Container className='login d-flex align-items-center justify-content-center' fluid>
+        <Container className='login fs-6 d-flex align-items-center justify-content-center' fluid>
             <div className='login-form d-flex flex-column align-items-center'>
                 <Logo className='mb-5' height={177} width={270}/>
                 <p className='text-dark fw-bold fs-3 mb-4'>Log in</p>

@@ -10,7 +10,7 @@ const CustomTooltip = ({payload, label}) => {
         return (
             <div className='line-graph-tooltip bg-white p-3'>
                 <p className='text-dark fw-bold fs-5 m-0'>{payload[0].value.toFixed(1)}</p>
-                <p className='text-secondary m-0 label'>
+                <p className='text-secondary m-0 fs-7'>
                     {formatDateTime(moment(label))}
                 </p>
             </div>

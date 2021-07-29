@@ -14,7 +14,7 @@ const GeneralSearchBar = ({shouldShowOnlySearchInput, timeStore}) => {
         <div className='py-3 px-4 d-flex align-items-center border-bottom'>
             <FontIcon className='text-secondary' icon={IconNames.SEARCH} size={25}/>
             <div className='flex-grow-1 mx-3'>
-                <TextInput className='form-control border-0 py-3' placeholder='Search'/>
+                <TextInput className='form-control border-0 py-3 fs-5' placeholder='Search'/>
             </div>
             {shouldShowOnlySearchInput ? null :
                 <>
@@ -29,7 +29,7 @@ const GeneralSearchBar = ({shouldShowOnlySearchInput, timeStore}) => {
                         variant='primary'
                     >
                         <FontIcon className='text-white m-2' icon={IconNames.REFRESH} size={15}/>
-                        <span>REFRESH</span>
+                        <span className='fs-6 fw-bold'>REFRESH</span>
                     </Button>
                 </>
             }
