@@ -17,10 +17,12 @@ const Table = ({columns, data}) => {
 
     return (
         <table {...getTableProps()} className='table' style={{fontSize: '14px'}}>
-            <thead className='text-secondary border-top border-bottom'>
+            <thead className='text-secondary border-bottom'>
                 <tr>
                     {headers.map((column, i) => (
-                        <th className='align-middle py-3 border-0' key={i} {...column.getHeaderProps()}>{column.render('Header')}</th>
+                        <th className='align-middle py-3 border-0' key={i} {...column.getHeaderProps()} style={{maxWidth: '200px'}}>
+                            {column.render('Header')}
+                        </th>
                     ))}
                 </tr>
             </thead>
@@ -31,7 +33,7 @@ const Table = ({columns, data}) => {
                     return (
                         <tr key={i} {...row.getRowProps()}>
                             {row.cells.map((cell, i) => {
-                                return <td className='align-middle py-3' key={i} {...cell.getCellProps()}>{cell.render('Cell')}</td>;
+                                return <td className='align-middle py-3' key={i} style={{maxWidth: '200px'}} {...cell.getCellProps()}>{cell.render('Cell')}</td>;
                             })}
                         </tr>
                     );

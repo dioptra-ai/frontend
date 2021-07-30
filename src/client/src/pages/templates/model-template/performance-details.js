@@ -10,6 +10,7 @@ import {IconNames} from 'constants';
 import FontIcon from 'components/font-icon';
 import ConfusionMatrix from 'components/confusion-matrix';
 import TimeseriesQuery, {sql} from 'components/timeseries-query';
+import Segmentation from '../../../components/segmentation';
 
 
 const PerformanceBox = ({
@@ -242,6 +243,7 @@ const PerformanceDetails = ({timeStore, filtersStore}) => {
                 </Row>
             </div>
             <ConfusionMatrix />
+            <Segmentation />
         </>
     );
 };
