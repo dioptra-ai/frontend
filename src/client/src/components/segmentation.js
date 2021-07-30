@@ -1,4 +1,10 @@
-import React, {useState} from 'react';
+/* eslint-disable max-lines */
+import {Area, AreaChart, Bar, BarChart, Cell, ResponsiveContainer, XAxis} from 'recharts';
+
+import timeseriesClient from 'clients/timeseries';
+import {useInView} from 'react-intersection-observer';
+import {setupComponent} from 'helpers/component-helper';
+import React, {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import Button from 'react-bootstrap/Button';
 import FontIcon from './font-icon';
@@ -6,30 +12,21 @@ import {IconNames} from '../constants';
 import Table from './table';
 import Modal from './modal';
 import useModal from '../customHooks/useModal';
-import {SegmentationFeatures, SegmentationTags} from '../enums/segmentation';
-import {Area, AreaChart, Bar, BarChart, ResponsiveContainer} from 'recharts';
 import {getHexColor} from 'helpers/color-helper';
 import theme from '../styles/theme.module.scss';
+import TimeseriesQuery, {sql} from 'components/timeseries-query';
 
-const AddColumnModal = ({onCancel, onApply, selected}) => {
+const AddColumnModal = ({onCancel, onApply, allColumns, selected}) => {
+    const featureColumns = allColumns.filter((c) => c.startsWith('feature.'));
+    const tagColumns = allColumns.filter((c) => c.startsWith('tag.'));
     const [selectedColumns, setSelectedColumns] = useState(selected);
-
-    const checkIfSelected = (value) => {
-        const cols = selected.map((c) => c.value);
-
-        if (cols.indexOf(value) !== -1) {
-            return true;
-        } else {
-            return false;
-        }
-    };
 
     const handleChange = (e, col) => {
         if (e.target.checked) {
             setSelectedColumns([...selectedColumns, col]);
 
         } else {
-            const updatedCols = selectedColumns.filter((c) => c.value !== col.value);
+            const updatedCols = selectedColumns.filter((c) => c !== col);
 
             setSelectedColumns(updatedCols);
         }
@@ -42,25 +39,25 @@ const AddColumnModal = ({onCancel, onApply, selected}) => {
             </p>
             <div className='d-flex flex-column mb-4'>
                 <p className='text-dark fw-bold fs-6'>FEATURES</p>
-                {SegmentationFeatures.map((feature, i) => (
+                {featureColumns.map((feature, i) => (
                     <label className='checkbox my-2 fs-6' key={i}>
                         <input
-                            defaultChecked={checkIfSelected(feature.value)}
+                            defaultChecked={selectedColumns.includes(feature)}
                             onChange={(e) => handleChange(e, feature)}
                             type='checkbox'/>
-                        <span className='fs-6'>{feature.name}</span>
+                        <span className='fs-6'>{feature}</span>
                     </label>
                 ))}
             </div>
-            <div className='d-flex flex-column mb-4 fs-6'>
+            <div className='d-flex flex-column mb-4'>
                 <p className='text-dark fw-bold fs-6'>TAGS</p>
-                {SegmentationTags.map((tag, i) => (
-                    <label className='checkbox my-2' key={i}>
+                {tagColumns.map((tag, i) => (
+                    <label className='checkbox my-2 fs-6' key={i}>
                         <input
-                            defaultChecked={checkIfSelected(tag.value)}
+                            defaultChecked={selectedColumns.includes(tag)}
                             onChange={(e) => handleChange(e, tag)}
-                            type='checkbox' />
-                        <span className='fs-6'>{tag.name}</span>
+                            type='checkbox'/>
+                        <span className='fs-6'>{tag}</span>
                     </label>
                 ))}
             </div>
@@ -85,50 +82,10 @@ const AddColumnModal = ({onCancel, onApply, selected}) => {
 };
 
 AddColumnModal.propTypes = {
+    allColumns: PropTypes.array,
     onApply: PropTypes.func,
     onCancel: PropTypes.func,
     selected: PropTypes.array
-};
-
-const AreaGraph = ({value}) => {
-    return (
-        <div className='border rounded' style={{height: '80px', width: '90%'}}>
-            <ResponsiveContainer height='100%' width='100%'>
-                <AreaChart data={value}>
-                    <defs>
-                        <linearGradient id='areaColor' x1='0' x2='0' y1='0' y2='1'>
-                            <stop offset='10%' stopColor={theme.primary} stopOpacity={0.7}/>
-                            <stop offset='90%' stopColor='#FFFFFF' stopOpacity={0.1}/>
-                        </linearGradient>
-                    </defs>
-                    <Area dataKey='y' fill='url(#areaColor)' isAnimationActive={false} stroke={theme.primary} strokeWidth={2} type='linear' />
-                </AreaChart>
-            </ResponsiveContainer>
-
-        </div>
-    );
-};
-
-AreaGraph.propTypes = {
-    value: PropTypes.array
-};
-
-const BarGraph = ({value}) => {
-
-    return (
-        <div style={{width: '100px', height: '80px', position: 'relative'}}>
-            <div className='custom-grid'><hr/><hr/><hr/><hr/><hr/></div>
-            <BarChart data={value.map(({name, value}) => (
-                {name, value, fill: getHexColor(name)}
-            ))} height={80} width={100}>
-                <Bar dataKey='value' maxBarSize={10}/>
-            </BarChart>
-        </div>
-    );
-};
-
-BarGraph.propTypes = {
-    value: PropTypes.array
 };
 
 const Text = ({value}) => {
@@ -144,40 +101,143 @@ Text.propTypes = {
     value: PropTypes.string
 };
 
-const tableData = [
-    {
-        accuracy: [{y: 2}, {y: 10}, {y: 5}, {y: 3}, {y: 9}, {y: 25}],
-        classes: [{name: 'some name', value: 1234}, {name: 'some name2', value: 2334}, {name: 'some name3', value: 4334}],
-        distance: [{y: 2}, {y: 40}, {y: 4}, {y: 3}, {y: 9}, {y: 15}, {y: 6}],
-        sample_size: '12900',
-        client_id: '4903RY'
+const _AccuracyCell = ({groupByColumns, timeStore, filtersStore, row}) => {
+    const {ref, inView} = useInView();
+    const [accuracyData, setAccuracyData] = useState([]);
 
-    },
-    {
-        accuracy: [{y: 22}, {y: 43}, {y: 24}, {y: 33}, {y: 56}, {y: 15}, {y: 6}],
-        classes: [{name: 'some name4', value: 3434}, {name: 'some name5', value: 2334}, {name: 'some name6', value: 4334}, {name: 'some name7', value: 2334}],
-        distance: [{y: 3}, {y: 4}, {y: 5}, {y: 4}, {y: 6}, {y: 1}, {y: 9}, {y: 9}, {y: 6}],
-        sample_size: '12900',
-        client_id: '4903RY'
-
-    }
-];
-
-const Segmentation = () => {
-    const [columns, setColumns] = useState(SegmentationFeatures);
-    const [addColModal, setAddColModal] = useModal(false);
-
-    const renderComponent = (type, props) => {
-        if (type === 'text') {
-            return <Text {...props}/>;
-        } else if (type === 'area_graph') {
-            return <AreaGraph {...props}/>;
-        } else if (type === 'bar_graph') {
-            return <BarGraph {...props}/>;
-        } else {
-            return null;
+    useEffect(() => {
+        if (inView) {
+            timeseriesClient({
+                query: `WITH my_sample_table as (
+                    SELECT *
+                    FROM "dioptra-gt-combined-eventstream"
+                    WHERE ${timeStore.sqlTimeFilter}
+                        AND ${filtersStore.sqlFilters}
+                        AND ${groupByColumns.map((c) => `"${c}"='${row.original[c]}'`).join(' AND ')}
+                    )
+                    SELECT 
+                      FLOOR(__time TO MINUTE) AS x,
+                      100 * cast(sum(CASE WHEN groundtruth=prediction THEN 1 ELSE 0 end) AS float) / count(*) AS y
+                    FROM my_sample_table
+                    GROUP BY FLOOR(__time TO MINUTE), "tag.client_id"`
+            }).then((data) => {
+                setAccuracyData(data);
+            });
         }
-    };
+    }, [inView, timeStore.sqlTimeFilter]);
+
+    return (
+        <div className='border rounded' ref={ref} style={{height: '50px'}}>
+            <ResponsiveContainer height='100%' width='100%'>
+                <AreaChart data={accuracyData.map(({x, y}) => ({
+                    y,
+                    x: new Date(x).getTime()
+                }))}>
+                    <defs>
+                        <linearGradient id='color' x1='0' x2='0' y1='0' y2='1'>
+                            <stop offset='10%' stopColor={theme.primary} stopOpacity={0.7}/>
+                            <stop offset='90%' stopColor='#FFFFFF' stopOpacity={0.1}/>
+                        </linearGradient>
+                        <linearGradient id='warning' x1='0' x2='0' y1='0' y2='1'>
+                            <stop offset='10%' stopColor={theme.warning} stopOpacity={0.9}/>
+                            <stop offset='90%' stopColor='#FFFFFF' stopOpacity={0.1}/>
+                        </linearGradient>
+                    </defs>
+                    <XAxis
+                        axisLine={false}
+                        dataKey='x'
+                        domain={timeStore.rangeMillisec}
+                        scale='time'
+                        tick={false}
+                        type='number'
+                    />
+                    <Area
+                        dataKey='y'
+                        fill='url(#color)'
+                        stroke={theme.primary}
+                        strokeWidth={2}
+                        type='monotone'
+                    />
+                </AreaChart>
+            </ResponsiveContainer>
+        </div>
+    );
+};
+
+_AccuracyCell.propTypes = {
+    filtersStore: PropTypes.object.isRequired,
+    groupByColumns: PropTypes.array,
+    row: PropTypes.object,
+    timeStore: PropTypes.object.isRequired
+};
+
+const AccuracyCell = setupComponent(_AccuracyCell);
+
+
+const _DistributionCell = ({groupByColumns, timeStore, filtersStore, row}) => {
+    const {ref, inView} = useInView();
+    const [distributionData, setDistributionData] = useState([]);
+
+    useEffect(() => {
+        if (inView) {
+            timeseriesClient({
+                query: `WITH my_sample_table as (
+                  SELECT *
+                  FROM "dioptra-gt-combined-eventstream"
+                  WHERE ${timeStore.sqlTimeFilter}
+                        AND ${filtersStore.sqlFilters}
+                        AND ${groupByColumns.map((c) => `"${c}"='${row.original[c]}'`).join(' AND ')}
+                )
+                SELECT
+                  cast(my_sub_table.my_count as float) / my_sub_count_table.total_count as dist,
+                  my_sub_table.prediction as "value"
+                  FROM (
+                    SELECT
+                      count(1) AS my_count,
+                      prediction,
+                      "tag.client_id" as client_id
+                    FROM my_sample_table
+                    GROUP BY prediction, "tag.client_id"
+                  ) AS my_sub_table
+                  JOIN (
+                    SELECT
+                      count(*) as total_count,
+                      "tag.client_id" as client_id
+                    FROM my_sample_table
+                    GROUP BY "tag.client_id"
+                  ) AS my_sub_count_table
+                  ON my_sub_table.client_id = my_sub_count_table.client_id`
+            }).then((data) => {
+                setDistributionData(data);
+            });
+        }
+    }, [inView, timeStore.sqlTimeFilter]);
+
+    return (
+        <div ref={ref}>
+            <BarChart data={distributionData} height={70} width={150}>
+                <Bar background={false} dataKey='dist'>
+                    {distributionData.map((d, i) => (
+                        <Cell accentHeight='0px' fill={getHexColor(d.value, 0.65)} key={i}/>
+                    ))}
+                </Bar>
+            </BarChart>
+        </div>
+    );
+};
+
+_DistributionCell.propTypes = {
+    filtersStore: PropTypes.object.isRequired,
+    groupByColumns: PropTypes.array,
+    row: PropTypes.object,
+    timeStore: PropTypes.object.isRequired
+};
+
+const DistributionCell = setupComponent(_DistributionCell);
+
+const Segmentation = ({timeStore}) => {
+    const [groupByColumns, setGroupByColumns] = useState(['tag.client_id']);
+    const [addColModal, setAddColModal] = useModal(false);
 
     return (
         <div className='my-5'>
@@ -198,27 +258,81 @@ const Segmentation = () => {
                         Columns
                     </Button>
                 </div>
-                <Table
-                    columns={columns.map((col) => ({
-                        Header: col.name,
-                        accessor: col.value,
-                        Cell: (props) => renderComponent(col.type, props)
-                    }))}
-                    data={tableData}
+                <TimeseriesQuery
+                    defaultData={[]}
+                    renderData={(data) => (
+                        <Table
+                            columns={
+                                [
+                                    {
+                                        id: 'accuracy',
+                                        Header: 'Accuracy',
+                                        Cell: (props) => ( // eslint-disable-line react/display-name
+                                            <AccuracyCell groupByColumns={groupByColumns} {...props}/>
+                                        )
+                                    },
+                                    {
+                                        accessor: 'sampleSize',
+                                        Header: 'Sample Size',
+                                        Cell: (props) => ( // eslint-disable-line react/display-name
+                                            <Text {...props}/>
+                                        )
+                                    },
+                                    {
+                                        id: 'predictioj',
+                                        Header: 'Online Predictions',
+                                        Cell: (props) => ( // eslint-disable-line react/display-name
+                                            <DistributionCell groupByColumns={groupByColumns} {...props}/>
+                                        )
+                                    }
+                                ].concat(groupByColumns.map((column) => ({
+                                    accessor: (c) => c[column],
+                                    Header: column,
+                                    Cell: (props) => ( // eslint-disable-line react/display-name
+                                        <Text {...props}/>
+                                    )
+                                })))
+                            }
+                            data={data}
+                        />
+                    )}
+                    sql={sql`
+                        SELECT
+                          ${groupByColumns.map((c) => `"${c}"`).join(', ')},
+                          count(1) as sampleSize
+                        FROM "dioptra-gt-combined-eventstream"
+                        WHERE ${timeStore.sqlTimeFilter}
+                        GROUP BY ${groupByColumns.map((c) => `"${c}"`).join(', ')}
+                        ORDER BY sampleSize DESC
+                        `}
+                />
+                <TimeseriesQuery
+                    defaultData={[]}
+                    renderData={(data) => addColModal &&
+                        <AddColumnModal
+                            allColumns={data.map((d) => d.column)}
+                            onApply={(cols) => {
+                                setGroupByColumns(cols);
+                                setAddColModal(false);
+                            }}
+                            onCancel={() => setAddColModal(false)}
+                            selected={groupByColumns}
+                        />
+                    }
+                    sql={sql`
+                        SELECT COLUMN_NAME as "column"
+                        FROM INFORMATION_SCHEMA.COLUMNS 
+                        WHERE TABLE_NAME = 'dioptra-gt-combined-eventstream'
+                        AND (COLUMN_NAME LIKE 'tag.%' OR COLUMN_NAME LIKE 'feature.%')
+                    `}
                 />
             </div>
-            {addColModal &&
-                <AddColumnModal
-                    onApply={(cols) => {
-                        setColumns(cols);
-                        setAddColModal(false);
-                    }}
-                    onCancel={() => setAddColModal(false)}
-                    selected={columns}
-                />
-            }
         </div>
     );
 };
 
-export default Segmentation;
+Segmentation.propTypes = {
+    timeStore: PropTypes.object.isRequired
+};
+
+export default setupComponent(Segmentation);
