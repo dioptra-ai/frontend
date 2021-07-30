@@ -259,6 +259,7 @@ const Segmentation = ({timeStore}) => {
                     </Button>
                 </div>
                 <TimeseriesQuery
+                    defaultData={[]}
                     renderData={(data) => (
                         <Table
                             columns={
