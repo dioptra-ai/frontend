@@ -323,7 +323,7 @@ const Segmentation = ({timeStore}) => {
                         SELECT COLUMN_NAME as "column"
                         FROM INFORMATION_SCHEMA.COLUMNS 
                         WHERE TABLE_NAME = 'dioptra-gt-combined-eventstream'
-                        AND COLUMN_NAME LIKE 'tag.%' OR COLUMN_NAME LIKE 'feature.%'
+                        AND (COLUMN_NAME LIKE 'tag.%' OR COLUMN_NAME LIKE 'feature.%')
                     `}
                 />
             </div>
