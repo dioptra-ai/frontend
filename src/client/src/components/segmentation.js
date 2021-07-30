@@ -307,6 +307,7 @@ const Segmentation = ({timeStore}) => {
                         `}
                 />
                 <TimeseriesQuery
+                    defaultData={[]}
                     renderData={(data) => addColModal &&
                         <AddColumnModal
                             allColumns={data.map((d) => d.column)}
