@@ -75,7 +75,7 @@ const Model = ({modelStore}) => {
                                 tabs={ModelTabs(activeModelId)}
                             />
                             <div className='px-3'>
-                                <h2 className='text-dark fw-bold fs-2 my-5'>{tab.name}</h2>
+                                <h2 className='text-dark bold-text fs-2 my-5'>{tab.name}</h2>
                                 <TabComponent model={model}/>
                             </div>
                         </Container>)}

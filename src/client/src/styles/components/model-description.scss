@@ -1,45 +1,48 @@
-.btn-expand {
-    width: 50px;
-    min-width: 50px;
-    height: 50px;
-    border: 1px solid theme-color('dark');
-    border-radius: 50%;
-    padding: 0;
-    margin-left: 20px;
-}
-.btn-incidents {
-    background-color: theme-color('light-blue');
-    border-radius: 5px;
-    cursor: pointer;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-}
-.model-details {
-    max-height: 0;
-    overflow: hidden;
-    transition: all 0.2s ease;
-    border-top: 1px solid transparent;
-    &.show {
-        max-height: 1000px;
-        border-top: 1px solid theme-color('mercury');
-    }
-    .details-col {
-        border-right: 1px solid theme-color('mercury');
+.model-desc {
+    .btn-expand {
+        width: 50px;
+        min-width: 50px;
+        height: 50px;
+        border: 1px solid theme-color('dark');
+        border-radius: 50%;
+        padding: 0;
+        margin-left: 20px;
         display: flex;
-        flex-direction: column;
+        align-items: center;
         justify-content: center;
-        p {
-            font-weight: 400;
-            line-height: 21px;
-            &:nth-child(2) {
-                font-size: 14px;
-            }
-            &.description {
-                width: 80%;
+    }
+    .btn-incidents {
+        background-color: theme-color('light-blue');
+        border-radius: 5px;
+        cursor: pointer;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+    .model-details {
+        max-height: 0;
+        overflow: hidden;
+        transition: all 0.2s ease;
+        border-top: 1px solid transparent;
+        &.show {
+            max-height: 1000px;
+            border-top: 1px solid theme-color('mercury');
+        }
+        .details-col {
+            border-right: 1px solid theme-color('mercury');
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            p {
+                font-weight: 400;
+                line-height: 21px;
+                &.description {
+                    width: 80%;
+                }
             }
         }
     }
 }
+

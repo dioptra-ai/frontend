@@ -25,13 +25,13 @@ const alerts = [
 const Alert = ({name, notifyBy, onDelete, onEdit}) => {
     return (
         <div className='table-row py-4 text-dark'>
-            <div className='col fw-bold'>
+            <div className='col bold-text'>
                 <label className='checkbox'>
                     <input type='checkbox' />
-                    <span>{name}</span>
+                    <span className='fs-6'>{name}</span>
                 </label>
             </div>
-            <div className='col'>{notifyBy ? notifyBy : '-'}</div>
+            <div className='col fs-6'>{notifyBy ? notifyBy : '-'}</div>
             <div className='col actions-cell'>
                 <FontIcon className='text-dark mx-2' icon={IconNames.EDIT} onClick={onEdit} size={20}/>
                 <FontIcon className='text-dark mx-2' icon={IconNames.BIN} onClick={onDelete} size={20}/>
@@ -67,24 +67,24 @@ const Alerts = () => {
         <>
             <div className='alerts'>
                 <div className='header mb-3'>
-                    <p className='fw-bold text-dark'>Alerts</p>
+                    <p className='bold-text fs-3 text-dark'>Alerts</p>
                     <Link to={Paths().ADD_ALERT}>
-                        <Button className='text-white fw-bold' variant='primary'>
+                        <Button className='text-white bold-text fs-6' variant='primary'>
                             <FontIcon className='text-white' icon='Plus' size={10}/>
-                    ADD ALERT
+                            ADD ALERT
                         </Button>
                     </Link>
                 </div>
                 <div className='border rounded px-3'>
-                    <div className='table-row py-4 text-secondary fw-bold'>
+                    <div className='table-row py-4 text-secondary bold-text'>
                         <div className='col'>
                             <label className='checkbox'>
                                 <input type='checkbox' />
-                                <span>Alert Name</span>
+                                <span className='fs-6'>Alert Name</span>
                             </label>
                         </div>
-                        <div className='col'>Notifications via</div>
-                        <div className='actions-cell col'>Action</div>
+                        <div className='col fs-6'>Notifications via</div>
+                        <div className='actions-cell fs-6 col'>Action</div>
                     </div>
                     {alerts.map((alert) => (
                         <Alert
@@ -104,19 +104,19 @@ const Alerts = () => {
 
             </div>
             {deleteAlertModal && <Modal className='bg-white rounded py-5 px-4'>
-                <p className='text-dark fw-bold fs-5 my-5 px-3 text-center'>
+                <p className='text-dark bold-text fs-4 my-5 px-3 text-center'>
                     Are you sure you want do delete "{selectedAlert.name}" alert?
                 </p>
                 <div className='d-flex justify-content-center border-top pt-4'>
                     <Button
-                        className='text-white mx-2 py-2 px-5 fw-bold'
+                        className='text-white mx-2 py-2 px-5 bold-text fs-6'
                         onClick={handleAlertDelete}
                         variant='primary'
                     >
                         DELETE
                     </Button>
                     <Button
-                        className='text-secondary mx-2 py-2 px-5 fw-bold'
+                        className='text-secondary mx-2 py-2 px-5 bold-text fs-6'
                         onClick={() => setDeleteAlertModal(false)}
                         variant='light'
                     >

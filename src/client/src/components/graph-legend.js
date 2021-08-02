@@ -5,7 +5,7 @@ const Legend = ({data}) => {
         <ul className='graph-legend my-2 p-0'>
             {
                 data.map((item, index) => (
-                    <li className='text-secondary mx-2' key={index}>
+                    <li className='text-secondary mx-2 fs-7' key={index}>
                         <span
                             className='square'
                             style={{backgroundColor: item.fill, opacity: item.fillOpacity}}

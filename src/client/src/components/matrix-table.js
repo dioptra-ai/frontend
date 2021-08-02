@@ -32,8 +32,8 @@ const MatrixTable = ({columns, data, onCellClick}) => {
     };
 
     return (
-        <table className='table' style={{fontSize: '14px', marginBottom: '50px', position: 'relative'}} >
-            <thead className='text-dark fw-bold'>
+        <table className='table fs-6' style={{marginBottom: '50px', position: 'relative'}} >
+            <thead className='text-dark bold-text'>
                 <tr className='w-100'>
                     {headers.map((column, i) => (
                         <th
@@ -46,7 +46,7 @@ const MatrixTable = ({columns, data, onCellClick}) => {
                     ))}
                 </tr>
             </thead>
-            <tbody className='text-dark fw-bold'>
+            <tbody className='text-dark bold-text'>
                 {rows.map((row, i) => {
                     prepareRow(row);
 

@@ -38,7 +38,7 @@ const KSTestTooltip = ({payload}) => {
 
         return (
             <div className='p-3 bg-white shadow-lg'>
-                <div className='fw-bold'>{data.y.toFixed(2)}</div>
+                <div className='bold-text'>{data.y.toFixed(2)}</div>
                 <div className='text-secondary'><small>{data.x}</small></div>
             </div>
         );
@@ -168,7 +168,7 @@ const FeatureIntegrityRow = ({name, timeStore}) => {
     return (
         <tr className='py-5' ref={ref}>
             <td className={tdClasses} colSpan={2}>
-                <div className='fw-bold'>{name}</div>
+                <div className='bold-text'>{name}</div>
                 <div className='text-secondary'><small>Lorem Ipsum</small></div>
             </td>
             <td className={tdClasses}>
@@ -239,14 +239,14 @@ const FeatureIntegrityTable = ({errorStore, timeStore}) => {
     }, [allFeatureNames, timeStore.sqlTimeFilter]);
 
     return (
-        <div className='border border-1 px-3 pb-3 pt-2'>
+        <div className='border border-1 px-3 pb-3 pt-2 rounded'>
             <Table>
-                <thead>
-                    <tr>
-                        {FeatureIntegrityTableColumnConfigs.map((c, idx) => (<th className={`text-secondary pb-3 ${idx === 0 ? 'w-25' : ''} ${idx === 1 ? 'text-center' : ''}`} colSpan={idx > 0 ? 1 : 2} key={c.name}>{c.name}</th>))}
+                <thead className='fs-6'>
+                    <tr className='border-0 border-bottom border-mercury'>
+                        {FeatureIntegrityTableColumnConfigs.map((c, idx) => (<th className={`align-middle border-0 text-secondary pb-3 ${idx === 0 ? 'w-25' : ''} ${idx === 1 ? 'text-center' : ''}`} colSpan={idx > 0 ? 1 : 2} key={c.name}>{c.name}</th>))}
                     </tr>
                 </thead>
-                <tbody>
+                <tbody className='fs-6'>
                     {nonNullFeatureNames.map((f) => <ObserverFeatureIntegrityRow key={f} name={f}/>)}
                 </tbody>
             </Table>

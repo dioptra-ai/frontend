@@ -17,7 +17,7 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
         <>
             <FilterInput defaultFilters={filtersStore.filters} onChange={(filters) => filtersStore.filters = filters}/>
             <div className='my-5'>
-                <h3 className='text-dark fw-bold fs-3 mb-3'>Prediction Analysis</h3>
+                <h3 className='text-dark bold-text fs-3 mb-3'>Prediction Analysis</h3>
                 <Row className='my-5'>
                     <Col className='d-flex' lg={4}>
                         <TimeseriesQuery

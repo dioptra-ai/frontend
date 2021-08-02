@@ -8,7 +8,7 @@ const Breadcrumb = ({links = []}) => {
             <div className='breadcrumb m-0 px-3'>
                 {links.map((link, i) => (
                     <span className='link' key={i}>
-                        <Link className='text-secondary fw-bold' to={link.path}>
+                        <Link className='text-secondary bold-text fs-7' to={link.path}>
                             {link.name}
                         </Link>
                     </span>

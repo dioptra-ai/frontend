@@ -19,7 +19,7 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
         <div>
             <FilterInput defaultFilters={filtersStore.filters} onChange={(filters) => filtersStore.filters = filters}/>
             <div className='my-5'>
-                <h3 className='text-dark fw-bold fs-3 mb-3'>Unique Images</h3>
+                <h3 className='text-dark bold-text fs-3 mb-3'>Unique Images</h3>
                 <Row>
                     <Col className='d-flex' lg={2}>
                         <TimeseriesQuery
@@ -92,7 +92,7 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                 </Row>
             </div>
             <div className='my-5'>
-                <h3 className='text-dark fw-bold fs-3 mb-3'>Embedding Analysis</h3>
+                <h3 className='text-dark bold-text fs-3 mb-3'>Embedding Analysis</h3>
                 <Row>
                     <div>
                         <TimeseriesQuery

@@ -34,16 +34,15 @@ const Select = ({
         <Dropdown className='w-100'>
             <DropdownToggle bsPrefix='p-0' className={`w-100 text-start p-3 rounded-3 text-${textColor} border-1 border-${borderColor} d-flex align-items-center`} variant={backgroundColor}>
                 <span
-                    className={`pe-4 w-100 fw-${isTextBold ? 'bold' : 'normal'}`}
-                    style={{fontSize: '14px'}}
+                    className={`pe-4 fs-6 w-100 fw-${isTextBold ? 'bold' : 'normal'}`}
                 >{activeOption && activeOption.length ? activeOption[0].name : ''}</span>
                 <FontIcon
-                    className='text-dark fw-bold'
+                    className='text-dark bold-text'
                     icon={IconNames.ARROW_DOWN}
                     size={6}
                 />
             </DropdownToggle>
-            <DropdownMenu className='p-0 w-100 border-0 shadow'>
+            <DropdownMenu className='p-0 w-100 border-0 shadow fs-6'>
                 {options.map((o) => <DropdownItem
                     eventKey={o.value}
                     key={o.value}

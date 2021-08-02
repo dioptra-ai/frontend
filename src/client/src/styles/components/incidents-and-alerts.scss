@@ -1,15 +1,12 @@
 .alerts, .incidents {
-    font-size: 14px;
     .header {
         display: flex;
         align-items: flex-end;
         p {
             margin: 0;
             flex: 1;
-            font-size: 26px;
         }
         button {
-            font-size: 14px;
             width: 160px;
             height: 45px;
             span {
@@ -38,7 +35,6 @@
         }
     }
     .btn-incident {
-        font-size: 14px;
         min-width: 80px;
         height: 30px;
     }

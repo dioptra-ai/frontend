@@ -5,6 +5,7 @@ import Table from './table';
 import Select from './select';
 import {OutlierDetectionOptions} from '../enums/outlier-detection-options';
 import theme from '../styles/theme.module.scss';
+import fontSizes from '../styles/font-sizes.module.scss';
 
 const data = [
     {
@@ -180,7 +181,7 @@ const OutlierDetection = () => {
 
     return (
         <div className='my-5'>
-            <h3 className='text-dark fw-bold fs-3 mb-3'>Outlier detection</h3>
+            <h3 className='text-dark bold-text fs-3 mb-3'>Outlier detection</h3>
             <div className='border rounded p-3' >
                 <div style={{height: '350px'}}>
                     <ResponsiveContainer height='100%' width='100%'>
@@ -196,16 +197,16 @@ const OutlierDetection = () => {
                             <XAxis
                                 dataKey='date'
                                 dy={5}
-                                label={{fill: theme.dark, value: 'Date', dy: 30, fontSize: 12}}
+                                label={{fill: theme.dark, value: 'Date', dy: 30, fontSize: fontSizes.fs_7}}
                                 stroke='transparent'
-                                tick={{fill: theme.secondary, fontSize: 12}}
+                                tick={{fill: theme.secondary, fontSize: fontSizes.fs_7}}
                             />
                             <YAxis
                                 dataKey='y'
                                 domain={[0, 100]} dx={-5}
-                                label={{fill: theme.dark, value: 'Majority Class Confidence', angle: -90, dx: -30, fontSize: 12}}
+                                label={{fill: theme.dark, value: 'Majority Class Confidence', angle: -90, dx: -30, fontSize: fontSizes.fs_7}}
                                 stroke='transparent'
-                                tick={{fill: theme.secondary, fontSize: 12}}
+                                tick={{fill: theme.secondary, fontSize: fontSizes.fs_7}}
                                 tickCount={6}
                                 unit='%'
                             />

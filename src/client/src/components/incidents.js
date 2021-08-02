@@ -43,9 +43,9 @@ const IncidentRow = ({
                 icon={resolved ? IconNames.CHECK : IconNames.WARNING}
                 size={20}
             />
-            <span className={`flex-grow-1 mx-2 text-dark ${isMainRow ? 'fw-bold' : ''}`}>{name}</span>
+            <span className={`flex-grow-1 mx-2 text-dark fs-6 ${isMainRow ? 'bold-text' : ''}`}>{name}</span>
             <Button
-                className='text-white btn-incident p-0'
+                className='text-white btn-incident p-0 fs-6'
                 variant={resolved ? 'success' : 'warning'}
             >
                 {resolved ? 'Resolved' : 'Open'}
@@ -70,17 +70,17 @@ const Incidents = () => {
     return (
         <div className='incidents'>
             <div className='header mb-3'>
-                <p className='fw-bold text-dark'>Incidents</p>
-                <Button className='text-white fw-bold' variant='primary'>
+                <p className='bold-text fs-3 text-dark'>Incidents</p>
+                <Button className='text-white bold-text fs-6' variant='primary'>
                     RESOLVE
                 </Button>
             </div>
             <div className='border rounded px-3'>
-                <div className='table-row py-4 text-secondary fw-bold'>
+                <div className='table-row py-4 text-secondary bold-text'>
                     <div className='flex-grow-1'>
                         <label className='checkbox'>
                             <input type='checkbox' />
-                            <span>Incidents Name</span>
+                            <span className='fs-6'>Incidents Name</span>
                         </label>
                     </div>
                 </div>

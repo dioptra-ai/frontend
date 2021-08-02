@@ -12,7 +12,7 @@ const Pagination = ({totalPages, onPageChange}) => {
     }, [selectedPage]);
 
     return totalPages ? (
-        <div className='pagination my-3'>
+        <div className='pagination my-3 fs-6'>
             <div className='pages'>
                 <button
                     className='px-0'
@@ -24,7 +24,7 @@ const Pagination = ({totalPages, onPageChange}) => {
                 {pages.map((page, i) => {
                     return (
                         <button
-                            className={selectedPage === page ? 'selected' : ''}
+                            className={`fs-6 ${selectedPage === page ? 'selected' : ''}`}
                             disabled={selectedPage === page}
                             key={i}
                             name={page}

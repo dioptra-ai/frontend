@@ -1,13 +1,14 @@
 import {Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis} from 'recharts';
 import PropTypes from 'prop-types';
 import Legend from './graph-legend';
+import fontSizes from '../styles/font-sizes.module.scss';
 
 const CustomTooltip = ({payload, label}) => {
     if (payload && payload.length) {
         return (
             <div className='line-graph-tooltip bg-white p-3'>
-                <p className='text-dark fw-bold fs-5 m-0'>{payload[0].value}</p>
-                <p className='text-secondary m-0 label'>{label || '<empty>'}</p>
+                <p className='text-dark bold-text fs-5 m-0'>{payload[0].value}</p>
+                <p className='text-secondary m-0 fs-7'>{label || '<empty>'}</p>
             </div>
         );
     } else return null;
@@ -21,7 +22,7 @@ const BarGraph = ({title, bars, yAxisName, xAxisName, yAxisDomain}) => {
 
     return (
         <div className='border rounded p-3 w-100'>
-            <p className='text-dark fw-bold fs-5'>{title}</p>
+            <p className='text-dark bold-text fs-4'>{title}</p>
             <div style={{height: '300px'}}>
                 <ResponsiveContainer height='100%' width='100%'>
                     <BarChart data={bars} height={250} width={730}>
@@ -30,9 +31,9 @@ const BarGraph = ({title, bars, yAxisName, xAxisName, yAxisDomain}) => {
                             dataKey='name'
                             label={{
                                 value: xAxisName,
-                                fontSize: 12
+                                fontSize: fontSizes.fs_7
                             }}
-                            tick={{fontSize: 12}}
+                            tick={{fontSize: fontSizes.fs_7}}
                         />
                         <YAxis
                             domain={yAxisDomain}
@@ -40,9 +41,9 @@ const BarGraph = ({title, bars, yAxisName, xAxisName, yAxisDomain}) => {
                                 value: yAxisName,
                                 angle: -90,
                                 dx: -20,
-                                fontSize: 12
+                                fontSize: fontSizes.fs_7
                             }}
-                            tick={{fontSize: 12}}
+                            tick={{fontSize: fontSizes.fs_7}}
                         />
                         <Tooltip content={<CustomTooltip/>}/>
                         {bars.length < 6 ? <Legend data={bars}/> : null}

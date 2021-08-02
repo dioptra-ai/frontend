@@ -1,0 +1,13 @@
+$font-sizes: (
+    '1': 40px,
+    '2': 32px,
+    '3': 26px,
+    '4': 20px,
+    '5': 16px,
+    '6': 14px,
+    '7': 12px,
+);
+
+@function font-size($key) {
+    @return map-get($font-sizes, $key);
+}
