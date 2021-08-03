@@ -1,6 +1,8 @@
 import PropTypes from 'prop-types';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import {useParams} from 'react-router-dom';
+
 import FilterInput from 'components/filter-input';
 import {formatDateTime} from 'helpers/date-helper';
 import BarGraph from 'components/bar-graph';
@@ -11,7 +13,8 @@ import {getHexColor} from 'helpers/color-helper';
 import {getName} from 'helpers/name-helper';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 
-const PredictionAnalysis = ({timeStore, filtersStore}) => {
+const PredictionAnalysis = ({timeStore, filtersStore, modelStore}) => {
+    const params = useParams();
     const allSqlFilters = useAllSqlFilters();
     const sqlTimeGranularity = timeStore.getTimeGranularity().toISOString();
 
@@ -71,6 +74,7 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                                     yAxisName='%'
                                 />
                             )}
+                            // TODO: replace fixed time ranges by those stored in the model object.
                             sql={sql`
                                   SELECT
                                     cast(my_table.my_count as float) / cast(my_count_table.total_count as float) as my_percentage,
@@ -83,7 +87,7 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                                     FROM "dioptra-gt-combined-eventstream"
                                     WHERE
                                         "__time" >= TIME_PARSE('2021-07-23T00:00:00.000Z') AND "__time" < TIME_PARSE('2021-07-24T00:00:00.000Z')
-                                        AND ${filtersStore.sqlFilters}
+                                        AND ${filtersStore.sqlFilters} AND model_id='${modelStore.getModelById(params._id).mlModelId}'
                                     GROUP BY 2
                                   ) AS my_table
                                   JOIN (
@@ -93,7 +97,7 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                                     FROM "dioptra-gt-combined-eventstream"
                                     WHERE
                                         "__time" >= TIME_PARSE('2021-07-23T00:00:00.000Z') AND "__time" < TIME_PARSE('2021-07-24T00:00:00.000Z')
-                                        AND ${filtersStore.sqlFilters}
+                                        AND ${filtersStore.sqlFilters} AND model_id='${modelStore.getModelById(params._id).mlModelId}'
                                   ) AS my_count_table
                                   ON my_table.join_key = my_count_table.join_key`
                             }
@@ -183,7 +187,8 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
 };
 
 PredictionAnalysis.propTypes = {
-    filtersStore: PropTypes.object,
-    timeStore: PropTypes.object
+    filtersStore: PropTypes.object.isRequired,
+    modelStore: PropTypes.object.isRequired,
+    timeStore: PropTypes.object.isRequired
 };
 export default setupComponent(PredictionAnalysis);

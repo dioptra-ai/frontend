@@ -96,7 +96,7 @@ const OnlineDistributionBarChart = ({distribution}) => {
     return distribution ? (
         <div>
             <BarChart data={distribution} height={120} width={150}>
-                <Bar background={false} dataKey='dist'>
+                <Bar background={false} dataKey='dist' minPointSize={2}>
                     {distribution.map((d, i) => (
                         <Cell accentHeight='0px' fill={d.color} key={i}/>
                     ))}
@@ -213,7 +213,7 @@ const FeatureIntegrityTable = ({errorStore, timeStore}) => {
             query: `
                 SELECT COLUMN_NAME 
                 FROM INFORMATION_SCHEMA.COLUMNS 
-                WHERE TABLE_NAME = 'dioptra-gt-combined-eventstream'
+                WHERE TABLE_NAME = 'dioptra-gt-combined-eventstream' AND COLUMN_NAME <> '__time'
                 `
         }).then((res) => {
             setAllFeatureNames(res.map((row) => row['COLUMN_NAME']));

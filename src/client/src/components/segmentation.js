@@ -216,7 +216,7 @@ const _DistributionCell = ({groupByColumns, timeStore, filtersStore, row}) => {
     return (
         <div ref={ref}>
             <BarChart data={distributionData} height={70} width={150}>
-                <Bar background={false} dataKey='dist'>
+                <Bar background={false} dataKey='dist' minPointSize={2}>
                     {distributionData.map((d, i) => (
                         <Cell accentHeight='0px' fill={getHexColor(d.value, 0.65)} key={i}/>
                     ))}
