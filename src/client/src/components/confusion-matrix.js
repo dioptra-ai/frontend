@@ -1,14 +1,14 @@
 import React, {useState} from 'react';
-import {setupComponent} from '../helpers/component-helper';
 import PropTypes from 'prop-types';
-import {getName} from '../helpers/name-helper';
+import {getName} from 'helpers/name-helper';
 import BtnIcon from './btn-icon';
-import {IconNames} from '../constants';
+import {IconNames} from 'constants';
 import CustomCarousel from './carousel';
 import Modal from './modal';
-import useModal from './../customHooks/useModal';
+import useModal from 'customHooks/useModal';
 import TimeseriesQuery, {sql} from './timeseries-query';
 import MatrixTable from './matrix-table';
+import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 
 const Table = ({data, onCellClick, groundtruthClasses, predictionClasses}) => {
     const getColumns = (predictionClasses) => {
@@ -101,8 +101,9 @@ Examples.propTypes = {
     onClose: PropTypes.func
 };
 
-const ConfusionMatrix = ({filtersStore, timeStore}) => {
+const ConfusionMatrix = () => {
     const [selectedCell, setSelectedCell] = useState(null);
+    const allSqlFilters = useAllSqlFilters();
 
     const getClasses = (data, key) => {
         const classes = [];
@@ -139,13 +140,13 @@ const ConfusionMatrix = ({filtersStore, timeStore}) => {
                         FROM (
                         SELECT groundtruth, prediction, COUNT(*) AS c
                         FROM "dioptra-gt-combined-eventstream"
-                        WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
+                        WHERE ${allSqlFilters}
                         GROUP BY groundtruth, prediction
                         )  as predictionTable
                         LEFT JOIN (
                         SELECT groundtruth, COUNT(*) AS c
                         FROM "dioptra-gt-combined-eventstream"
-                        WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
+                        WHERE ${allSqlFilters}
                         GROUP BY groundtruth
                         ) AS groundTable
                         ON groundTable.groundtruth = predictionTable.groundtruth
@@ -163,7 +164,7 @@ const ConfusionMatrix = ({filtersStore, timeStore}) => {
                         SELECT distinct "feature.image_url"
                         FROM "dioptra-gt-combined-eventstream"
                         WHERE groundtruth = '${selectedCell.groundtruth}' AND prediction = '${selectedCell.prediction}'
-                        AND ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
+                        AND ${allSqlFilters}
                         LIMIT 20
                     `}
                 />}
@@ -172,9 +173,4 @@ const ConfusionMatrix = ({filtersStore, timeStore}) => {
     );
 };
 
-ConfusionMatrix.propTypes = {
-    filtersStore: PropTypes.object.isRequired,
-    timeStore: PropTypes.object
-};
-
-export default setupComponent(ConfusionMatrix);
+export default ConfusionMatrix;
