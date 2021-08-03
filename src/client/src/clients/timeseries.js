@@ -15,7 +15,6 @@ const TimeseriesClient = ({query, resultFormat = 'object', sqlOuterLimit}) => {
             query,
             resultFormat,
             header: true,
-            // TODO: Make this a config or a parameter
             context: {
                 sqlOuterLimit: sqlOuterLimit || TimeseriesClient.SQL_OUTER_LIMIT
             }

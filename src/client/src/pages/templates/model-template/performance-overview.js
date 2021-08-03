@@ -10,9 +10,9 @@ import moment from 'moment';
 import Select from 'components/select';
 import {setupComponent} from 'helpers/component-helper';
 import TimeseriesQuery, {sql} from 'components/timeseries-query';
-import {getName} from './../../../helpers/name-helper';
+import {getName} from 'helpers/name-helper';
 import MetricInfoBox from 'components/metric-info-box';
-
+import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 
 const ModelPerformanceMetrics = {
     ACCURACY: {value: 'ACCURACY', name: 'Accuracy'},
@@ -30,6 +30,7 @@ const ModelPerformanceIndicators = {
 const PerformanceOverview = ({timeStore, filtersStore}) => {
     const [selectedMetric, setSelectedMetric] = useState(ModelPerformanceMetrics.ACCURACY.value);
     const [selectedIndicator, setSelectedIndicator] = useState(ModelPerformanceIndicators.ADOPTION.value);
+    const allSqlFilters = useAllSqlFilters();
     const sampleSizeComponent = (
         <TimeseriesQuery
             defaultData={[{sampleSize: 0}]}
@@ -37,11 +38,12 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
             sql={sql`
                 SELECT COUNT(*) as sampleSize 
                 FROM "dioptra-gt-combined-eventstream"
-                WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}`
+                WHERE ${allSqlFilters}`
             }
         />
     );
     const sqlTimeGranularity = timeStore.getTimeGranularity().toISOString();
+
 
     return (
         <>
@@ -71,7 +73,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 SELECT TIME_FLOOR(__time, '${timeStore.getTimeGranularity().toISOString()}') as "__time",
                                     COUNT(*) / ${timeStore.getTimeGranularity().asSeconds()} as throughput
                                 FROM "dioptra-gt-combined-eventstream"
-                                WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
+                                WHERE ${allSqlFilters}
                                 GROUP BY 1
                             `}
                         />
@@ -108,7 +110,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                             sql={sql`
                                 SELECT CAST(sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) AS DOUBLE) / sum(1) AS accuracy
                                 FROM "dioptra-gt-combined-eventstream"
-                                WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}`
+                                WHERE ${allSqlFilters}`
                             }
                         />
                     </Col>
@@ -129,7 +131,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                         groundtruth as label,
                                         sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) as cnt_tp
                                       FROM "dioptra-gt-combined-eventstream"
-                                      WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
+                                      WHERE ${allSqlFilters}
                                       GROUP BY groundtruth
                                       ORDER by groundtruth
                                     ),
@@ -138,7 +140,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                         prediction as label,
                                         count(1) as cnt_ts
                                       FROM "dioptra-gt-combined-eventstream"
-                                      WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
+                                      WHERE ${allSqlFilters}
                                       GROUP BY prediction
                                       ORDER by prediction
                                     ),
@@ -147,7 +149,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                         groundtruth as label,
                                         count(1) as cnt_ps
                                       FROM "dioptra-gt-combined-eventstream"
-                                      WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
+                                      WHERE ${allSqlFilters}
                                       GROUP BY groundtruth
                                       ORDER BY groundtruth
                                     )
@@ -183,7 +185,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                     sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) as cnt_tp
                                   FROM
                                     "dioptra-gt-combined-eventstream"
-                                  WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
+                                  WHERE ${allSqlFilters}
                                   GROUP BY groundtruth
                                   order by groundtruth
                                 ),
@@ -193,7 +195,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                     count(1) as cnt_ts
                                   FROM
                                     "dioptra-gt-combined-eventstream"
-                                  WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
+                                  WHERE ${allSqlFilters}
                                   GROUP BY prediction
                                   order by prediction
                                 ),
@@ -203,7 +205,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                     count(1) as cnt_ps
                                   FROM
                                     "dioptra-gt-combined-eventstream"
-                                  WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
+                                  WHERE ${allSqlFilters}
                                   GROUP BY groundtruth
                                   ORDER BY groundtruth
                                 )
@@ -234,7 +236,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) as cnt_tp
                               FROM
                                 "dioptra-gt-combined-eventstream"
-                              WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
+                              WHERE ${allSqlFilters}
                               GROUP BY groundtruth
                               ORDER BY groundtruth
                             ),
@@ -244,7 +246,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 count(1) as cnt_ts
                               FROM
                                 "dioptra-gt-combined-eventstream"
-                              WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
+                              WHERE ${allSqlFilters}
                               GROUP BY prediction
                               ORDER BY prediction
                             ),
@@ -254,7 +256,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 count(1) as cnt_ps
                               FROM
                                 "dioptra-gt-combined-eventstream"
-                              WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
+                              WHERE ${allSqlFilters}
                               GROUP BY groundtruth
                               ORDER BY groundtruth
                             )
@@ -298,7 +300,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 SELECT TIME_FLOOR(__time, '${sqlTimeGranularity}') as x,
                                   100 * CAST(sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) AS DOUBLE) / CAST(sum(1) AS DOUBLE) AS y
                                 FROM "dioptra-gt-combined-eventstream"
-                                WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
+                                WHERE ${allSqlFilters}
                                 GROUP BY 1`,
                             [ModelPerformanceMetrics.PRECISION.value]: sql`
                                 WITH true_positive as (
@@ -308,7 +310,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                     sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) as cnt_tp
                                   FROM
                                     "dioptra-gt-combined-eventstream"
-                                  WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
+                                  WHERE ${allSqlFilters}
                                   GROUP BY 1, 2
                                   order by groundtruth
                                 ),
@@ -319,7 +321,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                     count(1) as cnt_ts
                                   FROM
                                     "dioptra-gt-combined-eventstream"
-                                  WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
+                                  WHERE ${allSqlFilters}
                                   GROUP BY 1, 2
                                   order by prediction
                                 ),
@@ -330,7 +332,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                     count(1) as cnt_ps
                                   FROM
                                     "dioptra-gt-combined-eventstream"
-                                  WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
+                                  WHERE ${allSqlFilters}
                                   GROUP BY 1, 2
                                   ORDER BY groundtruth
                                 )
@@ -349,7 +351,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                     sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) as cnt_tp
                                   FROM
                                     "dioptra-gt-combined-eventstream"
-                                  WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
+                                  WHERE ${allSqlFilters}
                                   GROUP BY 1, 2
                                   order by groundtruth
                                 ),
@@ -360,7 +362,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                     count(1) as cnt_ts
                                   FROM
                                     "dioptra-gt-combined-eventstream"
-                                  WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
+                                  WHERE ${allSqlFilters}
                                   GROUP BY 1, 2
                                   order by prediction
                                 ),
@@ -371,7 +373,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                     count(1) as cnt_ps
                                   FROM
                                     "dioptra-gt-combined-eventstream"
-                                  WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
+                                  WHERE ${allSqlFilters}
                                   GROUP BY 1, 2
                                   ORDER BY groundtruth
                                 )
@@ -391,7 +393,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                     sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) as cnt_tp
                                   FROM
                                     "dioptra-gt-combined-eventstream"
-                                  WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
+                                  WHERE ${allSqlFilters}
                                   GROUP BY 1, 2
                                   order by groundtruth
                                 ),
@@ -402,7 +404,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                     count(1) as cnt_ts
                                   FROM
                                     "dioptra-gt-combined-eventstream"
-                                  WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
+                                  WHERE ${allSqlFilters}
                                   GROUP BY 1, 2
                                   order by prediction
                                 ),
@@ -413,7 +415,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                     count(1) as cnt_ps
                                   FROM
                                     "dioptra-gt-combined-eventstream"
-                                  WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
+                                  WHERE ${allSqlFilters}
                                   GROUP BY 1, 2
                                   ORDER BY groundtruth
                                 )

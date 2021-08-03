@@ -10,9 +10,10 @@ import TimeseriesQuery, {sql} from 'components/timeseries-query';
 import MetricInfoBox from 'components/metric-info-box';
 import AreaGraph from 'components/area-graph';
 import BarGraph from 'components/bar-graph';
+import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 
 const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
-
+    const allSqlFilters = useAllSqlFilters();
     const sqlTimeGranularity = timeStore.getTimeGranularity().toISOString();
 
     return (
@@ -34,7 +35,7 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                             sql={sql`
                                 SELECT 100 * CAST(COUNT(distinct MV_TO_STRING("feature.image_embedding", '')) as double) / COUNT(*) as "unique"
                                 FROM "dioptra-gt-combined-eventstream"
-                                WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
+                                WHERE ${allSqlFilters}
                             `}
                         />
                     </Col>
@@ -61,7 +62,7 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                                 SELECT TIME_FLOOR(__time, '${sqlTimeGranularity}') as "__time",
                                 100 * CAST(COUNT(distinct MV_TO_STRING("feature.image_embedding", '')) as double) / COUNT(*) as "uniques"
                                 FROM "dioptra-gt-combined-eventstream"
-                                WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
+                                WHERE ${allSqlFilters}
                                 GROUP BY 1
                             `}
                         />
@@ -83,7 +84,7 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                             SELECT CAST("feature.rotation" AS INTEGER) as "name",
                               COUNT(*) AS "value"
                                 FROM "dioptra-gt-combined-eventstream"
-                                WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
+                                WHERE ${allSqlFilters}
                                 GROUP BY 1
                                 ORDER BY 1 ASC
                             `}
@@ -117,7 +118,7 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                                 with sample_table as (
                                   SELECT *
                                   FROM "dioptra-gt-combined-eventstream"
-                                  WHERE ${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters}
+                                  WHERE ${allSqlFilters}
                                 ),
 
                                 offline_sample_table as (
