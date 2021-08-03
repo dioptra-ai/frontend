@@ -13,9 +13,12 @@ const FeatureAnalysis = ({modelStore}) => {
     case 'IMAGE_CLASSIFIER':
 
         return <FeatureAnalysisImages model={model}/>;
-    default:
+    case 'TABULAR_CLASSIFIER':
 
         return <FeatureIntegrityTable model={model}/>;
+    default:
+
+        throw new Error(`Unknown model type: ${model.mlModelType}`);
     }
 };
 
