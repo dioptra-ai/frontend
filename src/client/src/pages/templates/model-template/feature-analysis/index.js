@@ -1,13 +1,10 @@
-import PropTypes from 'prop-types';
-import {useParams} from 'react-router-dom';
-
 import {setupComponent} from 'helpers/component-helper';
+import useModel from 'customHooks/use-model';
 import FeatureIntegrityTable from './feature-integrity';
 import FeatureAnalysisImages from './feature-analysis-images';
 
-const FeatureAnalysis = ({modelStore}) => {
-    const currentModelId = useParams()._id;
-    const model = modelStore.getModelById(currentModelId);
+const FeatureAnalysis = () => {
+    const model = useModel();
 
     switch (model.mlModelType) {
     case 'IMAGE_CLASSIFIER':
@@ -20,10 +17,6 @@ const FeatureAnalysis = ({modelStore}) => {
 
         throw new Error(`Unknown model type: ${model.mlModelType}`);
     }
-};
-
-FeatureAnalysis.propTypes = {
-    modelStore: PropTypes.object.isRequired
 };
 
 export default setupComponent(FeatureAnalysis);

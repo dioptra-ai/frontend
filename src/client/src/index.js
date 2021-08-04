@@ -8,7 +8,7 @@ import {Provider} from 'mobx-react';
 
 window.onerror = () => {
     // We don't want to be stuck with corrupted data that we can't replace.
-    localStorage.clear();
+    // localStorage.clear();
 };
 
 ReactDOM.render(

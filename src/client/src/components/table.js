@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import {useTable} from 'react-table';
 
-const Table = ({columns, data}) => {
+const Table = ({columns, data, getRowProps}) => {
     const {
         getTableProps,
         getTableBodyProps,
@@ -20,7 +20,7 @@ const Table = ({columns, data}) => {
             <thead className='text-secondary border-top border-bottom'>
                 <tr>
                     {headers.map((column, i) => (
-                        <th className='align-middle py-3 border-0' key={i} {...column.getHeaderProps()} style={{maxWidth: '200px'}}>
+                        <th className='align-middle py-3 border-0' key={i} {...column.getHeaderProps()} style={{maxWidth: 200, textOverflow: 'ellipsis', overflow: 'hidden'}}>
                             {column.render('Header')}
                         </th>
                     ))}
@@ -31,9 +31,9 @@ const Table = ({columns, data}) => {
                     prepareRow(row);
 
                     return (
-                        <tr key={i} {...row.getRowProps()}>
+                        <tr key={i} {...row.getRowProps()} {...getRowProps?.(row)}>
                             {row.cells.map((cell, i) => {
-                                return <td className='align-middle py-3' key={i} style={{maxWidth: '200px'}} {...cell.getCellProps()}>{cell.render('Cell')}</td>;
+                                return <td className='align-middle py-3' key={i} style={{maxWidth: 200, textOverflow: 'ellipsis', overflow: 'hidden'}} {...cell.getCellProps()}>{cell.render('Cell')}</td>;
                             })}
                         </tr>
                     );
@@ -45,7 +45,8 @@ const Table = ({columns, data}) => {
 
 Table.propTypes = {
     columns: PropTypes.array,
-    data: PropTypes.array
+    data: PropTypes.array,
+    getRowProps: PropTypes.func
 };
 
 export default Table;
