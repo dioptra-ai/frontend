@@ -60,7 +60,7 @@ const CustomCarousel = ({items, onItemClick}) => {
             >
                 {items.map((item, i) => (
                     <div
-                        className='mx-2 rounded'
+                        className='mx-2 rounded cursor-pointer'
                         key={i}
                         onClick={() => onItemClick(item)}
                     >

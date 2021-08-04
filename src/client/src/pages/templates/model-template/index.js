@@ -14,6 +14,7 @@ import PerformanceDetails from './performance-details';
 import PredictionAnalysis from './prediction-analysis';
 import FeatureAnalysis from './feature-analysis';
 import IncidentsAndAlerts from './incidents-and-alerts.js';
+import useModel from 'customHooks/use-model';
 
 export const ModelTabNames = {
     PERFORMANCE_OVERVIEW: 'Performance Overview',
@@ -51,7 +52,7 @@ export const ModelTabsConfigs = (id) => (
 const Model = ({modelStore}) => {
     const location = useLocation();
     const activeModelId = useParams()._id;
-    const model = modelStore.getModelById(activeModelId);
+    const model = useModel();
 
     useEffect(() => {
         modelStore.fetchModel(activeModelId);
