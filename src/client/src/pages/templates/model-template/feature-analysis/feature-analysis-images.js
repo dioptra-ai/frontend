@@ -2,7 +2,6 @@ import PropTypes from 'prop-types';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
-import {formatDateTime} from 'helpers/date-helper';
 import {setupComponent} from 'helpers/component-helper';
 import {getHexColor} from 'helpers/color-helper';
 import FilterInput from 'components/filter-input';
@@ -14,7 +13,7 @@ import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 
 const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
     const allSqlFilters = useAllSqlFilters();
-    const sqlTimeGranularity = timeStore.getTimeGranularity().toISOString();
+    const sqlTimeGranularity = timeStore.getTimeGranularityMs().toISOString();
 
     return (
         <div>
@@ -48,10 +47,7 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                                         y: uniques,
                                         x: new Date(__time).getTime()
                                     }))}
-                                    graphType='monotone'
-                                    hasDot={false}
                                     isTimeDependent
-                                    tickFormatter={(tick) => formatDateTime(tick).replace(' ', '\n')}
                                     title='Unique Images Over Time'
                                     xAxisDomain={timeStore.rangeMillisec}
                                     xAxisName='Time'
@@ -104,10 +100,7 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                                         y: my_distance,
                                         x: new Date(my_time).getTime()
                                     }))}
-                                    graphType='monotone'
-                                    hasDot={false}
                                     isTimeDependent
-                                    tickFormatter={(tick) => formatDateTime(tick).replace(' ', '\n')}
                                     title='Embedding Distance'
                                     xAxisDomain={timeStore.rangeMillisec}
                                     xAxisName='Time'

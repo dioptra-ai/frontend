@@ -6,11 +6,11 @@ import theme from '../styles/theme.module.scss';
 import {formatDateTime} from '../helpers/date-helper';
 import fontSizes from '../styles/font-sizes.module.scss';
 
-const CustomTooltip = ({payload, label}) => {
+const CustomTooltip = ({payload, label, unit}) => {
     if (payload && payload.length) {
         return (
             <div className='line-graph-tooltip bg-white p-3'>
-                <p className='text-dark bold-text fs-5 m-0'>{payload[0].value.toFixed(1)}</p>
+                <p className='text-dark bold-text fs-5 m-0'>{payload[0].value.toFixed(1)}{unit}</p>
                 <p className='text-secondary m-0 fs-7'>
                     {formatDateTime(moment(label))}
                 </p>
@@ -23,21 +23,19 @@ const CustomTooltip = ({payload, label}) => {
 
 CustomTooltip.propTypes = {
     label: PropTypes.any,
-    payload: PropTypes.array
+    payload: PropTypes.array,
+    unit: PropTypes.string
 };
 
 const AreaGraph = ({
     title,
     dots,
     hasBorder = true,
-    hasDot = true,
     color = theme.primary,
     xAxisName = '',
-    tickFormatter,
     xAxisInterval,
     yAxisName = '',
     yAxisDomain,
-    graphType = 'linear',
     margin = {
         top: 10,
         right: 30,
@@ -51,7 +49,7 @@ const AreaGraph = ({
         y: Math.floor(d.y),
         x: new Date(d.x).getTime()
     }));
-    const granularity = timeStore.getTimeGranularity();
+    const granularityMs = timeStore.getTimeGranularityMs();
     const domain = timeStore.rangeMillisec;
 
     let filledData = [];
@@ -59,7 +57,7 @@ const AreaGraph = ({
     if (data.length) {
         const dataSpan = data[data.length - 1].x - data[0].x;
 
-        const ticks = new Array(Math.floor(dataSpan / granularity)).fill().map((_, i) => data[0].x + i * granularity);
+        const ticks = new Array(Math.floor(dataSpan / granularityMs)).fill().map((_, i) => data[0].x + i * granularityMs);
         const timeSeries = data.reduce((agg, d) => ({
             ...agg,
             [d.x]: d
@@ -96,7 +94,9 @@ const AreaGraph = ({
                             stroke='transparent'
                             tick={{fill: theme.secondary, fontSize: fontSizes.fs_7}}
                             tickCount={5}
-                            tickFormatter={(tick) => tickFormatter ? tickFormatter(tick) : tick}
+                            tickFormatter={(tick) => (
+                                formatDateTime(tick, granularityMs)
+                            )}
                             type='number'
                         />
                         <YAxis
@@ -107,14 +107,13 @@ const AreaGraph = ({
                             tick={{fill: theme.secondary, fontSize: fontSizes.fs_7}}
                             tickCount={6}
                             unit={unit}/>
-                        <Tooltip content={<CustomTooltip/>}/>
+                        <Tooltip content={<CustomTooltip unit={unit}/>}/>
                         <Area
                             dataKey='y'
-                            dot={hasDot ? {fill: color} : false}
                             fill='url(#color)'
                             stroke={color}
                             strokeWidth={2}
-                            type={graphType}
+                            type='linear'
                         />
                     </AreaChart>
                 </ResponsiveContainer>
@@ -126,11 +125,8 @@ const AreaGraph = ({
 AreaGraph.propTypes = {
     color: PropTypes.string,
     dots: PropTypes.array,
-    graphType: PropTypes.string,
     hasBorder: PropTypes.bool,
-    hasDot: PropTypes.bool,
     margin: PropTypes.object,
-    tickFormatter: PropTypes.func,
     timeStore: PropTypes.object.isRequired,
     title: PropTypes.string,
     unit: PropTypes.string,

@@ -3,11 +3,11 @@ import PropTypes from 'prop-types';
 import Legend from './graph-legend';
 import fontSizes from '../styles/font-sizes.module.scss';
 
-const CustomTooltip = ({payload, label}) => {
+const CustomTooltip = ({payload, label, unit}) => {
     if (payload && payload.length) {
         return (
             <div className='line-graph-tooltip bg-white p-3'>
-                <p className='text-dark bold-text fs-5 m-0'>{payload[0].value}</p>
+                <p className='text-dark bold-text fs-5 m-0'>{payload[0].value}{unit}</p>
                 <p className='text-secondary m-0 fs-7'>{label || '<empty>'}</p>
             </div>
         );
@@ -16,9 +16,10 @@ const CustomTooltip = ({payload, label}) => {
 
 CustomTooltip.propTypes = {
     label: PropTypes.any,
-    payload: PropTypes.array
+    payload: PropTypes.array,
+    unit: PropTypes.string
 };
-const BarGraph = ({title, bars, yAxisName, xAxisName, yAxisDomain}) => {
+const BarGraph = ({title, bars, unit, yAxisName, xAxisName, yAxisDomain}) => {
 
     return (
         <div className='border rounded p-3 w-100'>
@@ -44,8 +45,9 @@ const BarGraph = ({title, bars, yAxisName, xAxisName, yAxisDomain}) => {
                                 fontSize: fontSizes.fs_7
                             }}
                             tick={{fontSize: fontSizes.fs_7}}
+                            unit={unit}
                         />
-                        <Tooltip content={<CustomTooltip/>}/>
+                        <Tooltip content={<CustomTooltip unit={unit}/>}/>
                         {bars.length < 6 ? <Legend data={bars}/> : null}
                         <Bar dataKey='value' fill='#8884d8' maxBarSize={50} minPointSize={2}/>
                     </BarChart>
@@ -58,6 +60,7 @@ const BarGraph = ({title, bars, yAxisName, xAxisName, yAxisDomain}) => {
 BarGraph.propTypes = {
     bars: PropTypes.array,
     title: PropTypes.string,
+    unit: PropTypes.string,
     xAxisName: PropTypes.string,
     yAxisDomain: PropTypes.array,
     yAxisName: PropTypes.string

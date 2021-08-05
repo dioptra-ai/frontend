@@ -5,8 +5,6 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import FilterInput from 'components/filter-input';
 import AreaGraph from 'components/area-graph';
-import {formatDateTime} from 'helpers/date-helper';
-import moment from 'moment';
 import Select from 'components/select';
 import {setupComponent} from 'helpers/component-helper';
 import TimeseriesQuery, {sql} from 'components/timeseries-query';
@@ -42,7 +40,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
             }
         />
     );
-    const sqlTimeGranularity = timeStore.getTimeGranularity().toISOString();
+    const sqlTimeGranularity = timeStore.getTimeGranularityMs().toISOString();
 
 
     return (
@@ -60,18 +58,15 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                         y: throughput,
                                         x: new Date(__time).getTime()
                                     }))}
-                                    graphType='monotone'
-                                    hasDot={false}
                                     isTimeDependent
-                                    tickFormatter={(tick) => formatDateTime(tick).replace(' ', '\n')}
                                     title='Average Throughput (QPS)'
                                     xAxisName='Time'
                                     yAxisName='Average Throughput (QPS)'
                                 />
                             )}
                             sql={sql`
-                                SELECT TIME_FLOOR(__time, '${timeStore.getTimeGranularity().toISOString()}') as "__time",
-                                    COUNT(*) / ${timeStore.getTimeGranularity().asSeconds()} as throughput
+                                SELECT TIME_FLOOR(__time, '${timeStore.getTimeGranularityMs().toISOString()}') as "__time",
+                                    COUNT(*) / ${timeStore.getTimeGranularityMs().asSeconds()} as throughput
                                 FROM "dioptra-gt-combined-eventstream"
                                 WHERE ${allSqlFilters}
                                 GROUP BY 1
@@ -81,10 +76,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                     <Col lg={6}>
                         <AreaGraph
                             dots={[]}
-                            graphType='monotone'
-                            hasDot={false}
                             isTimeDependent
-                            tickFormatter={(tick) => formatDateTime(moment(tick)).replace(' ', '\n')}
                             title='Average Latency (ms)'
                             xAxisName='Time'
                             yAxisDomain={[0, 25]}
@@ -104,11 +96,11 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                     name='Accuracy'
                                     sampleSize={sampleSizeComponent}
                                     unit='%'
-                                    value={100 * accuracy}
+                                    value={accuracy}
                                 />
                             )}
                             sql={sql`
-                                SELECT CAST(sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) AS DOUBLE) / sum(1) AS accuracy
+                                SELECT 100 * CAST(sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) AS DOUBLE) / sum(1) AS accuracy
                                 FROM "dioptra-gt-combined-eventstream"
                                 WHERE ${allSqlFilters}`
                             }
@@ -284,11 +276,9 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                         renderData={(metric) => (
                             <AreaGraph
                                 dots={metric}
-                                graphType='linear'
                                 hasBorder={false}
                                 isTimeDependent
                                 margin = {{right: 0, bottom: 30}}
-                                tickFormatter={(tick) => formatDateTime(moment(tick))}
                                 unit='%'
                                 xAxisName='Time'
                                 yAxisDomain={[0, 100]}
@@ -465,7 +455,6 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 hasBorder={false}
                                 isTimeDependent
                                 margin = {{right: 0, bottom: 30, left: 5}}
-                                tickFormatter={(tick) => formatDateTime(moment(tick)).replace(' ', '\n')}
                                 xAxisName='Time'
                                 yAxisDomain={[0, 1000]}
                                 yAxisName={getName(selectedIndicator)}
