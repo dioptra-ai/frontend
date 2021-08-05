@@ -37,7 +37,7 @@ const PredictionAnalysis = ({timeStore, filtersStore, modelStore}) => {
                             )}
                             sql={sql`
                                   SELECT
-                                    cast(my_table.my_count as float) / cast(my_count_table.total_count as float) as my_percentage,
+                                    100 * cast(my_table.my_count as float) / cast(my_count_table.total_count as float) as my_percentage,
                                     my_table.prediction
                                   FROM (
                                     SELECT
@@ -76,7 +76,7 @@ const PredictionAnalysis = ({timeStore, filtersStore, modelStore}) => {
                             // TODO: replace fixed time ranges by those stored in the model object.
                             sql={sql`
                                   SELECT
-                                    cast(my_table.my_count as float) / cast(my_count_table.total_count as float) as my_percentage,
+                                    100 * cast(my_table.my_count as float) / cast(my_count_table.total_count as float) as my_percentage,
                                     my_table.prediction
                                   FROM (
                                     SELECT
