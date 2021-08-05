@@ -6,7 +6,7 @@ import TimeseriesClient from 'clients/timeseries';
 
 const {SQL_OUTER_LIMIT} = TimeseriesClient;
 
-const granularityLadder = [
+const granularityLadderMs = [
     moment.duration(1, 'second'),
     moment.duration(5, 'second'),
     moment.duration(10, 'second'),
@@ -91,9 +91,9 @@ class TimeStore {
     }
 
     // TODO: Find a better way to deal with sparse data than adding 10x the max number of points.
-    getTimeGranularity(maxTicks = 3 * SQL_OUTER_LIMIT) {
+    getTimeGranularityMs(maxTicks = 3 * SQL_OUTER_LIMIT) {
         const rangeSeconds = this.endMoment.diff(this.startMoment) / 1000;
-        const DURATION_MAX_SEC_TO_GRANULARITY = granularityLadder.map((duration) => {
+        const DURATION_MAX_SEC_TO_GRANULARITY = granularityLadderMs.map((duration) => {
 
             return {
                 maxSpanSec: maxTicks * duration.asSeconds(),

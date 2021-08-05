@@ -33,7 +33,6 @@ const AreaGraph = ({
     hasDot = true,
     color = theme.primary,
     xAxisName = '',
-    tickFormatter,
     xAxisInterval,
     yAxisName = '',
     yAxisDomain,
@@ -51,7 +50,7 @@ const AreaGraph = ({
         y: Math.floor(d.y),
         x: new Date(d.x).getTime()
     }));
-    const granularity = timeStore.getTimeGranularity();
+    const granularityMs = timeStore.getTimeGranularityMs();
     const domain = timeStore.rangeMillisec;
 
     let filledData = [];
@@ -59,7 +58,7 @@ const AreaGraph = ({
     if (data.length) {
         const dataSpan = data[data.length - 1].x - data[0].x;
 
-        const ticks = new Array(Math.floor(dataSpan / granularity)).fill().map((_, i) => data[0].x + i * granularity);
+        const ticks = new Array(Math.floor(dataSpan / granularityMs)).fill().map((_, i) => data[0].x + i * granularityMs);
         const timeSeries = data.reduce((agg, d) => ({
             ...agg,
             [d.x]: d
@@ -96,7 +95,9 @@ const AreaGraph = ({
                             stroke='transparent'
                             tick={{fill: theme.secondary, fontSize: fontSizes.fs_7}}
                             tickCount={5}
-                            tickFormatter={(tick) => tickFormatter ? tickFormatter(tick) : tick}
+                            tickFormatter={(tick) => (
+                                formatDateTime(tick, granularityMs)
+                            )}
                             type='number'
                         />
                         <YAxis

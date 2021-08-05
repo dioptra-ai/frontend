@@ -16,7 +16,7 @@ import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 const PredictionAnalysis = ({timeStore, filtersStore, modelStore}) => {
     const params = useParams();
     const allSqlFilters = useAllSqlFilters();
-    const sqlTimeGranularity = timeStore.getTimeGranularity().toISOString();
+    const sqlTimeGranularity = timeStore.getTimeGranularityMs().toISOString();
 
     return (
         <>
