@@ -115,38 +115,19 @@ const ConfusionMatrix = () => {
                     `}
                 />
                 {selectedCell && (
-                    <TimeseriesQuery
-                        defaultData={[]}
-                        renderData={(data) => {
-
-                            switch (model.mlModelType) {
-                            case 'IMAGE_CLASSIFIER':
-                                return (
-                                    <ImageExamples
-                                        images={data.map((x) => x['feature.image_url'].replace(/"/g, ''))}
-                                        onClose={() => setSelectedCell(null)}
-                                    />
-                                );
-                            case 'TABULAR_CLASSIFIER':
-                                return (
-                                    <TabularExamples
-                                        groundtruth={selectedCell.groundtruth}
-                                        onClose={() => setSelectedCell(null)}
-                                        prediction={selectedCell.prediction}
-                                    />
-                                );
-                            default:
-                                throw new Error(`Unknown model type: ${model.mlModelType}`);
-                            }
-                        }}
-                        sql={sql`
-                            SELECT distinct "feature.image_url"
-                            FROM "dioptra-gt-combined-eventstream"
-                            WHERE groundtruth = '${selectedCell.groundtruth}' AND prediction = '${selectedCell.prediction}'
-                            AND ${allSqlFilters}
-                            LIMIT 20
-                        `}
-                    />
+                    model.mlModelType === 'IMAGE_CLASSIFIER' ? (
+                        <ImageExamples
+                            groundtruth={selectedCell.groundtruth}
+                            onClose={() => setSelectedCell(null)}
+                            prediction={selectedCell.prediction}
+                        />
+                    ) : model.mlModelType === 'TABULAR_CLASSIFIER' ? (
+                        <TabularExamples
+                            groundtruth={selectedCell.groundtruth}
+                            onClose={() => setSelectedCell(null)}
+                            prediction={selectedCell.prediction}
+                        />
+                    ) : null
                 )}
             </div>
         </div>
