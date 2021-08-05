@@ -4,7 +4,6 @@ import Col from 'react-bootstrap/Col';
 import {useParams} from 'react-router-dom';
 
 import FilterInput from 'components/filter-input';
-import {formatDateTime} from 'helpers/date-helper';
 import BarGraph from 'components/bar-graph';
 import AreaGraph from 'components/area-graph';
 import TimeseriesQuery, {sql} from 'components/timeseries-query';
@@ -115,7 +114,6 @@ const PredictionAnalysis = ({timeStore, filtersStore, modelStore}) => {
                                     graphType='monotone'
                                     hasDot={false}
                                     isTimeDependent
-                                    tickFormatter={(tick) => formatDateTime(tick).replace(' ', '\n')}
                                     title='Offline / Online Distribution Distance'
                                     xAxisDomain={timeStore.rangeMillisec}
                                     xAxisName='Time'

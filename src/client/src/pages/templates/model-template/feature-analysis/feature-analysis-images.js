@@ -2,7 +2,6 @@ import PropTypes from 'prop-types';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
-import {formatDateTime} from 'helpers/date-helper';
 import {setupComponent} from 'helpers/component-helper';
 import {getHexColor} from 'helpers/color-helper';
 import FilterInput from 'components/filter-input';
@@ -51,7 +50,6 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                                     graphType='monotone'
                                     hasDot={false}
                                     isTimeDependent
-                                    tickFormatter={(tick) => formatDateTime(tick).replace(' ', '\n')}
                                     title='Unique Images Over Time'
                                     xAxisDomain={timeStore.rangeMillisec}
                                     xAxisName='Time'
@@ -107,7 +105,6 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                                     graphType='monotone'
                                     hasDot={false}
                                     isTimeDependent
-                                    tickFormatter={(tick) => formatDateTime(tick).replace(' ', '\n')}
                                     title='Embedding Distance'
                                     xAxisDomain={timeStore.rangeMillisec}
                                     xAxisName='Time'

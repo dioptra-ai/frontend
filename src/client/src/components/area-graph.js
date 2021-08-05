@@ -131,7 +131,6 @@ AreaGraph.propTypes = {
     hasBorder: PropTypes.bool,
     hasDot: PropTypes.bool,
     margin: PropTypes.object,
-    tickFormatter: PropTypes.func,
     timeStore: PropTypes.object.isRequired,
     title: PropTypes.string,
     unit: PropTypes.string,

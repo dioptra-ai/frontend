@@ -5,8 +5,6 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import FilterInput from 'components/filter-input';
 import AreaGraph from 'components/area-graph';
-import {formatDateTime} from 'helpers/date-helper';
-import moment from 'moment';
 import Select from 'components/select';
 import {setupComponent} from 'helpers/component-helper';
 import TimeseriesQuery, {sql} from 'components/timeseries-query';
@@ -63,7 +61,6 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                     graphType='monotone'
                                     hasDot={false}
                                     isTimeDependent
-                                    tickFormatter={(tick) => formatDateTime(tick).replace(' ', '\n')}
                                     title='Average Throughput (QPS)'
                                     xAxisName='Time'
                                     yAxisName='Average Throughput (QPS)'
@@ -84,7 +81,6 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                             graphType='monotone'
                             hasDot={false}
                             isTimeDependent
-                            tickFormatter={(tick) => formatDateTime(moment(tick)).replace(' ', '\n')}
                             title='Average Latency (ms)'
                             xAxisName='Time'
                             yAxisDomain={[0, 25]}
@@ -288,7 +284,6 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 hasBorder={false}
                                 isTimeDependent
                                 margin = {{right: 0, bottom: 30}}
-                                tickFormatter={(tick) => formatDateTime(moment(tick))}
                                 unit='%'
                                 xAxisName='Time'
                                 yAxisDomain={[0, 100]}
@@ -465,7 +460,6 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 hasBorder={false}
                                 isTimeDependent
                                 margin = {{right: 0, bottom: 30, left: 5}}
-                                tickFormatter={(tick) => formatDateTime(moment(tick)).replace(' ', '\n')}
                                 xAxisName='Time'
                                 yAxisDomain={[0, 1000]}
                                 yAxisName={getName(selectedIndicator)}
