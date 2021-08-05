@@ -213,7 +213,7 @@ const FeatureIntegrityTable = ({errorStore, timeStore}) => {
             query: `
                 SELECT COLUMN_NAME 
                 FROM INFORMATION_SCHEMA.COLUMNS 
-                WHERE TABLE_NAME = 'dioptra-gt-combined-eventstream' AND COLUMN_NAME <> '__time'
+                WHERE TABLE_NAME = 'dioptra-gt-combined-eventstream' AND COLUMN_NAME LIKE 'feature.%'
                 `
         }).then((res) => {
             setAllFeatureNames(res.map((row) => row['COLUMN_NAME']));
