@@ -6,11 +6,11 @@ import theme from '../styles/theme.module.scss';
 import {formatDateTime} from '../helpers/date-helper';
 import fontSizes from '../styles/font-sizes.module.scss';
 
-const CustomTooltip = ({payload, label}) => {
+const CustomTooltip = ({payload, label, unit}) => {
     if (payload && payload.length) {
         return (
             <div className='line-graph-tooltip bg-white p-3'>
-                <p className='text-dark bold-text fs-5 m-0'>{payload[0].value.toFixed(1)}</p>
+                <p className='text-dark bold-text fs-5 m-0'>{payload[0].value.toFixed(1)}{unit}</p>
                 <p className='text-secondary m-0 fs-7'>
                     {formatDateTime(moment(label))}
                 </p>
@@ -23,7 +23,8 @@ const CustomTooltip = ({payload, label}) => {
 
 CustomTooltip.propTypes = {
     label: PropTypes.any,
-    payload: PropTypes.array
+    payload: PropTypes.array,
+    unit: PropTypes.string
 };
 
 const AreaGraph = ({
@@ -106,7 +107,7 @@ const AreaGraph = ({
                             tick={{fill: theme.secondary, fontSize: fontSizes.fs_7}}
                             tickCount={6}
                             unit={unit}/>
-                        <Tooltip content={<CustomTooltip/>}/>
+                        <Tooltip content={<CustomTooltip unit={unit}/>}/>
                         <Area
                             dataKey='y'
                             fill='url(#color)'

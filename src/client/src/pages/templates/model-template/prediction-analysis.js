@@ -32,12 +32,12 @@ const PredictionAnalysis = ({timeStore, filtersStore, modelStore}) => {
                                         {name: getName(prediction), value: my_percentage, fill: getHexColor(prediction)}
                                     ))}
                                     title='Online Class Distribution'
-                                    yAxisName='%'
+                                    unit='%'
                                 />
                             )}
                             sql={sql`
                                   SELECT
-                                    100 * cast(my_table.my_count as float) / cast(my_count_table.total_count as float) as my_percentage,
+                                    TRUNCATE(100 * cast(my_table.my_count as float) / cast(my_count_table.total_count as float), 2) as my_percentage,
                                     my_table.prediction
                                   FROM (
                                     SELECT
@@ -70,13 +70,13 @@ const PredictionAnalysis = ({timeStore, filtersStore, modelStore}) => {
                                         {name: getName(prediction), value: my_percentage, fill: getHexColor(prediction)}
                                     ))}
                                     title='Offline Class Distribution'
-                                    yAxisName='%'
+                                    unit='%'
                                 />
                             )}
                             // TODO: replace fixed time ranges by those stored in the model object.
                             sql={sql`
                                   SELECT
-                                    100 * cast(my_table.my_count as float) / cast(my_count_table.total_count as float) as my_percentage,
+                                    TRUNCATE(100 * cast(my_table.my_count as float) / cast(my_count_table.total_count as float), 2) as my_percentage,
                                     my_table.prediction
                                   FROM (
                                     SELECT
@@ -113,6 +113,7 @@ const PredictionAnalysis = ({timeStore, filtersStore, modelStore}) => {
                                     }))}
                                     isTimeDependent
                                     title='Offline / Online Distribution Distance'
+                                    unit='%'
                                     xAxisDomain={timeStore.rangeMillisec}
                                     xAxisName='Time'
                                     yAxisName='Distance'

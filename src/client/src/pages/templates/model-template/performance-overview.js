@@ -96,11 +96,11 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                     name='Accuracy'
                                     sampleSize={sampleSizeComponent}
                                     unit='%'
-                                    value={100 * accuracy}
+                                    value={accuracy}
                                 />
                             )}
                             sql={sql`
-                                SELECT CAST(sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) AS DOUBLE) / sum(1) AS accuracy
+                                SELECT 100 * CAST(sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) AS DOUBLE) / sum(1) AS accuracy
                                 FROM "dioptra-gt-combined-eventstream"
                                 WHERE ${allSqlFilters}`
                             }

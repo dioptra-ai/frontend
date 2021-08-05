@@ -8,7 +8,16 @@ const last = (amount, periodName) => {
 
 export const formatDate = (m) => moment(m).toDate().toLocaleDateString();
 export const formatTime = (m) => moment(m).toDate().toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
-export const formatDateTime = (m) => `${formatDate(m)} ${formatTime(m)}`;
+export const formatDateTime = (m, granularityMs) => {
+
+    if (granularityMs > 24 * 60 * 60 * 1000) {
+
+        return formatDate(m);
+    } else {
+
+        return `${formatDate(m)} ${formatTime(m)}`;
+    }
+};
 export const formatDateRange = (momentDateFrom, momentDateTo) => `${formatDate(momentDateFrom)} - ${formatDate(momentDateTo)}`;
 export const formatDateTimeRange = (momentDateFrom, momentDateTo) => `${formatDateTime(momentDateFrom)} - ${formatDateTime(momentDateTo)}`;
 
