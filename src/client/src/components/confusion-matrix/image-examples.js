@@ -4,9 +4,12 @@ import useModal from 'customHooks/useModal';
 import BtnIcon from 'components/btn-icon';
 import CustomCarousel from 'components/carousel';
 import Modal from 'components/modal';
+import TimeseriesQuery, {sql} from 'components/timeseries-query';
+import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 
-const ImageExamples = ({onClose, images}) => {
+const ImageExamples = ({onClose, groundtruth, prediction}) => {
     const [exampleInModal, setExampleInModal] = useModal(false);
+    const allSqlFilters = useAllSqlFilters();
 
     return (
         <div className='bg-white-blue my-3 p-3'>
@@ -19,7 +22,23 @@ const ImageExamples = ({onClose, images}) => {
                     size={15}
                 />
             </div>
-            <CustomCarousel items={images} onItemClick={(example) => setExampleInModal(example)}/>
+            <TimeseriesQuery
+
+                defaultData={[]}
+                renderData={(data) => (
+                    <CustomCarousel
+                        items={data.map((x) => x['feature.image_url'].replace(/"/g, ''))}
+                        onItemClick={setExampleInModal}
+                    />
+                )}
+                sql={sql`
+                        SELECT distinct "feature.image_url"
+                        FROM "dioptra-gt-combined-eventstream"
+                        WHERE groundtruth = '${groundtruth}' AND prediction = '${prediction}'
+                        AND ${allSqlFilters}
+                        LIMIT 20
+                    `}
+            />
             {exampleInModal && (
                 <Modal>
                     <div className='d-flex align-items-center'>
@@ -40,8 +59,9 @@ const ImageExamples = ({onClose, images}) => {
 };
 
 ImageExamples.propTypes = {
-    images: PropTypes.array.isRequired,
-    onClose: PropTypes.func.isRequired
+    groundtruth: PropTypes.string.isRequired,
+    onClose: PropTypes.func.isRequired,
+    prediction: PropTypes.string.isRequired
 };
 
 export default ImageExamples;
