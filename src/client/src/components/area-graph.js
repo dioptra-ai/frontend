@@ -30,13 +30,11 @@ const AreaGraph = ({
     title,
     dots,
     hasBorder = true,
-    hasDot = true,
     color = theme.primary,
     xAxisName = '',
     xAxisInterval,
     yAxisName = '',
     yAxisDomain,
-    graphType = 'linear',
     margin = {
         top: 10,
         right: 30,
@@ -111,11 +109,10 @@ const AreaGraph = ({
                         <Tooltip content={<CustomTooltip/>}/>
                         <Area
                             dataKey='y'
-                            dot={hasDot ? {fill: color} : false}
                             fill='url(#color)'
                             stroke={color}
                             strokeWidth={2}
-                            type={graphType}
+                            type='linear'
                         />
                     </AreaChart>
                 </ResponsiveContainer>
@@ -127,9 +124,7 @@ const AreaGraph = ({
 AreaGraph.propTypes = {
     color: PropTypes.string,
     dots: PropTypes.array,
-    graphType: PropTypes.string,
     hasBorder: PropTypes.bool,
-    hasDot: PropTypes.bool,
     margin: PropTypes.object,
     timeStore: PropTypes.object.isRequired,
     title: PropTypes.string,

@@ -58,8 +58,6 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                         y: throughput,
                                         x: new Date(__time).getTime()
                                     }))}
-                                    graphType='monotone'
-                                    hasDot={false}
                                     isTimeDependent
                                     title='Average Throughput (QPS)'
                                     xAxisName='Time'
@@ -78,8 +76,6 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                     <Col lg={6}>
                         <AreaGraph
                             dots={[]}
-                            graphType='monotone'
-                            hasDot={false}
                             isTimeDependent
                             title='Average Latency (ms)'
                             xAxisName='Time'
@@ -280,7 +276,6 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                         renderData={(metric) => (
                             <AreaGraph
                                 dots={metric}
-                                graphType='linear'
                                 hasBorder={false}
                                 isTimeDependent
                                 margin = {{right: 0, bottom: 30}}

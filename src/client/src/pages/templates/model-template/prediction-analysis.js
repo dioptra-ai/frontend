@@ -111,8 +111,6 @@ const PredictionAnalysis = ({timeStore, filtersStore, modelStore}) => {
                                         y,
                                         x: new Date(x).getTime()
                                     }))}
-                                    graphType='monotone'
-                                    hasDot={false}
                                     isTimeDependent
                                     title='Offline / Online Distribution Distance'
                                     xAxisDomain={timeStore.rangeMillisec}

@@ -47,8 +47,6 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                                         y: uniques,
                                         x: new Date(__time).getTime()
                                     }))}
-                                    graphType='monotone'
-                                    hasDot={false}
                                     isTimeDependent
                                     title='Unique Images Over Time'
                                     xAxisDomain={timeStore.rangeMillisec}
@@ -102,8 +100,6 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                                         y: my_distance,
                                         x: new Date(my_time).getTime()
                                     }))}
-                                    graphType='monotone'
-                                    hasDot={false}
                                     isTimeDependent
                                     title='Embedding Distance'
                                     xAxisDomain={timeStore.rangeMillisec}
