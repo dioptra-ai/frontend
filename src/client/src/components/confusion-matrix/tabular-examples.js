@@ -35,7 +35,7 @@ const TabularExamples = ({onClose, groundtruth, prediction}) => {
                         return (
                             <Table
                                 columns={firstNonEmptyColumns.map((column) => ({
-                                    accessor: column,
+                                    accessor: (c) => c[column],
                                     Header: column
                                 }))}
                                 data={data}
@@ -51,7 +51,7 @@ const TabularExamples = ({onClose, groundtruth, prediction}) => {
                         FROM "dioptra-gt-combined-eventstream"
                         WHERE groundtruth = '${groundtruth}' AND prediction = '${prediction}'
                         AND ${allSqlFilters}
-                        LIMIT 20
+                        LIMIT 10
                     `}
                 />
             </div>

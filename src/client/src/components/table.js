@@ -20,7 +20,10 @@ const Table = ({columns, data, getRowProps}) => {
             <thead className='text-secondary border-top border-bottom'>
                 <tr>
                     {headers.map((column, i) => (
-                        <th className='align-middle py-3 border-0' key={i} {...column.getHeaderProps()} style={{maxWidth: 200, textOverflow: 'ellipsis', overflow: 'hidden'}}>
+                        <th className='align-middle py-3 border-0' key={i} {...column.getHeaderProps()}
+                            style={{maxWidth: 100, textOverflow: 'ellipsis', overflow: 'hidden'}}
+                            title={column.render('Header')}
+                        >
                             {column.render('Header')}
                         </th>
                     ))}
@@ -33,7 +36,13 @@ const Table = ({columns, data, getRowProps}) => {
                     return (
                         <tr key={i} {...row.getRowProps()} {...getRowProps?.(row)}>
                             {row.cells.map((cell, i) => {
-                                return <td className='align-middle py-3' key={i} style={{maxWidth: 200, textOverflow: 'ellipsis', overflow: 'hidden'}} {...cell.getCellProps()}>{cell.render('Cell')}</td>;
+                                return (
+                                    <td className='align-middle py-3' key={i} style={{maxWidth: 100, textOverflow: 'ellipsis', overflow: 'hidden'}} {...cell.getCellProps()}
+                                        title={cell.value}
+                                    >
+                                        {cell.render('Cell')}
+                                    </td>
+                                );
                             })}
                         </tr>
                     );
