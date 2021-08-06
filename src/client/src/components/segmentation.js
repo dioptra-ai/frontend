@@ -15,6 +15,7 @@ import useModal from '../customHooks/useModal';
 import {getHexColor} from 'helpers/color-helper';
 import theme from '../styles/theme.module.scss';
 import TimeseriesQuery, {sql} from 'components/timeseries-query';
+import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 
 const AddColumnModal = ({onCancel, onApply, allColumns, selected}) => {
     const featureColumns = allColumns.filter((c) => c.startsWith('feature.'));
@@ -101,9 +102,10 @@ Text.propTypes = {
     value: PropTypes.string
 };
 
-const _AccuracyCell = ({groupByColumns, timeStore, filtersStore, row}) => {
+const _AccuracyCell = ({groupByColumns, timeStore, row}) => {
     const {ref, inView} = useInView();
     const [accuracyData, setAccuracyData] = useState([]);
+    const allSqlFilters = useAllSqlFilters();
 
     useEffect(() => {
         if (inView) {
@@ -111,15 +113,14 @@ const _AccuracyCell = ({groupByColumns, timeStore, filtersStore, row}) => {
                 query: `WITH my_sample_table as (
                     SELECT *
                     FROM "dioptra-gt-combined-eventstream"
-                    WHERE ${timeStore.sqlTimeFilter}
-                        AND ${filtersStore.sqlFilters}
+                    WHERE ${allSqlFilters}
                         AND ${groupByColumns.map((c) => `"${c}"='${row.original[c]}'`).join(' AND ')}
                     )
                     SELECT 
                       FLOOR(__time TO MINUTE) AS x,
                       100 * cast(sum(CASE WHEN groundtruth=prediction THEN 1 ELSE 0 end) AS float) / count(*) AS y
                     FROM my_sample_table
-                    GROUP BY FLOOR(__time TO MINUTE), "tag.client_id"`
+                    GROUP BY FLOOR(__time TO MINUTE), ${groupByColumns.map((c) => `"${c}"`).join(', ')}`
             }).then((data) => {
                 setAccuracyData(data);
             });
@@ -127,7 +128,7 @@ const _AccuracyCell = ({groupByColumns, timeStore, filtersStore, row}) => {
     }, [inView, timeStore.sqlTimeFilter]);
 
     return (
-        <div className='border rounded' ref={ref} style={{height: '50px'}}>
+        <div ref={ref} style={{height: '150px'}}>
             <ResponsiveContainer height='100%' width='100%'>
                 <AreaChart data={accuracyData.map(({x, y}) => ({
                     y,
@@ -164,7 +165,6 @@ const _AccuracyCell = ({groupByColumns, timeStore, filtersStore, row}) => {
 };
 
 _AccuracyCell.propTypes = {
-    filtersStore: PropTypes.object.isRequired,
     groupByColumns: PropTypes.array,
     row: PropTypes.object,
     timeStore: PropTypes.object.isRequired
@@ -173,18 +173,19 @@ _AccuracyCell.propTypes = {
 const AccuracyCell = setupComponent(_AccuracyCell);
 
 
-const _DistributionCell = ({groupByColumns, timeStore, filtersStore, row}) => {
+const _DistributionCell = ({groupByColumns, timeStore, row}) => {
     const {ref, inView} = useInView();
+    const allSqlFilters = useAllSqlFilters();
     const [distributionData, setDistributionData] = useState([]);
+    const sqlColumns = groupByColumns.map((c) => `"${c}"`).join(', ');
 
     useEffect(() => {
         if (inView) {
             timeseriesClient({
-                query: `WITH my_sample_table as (
+                query: `WITH distribution_sample_table as (
                   SELECT *
                   FROM "dioptra-gt-combined-eventstream"
-                  WHERE ${timeStore.sqlTimeFilter}
-                        AND ${filtersStore.sqlFilters}
+                  WHERE ${allSqlFilters}
                         AND ${groupByColumns.map((c) => `"${c}"='${row.original[c]}'`).join(' AND ')}
                 )
                 SELECT
@@ -194,18 +195,18 @@ const _DistributionCell = ({groupByColumns, timeStore, filtersStore, row}) => {
                     SELECT
                       count(1) AS my_count,
                       prediction,
-                      "tag.client_id" as client_id
-                    FROM my_sample_table
-                    GROUP BY prediction, "tag.client_id"
+                      ${sqlColumns}
+                    FROM distribution_sample_table
+                    GROUP BY prediction, ${sqlColumns}
                   ) AS my_sub_table
                   JOIN (
                     SELECT
                       count(*) as total_count,
-                      "tag.client_id" as client_id
-                    FROM my_sample_table
-                    GROUP BY "tag.client_id"
+                      ${sqlColumns}
+                    FROM distribution_sample_table
+                    GROUP BY ${sqlColumns}
                   ) AS my_sub_count_table
-                  ON my_sub_table.client_id = my_sub_count_table.client_id`
+                  ON ${groupByColumns.map((column) => `my_sub_table."${column}" = my_sub_count_table."${column}"`).join(', ')}`
             }).then((data) => {
                 setDistributionData(data);
             });
@@ -226,7 +227,6 @@ const _DistributionCell = ({groupByColumns, timeStore, filtersStore, row}) => {
 };
 
 _DistributionCell.propTypes = {
-    filtersStore: PropTypes.object.isRequired,
     groupByColumns: PropTypes.array,
     row: PropTypes.object,
     timeStore: PropTypes.object.isRequired
@@ -235,7 +235,7 @@ _DistributionCell.propTypes = {
 const DistributionCell = setupComponent(_DistributionCell);
 
 const Segmentation = ({timeStore}) => {
-    const [groupByColumns, setGroupByColumns] = useState(['tag.client_id']);
+    const [groupByColumns, setGroupByColumns] = useState(['tag.gender']);
     const [addColModal, setAddColModal] = useModal(false);
 
     return (
@@ -265,7 +265,7 @@ const Segmentation = ({timeStore}) => {
                                 [
                                     {
                                         id: 'accuracy',
-                                        Header: 'Accuracy',
+                                        Header: 'Accuracy Trend',
                                         Cell: (props) => ( // eslint-disable-line react/display-name
                                             <AccuracyCell groupByColumns={groupByColumns} {...props}/>
                                         )
