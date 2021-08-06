@@ -5,19 +5,20 @@ import App from './app';
 import state from './state/stores';
 import './styles/custom.scss';
 import {Provider} from 'mobx-react';
-
-window.onerror = () => {
-    // We don't want to be stuck with corrupted data that we can't replace.
-    localStorage.clear();
-};
+import ErrorBoundary from 'components/error-boundary';
 
 ReactDOM.render(
-    <React.StrictMode>
+    <ErrorBoundary renderError={(e) => {
+        console.error('Error, clearing local storage:', e);
+        localStorage.clear();
+
+        return null;
+    }}>
         <Router>
             <Provider {...state}>
                 <App />
             </Provider>
         </Router>
-    </React.StrictMode>,
+    </ErrorBoundary>,
     document.getElementById('root')
 );
