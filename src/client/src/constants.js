@@ -21,3 +21,5 @@ export const IconNames = {
 };
 
 export const noop = () => {};
+
+export const SQL_OFFLINE_RANGE = '"__time" >= TIME_PARSE(\'2021-08-05T21:25:00.580Z\') AND "__time" < TIME_PARSE(\'2021-08-05T21:26:00.580Z\')';
