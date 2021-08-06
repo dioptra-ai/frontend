@@ -156,7 +156,6 @@ const _AccuracyCell = ({groupByColumns, timeStore, filtersStore, row}) => {
                         fill='url(#color)'
                         stroke={theme.primary}
                         strokeWidth={2}
-                        type='monotone'
                     />
                 </AreaChart>
             </ResponsiveContainer>

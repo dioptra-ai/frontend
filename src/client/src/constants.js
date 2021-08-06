@@ -20,17 +20,4 @@ export const IconNames = {
     WARNING: 'Warning'
 };
 
-export const FeatureIntegrityTableColumnNames = {
-    FEATURE_NAME: 'Feature Name',
-    INCIDENT_COUNT: 'Incident Count',
-    TYPE: 'Type',
-    SHAP: 'SHAP',
-    ONLINE_DISTRIBUTION: 'Online Distribution',
-    ONLINE_DISTRIBUTION_STATS: 'Online Distribution Stats',
-    KS_TEST: 'KS Test',
-    CORRELATION_TO_PREDICTION: 'Correlation to Prediction',
-    QUALITY_AND_OUTLIERS: 'Quality & Outliers',
-    ACTION: 'Action'
-};
-
 export const noop = () => {};

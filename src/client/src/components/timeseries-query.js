@@ -1,5 +1,6 @@
 import {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
+import {InView} from 'react-intersection-observer';
 
 import timeseriesClient from 'clients/timeseries';
 
@@ -70,6 +71,12 @@ TimeseriesQuery.defaultProps = {
 };
 
 export default TimeseriesQuery;
+
+export const TimeseriesQueryInView = (props) => (
+    <InView>{({inView, ref}) => inView ? (
+        <div ref={ref}><TimeseriesQuery {...props}/></div>
+    ) : null}</InView>
+);
 
 export const sql = (strings, ...parameters) => {
     const query = parameters.map((p, i) => strings[i] + p).join('') + strings[strings.length - 1];
