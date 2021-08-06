@@ -3,7 +3,6 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import {useParams} from 'react-router-dom';
 
-import {SQL_OFFLINE_RANGE} from 'constants';
 import FilterInput from 'components/filter-input';
 import BarGraph from 'components/bar-graph';
 import AreaGraph from 'components/area-graph';
@@ -86,7 +85,7 @@ const PredictionAnalysis = ({timeStore, filtersStore, modelStore}) => {
                                         1 as join_key
                                     FROM "dioptra-gt-combined-eventstream"
                                     WHERE
-                                        ${SQL_OFFLINE_RANGE}
+                                        "__time" >= TIME_PARSE('2021-07-23T00:00:00.000Z') AND "__time" < TIME_PARSE('2021-07-24T00:00:00.000Z')
                                         AND ${filtersStore.sqlFilters} AND model_id='${modelStore.getModelById(params._id).mlModelId}'
                                     GROUP BY 2
                                   ) AS my_table
@@ -96,7 +95,7 @@ const PredictionAnalysis = ({timeStore, filtersStore, modelStore}) => {
                                         1 as join_key
                                     FROM "dioptra-gt-combined-eventstream"
                                     WHERE
-                                        ${SQL_OFFLINE_RANGE}
+                                        "__time" >= TIME_PARSE('2021-07-23T00:00:00.000Z') AND "__time" < TIME_PARSE('2021-07-24T00:00:00.000Z')
                                         AND ${filtersStore.sqlFilters} AND model_id='${modelStore.getModelById(params._id).mlModelId}'
                                   ) AS my_count_table
                                   ON my_table.join_key = my_count_table.join_key`

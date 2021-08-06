@@ -19,4 +19,18 @@ const useAllSqlFilters = () => {
 
 };
 
+export const useAllButTime = () => {
+    const params = useParams();
+    const activeModelId = params._id;
+
+    if (activeModelId) {
+        const activeModel = modelStore.getModelById(activeModelId);
+
+        return `${filtersStore.sqlFilters} AND ${activeModelId ? `model_id='${activeModel.mlModelId}'` : 'TRUE'}`;
+    } else {
+
+        return `${filtersStore.sqlFilters}`;
+    }
+};
+
 export default useAllSqlFilters;
