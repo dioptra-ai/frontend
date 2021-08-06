@@ -7,7 +7,7 @@ import {Table} from 'react-bootstrap';
 import {useInView} from 'react-intersection-observer';
 
 import TimeseriesQuery, {sql} from 'components/timeseries-query';
-import {IconNames} from 'constants';
+import {IconNames, SQL_OFFLINE_RANGE} from 'constants';
 import {getHexColor} from 'helpers/color-helper';
 import FontIcon from 'components/font-icon';
 import theme from 'styles/theme.module.scss';
@@ -328,7 +328,7 @@ const FeatureIntegrityRow = ({name, timeStore}) => {
                                     *,
                                     "${name}" as my_feature
                                   FROM "dioptra-gt-combined-eventstream"
-                                  WHERE "__time" >= TIME_PARSE('2021-07-28T15:22:59.580Z') AND "__time" < TIME_PARSE('2021-07-28T15:27:59.919Z')
+                                  WHERE ${SQL_OFFLINE_RANGE}
                                 ),
 
                                 my_online_table as (
@@ -398,7 +398,7 @@ const FeatureIntegrityRow = ({name, timeStore}) => {
                                     CAST("${name}" AS FLOAT) as my_feature,
                                     '1' as join_key
                                   FROM "dioptra-gt-combined-eventstream"
-                                  WHERE "__time" >= TIME_PARSE('2021-07-28T15:22:59.580Z') AND "__time" < TIME_PARSE('2021-07-28T15:27:59.919Z')
+                                  WHERE ${SQL_OFFLINE_RANGE}
                                   LIMIT 1000
                                 ),
 
