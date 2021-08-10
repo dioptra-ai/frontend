@@ -7,7 +7,7 @@ import Pagination from './pagination';
 import {Link} from 'react-router-dom';
 import {Paths} from 'configs/route-config';
 import useModal from '../customHooks/useModal';
-import Modal from './modal';
+import Modal from 'react-modal';
 
 const alerts = [
     {id: 0, name: 'Alert logic available here', notify: 'PagerDuty'},
@@ -21,6 +21,16 @@ const alerts = [
     {id: 8, name: 'Alert logic available here', notify: 'PagerDuty'},
     {id: 9, name: 'Alert logic available here', notify: 'Slack'}
 ];
+const customStyles = {
+    content: {
+        top: '50%',
+        left: '50%',
+        right: 'auto',
+        bottom: 'auto',
+        marginRight: '-50%',
+        transform: 'translate(-50%, -50%)'
+    }
+};
 
 const Alert = ({name, notifyBy, onDelete, onEdit}) => {
     return (
@@ -50,6 +60,10 @@ const Alerts = () => {
     const [selectedAlert, setSelectedAlert] = useState(null);
     const [deleteAlertModal, setDeleteAlertModal] = useModal(false);
 
+    const closeModal = () => {
+        setDeleteAlertModal(false);
+    };
+
     const handleAlertDelete = () => {
         // delete alert
         setDeleteAlertModal(false);
@@ -65,7 +79,7 @@ const Alerts = () => {
 
     return (
         <>
-            <div className='alerts'>
+            <div className='alerts' >
                 <div className='header mb-3'>
                     <p className='bold-text fs-3 text-dark'>Alerts</p>
                     <Link to={Paths().ADD_ALERT}>
@@ -97,15 +111,22 @@ const Alerts = () => {
                             }}
                             onEdit={handleAlertEdit}
                         />
+
                     ))}
 
                 </div>
                 <Pagination onPageChange={(page) => handlePageChange(page)} totalPages={8}/>
 
             </div>
-            {deleteAlertModal && <Modal className='bg-white rounded py-5 px-4'>
+            <Modal
+                contentLabel='Example Modal'
+                isOpen={deleteAlertModal}
+                onRequestClose={closeModal}
+                shouldCloseOnOverlayClick={true}
+                style={customStyles}
+            >
                 <p className='text-dark bold-text fs-4 my-5 px-3 text-center'>
-                    Are you sure you want do delete "{selectedAlert.name}" alert?
+                    Are you sure you want do delete {selectedAlert?.name}  alert?
                 </p>
                 <div className='d-flex justify-content-center border-top pt-4'>
                     <Button
@@ -123,7 +144,7 @@ const Alerts = () => {
                         CANCEL
                     </Button>
                 </div>
-            </Modal>}
+            </Modal>
         </>
     );
 };
