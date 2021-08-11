@@ -282,33 +282,37 @@ const Segmentation = ({timeStore}) => {
                                 {
                                     id: 'accuracy',
                                     Header: 'Accuracy Trend',
-                                    Cell: (
-                                        props // eslint-disable-line react/display-name
-                                    ) => <AccuracyCell groupByColumns={groupByColumns} {...props} />
+                                    Cell: Object.assign(
+                                        (props) => (
+                                            <AccuracyCell groupByColumns={groupByColumns} {...props} />
+                                        ),
+                                        {displayName: 'AccuracyCell'}
+                                    )
                                 },
                                 {
                                     accessor: 'sampleSize',
                                     Header: 'Sample Size',
-                                    Cell: (
-                                        props // eslint-disable-line react/display-name
-                                    ) => <Text {...props} />
+                                    Cell: Object.assign((props) => <Text {...props} />, {
+                                        displayName: 'Text'
+                                    })
                                 },
                                 {
                                     id: 'predictioj',
                                     Header: 'Online Predictions',
-                                    Cell: (
-                                        props // eslint-disable-line react/display-name
-                                    ) => (
-                                        <DistributionCell groupByColumns={groupByColumns} {...props} />
+                                    Cell: Object.assign(
+                                        (props) => (
+                                            <DistributionCell groupByColumns={groupByColumns} {...props} />
+                                        ),
+                                        {displayName: 'DistributionCell'}
                                     )
                                 }
                             ].concat(
                                 groupByColumns.map((column) => ({
                                     accessor: (c) => c[column],
                                     Header: column,
-                                    Cell: (
-                                        props // eslint-disable-line react/display-name
-                                    ) => <Text {...props} />
+                                    Cell: Object.assign((props) => <Text {...props} />, {
+                                        displayName: 'ColumnText'
+                                    })
                                 }))
                             )}
                             data={data}
