@@ -254,7 +254,6 @@ const FeatureIntegrityRow = ({name, timeStore}) => {
         <tr className='py-5' ref={ref}>
             <td className={tdClasses} colSpan={2}>
                 <div className='bold-text'>{name}</div>
-                <div className='text-secondary'><small>Lorem Ipsum</small></div>
             </td>
             <td className={tdClasses}>
                 <div className='d-flex align-items-center justify-content-center'>
