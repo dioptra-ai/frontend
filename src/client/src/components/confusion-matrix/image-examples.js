@@ -23,7 +23,6 @@ const ImageExamples = ({onClose, groundtruth, prediction}) => {
                 />
             </div>
             <TimeseriesQuery
-
                 defaultData={[]}
                 renderData={(data) => (
                     <CustomCarousel
@@ -40,7 +39,7 @@ const ImageExamples = ({onClose, groundtruth, prediction}) => {
                     `}
             />
             {exampleInModal && (
-                <Modal>
+                <Modal isOpen={true} onClose={() => setExampleInModal(null)}>
                     <div className='d-flex align-items-center'>
                         <p className='m-0 flex-grow-1'></p>
                         <BtnIcon
@@ -50,11 +49,10 @@ const ImageExamples = ({onClose, groundtruth, prediction}) => {
                             size={15}
                         />
                     </div>
-                    <img alt='Example' className='rounded' src={exampleInModal} width='100%'/>
+                    <img alt='Example' className='rounded' src={exampleInModal} width='100%' />
                 </Modal>
             )}
         </div>
-
     );
 };
 

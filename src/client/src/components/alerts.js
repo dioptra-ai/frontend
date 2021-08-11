@@ -7,7 +7,7 @@ import Pagination from './pagination';
 import {Link} from 'react-router-dom';
 import {Paths} from 'configs/route-config';
 import useModal from '../customHooks/useModal';
-import Modal from 'react-modal';
+import Modal from './modal';
 
 const alerts = [
     {id: 0, name: 'Alert logic available here', notify: 'PagerDuty'},
@@ -21,16 +21,6 @@ const alerts = [
     {id: 8, name: 'Alert logic available here', notify: 'PagerDuty'},
     {id: 9, name: 'Alert logic available here', notify: 'Slack'}
 ];
-const customStyles = {
-    content: {
-        top: '50%',
-        left: '50%',
-        right: 'auto',
-        bottom: 'auto',
-        marginRight: '-50%',
-        transform: 'translate(-50%, -50%)'
-    }
-};
 
 const Alert = ({name, notifyBy, onDelete, onEdit}) => {
     return (
@@ -43,8 +33,18 @@ const Alert = ({name, notifyBy, onDelete, onEdit}) => {
             </div>
             <div className='col fs-6'>{notifyBy ? notifyBy : '-'}</div>
             <div className='col actions-cell'>
-                <FontIcon className='text-dark mx-2' icon={IconNames.EDIT} onClick={onEdit} size={20}/>
-                <FontIcon className='text-dark mx-2' icon={IconNames.BIN} onClick={onDelete} size={20}/>
+                <FontIcon
+                    className='text-dark mx-2'
+                    icon={IconNames.EDIT}
+                    onClick={onEdit}
+                    size={20}
+                />
+                <FontIcon
+                    className='text-dark mx-2'
+                    icon={IconNames.BIN}
+                    onClick={onDelete}
+                    size={20}
+                />
             </div>
         </div>
     );
@@ -65,27 +65,27 @@ const Alerts = () => {
     };
 
     const handleAlertDelete = () => {
-        // delete alert
+    // delete alert
         setDeleteAlertModal(false);
     };
 
     const handleAlertEdit = () => {
-        // edit alert
+    // edit alert
     };
 
     const handlePageChange = () => {
-        // get alerts for incoming page
+    // get alerts for incoming page
     };
 
     return (
         <>
-            <div className='alerts' >
+            <div className='alerts'>
                 <div className='header mb-3'>
                     <p className='bold-text fs-3 text-dark'>Alerts</p>
                     <Link to={Paths().ADD_ALERT}>
                         <Button className='text-white bold-text fs-6' variant='primary'>
-                            <FontIcon className='text-white' icon='Plus' size={10}/>
-                            ADD ALERT
+                            <FontIcon className='text-white' icon='Plus' size={10} />
+              ADD ALERT
                         </Button>
                     </Link>
                 </div>
@@ -111,22 +111,13 @@ const Alerts = () => {
                             }}
                             onEdit={handleAlertEdit}
                         />
-
                     ))}
-
                 </div>
-                <Pagination onPageChange={(page) => handlePageChange(page)} totalPages={8}/>
-
+                <Pagination onPageChange={(page) => handlePageChange(page)} totalPages={8} />
             </div>
-            <Modal
-                contentLabel='Example Modal'
-                isOpen={deleteAlertModal}
-                onRequestClose={closeModal}
-                shouldCloseOnOverlayClick={true}
-                style={customStyles}
-            >
+            <Modal isOpen={deleteAlertModal} onClose={closeModal}>
                 <p className='text-dark bold-text fs-4 my-5 px-3 text-center'>
-                    Are you sure you want do delete {selectedAlert?.name}  alert?
+          Are you sure you want do delete {selectedAlert?.name} alert?
                 </p>
                 <div className='d-flex justify-content-center border-top pt-4'>
                     <Button
@@ -134,14 +125,14 @@ const Alerts = () => {
                         onClick={handleAlertDelete}
                         variant='primary'
                     >
-                        DELETE
+            DELETE
                     </Button>
                     <Button
                         className='text-secondary mx-2 py-2 px-5 bold-text fs-6'
                         onClick={() => setDeleteAlertModal(false)}
                         variant='light'
                     >
-                        CANCEL
+            CANCEL
                     </Button>
                 </div>
             </Modal>
