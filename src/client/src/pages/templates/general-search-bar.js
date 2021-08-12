@@ -96,6 +96,8 @@ const GeneralSearchBar = ({
 };
 
 GeneralSearchBar.propTypes = {
+    history: PropTypes.object.isRequired,
+    location: PropTypes.object.isRequired,
     shouldShowOnlySearchInput: PropTypes.bool,
     timeStore: PropTypes.object
 };

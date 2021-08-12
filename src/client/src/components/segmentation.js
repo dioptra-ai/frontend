@@ -12,7 +12,7 @@ import {
 import timeseriesClient from 'clients/timeseries';
 import {useInView} from 'react-intersection-observer';
 import {setupComponent} from 'helpers/component-helper';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import PropTypes from 'prop-types';
 import Button from 'react-bootstrap/Button';
 import FontIcon from './font-icon';
@@ -24,6 +24,8 @@ import {getHexColor} from 'helpers/color-helper';
 import theme from '../styles/theme.module.scss';
 import TimeseriesQuery, {sql} from 'components/timeseries-query';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
+import qs from 'qs';
+import {withRouter} from 'react-router-dom';
 
 const AddColumnModal = ({onCancel, onApply, allColumns, selected}) => {
     const featureColumns = allColumns.filter((c) => c.startsWith('feature.'));
@@ -249,9 +251,46 @@ _DistributionCell.propTypes = {
 
 const DistributionCell = setupComponent(_DistributionCell);
 
-const Segmentation = ({timeStore}) => {
-    const [groupByColumns, setGroupByColumns] = useState([]);
+const Segmentation = ({timeStore, location, history}) => {
+    const [groupByColumns, setGroupByColumns] = useState(['tag.gender']);
     const [addColModal, setAddColModal] = useModal(false);
+
+    const {feature, tag, ...restQueryString} = useMemo(
+        () => qs.parse(location?.search, {ignoreQueryPrefix: true}),
+        [location?.search]
+    );
+
+    useEffect(() => {
+        const featureCols = (feature || []).map((f) => `feature.${f}`);
+        const tagCols = (tag || []).map((t) => `tag.${t}`);
+
+        const queryCols = [...featureCols, ...tagCols];
+        const filteredQueryCols = queryCols.filter(
+            (col) => !groupByColumns.includes(col)
+        );
+
+        setGroupByColumns([...groupByColumns, ...filteredQueryCols]);
+    }, []);
+
+    const handleApply = (cols) => {
+        setGroupByColumns(cols);
+        setAddColModal(false);
+        const tags = cols
+            .filter((col) => col.startsWith('tag.'))
+            .map((tag) => tag.split('.')[1]);
+        const features = cols
+            .filter((col) => col.startsWith('feature.'))
+            .map((tag) => tag.split('.')[1]);
+
+        history.replace({
+            pathname: location.pathname,
+            search: qs.stringify({
+                ...restQueryString,
+                ...(tags.length ? {tag: tags} : {}),
+                ...(features.length ? {feature: features} : {})
+            })
+        });
+    };
 
     return (
         <div className='my-5'>
@@ -341,10 +380,7 @@ const Segmentation = ({timeStore}) => {
                     renderData={(data) => addColModal && (
                         <AddColumnModal
                             allColumns={data.map((d) => d.column)}
-                            onApply={(cols) => {
-                                setGroupByColumns(cols);
-                                setAddColModal(false);
-                            }}
+                            onApply={handleApply}
                             onCancel={() => setAddColModal(false)}
                             selected={groupByColumns}
                         />
@@ -363,7 +399,9 @@ const Segmentation = ({timeStore}) => {
 };
 
 Segmentation.propTypes = {
+    history: PropTypes.object.isRequired,
+    location: PropTypes.object.isRequired,
     timeStore: PropTypes.object.isRequired
 };
 
-export default setupComponent(Segmentation);
+export default setupComponent(withRouter(Segmentation));
