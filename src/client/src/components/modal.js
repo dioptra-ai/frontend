@@ -17,9 +17,7 @@ const customStyles = {
 const ModalComponent = ({onClose, isOpen, children}) => {
     return (
         <Modal isOpen={isOpen} onRequestClose={onClose} style={customStyles}>
-            {/* <div className='rounded p-4'> */}
             {children}
-            {/* </div> */}
         </Modal>
     );
 };
