@@ -41,7 +41,7 @@ const AddColumnModal = ({onCancel, onApply, allColumns, selected}) => {
     };
 
     return (
-        <Modal className='bg-white rounded p-4'>
+        <Modal isOpen onClose={onCancel}>
             <p className='text-dark fw-bold fs-4 pb-3 mb-4 border-bottom border-mercury'>
         Add or remove columns from the table
             </p>

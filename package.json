@@ -68,6 +68,7 @@
     "react-bootstrap-daterangepicker": "^7.0.0",
     "react-dom": "^17.0.2",
     "react-intersection-observer": "^8.32.0",
+    "react-modal": "^3.14.3",
     "react-multi-carousel": "^2.6.3",
     "react-router-dom": "^5.2.0",
     "react-table": "^7.7.0",

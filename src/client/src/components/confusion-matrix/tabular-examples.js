@@ -56,7 +56,7 @@ const TabularExamples = ({onClose, groundtruth, prediction}) => {
                 />
             </div>
             {exampleInModal && (
-                <Modal>
+                <Modal isOpen={true} onClose={() => setExampleInModal(null)}>
                     <div className='d-flex align-items-center'>
                         <p className='m-0 flex-grow-1'></p>
                         <BtnIcon

@@ -1,18 +1,31 @@
 import PropTypes from 'prop-types';
+import Modal from 'react-modal';
 
-const Modal = ({className = '', children}) => {
+Modal.setAppElement('#root');
+
+const customStyles = {
+    content: {
+        top: '50%',
+        left: '50%',
+        right: 'auto',
+        bottom: 'auto',
+        marginRight: '-50%',
+        transform: 'translate(-50%, -50%)'
+    }
+};
+
+const ModalComponent = ({onClose, isOpen, children}) => {
     return (
-        <div className='custom-modal d-flex justify-content-center align-items-center p-3'>
-            <div className={`custom-modal-content ${className} p-3`}>
-                {children}
-            </div>
-        </div>
+        <Modal isOpen={isOpen} onRequestClose={onClose} style={customStyles}>
+            {children}
+        </Modal>
     );
 };
 
-Modal.propTypes = {
+ModalComponent.propTypes = {
     children: PropTypes.array,
-    className: PropTypes.string
+    isOpen: PropTypes.bool,
+    onClose: PropTypes.func
 };
 
-export default Modal;
+export default ModalComponent;
