@@ -1,23 +1,26 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import Menu from '../../components/menu';
 import PropTypes from 'prop-types';
+import {setupComponent} from '../../helpers/component-helper';
+import {Redirect} from 'react-router-dom';
+import {Paths} from '../../configs/route-config';
 
-const AuthorizedTemplate = ({children}) => {
-    useEffect(() => {
-    //LOGIN: Check user logged in status in app's global state, if false then redirect to Paths.LOGIN
-    });
+const AuthorizedTemplate = ({children, authStore}) => {
+    console.log('status: ', authStore.authStatus);
 
-    return (
+    return authStore.authStatus ? (
         <div>
             <Menu />
-            <div className='px-0 bg-white authorized-content'>{children}
-            </div>
+            <div className='px-0 bg-white authorized-content'>{children}</div>
         </div>
+    ) : (
+        <Redirect to={Paths().LOGIN} />
     );
 };
 
 AuthorizedTemplate.propTypes = {
+    authStore: PropTypes.object,
     children: PropTypes.object
 };
 
-export default AuthorizedTemplate;
+export default setupComponent(AuthorizedTemplate);

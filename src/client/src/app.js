@@ -19,7 +19,7 @@ const App = () => {
                     />
                 ))}
                 <Route path='/'>
-                    <Redirect to={Paths().MODELS} />
+                    <Redirect to={Paths().LOGIN} />
                 </Route>
             </Switch>
         </>

@@ -4,13 +4,15 @@ import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Button from 'react-bootstrap/Button';
 import Logo from '../components/logo';
-import {Link} from 'react-router-dom';
+import {Link, Redirect} from 'react-router-dom';
 import Tooltip from '../components/tooltip';
 import FontIcon from '../components/font-icon';
 import {setupComponent} from '../helpers/component-helper';
 import {IconNames} from '../constants';
+import {Paths} from '../configs/route-config';
+import {PropTypes} from 'mobx-react';
 
-const Login = () => {
+const Login = ({authStore}) => {
     const [loginData, setLoginData] = useState({email: '', password: ''});
     const [emailError, setEmailError] = useState('');
     const [passwordError, setPasswordError] = useState('');
@@ -23,15 +25,19 @@ const Login = () => {
         } else if (loginData.password === '') {
             setPasswordError('Please enter your password.');
         } else {
-            setEmailError('Something went wrong!');
-            setPasswordError('Something went wrong!');
+            authStore.tryLogin({username: loginData.email, password: loginData.password});
         }
     };
 
-    return (
-        <Container className='login fs-6 d-flex align-items-center justify-content-center' fluid>
+    return authStore.authStatus ? (
+        <Redirect to={Paths().MODELS} />
+    ) : (
+        <Container
+            className='login fs-6 d-flex align-items-center justify-content-center'
+            fluid
+        >
             <div className='login-form d-flex flex-column align-items-center'>
-                <Logo className='mb-5' height={177} width={270}/>
+                <Logo className='mb-5' height={177} width={270} />
                 <p className='text-dark bold-text fs-3 mb-4'>Log in</p>
                 <Form autoComplete='off' className='w-100' onSubmit={handleSubmit}>
                     <InputGroup className='mt-3'>
@@ -46,13 +52,17 @@ const Login = () => {
                             type='text'
                             value={loginData.email}
                         />
-                        {emailError && <FontIcon
-                            className='text-warning error-icon'
-                            icon={IconNames.WARNING}
-                            size={20}
-                        />}
+                        {emailError && (
+                            <FontIcon
+                                className='text-warning error-icon'
+                                icon={IconNames.WARNING}
+                                size={20}
+                            />
+                        )}
                     </InputGroup>
-                    {emailError && <Tooltip className='p-3 mt-2' color='warning' text={emailError}/>}
+                    {emailError && (
+                        <Tooltip className='p-3 mt-2' color='warning' text={emailError} />
+                    )}
                     <InputGroup className='mt-3'>
                         <Form.Control
                             className={`bg-light text-secondary ${passwordError ? 'error' : ''}`}
@@ -65,33 +75,41 @@ const Login = () => {
                             type='password'
                             value={loginData.password}
                         />
-                        {passwordError && <FontIcon
-                            className='text-warning error-icon'
-                            icon={IconNames.WARNING}
-                            size={20}
-                        />}
+                        {passwordError && (
+                            <FontIcon
+                                className='text-warning error-icon'
+                                icon={IconNames.WARNING}
+                                size={20}
+                            />
+                        )}
                     </InputGroup>
-                    {passwordError && <Tooltip className='p-3 mt-2' color='warning' text={passwordError}/>}
+                    {passwordError && (
+                        <Tooltip className='p-3 mt-2' color='warning' text={passwordError} />
+                    )}
                     <Button
                         className='w-100 text-white btn-submit mt-3'
                         type='submit'
                         variant='primary'
                     >
-                            LOG IN
+            LOG IN
                     </Button>
                 </Form>
                 <Link className='text-dark mt-3' to='forgot-password'>
-                        Forgot password?
+          Forgot password?
                 </Link>
                 <p className='text-secondary text-center border-top border-muted mt-5 p-2'>
-                            If you need help with log in, please contact us at{' '}
+          If you need help with log in, please contact us at{' '}
                     <a className='text-secondary' href='mailto:support@dioptra.com'>
-                            support@dioptra.com
+            support@dioptra.com
                     </a>
                 </p>
             </div>
         </Container>
     );
+};
+
+Login.propTypes = {
+    authStore: PropTypes.object
 };
 
 export default setupComponent(Login);
