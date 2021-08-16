@@ -4,5 +4,8 @@ import {timeStore} from './time-store';
 import {filtersStore} from './filters-store';
 
 export default {
-    modelStore, errorStore, timeStore, filtersStore
+    modelStore,
+    errorStore,
+    timeStore,
+    filtersStore
 };

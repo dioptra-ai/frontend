@@ -105,7 +105,7 @@ const Text = ({value}) => {
 };
 
 Text.propTypes = {
-    value: PropTypes.string
+    value: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
 };
 
 const _AccuracyCell = ({groupByColumns, timeStore, row}) => {
@@ -255,16 +255,14 @@ const Segmentation = ({timeStore, location, history}) => {
     const [groupByColumns, setGroupByColumns] = useState(['tag.gender']);
     const [addColModal, setAddColModal] = useModal(false);
 
-    const {feature, tag, ...restQueryString} = useMemo(
-        () => qs.parse(location?.search, {ignoreQueryPrefix: true}),
+    const {segmentation, ...restQueryString} = useMemo(
+        () => qs.parse(location?.search, {ignoreQueryPrefix: true, arrayFormat: 'comma'}),
         [location?.search]
     );
 
     useEffect(() => {
-        const featureCols = (feature || []).map((f) => `feature.${f}`);
-        const tagCols = (tag || []).map((t) => `tag.${t}`);
+        const queryCols = segmentation ? segmentation.split(',') : [];
 
-        const queryCols = [...featureCols, ...tagCols];
         const filteredQueryCols = queryCols.filter(
             (col) => !groupByColumns.includes(col)
         );
@@ -275,20 +273,16 @@ const Segmentation = ({timeStore, location, history}) => {
     const handleApply = (cols) => {
         setGroupByColumns(cols);
         setAddColModal(false);
-        const tags = cols
-            .filter((col) => col.startsWith('tag.'))
-            .map((tag) => tag.split('.')[1]);
-        const features = cols
-            .filter((col) => col.startsWith('feature.'))
-            .map((tag) => tag.split('.')[1]);
 
         history.replace({
             pathname: location.pathname,
-            search: qs.stringify({
-                ...restQueryString,
-                ...(tags.length ? {tag: tags} : {}),
-                ...(features.length ? {feature: features} : {})
-            })
+            search: qs.stringify(
+                {
+                    ...restQueryString,
+                    ...(cols.length ? {segmentation: cols} : {})
+                },
+                {arrayFormat: 'comma', encode: false}
+            )
         });
     };
 
