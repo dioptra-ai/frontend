@@ -12,7 +12,7 @@ import {
 import timeseriesClient from 'clients/timeseries';
 import {useInView} from 'react-intersection-observer';
 import {setupComponent} from 'helpers/component-helper';
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import Button from 'react-bootstrap/Button';
 import FontIcon from './font-icon';
@@ -24,8 +24,6 @@ import {getHexColor} from 'helpers/color-helper';
 import theme from '../styles/theme.module.scss';
 import TimeseriesQuery, {sql} from 'components/timeseries-query';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
-import qs from 'qs';
-import {withRouter} from 'react-router-dom';
 
 const AddColumnModal = ({onCancel, onApply, allColumns, selected}) => {
     const featureColumns = allColumns.filter((c) => c.startsWith('feature.'));
@@ -251,39 +249,29 @@ _DistributionCell.propTypes = {
 
 const DistributionCell = setupComponent(_DistributionCell);
 
-const Segmentation = ({timeStore, location, history}) => {
-    const [groupByColumns, setGroupByColumns] = useState(['tag.gender']);
+const Segmentation = ({timeStore}) => {
+    const [groupByColumns, setGroupByColumns] = useState([]);
     const [addColModal, setAddColModal] = useModal(false);
 
-    const {segmentation, ...restQueryString} = useMemo(
-        () => qs.parse(location?.search, {ignoreQueryPrefix: true, arrayFormat: 'comma'}),
-        [location?.search]
-    );
+    const url = new URL(window.location);
 
     useEffect(() => {
-        const queryCols = segmentation ? segmentation.split(',') : [];
+        const queryCols = url.searchParams.get('segmentation');
 
-        const filteredQueryCols = queryCols.filter(
-            (col) => !groupByColumns.includes(col)
-        );
-
-        setGroupByColumns([...groupByColumns, ...filteredQueryCols]);
+        setGroupByColumns([...queryCols ? queryCols.split(',') : []]);
     }, []);
 
     const handleApply = (cols) => {
         setGroupByColumns(cols);
         setAddColModal(false);
 
-        history.replace({
-            pathname: location.pathname,
-            search: qs.stringify(
-                {
-                    ...restQueryString,
-                    ...(cols.length ? {segmentation: cols} : {})
-                },
-                {arrayFormat: 'comma', encode: false}
-            )
-        });
+        if (url.searchParams.has('segmentation')) {
+            url.searchParams.set('segmentation', cols);
+        } else {
+            url.searchParams.append('segmentation', cols);
+        }
+
+        window.history.pushState({}, null, url);
     };
 
     return (
@@ -393,9 +381,7 @@ const Segmentation = ({timeStore, location, history}) => {
 };
 
 Segmentation.propTypes = {
-    history: PropTypes.object.isRequired,
-    location: PropTypes.object.isRequired,
     timeStore: PropTypes.object.isRequired
 };
 
-export default setupComponent(withRouter(Segmentation));
+export default setupComponent(Segmentation);

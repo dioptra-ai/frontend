@@ -1,6 +1,5 @@
 import moment from 'moment';
 import {autorun, makeAutoObservable} from 'mobx';
-import qs from 'qs';
 
 import {lastHours, lastSeconds} from 'helpers/date-helper';
 import TimeseriesClient from 'clients/timeseries';
@@ -48,12 +47,11 @@ class TimeStore {
   }
 
   constructor(initialValue) {
-      const {search} = window.location;
+      const search = new URL(window.location).searchParams;
 
       if (search) {
-          const {startTime, endTime} = qs.parse(search, {
-              ignoreQueryPrefix: true
-          });
+          const startTime = search.get('startTime');
+          const endTime = search.get('endTime');
 
           if (startTime) this.startMoment = moment(startTime);
           if (endTime) this.endMoment = moment(endTime);
@@ -75,23 +73,20 @@ class TimeStore {
       // Date picker granulatiry is 1 minute == 60000 ms.
       this.refreshable = moment().diff(this.endMoment) <= 60000;
 
-      const {origin, pathname, search} = window.location;
+      const url = new URL(window.location);
 
-      const {startTime, endTime, ...rest} = qs.parse(search, {
-          ignoreQueryPrefix: true
-      });
+      if (url.searchParams.has('startTime')) {
+          url.searchParams.set('startTime', moment(start).toISOString());
+      } else {
+          url.searchParams.append('startTime', moment(start).toISOString());
+      }
+      if (url.searchParams.has('endTime')) {
+          url.searchParams.set('endTime', moment(end).toISOString());
+      } else {
+          url.searchParams.append('endTime', moment(end).toISOString());
+      }
 
-      const query = qs.stringify({
-          startTime: moment(start).toISOString() || startTime,
-          endTime: moment(end).toISOString() || endTime,
-          ...rest
-      });
-
-      const href = `${origin}${pathname}?${query}`;
-
-      window.history.pushState({}, null, href);
-
-      localStorage.setItem('timeStore', JSON.stringify(this));
+      window.history.pushState({}, null, url);
   }
 
   refreshTimeRange() {

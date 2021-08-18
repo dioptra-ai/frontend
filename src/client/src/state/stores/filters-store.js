@@ -1,29 +1,16 @@
 import {autorun, makeAutoObservable} from 'mobx';
-import qs from 'qs';
 
 class FiltersStore {
   // [{key, value}]
   f = [];
 
   constructor(initialValue) {
-      const {search} = window.location;
+      const search = new URL(window.location).searchParams;
 
       if (search) {
-          const {filters} = qs.parse(search, {
-              ignoreQueryPrefix: true
-          });
+          const filters = search.get('filters');
 
-          const parsedFilters = filters ? JSON.parse(filters) : {};
-          const queryFilters = [];
-
-          Object.keys(parsedFilters).forEach((key) => {
-              if (Array.isArray(parsedFilters[key])) {
-                  parsedFilters[key].forEach((value) => {
-                      queryFilters.push({key, value});
-                  });
-              } else queryFilters.push({key, value: parsedFilters[key]});
-          });
-          this.f = queryFilters;
+          if (filters) this.f = JSON.parse(filters);
       } else if (initialValue) {
           this.f = JSON.parse(initialValue).f;
       }
@@ -35,26 +22,15 @@ class FiltersStore {
   }
 
   set filters(f) {
-      const fObj = f.reduce((obj, {key, value}) => {
-          if (obj.hasOwnProperty(key)) return {...obj, [key]: [obj[key], value]};
+      const url = new URL(window.location);
 
-          return {...obj, [key]: value};
-      }, {});
+      if (url.searchParams.has('filters')) {
+          url.searchParams.set('filters', JSON.stringify(f));
+      } else {
+          url.searchParams.append('filters', JSON.stringify(f));
+      }
 
-      const {origin, pathname, search} = window.location;
-
-      const {filters, ...rest} = qs.parse(search, {
-          ignoreQueryPrefix: true
-      });
-
-      const query = qs.stringify({
-          filters: JSON.stringify(fObj) || filters,
-          ...rest
-      });
-
-      const href = `${origin}${pathname}?${query}`;
-
-      window.history.pushState({}, null, href);
+      window.history.pushState({}, null, url);
 
       this.f = f;
   }
