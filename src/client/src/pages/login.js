@@ -1,4 +1,5 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
+import PropTypes from 'prop-types';
 import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
@@ -10,7 +11,6 @@ import FontIcon from '../components/font-icon';
 import {setupComponent} from '../helpers/component-helper';
 import {IconNames} from '../constants';
 import {Paths} from '../configs/route-config';
-import {PropTypes} from 'mobx-react';
 
 const Login = ({authStore}) => {
     const [loginData, setLoginData] = useState({email: '', password: ''});
@@ -28,6 +28,13 @@ const Login = ({authStore}) => {
             authStore.tryLogin({username: loginData.email, password: loginData.password});
         }
     };
+
+    useEffect(() => {
+        if (authStore.authError) {
+            setEmailError(authStore.authError);
+            setPasswordError(authStore.authError);
+        }
+    }, [authStore.authError]);
 
     return authStore.authStatus ? (
         <Redirect to={Paths().MODELS} />

@@ -13,6 +13,7 @@ userSchema.statics.initializeCollection = async () => {
 
     if (!await User.exists()) {
         await User.create({username: 'admin', password: 'admin'});
+        await User.create({username: 'admin1', password: 'admin1'});
 
         console.log('Admin User Created');
     }

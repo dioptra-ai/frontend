@@ -1,31 +1,30 @@
 /**
- * @param  {String} route endpoint of auth controller
+ * @param  {String} method http method
  * @param  {Object} data can be 'object'
  */
-const AuthenticationClient = (route, data = {}) => {
+const UserClient = (method, data = {}) => {
     return window
-        .fetch(`/api/auth/${route}`, {
+        .fetch('/api/user', {
             headers: {
                 'content-type': 'application/json'
             },
             body: JSON.stringify(data),
-            method: 'post'
+            method
         })
         .then((res) => {
             if (res.ok) {
                 return res.json();
             } else {
-                throw new Error('Wrong username or password');
+                throw new Error('Username already taken');
             }
         })
         .catch((resJson) => {
-            if (resJson.name === 'Error') {
+            if (resJson.message) {
                 throw new Error(resJson.message);
             } else {
-                console.log(resJson);
                 throw new Error(resJson);
             }
         });
 };
 
-export default AuthenticationClient;
+export default UserClient;

@@ -6,8 +6,6 @@ import {Redirect} from 'react-router-dom';
 import {Paths} from '../../configs/route-config';
 
 const AuthorizedTemplate = ({children, authStore}) => {
-    console.log('status: ', authStore.authStatus);
-
     return authStore.authStatus ? (
         <div>
             <Menu />
