@@ -31,85 +31,99 @@ const granularityLadderMs = [
 const [initialStart, initialEnd] = lastHours(24);
 
 class TimeStore {
-    startMoment = moment(initialStart);
+  startMoment = moment(initialStart);
 
-    endMoment = moment(initialEnd);
+  endMoment = moment(initialEnd);
 
-    // This is true for all "Last xxx minute/hours/days" type time ranges, and false for custom, fixed ranges.
-    refreshable = true;
+  // This is true for all "Last xxx minute/hours/days" type time ranges, and false for custom, fixed ranges.
+  refreshable = true;
 
-    get start() {
+  get start() {
+      return this.startMoment;
+  }
 
-        return this.startMoment;
-    }
+  get end() {
+      return this.endMoment;
+  }
 
-    get end() {
+  constructor(initialValue) {
+      const search = new URL(window.location).searchParams;
 
-        return this.endMoment;
-    }
+      if (search) {
+          const startTime = search.get('startTime');
+          const endTime = search.get('endTime');
 
-    constructor(initialValue) {
-        if (initialValue) {
-            const initialStore = JSON.parse(initialValue);
+          if (startTime) this.startMoment = moment(startTime);
+          if (endTime) this.endMoment = moment(endTime);
+      } else if (initialValue) {
+          const initialStore = JSON.parse(initialValue);
 
-            this.startMoment = moment(initialStore.startMoment);
-            this.endMoment = moment(initialStore.endMoment);
-            this.refreshable = initialStore.refreshable;
-        }
-        makeAutoObservable(this);
-    }
+          this.startMoment = moment(initialStore.startMoment);
+          this.endMoment = moment(initialStore.endMoment);
+          this.refreshable = initialStore.refreshable;
+      }
+      makeAutoObservable(this);
+  }
 
-    setTimeRange({start, end}) {
+  setTimeRange({start, end}) {
+      this.startMoment = moment(start);
+      this.endMoment = moment(end);
 
-        this.startMoment = moment(start);
-        this.endMoment = moment(end);
+      // If the end is very close to now, assume we mean now and make it refreshable.
+      // Date picker granulatiry is 1 minute == 60000 ms.
+      this.refreshable = moment().diff(this.endMoment) <= 60000;
 
-        // If the end is very close to now, assume we mean now and make it refreshable.
-        // Date picker granulatiry is 1 minute == 60000 ms.
-        this.refreshable = moment().diff(this.endMoment) <= 60000;
+      const url = new URL(window.location);
 
-        localStorage.setItem('timeStore', JSON.stringify(this));
-    }
+      if (url.searchParams.has('startTime')) {
+          url.searchParams.set('startTime', moment(start).toISOString());
+      } else {
+          url.searchParams.append('startTime', moment(start).toISOString());
+      }
+      if (url.searchParams.has('endTime')) {
+          url.searchParams.set('endTime', moment(end).toISOString());
+      } else {
+          url.searchParams.append('endTime', moment(end).toISOString());
+      }
 
-    refreshTimeRange() {
-        if (this.refreshable) {
-            const spanMillisec = this.endMoment.diff(this.startMoment);
-            const [start, end] = lastSeconds(spanMillisec / 1000);
+      window.history.pushState({}, null, url);
+  }
 
-            this.setTimeRange({start, end});
-        }
-    }
+  refreshTimeRange() {
+      if (this.refreshable) {
+          const spanMillisec = this.endMoment.diff(this.startMoment);
+          const [start, end] = lastSeconds(spanMillisec / 1000);
 
-    get rangeMillisec() {
+          this.setTimeRange({start, end});
+      }
+  }
 
-        return [this.startMoment.valueOf(), this.endMoment.valueOf()];
-    }
+  get rangeMillisec() {
+      return [this.startMoment.valueOf(), this.endMoment.valueOf()];
+  }
 
-    get sqlTimeFilter() {
+  get sqlTimeFilter() {
+      return `"__time" >= TIME_PARSE('${this.startMoment.toISOString()}') AND "__time" < TIME_PARSE('${this.endMoment.toISOString()}')`;
+  }
 
-        return `"__time" >= TIME_PARSE('${this.startMoment.toISOString()}') AND "__time" < TIME_PARSE('${this.endMoment.toISOString()}')`;
-    }
+  // TODO: Find a better way to deal with sparse data than adding 10x the max number of points.
+  getTimeGranularityMs(maxTicks = 3 * SQL_OUTER_LIMIT) {
+      const rangeSeconds = this.endMoment.diff(this.startMoment) / 1000;
+      const DURATION_MAX_SEC_TO_GRANULARITY = granularityLadderMs.map((duration) => {
+          return {
+              maxSpanSec: maxTicks * duration.asSeconds(),
+              granularity: duration
+          };
+      });
 
-    // TODO: Find a better way to deal with sparse data than adding 10x the max number of points.
-    getTimeGranularityMs(maxTicks = 3 * SQL_OUTER_LIMIT) {
-        const rangeSeconds = this.endMoment.diff(this.startMoment) / 1000;
-        const DURATION_MAX_SEC_TO_GRANULARITY = granularityLadderMs.map((duration) => {
+      for (const {maxSpanSec, granularity} of DURATION_MAX_SEC_TO_GRANULARITY) {
+          if (rangeSeconds < maxSpanSec) {
+              return granularity;
+          }
+      }
 
-            return {
-                maxSpanSec: maxTicks * duration.asSeconds(),
-                granularity: duration
-            };
-        });
-
-        for (const {maxSpanSec, granularity} of DURATION_MAX_SEC_TO_GRANULARITY) {
-            if (rangeSeconds < maxSpanSec) {
-
-                return granularity;
-            }
-        }
-
-        return moment.duration(1, 'month');
-    }
+      return moment.duration(1, 'month');
+  }
 }
 
 export const timeStore = new TimeStore(localStorage.getItem('timeStore'));

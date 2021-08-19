@@ -8,12 +8,14 @@ import {Provider} from 'mobx-react';
 import ErrorBoundary from 'components/error-boundary';
 
 ReactDOM.render(
-    <ErrorBoundary renderError={(e) => {
-        console.error('Error, clearing local storage:', e);
-        localStorage.clear();
+    <ErrorBoundary
+        renderError={(e) => {
+            console.error('Error, clearing local storage:', e);
+            localStorage.clear();
 
-        return null;
-    }}>
+            return null;
+        }}
+    >
         <Router>
             <Provider {...state}>
                 <App />

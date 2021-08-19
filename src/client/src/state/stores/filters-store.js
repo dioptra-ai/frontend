@@ -1,44 +1,61 @@
 import {autorun, makeAutoObservable} from 'mobx';
 
 class FiltersStore {
-    // [{key, value}]
-    f = [];
+  // [{key, value}]
+  f = [];
 
-    constructor(initialValue) {
-        if (initialValue) {
-            this.f = JSON.parse(initialValue).f;
-        }
-        makeAutoObservable(this);
-    }
+  constructor(initialValue) {
+      const search = new URL(window.location).searchParams;
 
-    get filters() {
+      if (search) {
+          const filters = search.get('filters');
 
-        return this.f;
-    }
+          if (filters) this.f = JSON.parse(filters);
+      } else if (initialValue) {
+          this.f = JSON.parse(initialValue).f;
+      }
+      makeAutoObservable(this);
+  }
 
-    set filters(f) {
-        this.f = f;
-    }
+  get filters() {
+      return this.f;
+  }
 
-    get sqlFilters() {
-        const keyValues = this.f.reduce((agg, {key, value}) => {
-            if (!agg[key]) {
-                agg[key] = [];
-            }
+  set filters(f) {
+      const url = new URL(window.location);
 
-            agg[key].push(value);
+      if (url.searchParams.has('filters')) {
+          url.searchParams.set('filters', JSON.stringify(f));
+      } else {
+          url.searchParams.append('filters', JSON.stringify(f));
+      }
 
-            return agg;
-        }, {});
+      window.history.pushState({}, null, url);
 
-        const filters = Object.keys(keyValues).map((key) => {
-            const values = keyValues[key];
+      this.f = f;
+  }
 
-            return `(${values.map((v) => `"${key}"='${v}'`).join(' OR ')})`;
-        }).join(' AND ');
+  get sqlFilters() {
+      const keyValues = this.f.reduce((agg, {key, value}) => {
+          if (!agg[key]) {
+              agg[key] = [];
+          }
 
-        return filters || ' TRUE ';
-    }
+          agg[key].push(value);
+
+          return agg;
+      }, {});
+
+      const filters = Object.keys(keyValues)
+          .map((key) => {
+              const values = keyValues[key];
+
+              return `(${values.map((v) => `"${key}"='${v}'`).join(' OR ')})`;
+          })
+          .join(' AND ');
+
+      return filters || ' TRUE ';
+  }
 }
 
 export const filtersStore = new FiltersStore(localStorage.getItem('filtersStore'));

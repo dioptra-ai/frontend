@@ -9,30 +9,37 @@ import TextInput from 'components/text-input';
 import {setupComponent} from 'helpers/component-helper';
 
 const GeneralSearchBar = ({shouldShowOnlySearchInput, timeStore}) => {
-
     return (
         <div className='py-3 px-4 d-flex align-items-center border-bottom'>
-            <FontIcon className='text-secondary' icon={IconNames.SEARCH} size={25}/>
+            <FontIcon className='text-secondary' icon={IconNames.SEARCH} size={25} />
             <div className='flex-grow-1 mx-3'>
-                <TextInput className='form-control border-0 py-3 fs-5' placeholder='Search'/>
+                <TextInput
+                    className='form-control border-0 py-3 fs-5'
+                    placeholder='Search'
+                />
             </div>
-            {shouldShowOnlySearchInput ? null :
+            {shouldShowOnlySearchInput ? null : (
                 <>
                     <DateTimeRangePicker
-                        end={timeStore.end}
-                        onChange={({start, end}) => timeStore.setTimeRange({start, end})}
-                        start={timeStore.start}
+                        end={timeStore.endMoment}
+                        onChange={(start, end) => timeStore.setTimeRange(start, end)}
+                        start={timeStore.startMoment}
                     />
                     <Button
-                        className='text-white d-flex align-items-center justify-content-between px-4 py-2 ms-3' disabled={!timeStore.refreshable}
+                        className='text-white d-flex align-items-center justify-content-between px-4 py-2 ms-3'
+                        disabled={!timeStore.refreshable}
                         onClick={() => timeStore.refreshTimeRange()}
                         variant='primary'
                     >
-                        <FontIcon className='text-white m-2' icon={IconNames.REFRESH} size={15}/>
+                        <FontIcon
+                            className='text-white m-2'
+                            icon={IconNames.REFRESH}
+                            size={15}
+                        />
                         <span className='fs-6 bold-text'>REFRESH</span>
                     </Button>
                 </>
-            }
+            )}
         </div>
     );
 };

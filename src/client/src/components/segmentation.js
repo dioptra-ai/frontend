@@ -103,7 +103,7 @@ const Text = ({value}) => {
 };
 
 Text.propTypes = {
-    value: PropTypes.string
+    value: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
 };
 
 const _AccuracyCell = ({groupByColumns, timeStore, row}) => {
@@ -253,6 +253,27 @@ const Segmentation = ({timeStore}) => {
     const [groupByColumns, setGroupByColumns] = useState([]);
     const [addColModal, setAddColModal] = useModal(false);
 
+    const url = new URL(window.location);
+
+    useEffect(() => {
+        const queryCols = url.searchParams.get('segmentation');
+
+        setGroupByColumns([...queryCols ? queryCols.split(',') : []]);
+    }, []);
+
+    const handleApply = (cols) => {
+        setGroupByColumns(cols);
+        setAddColModal(false);
+
+        if (url.searchParams.has('segmentation')) {
+            url.searchParams.set('segmentation', cols);
+        } else {
+            url.searchParams.append('segmentation', cols);
+        }
+
+        window.history.pushState({}, null, url);
+    };
+
     return (
         <div className='my-5'>
             <h3 className='text-dark fw-bold fs-3 mb-3'>Segmentation</h3>
@@ -341,10 +362,7 @@ const Segmentation = ({timeStore}) => {
                     renderData={(data) => addColModal && (
                         <AddColumnModal
                             allColumns={data.map((d) => d.column)}
-                            onApply={(cols) => {
-                                setGroupByColumns(cols);
-                                setAddColModal(false);
-                            }}
+                            onApply={handleApply}
                             onCancel={() => setAddColModal(false)}
                             selected={groupByColumns}
                         />
