@@ -41,16 +41,6 @@ const Profile = ({authStore}) => {
         }
     }, [authStore.authError]);
 
-    useEffect(() => {
-        if (authStore.success) {
-            setProfileData({
-                email: '',
-                password: '',
-                confirmPassword: ''
-            });
-        }
-    }, [authStore.success]);
-
     return (
         <Container
             className='login fs-6 d-flex align-items-center justify-content-center'
