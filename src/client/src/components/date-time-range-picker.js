@@ -26,7 +26,7 @@ const initialSettings = {
     applyButtonClasses: 'btn-primary px-4 py-2 text-white m-2',
     cancelButtonClasses: 'btn-light px-4 py-2 text-secondary m-2'
 };
-const DateTimeRangePicker = ({onChange, start, end, settings}) => {
+const DateTimeRangePicker = ({onChange, start, end, classNames, datePickerSettings, width}) => {
     const [isCalendarVisible, setIsCalendarVisible] = useState(false);
 
     const handleChange = (newStart, newEnd) => {
@@ -36,18 +36,18 @@ const DateTimeRangePicker = ({onChange, start, end, settings}) => {
     };
 
     return (
-        <div style={{width: settings.width}}>
+        <div style={{width}}>
             <DateRangePicker initialSettings={{
                 startDate: start,
                 endDate: end,
                 ...initialSettings,
-                ...settings.datePicker
+                ...datePickerSettings
             }}
             onCallback={handleChange}
             onHide={() => setIsCalendarVisible(false)}
             onShow={() => setIsCalendarVisible(true)}>
 
-                <div className={`d-flex border border-secondary py-1 px-3 align-items-center rounded-3 ${settings.classNames} ${settings.bgColorClass || ''}`}>
+                <div className={`d-flex border border-secondary py-1 px-3 align-items-center rounded-3 ${classNames}`}>
                     <FontIcon className='text-secondary' icon={IconNames.DATE} size={25}/>
                     <span className='text-secondary py-2 px-4 fs-5'>
                         {formatDateTimeRange(start, end)}</span>
@@ -59,19 +59,18 @@ const DateTimeRangePicker = ({onChange, start, end, settings}) => {
 };
 
 DateTimeRangePicker.defaultProps = {
-    settings: {
-        bgColorClass: null,
-        width: 'auto',
-        classNames: '',
-        datePicker: {}
-    }
+    classNames: '',
+    datePickerSettings: {},
+    width: 'auto'
 };
 
 DateTimeRangePicker.propTypes = {
+    classNames: PropTypes.string,
+    datePickerSettings: PropTypes.object,
     end: PropTypes.object,
     onChange: PropTypes.func,
-    settings: {bgColorClass: PropTypes.string, width: PropTypes.string, classNames: '', datePicker: PropTypes.object},
-    start: PropTypes.object
+    start: PropTypes.object,
+    width: PropTypes.string
 };
 
 export default DateTimeRangePicker;

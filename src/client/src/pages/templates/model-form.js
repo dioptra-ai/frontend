@@ -2,11 +2,10 @@ import React, {useEffect, useState} from 'react';
 import {Button, Container, Form, InputGroup} from 'react-bootstrap';
 import moment from 'moment';
 import PropTypes from 'prop-types';
-import Tooltip from '../../components/tooltip';
-
-import FontIcon from '../../components/font-icon';
-import {IconNames} from '../../constants';
-import DateTimeRangePicker from '../../components/date-time-range-picker';
+import Tooltip from 'components/tooltip';
+import FontIcon from 'components/font-icon';
+import {IconNames} from 'constants';
+import DateTimeRangePicker from 'components/date-time-range-picker';
 import {setupComponent} from 'helpers/component-helper';
 
 const ModelForm = ({modelStore, initialValue, onSubmit}) => {
@@ -18,7 +17,8 @@ const ModelForm = ({modelStore, initialValue, onSubmit}) => {
         referencePeriod: {
             start: moment(),
             end: moment()
-        }
+        },
+        ...initialValue
     });
 
     const [errors, setErrors] = useState({});
@@ -34,9 +34,6 @@ const ModelForm = ({modelStore, initialValue, onSubmit}) => {
         onSubmit(formData);
     };
 
-    useEffect(() => {
-        setFormData({...formData, ...initialValue});
-    }, [initialValue]);
 
     useEffect(() => {
         const errObj = JSON.parse(modelStore.error);
@@ -54,17 +51,14 @@ const ModelForm = ({modelStore, initialValue, onSubmit}) => {
                 <Form autoComplete='off' className='w-100'>
                     <InputGroup className='mt-3 text-center'>
                         <DateTimeRangePicker
+                            classNames = {'justify-content-around bg-light'}
+                            datePickerSettings = {{
+                                opens: 'center'
+                            }}
                             end={moment(formData?.referencePeriod?.end)}
                             onChange={onDateChange}
-                            settings={{
-                                bgColorClass: 'bg-light',
-                                width: '100%',
-                                classNames: 'justify-content-around',
-                                datePicker: {
-                                    opens: 'center'
-                                }
-                            }}
                             start={moment(formData?.referencePeriod?.start)}
+                            width='100%'
                         />
                     </InputGroup>
                     <InputGroup className='mt-3'>

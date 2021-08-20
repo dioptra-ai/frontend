@@ -28,8 +28,6 @@ MlModelRouter.post('/', async (req, res, next) => {
         const MlModel = mongoose.model('MlModel');
         const modelExists = await MlModel.findOne({mlModelId: req.body.mlModelId});
 
-        console.log(res.body);
-
         if (modelExists) {
             res.status(400).send({err: {mlModelId: 'Model with ID Already Exists'}});
         } else {
