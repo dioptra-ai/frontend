@@ -30,13 +30,13 @@ const Login = ({authStore}) => {
     };
 
     useEffect(() => {
-        if (authStore.authError) {
-            setEmailError(authStore.authError);
-            setPasswordError(authStore.authError);
+        if (authStore.error) {
+            setEmailError(authStore.error);
+            setPasswordError(authStore.error);
         }
-    }, [authStore.authError]);
+    }, [authStore.error]);
 
-    return authStore.authStatus ? (
+    return authStore.isAuthenticated ? (
         <Redirect to={Paths().MODELS} />
     ) : (
         <Container

@@ -24,15 +24,15 @@ class AuthStore {
       makeAutoObservable(this);
   }
 
-  get authStatus() {
+  get isAuthenticated() {
       return this.isAuthenticated;
   }
 
-  get user() {
+  get userData() {
       return this.userData;
   }
 
-  get authError() {
+  get error() {
       return this.error;
   }
 
@@ -44,16 +44,16 @@ class AuthStore {
       return this.success;
   }
 
-  set authStatus(status) {
+  set isAuthenticated(status) {
       this.isAuthenticated = status;
   }
 
-  set user(data) {
+  set userData(data) {
       this.userData = data;
   }
 
-  set authError(error) {
-      this.error = error;
+  set error(err) {
+      this.error = err;
   }
 
   set loading(status) {
@@ -61,7 +61,7 @@ class AuthStore {
   }
 
   set success(status) {
-      this.loading = status;
+      this.success = status;
   }
 
   async tryLogin(data) {
@@ -69,15 +69,15 @@ class AuthStore {
           const resp = await AuthenticationClient('login', data);
 
           runInAction(() => {
-              this.authStatus = true;
-              this.user = resp;
-              this.authError = null;
+              this.isAuthenticated = true;
+              this.userData = resp;
+              this.error = null;
           });
       } catch (e) {
           runInAction(() => {
-              this.authStatus = false;
-              this.user = null;
-              this.authError = e.message;
+              this.isAuthenticated = false;
+              this.userData = null;
+              this.error = e.message;
           });
       }
   }
@@ -87,9 +87,9 @@ class AuthStore {
           await AuthenticationClient('logout');
       } finally {
           runInAction(() => {
-              this.authStatus = false;
-              this.user = null;
-              this.authError = null;
+              this.isAuthenticated = false;
+              this.userData = null;
+              this.error = null;
           });
       }
   }
@@ -103,13 +103,13 @@ class AuthStore {
           const resp = await UserClient('put', data);
 
           runInAction(() => {
-              this.user = resp;
+              this.userData = resp;
               this.success = true;
               this.loading = false;
           });
       } catch (e) {
           runInAction(() => {
-              this.authError = e.message;
+              this.error = e.message;
               this.loading = false;
           });
       }

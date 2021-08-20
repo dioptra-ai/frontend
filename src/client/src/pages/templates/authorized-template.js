@@ -6,7 +6,7 @@ import {Redirect} from 'react-router-dom';
 import {Paths} from '../../configs/route-config';
 
 const AuthorizedTemplate = ({children, authStore}) => {
-    return authStore.authStatus ? (
+    return authStore.isAuthenticated ? (
         <div>
             <Menu />
             <div className='px-0 bg-white authorized-content'>{children}</div>

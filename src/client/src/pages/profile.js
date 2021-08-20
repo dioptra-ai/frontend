@@ -36,10 +36,10 @@ const Profile = ({authStore}) => {
     };
 
     useEffect(() => {
-        if (authStore.authError) {
-            setEmailError(authStore.authError);
+        if (authStore.error) {
+            setEmailError(authStore.error);
         }
-    }, [authStore.authError]);
+    }, [authStore.error]);
 
     return (
         <Container
@@ -56,7 +56,7 @@ const Profile = ({authStore}) => {
                             onChange={(e) => {
                                 setProfileData({...profileData, ['email']: e.target.value});
                                 setEmailError('');
-                                authStore.authError = null;
+                                authStore.error = null;
                             }}
                             placeholder='Enter your new email'
                             type='text'
