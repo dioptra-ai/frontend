@@ -9,7 +9,7 @@ const mlModelSchema = new mongoose.Schema({
     teamId: {type: mongoose.Schema.Types.ObjectId, ref: 'Team'},
     description: String,
     mlModelVersion: String,
-    lastDeployed: Date,
+    lastDeployed: {type: Date, default: Date.now},
     mlModelTier: Number,
     mlModelType: {
         type: String,
