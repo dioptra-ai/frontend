@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -6,12 +6,28 @@ import PropTypes from 'prop-types';
 import FontIcon from './font-icon';
 import {Link, useParams} from 'react-router-dom';
 import {Paths} from '../configs/route-config';
-import {IconNames} from '../constants';
+import {IconNames} from 'constants';
 import {formatDateTime} from 'helpers/date-helper';
+import {Button} from 'react-bootstrap';
+import ModalComponent from 'components/modal';
+import ModelForm from 'pages/templates/model-form';
+import {setupComponent} from 'helpers/component-helper';
+import {ModelStore} from '../state/stores/model-store';
 
-const ModelDescription = ({name, description, team, version, tier, lastDeployed, incidents}) => {
+
+const ModelDescription = ({name, description, team, version, tier, lastDeployed, incidents, modelStore}) => {
     const [expand, setExpand] = useState(false);
+    const [showModal, setShowModal] = useState(false);
     const {_id} = useParams();
+
+    const {mlModelId, mlModelType} = modelStore.getModelById(_id);
+
+    useEffect(() => {
+        if (modelStore.state === ModelStore.STATE_DONE && showModal) {
+            setShowModal(false);
+            modelStore.fetchModels();
+        }
+    }, [modelStore.state]);
 
     return (
         <Container className='bg-white-blue model-desc' fluid >
@@ -26,7 +42,7 @@ const ModelDescription = ({name, description, team, version, tier, lastDeployed,
                         />
                     </button>
                 </Col>
-                <Col className='d-flex justify-content-end' lg={3}>
+                <Col className='d-flex justify-content-end' lg={5}>
                     <Link className='btn-incidents text-decoration-none text-dark bold-text fs-4 p-3' to={Paths(_id).MODEL_INCIDENTS_AND_ALERTS}>
                         Open Incidents
                         <FontIcon
@@ -36,6 +52,13 @@ const ModelDescription = ({name, description, team, version, tier, lastDeployed,
                         />
                         <span className='text-warning'>{incidents !== 0 && incidents}</span>
                     </Link>
+                    <Button
+                        className='py-3 fs-6 bold-text px-5 text-white ms-3'
+                        onClick={() => setShowModal(true)}
+                        variant='primary'
+                    >
+                EDIT MODEL
+                    </Button>
                 </Col>
             </Row>
             <div className={`model-details ${expand ? 'show' : ''} text-dark mx-3`}>
@@ -62,6 +85,12 @@ const ModelDescription = ({name, description, team, version, tier, lastDeployed,
                     </Col>
                 </Row>
             </div>
+            <ModalComponent isOpen={showModal} onClose={() => setShowModal(false)}>
+                <ModelForm
+                    initialValue={{name, description, mlModelId, mlModelType}}
+                    onSubmit={(data) => modelStore.updateModel(_id, data)}
+                />
+            </ModalComponent>
         </Container>
     );
 };
@@ -70,10 +99,11 @@ ModelDescription.propTypes = {
     description: PropTypes.string,
     incidents: PropTypes.number,
     lastDeployed: PropTypes.string,
+    modelStore: PropTypes.object,
     name: PropTypes.string,
     team: PropTypes.object,
     tier: PropTypes.number,
     version: PropTypes.string
 };
 
-export default ModelDescription;
+export default setupComponent(ModelDescription);

@@ -14,9 +14,9 @@ import FontIcon from 'components/font-icon';
 import {IconNames} from 'constants';
 import {Area, ComposedChart, Line} from 'recharts';
 import theme from 'styles/theme.module.scss';
-import ModalComponent from '../../components/modal';
+import ModalComponent from 'components/modal';
 import ModelForm from './model-form';
-import {ModelStore} from '../../state/stores/model-store';
+import {ModelStore} from 'state/stores/model-store';
 
 const NUMBER_OF_RECORDS_PER_PAGE = 10;
 

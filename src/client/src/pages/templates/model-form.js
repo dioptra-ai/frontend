@@ -47,7 +47,7 @@ const ModelForm = ({modelStore, initialValue, onSubmit}) => {
             fluid
         >
             <div className='model-form d-flex flex-column align-items-center'>
-                <p className='text-dark bold-text fs-3 mb-4'>Create New Model</p>
+                <p className='text-dark bold-text fs-3 mb-4'>{Object.keys(initialValue).length ? 'Update' : 'Create New'} Model</p>
                 <Form autoComplete='off' className='w-100'>
                     <InputGroup className='mt-3 text-center'>
                         <DateTimeRangePicker
@@ -164,8 +164,7 @@ const ModelForm = ({modelStore, initialValue, onSubmit}) => {
                         className='w-100 text-white btn-submit mt-5'
                         onClick={handleSubmit}
                         variant='primary'
-                    >
-            Create Model
+                    >{Object.keys(initialValue).length ? 'Update Model' : 'Create Model'}
                     </Button>
                 </Form>
             </div>
