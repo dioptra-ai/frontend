@@ -24,11 +24,15 @@ import {getHexColor} from 'helpers/color-helper';
 import theme from '../styles/theme.module.scss';
 import TimeseriesQuery, {sql} from 'components/timeseries-query';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
+import {useParams} from 'react-router-dom';
 
-const AddColumnModal = ({onCancel, onApply, allColumns, selected}) => {
+const AddColumnModal = ({onCancel, onApply, allColumns, selected, modelStore}) => {
     const featureColumns = allColumns.filter((c) => c.startsWith('feature.'));
     const tagColumns = allColumns.filter((c) => c.startsWith('tag.'));
     const [selectedColumns, setSelectedColumns] = useState(selected);
+    const {_id} = useParams();
+
+    const {mlModelType} = modelStore.getModelById(_id);
 
     const handleChange = (e, col) => {
         if (e.target.checked) {
@@ -45,7 +49,7 @@ const AddColumnModal = ({onCancel, onApply, allColumns, selected}) => {
             <p className='text-dark fw-bold fs-4 pb-3 mb-4 border-bottom border-mercury'>
         Add or remove columns from the table
             </p>
-            <div className='d-flex flex-column mb-4'>
+            {mlModelType === 'IMAGE_CLASSIFIER' && <div className='d-flex flex-column mb-4'>
                 <p className='text-dark fw-bold fs-6'>FEATURES</p>
                 {featureColumns.map((feature, i) => (
                     <label className='checkbox my-2 fs-6' key={i}>
@@ -57,7 +61,7 @@ const AddColumnModal = ({onCancel, onApply, allColumns, selected}) => {
                         <span className='fs-6'>{feature}</span>
                     </label>
                 ))}
-            </div>
+            </div>}
             <div className='d-flex flex-column mb-4'>
                 <p className='text-dark fw-bold fs-6'>TAGS</p>
                 {tagColumns.map((tag, i) => (
@@ -93,6 +97,7 @@ const AddColumnModal = ({onCancel, onApply, allColumns, selected}) => {
 
 AddColumnModal.propTypes = {
     allColumns: PropTypes.array,
+    modelStore: PropTypes.object,
     onApply: PropTypes.func,
     onCancel: PropTypes.func,
     selected: PropTypes.array
@@ -363,6 +368,7 @@ const Segmentation = () => {
                     renderData={(data) => addColModal && (
                         <AddColumnModal
                             allColumns={data.map((d) => d.column)}
+                            modelStore={modelStore}
                             onApply={handleApply}
                             onCancel={() => setAddColModal(false)}
                             selected={groupByColumns}
@@ -382,6 +388,8 @@ const Segmentation = () => {
 };
 
 Segmentation.propTypes = {
+    modelStore: PropTypes.object.isRequired,
+    timeStore: PropTypes.object.isRequired
 };
 
 export default Segmentation;
