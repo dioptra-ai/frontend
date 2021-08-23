@@ -1,5 +1,6 @@
 import Login from 'pages/login';
 import Home from 'pages/home';
+import Profile from 'pages/profile';
 import Models from 'pages/templates/models';
 import Model from 'pages/templates/model-template';
 import AddAlertPage from 'pages/add-alert';
@@ -35,8 +36,13 @@ export const AuthorizedRouteConfigs = [
     {path: Paths().EXPERIMENTATIONS, isExact: false},
     {path: Paths().ALERTS, isExact: false},
     {path: Paths().SETTINGS, isExact: false},
-    {path: Paths().PROFILE, isExact: false},
-    {path: Paths().ADD_ALERT, isExact: true, component: AddAlertPage, menuMatch: Paths().MODELS}
+    {path: Paths().PROFILE, isExact: false, component: Profile},
+    {
+        path: Paths().ADD_ALERT,
+        isExact: true,
+        component: AddAlertPage,
+        menuMatch: Paths().MODELS
+    }
 ];
 
 export const getMatchingRouteConfig = (pathToMatch) => {
@@ -46,8 +52,12 @@ export const getMatchingRouteConfig = (pathToMatch) => {
     const matchingConfig = allConfigs.filter(({path}) => {
         const parts = path.split(SLASH);
 
-        return parts.length === pathToMatchParts.length &&
-          parts.every((part) => part.startsWith(':') || pathToMatchParts.indexOf(part) > -1);
+        return (
+            parts.length === pathToMatchParts.length &&
+      parts.every(
+          (part) => part.startsWith(':') || pathToMatchParts.indexOf(part) > -1
+      )
+        );
     });
 
     return matchingConfig && matchingConfig.length ? matchingConfig[0] : {};

@@ -13,7 +13,8 @@ const allModels = [Dashboard, MlModel, TeamMember, Team, User];
 const connectionOptions = {
     keepAlive: true,
     useNewUrlParser: true,
-    useUnifiedTopology: true
+    useUnifiedTopology: true,
+    useFindAndModify: false
 };
 
 mongoose.connect(process.env.DB_CONNECTION_URI, connectionOptions);
