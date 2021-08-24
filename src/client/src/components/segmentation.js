@@ -249,7 +249,8 @@ _DistributionCell.propTypes = {
 
 const DistributionCell = setupComponent(_DistributionCell);
 
-const Segmentation = ({timeStore}) => {
+const Segmentation = () => {
+    const allSqlFilters = useAllSqlFilters();
     const [groupByColumns, setGroupByColumns] = useState([]);
     const [addColModal, setAddColModal] = useModal(false);
 
@@ -346,7 +347,7 @@ const Segmentation = ({timeStore}) => {
                           ${groupByColumns.map((c) => `"${c}"`).join(', ')},
                           count(1) as sampleSize
                         FROM "dioptra-gt-combined-eventstream"
-                        WHERE ${timeStore.sqlTimeFilter}
+                        WHERE ${allSqlFilters}
                         GROUP BY ${groupByColumns.map((c) => `"${c}"`).join(', ')}
                         ORDER BY sampleSize DESC
                         ` :
@@ -381,7 +382,6 @@ const Segmentation = ({timeStore}) => {
 };
 
 Segmentation.propTypes = {
-    timeStore: PropTypes.object.isRequired
 };
 
-export default setupComponent(Segmentation);
+export default Segmentation;
