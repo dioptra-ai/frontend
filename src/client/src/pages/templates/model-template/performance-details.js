@@ -20,7 +20,11 @@ const PerformanceBox = ({
     performanceType
 }) => {
     const [sortAcs, setSortAsc] = useState(true);
-    const [classes, setClasses] = useState([...data]);
+    const [classes, setClasses] = useState([]);
+
+    useEffect(() => {
+        setClasses([...data]);
+    }, [data]);
 
     useEffect(() => {
         if (sortAcs) {
@@ -110,6 +114,7 @@ ClassRow.propTypes = {
 
 const PerformanceDetails = ({filtersStore}) => {
     const allSqlFilters = useAllSqlFilters();
+
     const sampleSizeComponent = (
         <TimeseriesQuery
             defaultData={[{sampleSize: 0}]}
@@ -250,9 +255,7 @@ const PerformanceDetails = ({filtersStore}) => {
 };
 
 PerformanceDetails.propTypes = {
-    errorStore: PropTypes.object.isRequired,
-    filtersStore: PropTypes.object.isRequired,
-    timeStore: PropTypes.object.isRequired
+    filtersStore: PropTypes.object.isRequired
 };
 
 export default setupComponent(PerformanceDetails);
