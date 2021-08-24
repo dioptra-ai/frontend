@@ -23,17 +23,13 @@ const PerformanceBox = ({
     const [classes, setClasses] = useState([]);
 
     useEffect(() => {
-        setClasses([...data]);
-    }, [data]);
-
-    useEffect(() => {
         if (sortAcs) {
             setClasses([...data.sort((c1, c2) => c2[performanceType] - c1[performanceType])]);
         } else {
             setClasses([...data.sort((c1, c2) => c1[performanceType] - c2[performanceType])]);
 
         }
-    }, [sortAcs]);
+    }, [sortAcs, data]);
 
     return (
         <div className='border rounded p-3 pb-0'>
