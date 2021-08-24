@@ -20,7 +20,7 @@ const PerformanceBox = ({
     performanceType
 }) => {
     const [sortAcs, setSortAsc] = useState(true);
-    const [classes, setClasses] = useState([...data]);
+    const [classes, setClasses] = useState([]);
 
     useEffect(() => {
         if (sortAcs) {
@@ -29,7 +29,7 @@ const PerformanceBox = ({
             setClasses([...data.sort((c1, c2) => c1[performanceType] - c2[performanceType])]);
 
         }
-    }, [sortAcs]);
+    }, [sortAcs, data]);
 
     return (
         <div className='border rounded p-3 pb-0'>
@@ -110,6 +110,7 @@ ClassRow.propTypes = {
 
 const PerformanceDetails = ({filtersStore}) => {
     const allSqlFilters = useAllSqlFilters();
+
     const sampleSizeComponent = (
         <TimeseriesQuery
             defaultData={[{sampleSize: 0}]}
@@ -250,9 +251,7 @@ const PerformanceDetails = ({filtersStore}) => {
 };
 
 PerformanceDetails.propTypes = {
-    errorStore: PropTypes.object.isRequired,
-    filtersStore: PropTypes.object.isRequired,
-    timeStore: PropTypes.object.isRequired
+    filtersStore: PropTypes.object.isRequired
 };
 
 export default setupComponent(PerformanceDetails);
