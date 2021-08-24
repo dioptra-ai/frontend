@@ -26,13 +26,10 @@ import TimeseriesQuery, {sql} from 'components/timeseries-query';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 import {useParams} from 'react-router-dom';
 
-const AddColumnModal = ({onCancel, onApply, allColumns, selected, modelStore}) => {
+const AddColumnModal = ({onCancel, onApply, allColumns, selected}) => {
     const featureColumns = allColumns.filter((c) => c.startsWith('feature.'));
     const tagColumns = allColumns.filter((c) => c.startsWith('tag.'));
     const [selectedColumns, setSelectedColumns] = useState(selected);
-    const {_id} = useParams();
-
-    const {mlModelType} = modelStore.getModelById(_id);
 
     const handleChange = (e, col) => {
         if (e.target.checked) {
@@ -97,7 +94,6 @@ const AddColumnModal = ({onCancel, onApply, allColumns, selected, modelStore}) =
 
 AddColumnModal.propTypes = {
     allColumns: PropTypes.array,
-    modelStore: PropTypes.object,
     onApply: PropTypes.func,
     onCancel: PropTypes.func,
     selected: PropTypes.array
