@@ -16,6 +16,10 @@ const mlModelSchema = new mongoose.Schema(
             type: String,
             enum: ['IMAGE_CLASSIFIER', 'TABULAR_CLASSIFIER'],
             required: true
+        },
+        referencePeriod: {
+            start: Date,
+            end: Date
         }
     },
     {timestamps: true}

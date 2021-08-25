@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {Button, Container, Form, InputGroup} from 'react-bootstrap';
 import moment from 'moment';
 import PropTypes from 'prop-types';
@@ -8,7 +8,7 @@ import {IconNames} from 'constants';
 import DateTimeRangePicker from 'components/date-time-range-picker';
 import {setupComponent} from 'helpers/component-helper';
 
-const ModelForm = ({modelStore, initialValue, onSubmit}) => {
+const ModelForm = ({initialValue, onSubmit, errors}) => {
     const [formData, setFormData] = useState({
         name: '',
         mlModelId: '',
@@ -21,8 +21,6 @@ const ModelForm = ({modelStore, initialValue, onSubmit}) => {
         ...initialValue
     });
 
-    const [errors, setErrors] = useState({});
-
     const handleChange = (event) => setFormData({...formData, [event.target.name]: event.target.value});
 
     const onDateChange = ({start, end}) => setFormData({
@@ -34,20 +32,13 @@ const ModelForm = ({modelStore, initialValue, onSubmit}) => {
         onSubmit(formData);
     };
 
-
-    useEffect(() => {
-        const errObj = JSON.parse(modelStore.error);
-
-        setErrors({...errors, ...errObj?.err});
-    }, [modelStore.error]);
-
     return (
         <Container
             className='model fs-6 d-flex align-items-center justify-content-center'
             fluid
         >
             <div className='model-form d-flex flex-column align-items-center'>
-                <p className='text-dark bold-text fs-3 mb-4'>Create New Model</p>
+                <p className='text-dark bold-text fs-3 mb-4'>{Object.keys(initialValue).length ? 'Update' : 'Create New'} Model</p>
                 <Form autoComplete='off' className='w-100'>
                     <InputGroup className='mt-3 text-center'>
                         <DateTimeRangePicker
@@ -164,8 +155,7 @@ const ModelForm = ({modelStore, initialValue, onSubmit}) => {
                         className='w-100 text-white btn-submit mt-5'
                         onClick={handleSubmit}
                         variant='primary'
-                    >
-            Create Model
+                    >{Object.keys(initialValue).length ? 'Update Model' : 'Create Model'}
                     </Button>
                 </Form>
             </div>
@@ -174,8 +164,8 @@ const ModelForm = ({modelStore, initialValue, onSubmit}) => {
 };
 
 ModelForm.propTypes = {
+    errors: PropTypes.object,
     initialValue: PropTypes.object,
-    modelStore: PropTypes.object,
     onSubmit: PropTypes.func
 };
 
