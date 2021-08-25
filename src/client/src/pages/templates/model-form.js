@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {Button, Container, Form, InputGroup} from 'react-bootstrap';
 import moment from 'moment';
 import PropTypes from 'prop-types';
@@ -8,7 +8,7 @@ import {IconNames} from 'constants';
 import DateTimeRangePicker from 'components/date-time-range-picker';
 import {setupComponent} from 'helpers/component-helper';
 
-const ModelForm = ({modelStore, initialValue, onSubmit}) => {
+const ModelForm = ({initialValue, onSubmit, errors}) => {
     const [formData, setFormData] = useState({
         name: '',
         mlModelId: '',
@@ -21,8 +21,6 @@ const ModelForm = ({modelStore, initialValue, onSubmit}) => {
         ...initialValue
     });
 
-    const [errors, setErrors] = useState({});
-
     const handleChange = (event) => setFormData({...formData, [event.target.name]: event.target.value});
 
     const onDateChange = ({start, end}) => setFormData({
@@ -33,13 +31,6 @@ const ModelForm = ({modelStore, initialValue, onSubmit}) => {
     const handleSubmit = () => {
         onSubmit(formData);
     };
-
-
-    useEffect(() => {
-        const errObj = JSON.parse(modelStore.error);
-
-        setErrors({...errors, ...errObj?.err});
-    }, [modelStore.error]);
 
     return (
         <Container
@@ -173,8 +164,8 @@ const ModelForm = ({modelStore, initialValue, onSubmit}) => {
 };
 
 ModelForm.propTypes = {
+    errors: PropTypes.object,
     initialValue: PropTypes.object,
-    modelStore: PropTypes.object,
     onSubmit: PropTypes.func
 };
 

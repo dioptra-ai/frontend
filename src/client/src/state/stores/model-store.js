@@ -27,6 +27,10 @@ class ModelStore {
         return this.modelsById[_id];
     }
 
+    setModelById(_id, data) {
+        this.modelsById[_id] = data;
+    }
+
     fetchModels() {
         this.state = ModelStore.STATE_PENDING;
 
@@ -64,56 +68,6 @@ class ModelStore {
                     this.state = ModelStore.STATE_ERROR;
                 }));
         }
-    }
-
-    createModel(data) {
-        // Remove once referencePeriod is added in BE Modal
-        delete data.referencePeriod;
-        this.state = ModelStore.STATE_PENDING;
-
-        window.fetch('/api/ml-model', {
-            method: 'POST',
-            headers: {
-                'content-type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        })
-            .then((res) => res.json())
-            .then(action((modelData) => {
-                if (modelData.hasOwnProperty('err')) {
-                    throw new Error(JSON.stringify(modelData));
-                }
-                this.state = ModelStore.STATE_DONE;
-                this.error = null;
-            })).catch(action((e) => {
-                this.state = ModelStore.STATE_ERROR;
-                this.error = e.message;
-            }));
-    }
-
-    updateModel(id, data) {
-        // Remove once referencePeriod is added in BE Modal
-        delete data.referencePeriod;
-        this.state = ModelStore.STATE_PENDING;
-
-        window.fetch(`/api/ml-model/${id}`, {
-            method: 'PUT',
-            headers: {
-                'content-type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        })
-            .then((res) => res.json())
-            .then(action((modelData) => {
-                if (modelData.hasOwnProperty('err')) {
-                    throw new Error(JSON.stringify(modelData));
-                }
-                this.state = ModelStore.STATE_DONE;
-                this.error = null;
-            })).catch(action((e) => {
-                this.state = ModelStore.STATE_ERROR;
-                this.error = e.message;
-            }));
     }
 }
 

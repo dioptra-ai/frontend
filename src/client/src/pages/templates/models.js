@@ -16,7 +16,6 @@ import {Area, ComposedChart, Line} from 'recharts';
 import theme from 'styles/theme.module.scss';
 import ModalComponent from 'components/modal';
 import ModelForm from './model-form';
-import {ModelStore} from 'state/stores/model-store';
 
 const NUMBER_OF_RECORDS_PER_PAGE = 10;
 
@@ -134,6 +133,7 @@ ModelRow.propTypes = {
 const Models = ({modelStore}) => {
     const [pageNumber, setPageNumber] = useState(0);
     const [showModal, setShowModal] = useState(false);
+    const [errors, setErrors] = useState({});
 
     const color = theme.primary;
     const totalPages = Math.ceil(
@@ -148,12 +148,34 @@ const Models = ({modelStore}) => {
         modelStore.fetchModels();
     }, []);
 
-    useEffect(() => {
-        if (modelStore.state === ModelStore.STATE_DONE && showModal) {
-            setShowModal(false);
-            modelStore.fetchModels();
+    const handleSubmit = (data) => {
+        delete data.referencePeriod;
+
+        if (errors) {
+            setErrors({});
         }
-    }, [modelStore.state]);
+
+        fetch('/api/ml-model', {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+            .then((res) => res.json())
+            .then((modelData) => {
+                if (modelData.hasOwnProperty('err')) {
+                    throw new Error(JSON.stringify(modelData));
+                }
+                modelStore.setModelById(modelData._id, modelData);
+                setShowModal(false);
+            })
+            .catch((e) => {
+                const errObj = JSON.parse(e.message);
+
+                setErrors(errObj.err);
+            });
+    };
 
     return (
         <>
@@ -210,8 +232,9 @@ const Models = ({modelStore}) => {
             )}
             <ModalComponent isOpen={showModal} onClose={() => setShowModal(false)}>
                 <ModelForm
+                    errors={errors}
                     initialValue={{}}
-                    onSubmit={(data) => modelStore.createModel(data)}
+                    onSubmit={handleSubmit}
                 />
             </ModalComponent>
         </>

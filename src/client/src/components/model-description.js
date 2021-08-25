@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -12,22 +12,44 @@ import {Button} from 'react-bootstrap';
 import ModalComponent from 'components/modal';
 import ModelForm from 'pages/templates/model-form';
 import {setupComponent} from 'helpers/component-helper';
-import {ModelStore} from '../state/stores/model-store';
 
 
 const ModelDescription = ({name, description, team, version, tier, lastDeployed, incidents, modelStore}) => {
     const [expand, setExpand] = useState(false);
     const [showModal, setShowModal] = useState(false);
+    const [errors, setErrors] = useState({});
     const {_id} = useParams();
 
     const {mlModelId, mlModelType} = modelStore.getModelById(_id);
 
-    useEffect(() => {
-        if (modelStore.state === ModelStore.STATE_DONE && showModal) {
-            setShowModal(false);
-            modelStore.fetchModels();
+    const handleSubmit = (data) => {
+        delete data.referencePeriod;
+
+        if (errors) {
+            setErrors({});
         }
-    }, [modelStore.state]);
+
+        fetch(`/api/ml-model/${_id}`, {
+            method: 'PUT',
+            headers: {
+                'content-type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+            .then((res) => res.json())
+            .then((modelData) => {
+                if (modelData.hasOwnProperty('err')) {
+                    throw new Error(JSON.stringify(modelData));
+                }
+                modelStore.setModelById(_id, modelData);
+                setShowModal(false);
+            })
+            .catch((e) => {
+                const errObj = JSON.parse(e.message);
+
+                setErrors(errObj.err);
+            });
+    };
 
     return (
         <Container className='bg-white-blue model-desc' fluid >
@@ -87,8 +109,9 @@ const ModelDescription = ({name, description, team, version, tier, lastDeployed,
             </div>
             <ModalComponent isOpen={showModal} onClose={() => setShowModal(false)}>
                 <ModelForm
+                    errors={errors}
                     initialValue={{name, description, mlModelId, mlModelType}}
-                    onSubmit={(data) => modelStore.updateModel(_id, data)}
+                    onSubmit={handleSubmit}
                 />
             </ModalComponent>
         </Container>
