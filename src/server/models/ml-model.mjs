@@ -1,10 +1,5 @@
 import mongoose from 'mongoose';
 
-const timePeriod = new mongoose.Schema({
-    start: Date,
-    end: Date
-});
-
 const mlModelSchema = new mongoose.Schema(
     {
         mlModelId: {
@@ -23,7 +18,8 @@ const mlModelSchema = new mongoose.Schema(
             required: true
         },
         referencePeriod: {
-            type: timePeriod
+            start: Date,
+            end: Date
         }
     },
     {timestamps: true}
