@@ -24,6 +24,7 @@ import {getHexColor} from 'helpers/color-helper';
 import theme from '../styles/theme.module.scss';
 import TimeseriesQuery, {sql} from 'components/timeseries-query';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
+import {useParams} from 'react-router-dom';
 
 const AddColumnModal = ({onCancel, onApply, allColumns, selected}) => {
     const featureColumns = allColumns.filter((c) => c.startsWith('feature.'));
@@ -45,7 +46,7 @@ const AddColumnModal = ({onCancel, onApply, allColumns, selected}) => {
             <p className='text-dark fw-bold fs-4 pb-3 mb-4 border-bottom border-mercury'>
         Add or remove columns from the table
             </p>
-            <div className='d-flex flex-column mb-4'>
+            {featureColumns.length > 0 && <div className='d-flex flex-column mb-4'>
                 <p className='text-dark fw-bold fs-6'>FEATURES</p>
                 {featureColumns.map((feature, i) => (
                     <label className='checkbox my-2 fs-6' key={i}>
@@ -57,8 +58,8 @@ const AddColumnModal = ({onCancel, onApply, allColumns, selected}) => {
                         <span className='fs-6'>{feature}</span>
                     </label>
                 ))}
-            </div>
-            <div className='d-flex flex-column mb-4'>
+            </div>}
+            {tagColumns.length > 0 && <div className='d-flex flex-column mb-4'>
                 <p className='text-dark fw-bold fs-6'>TAGS</p>
                 {tagColumns.map((tag, i) => (
                     <label className='checkbox my-2 fs-6' key={i}>
@@ -70,7 +71,7 @@ const AddColumnModal = ({onCancel, onApply, allColumns, selected}) => {
                         <span className='fs-6'>{tag}</span>
                     </label>
                 ))}
-            </div>
+            </div>}
             <div className='border-top border-mercury py-3'>
                 <Button
                     className='text-white fw-bold fs-6 px-5 py-2'
@@ -249,10 +250,13 @@ _DistributionCell.propTypes = {
 
 const DistributionCell = setupComponent(_DistributionCell);
 
-const Segmentation = () => {
+const Segmentation = ({timeStore, modelStore}) => {
     const allSqlFilters = useAllSqlFilters();
     const [groupByColumns, setGroupByColumns] = useState([]);
     const [addColModal, setAddColModal] = useModal(false);
+    const {_id} = useParams();
+
+    const {mlModelType, mlModelId} = modelStore.getModelById(_id);
 
     const url = new URL(window.location);
 
@@ -360,20 +364,33 @@ const Segmentation = () => {
                 />
                 <TimeseriesQuery
                     defaultData={[]}
-                    renderData={(data) => addColModal && (
-                        <AddColumnModal
-                            allColumns={data.map((d) => d.column)}
-                            onApply={handleApply}
-                            onCancel={() => setAddColModal(false)}
-                            selected={groupByColumns}
-                        />
-                    )
+                    renderData={(featuresAndTags) => <TimeseriesQuery
+                        defaultData={[]}
+                        renderData={([data]) => addColModal && (
+                            <AddColumnModal
+                                allColumns={featuresAndTags.filter((_, i) => data && data[i] > 0).map((d) => d.column)}
+                                onApply={handleApply}
+                                onCancel={() => setAddColModal(false)}
+                                selected={groupByColumns}
+                            />
+                        )
+                        }
+                        resultFormat='array'
+                        sql={sql`
+                        SELECT ${featuresAndTags.map(({column}) => `COUNT(DISTINCT "${column}")`).join(', ')}
+                        FROM "dioptra-gt-combined-eventstream"
+                        WHERE ${timeStore.sqlTimeFilter} AND model_id = '${mlModelId}'
+                        `}
+                    />
                     }
                     sql={sql`
                         SELECT COLUMN_NAME as "column"
                         FROM INFORMATION_SCHEMA.COLUMNS 
                         WHERE TABLE_NAME = 'dioptra-gt-combined-eventstream'
-                        AND (COLUMN_NAME LIKE 'tag.%' OR COLUMN_NAME LIKE 'feature.%')
+                        AND (${
+        mlModelType !== 'IMAGE_CLASSIFIER' ? 'COLUMN_NAME LIKE \'tag.%\' OR' :
+            ''
+        } COLUMN_NAME LIKE 'feature.%')
                     `}
                 />
             </div>
@@ -382,6 +399,8 @@ const Segmentation = () => {
 };
 
 Segmentation.propTypes = {
+    modelStore: PropTypes.object.isRequired,
+    timeStore: PropTypes.object.isRequired
 };
 
-export default Segmentation;
+export default setupComponent(Segmentation);
