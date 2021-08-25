@@ -149,8 +149,6 @@ const Models = ({modelStore}) => {
     }, []);
 
     const handleSubmit = (data) => {
-        delete data.referencePeriod;
-
         if (errors) {
             setErrors({});
         }

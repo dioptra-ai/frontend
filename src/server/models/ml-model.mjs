@@ -1,5 +1,10 @@
 import mongoose from 'mongoose';
 
+const timePeriod = new mongoose.Schema({
+    start: Date,
+    end: Date
+});
+
 const mlModelSchema = new mongoose.Schema(
     {
         mlModelId: {
@@ -16,6 +21,9 @@ const mlModelSchema = new mongoose.Schema(
             type: String,
             enum: ['IMAGE_CLASSIFIER', 'TABULAR_CLASSIFIER'],
             required: true
+        },
+        referencePeriod: {
+            type: timePeriod
         }
     },
     {timestamps: true}

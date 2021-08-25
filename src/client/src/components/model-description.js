@@ -23,8 +23,6 @@ const ModelDescription = ({name, description, team, version, tier, lastDeployed,
     const {mlModelId, mlModelType} = modelStore.getModelById(_id);
 
     const handleSubmit = (data) => {
-        delete data.referencePeriod;
-
         if (errors) {
             setErrors({});
         }
