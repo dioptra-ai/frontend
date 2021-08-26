@@ -1,18 +1,19 @@
 /* eslint-disable max-lines */
 
 import {Area, AreaChart, Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis} from 'recharts';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import PropTypes from 'prop-types';
 import {Table} from 'react-bootstrap';
 import {useInView} from 'react-intersection-observer';
 
 import TimeseriesQuery, {sql} from 'components/timeseries-query';
-import {IconNames, SQL_OFFLINE_RANGE} from 'constants';
+import {IconNames} from 'constants';
 import {getHexColor} from 'helpers/color-helper';
 import FontIcon from 'components/font-icon';
 import theme from 'styles/theme.module.scss';
 import {setupComponent} from 'helpers/component-helper';
 import timeseriesClient from 'clients/timeseries';
+import {useParams} from 'react-router-dom';
 
 const FeatureIntegrityTableColumnNames = {
     FEATURE_NAME: 'Feature Name',
@@ -87,13 +88,22 @@ OnlineDistributionBarChart.propTypes = {
     distribution: PropTypes.array
 };
 
-const FeatureIntegrityRow = ({name, timeStore}) => {
+const FeatureIntegrityRow = ({modelStore, name, timeStore}) => {
     const incidentCount = 4;
     const tdClasses = 'py-5 align-middle';
     const [featureType, setFeatureType] = useState(null);
     const [featureCardinality, setFeatureCardinality] = useState(null);
     const [featureOnlineDistribution, setFeatureOnlineDistribution] = useState(null);
     const {ref, inView} = useInView();
+    const {_id} = useParams();
+
+    const SQL_TIME_RANGE = useMemo(() => {
+        const {referencePeriod} = modelStore.getModelById(_id);
+
+        console.log(referencePeriod.start, referencePeriod.end);
+
+        return referencePeriod ? `"__time" >= TIME_PARSE('${referencePeriod.start}') AND "__time" < TIME_PARSE('${referencePeriod.end}')` : 'TRUE';
+    }, [_id]);
 
     useEffect(() => {
         if (inView && !featureType) {
@@ -327,7 +337,7 @@ const FeatureIntegrityRow = ({name, timeStore}) => {
                                     *,
                                     "${name}" as my_feature
                                   FROM "dioptra-gt-combined-eventstream"
-                                  WHERE ${SQL_OFFLINE_RANGE}
+                                  WHERE ${SQL_TIME_RANGE}
                                 ),
 
                                 my_online_table as (
@@ -397,7 +407,7 @@ const FeatureIntegrityRow = ({name, timeStore}) => {
                                     CAST("${name}" AS FLOAT) as my_feature,
                                     '1' as join_key
                                   FROM "dioptra-gt-combined-eventstream"
-                                  WHERE ${SQL_OFFLINE_RANGE}
+                                  WHERE ${SQL_TIME_RANGE}
                                   LIMIT 1000
                                 ),
 
@@ -555,6 +565,7 @@ const FeatureIntegrityRow = ({name, timeStore}) => {
 };
 
 FeatureIntegrityRow.propTypes = {
+    modelStore: PropTypes.object,
     name: PropTypes.string,
     timeStore: PropTypes.object
 };
