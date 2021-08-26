@@ -100,8 +100,6 @@ const FeatureIntegrityRow = ({modelStore, name, timeStore}) => {
     const SQL_TIME_RANGE = useMemo(() => {
         const {referencePeriod} = modelStore.getModelById(_id);
 
-        console.log(referencePeriod.start, referencePeriod.end);
-
         return referencePeriod ? `"__time" >= TIME_PARSE('${referencePeriod.start}') AND "__time" < TIME_PARSE('${referencePeriod.end}')` : 'TRUE';
     }, [_id]);
 
