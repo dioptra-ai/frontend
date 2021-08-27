@@ -1,11 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {BrowserRouter as Router} from 'react-router-dom';
 import App from './app';
 import state from './state/stores';
 import './styles/custom.scss';
 import {Provider} from 'mobx-react';
+
 import ErrorBoundary from 'components/error-boundary';
+import StickyParamsRouter from 'components/sticky-params-router';
 
 ReactDOM.render(
     <ErrorBoundary
@@ -16,11 +17,11 @@ ReactDOM.render(
             return null;
         }}
     >
-        <Router>
+        <StickyParamsRouter>
             <Provider {...state}>
                 <App />
             </Provider>
-        </Router>
+        </StickyParamsRouter>
     </ErrorBoundary>,
     document.getElementById('root')
 );

@@ -1,5 +1,7 @@
 import {autorun, makeAutoObservable} from 'mobx';
 
+import * as history from 'helpers/history';
+
 class FiltersStore {
   // [{key, value}]
   f = [];
@@ -30,7 +32,7 @@ class FiltersStore {
           url.searchParams.append('filters', JSON.stringify(f));
       }
 
-      window.history.pushState({}, null, url);
+      history.pushUrl(url);
 
       this.f = f;
   }

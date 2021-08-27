@@ -3,6 +3,7 @@ import {autorun, makeAutoObservable} from 'mobx';
 
 import {lastHours, lastSeconds} from 'helpers/date-helper';
 import TimeseriesClient from 'clients/timeseries';
+import * as history from 'helpers/history';
 
 const {SQL_OUTER_LIMIT} = TimeseriesClient;
 
@@ -75,18 +76,10 @@ class TimeStore {
 
       const url = new URL(window.location);
 
-      if (url.searchParams.has('startTime')) {
-          url.searchParams.set('startTime', moment(start).toISOString());
-      } else {
-          url.searchParams.append('startTime', moment(start).toISOString());
-      }
-      if (url.searchParams.has('endTime')) {
-          url.searchParams.set('endTime', moment(end).toISOString());
-      } else {
-          url.searchParams.append('endTime', moment(end).toISOString());
-      }
+      url.searchParams.set('startTime', moment(start).toISOString());
+      url.searchParams.set('endTime', moment(end).toISOString());
 
-      window.history.pushState({}, null, url);
+      history.pushUrl(url);
   }
 
   refreshTimeRange() {
