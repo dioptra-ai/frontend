@@ -7,12 +7,13 @@ import {Table} from 'react-bootstrap';
 import {useInView} from 'react-intersection-observer';
 
 import TimeseriesQuery, {sql} from 'components/timeseries-query';
-import {IconNames, SQL_OFFLINE_RANGE} from 'constants';
+import {IconNames} from 'constants';
 import {getHexColor} from 'helpers/color-helper';
 import FontIcon from 'components/font-icon';
 import theme from 'styles/theme.module.scss';
 import {setupComponent} from 'helpers/component-helper';
 import timeseriesClient from 'clients/timeseries';
+import {useParams} from 'react-router-dom';
 
 const FeatureIntegrityTableColumnNames = {
     FEATURE_NAME: 'Feature Name',
@@ -87,13 +88,14 @@ OnlineDistributionBarChart.propTypes = {
     distribution: PropTypes.array
 };
 
-const FeatureIntegrityRow = ({name, timeStore}) => {
+const FeatureIntegrityRow = ({modelStore, name, timeStore}) => {
     const incidentCount = 4;
     const tdClasses = 'py-5 align-middle';
     const [featureType, setFeatureType] = useState(null);
     const [featureCardinality, setFeatureCardinality] = useState(null);
     const [featureOnlineDistribution, setFeatureOnlineDistribution] = useState(null);
     const {ref, inView} = useInView();
+    const {_id} = useParams();
 
     useEffect(() => {
         if (inView && !featureType) {
@@ -327,7 +329,7 @@ const FeatureIntegrityRow = ({name, timeStore}) => {
                                     *,
                                     "${name}" as my_feature
                                   FROM "dioptra-gt-combined-eventstream"
-                                  WHERE ${SQL_OFFLINE_RANGE}
+                                  WHERE ${modelStore.getSqlReferencePeriodFilter(_id)}
                                 ),
 
                                 my_online_table as (
@@ -397,7 +399,7 @@ const FeatureIntegrityRow = ({name, timeStore}) => {
                                     CAST("${name}" AS FLOAT) as my_feature,
                                     '1' as join_key
                                   FROM "dioptra-gt-combined-eventstream"
-                                  WHERE ${SQL_OFFLINE_RANGE}
+                                  WHERE ${modelStore.getSqlReferencePeriodFilter(_id)}
                                   LIMIT 1000
                                 ),
 
@@ -555,6 +557,7 @@ const FeatureIntegrityRow = ({name, timeStore}) => {
 };
 
 FeatureIntegrityRow.propTypes = {
+    modelStore: PropTypes.object,
     name: PropTypes.string,
     timeStore: PropTypes.object
 };
