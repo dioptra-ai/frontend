@@ -97,12 +97,6 @@ const FeatureIntegrityRow = ({modelStore, name, timeStore}) => {
     const {ref, inView} = useInView();
     const {_id} = useParams();
 
-    const SQL_TIME_RANGE = useMemo(() => {
-        const {referencePeriod} = modelStore.getModelById(_id);
-
-        return referencePeriod ? `"__time" >= TIME_PARSE('${referencePeriod.start}') AND "__time" < TIME_PARSE('${referencePeriod.end}')` : 'TRUE';
-    }, [_id]);
-
     useEffect(() => {
         if (inView && !featureType) {
 
@@ -335,7 +329,7 @@ const FeatureIntegrityRow = ({modelStore, name, timeStore}) => {
                                     *,
                                     "${name}" as my_feature
                                   FROM "dioptra-gt-combined-eventstream"
-                                  WHERE ${SQL_TIME_RANGE}
+                                  WHERE ${modelStore.getSqlReferencePeriodFilter(_id)}
                                 ),
 
                                 my_online_table as (
@@ -405,7 +399,7 @@ const FeatureIntegrityRow = ({modelStore, name, timeStore}) => {
                                     CAST("${name}" AS FLOAT) as my_feature,
                                     '1' as join_key
                                   FROM "dioptra-gt-combined-eventstream"
-                                  WHERE ${SQL_TIME_RANGE}
+                                  WHERE ${modelStore.getSqlReferencePeriodFilter(_id)}
                                   LIMIT 1000
                                 ),
 

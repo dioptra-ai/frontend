@@ -31,6 +31,12 @@ class ModelStore {
         this.modelsById[_id] = data;
     }
 
+    getSqlReferencePeriodFilter(_id) {
+        const {referencePeriod} = this.modelsById[_id]
+        return referencePeriod ? `"__time" >= TIME_PARSE('${referencePeriod.start}') AND "__time" < TIME_PARSE('${referencePeriod.end}')` : 'TRUE';
+
+    }
+
     fetchModels() {
         this.state = ModelStore.STATE_PENDING;
 
