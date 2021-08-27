@@ -54,7 +54,7 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                     </InputGroup>
                     <InputGroup className='mt-3'>
                         <Form.Control
-                            className={`bg-light text-secondary ${
+                            className={`bg-light ${
                                 errors.mlModelId ? 'error' : ''
                             }`}
                             name='mlModelId'
@@ -76,10 +76,10 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                     )}
                     <InputGroup className='mt-3'>
                         <Form.Control
-                            className={`bg-light text-secondary ${errors.name ? 'error' : ''}`}
+                            className={`bg-light ${errors.name ? 'error' : ''}`}
                             name='name'
                             onChange={handleChange}
-                            placeholder='Enter Model ID'
+                            placeholder='Enter Model Name'
                             type='text'
                             value={formData.name}
                         />
@@ -96,7 +96,7 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                     )}
                     <InputGroup className='mt-3'>
                         <textarea
-                            className={`form-control bg-light text-secondary textarea ${
+                            className={`form-control bg-light textarea ${
                                 errors.description ? 'error' : ''
                             }`}
                             name='description'
@@ -123,7 +123,7 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                     )}
                     <InputGroup className='mt-3'>
                         <select
-                            className={`form-control bg-light text-secondary ${
+                            className={`form-control bg-light ${
                                 errors.mlModelType ? 'error' : ''
                             }`}
                             name='mlModelType'
