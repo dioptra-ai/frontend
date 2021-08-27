@@ -4,6 +4,9 @@ import Profile from 'pages/profile';
 import Models from 'pages/templates/models';
 import Model from 'pages/templates/model-template';
 import AddAlertPage from 'pages/add-alert';
+import Expermentations from 'pages/expermentations';
+import Alerts from 'pages/alerts';
+import Settings from 'pages/settings';
 
 export const Paths = (args = {}) => {
     const {modelId = ':_id'} = args;
@@ -33,9 +36,9 @@ export const AuthorizedRouteConfigs = [
     {path: Paths().HOME, isExact: true, component: Home},
     {path: Paths().MODELS, isExact: true, component: Models},
     {path: Paths().MODEL, isExact: false, component: Model},
-    {path: Paths().EXPERIMENTATIONS, isExact: false},
-    {path: Paths().ALERTS, isExact: false},
-    {path: Paths().SETTINGS, isExact: false},
+    {path: Paths().EXPERIMENTATIONS, isExact: false, component: Expermentations},
+    {path: Paths().ALERTS, isExact: false, component: Alerts},
+    {path: Paths().SETTINGS, isExact: false, component: Settings},
     {path: Paths().PROFILE, isExact: false, component: Profile},
     {
         path: Paths().ADD_ALERT,
