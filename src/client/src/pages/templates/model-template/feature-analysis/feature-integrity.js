@@ -1,7 +1,7 @@
 /* eslint-disable max-lines */
 
 import {Area, AreaChart, Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis} from 'recharts';
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import {Table} from 'react-bootstrap';
 import {useInView} from 'react-intersection-observer';

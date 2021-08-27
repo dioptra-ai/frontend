@@ -32,7 +32,8 @@ class ModelStore {
     }
 
     getSqlReferencePeriodFilter(_id) {
-        const {referencePeriod} = this.modelsById[_id]
+        const {referencePeriod} = this.modelsById[_id];
+
         return referencePeriod ? `"__time" >= TIME_PARSE('${referencePeriod.start}') AND "__time" < TIME_PARSE('${referencePeriod.end}')` : 'TRUE';
 
     }
