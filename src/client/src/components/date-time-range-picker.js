@@ -43,6 +43,7 @@ const DateTimeRangePicker = ({onChange, start, end, classNames, datePickerSettin
                 ...initialSettings,
                 ...datePickerSettings
             }}
+            onApply={(_, {startDate, endDate}) => handleChange(startDate, endDate)}
             onCallback={handleChange}
             onHide={() => setIsCalendarVisible(false)}
             onShow={() => setIsCalendarVisible(true)}>
