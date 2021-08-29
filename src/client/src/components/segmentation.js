@@ -8,7 +8,6 @@ import {
     ResponsiveContainer,
     XAxis
 } from 'recharts';
-import {useParams} from 'react-router-dom';
 
 import timeseriesClient from 'clients/timeseries';
 import {useInView} from 'react-intersection-observer';
@@ -25,7 +24,7 @@ import {getHexColor} from 'helpers/color-helper';
 import theme from '../styles/theme.module.scss';
 import TimeseriesQuery, {sql} from 'components/timeseries-query';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
-import * as history from 'helpers/history';
+import {useParams} from 'react-router-dom';
 
 const AddColumnModal = ({onCancel, onApply, allColumns, selected}) => {
     const featureColumns = allColumns.filter((c) => c.startsWith('feature.'));
@@ -271,9 +270,13 @@ const Segmentation = ({timeStore, modelStore}) => {
         setGroupByColumns(cols);
         setAddColModal(false);
 
-        url.searchParams.set('segmentation', cols);
+        if (url.searchParams.has('segmentation')) {
+            url.searchParams.set('segmentation', cols);
+        } else {
+            url.searchParams.append('segmentation', cols);
+        }
 
-        history.pushUrl(url);
+        window.history.pushState({}, null, url);
     };
 
     return (
@@ -320,7 +323,7 @@ const Segmentation = ({timeStore, modelStore}) => {
                                     })
                                 },
                                 {
-                                    id: 'prediction',
+                                    id: 'predictioj',
                                     Header: 'Online Predictions',
                                     Cell: Object.assign(
                                         (props) => (
