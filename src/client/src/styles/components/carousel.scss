@@ -1,6 +1,7 @@
 .carousel-wrapper {
     position: relative;
     padding: 0 80px;
+    z-index: 0;
     .carousel-button-group {
         position: absolute;
         top: 0;
@@ -42,4 +43,10 @@
     z-index: 2;
     display: flex;
     justify-content: center;
+}
+.modal-image {
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 90vh;
 }
