@@ -72,21 +72,6 @@ class TimeStore {
       // If the end is very close to now, assume we mean now and make it refreshable.
       // Date picker granulatiry is 1 minute == 60000 ms.
       this.refreshable = moment().diff(this.endMoment) <= 60000;
-
-      const url = new URL(window.location);
-
-      if (url.searchParams.has('startTime')) {
-          url.searchParams.set('startTime', moment(start).toISOString());
-      } else {
-          url.searchParams.append('startTime', moment(start).toISOString());
-      }
-      if (url.searchParams.has('endTime')) {
-          url.searchParams.set('endTime', moment(end).toISOString());
-      } else {
-          url.searchParams.append('endTime', moment(end).toISOString());
-      }
-
-      window.history.pushState({}, null, url);
   }
 
   refreshTimeRange() {

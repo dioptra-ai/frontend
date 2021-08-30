@@ -22,15 +22,6 @@ class FiltersStore {
   }
 
   set filters(f) {
-      const url = new URL(window.location);
-
-      if (url.searchParams.has('filters')) {
-          url.searchParams.set('filters', JSON.stringify(f));
-      } else {
-          url.searchParams.append('filters', JSON.stringify(f));
-      }
-
-      window.history.pushState({}, null, url);
 
       this.f = f;
   }
