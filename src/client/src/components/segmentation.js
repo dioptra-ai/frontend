@@ -250,33 +250,15 @@ _DistributionCell.propTypes = {
 
 const DistributionCell = setupComponent(_DistributionCell);
 
-const Segmentation = ({timeStore, modelStore}) => {
+const Segmentation = ({timeStore, modelStore, segmentationStore}) => {
     const allSqlFilters = useAllSqlFilters();
-    const [groupByColumns, setGroupByColumns] = useState([]);
     const [addColModal, setAddColModal] = useModal(false);
     const {_id} = useParams();
-
+    const groupByColumns = segmentationStore.segmentation;
     const {mlModelType, mlModelId} = modelStore.getModelById(_id);
-
-    const url = new URL(window.location);
-
-    useEffect(() => {
-        const queryCols = url.searchParams.get('segmentation');
-
-        setGroupByColumns([...queryCols ? queryCols.split(',') : []]);
-    }, []);
-
     const handleApply = (cols) => {
-        setGroupByColumns(cols);
+        segmentationStore.segmentation = cols;
         setAddColModal(false);
-
-        if (url.searchParams.has('segmentation')) {
-            url.searchParams.set('segmentation', cols);
-        } else {
-            url.searchParams.append('segmentation', cols);
-        }
-
-        window.history.pushState({}, null, url);
     };
 
     return (
@@ -400,6 +382,7 @@ const Segmentation = ({timeStore, modelStore}) => {
 
 Segmentation.propTypes = {
     modelStore: PropTypes.object.isRequired,
+    segmentationStore: PropTypes.object.isRequired,
     timeStore: PropTypes.object.isRequired
 };
 

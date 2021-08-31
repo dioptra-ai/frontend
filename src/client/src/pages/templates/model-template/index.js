@@ -15,6 +15,7 @@ import PredictionAnalysis from './prediction-analysis';
 import FeatureAnalysis from './feature-analysis';
 import IncidentsAndAlerts from './incidents-and-alerts.js';
 import useModel from 'customHooks/use-model';
+import StickyParamsRouter from 'components/sticky-params-router';
 
 export const ModelTabNames = {
     PERFORMANCE_OVERVIEW: 'Performance Overview',
@@ -67,24 +68,32 @@ const Model = ({modelStore}) => {
                 {...getModelTab(activeModelId, location.pathname)}
             ]}/>
             <ModelDescription {...model}/>
+            <StickyParamsRouter getParamsFromStores={({timeStore, filtersStore, segmentationStore}) => ({
+                startTime: timeStore.start.toISOString(),
+                endTime: timeStore.end.toISOString(),
+                filters: JSON.stringify(filtersStore.filters),
+                segmentation: JSON.stringify(segmentationStore.segmentation)
+            })}>
+                {ModelTabsConfigs().map(({tab, TabComponent}) => (
+                    <Route
+                        component={() => (
+                            <Container fluid>
+                                <Tabs
+                                    tabs={ModelTabs(activeModelId)}
+                                />
+                                <div className='px-3'>
+                                    <h2 className='text-dark bold-text fs-2 my-5'>{tab.name}</h2>
+                                    <TabComponent model={model}/>
+                                </div>
+                            </Container>
 
-            {ModelTabsConfigs().map(({tab, TabComponent}) => (
-                <Route
-                    component={() => (
-                        <Container fluid>
-                            <Tabs
-                                tabs={ModelTabs(activeModelId)}
-                            />
-                            <div className='px-3'>
-                                <h2 className='text-dark bold-text fs-2 my-5'>{tab.name}</h2>
-                                <TabComponent model={model}/>
-                            </div>
-                        </Container>)}
-                    exact
-                    key={tab.path}
-                    path={tab.path}
-                />
-            ))}
+                        )}
+                        exact
+                        key={tab.path}
+                        path={tab.path}
+                    />
+                ))}
+            </StickyParamsRouter>
         </>
     ) : 'Loading...';
 };
