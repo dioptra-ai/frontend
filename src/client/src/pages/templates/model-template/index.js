@@ -68,10 +68,11 @@ const Model = ({modelStore}) => {
                 {...getModelTab(activeModelId, location.pathname)}
             ]}/>
             <ModelDescription {...model}/>
-            <StickyParamsRouter getParamsFromStores={({timeStore, filtersStore}) => ({
+            <StickyParamsRouter getParamsFromStores={({timeStore, filtersStore, segmentationStore}) => ({
                 startTime: timeStore.start.toISOString(),
                 endTime: timeStore.end.toISOString(),
-                filters: JSON.stringify(filtersStore.filters)
+                filters: JSON.stringify(filtersStore.filters),
+                segmentation: JSON.stringify(segmentationStore.segmentation)
             })}>
                 {ModelTabsConfigs().map(({tab, TabComponent}) => (
                     <Route

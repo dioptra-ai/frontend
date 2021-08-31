@@ -48,13 +48,17 @@ class TimeStore {
 
   constructor(initialValue) {
       const search = new URL(window.location).searchParams;
+      const startTime = search.get('startTime');
+      const endTime = search.get('endTime');
 
-      if (search) {
-          const startTime = search.get('startTime');
-          const endTime = search.get('endTime');
+      if (startTime || endTime) {
 
-          if (startTime) this.startMoment = moment(startTime);
-          if (endTime) this.endMoment = moment(endTime);
+          if (startTime) {
+              this.startMoment = moment(startTime);
+          }
+          if (endTime) {
+              this.endMoment = moment(endTime);
+          }
       } else if (initialValue) {
           const initialStore = JSON.parse(initialValue);
 

@@ -5,12 +5,10 @@ class FiltersStore {
   f = [];
 
   constructor(initialValue) {
-      const search = new URL(window.location).searchParams;
+      const filters = new URL(window.location).searchParams.get('filters');
 
-      if (search) {
-          const filters = search.get('filters');
-
-          if (filters) this.f = JSON.parse(filters);
+      if (filters) {
+          this.f = JSON.parse(filters);
       } else if (initialValue) {
           this.f = JSON.parse(initialValue).f;
       }
