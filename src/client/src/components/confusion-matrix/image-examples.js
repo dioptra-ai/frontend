@@ -49,7 +49,7 @@ const ImageExamples = ({onClose, groundtruth, prediction}) => {
                             size={15}
                         />
                     </div>
-                    <img alt='Example' className='rounded' src={exampleInModal} width='100%' />
+                    <img alt='Example' className='rounded modal-image' src={exampleInModal} width='100%' />
                 </Modal>
             )}
         </div>
