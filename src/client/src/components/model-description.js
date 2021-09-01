@@ -20,7 +20,7 @@ const ModelDescription = ({name, description, team, version, tier, lastDeployed,
     const [errors, setErrors] = useState({});
     const {_id} = useParams();
 
-    const {mlModelId, mlModelType} = modelStore.getModelById(_id);
+    const {mlModelId, mlModelType, referencePeriod} = modelStore.getModelById(_id);
 
     const handleSubmit = (data) => {
         if (errors) {
@@ -108,7 +108,7 @@ const ModelDescription = ({name, description, team, version, tier, lastDeployed,
             <ModalComponent isOpen={showModal} onClose={() => setShowModal(false)}>
                 <ModelForm
                     errors={errors}
-                    initialValue={{name, description, mlModelId, mlModelType}}
+                    initialValue={{name, description, mlModelId, mlModelType, referencePeriod}}
                     onSubmit={handleSubmit}
                 />
             </ModalComponent>
