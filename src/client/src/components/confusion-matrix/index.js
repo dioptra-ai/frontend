@@ -118,6 +118,7 @@ const ConfusionMatrix = () => {
                     model.mlModelType === 'IMAGE_CLASSIFIER' ? (
                         <ImageExamples
                             groundtruth={selectedCell.groundtruth}
+                            model={model}
                             onClose={() => setSelectedCell(null)}
                             prediction={selectedCell.prediction}
                         />
