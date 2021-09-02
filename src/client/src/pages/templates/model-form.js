@@ -38,12 +38,15 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
             fluid
         >
             <div className='model-form d-flex flex-column align-items-center'>
-                <p className='text-dark bold-text fs-3 mb-4'>{Object.keys(initialValue).length ? 'Update' : 'Create New'} Model</p>
+                <p className='text-dark bold-text fs-3 mb-4'>
+                    {Object.keys(initialValue).length ? 'Update' : 'Create New'} Model
+                </p>
                 <Form autoComplete='off' className='w-100'>
                     <InputGroup className='mt-3 text-center'>
+                        <Form.Label>Reference Date Range</Form.Label>
                         <DateTimeRangePicker
-                            classNames = {'justify-content-around bg-light'}
-                            datePickerSettings = {{
+                            classNames={'justify-content-around bg-light'}
+                            datePickerSettings={{
                                 opens: 'center'
                             }}
                             end={moment(formData?.referencePeriod?.end)}
@@ -52,11 +55,10 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                             width='100%'
                         />
                     </InputGroup>
-                    <InputGroup className='mt-3'>
+                    <Form.Label className='mt-3 mb-0'>Model ID</Form.Label>
+                    <InputGroup className='mt-1'>
                         <Form.Control
-                            className={`bg-light ${
-                                errors.mlModelId ? 'error' : ''
-                            }`}
+                            className={`bg-light ${errors.mlModelId ? 'error' : ''}`}
                             name='mlModelId'
                             onChange={handleChange}
                             placeholder='Enter Model ID'
@@ -74,7 +76,8 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                     {errors.mlModelId && (
                         <Tooltip className='p-3 mt-2' color='warning' text={errors.mlModelId} />
                     )}
-                    <InputGroup className='mt-3'>
+                    <Form.Label className='mt-3 mb-0'>Name</Form.Label>
+                    <InputGroup className='mt-1'>
                         <Form.Control
                             className={`bg-light ${errors.name ? 'error' : ''}`}
                             name='name'
@@ -94,7 +97,8 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                     {errors.name && (
                         <Tooltip className='p-3 mt-2' color='warning' text={errors.name} />
                     )}
-                    <InputGroup className='mt-3'>
+                    <Form.Label className='mt-3 mb-0'>Description</Form.Label>
+                    <InputGroup className='mt-1'>
                         <textarea
                             className={`form-control bg-light textarea ${
                                 errors.description ? 'error' : ''
@@ -121,7 +125,8 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                             text={errors.description}
                         />
                     )}
-                    <InputGroup className='mt-3'>
+                    <Form.Label className='mt-3 mb-0'>Type</Form.Label>
+                    <InputGroup className='mt-1'>
                         <select
                             className={`form-control bg-light ${
                                 errors.mlModelType ? 'error' : ''
@@ -155,7 +160,8 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                         className='w-100 text-white btn-submit mt-5'
                         onClick={handleSubmit}
                         variant='primary'
-                    >{Object.keys(initialValue).length ? 'Update Model' : 'Create Model'}
+                    >
+                        {Object.keys(initialValue).length ? 'Update Model' : 'Create Model'}
                     </Button>
                 </Form>
             </div>
