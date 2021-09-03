@@ -25,7 +25,7 @@ const ImageExamples = ({onClose, groundtruth, prediction}) => {
             </div>
             <TimeseriesQuery
                 defaultData={[]}
-                renderData={(data) => data.every((img) => img['feature.image_url']?.substr(0, 7).includes('http')) ? (
+                renderData={(data) => data.every((img) => img['feature.image_url'].match(/^https?:\/\//)) ? (
                     <CustomCarousel
                         items={data.map((x) => x['feature.image_url'].replace(/"/g, ''))}
                         onItemClick={setExampleInModal}
