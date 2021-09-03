@@ -72,6 +72,7 @@
     "react-modal": "^3.14.3",
     "react-multi-carousel": "^2.6.3",
     "react-router-dom": "^5.2.0",
+    "react-select": "^4.3.1",
     "react-table": "^7.7.0",
     "recharts": "^2.0.9"
   },
