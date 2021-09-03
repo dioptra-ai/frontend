@@ -2,8 +2,9 @@ apiVersion: v1
 kind: Service
 metadata:
   annotations:
-    kompose.cmd: kompose convert -c -f docker-compose.yaml -o helm
-    kompose.version: 1.22.0 (955b78124)
+    service.beta.kubernetes.io/aws-load-balancer-type: nlb
+    service.beta.kubernetes.io/aws-load-balancer-eip-allocations: eipalloc-07a386aa6d1680b81,eipalloc-08d8d03301d5410f1
+    service.beta.kubernetes.io/aws-load-balancer-subnets: subnet-03e737304afa6f1ea,subnet-025456614c12331e9
   creationTimestamp: null
   labels:
     io.kompose.service: nodejs
@@ -12,7 +13,7 @@ spec:
   type: LoadBalancer
   ports:
     - name: "4004"
-      port: 4004
+      port: 80
       targetPort: 4004
   selector:
     io.kompose.service: nodejs
