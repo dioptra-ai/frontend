@@ -6,6 +6,7 @@ import CustomCarousel from 'components/carousel';
 import Modal from 'components/modal';
 import TimeseriesQuery, {sql} from 'components/timeseries-query';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
+import TabularExamples from './tabular-examples';
 
 const ImageExamples = ({onClose, groundtruth, prediction}) => {
     const [exampleInModal, setExampleInModal] = useModal(false);
@@ -24,12 +25,19 @@ const ImageExamples = ({onClose, groundtruth, prediction}) => {
             </div>
             <TimeseriesQuery
                 defaultData={[]}
-                renderData={(data) => (
+                renderData={(data) => data.every((img) => img['feature.image_url'].match(/^https?:\/\//)) ? (
                     <CustomCarousel
                         items={data.map((x) => x['feature.image_url'].replace(/"/g, ''))}
                         onItemClick={setExampleInModal}
                     />
-                )}
+                ) : (
+                    <TabularExamples
+                        groundtruth={groundtruth}
+                        onClose={onClose}
+                        prediction={prediction}
+                    />
+                )
+                }
                 sql={sql`
                         SELECT distinct "feature.image_url"
                         FROM "dioptra-gt-combined-eventstream"
@@ -49,7 +57,12 @@ const ImageExamples = ({onClose, groundtruth, prediction}) => {
                             size={15}
                         />
                     </div>
-                    <img alt='Example' className='rounded modal-image' src={exampleInModal} width='100%' />
+                    <img
+                        alt='Example'
+                        className='rounded modal-image'
+                        src={exampleInModal}
+                        width='100%'
+                    />
                 </Modal>
             )}
         </div>
