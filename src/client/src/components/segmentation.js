@@ -195,10 +195,8 @@ const _DistributionCell = ({groupByColumns, timeStore, row}) => {
                 query: `WITH distribution_sample_table as (
                   SELECT *
                   FROM "dioptra-gt-combined-eventstream"
-                  WHERE ${allSqlFilters}
-                        AND ${groupByColumns
-        .map((c) => `"${c}"='${row.original[c]}'`)
-        .join(' AND ')}
+                  WHERE ${allSqlFilters} AND ${
+    groupByColumns.map((c) => `"${c}"='${row.original[c]}'`).join(' AND ')}
                 )
                 SELECT
                   cast(my_sub_table.my_count as float) / my_sub_count_table.total_count as dist,
@@ -218,11 +216,11 @@ const _DistributionCell = ({groupByColumns, timeStore, row}) => {
                     FROM distribution_sample_table
                     GROUP BY ${sqlColumns}
                   ) AS my_sub_count_table
-                  ON ${groupByColumns
-        .map(
-            (column) => `my_sub_table."${column}" = my_sub_count_table."${column}"`
-        )
-        .join(', ')}`
+                  ON ${
+    groupByColumns.map(
+        (column) => `my_sub_table."${column}" = my_sub_count_table."${column}"`
+    ).join(' AND ')
+}`
             }).then((data) => {
                 setDistributionData(data);
             });
@@ -344,37 +342,40 @@ const Segmentation = ({timeStore, modelStore, segmentationStore}) => {
                     `
                     }
                 />
-                <TimeseriesQuery
-                    defaultData={[]}
-                    renderData={(featuresAndTags) => <TimeseriesQuery
+                {addColModal && (
+                    <TimeseriesQuery
                         defaultData={[]}
-                        renderData={([data]) => addColModal && (
-                            <AddColumnModal
-                                allColumns={featuresAndTags.filter((_, i) => data && data[i] > 0).map((d) => d.column)}
-                                onApply={handleApply}
-                                onCancel={() => setAddColModal(false)}
-                                selected={groupByColumns}
+                        renderData={(featuresAndTags) => (
+                            <TimeseriesQuery
+                                defaultData={[]}
+                                renderData={([data]) => (
+                                    <AddColumnModal
+                                        allColumns={featuresAndTags.filter((_, i) => data && data[i] > 0).map((d) => d.column)}
+                                        onApply={handleApply}
+                                        onCancel={() => setAddColModal(false)}
+                                        selected={groupByColumns}
+                                    />
+                                )
+                                }
+                                resultFormat='array'
+                                sql={sql`
+                                SELECT ${featuresAndTags.map(({column}) => `COUNT("${column}")`).join(', ')}
+                                FROM "dioptra-gt-combined-eventstream"
+                                WHERE ${timeStore.sqlTimeFilter} AND model_id = '${mlModelId}'
+                                `}
                             />
-                        )
-                        }
-                        resultFormat='array'
+                        )}
                         sql={sql`
-                        SELECT ${featuresAndTags.map(({column}) => `COUNT(DISTINCT "${column}")`).join(', ')}
-                        FROM "dioptra-gt-combined-eventstream"
-                        WHERE ${timeStore.sqlTimeFilter} AND model_id = '${mlModelId}'
+                            SELECT COLUMN_NAME as "column"
+                            FROM INFORMATION_SCHEMA.COLUMNS 
+                            WHERE TABLE_NAME = 'dioptra-gt-combined-eventstream'
+                            AND (${
+                    mlModelType !== 'IMAGE_CLASSIFIER' ? 'COLUMN_NAME LIKE \'feature.%\' OR' :
+                        ''
+                    } COLUMN_NAME LIKE 'tag.%')
                         `}
                     />
-                    }
-                    sql={sql`
-                        SELECT COLUMN_NAME as "column"
-                        FROM INFORMATION_SCHEMA.COLUMNS 
-                        WHERE TABLE_NAME = 'dioptra-gt-combined-eventstream'
-                        AND (${
-        mlModelType !== 'IMAGE_CLASSIFIER' ? 'COLUMN_NAME LIKE \'feature.%\' OR' :
-            ''
-        } COLUMN_NAME LIKE 'tag.%')
-                    `}
-                />
+                )}
             </div>
         </div>
     );
