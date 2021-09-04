@@ -107,34 +107,31 @@ Text.propTypes = {
     value: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
 };
 
-const _AccuracyCell = ({groupByColumns, timeStore, row}) => {
+const _AccuracyCell = ({timeStore, segmentationStore, row}) => {
+    const groupByColumns = segmentationStore.segmentation;
     const {ref, inView} = useInView();
     const [accuracyData, setAccuracyData] = useState([]);
     const allSqlFilters = useAllSqlFilters();
 
     useEffect(() => {
+
         if (inView) {
+
             timeseriesClient({
                 query: `WITH my_sample_table as (
                     SELECT *
                     FROM "dioptra-gt-combined-eventstream"
-                    WHERE ${allSqlFilters}
-                        AND ${groupByColumns
-        .map((c) => `"${c}"='${row.original[c]}'`)
-        .join(' AND ')}
-                    )
+                    WHERE ${allSqlFilters} AND ${groupByColumns.map((c) => `"${c}"='${row.original[c]}'`).join(' AND ')})
                     SELECT 
                       FLOOR(__time TO MINUTE) AS x,
                       100 * cast(sum(CASE WHEN groundtruth=prediction THEN 1 ELSE 0 end) AS float) / count(*) AS y
                     FROM my_sample_table
-                    GROUP BY FLOOR(__time TO MINUTE), ${groupByColumns
-        .map((c) => `"${c}"`)
-        .join(', ')}`
+                    GROUP BY FLOOR(__time TO MINUTE), ${groupByColumns.map((c) => `"${c}"`).join(', ')}`
             }).then((data) => {
                 setAccuracyData(data);
             });
         }
-    }, [inView, timeStore.sqlTimeFilter]);
+    }, [inView, allSqlFilters, groupByColumns.join()]);
 
     return (
         <div ref={ref} style={{height: '150px'}}>
@@ -176,14 +173,15 @@ const _AccuracyCell = ({groupByColumns, timeStore, row}) => {
 };
 
 _AccuracyCell.propTypes = {
-    groupByColumns: PropTypes.array,
     row: PropTypes.object,
+    segmentationStore: PropTypes.object,
     timeStore: PropTypes.object.isRequired
 };
 
 const AccuracyCell = setupComponent(_AccuracyCell);
 
-const _DistributionCell = ({groupByColumns, timeStore, row}) => {
+const _DistributionCell = ({row, segmentationStore}) => {
+    const groupByColumns = segmentationStore.segmentation;
     const {ref, inView} = useInView();
     const allSqlFilters = useAllSqlFilters();
     const [distributionData, setDistributionData] = useState([]);
@@ -195,11 +193,7 @@ const _DistributionCell = ({groupByColumns, timeStore, row}) => {
                 query: `WITH distribution_sample_table as (
                   SELECT *
                   FROM "dioptra-gt-combined-eventstream"
-                  WHERE ${allSqlFilters}
-                        AND ${groupByColumns
-        .map((c) => `"${c}"='${row.original[c]}'`)
-        .join(' AND ')}
-                )
+                  WHERE ${allSqlFilters} AND ${groupByColumns.map((c) => `"${c}"='${row.original[c]}'`).join(' AND ')})
                 SELECT
                   cast(my_sub_table.my_count as float) / my_sub_count_table.total_count as dist,
                   my_sub_table.prediction as "value"
@@ -218,16 +212,12 @@ const _DistributionCell = ({groupByColumns, timeStore, row}) => {
                     FROM distribution_sample_table
                     GROUP BY ${sqlColumns}
                   ) AS my_sub_count_table
-                  ON ${groupByColumns
-        .map(
-            (column) => `my_sub_table."${column}" = my_sub_count_table."${column}"`
-        )
-        .join(', ')}`
+                  ON ${groupByColumns.map((column) => `my_sub_table."${column}" = my_sub_count_table."${column}"`).join(' AND ')}`
             }).then((data) => {
                 setDistributionData(data);
             });
         }
-    }, [inView, timeStore.sqlTimeFilter]);
+    }, [inView, allSqlFilters, groupByColumns.join()]);
 
     return (
         <div ref={ref}>
@@ -243,9 +233,8 @@ const _DistributionCell = ({groupByColumns, timeStore, row}) => {
 };
 
 _DistributionCell.propTypes = {
-    groupByColumns: PropTypes.array,
     row: PropTypes.object,
-    timeStore: PropTypes.object.isRequired
+    segmentationStore: PropTypes.object
 };
 
 const DistributionCell = setupComponent(_DistributionCell);
@@ -290,37 +279,23 @@ const Segmentation = ({timeStore, modelStore, segmentationStore}) => {
                                 {
                                     id: 'accuracy',
                                     Header: 'Accuracy Trend',
-                                    Cell: Object.assign(
-                                        (props) => (
-                                            <AccuracyCell groupByColumns={groupByColumns} {...props} />
-                                        ),
-                                        {displayName: 'AccuracyCell'}
-                                    )
+                                    Cell: AccuracyCell
                                 },
                                 {
                                     accessor: 'sampleSize',
                                     Header: 'Sample Size',
-                                    Cell: Object.assign((props) => <Text {...props} />, {
-                                        displayName: 'Text'
-                                    })
+                                    Cell: Text
                                 },
                                 {
-                                    id: 'predictioj',
+                                    id: 'prediction',
                                     Header: 'Online Predictions',
-                                    Cell: Object.assign(
-                                        (props) => (
-                                            <DistributionCell groupByColumns={groupByColumns} {...props} />
-                                        ),
-                                        {displayName: 'DistributionCell'}
-                                    )
+                                    Cell: DistributionCell
                                 }
                             ].concat(
                                 groupByColumns.map((column) => ({
                                     accessor: (c) => c[column],
                                     Header: column,
-                                    Cell: Object.assign((props) => <Text {...props} />, {
-                                        displayName: 'ColumnText'
-                                    })
+                                    Cell: Text
                                 }))
                             )}
                             data={data}
@@ -344,37 +319,40 @@ const Segmentation = ({timeStore, modelStore, segmentationStore}) => {
                     `
                     }
                 />
-                <TimeseriesQuery
-                    defaultData={[]}
-                    renderData={(featuresAndTags) => <TimeseriesQuery
+                {addColModal && (
+                    <TimeseriesQuery
                         defaultData={[]}
-                        renderData={([data]) => addColModal && (
-                            <AddColumnModal
-                                allColumns={featuresAndTags.filter((_, i) => data && data[i] > 0).map((d) => d.column)}
-                                onApply={handleApply}
-                                onCancel={() => setAddColModal(false)}
-                                selected={groupByColumns}
+                        renderData={(featuresAndTags) => (
+                            <TimeseriesQuery
+                                defaultData={[]}
+                                renderData={([data]) => (
+                                    <AddColumnModal
+                                        allColumns={featuresAndTags.filter((_, i) => data && data[i] > 0).map((d) => d.column)}
+                                        onApply={handleApply}
+                                        onCancel={() => setAddColModal(false)}
+                                        selected={groupByColumns}
+                                    />
+                                )
+                                }
+                                resultFormat='array'
+                                sql={sql`
+                                SELECT ${featuresAndTags.map(({column}) => `COUNT("${column}")`).join(', ')}
+                                FROM "dioptra-gt-combined-eventstream"
+                                WHERE ${timeStore.sqlTimeFilter} AND model_id = '${mlModelId}'
+                                `}
                             />
-                        )
-                        }
-                        resultFormat='array'
+                        )}
                         sql={sql`
-                        SELECT ${featuresAndTags.map(({column}) => `COUNT(DISTINCT "${column}")`).join(', ')}
-                        FROM "dioptra-gt-combined-eventstream"
-                        WHERE ${timeStore.sqlTimeFilter} AND model_id = '${mlModelId}'
+                            SELECT COLUMN_NAME as "column"
+                            FROM INFORMATION_SCHEMA.COLUMNS 
+                            WHERE TABLE_NAME = 'dioptra-gt-combined-eventstream'
+                            AND (${
+                    mlModelType !== 'IMAGE_CLASSIFIER' ? 'COLUMN_NAME LIKE \'feature.%\' OR' :
+                        ''
+                    } COLUMN_NAME LIKE 'tag.%')
                         `}
                     />
-                    }
-                    sql={sql`
-                        SELECT COLUMN_NAME as "column"
-                        FROM INFORMATION_SCHEMA.COLUMNS 
-                        WHERE TABLE_NAME = 'dioptra-gt-combined-eventstream'
-                        AND (${
-        mlModelType !== 'IMAGE_CLASSIFIER' ? 'COLUMN_NAME LIKE \'tag.%\' OR' :
-            ''
-        } COLUMN_NAME LIKE 'feature.%')
-                    `}
-                />
+                )}
             </div>
         </div>
     );

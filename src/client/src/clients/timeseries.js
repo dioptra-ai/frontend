@@ -1,3 +1,20 @@
+import mem from 'mem';
+
+const memoizedFetch = mem(async (...args) => {
+    const res = await window.fetch(...args);
+
+    if (res.ok) {
+
+        return res.json();
+    } else {
+
+        throw new Error(res.statusText);
+    }
+}, {
+    cacheKey: JSON.stringify,
+    maxAge: 1000 * 60 * 5 // 5 minutes
+});
+
 /**
  * @param  {String} query a query string
  *      see https://druid.apache.org/docs/latest/querying/sql.html
@@ -7,7 +24,7 @@
  */
 const TimeseriesClient = ({query, resultFormat = 'object', sqlOuterLimit}) => {
 
-    return window.fetch('/api/timeseries', {
+    return memoizedFetch('/api/timeseries', {
         headers: {
             'content-type': 'application/json'
         },
@@ -20,15 +37,6 @@ const TimeseriesClient = ({query, resultFormat = 'object', sqlOuterLimit}) => {
             }
         }),
         method: 'post'
-    }).then((res) => {
-
-        if (res.ok) {
-
-            return res.json();
-        } else {
-
-            throw new Error(res.statusText);
-        }
     }).then((resJson) => {
 
         if (resJson.error) {
