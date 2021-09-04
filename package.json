@@ -55,7 +55,6 @@
     "express-session": "^1.17.2",
     "jquery": "^3.6.0",
     "lodash": "^4.17.21",
-    "lru-memoizer": "^2.1.4",
     "mathjs": "^9.4.3",
     "mem": "^9.0.1",
     "mobx": "^6.3.2",
