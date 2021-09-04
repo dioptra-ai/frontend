@@ -370,9 +370,9 @@ const Segmentation = ({timeStore, modelStore, segmentationStore}) => {
                         FROM INFORMATION_SCHEMA.COLUMNS 
                         WHERE TABLE_NAME = 'dioptra-gt-combined-eventstream'
                         AND (${
-        mlModelType !== 'IMAGE_CLASSIFIER' ? 'COLUMN_NAME LIKE \'tag.%\' OR' :
+        mlModelType !== 'IMAGE_CLASSIFIER' ? 'COLUMN_NAME LIKE \'feature.%\' OR' :
             ''
-        } COLUMN_NAME LIKE 'feature.%')
+        } COLUMN_NAME LIKE 'tag.%')
                     `}
                 />
             </div>
