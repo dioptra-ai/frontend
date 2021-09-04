@@ -1,6 +1,9 @@
 import React, {useEffect, useState} from 'react';
 import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
+import {useParams} from 'react-router-dom';
+import timeseriesClient from 'clients/timeseries';
+import {setupComponent} from 'helpers/component-helper';
 import FontIcon from './font-icon';
 
 const Filter = ({filter, onDelete, applied = false}) => (
@@ -20,7 +23,8 @@ Filter.propTypes = {
 const FilterInput = ({
     inputPlaceholder = 'filter1=foo filter2=bar',
     defaultFilters = [],
-    onChange
+    onChange,
+    modelStore
 }) => {
     const [newFilter, setNewFilter] = useState('');
     const [filters, setFilters] = useState([]);
@@ -28,14 +32,51 @@ const FilterInput = ({
     const [suggestions, setSuggestions] = useState([]);
     const [suggestionIndex, setSuggestionIndex] = useState(-1);
 
-    const getSuggestions = () => {
-        const externals = [];
+    const {_id} = useParams();
 
-        setSuggestions(externals);
+    const {mlModelId} = modelStore.getModelById(_id);
+
+
+    const getSuggestions = () => {
+        const [key, value] = newFilter.split('=');
+
+        if (key && newFilter.includes('=')) {
+
+            timeseriesClient({
+                resultFormat: 'array',
+                query: `SELECT ${key}
+                FROM "dioptra-gt-combined-eventstream"
+                WHERE ${key} LIKE '${value}%'`
+                // AND model_id=${mlModelId} Query giving error with this
+            }).then((data) => {
+                setSuggestions([...data.flat()]);
+            }).catch(() => setSuggestions([]));
+        } else {
+            timeseriesClient({
+                query: `SELECT COLUMN_NAME as allKeyOptions
+            FROM INFORMATION_SCHEMA.COLUMNS 
+            WHERE TABLE_NAME = 'dioptra-gt-combined-eventstream' AND COLUMN_NAME LIKE '${key}%'`
+            }).then((allKeyOptions) => {
+                timeseriesClient({
+                    query: `SELECT ${allKeyOptions.map(({allKeyOptions: key}) => `COUNT("${key}")`).join(', ')}
+                    FROM "dioptra-gt-combined-eventstream"
+                    WHERE model_id='${mlModelId}'`,
+                    resultFormat: 'array'
+                }).then(([data]) => {
+                    const filteredKeys = allKeyOptions.filter((_, i) => data && data[i] > 0).map(({allKeyOptions}) => allKeyOptions);
+
+                    setSuggestions([...filteredKeys]);
+                }).catch(() => setSuggestions([]));
+            }).catch(() => setSuggestions([]));
+        }
     };
 
+    console.log(suggestions);
+
     useEffect(() => {
-        getSuggestions();
+        if (newFilter.length) {
+            getSuggestions();
+        }
     }, [newFilter]);
 
     const handleInputChange = (e) => {
@@ -43,6 +84,8 @@ const FilterInput = ({
     };
 
     const handleKeyUp = (e) => {
+        const [key] = e.target.value.split('=');
+
         if (e.keyCode === 38 && suggestionIndex > 0) { //on arrow up
             setSuggestionIndex(suggestionIndex - 1);
         } else if (e.keyCode === 40 && suggestionIndex < suggestions.length - 1) { //on arrow down
@@ -51,8 +94,11 @@ const FilterInput = ({
             setSuggestions([]);
             setSuggestionIndex(-1);
         } else if (e.keyCode === 13 && suggestionIndex !== -1) { //on enter while suggestion is selected
-            setFilters([...filters, suggestions[suggestionIndex]]);
-            setNewFilter('');
+            if (e.target.value.includes('=')) {
+                setNewFilter(`${key}=${suggestions[suggestionIndex]}`);
+            } else {
+                setNewFilter(`${suggestions[suggestionIndex]}=`);
+            }
             setSuggestionIndex(-1);
         } else if (e.keyCode === 32 && newFilter !== '') { //on space
             if (filters.indexOf(newFilter) === -1 && appliedFilters.indexOf(newFilter) === -1) {
@@ -62,9 +108,6 @@ const FilterInput = ({
                 setFilters(updatedFilters);
             }
             setNewFilter('');
-        } else if (e.keyCode === 13) { //on enter
-            handleAppliedFiltersChange([...appliedFilters, ...filters]);
-            setFilters([]);
         }
     };
 
@@ -147,7 +190,8 @@ const FilterInput = ({
 FilterInput.propTypes = {
     defaultFilters: PropTypes.array,
     inputPlaceholder: PropTypes.string,
+    modelStore: PropTypes.object.isRequired,
     onChange: PropTypes.func.isRequired
 };
 
-export default FilterInput;
+export default setupComponent(FilterInput);
