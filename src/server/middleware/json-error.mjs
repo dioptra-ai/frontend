@@ -1,4 +1,5 @@
 const jsonError = (err, req, res, next) => { // eslint-disable-line no-unused-vars
+    console.error(err);
 
     if (res.statusCode === 200) {
         res.status(500);

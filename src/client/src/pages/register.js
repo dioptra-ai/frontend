@@ -60,7 +60,8 @@ const Register = ({authStore}) => {
                                     setLoginData({...loginData, ['email']: e.target.value});
                                     setEmailError('');
                                 }}
-                                type='text'
+                                required
+                                type='email'
                                 value={loginData.email}
                             />
                             {emailError && (
@@ -85,6 +86,7 @@ const Register = ({authStore}) => {
                                     setLoginData({...loginData, ['password']: e.target.value});
                                     setPasswordError('');
                                 }}
+                                required
                                 type='password'
                                 value={loginData.password}
                             />
@@ -110,6 +112,7 @@ const Register = ({authStore}) => {
                                     setLoginData({...loginData, ['confirmPassword']: e.target.value});
                                     setConfirmPasswordError('');
                                 }}
+                                required
                                 type='password'
                                 value={loginData.confirmPassword}
                             />

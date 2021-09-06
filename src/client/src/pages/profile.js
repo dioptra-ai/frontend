@@ -11,7 +11,7 @@ import {IconNames} from '../constants';
 
 const Profile = ({authStore}) => {
     const [profileData, setProfileData] = useState({
-        email: '',
+        email: authStore.userData.username,
         password: '',
         confirmPassword: ''
     });
@@ -49,83 +49,91 @@ const Profile = ({authStore}) => {
             <div className='login-form d-flex flex-column align-items-center'>
                 <p className='text-dark bold-text fs-3 mb-4'>Update Profile</p>
                 <Form autoComplete='off' className='w-100' onSubmit={handleSubmit}>
-                    <InputGroup className='mt-3'>
-                        <Form.Control
-                            className={`bg-light text-secondary ${emailError ? 'error' : ''}`}
-                            name='email'
-                            onChange={(e) => {
-                                setProfileData({...profileData, ['email']: e.target.value});
-                                setEmailError('');
-                                authStore.error = null;
-                            }}
-                            placeholder='Enter your new email'
-                            type='text'
-                            value={profileData.email}
-                        />
+                    <Form.Group className='mb-3'>
+                        <Form.Label>New Email</Form.Label>
+                        <InputGroup>
+                            <Form.Control
+                                className={`bg-light ${emailError ? 'error' : ''}`}
+                                name='email'
+                                onChange={(e) => {
+                                    setProfileData({...profileData, ['email']: e.target.value});
+                                    setEmailError('');
+                                    authStore.error = null;
+                                }}
+                                type='email'
+                                value={profileData.email}
+                            />
+                            {emailError && (
+                                <FontIcon
+                                    className='text-warning error-icon'
+                                    icon={IconNames.WARNING}
+                                    size={20}
+                                />
+                            )}
+                        </InputGroup>
                         {emailError && (
-                            <FontIcon
-                                className='text-warning error-icon'
-                                icon={IconNames.WARNING}
-                                size={20}
-                            />
+                            <Tooltip className='p-3 mt-2' color='warning' text={emailError} />
                         )}
-                    </InputGroup>
-                    {emailError && (
-                        <Tooltip className='p-3 mt-2' color='warning' text={emailError} />
-                    )}
-                    <InputGroup className='mt-3'>
-                        <Form.Control
-                            className={`bg-light text-secondary ${
-                                confirmPasswordError ? 'error' : ''
-                            }`}
-                            name='password'
-                            onChange={(e) => {
-                                setProfileData({...profileData, ['password']: e.target.value});
-                            }}
-                            placeholder='Enter your new password'
-                            type='password'
-                            value={profileData.password}
-                        />
+                    </Form.Group>
+                    <Form.Group className='mb-3'>
+                        <Form.Label>New Password</Form.Label>
+                        <InputGroup>
+                            <Form.Control
+                                className={`bg-light ${
+                                    confirmPasswordError ? 'error' : ''
+                                }`}
+                                name='password'
+                                onChange={(e) => {
+                                    setProfileData({...profileData, ['password']: e.target.value});
+                                }}
+                                required
+                                type='password'
+                                value={profileData.password}
+                            />
+                            {confirmPasswordError && (
+                                <FontIcon
+                                    className='text-warning error-icon'
+                                    icon={IconNames.WARNING}
+                                    size={20}
+                                />
+                            )}
+                        </InputGroup>
+                    </Form.Group>
+                    <Form.Group className='mb-3'>
+                        <Form.Label>Confirm New Password</Form.Label>
+                        <InputGroup>
+                            <Form.Control
+                                className={`bg-light ${
+                                    confirmPasswordError ? 'error' : ''
+                                }`}
+                                name='confirmPassword'
+                                onChange={(e) => {
+                                    setProfileData({
+                                        ...profileData,
+                                        ['confirmPassword']: e.target.value
+                                    });
+                                    setConfirmPasswordError('');
+                                }}
+                                required
+                                type='password'
+                                value={profileData.confirmPassword}
+                            />
+                            {confirmPasswordError && (
+                                <FontIcon
+                                    className='text-warning error-icon'
+                                    icon={IconNames.WARNING}
+                                    size={20}
+                                />
+                            )}
+                        </InputGroup>
                         {confirmPasswordError && (
-                            <FontIcon
-                                className='text-warning error-icon'
-                                icon={IconNames.WARNING}
-                                size={20}
+                            <Tooltip
+                                className='p-3 mt-2'
+                                color='warning'
+                                text={confirmPasswordError}
                             />
                         )}
-                    </InputGroup>
-                    <InputGroup className='mt-3'>
-                        <Form.Control
-                            className={`bg-light text-secondary ${
-                                confirmPasswordError ? 'error' : ''
-                            }`}
-                            name='confirmPassword'
-                            onChange={(e) => {
-                                setProfileData({
-                                    ...profileData,
-                                    ['confirmPassword']: e.target.value
-                                });
-                                setConfirmPasswordError('');
-                            }}
-                            placeholder='Confirm your Password'
-                            type='password'
-                            value={profileData.confirmPassword}
-                        />
-                        {confirmPasswordError && (
-                            <FontIcon
-                                className='text-warning error-icon'
-                                icon={IconNames.WARNING}
-                                size={20}
-                            />
-                        )}
-                    </InputGroup>
-                    {confirmPasswordError && (
-                        <Tooltip
-                            className='p-3 mt-2'
-                            color='warning'
-                            text={confirmPasswordError}
-                        />
-                    )}
+                    </Form.Group>
                     <Button
                         className='w-100 text-white btn-submit mt-3'
                         disabled={authStore.loading}

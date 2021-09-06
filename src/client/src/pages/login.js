@@ -57,6 +57,7 @@ const Login = ({authStore}) => {
                                     setLoginData({...loginData, ['email']: e.target.value});
                                     setEmailError('');
                                 }}
+                                required
                                 type='text'
                                 value={loginData.email}
                             />
@@ -82,6 +83,7 @@ const Login = ({authStore}) => {
                                     setLoginData({...loginData, ['password']: e.target.value});
                                     setPasswordError('');
                                 }}
+                                required
                                 type='password'
                                 value={loginData.password}
                             />

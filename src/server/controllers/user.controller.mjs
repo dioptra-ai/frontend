@@ -5,17 +5,13 @@ import Mongoose from 'mongoose';
 const UserModel = Mongoose.model('User');
 const UserRouter = express.Router();
 
-// eslint-disable-next-line no-unused-vars
-UserRouter.get('/', isAuthenticated, (req, res, next) => {
-    res.send('User data');
-});
-
 UserRouter.put('/', isAuthenticated, async (req, res, next) => {
     const {username} = req.body;
     const authUser = req.user;
+    const existingUser = await UserModel.findOne({username});
 
     try {
-        if (await UserModel.exists({username})) {
+        if (existingUser && !existingUser._id.equals(authUser._id)) {
 
             res.status(400);
             throw new Error('Username already taken.');
