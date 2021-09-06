@@ -5,6 +5,7 @@ import {
     Area,
     AreaChart,
     CartesianGrid,
+    ReferenceArea,
     ResponsiveContainer,
     Tooltip,
     XAxis,
@@ -49,6 +50,17 @@ CustomTooltip.propTypes = {
     unit: PropTypes.string
 };
 
+const GraphInitialState = {
+    data: [],
+    left: 'dataMin',
+    right: 'dataMax',
+    refAreaLeft: '',
+    refAreaRight: '',
+    top: 'dataMax+1',
+    bottom: 'dataMin-1',
+    animation: true
+};
+
 const AreaGraph = ({
     title,
     dots,
@@ -76,6 +88,9 @@ const AreaGraph = ({
 
     const [filledData, setFilledData] = useState([]);
     const [showBtn, setShowBtn] = useState(false);
+    const [graphState, setGraphState] = useState({
+        ...GraphInitialState
+    });
 
     useEffect(() => {
         if (data.length) {
@@ -96,26 +111,71 @@ const AreaGraph = ({
         }
     }, []);
 
-    const zoomIn = (e) => {
-        const halfRange = filledData[filledData.length - 1].x - filledData[0].x;
+    useEffect(() => {
+        setGraphState({
+            ...graphState,
+            data: filledData,
+            ...(domain ? {left: domain[0], right: domain[1]} : {}),
+            ...(yAxisDomain ? {top: yAxisDomain[0], bottom: yAxisDomain[1]} : {})
+        });
+    }, [filledData, domain, yAxisDomain]);
 
-        const start = e.activeLabel - halfRange;
-        const end = e.activeLabel + halfRange;
+    const zoomIn = () => {
+        let {refAreaLeft, refAreaRight} = graphState;
+        const {data} = graphState;
 
-        timeStore.setTimeRange({start, end});
+        if (refAreaLeft === refAreaRight || refAreaRight === '') {
+            setGraphState({
+                ...graphState,
+                refAreaLeft: '',
+                refAreaRight: ''
+            });
 
+            return;
+        }
+
+        if (refAreaLeft > refAreaRight) [refAreaLeft, refAreaRight] = [refAreaRight, refAreaLeft];
+
+        const indexLeft = graphState.data.map(({x}) => x).indexOf(refAreaLeft);
+        const indexRight = graphState.data.map(({x}) => x).indexOf(refAreaRight);
+        const refData = graphState.data.slice(indexLeft - 1, indexRight);
+
+        let [bottom, top] = [refData[0]['y'], refData[0]['y']];
+
+        refData.forEach((d) => {
+            if (d['y'] > top) top = d['y'];
+            if (d['y'] < bottom) bottom = d['y'];
+        });
+
+        [bottom, top] = [(bottom || 0) - 1, (top || 0) + 1];
+
+        setGraphState({
+            refAreaLeft: '',
+            refAreaRight: '',
+            data: data.slice(),
+            left: refAreaLeft,
+            right: refAreaRight,
+            bottom,
+            top
+        });
     };
 
     const zoomOut = () => {
-        const doubleRange = (filledData[filledData.length - 1].x - filledData[0].x) * 3;
-        const start = filledData[0].x - doubleRange;
-        const end = filledData[filledData.length - 1].x + doubleRange;
+        const {data} = graphState;
 
-        timeStore.setTimeRange({start, end});
+        setGraphState({
+            data: data.slice(),
+            refAreaLeft: '',
+            refAreaRight: '',
+            left: domain[0],
+            right: domain[1],
+            top: yAxisDomain ? yAxisDomain[0] : 'dataMax+1',
+            bottom: yAxisDomain ? yAxisDomain[1] : 'dataMin'
+        });
     };
 
     return (
-        <div className={`${hasBorder ? 'border px-3' : ''} rounded py-3 w-100`}>
+        <div className={`${hasBorder ? 'border px-3' : ''} rounded py-3 w-100`} style={{userSelect: 'none'}}>
             {title && <p className='text-dark bold-text fs-4'>{title}</p>}
             <div onMouseEnter={() => setShowBtn(true)}
                 onMouseLeave={() => setShowBtn(false)}
@@ -131,9 +191,11 @@ const AreaGraph = ({
                 </Button>}
                 <ResponsiveContainer height='100%' width='100%'>
                     <AreaChart
-                        data={filledData}
+                        data={graphState.data}
                         margin={margin}
-                        onClick={zoomIn}
+                        onMouseDown={(e) => setGraphState({...graphState, refAreaLeft: e.activeLabel})}
+                        onMouseMove={(e) => graphState.refAreaLeft && setGraphState({...graphState, refAreaRight: e.activeLabel})}
+                        onMouseUp={zoomIn}
                     >
                         <CartesianGrid strokeDasharray='5 5' />
                         <defs>
@@ -148,7 +210,7 @@ const AreaGraph = ({
                         </defs>
                         <XAxis
                             dataKey='x'
-                            domain={domain}
+                            domain={[graphState.left, graphState.right]}
                             dy={5}
                             interval={xAxisInterval}
                             label={{
@@ -165,7 +227,8 @@ const AreaGraph = ({
                             type='number'
                         />
                         <YAxis
-                            domain={yAxisDomain}
+                            // domain={yAxisDomain}
+                            domain={[graphState.bottom, graphState.top]}
                             dx={-5}
                             label={{
                                 fill: theme.dark,
@@ -178,6 +241,7 @@ const AreaGraph = ({
                             tick={{fill: theme.secondary, fontSize: fontSizes.fs_7}}
                             tickCount={6}
                             unit={unit}
+                            yAxisId='1'
                         />
                         <Tooltip content={<CustomTooltip unit={unit} />} />
                         <Area
@@ -187,7 +251,11 @@ const AreaGraph = ({
                             stroke={color}
                             strokeWidth={2}
                             type='linear'
+                            yAxisId='1'
                         />
+                        {graphState.refAreaLeft && graphState.refAreaRight ? (
+                            <ReferenceArea strokeOpacity={0.3} x1={graphState.refAreaLeft} x2={graphState.refAreaRight} yAxisId='1' />
+                        ) : null}
                     </AreaChart>
                 </ResponsiveContainer>
             </div>
