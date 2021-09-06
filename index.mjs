@@ -5,6 +5,7 @@ import {fileURLToPath} from 'url';
 import {} from 'dotenv/config';
 import {sessionHandler, userAuth} from './src/server/middleware/authentication.mjs';
 import ApiRouter from './src/server/api-router.mjs';
+import jsonError from './src/server/middleware/json-error.mjs';
 import './src/server/models/index.mjs';
 
 const app = express();
@@ -27,6 +28,8 @@ app.use('/api', ApiRouter);
 app.get('*', (req, res, next) => {
     res.sendFile(resolve(basePath, 'build', 'index.html'));
 });
+
+app.use(jsonError);
 
 const port = process.env.PORT;
 

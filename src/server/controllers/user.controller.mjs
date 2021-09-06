@@ -1,6 +1,8 @@
 import {isAuthenticated} from '../middleware/authentication.mjs';
 import express from 'express';
 import Mongoose from 'mongoose';
+
+const UserModel = Mongoose.model('User');
 const UserRouter = express.Router();
 
 // eslint-disable-next-line no-unused-vars
@@ -13,19 +15,38 @@ UserRouter.put('/', isAuthenticated, async (req, res, next) => {
     const authUser = req.user;
 
     try {
-        const UserModel = Mongoose.model('User');
-        const existingUser = await UserModel.findOne({username});
+        if (await UserModel.exists({username})) {
 
-        if (existingUser?._id && !existingUser._id.equals(authUser._id)) {
-            res.status(400).send({err: 'Username already taken'});
+            res.status(400);
+            throw new Error('Username already taken.');
         } else {
             const resp = await UserModel.findByIdAndUpdate(
-                authUser._id,
-                {...req.body},
-                {new: true}
+                authUser._id, {
+                    ...req.body,
+                    new: true
+                }
             );
 
             res.send(resp);
+        }
+    } catch (e) {
+        next(e);
+    }
+});
+
+UserRouter.post('/', async (req, res, next) => {
+    try {
+        const {username, password} = req.body;
+
+        if (await UserModel.exists({username})) {
+
+            res.status(400);
+            throw new Error('Username already taken.');
+        } else {
+
+            res.json(await UserModel.create({
+                username, password
+            }));
         }
     } catch (e) {
         next(e);

@@ -22,9 +22,9 @@ const userClient = async (method, data = {}) => {
     if (res.ok) {
 
         return body;
-    } else if (body.message) {
+    } else if (body.error) {
 
-        throw new Error(body.message);
+        throw new Error(body.error);
     } else {
 
         throw new Error(body || res.statusText);
