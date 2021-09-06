@@ -1,15 +1,16 @@
 import React from 'react';
 import {Redirect, Route, Switch} from 'react-router-dom';
 import AuthorizedTemplate from './pages/templates/authorized-template';
-import {AuthorizedRouteConfigs, Paths, UnauthorizedRouteConfigs} from './configs/route-config';
+import {AuthorizedRouteConfigs} from './configs/route-config';
+import Login from 'pages/login';
+import Register from 'pages/register';
 
 const App = () => {
     return (
         <>
             <Switch>
-                {UnauthorizedRouteConfigs.map(({path, isExact, component: C}) => (
-                    <Route component={C} exact={isExact} key={path} path={path} />
-                ))}
+                <Route component={Login} exact path='/login' />
+                <Route component={Register} exact path='/register' />
                 {AuthorizedRouteConfigs.map(({path, isExact, component: C}) => (
                     <Route
                         component={() => <AuthorizedTemplate><C/></AuthorizedTemplate>}
@@ -19,7 +20,7 @@ const App = () => {
                     />
                 ))}
                 <Route path='/'>
-                    <Redirect to={Paths().LOGIN} />
+                    <Redirect to='/login' />
                 </Route>
             </Switch>
         </>

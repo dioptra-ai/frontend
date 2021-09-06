@@ -12,10 +12,11 @@ import {setupComponent} from '../helpers/component-helper';
 import {IconNames} from '../constants';
 import {Paths} from '../configs/route-config';
 
-const Login = ({authStore}) => {
+const Register = ({authStore}) => {
     const [loginData, setLoginData] = useState({email: '', password: ''});
     const [emailError, setEmailError] = useState('');
     const [passwordError, setPasswordError] = useState('');
+    const [confirmPasswordError, setConfirmPasswordError] = useState('');
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -24,8 +25,10 @@ const Login = ({authStore}) => {
             setEmailError('Please enter your email address.');
         } else if (loginData.password === '') {
             setPasswordError('Please enter your password.');
+        } else if (loginData.password !== loginData.confirmPassword) {
+            setConfirmPasswordError('Your password does not match.');
         } else {
-            authStore.tryLogin({username: loginData.email, password: loginData.password});
+            authStore.tryRegister({username: loginData.email, password: loginData.password});
         }
     };
 
@@ -45,7 +48,7 @@ const Login = ({authStore}) => {
         >
             <div className='login-form d-flex flex-column align-items-center'>
                 <Logo className='mb-5' height={177} width={270} />
-                <p className='text-dark bold-text fs-3 mb-4'>Log in</p>
+                <p className='text-dark bold-text fs-3 mb-4'>Register</p>
                 <Form autoComplete='off' className='w-100' onSubmit={handleSubmit}>
                     <Form.Group className='mb-3'>
                         <Form.Label>Email</Form.Label>
@@ -73,7 +76,7 @@ const Login = ({authStore}) => {
                         )}
                     </Form.Group>
                     <Form.Group className='mb-3'>
-                        <Form.Label>Password</Form.Label>
+                        <Form.Label>New Password</Form.Label>
                         <InputGroup>
                             <Form.Control
                                 className={`bg-light text-secondary ${passwordError ? 'error' : ''}`}
@@ -97,16 +100,41 @@ const Login = ({authStore}) => {
                             <Tooltip className='p-3 mt-2' color='warning' text={passwordError} />
                         )}
                     </Form.Group>
+                    <Form.Group className='mb-3'>
+                        <Form.Label>Confirm New Password</Form.Label>
+                        <InputGroup>
+                            <Form.Control
+                                className={`bg-light text-secondary ${confirmPasswordError ? 'error' : ''}`}
+                                name='confirmPassword'
+                                onChange={(e) => {
+                                    setLoginData({...loginData, ['confirmPassword']: e.target.value});
+                                    setConfirmPasswordError('');
+                                }}
+                                type='password'
+                                value={loginData.confirmPassword}
+                            />
+                            {confirmPasswordError && (
+                                <FontIcon
+                                    className='text-warning error-icon'
+                                    icon={IconNames.WARNING}
+                                    size={20}
+                                />
+                            )}
+                        </InputGroup>
+                        {confirmPasswordError && (
+                            <Tooltip className='p-3 mt-2' color='warning' text={confirmPasswordError} />
+                        )}
+                    </Form.Group>
                     <Button
                         className='w-100 text-white btn-submit mt-3'
                         type='submit'
                         variant='primary'
                     >
-            LOG IN
+                        REGISTER
                     </Button>
                 </Form>
-                <Link className='text-dark mt-3' to='/register'>
-                    Register
+                <Link className='text-dark mt-3' to='/login'>
+                    Login
                 </Link>
                 <p className='text-secondary text-center border-top border-muted mt-3 p-2'>
                     Forgot password? If you need help with log in, please contact us at
@@ -120,8 +148,8 @@ const Login = ({authStore}) => {
     );
 };
 
-Login.propTypes = {
+Register.propTypes = {
     authStore: PropTypes.object
 };
 
-export default setupComponent(Login);
+export default setupComponent(Register);
