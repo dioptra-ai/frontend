@@ -1,15 +1,18 @@
 import React from 'react';
-import {Redirect, Route, Switch} from 'react-router-dom';
+import {Route, Switch} from 'react-router-dom';
 import AuthorizedTemplate from './pages/templates/authorized-template';
 import {AuthorizedRouteConfigs} from './configs/route-config';
 import Login from 'pages/login';
+import Logout from 'pages/logout';
 import Register from 'pages/register';
+import AuthRoute from 'components/auth-route';
 
 const App = () => {
     return (
         <>
             <Switch>
                 <Route component={Login} exact path='/login' />
+                <Route component={Logout} exact path='/logout' />
                 <Route component={Register} exact path='/register' />
                 {AuthorizedRouteConfigs.map(({path, isExact, component: C}) => (
                     <Route
@@ -19,9 +22,7 @@ const App = () => {
                         path={path}
                     />
                 ))}
-                <Route path='/'>
-                    <Redirect to='/login' />
-                </Route>
+                <AuthRoute path='/'/>
             </Switch>
         </>
     );

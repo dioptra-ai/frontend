@@ -10,23 +10,13 @@ const customFields = {
 };
 
 const verifyCallback = async (username, password, done) => {
+
     try {
-        const user = await User.findOne({username});
-
-        if (!user) {
-            return done('Wrong username or password.');
-        }
-
-        const validPassword = await user.validatePassword(password);
-
-        if (!validPassword) {
-            return done('Wrong username or password.');
-        }
+        const user = await User.validatePassword(username, password);
 
         return done(null, user);
     } catch (error) {
         return done(error);
-
     }
 };
 

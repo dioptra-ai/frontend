@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from 'react';
+import {useHistory} from 'react-router';
 import PropTypes from 'prop-types';
 import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
@@ -17,6 +18,7 @@ const Profile = ({authStore}) => {
     });
     const [emailError, setEmailError] = useState('');
     const [confirmPasswordError, setConfirmPasswordError] = useState('');
+    const history = useHistory();
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -86,7 +88,6 @@ const Profile = ({authStore}) => {
                                 onChange={(e) => {
                                     setProfileData({...profileData, ['password']: e.target.value});
                                 }}
-                                required
                                 type='password'
                                 value={profileData.password}
                             />
@@ -114,7 +115,6 @@ const Profile = ({authStore}) => {
                                     });
                                     setConfirmPasswordError('');
                                 }}
-                                required
                                 type='password'
                                 value={profileData.confirmPassword}
                             />
@@ -146,7 +146,7 @@ const Profile = ({authStore}) => {
                 <p className='text-secondary text-center border-top border-muted mt-5 w-100'>
                     <Button
                         className='w-100 text-white btn-submit mt-5'
-                        onClick={() => authStore.tryLogout()}
+                        onClick={() => history.push('/logout')}
                         variant='secondary'
                     >
             Logout

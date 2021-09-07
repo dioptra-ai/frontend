@@ -5,17 +5,18 @@ import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Button from 'react-bootstrap/Button';
 import Logo from '../components/logo';
-import {Link, Redirect} from 'react-router-dom';
+import {Link, Redirect, useLocation} from 'react-router-dom';
 import Tooltip from '../components/tooltip';
 import FontIcon from '../components/font-icon';
 import {setupComponent} from '../helpers/component-helper';
 import {IconNames} from '../constants';
-import {Paths} from '../configs/route-config';
 
 const Login = ({authStore}) => {
     const [loginData, setLoginData] = useState({email: '', password: ''});
     const [emailError, setEmailError] = useState('');
     const [passwordError, setPasswordError] = useState('');
+    const location = useLocation();
+    const [initialLocation] = useState(location.state?.from);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -36,8 +37,10 @@ const Login = ({authStore}) => {
         }
     }, [authStore.error]);
 
-    return authStore.isAuthenticated ? (
-        <Redirect to={Paths().MODELS} />
+    return authStore.loading ? (
+        'Loading...'
+    ) : authStore.isAuthenticated ? (
+        <Redirect to={initialLocation} />
     ) : (
         <Container
             className='login fs-6 d-flex align-items-center justify-content-center'
@@ -104,17 +107,17 @@ const Login = ({authStore}) => {
                         type='submit'
                         variant='primary'
                     >
-            LOG IN
+                            LOG IN
                     </Button>
                 </Form>
                 <Link className='text-dark mt-3' to='/register'>
-                    Register
+                        Register
                 </Link>
                 <p className='text-secondary text-center border-top border-muted mt-3 p-2'>
-                    Forgot password? If you need help with log in, please contact us at
-                    &nbsp;
+                        Forgot password? If you need help with log in, please contact us at
+                        &nbsp;
                     <a className='text-secondary' href='mailto:support@dioptra.com'>
-                        support@dioptra.com
+                            support@dioptra.com
                     </a>
                 </p>
             </div>

@@ -29,6 +29,7 @@ services:
       - app-network
     volumes:
       - ./src:/app/src
+      - ./index.mjs:/app/index.mjs
     entrypoint: /bin/sleep 36000
 
 networks:

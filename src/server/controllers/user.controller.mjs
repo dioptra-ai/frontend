@@ -23,7 +23,7 @@ UserRouter.put('/', isAuthenticated, async (req, res, next) => {
                 }
             );
 
-            res.send(resp);
+            res.json(resp);
         }
     } catch (e) {
         next(e);

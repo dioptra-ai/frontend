@@ -24,6 +24,7 @@ app.use(passport.session());
 // Register all controller routes to /api/ basepath
 app.use('/api', ApiRouter);
 
+
 // Serve frontend on all routes other than /api
 app.get('*', (req, res, next) => {
     res.sendFile(resolve(basePath, 'build', 'index.html'));

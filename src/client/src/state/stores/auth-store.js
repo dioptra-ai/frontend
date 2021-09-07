@@ -1,9 +1,5 @@
-import {
-    autorun,
-    makeAutoObservable,
-    runInAction
-} from 'mobx';
-import AuthenticationClient from 'clients/authentication';
+import {makeAutoObservable} from 'mobx';
+import authenticationClient from 'clients/authentication';
 import userClient from 'clients/user';
 
 class AuthStore {
@@ -15,17 +11,19 @@ class AuthStore {
 
     loading = false;
 
-    success = false;
-
-    constructor(localData) {
-        if (localData) {
-            const parsedLocalData = JSON.parse(localData);
-
-            this.isAuthenticated = parsedLocalData.isAuthenticated;
-            this.userData = parsedLocalData.userData;
-            this.error = null;
-        }
+    constructor() {
         makeAutoObservable(this);
+    }
+
+    async init() {
+        this.loading = true;
+
+        try {
+            this.userData = await authenticationClient('login');
+            this.isAuthenticated = true;
+        } finally {
+            this.loading = false;
+        }
     }
 
     get isAuthenticated() {
@@ -45,7 +43,7 @@ class AuthStore {
     }
 
     get success() {
-        return this.success;
+        return !this.error;
     }
 
     set isAuthenticated(status) {
@@ -64,82 +62,65 @@ class AuthStore {
         this.loading = status;
     }
 
-    set success(status) {
-        this.success = status;
-    }
-
     async tryLogin(data) {
-        try {
-            const resp = await AuthenticationClient('login', data);
+        this.loading = true;
+        this.error = null;
 
-            runInAction(() => {
-                this.isAuthenticated = true;
-                this.userData = resp;
-                this.error = null;
-            });
+        try {
+            this.userData = await authenticationClient('login', data);
+            this.isAuthenticated = true;
         } catch (e) {
-            runInAction(() => {
-                this.isAuthenticated = false;
-                this.userData = null;
-                this.error = e.message;
-            });
+            this.userData = null;
+            this.isAuthenticated = false;
+            this.error = e.message;
+        } finally {
+            this.loading = false;
         }
     }
 
     async tryLogout() {
+        this.loading = true;
+        this.error = null;
+
         try {
-            await AuthenticationClient('logout');
+            await authenticationClient('logout');
+            this.userData = null;
+            this.isAuthenticated = false;
+        } catch (e) {
+            this.error = e;
         } finally {
-            runInAction(() => {
-                this.isAuthenticated = false;
-                this.userData = null;
-                this.error = null;
-            });
+            this.loading = false;
         }
     }
 
     async tryUpdate(data) {
-        try {
-            runInAction(() => {
-                this.loading = true;
-                this.success = false;
-            });
-            const resp = await userClient('put', data);
+        this.loading = true;
+        this.error = null;
 
-            runInAction(() => {
-                this.userData = resp;
-                this.success = true;
-                this.loading = false;
-            });
+        try {
+            this.userData = await userClient('put', data);
         } catch (e) {
-            runInAction(() => {
-                this.error = e.message;
-                this.loading = false;
-            });
+            this.error = e;
+        } finally {
+            this.loading = false;
         }
     }
 
     async tryRegister(data) {
         this.loading = true;
-        this.success = false;
         this.error = null;
 
         try {
             this.userData = await userClient('post', data);
-
-            this.success = true;
-
             this.tryLogin(data);
         } catch (e) {
-            this.error = e.message;
+            this.error = e;
         } finally {
             this.loading = false;
         }
     }
 }
 
-export const authStore = new AuthStore(localStorage.getItem('authStore'));
+export const authStore = new AuthStore();
 
-autorun(() => {
-    localStorage.setItem('authStore', JSON.stringify(authStore));
-});
+authStore.init();
