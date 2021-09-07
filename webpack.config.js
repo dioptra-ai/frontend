@@ -1,4 +1,5 @@
 const path = require('path');
+const webpack = require('webpack');
 const HtmlWebPackPlugin = require('html-webpack-plugin');
 
 module.exports = {
@@ -69,6 +70,9 @@ module.exports = {
     plugins: [
         new HtmlWebPackPlugin({
             template: './src/client/public/index.html'
+        }),
+        new webpack.DefinePlugin({
+            FLAG_DISABLE_REGISTER: process.env.FLAG_DISABLE_REGISTER
         })
     ]
 };

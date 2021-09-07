@@ -39,7 +39,9 @@ const Register = ({authStore}) => {
         }
     }, [authStore.error]);
 
-    return authStore.isAuthenticated ? (
+    return FLAG_DISABLE_REGISTER ? (
+        <Redirect to='/login'/>
+    ) : authStore.isAuthenticated ? (
         <Redirect to={Paths().MODELS} />
     ) : (
         <Container
