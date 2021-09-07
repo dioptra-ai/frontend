@@ -3,13 +3,13 @@ import authenticationClient from 'clients/authentication';
 import userClient from 'clients/user';
 
 class AuthStore {
-    isAuthenticated = false;
+    _isAuthenticated = false;
 
-    userData = null;
+    _userData = null;
 
-    error = null;
+    _error = null;
 
-    loading = false;
+    _loading = false;
 
     constructor() {
         makeAutoObservable(this);
@@ -27,39 +27,39 @@ class AuthStore {
     }
 
     get isAuthenticated() {
-        return this.isAuthenticated;
+        return this._isAuthenticated;
     }
 
     get userData() {
-        return this.userData;
+        return this._userData;
     }
 
     get error() {
-        return this.error;
+        return this._error;
     }
 
     get loading() {
-        return this.loading;
+        return this._loading;
     }
 
     get success() {
-        return !this.error;
+        return !this._error;
     }
 
     set isAuthenticated(status) {
-        this.isAuthenticated = status;
+        this._isAuthenticated = status;
     }
 
     set userData(data) {
-        this.userData = data;
+        this._userData = data;
     }
 
     set error(err) {
-        this.error = err;
+        this._error = err;
     }
 
     set loading(status) {
-        this.loading = status;
+        this._loading = status;
     }
 
     async tryLogin(data) {
