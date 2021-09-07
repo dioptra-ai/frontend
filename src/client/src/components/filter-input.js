@@ -47,42 +47,43 @@ const FilterInput = ({
                 resultFormat: 'array',
                 query: `SELECT ${key}
                 FROM "dioptra-gt-combined-eventstream"
-                WHERE ${key} LIKE '${value}%'`
-                // AND model_id=${mlModelId} Query giving error with this
+                WHERE ${key} LIKE '${value}%'
+                AND model_id=${mlModelId}`
             })
                 .then((data) => {
                     setSuggestions([...data.flat()]);
                 })
                 .catch(() => setSuggestions([]));
         } else {
+            let allKeyOptions = [];
+
             timeseriesClient({
                 query: `SELECT COLUMN_NAME as allKeyOptions
             FROM INFORMATION_SCHEMA.COLUMNS 
             WHERE TABLE_NAME = 'dioptra-gt-combined-eventstream' AND COLUMN_NAME LIKE '${key}%'`
             })
-                .then((allKeyOptions) => {
-                    timeseriesClient({
+                .then((data) => {
+                    allKeyOptions = data;
+
+                    return timeseriesClient({
                         query: `SELECT ${allKeyOptions
                             .map(({allKeyOptions: key}) => `COUNT("${key}")`)
                             .join(', ')}
                     FROM "dioptra-gt-combined-eventstream"
                     WHERE model_id='${mlModelId}'`,
                         resultFormat: 'array'
-                    })
-                        .then(([data]) => {
-                            const filteredKeys = allKeyOptions
-                                .filter((_, i) => data && data[i] > 0)
-                                .map(({allKeyOptions}) => allKeyOptions);
+                    });
+                })
+                .then(([data]) => {
+                    const filteredKeys = allKeyOptions
+                        .filter((_, i) => data && data[i] > 0)
+                        .map(({allKeyOptions}) => allKeyOptions);
 
-                            setSuggestions([...filteredKeys]);
-                        })
-                        .catch(() => setSuggestions([]));
+                    setSuggestions([...filteredKeys]);
                 })
                 .catch(() => setSuggestions([]));
         }
     };
-
-    console.log(suggestions);
 
     useEffect(() => {
         if (newFilter.length) {
