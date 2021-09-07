@@ -44,11 +44,13 @@ const FilterInput = ({
 
         if (key && newFilter.includes('=')) {
             timeseriesClient({
-                resultFormat: 'array',
-                query: `SELECT ${key}
-                FROM "dioptra-gt-combined-eventstream"
-                WHERE ${key} LIKE '${value}%'
-                AND model_id='${mlModelId}'`
+                query: `SELECT "${key}"
+                    FROM "dioptra-gt-combined-eventstream"
+                    WHERE "${key}" LIKE '${value}%' AND model_id='${mlModelId}'
+                    GROUP BY "${key}"
+                    LIMIT 10
+                `,
+                resultFormat: 'array'
             })
                 .then((data) => {
                     setSuggestions([...data.flat()]);
@@ -59,8 +61,8 @@ const FilterInput = ({
 
             timeseriesClient({
                 query: `SELECT COLUMN_NAME as allKeyOptions
-            FROM INFORMATION_SCHEMA.COLUMNS 
-            WHERE TABLE_NAME = 'dioptra-gt-combined-eventstream' AND COLUMN_NAME LIKE '${key}%'`
+                    FROM INFORMATION_SCHEMA.COLUMNS 
+                    WHERE TABLE_NAME = 'dioptra-gt-combined-eventstream' AND COLUMN_NAME LIKE '${key}%'`
             })
                 .then((data) => {
                     allKeyOptions = data;
@@ -70,7 +72,9 @@ const FilterInput = ({
                             .map(({allKeyOptions: key}) => `COUNT("${key}")`)
                             .join(', ')}
                     FROM "dioptra-gt-combined-eventstream"
-                    WHERE model_id='${mlModelId}'`,
+                    WHERE model_id='${mlModelId}'
+                    LIMIT 10
+                    `,
                         resultFormat: 'array'
                     });
                 })
