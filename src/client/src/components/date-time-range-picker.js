@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useMemo, useState} from 'react';
 import PropTypes from 'prop-types';
 import DateRangePicker from 'react-bootstrap-daterangepicker';
 import {formatDateTimeRange, lastDays, lastHours, lastMinutes} from '../helpers/date-helper';
@@ -7,17 +7,6 @@ import {IconNames} from '../constants';
 import {isMoment} from '../helpers/type-helper';
 
 const initialSettings = {
-    ranges: {
-        'Last 5 minutes': lastMinutes(5),
-        'Last 15 minutes': lastMinutes(15),
-        'Last 1 hours': lastHours(1),
-        'Last 3 hours': lastHours(3),
-        'Last 6 hours': lastHours(6),
-        'Last 24 hours': lastHours(24),
-        'Last 2 days': lastDays(2),
-        'Last 7 days': lastDays(7),
-        'Last 30 days': lastDays(30)
-    },
     opens: 'left',
     timePicker: true,
     linkedCalendars: false,
@@ -28,6 +17,17 @@ const initialSettings = {
 };
 const DateTimeRangePicker = ({onChange, start, end, classNames, datePickerSettings, width}) => {
     const [isCalendarVisible, setIsCalendarVisible] = useState(false);
+    const ranges = useMemo(() => ({
+        'Last 5 minutes': lastMinutes(5),
+        'Last 15 minutes': lastMinutes(15),
+        'Last 1 hours': lastHours(1),
+        'Last 3 hours': lastHours(3),
+        'Last 6 hours': lastHours(6),
+        'Last 24 hours': lastHours(24),
+        'Last 2 days': lastDays(2),
+        'Last 7 days': lastDays(7),
+        'Last 30 days': lastDays(30)
+    }));
 
     const handleChange = (newStart, newEnd) => {
         if (newStart !== null && newEnd !== null && isMoment(newStart) && isMoment(newEnd)) {
@@ -35,26 +35,30 @@ const DateTimeRangePicker = ({onChange, start, end, classNames, datePickerSettin
         }
     };
 
+    const dateComponent = useMemo(() => {
+        return (<DateRangePicker initialSettings={{
+            startDate: start,
+            endDate: end,
+            ranges,
+            ...initialSettings,
+            ...datePickerSettings
+        }}
+        onApply={(_, {startDate, endDate}) => handleChange(startDate, endDate)}
+        onCallback={handleChange}
+        onHide={() => setIsCalendarVisible(false)}
+        onShow={() => setIsCalendarVisible(true)}>
+            <div className={`d-flex border border-secondary py-1 px-3 align-items-center rounded-3 ${classNames}`}>
+                <FontIcon className='text-secondary' icon={IconNames.DATE} size={25}/>
+                <span className='text-secondary py-2 px-4 fs-5'>
+                    {formatDateTimeRange(start, end)}</span>
+                <FontIcon className='text-secondary' icon={isCalendarVisible ? IconNames.ARROW_UP : IconNames.ARROW_DOWN} size={10}/>
+            </div>
+        </DateRangePicker>);
+    }, [ranges, isCalendarVisible]);
+
     return (
         <div style={{width}}>
-            <DateRangePicker initialSettings={{
-                startDate: start,
-                endDate: end,
-                ...initialSettings,
-                ...datePickerSettings
-            }}
-            onApply={(_, {startDate, endDate}) => handleChange(startDate, endDate)}
-            onCallback={handleChange}
-            onHide={() => setIsCalendarVisible(false)}
-            onShow={() => setIsCalendarVisible(true)}>
-
-                <div className={`d-flex border border-secondary py-1 px-3 align-items-center rounded-3 ${classNames}`}>
-                    <FontIcon className='text-secondary' icon={IconNames.DATE} size={25}/>
-                    <span className='text-secondary py-2 px-4 fs-5'>
-                        {formatDateTimeRange(start, end)}</span>
-                    <FontIcon className='text-secondary' icon={isCalendarVisible ? IconNames.ARROW_UP : IconNames.ARROW_DOWN} size={10}/>
-                </div>
-            </DateRangePicker>
+            {dateComponent}
         </div>
     );
 };

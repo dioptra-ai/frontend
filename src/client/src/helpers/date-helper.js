@@ -3,6 +3,8 @@ import moment from 'moment';
 const last = (amount, periodName) => {
     const start = moment().subtract(amount, periodName);
 
+    console.log(start.format('DD-MM HH:mm:sss'));
+
     return [start, undefined];
 };
 
