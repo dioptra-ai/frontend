@@ -5,17 +5,18 @@ import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Button from 'react-bootstrap/Button';
 import Logo from '../components/logo';
-import {Link, Redirect} from 'react-router-dom';
+import {Link, Redirect, useLocation} from 'react-router-dom';
 import Tooltip from '../components/tooltip';
 import FontIcon from '../components/font-icon';
 import {setupComponent} from '../helpers/component-helper';
 import {IconNames} from '../constants';
-import {Paths} from '../configs/route-config';
 
 const Login = ({authStore}) => {
     const [loginData, setLoginData] = useState({email: '', password: ''});
     const [emailError, setEmailError] = useState('');
     const [passwordError, setPasswordError] = useState('');
+    const location = useLocation();
+    const [initialLocation] = useState(location.state?.from);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -36,8 +37,10 @@ const Login = ({authStore}) => {
         }
     }, [authStore.error]);
 
-    return authStore.isAuthenticated ? (
-        <Redirect to={Paths().MODELS} />
+    return authStore.loading ? (
+        'Loading...'
+    ) : authStore.isAuthenticated ? (
+        <Redirect to={initialLocation} />
     ) : (
         <Container
             className='login fs-6 d-flex align-items-center justify-content-center'
@@ -47,67 +50,74 @@ const Login = ({authStore}) => {
                 <Logo className='mb-5' height={177} width={270} />
                 <p className='text-dark bold-text fs-3 mb-4'>Log in</p>
                 <Form autoComplete='off' className='w-100' onSubmit={handleSubmit}>
-                    <InputGroup className='mt-3'>
-                        <Form.Control
-                            className={`bg-light text-secondary ${emailError ? 'error' : ''}`}
-                            name='email'
-                            onChange={(e) => {
-                                setLoginData({...loginData, ['email']: e.target.value});
-                                setEmailError('');
-                            }}
-                            placeholder='Enter your email'
-                            type='text'
-                            value={loginData.email}
-                        />
+                    <Form.Group className='mb-3'>
+                        <Form.Label>Email</Form.Label>
+                        <InputGroup>
+                            <Form.Control
+                                className={`bg-light text-secondary ${emailError ? 'error' : ''}`}
+                                name='email'
+                                onChange={(e) => {
+                                    setLoginData({...loginData, ['email']: e.target.value});
+                                    setEmailError('');
+                                }}
+                                required
+                                type='text'
+                                value={loginData.email}
+                            />
+                            {emailError && (
+                                <FontIcon
+                                    className='text-warning error-icon'
+                                    icon={IconNames.WARNING}
+                                    size={20}
+                                />
+                            )}
+                        </InputGroup>
                         {emailError && (
-                            <FontIcon
-                                className='text-warning error-icon'
-                                icon={IconNames.WARNING}
-                                size={20}
-                            />
+                            <Tooltip className='p-3 mt-2' color='warning' text={emailError} />
                         )}
-                    </InputGroup>
-                    {emailError && (
-                        <Tooltip className='p-3 mt-2' color='warning' text={emailError} />
-                    )}
-                    <InputGroup className='mt-3'>
-                        <Form.Control
-                            className={`bg-light text-secondary ${passwordError ? 'error' : ''}`}
-                            name='password'
-                            onChange={(e) => {
-                                setLoginData({...loginData, ['password']: e.target.value});
-                                setPasswordError('');
-                            }}
-                            placeholder='Enter your password'
-                            type='password'
-                            value={loginData.password}
-                        />
+                    </Form.Group>
+                    <Form.Group className='mb-3'>
+                        <Form.Label>Password</Form.Label>
+                        <InputGroup>
+                            <Form.Control
+                                className={`bg-light text-secondary ${passwordError ? 'error' : ''}`}
+                                name='password'
+                                onChange={(e) => {
+                                    setLoginData({...loginData, ['password']: e.target.value});
+                                    setPasswordError('');
+                                }}
+                                required
+                                type='password'
+                                value={loginData.password}
+                            />
+                            {passwordError && (
+                                <FontIcon
+                                    className='text-warning error-icon'
+                                    icon={IconNames.WARNING}
+                                    size={20}
+                                />
+                            )}
+                        </InputGroup>
                         {passwordError && (
-                            <FontIcon
-                                className='text-warning error-icon'
-                                icon={IconNames.WARNING}
-                                size={20}
-                            />
+                            <Tooltip className='p-3 mt-2' color='warning' text={passwordError} />
                         )}
-                    </InputGroup>
-                    {passwordError && (
-                        <Tooltip className='p-3 mt-2' color='warning' text={passwordError} />
-                    )}
+                    </Form.Group>
                     <Button
                         className='w-100 text-white btn-submit mt-3'
                         type='submit'
                         variant='primary'
                     >
-            LOG IN
+                            LOG IN
                     </Button>
                 </Form>
-                <Link className='text-dark mt-3' to='forgot-password'>
-          Forgot password?
+                <Link className='text-dark mt-3' to='/register'>
+                        Register
                 </Link>
-                <p className='text-secondary text-center border-top border-muted mt-5 p-2'>
-          If you need help with log in, please contact us at{' '}
+                <p className='text-secondary text-center border-top border-muted mt-3 p-2'>
+                        Forgot password? If you need help with log in, please contact us at
+                        &nbsp;
                     <a className='text-secondary' href='mailto:support@dioptra.com'>
-            support@dioptra.com
+                            support@dioptra.com
                     </a>
                 </p>
             </div>

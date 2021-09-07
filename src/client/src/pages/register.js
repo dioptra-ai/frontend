@@ -1,69 +1,70 @@
 import React, {useEffect, useState} from 'react';
-import {useHistory} from 'react-router';
 import PropTypes from 'prop-types';
 import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Button from 'react-bootstrap/Button';
+import Logo from '../components/logo';
+import {Link, Redirect} from 'react-router-dom';
 import Tooltip from '../components/tooltip';
 import FontIcon from '../components/font-icon';
 import {setupComponent} from '../helpers/component-helper';
 import {IconNames} from '../constants';
+import {Paths} from '../configs/route-config';
 
-const Profile = ({authStore}) => {
-    const [profileData, setProfileData] = useState({
-        email: authStore.userData.username,
-        password: '',
-        confirmPassword: ''
-    });
+const Register = ({authStore}) => {
+    const [loginData, setLoginData] = useState({email: '', password: ''});
     const [emailError, setEmailError] = useState('');
+    const [passwordError, setPasswordError] = useState('');
     const [confirmPasswordError, setConfirmPasswordError] = useState('');
-    const history = useHistory();
 
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        if (profileData.email === '') {
+        if (loginData.email === '') {
             setEmailError('Please enter your email address.');
-        } else if (profileData.password !== profileData.confirmPassword) {
-            setConfirmPasswordError("Your password doesn't match");
+        } else if (loginData.password === '') {
+            setPasswordError('Please enter your password.');
+        } else if (loginData.password !== loginData.confirmPassword) {
+            setConfirmPasswordError('Your password does not match.');
         } else {
-            authStore.tryUpdate({
-                ...(profileData.email ? {username: profileData.email} : {}),
-                ...(profileData.password && profileData.confirmPassword ?
-                    {password: profileData.password} :
-                    {})
-            });
+            authStore.tryRegister({username: loginData.email, password: loginData.password});
         }
     };
 
     useEffect(() => {
         if (authStore.error) {
             setEmailError(authStore.error);
+            setPasswordError(authStore.error);
         }
     }, [authStore.error]);
 
-    return (
+    return FLAG_DISABLE_REGISTER ? (
+        <Redirect to='/login'/>
+    ) : authStore.isAuthenticated ? (
+        <Redirect to={Paths().MODELS} />
+    ) : (
         <Container
             className='login fs-6 d-flex align-items-center justify-content-center'
             fluid
         >
             <div className='login-form d-flex flex-column align-items-center'>
-                <p className='text-dark bold-text fs-3 mb-4'>Update Profile</p>
+                <Logo className='mb-5' height={177} width={270} />
+                <p className='text-dark bold-text fs-3 mb-4'>Register</p>
                 <Form autoComplete='off' className='w-100' onSubmit={handleSubmit}>
                     <Form.Group className='mb-3'>
-                        <Form.Label>New Email</Form.Label>
+                        <Form.Label>Email</Form.Label>
                         <InputGroup>
                             <Form.Control
-                                className={`bg-light ${emailError ? 'error' : ''}`}
+                                className={`bg-light text-secondary ${emailError ? 'error' : ''}`}
                                 name='email'
                                 onChange={(e) => {
-                                    setProfileData({...profileData, ['email']: e.target.value});
+                                    setLoginData({...loginData, ['email']: e.target.value});
                                     setEmailError('');
-                                    authStore.error = null;
                                 }}
+                                required
                                 type='email'
-                                value={profileData.email}
+                                value={loginData.email}
                             />
                             {emailError && (
                                 <FontIcon
@@ -81,17 +82,17 @@ const Profile = ({authStore}) => {
                         <Form.Label>New Password</Form.Label>
                         <InputGroup>
                             <Form.Control
-                                className={`bg-light ${
-                                    confirmPasswordError ? 'error' : ''
-                                }`}
+                                className={`bg-light text-secondary ${passwordError ? 'error' : ''}`}
                                 name='password'
                                 onChange={(e) => {
-                                    setProfileData({...profileData, ['password']: e.target.value});
+                                    setLoginData({...loginData, ['password']: e.target.value});
+                                    setPasswordError('');
                                 }}
+                                required
                                 type='password'
-                                value={profileData.password}
+                                value={loginData.password}
                             />
-                            {confirmPasswordError && (
+                            {passwordError && (
                                 <FontIcon
                                     className='text-warning error-icon'
                                     icon={IconNames.WARNING}
@@ -99,24 +100,23 @@ const Profile = ({authStore}) => {
                                 />
                             )}
                         </InputGroup>
+                        {passwordError && (
+                            <Tooltip className='p-3 mt-2' color='warning' text={passwordError} />
+                        )}
                     </Form.Group>
                     <Form.Group className='mb-3'>
                         <Form.Label>Confirm New Password</Form.Label>
                         <InputGroup>
                             <Form.Control
-                                className={`bg-light ${
-                                    confirmPasswordError ? 'error' : ''
-                                }`}
+                                className={`bg-light text-secondary ${confirmPasswordError ? 'error' : ''}`}
                                 name='confirmPassword'
                                 onChange={(e) => {
-                                    setProfileData({
-                                        ...profileData,
-                                        ['confirmPassword']: e.target.value
-                                    });
+                                    setLoginData({...loginData, ['confirmPassword']: e.target.value});
                                     setConfirmPasswordError('');
                                 }}
+                                required
                                 type='password'
-                                value={profileData.confirmPassword}
+                                value={loginData.confirmPassword}
                             />
                             {confirmPasswordError && (
                                 <FontIcon
@@ -127,38 +127,34 @@ const Profile = ({authStore}) => {
                             )}
                         </InputGroup>
                         {confirmPasswordError && (
-                            <Tooltip
-                                className='p-3 mt-2'
-                                color='warning'
-                                text={confirmPasswordError}
-                            />
+                            <Tooltip className='p-3 mt-2' color='warning' text={confirmPasswordError} />
                         )}
                     </Form.Group>
                     <Button
                         className='w-100 text-white btn-submit mt-3'
-                        disabled={authStore.loading}
                         type='submit'
                         variant='primary'
                     >
-                        {authStore.loading ? 'Loading...' : 'Update'}
+                        REGISTER
                     </Button>
                 </Form>
-                <p className='text-secondary text-center border-top border-muted mt-5 w-100'>
-                    <Button
-                        className='w-100 text-white btn-submit mt-5'
-                        onClick={() => history.push('/logout')}
-                        variant='secondary'
-                    >
-            Logout
-                    </Button>
+                <Link className='text-dark mt-3' to='/login'>
+                    Login
+                </Link>
+                <p className='text-secondary text-center border-top border-muted mt-3 p-2'>
+                    Forgot password? If you need help with log in, please contact us at
+                    &nbsp;
+                    <a className='text-secondary' href='mailto:support@dioptra.com'>
+                        support@dioptra.com
+                    </a>
                 </p>
             </div>
         </Container>
     );
 };
 
-Profile.propTypes = {
+Register.propTypes = {
     authStore: PropTypes.object
 };
 
-export default setupComponent(Profile);
+export default setupComponent(Register);

@@ -10,23 +10,13 @@ const customFields = {
 };
 
 const verifyCallback = async (username, password, done) => {
+
     try {
-        const user = await User.findOne({username});
-
-        if (!user) {
-            return done('Wrong username or password.');
-        }
-
-        const validPassword = await user.validatePassword(password);
-
-        if (!validPassword) {
-            return done('Wrong username or password.');
-        }
+        const user = await User.validatePassword(username, password);
 
         return done(null, user);
     } catch (error) {
         return done(error);
-
     }
 };
 
@@ -57,7 +47,7 @@ const sessionStore = new MongoStore({
 
 const sessionHandler = session({
     secret: process.env.COOKIE_SECRET,
-    resave: false,
+    resave: true,
     saveUninitialized: true,
     store: sessionStore,
     cookie: {
@@ -66,10 +56,11 @@ const sessionHandler = session({
 });
 
 const isAuthenticated = (req, res, next) => {
-    if (req.isAuthenticated()) {
-        return next();
+    if (req.user) {
+        next();
     } else {
-        return res.status(401).send({error: 'unauthorized'});
+        res.status(401);
+        next(new Error('Not authenticated.'));
     }
 };
 

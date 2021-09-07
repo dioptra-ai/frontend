@@ -1,123 +1,126 @@
-import {autorun, makeAutoObservable, runInAction} from 'mobx';
-import AuthenticationClient from '../../clients/authentication';
-import UserClient from '../../clients/user';
+import {makeAutoObservable} from 'mobx';
+import authenticationClient from 'clients/authentication';
+import userClient from 'clients/user';
 
 class AuthStore {
-  isAuthenticated = false;
+    _isAuthenticated = false;
 
-  userData = null;
+    _userData = null;
 
-  error = null;
+    _error = null;
 
-  loading = false;
+    _loading = false;
 
-  success = false;
+    constructor() {
+        makeAutoObservable(this);
+    }
 
-  constructor(localData) {
-      if (localData) {
-          const parsedLocalData = JSON.parse(localData);
+    async init() {
+        this.loading = true;
 
-          this.isAuthenticated = parsedLocalData.isAuthenticated;
-          this.userData = parsedLocalData.userData;
-          this.error = null;
-      }
-      makeAutoObservable(this);
-  }
+        try {
+            this.userData = await authenticationClient('login');
+            this.isAuthenticated = true;
+        } finally {
+            this.loading = false;
+        }
+    }
 
-  get isAuthenticated() {
-      return this.isAuthenticated;
-  }
+    get isAuthenticated() {
+        return this._isAuthenticated;
+    }
 
-  get userData() {
-      return this.userData;
-  }
+    get userData() {
+        return this._userData;
+    }
 
-  get error() {
-      return this.error;
-  }
+    get error() {
+        return this._error;
+    }
 
-  get loading() {
-      return this.loading;
-  }
+    get loading() {
+        return this._loading;
+    }
 
-  get success() {
-      return this.success;
-  }
+    get success() {
+        return !this._error;
+    }
 
-  set isAuthenticated(status) {
-      this.isAuthenticated = status;
-  }
+    set isAuthenticated(status) {
+        this._isAuthenticated = status;
+    }
 
-  set userData(data) {
-      this.userData = data;
-  }
+    set userData(data) {
+        this._userData = data;
+    }
 
-  set error(err) {
-      this.error = err;
-  }
+    set error(err) {
+        this._error = err;
+    }
 
-  set loading(status) {
-      this.loading = status;
-  }
+    set loading(status) {
+        this._loading = status;
+    }
 
-  set success(status) {
-      this.success = status;
-  }
+    async tryLogin(data) {
+        this.loading = true;
+        this.error = null;
 
-  async tryLogin(data) {
-      try {
-          const resp = await AuthenticationClient('login', data);
+        try {
+            this.userData = await authenticationClient('login', data);
+            this.isAuthenticated = true;
+        } catch (e) {
+            this.userData = null;
+            this.isAuthenticated = false;
+            this.error = e.message;
+        } finally {
+            this.loading = false;
+        }
+    }
 
-          runInAction(() => {
-              this.isAuthenticated = true;
-              this.userData = resp;
-              this.error = null;
-          });
-      } catch (e) {
-          runInAction(() => {
-              this.isAuthenticated = false;
-              this.userData = null;
-              this.error = e.message;
-          });
-      }
-  }
+    async tryLogout() {
+        this.loading = true;
+        this.error = null;
 
-  async tryLogout() {
-      try {
-          await AuthenticationClient('logout');
-      } finally {
-          runInAction(() => {
-              this.isAuthenticated = false;
-              this.userData = null;
-              this.error = null;
-          });
-      }
-  }
+        try {
+            await authenticationClient('logout');
+            this.userData = null;
+            this.isAuthenticated = false;
+        } catch (e) {
+            this.error = e;
+        } finally {
+            this.loading = false;
+        }
+    }
 
-  async tryUpdate(data) {
-      try {
-          runInAction(() => {
-              this.loading = true;
-              this.success = false;
-          });
-          const resp = await UserClient('put', data);
+    async tryUpdate(data) {
+        this.loading = true;
+        this.error = null;
 
-          runInAction(() => {
-              this.userData = resp;
-              this.success = true;
-              this.loading = false;
-          });
-      } catch (e) {
-          runInAction(() => {
-              this.error = e.message;
-              this.loading = false;
-          });
-      }
-  }
+        try {
+            this.userData = await userClient('put', data);
+        } catch (e) {
+            this.error = e;
+        } finally {
+            this.loading = false;
+        }
+    }
+
+    async tryRegister(data) {
+        this.loading = true;
+        this.error = null;
+
+        try {
+            this.userData = await userClient('post', data);
+            this.tryLogin(data);
+        } catch (e) {
+            this.error = e;
+        } finally {
+            this.loading = false;
+        }
+    }
 }
 
-export const authStore = new AuthStore(localStorage.getItem('authStore'));
+export const authStore = new AuthStore();
 
-autorun(() => {
-    localStorage.setItem('authStore', JSON.stringify(authStore));
-});
+authStore.init();

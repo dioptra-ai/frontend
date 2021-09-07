@@ -3,10 +3,15 @@ import bcrypt from 'bcrypt';
 
 const userSchema = new mongoose.Schema({
     username: {type: String, required: true},
-    password: {type: String, required: true, set (password) {
-        // eslint-disable-next-line no-sync
-        return bcrypt.hashSync(password, 10);
-    }}
+    password: {
+        type: String,
+        required: true,
+        select: false, // Users.find().select('+password') to override
+        set (password) {
+            // eslint-disable-next-line no-sync
+            return bcrypt.hashSync(password, 10);
+        }
+    }
 }, {timestamps: true});
 
 userSchema.statics.initializeCollection = async () => {
@@ -18,14 +23,22 @@ userSchema.statics.initializeCollection = async () => {
     }
 };
 
-// Instance Methods
-/**
- *
- * @param password
- * @returns promise
- */
-userSchema.methods.validatePassword = function (password) {
-    return bcrypt.compare(password, this.password);
+userSchema.statics.validatePassword = async (username, password) => {
+    const foundUser = await User.findOne({username}).select('+password');
+
+    if (!foundUser) {
+        throw new Error('Unauthenticated');
+    }
+
+    const valid = await bcrypt.compare(password, foundUser.password);
+
+    if (!valid) {
+        throw new Error('Unauthenticated');
+    } else {
+        foundUser.set('password', undefined);
+
+        return foundUser;
+    }
 };
 
 const User = mongoose.model('User', userSchema);

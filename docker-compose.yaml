@@ -23,12 +23,14 @@ services:
     environment:
       DB_CONNECTION_URI: "mongodb://dioptra-db:27017/dioptra"
       PORT: "4004"
+      FLAG_DISABLE_REGISTER: "true"
     ports:
       - "4004:4004"
     networks:
       - app-network
     volumes:
       - ./src:/app/src
+      - ./index.mjs:/app/index.mjs
     entrypoint: /bin/sleep 36000
 
 networks:
