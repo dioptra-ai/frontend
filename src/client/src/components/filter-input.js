@@ -48,7 +48,7 @@ const FilterInput = ({
                 query: `SELECT ${key}
                 FROM "dioptra-gt-combined-eventstream"
                 WHERE ${key} LIKE '${value}%'
-                AND model_id=${mlModelId}`
+                AND model_id='${mlModelId}'`
             })
                 .then((data) => {
                     setSuggestions([...data.flat()]);
