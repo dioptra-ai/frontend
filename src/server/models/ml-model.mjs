@@ -9,7 +9,6 @@ const mlModelSchema = new mongoose.Schema(
         name: String,
         teamId: {type: mongoose.Schema.Types.ObjectId, ref: 'Team'},
         description: String,
-        mlModelVersion: String,
         lastDeployed: Date,
         mlModelTier: Number,
         mlModelType: {
@@ -35,7 +34,6 @@ mlModelSchema.statics.initializeCollection = async () => {
           'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque bibendum sem eget convallis malesuada. Quisque accumsan nisi ut ipsum tincidunt, a posuere nisi viverra. Quisque a lorem tellus.',
                 lastDeployed: new Date('2021-07-14T01:20:51.873Z'),
                 mlModelTier: 5,
-                mlModelVersion: '1.1.2',
                 mlModelType: 'IMAGE_CLASSIFIER'
             },
             {
@@ -45,7 +43,6 @@ mlModelSchema.statics.initializeCollection = async () => {
           'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque bibendum sem eget convallis malesuada. Quisque accumsan nisi ut ipsum tincidunt, a posuere nisi viverra. Quisque a lorem tellus.',
                 lastDeployed: new Date('2021-07-14T01:20:51.873Z'),
                 mlModelTier: 5,
-                mlModelVersion: '2.1.5',
                 mlModelType: 'TABULAR_CLASSIFIER'
             }
         ]);

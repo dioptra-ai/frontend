@@ -4,13 +4,18 @@ class FiltersStore {
   // [{key, value}]
   f = [];
 
+  mlModelVersion = ''
+
   constructor(initialValue) {
       const filters = new URL(window.location).searchParams.get('filters');
+      const mlModelVersion = new URL(window.location).searchParams.get('mlModelVersion');
 
       if (filters) {
           this.f = JSON.parse(filters);
+          this.mlModelVersion = mlModelVersion;
       } else if (initialValue) {
           this.f = JSON.parse(initialValue).f;
+          this.mlModelVersion = mlModelVersion;
       }
       makeAutoObservable(this);
   }
@@ -20,8 +25,15 @@ class FiltersStore {
   }
 
   set filters(f) {
-
       this.f = f;
+  }
+
+  get modelVersion() {
+      return this.mlModelVersion;
+  }
+
+  set modelVersion(v) {
+      this.mlModelVersion = v;
   }
 
   get sqlFilters() {
@@ -42,6 +54,10 @@ class FiltersStore {
               return `(${values.map((v) => `"${key}"='${v}'`).join(' OR ')})`;
           })
           .join(' AND ');
+
+      if (this.mlModelVersion) {
+          filters.concat(` AND mlModelVersion=${this.mlModelVersion}`);
+      }
 
       return filters || ' TRUE ';
   }

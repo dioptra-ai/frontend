@@ -72,6 +72,7 @@ const Model = ({modelStore}) => {
                 startTime: timeStore.start.toISOString(),
                 endTime: timeStore.end.toISOString(),
                 filters: JSON.stringify(filtersStore.filters),
+                mlModelVersion: filtersStore.mlModelVersion,
                 segmentation: JSON.stringify(segmentationStore.segmentation)
             })}>
                 {ModelTabsConfigs().map(({tab, TabComponent}) => (
