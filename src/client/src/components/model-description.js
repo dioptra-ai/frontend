@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -12,15 +12,58 @@ import {Button} from 'react-bootstrap';
 import ModalComponent from 'components/modal';
 import ModelForm from 'pages/templates/model-form';
 import {setupComponent} from 'helpers/component-helper';
+import timeSeriesClient from 'clients/timeseries';
+import Select from './select';
 
 
-const ModelDescription = ({name, description, team, version, tier, lastDeployed, incidents, modelStore}) => {
+const ModelDescription = ({name, description, team, filtersStore, tier, lastDeployed, incidents, modelStore}) => {
     const [expand, setExpand] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [errors, setErrors] = useState({});
+    const [mlModelVersion, setMlModelVersion] = useState('');
+    const [allMlModelVersions, setAllMlModelVersions] = useState([]);
     const {_id} = useParams();
 
     const {mlModelId, mlModelType, referencePeriod} = modelStore.getModelById(_id);
+
+    useEffect(() => {
+        const storedMlModelVersion = JSON.parse(localStorage.getItem('filtersStore'))?.mlModelVersion || '';
+
+        if (storedMlModelVersion && storedMlModelVersion !== 'null') {
+            setMlModelVersion(storedMlModelVersion);
+        } else {
+            timeSeriesClient({
+                query: `SELECT
+                LATEST(model_version, 255) as latestMlModelVersion
+                FROM "dioptra-gt-combined-eventstream"
+                WHERE model_version IS NOT NULL AND model_id='${mlModelId}'`
+            })
+                .then(([data]) => setMlModelVersion(data?.latestMlModelVersion || ''))
+                .catch(() => setMlModelVersion(''));
+        }
+
+        timeSeriesClient({
+            query: `SELECT
+            model_version as mlModelVersion
+            FROM "dioptra-gt-combined-eventstream"
+            WHERE model_version IS NOT NULL AND model_id='${mlModelId}'
+            GROUP BY model_version`
+        })
+            .then((data) => setAllMlModelVersions([
+                ...data.map((v) => ({name: v.mlModelVersion, value: v.mlModelVersion}))
+            ]))
+            .catch(() => setAllMlModelVersions([]));
+    }, [mlModelId]);
+
+    useEffect(() => {
+        if (mlModelVersion) {
+            filtersStore.modelVersion = mlModelVersion;
+        }
+    }, [mlModelVersion]);
+
+    const handleVersionChange = (data) => {
+        setMlModelVersion(data);
+    };
 
     const handleSubmit = (data) => {
         if (errors) {
@@ -93,7 +136,17 @@ const ModelDescription = ({name, description, team, version, tier, lastDeployed,
                     </Col>
                     <Col className='details-col p-3 justify-content-start' lg={2}>
                         <p className='bold-text fs-5'>Version</p>
-                        <p className='fs-6'>{version}</p>
+                        {
+                            mlModelVersion ?
+                                allMlModelVersions.length ?
+                                    <Select
+                                        initialValue={mlModelVersion}
+                                        onChange={handleVersionChange}
+                                        options={allMlModelVersions}
+                                    /> :
+                                    <p className='fs-6'>{mlModelVersion}</p> :
+                                <p className='fs-6'>NA</p>
+                        }
                     </Col>
                     <Col className='details-col p-3 justify-content-start' lg={2}>
                         <p className='bold-text fs-5'>Tier of the model</p>
@@ -118,13 +171,13 @@ const ModelDescription = ({name, description, team, version, tier, lastDeployed,
 
 ModelDescription.propTypes = {
     description: PropTypes.string,
+    filtersStore: PropTypes.object,
     incidents: PropTypes.number,
     lastDeployed: PropTypes.string,
     modelStore: PropTypes.object,
     name: PropTypes.string,
     team: PropTypes.object,
-    tier: PropTypes.number,
-    version: PropTypes.string
+    tier: PropTypes.number
 };
 
 export default setupComponent(ModelDescription);
