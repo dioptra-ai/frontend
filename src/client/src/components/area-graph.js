@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import {useMemo, useState} from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import {
@@ -51,13 +51,8 @@ CustomTooltip.propTypes = {
 };
 
 const GraphInitialState = {
-    data: [],
-    left: 'dataMin',
-    right: 'dataMax',
     refAreaLeft: '',
     refAreaRight: '',
-    top: 'dataMax+1',
-    bottom: 'dataMin-1',
     animation: true
 };
 
@@ -86,13 +81,12 @@ const AreaGraph = ({
     const granularityMs = timeStore.getTimeGranularityMs();
     const domain = timeStore.rangeMillisec;
 
-    const [filledData, setFilledData] = useState([]);
     const [showBtn, setShowBtn] = useState(false);
     const [graphState, setGraphState] = useState({
         ...GraphInitialState
     });
 
-    useEffect(() => {
+    const filledData = useMemo(() => {
         if (data.length) {
             const dataSpan = data[data.length - 1].x - data[0].x;
 
@@ -107,22 +101,14 @@ const AreaGraph = ({
                 {}
             );
 
-            setFilledData([...ticks.map((x) => timeSeries[x] || {x})]);
+            return ticks.map((x) => timeSeries[x] || {x});
         }
-    }, []);
 
-    useEffect(() => {
-        setGraphState({
-            ...graphState,
-            data: filledData,
-            ...(domain ? {left: domain[0], right: domain[1]} : {}),
-            ...(yAxisDomain ? {top: yAxisDomain[0], bottom: yAxisDomain[1]} : {})
-        });
-    }, [filledData, domain, yAxisDomain]);
+        return [];
+    }, [data]);
 
     const zoomIn = () => {
         let {refAreaLeft, refAreaRight} = graphState;
-        const {data} = graphState;
 
         if (refAreaLeft === refAreaRight || refAreaRight === '') {
             setGraphState({
@@ -134,44 +120,29 @@ const AreaGraph = ({
             return;
         }
 
-        if (refAreaLeft > refAreaRight) [refAreaLeft, refAreaRight] = [refAreaRight, refAreaLeft];
+        if (refAreaLeft > refAreaRight) {
+            [refAreaLeft, refAreaRight] = [refAreaRight, refAreaLeft];
+        }
 
-        const indexLeft = graphState.data.map(({x}) => x).indexOf(refAreaLeft);
-        const indexRight = graphState.data.map(({x}) => x).indexOf(refAreaRight);
-        const refData = graphState.data.slice(indexLeft - 1, indexRight);
-
-        let [bottom, top] = [refData[0]['y'], refData[0]['y']];
-
-        refData.forEach((d) => {
-            if (d['y'] > top) top = d['y'];
-            if (d['y'] < bottom) bottom = d['y'];
-        });
-
-        [bottom, top] = [(bottom || 0) - 1, (top || 0) + 1];
+        timeStore.setTimeRange({start: refAreaLeft, end: refAreaRight});
 
         setGraphState({
+            ...graphState,
             refAreaLeft: '',
-            refAreaRight: '',
-            data: data.slice(),
-            left: refAreaLeft,
-            right: refAreaRight,
-            bottom,
-            top
+            refAreaRight: ''
         });
     };
 
     const zoomOut = () => {
-        const {data} = graphState;
+        const oldStart = timeStore.start.valueOf();
+        const oldEnd = timeStore.end.valueOf();
+        const timeRangeCenter = (oldStart + oldEnd) / 2;
+        const halfNewTimeRange = oldEnd - oldStart;
 
-        setGraphState({
-            data: data.slice(),
-            refAreaLeft: '',
-            refAreaRight: '',
-            left: domain[0],
-            right: domain[1],
-            top: yAxisDomain ? yAxisDomain[0] : 'dataMax+1',
-            bottom: yAxisDomain ? yAxisDomain[1] : 'dataMin'
-        });
+        const start = timeRangeCenter - halfNewTimeRange;
+        const end = timeRangeCenter + halfNewTimeRange;
+
+        timeStore.setTimeRange({start, end});
     };
 
     return (
@@ -191,7 +162,7 @@ const AreaGraph = ({
                 </Button>}
                 <ResponsiveContainer height='100%' width='100%'>
                     <AreaChart
-                        data={graphState.data}
+                        data={filledData}
                         margin={margin}
                         onMouseDown={(e) => setGraphState({...graphState, refAreaLeft: e.activeLabel})}
                         onMouseMove={(e) => graphState.refAreaLeft && setGraphState({...graphState, refAreaRight: e.activeLabel})}
@@ -210,7 +181,7 @@ const AreaGraph = ({
                         </defs>
                         <XAxis
                             dataKey='x'
-                            domain={[graphState.left, graphState.right]}
+                            domain={domain}
                             dy={5}
                             interval={xAxisInterval}
                             label={{
@@ -227,8 +198,7 @@ const AreaGraph = ({
                             type='number'
                         />
                         <YAxis
-                            // domain={yAxisDomain}
-                            domain={[graphState.bottom, graphState.top]}
+                            domain={yAxisDomain}
                             dx={-5}
                             label={{
                                 fill: theme.dark,
