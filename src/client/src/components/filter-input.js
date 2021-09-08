@@ -1,12 +1,16 @@
 import React, {useEffect, useState} from 'react';
 import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
+import {useParams} from 'react-router-dom';
+import timeseriesClient from 'clients/timeseries';
+import {setupComponent} from 'helpers/component-helper';
 import FontIcon from './font-icon';
 
 const Filter = ({filter, onDelete, applied = false}) => (
     <span className={`filter fs-6 ${applied ? 'applied' : ''}`}>
-        {filter} <button onClick={onDelete}>
-            <FontIcon className='text-dark' icon='Close' size={10}/>
+        {filter}{' '}
+        <button onClick={onDelete}>
+            <FontIcon className='text-dark' icon='Close' size={10} />
         </button>
     </span>
 );
@@ -20,22 +24,70 @@ Filter.propTypes = {
 const FilterInput = ({
     inputPlaceholder = 'filter1=foo filter2=bar',
     defaultFilters = [],
-    onChange
+    onChange,
+    modelStore
 }) => {
     const [newFilter, setNewFilter] = useState('');
     const [filters, setFilters] = useState([]);
-    const [appliedFilters, setAppliedFilters] = useState(defaultFilters.map(({key, value}) => `${key}=${value}`));
+    const [appliedFilters, setAppliedFilters] = useState(
+        defaultFilters.map(({key, value}) => `${key}=${value}`)
+    );
     const [suggestions, setSuggestions] = useState([]);
     const [suggestionIndex, setSuggestionIndex] = useState(-1);
 
-    const getSuggestions = () => {
-        const externals = [];
+    const {_id} = useParams();
 
-        setSuggestions(externals);
+    const {mlModelId} = modelStore.getModelById(_id);
+
+    const getSuggestions = () => {
+        const [key, value] = newFilter.split('=');
+
+        if (key && newFilter.includes('=')) {
+            timeseriesClient({
+                query: `SELECT "${key}"
+                    FROM "dioptra-gt-combined-eventstream"
+                    WHERE "${key}" LIKE '${value}%' AND model_id='${mlModelId}'
+                    GROUP BY "${key}"
+                    LIMIT 10
+                `,
+                resultFormat: 'array'
+            })
+                .then((data) => {
+                    setSuggestions([...data.flat()]);
+                })
+                .catch(() => setSuggestions([]));
+        } else {
+            timeseriesClient({
+                query: `SELECT COLUMN_NAME as allKeyOptions
+                    FROM INFORMATION_SCHEMA.COLUMNS 
+                    WHERE TABLE_NAME = 'dioptra-gt-combined-eventstream' AND COLUMN_NAME LIKE '${key}%'`
+            })
+                .then(async (data) => {
+                    const [allKeyOptions] = await timeseriesClient({
+                        query: `SELECT ${data
+                            .map(({allKeyOptions: key}) => `COUNT("${key}")`)
+                            .join(', ')}
+                    FROM "dioptra-gt-combined-eventstream"
+                    WHERE model_id='${mlModelId}'
+                    LIMIT 10
+                    `,
+                        resultFormat: 'array'
+                    });
+
+                    const filteredKeys = data
+                        .filter((_, i) => allKeyOptions && allKeyOptions[i] > 0)
+                        .map(({allKeyOptions}) => allKeyOptions);
+
+                    setSuggestions([...filteredKeys]);
+                })
+                .catch(() => setSuggestions([]));
+        }
     };
 
     useEffect(() => {
-        getSuggestions();
+        if (newFilter.length) {
+            getSuggestions();
+        }
     }, [newFilter]);
 
     const handleInputChange = (e) => {
@@ -43,28 +95,47 @@ const FilterInput = ({
     };
 
     const handleKeyUp = (e) => {
-        if (e.keyCode === 38 && suggestionIndex > 0) { //on arrow up
+        const [key, value] = e.target.value.split('=');
+
+        if (e.keyCode === 38 && suggestionIndex > 0) {
+            //on arrow up
             setSuggestionIndex(suggestionIndex - 1);
-        } else if (e.keyCode === 40 && suggestionIndex < suggestions.length - 1) { //on arrow down
+        } else if (e.keyCode === 40 && suggestionIndex < suggestions.length - 1) {
+            //on arrow down
             setSuggestionIndex(suggestionIndex + 1);
-        } else if (e.key === 'Escape') { //escape
+        } else if (e.key === 'Escape') {
+            //escape
             setSuggestions([]);
             setSuggestionIndex(-1);
-        } else if (e.keyCode === 13 && suggestionIndex !== -1) { //on enter while suggestion is selected
-            setFilters([...filters, suggestions[suggestionIndex]]);
-            setNewFilter('');
+        } else if (e.keyCode === 13 && suggestionIndex !== -1) {
+            //on enter while suggestion is selected
+            if (e.target.value.includes('=')) {
+                const currentFilter = `${key}=${suggestions[suggestionIndex]}`;
+
+                setNewFilter(currentFilter);
+                if (filters.indexOf(currentFilter) === -1 && appliedFilters.indexOf(currentFilter) === -1) {
+                    const updatedFilters = [...filters];
+
+                    updatedFilters.push(currentFilter);
+                    setFilters(updatedFilters);
+                }
+                setNewFilter('');
+            } else {
+                setNewFilter(`${suggestions[suggestionIndex]}=`);
+            }
             setSuggestionIndex(-1);
         } else if (e.keyCode === 32 && newFilter !== '') { //on space
-            if (filters.indexOf(newFilter) === -1 && appliedFilters.indexOf(newFilter) === -1) {
-                const updatedFilters = [...filters];
+            if (key && value) {
+                if (filters.indexOf(newFilter) === -1 && appliedFilters.indexOf(newFilter) === -1) {
+                    const updatedFilters = [...filters];
 
-                updatedFilters.push(newFilter);
-                setFilters(updatedFilters);
+                    updatedFilters.push(newFilter);
+                    setFilters(updatedFilters);
+                }
+                setNewFilter('');
+            } else {
+                setNewFilter(`${key}=`);
             }
-            setNewFilter('');
-        } else if (e.keyCode === 13) { //on enter
-            handleAppliedFiltersChange([...appliedFilters, ...filters]);
-            setFilters([]);
         }
     };
 
@@ -78,9 +149,28 @@ const FilterInput = ({
         setNewFilter('');
     };
 
+    const handleSuggestionClick = (suggestion) => {
+        if (newFilter.includes('=')) {
+            const [key] = newFilter.split('=');
+            const currentFilter = `${key}=${suggestion}`;
+
+            if (filters.indexOf(currentFilter) === -1 && appliedFilters.indexOf(currentFilter) === -1) {
+                const updatedFilters = [...filters];
+
+                updatedFilters.push(currentFilter);
+                setFilters(updatedFilters);
+            }
+            setNewFilter('');
+        } else {
+            setNewFilter(`${suggestion}=`);
+        }
+    };
+
     const handleAppliedFiltersChange = (appliedFilters) => {
         setAppliedFilters(appliedFilters);
-        onChange(appliedFilters.map((f) => f.split('=')).map(([key, value]) => ({key, value})));
+        onChange(
+            appliedFilters.map((f) => f.split('=')).map(([key, value]) => ({key, value}))
+        );
     };
 
     const handleRemoveApplied = (e) => {
@@ -114,16 +204,16 @@ const FilterInput = ({
                         setSuggestionIndex(-1);
                     }}
                 >
-                    APPLY FILTERS
+          APPLY FILTERS
                 </Button>
                 {newFilter.length !== 0 && (
                     <ul className='suggestions bg-white text-dark'>
                         {suggestions.map((suggestion, index) => (
-                            <li className={suggestionIndex === index ? 'active' : ''} key={index} onClick={() => {
-                                setFilters([...filters, suggestion]);
-                                setNewFilter('');
-                                setSuggestionIndex(-1);
-                            }}>
+                            <li
+                                className={suggestionIndex === index ? 'active' : ''}
+                                key={index}
+                                onClick={() => handleSuggestionClick(suggestion)}
+                            >
                                 {suggestion}
                             </li>
                         ))}
@@ -133,10 +223,18 @@ const FilterInput = ({
             {appliedFilters.length !== 0 && (
                 <div>
                     {appliedFilters.map((filter, index) => (
-                        <Filter applied={true} filter={filter} key={index} onDelete={handleRemoveApplied} />
+                        <Filter
+                            applied={true}
+                            filter={filter}
+                            key={index}
+                            onDelete={handleRemoveApplied}
+                        />
                     ))}
-                    <span className='text-dark clear' onClick={() => handleAppliedFiltersChange([])}>
-                        CLEAR ALL
+                    <span
+                        className='text-dark clear'
+                        onClick={() => handleAppliedFiltersChange([])}
+                    >
+            CLEAR ALL
                     </span>
                 </div>
             )}
@@ -147,7 +245,8 @@ const FilterInput = ({
 FilterInput.propTypes = {
     defaultFilters: PropTypes.array,
     inputPlaceholder: PropTypes.string,
+    modelStore: PropTypes.object.isRequired,
     onChange: PropTypes.func.isRequired
 };
 
-export default FilterInput;
+export default setupComponent(FilterInput);

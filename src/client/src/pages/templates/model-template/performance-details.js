@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-// import FilterInput from 'components/filter-input';
+import FilterInput from 'components/filter-input';
 import {setupComponent} from 'helpers/component-helper';
 import PropTypes from 'prop-types';
 import Row from 'react-bootstrap/Row';
@@ -12,7 +12,6 @@ import ConfusionMatrix from 'components/confusion-matrix';
 import TimeseriesQuery, {sql} from 'components/timeseries-query';
 import Segmentation from 'components/segmentation';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
-import FilterSelect from 'components/filter-select';
 
 const PerformanceBox = ({
     title = '',
@@ -126,8 +125,7 @@ const PerformanceDetails = ({filtersStore}) => {
 
     return (
         <>
-            {/* <FilterInput defaultFilters={filtersStore.filters} onChange={(filters) => filtersStore.filters = filters}/> */}
-            <FilterSelect defaultFilters={filtersStore.filters} onChange={(filters) => filtersStore.filters = filters}/>
+            <FilterInput defaultFilters={filtersStore.filters} onChange={(filters) => filtersStore.filters = filters}/>
             <div className='my-5'>
                 <h3 className='text-dark bold-text fs-3 mb-3'>Performance per class</h3>
                 <Row>
