@@ -29,7 +29,7 @@ const ModelDescription = ({name, description, team, filtersStore, tier, lastDepl
     useEffect(() => {
         const storedMlModelVersion = JSON.parse(localStorage.getItem('filtersStore'))?.mlModelVersion || '';
 
-        if (storedMlModelVersion) {
+        if (storedMlModelVersion && storedMlModelVersion !== 'null') {
             setMlModelVersion(storedMlModelVersion);
         } else {
             timeSeriesClient({
