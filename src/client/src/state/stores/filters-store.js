@@ -56,7 +56,7 @@ class FiltersStore {
           .join(' AND ');
 
       if (this.mlModelVersion && this.mlModelVersion !== 'null') {
-          filters = filters.concat(` AND mlModelVersion=${this.mlModelVersion}`);
+          filters = filters.concat(` AND "model_version"='${this.mlModelVersion}'`);
       }
 
       return filters || ' TRUE ';
