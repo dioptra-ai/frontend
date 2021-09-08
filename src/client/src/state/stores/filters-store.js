@@ -47,7 +47,7 @@ class FiltersStore {
           return agg;
       }, {});
 
-      const filters = Object.keys(keyValues)
+      let filters = Object.keys(keyValues)
           .map((key) => {
               const values = keyValues[key];
 
@@ -56,7 +56,7 @@ class FiltersStore {
           .join(' AND ');
 
       if (this.mlModelVersion) {
-          filters.concat(` AND mlModelVersion=${this.mlModelVersion}`);
+          filters = filters.concat(` AND mlModelVersion=${this.mlModelVersion}`);
       }
 
       return filters || ' TRUE ';

@@ -20,21 +20,27 @@ const ModelDescription = ({name, description, team, filtersStore, tier, lastDepl
     const [expand, setExpand] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [errors, setErrors] = useState({});
-    const [mlVersion, setMlVersion] = useState('');
-    const [mlVersionOptions, setMlVersionOptions] = useState([]);
+    const [mlModelVersion, setMlModelVersion] = useState('');
+    const [allMlModelVersions, setAllMlModelVersions] = useState([]);
     const {_id} = useParams();
 
     const {mlModelId, mlModelType, referencePeriod} = modelStore.getModelById(_id);
 
     useEffect(() => {
-        timeSeriesClient({
-            query: `SELECT
-            LATEST(model_version, 255) as latestMlModelVersion
-          FROM "dioptra-gt-combined-eventstream"
-          WHERE model_version IS NOT NULL AND model_id='${mlModelId}'`
-        })
-            .then(([data]) => setMlVersion(data?.latestMlModelVersion || ''))
-            .catch(() => setMlVersion(''));
+        const storedMlModelVersion = JSON.parse(localStorage.getItem('filtersStore'))?.mlModelVersion || '';
+
+        if (storedMlModelVersion) {
+            setMlModelVersion(storedMlModelVersion);
+        } else {
+            timeSeriesClient({
+                query: `SELECT
+                LATEST(model_version, 255) as latestMlModelVersion
+                FROM "dioptra-gt-combined-eventstream"
+                WHERE model_version IS NOT NULL AND model_id='${mlModelId}'`
+            })
+                .then(([data]) => setMlModelVersion(data?.latestMlModelVersion || ''))
+                .catch(() => setMlModelVersion(''));
+        }
 
         timeSeriesClient({
             query: `SELECT
@@ -43,20 +49,20 @@ const ModelDescription = ({name, description, team, filtersStore, tier, lastDepl
             WHERE model_version IS NOT NULL AND model_id='${mlModelId}'
             GROUP BY model_version`
         })
-            .then((data) => setMlVersionOptions([
+            .then((data) => setAllMlModelVersions([
                 ...data.map((v) => ({name: v.mlModelVersion, value: v.mlModelVersion}))
             ]))
-            .catch(() => setMlVersionOptions([]));
+            .catch(() => setAllMlModelVersions([]));
     }, [mlModelId]);
 
     useEffect(() => {
-        if (mlVersion) {
-            filtersStore.modelVersion = mlVersion;
+        if (mlModelVersion) {
+            filtersStore.modelVersion = mlModelVersion;
         }
-    }, [mlVersion]);
+    }, [mlModelVersion]);
 
     const handleVersionChange = (data) => {
-        setMlVersion(data);
+        setMlModelVersion(data);
     };
 
     const handleSubmit = (data) => {
@@ -131,14 +137,14 @@ const ModelDescription = ({name, description, team, filtersStore, tier, lastDepl
                     <Col className='details-col p-3 justify-content-start' lg={2}>
                         <p className='bold-text fs-5'>Version</p>
                         {
-                            mlVersion ?
-                                mlVersionOptions.length ?
+                            mlModelVersion ?
+                                allMlModelVersions.length ?
                                     <Select
-                                        initialValue={mlVersion}
+                                        initialValue={mlModelVersion}
                                         onChange={handleVersionChange}
-                                        options={mlVersionOptions}
+                                        options={allMlModelVersions}
                                     /> :
-                                    <p className='fs-6'>{mlVersion}</p> :
+                                    <p className='fs-6'>{mlModelVersion}</p> :
                                 <p className='fs-6'>NA</p>
                         }
                     </Col>
