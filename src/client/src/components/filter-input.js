@@ -57,18 +57,14 @@ const FilterInput = ({
                 })
                 .catch(() => setSuggestions([]));
         } else {
-            let allKeyOptions = [];
-
             timeseriesClient({
                 query: `SELECT COLUMN_NAME as allKeyOptions
                     FROM INFORMATION_SCHEMA.COLUMNS 
                     WHERE TABLE_NAME = 'dioptra-gt-combined-eventstream' AND COLUMN_NAME LIKE '${key}%'`
             })
-                .then((data) => {
-                    allKeyOptions = data;
-
-                    return timeseriesClient({
-                        query: `SELECT ${allKeyOptions
+                .then(async (data) => {
+                    const [allKeyOptions] = await timeseriesClient({
+                        query: `SELECT ${data
                             .map(({allKeyOptions: key}) => `COUNT("${key}")`)
                             .join(', ')}
                     FROM "dioptra-gt-combined-eventstream"
@@ -77,10 +73,9 @@ const FilterInput = ({
                     `,
                         resultFormat: 'array'
                     });
-                })
-                .then(([data]) => {
-                    const filteredKeys = allKeyOptions
-                        .filter((_, i) => data && data[i] > 0)
+
+                    const filteredKeys = data
+                        .filter((_, i) => allKeyOptions && allKeyOptions[i] > 0)
                         .map(({allKeyOptions}) => allKeyOptions);
 
                     setSuggestions([...filteredKeys]);
@@ -154,6 +149,23 @@ const FilterInput = ({
         setNewFilter('');
     };
 
+    const handleSuggestionClick = (suggestion) => {
+        if (newFilter.includes('=')) {
+            const [key] = newFilter.split('=');
+            const currentFilter = `${key}=${suggestion}`;
+
+            if (filters.indexOf(currentFilter) === -1 && appliedFilters.indexOf(currentFilter) === -1) {
+                const updatedFilters = [...filters];
+
+                updatedFilters.push(currentFilter);
+                setFilters(updatedFilters);
+            }
+            setNewFilter('');
+        } else {
+            setNewFilter(`${suggestion}=`);
+        }
+    };
+
     const handleAppliedFiltersChange = (appliedFilters) => {
         setAppliedFilters(appliedFilters);
         onChange(
@@ -200,11 +212,7 @@ const FilterInput = ({
                             <li
                                 className={suggestionIndex === index ? 'active' : ''}
                                 key={index}
-                                onClick={() => {
-                                    setFilters([...filters, suggestion]);
-                                    setNewFilter('');
-                                    setSuggestionIndex(-1);
-                                }}
+                                onClick={() => handleSuggestionClick(suggestion)}
                             >
                                 {suggestion}
                             </li>
