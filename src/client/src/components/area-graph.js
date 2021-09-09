@@ -82,25 +82,36 @@ const AreaGraph = ({
     const [refAreaRight, setRefAreaRight] = useThrottle(null, 25, true);
 
     const filledData = useMemo(() => {
-        if (data.length) {
-            const dataSpan = data[data.length - 1].x - data[0].x;
+        if (data.length > 0) {
+            const referenceTick = data[0].x;
+            const [domainStart, domainEnd] = domain;
+            // Fill the ticks with timestamps aligned with the first datapoint,
+            // in both directions.
+            const numTicksLeft = Math.floor((referenceTick - domainStart) / granularityMs);
+            const numTicksRight = Math.floor((domainEnd - referenceTick) / granularityMs);
+            const ticks = [];
 
-            const ticks = new Array(Math.floor(dataSpan / granularityMs))
-                .fill()
-                .map((_, i) => data[0].x + i * granularityMs);
-            const timeSeries = data.reduce(
-                (agg, d) => ({
-                    ...agg,
-                    [d.x]: d
-                }),
-                {}
-            );
+            new Array(numTicksLeft).fill().forEach((_, i) => {
+                ticks.push(referenceTick - (numTicksLeft - i) * granularityMs);
+            });
+
+            // We add one at the end otherwise we won't reach
+            // referenceTick + numTicksRight * granularityMs.
+            new Array(numTicksRight + 1).fill().forEach((_, i) => {
+                ticks.push(referenceTick + i * granularityMs);
+            });
+
+            const timeSeries = data.reduce((agg, d) => ({
+                ...agg,
+                [d.x]: d
+            }), {});
 
             return ticks.map((x) => timeSeries[x] || {x});
-        }
+        } else {
 
-        return [];
-    }, [data]);
+            return [];
+        }
+    }, [JSON.stringify(data)]);
 
     const zoomIn = () => {
 
@@ -145,6 +156,7 @@ const AreaGraph = ({
                         zIndex: 1,
                         top: 20
                     }}
+                    title='Zoom out'
                 />}
                 <ResponsiveContainer height='100%' width='100%'>
                     <AreaChart
