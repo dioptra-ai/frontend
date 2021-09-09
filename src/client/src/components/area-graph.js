@@ -12,13 +12,12 @@ import {
     XAxis,
     YAxis
 } from 'recharts';
-import {setupComponent} from 'helpers/component-helper';
 import {HiOutlineZoomOut} from 'react-icons/hi';
 
-
-import theme from '../styles/theme.module.scss';
-import {formatDateTime} from '../helpers/date-helper';
-import fontSizes from '../styles/font-sizes.module.scss';
+import theme from 'styles/theme.module.scss';
+import {formatDateTime} from 'helpers/date-helper';
+import {setupComponent} from 'helpers/component-helper';
+import fontSizes from 'styles/font-sizes.module.scss';
 
 
 const CustomTooltip = ({payload, label, unit}) => {
@@ -53,12 +52,6 @@ CustomTooltip.propTypes = {
     unit: PropTypes.string
 };
 
-const GraphInitialState = {
-    refAreaLeft: '',
-    refAreaRight: '',
-    animation: true
-};
-
 const AreaGraph = ({
     title,
     dots,
@@ -85,7 +78,8 @@ const AreaGraph = ({
     const domain = timeStore.rangeMillisec;
 
     const [showBtn, setShowBtn] = useState(false);
-    const [graphState, setGraphState] = useThrottle(GraphInitialState, 25, true);
+    const [refAreaLeft, setRefAreaLeft] = useThrottle(null, 25, true);
+    const [refAreaRight, setRefAreaRight] = useThrottle(null, 25, true);
 
     const filledData = useMemo(() => {
         if (data.length) {
@@ -109,29 +103,17 @@ const AreaGraph = ({
     }, [data]);
 
     const zoomIn = () => {
-        let {refAreaLeft, refAreaRight} = graphState;
 
-        if (refAreaLeft === refAreaRight || refAreaRight === '') {
-            setGraphState({
-                ...graphState,
-                refAreaLeft: '',
-                refAreaRight: ''
+        if (refAreaLeft !== refAreaRight && refAreaRight !== null) {
+            timeStore.setTimeRange({
+                start: Math.min(refAreaLeft, refAreaRight),
+                end: Math.max(refAreaLeft, refAreaRight)
             });
 
-            return;
         }
 
-        if (refAreaLeft > refAreaRight) {
-            [refAreaLeft, refAreaRight] = [refAreaRight, refAreaLeft];
-        }
-
-        timeStore.setTimeRange({start: refAreaLeft, end: refAreaRight});
-
-        setGraphState({
-            ...graphState,
-            refAreaLeft: '',
-            refAreaRight: ''
-        });
+        setRefAreaLeft(null);
+        setRefAreaRight(null);
     };
 
     const zoomOut = () => {
@@ -168,14 +150,13 @@ const AreaGraph = ({
                     <AreaChart
                         data={filledData}
                         margin={margin}
-                        onMouseDown={(e) => setGraphState({...graphState, refAreaLeft: e.activeLabel})}
+                        onMouseDown={(e) => {
+                            setRefAreaLeft(e.activeLabel);
+                        }}
                         onMouseMove={(e) => {
 
-                            if (graphState.refAreaLeft) {
-                                setGraphState({
-                                    ...graphState,
-                                    refAreaRight: e.activeLabel
-                                });
+                            if (refAreaLeft) {
+                                setRefAreaRight(e.activeLabel);
                             }
                         }}
                         onMouseUp={zoomIn}
@@ -235,8 +216,13 @@ const AreaGraph = ({
                             type='linear'
                             yAxisId='1'
                         />
-                        {graphState.refAreaLeft && graphState.refAreaRight ? (
-                            <ReferenceArea strokeOpacity={0.3} x1={graphState.refAreaLeft} x2={graphState.refAreaRight} yAxisId='1' />
+                        {refAreaLeft && refAreaRight ? (
+                            <ReferenceArea
+                                strokeOpacity={0.3}
+                                x1={refAreaLeft}
+                                x2={refAreaRight}
+                                yAxisId='1'
+                            />
                         ) : null}
                     </AreaChart>
                 </ResponsiveContainer>
