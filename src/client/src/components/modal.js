@@ -26,7 +26,7 @@ const ModalComponent = ({onClose, isOpen, children}) => {
 };
 
 ModalComponent.propTypes = {
-    children: PropTypes.array,
+    children: PropTypes.node,
     isOpen: PropTypes.bool,
     onClose: PropTypes.func
 };
