@@ -12,13 +12,12 @@ import {
     XAxis,
     YAxis
 } from 'recharts';
-import {setupComponent} from 'helpers/component-helper';
 import {HiOutlineZoomOut} from 'react-icons/hi';
 
-
-import theme from '../styles/theme.module.scss';
-import {formatDateTime} from '../helpers/date-helper';
-import fontSizes from '../styles/font-sizes.module.scss';
+import theme from 'styles/theme.module.scss';
+import {formatDateTime} from 'helpers/date-helper';
+import {setupComponent} from 'helpers/component-helper';
+import fontSizes from 'styles/font-sizes.module.scss';
 
 
 const CustomTooltip = ({payload, label, unit}) => {
@@ -53,12 +52,6 @@ CustomTooltip.propTypes = {
     unit: PropTypes.string
 };
 
-const GraphInitialState = {
-    refAreaLeft: '',
-    refAreaRight: '',
-    animation: true
-};
-
 const AreaGraph = ({
     title,
     dots,
@@ -85,53 +78,53 @@ const AreaGraph = ({
     const domain = timeStore.rangeMillisec;
 
     const [showBtn, setShowBtn] = useState(false);
-    const [graphState, setGraphState] = useThrottle(GraphInitialState, 25, true);
+    const [refAreaLeft, setRefAreaLeft] = useThrottle(null, 25, true);
+    const [refAreaRight, setRefAreaRight] = useThrottle(null, 25, true);
 
     const filledData = useMemo(() => {
-        if (data.length) {
-            const dataSpan = data[data.length - 1].x - data[0].x;
+        if (data.length > 0) {
+            const referenceTick = data[0].x;
+            const [domainStart, domainEnd] = domain;
+            // Fill the ticks with timestamps aligned with the first datapoint,
+            // in both directions.
+            const numTicksLeft = Math.floor((referenceTick - domainStart) / granularityMs);
+            const numTicksRight = Math.floor((domainEnd - referenceTick) / granularityMs);
+            const ticks = [];
 
-            const ticks = new Array(Math.floor(dataSpan / granularityMs))
-                .fill()
-                .map((_, i) => data[0].x + i * granularityMs);
-            const timeSeries = data.reduce(
-                (agg, d) => ({
-                    ...agg,
-                    [d.x]: d
-                }),
-                {}
-            );
-
-            return ticks.map((x) => timeSeries[x] || {x});
-        }
-
-        return [];
-    }, [data]);
-
-    const zoomIn = () => {
-        let {refAreaLeft, refAreaRight} = graphState;
-
-        if (refAreaLeft === refAreaRight || refAreaRight === '') {
-            setGraphState({
-                ...graphState,
-                refAreaLeft: '',
-                refAreaRight: ''
+            new Array(numTicksLeft).fill().forEach((_, i) => {
+                ticks.push(referenceTick - (numTicksLeft - i) * granularityMs);
             });
 
-            return;
+            // We add one at the end otherwise we won't reach
+            // referenceTick + numTicksRight * granularityMs.
+            new Array(numTicksRight + 1).fill().forEach((_, i) => {
+                ticks.push(referenceTick + i * granularityMs);
+            });
+
+            const timeSeries = data.reduce((agg, d) => ({
+                ...agg,
+                [d.x]: d
+            }), {});
+
+            return ticks.map((x) => timeSeries[x] || {x});
+        } else {
+
+            return [];
+        }
+    }, [JSON.stringify(data)]);
+
+    const zoomIn = () => {
+
+        if (refAreaLeft !== refAreaRight && refAreaRight !== null) {
+            timeStore.setTimeRange({
+                start: Math.min(refAreaLeft, refAreaRight),
+                end: Math.max(refAreaLeft, refAreaRight)
+            });
+
         }
 
-        if (refAreaLeft > refAreaRight) {
-            [refAreaLeft, refAreaRight] = [refAreaRight, refAreaLeft];
-        }
-
-        timeStore.setTimeRange({start: refAreaLeft, end: refAreaRight});
-
-        setGraphState({
-            ...graphState,
-            refAreaLeft: '',
-            refAreaRight: ''
-        });
+        setRefAreaLeft(null);
+        setRefAreaRight(null);
     };
 
     const zoomOut = () => {
@@ -163,19 +156,19 @@ const AreaGraph = ({
                         zIndex: 1,
                         top: 20
                     }}
+                    title='Zoom out'
                 />}
                 <ResponsiveContainer height='100%' width='100%'>
                     <AreaChart
                         data={filledData}
                         margin={margin}
-                        onMouseDown={(e) => setGraphState({...graphState, refAreaLeft: e.activeLabel})}
+                        onMouseDown={(e) => {
+                            setRefAreaLeft(e.activeLabel);
+                        }}
                         onMouseMove={(e) => {
 
-                            if (graphState.refAreaLeft) {
-                                setGraphState({
-                                    ...graphState,
-                                    refAreaRight: e.activeLabel
-                                });
+                            if (refAreaLeft) {
+                                setRefAreaRight(e.activeLabel);
                             }
                         }}
                         onMouseUp={zoomIn}
@@ -235,8 +228,13 @@ const AreaGraph = ({
                             type='linear'
                             yAxisId='1'
                         />
-                        {graphState.refAreaLeft && graphState.refAreaRight ? (
-                            <ReferenceArea strokeOpacity={0.3} x1={graphState.refAreaLeft} x2={graphState.refAreaRight} yAxisId='1' />
+                        {refAreaLeft && refAreaRight ? (
+                            <ReferenceArea
+                                strokeOpacity={0.3}
+                                x1={refAreaLeft}
+                                x2={refAreaRight}
+                                yAxisId='1'
+                            />
                         ) : null}
                     </AreaChart>
                 </ResponsiveContainer>
