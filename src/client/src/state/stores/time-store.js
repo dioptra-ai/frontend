@@ -95,8 +95,7 @@ class TimeStore {
       return `"__time" >= TIME_PARSE('${this.startMoment.toISOString()}') AND "__time" < TIME_PARSE('${this.endMoment.toISOString()}')`;
   }
 
-  // TODO: Find a better way to deal with sparse data than adding 10x the max number of points.
-  getTimeGranularityMs(maxTicks = 3 * SQL_OUTER_LIMIT) {
+  getTimeGranularityMs(maxTicks = SQL_OUTER_LIMIT) {
       const rangeSeconds = this.endMoment.diff(this.startMoment) / 1000;
       const DURATION_MAX_SEC_TO_GRANULARITY = granularityLadderMs.map((duration) => {
           return {
