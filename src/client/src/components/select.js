@@ -47,7 +47,7 @@ const Select = ({
                     eventKey={o.value}
                     key={o.value}
                     onSelect={handleSelect}>
-                    <span className={`text-${textColor}`}>{o.name}</span>
+                    <span className={`text-${textColor}`}>{o.name || '<empty>'}</span>
                 </DropdownItem>)}
             </DropdownMenu>
         </Dropdown>

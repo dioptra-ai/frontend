@@ -32,12 +32,14 @@ const ModelDescription = ({name, description, team, filtersStore, tier, lastDepl
             query: `SELECT
             model_version as mlModelVersion
             FROM "dioptra-gt-combined-eventstream"
-            WHERE model_version IS NOT NULL AND model_id='${mlModelId}'
+            WHERE model_id='${mlModelId}'
             GROUP BY model_version`
         })
-            .then((data) => setAllMlModelVersions([
-                ...data.map((v) => ({name: v.mlModelVersion, value: v.mlModelVersion}))
-            ]))
+            .then((data) => {
+                setAllMlModelVersions([
+                    ...data.map((v) => ({name: v.mlModelVersion, value: v.mlModelVersion}))
+                ]);
+            })
             .catch(() => setAllMlModelVersions([]));
     }, [mlModelId]);
 
