@@ -1,4 +1,5 @@
 import {useMemo, useState} from 'react';
+import {useThrottle} from '@react-hook/throttle';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import {
@@ -11,8 +12,10 @@ import {
     XAxis,
     YAxis
 } from 'recharts';
-import {Button} from 'react-bootstrap';
 import {setupComponent} from 'helpers/component-helper';
+import {HiOutlineZoomOut} from 'react-icons/hi';
+
+
 import theme from '../styles/theme.module.scss';
 import {formatDateTime} from '../helpers/date-helper';
 import fontSizes from '../styles/font-sizes.module.scss';
@@ -82,9 +85,7 @@ const AreaGraph = ({
     const domain = timeStore.rangeMillisec;
 
     const [showBtn, setShowBtn] = useState(false);
-    const [graphState, setGraphState] = useState({
-        ...GraphInitialState
-    });
+    const [graphState, setGraphState] = useThrottle(GraphInitialState, 25, true);
 
     const filledData = useMemo(() => {
         if (data.length) {
@@ -152,20 +153,31 @@ const AreaGraph = ({
                 onMouseLeave={() => setShowBtn(false)}
                 style={{height: '355px', display: 'flex', flexDirection: 'column', position: 'relative'}}
             >
-                {showBtn && <Button
-                    className='text-white px-4 py-2 ms-3'
+                {showBtn && <HiOutlineZoomOut
+                    className='cursor-pointer'
                     onClick={zoomOut}
-                    style={{position: 'absolute', right: 20, zIndex: 1, top: -40}}
-                    variant='primary'
-                >
-                    <span className='fs-6 bold-text'>Zoom Out</span>
-                </Button>}
+                    style={{
+                        fontSize: 30,
+                        position: 'absolute',
+                        right: 40,
+                        zIndex: 1,
+                        top: 20
+                    }}
+                />}
                 <ResponsiveContainer height='100%' width='100%'>
                     <AreaChart
                         data={filledData}
                         margin={margin}
                         onMouseDown={(e) => setGraphState({...graphState, refAreaLeft: e.activeLabel})}
-                        onMouseMove={(e) => graphState.refAreaLeft && setGraphState({...graphState, refAreaRight: e.activeLabel})}
+                        onMouseMove={(e) => {
+
+                            if (graphState.refAreaLeft) {
+                                setGraphState({
+                                    ...graphState,
+                                    refAreaRight: e.activeLabel
+                                });
+                            }
+                        }}
                         onMouseUp={zoomIn}
                     >
                         <CartesianGrid strokeDasharray='5 5' />
