@@ -227,6 +227,10 @@ const AreaGraph = ({
                             strokeWidth={2}
                             type='linear'
                             yAxisId='1'
+                            dot={{
+                                r: 1,
+                                strokeWidth: 2
+                            }}
                         />
                         {refAreaLeft && refAreaRight ? (
                             <ReferenceArea

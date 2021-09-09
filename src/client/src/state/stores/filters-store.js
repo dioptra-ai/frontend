@@ -47,19 +47,17 @@ class FiltersStore {
           return agg;
       }, {});
 
-      let filters = Object.keys(keyValues)
-          .map((key) => {
-              const values = keyValues[key];
+      const filters = Object.keys(keyValues).map((key) => {
+          const values = keyValues[key];
 
-              return `(${values.map((v) => `"${key}"='${v}'`).join(' OR ')})`;
-          })
-          .join(' AND ');
+          return `(${values.map((v) => `"${key}"='${v}'`).join(' OR ')})`;
+      });
 
       if (this.mlModelVersion && this.mlModelVersion !== 'null') {
-          filters = filters.concat(` AND "model_version"='${this.mlModelVersion}'`);
+          filters.push(`"model_version"='${this.mlModelVersion}'`);
       }
 
-      return filters || ' TRUE ';
+      return filters.join(' AND ') || ' TRUE ';
   }
 }
 

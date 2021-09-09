@@ -49,7 +49,7 @@ const StickyParamsRouter = ({getParamsFromStores, children, ...rest}) => (
 );
 
 StickyParamsRouter.propTypes = {
-    children: PropTypes.func.node,
+    children: PropTypes.node,
     getParamsFromStores: PropTypes.func.isRequired
 };
 
