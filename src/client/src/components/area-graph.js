@@ -70,18 +70,18 @@ const AreaGraph = ({
     unit,
     timeStore
 }) => {
-    const data = dots.map((d) => ({
-        y: Math.floor(d.y),
-        x: new Date(d.x).getTime()
-    }));
     const granularityMs = timeStore.getTimeGranularityMs();
     const domain = timeStore.rangeMillisec;
-
     const [showBtn, setShowBtn] = useState(false);
     const [refAreaLeft, setRefAreaLeft] = useThrottle(null, 25, true);
     const [refAreaRight, setRefAreaRight] = useThrottle(null, 25, true);
 
     const filledData = useMemo(() => {
+        const data = dots.map((d) => ({
+            y: Math.floor(d.y),
+            x: new Date(d.x).getTime()
+        }));
+
         if (data.length > 0) {
             const referenceTick = data[0].x;
             const [domainStart, domainEnd] = domain;
@@ -111,7 +111,7 @@ const AreaGraph = ({
 
             return [];
         }
-    }, [JSON.stringify(data)]);
+    }, [JSON.stringify(dots)]);
 
     const zoomIn = () => {
 

@@ -39,6 +39,9 @@ const Register = ({authStore}) => {
         }
     }, [authStore.error]);
 
+    // TODO: FLAG_DISABLE_REGISTER doesn't work with webpack.DefinePlugin, of course.
+    const FLAG_DISABLE_REGISTER = true;
+
     return FLAG_DISABLE_REGISTER ? (
         <Redirect to='/login'/>
     ) : authStore.isAuthenticated ? (
