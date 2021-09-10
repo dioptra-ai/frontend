@@ -4,7 +4,7 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import PropTypes from 'prop-types';
 import FontIcon from './font-icon';
-import {Link, useParams} from 'react-router-dom';
+import {Link} from 'react-router-dom';
 import {Paths} from '../configs/route-config';
 import {IconNames} from 'constants';
 import {formatDateTime} from 'helpers/date-helper';
@@ -16,15 +16,12 @@ import timeSeriesClient from 'clients/timeseries';
 import Select from './select';
 
 
-const ModelDescription = ({name, description, team, filtersStore, tier, lastDeployed, incidents, modelStore}) => {
+const ModelDescription = ({_id, filtersStore, modelStore, name, description, team, tier, lastDeployed, incidents, mlModelId, mlModelType, referencePeriod}) => {
     const [expand, setExpand] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [errors, setErrors] = useState({});
     const mlModelVersion = filtersStore.modelVersion;
     const [allMlModelVersions, setAllMlModelVersions] = useState([]);
-    const {_id} = useParams();
-
-    const {mlModelId, mlModelType, referencePeriod} = modelStore.getModelById(_id);
 
     useEffect(() => {
 
@@ -84,7 +81,7 @@ const ModelDescription = ({name, description, team, filtersStore, tier, lastDepl
                     </button>
                 </Col>
                 <Col className='d-flex justify-content-end' lg={5}>
-                    <Link className='btn-incidents text-decoration-none text-dark bold-text fs-4 p-3' to={Paths(_id).MODEL_INCIDENTS_AND_ALERTS}>
+                    <Link className='btn-incidents text-decoration-none text-dark bold-text fs-4 p-3' to={Paths({modelId: _id}).MODEL_INCIDENTS_AND_ALERTS}>
                         Open Incidents
                         <FontIcon
                             className={`${incidents ? 'text-warning' : 'text-success'} mx-2`}
@@ -157,7 +154,11 @@ ModelDescription.propTypes = {
     modelStore: PropTypes.object,
     name: PropTypes.string,
     team: PropTypes.object,
-    tier: PropTypes.number
+    tier: PropTypes.number,
+    _id: PropTypes.string.isRequired,
+    mlModelId: PropTypes.string.isRequired,
+    mlModelType: PropTypes.string.isRequired,
+    referencePeriod: PropTypes.object.isRequired
 };
 
 export default setupComponent(ModelDescription);
