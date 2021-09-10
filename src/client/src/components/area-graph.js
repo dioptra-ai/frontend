@@ -20,12 +20,14 @@ import {setupComponent} from 'helpers/component-helper';
 import fontSizes from 'styles/font-sizes.module.scss';
 
 
-const CustomTooltip = ({payload, label, unit}) => {
+export const CustomTooltip = ({payload, label}) => {
     if (payload && payload.length) {
+        const [{value, unit}] = payload;
+
         return (
             <div className='line-graph-tooltip bg-white p-3'>
                 <p className='text-dark bold-text fs-5 m-0'>
-                    {payload[0].value.toFixed(1)}
+                    {value.toFixed(1)}
                     {unit}
                 </p>
                 <p
@@ -48,8 +50,7 @@ const CustomTooltip = ({payload, label, unit}) => {
 
 CustomTooltip.propTypes = {
     label: PropTypes.any,
-    payload: PropTypes.array,
-    unit: PropTypes.string
+    payload: PropTypes.array
 };
 
 const AreaGraph = ({
@@ -215,10 +216,10 @@ const AreaGraph = ({
                             stroke='transparent'
                             tick={{fill: theme.secondary, fontSize: fontSizes.fs_7}}
                             tickCount={6}
-                            unit={unit}
                             yAxisId='1'
+                            unit={unit}
                         />
-                        <Tooltip content={<CustomTooltip unit={unit} />} />
+                        <Tooltip content={CustomTooltip}/>
                         <Area
                             animationDuration={300}
                             dataKey='y'
@@ -227,6 +228,7 @@ const AreaGraph = ({
                             strokeWidth={2}
                             type='linear'
                             yAxisId='1'
+                            unit={unit}
                             dot={{
                                 r: 1,
                                 strokeWidth: 2

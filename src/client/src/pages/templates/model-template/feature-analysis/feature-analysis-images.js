@@ -13,6 +13,7 @@ import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 
 const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
     const allSqlFilters = useAllSqlFilters();
+    const allOfflineSqlFilters = useAllSqlFilters({useReferenceRange: true});
     const sqlTimeGranularity = timeStore.getTimeGranularityMs().toISOString();
 
     return (
@@ -112,15 +113,13 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                                   SELECT *
                                   FROM "dioptra-gt-combined-eventstream"
                                   WHERE ${allSqlFilters}
+                                  LIMIT 10000
                                 ),
 
                                 offline_sample_table as (
                                   SELECT *
                                   FROM "dioptra-gt-combined-eventstream"
-                                  WHERE
-                                    __time >= TIME_PARSE('2021-07-27T15:14:00.863Z')
-                                    AND __time < TIME_PARSE('2021-07-27T15:15:00.863Z')
-                                    AND ${filtersStore.sqlFilters}
+                                  WHERE ${allOfflineSqlFilters}
                                   LIMIT 10000
                                 ),
 

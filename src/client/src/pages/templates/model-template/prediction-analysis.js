@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import {useParams} from 'react-router-dom';
 
 import FilterInput from 'components/filter-input';
 import BarGraph from 'components/bar-graph';
@@ -12,9 +11,9 @@ import {getHexColor} from 'helpers/color-helper';
 import {getName} from 'helpers/name-helper';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 
-const PredictionAnalysis = ({timeStore, filtersStore, modelStore}) => {
-    const params = useParams();
+const PredictionAnalysis = ({timeStore, filtersStore}) => {
     const allSqlFilters = useAllSqlFilters();
+    const allOfflineSqlFilters = useAllSqlFilters({useReferenceRange: true});
     const sqlTimeGranularity = timeStore.getTimeGranularityMs().toISOString();
 
     return (
@@ -84,9 +83,7 @@ const PredictionAnalysis = ({timeStore, filtersStore, modelStore}) => {
                                         prediction,
                                         1 as join_key
                                     FROM "dioptra-gt-combined-eventstream"
-                                    WHERE
-                                        "__time" >= TIME_PARSE('2021-07-23T00:00:00.000Z') AND "__time" < TIME_PARSE('2021-07-24T00:00:00.000Z')
-                                        AND ${filtersStore.sqlFilters} AND model_id='${modelStore.getModelById(params._id).mlModelId}'
+                                    WHERE ${allOfflineSqlFilters}
                                     GROUP BY 2
                                   ) AS my_table
                                   JOIN (
@@ -94,9 +91,7 @@ const PredictionAnalysis = ({timeStore, filtersStore, modelStore}) => {
                                         count(*) as total_count,
                                         1 as join_key
                                     FROM "dioptra-gt-combined-eventstream"
-                                    WHERE
-                                        "__time" >= TIME_PARSE('2021-07-23T00:00:00.000Z') AND "__time" < TIME_PARSE('2021-07-24T00:00:00.000Z')
-                                        AND ${filtersStore.sqlFilters} AND model_id='${modelStore.getModelById(params._id).mlModelId}'
+                                    WHERE ${allOfflineSqlFilters}
                                   ) AS my_count_table
                                   ON my_table.join_key = my_count_table.join_key`
                             }
@@ -155,9 +150,7 @@ const PredictionAnalysis = ({timeStore, filtersStore, modelStore}) => {
                                             prediction,
                                             1 as join_key
                                         FROM "dioptra-gt-combined-eventstream"
-                                        WHERE
-                                            "__time" >= TIME_PARSE('2021-07-23T00:00:00.000Z') AND "__time" < TIME_PARSE('2021-07-24T00:00:00.000Z')
-                                            AND ${filtersStore.sqlFilters} AND model_id='${modelStore.getModelById(params._id).mlModelId}'
+                                        WHERE ${allOfflineSqlFilters}
                                         GROUP BY 2
                                       ) AS my_table
                                       JOIN (
@@ -165,9 +158,7 @@ const PredictionAnalysis = ({timeStore, filtersStore, modelStore}) => {
                                             count(*) as total_count,
                                             1 as join_key
                                         FROM "dioptra-gt-combined-eventstream"
-                                        WHERE
-                                            "__time" >= TIME_PARSE('2021-07-23T00:00:00.000Z') AND "__time" < TIME_PARSE('2021-07-24T00:00:00.000Z')
-                                            AND ${filtersStore.sqlFilters} AND model_id='${modelStore.getModelById(params._id).mlModelId}'
+                                        WHERE ${allOfflineSqlFilters}
                                       ) AS my_count_table
                                       ON my_table.join_key = my_count_table.join_key
                                     )
@@ -190,7 +181,6 @@ const PredictionAnalysis = ({timeStore, filtersStore, modelStore}) => {
 
 PredictionAnalysis.propTypes = {
     filtersStore: PropTypes.object.isRequired,
-    modelStore: PropTypes.object.isRequired,
     timeStore: PropTypes.object.isRequired
 };
 export default setupComponent(PredictionAnalysis);

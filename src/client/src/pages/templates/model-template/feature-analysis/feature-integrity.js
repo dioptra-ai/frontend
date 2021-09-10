@@ -6,14 +6,15 @@ import PropTypes from 'prop-types';
 import {Table} from 'react-bootstrap';
 import {useInView} from 'react-intersection-observer';
 
+import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 import TimeseriesQuery, {sql} from 'components/timeseries-query';
+import {CustomTooltip} from 'components/area-graph';
 import {IconNames} from 'constants';
 import {getHexColor} from 'helpers/color-helper';
 import FontIcon from 'components/font-icon';
 import theme from 'styles/theme.module.scss';
 import {setupComponent} from 'helpers/component-helper';
 import timeseriesClient from 'clients/timeseries';
-import {useParams} from 'react-router-dom';
 
 const FeatureIntegrityTableColumnNames = {
     FEATURE_NAME: 'Feature Name',
@@ -45,30 +46,6 @@ const renderWarningCheckIcon = (isOk, fontSize) => {
     );
 };
 
-const OnlineDistributionTooltip = ({payload}) => {
-    if (payload && payload.length) {
-        const {payload: {value, dist}} = payload[0];
-
-        return (
-            <div className='p-3 bg-white shadow-lg'>
-                <div>{(100 * Number(dist)).toFixed(2)}%</div>
-                <div className='text-secondary' style={{
-                    textOverflow: 'ellipsis',
-                    overflow: 'hidden',
-                    whiteSpace: 'nowrap',
-                    maxWidth: 200
-                }}><small>{value || '<empty>'}</small></div>
-            </div>
-        );
-    }
-
-    return null;
-};
-
-OnlineDistributionTooltip.propTypes = {
-    payload: PropTypes.array
-};
-
 const OnlineDistributionBarChart = ({distribution}) => {
     return distribution ? (
         <div>
@@ -78,7 +55,7 @@ const OnlineDistributionBarChart = ({distribution}) => {
                         <Cell accentHeight='0px' fill={d.color} key={i}/>
                     ))}
                 </Bar>
-                <Tooltip content={<OnlineDistributionTooltip />} cursor={false}/>
+                <Tooltip content={CustomTooltip} cursor={false} allowEscapeViewBox={{x: true, y: true}}/>
             </BarChart>
         </div>
     ) : null;
@@ -88,14 +65,15 @@ OnlineDistributionBarChart.propTypes = {
     distribution: PropTypes.array
 };
 
-const FeatureIntegrityRow = ({modelStore, name, timeStore}) => {
+const FeatureIntegrityRow = ({name, timeStore}) => {
     const incidentCount = 4;
     const tdClasses = 'py-5 align-middle';
     const [featureType, setFeatureType] = useState(null);
     const [featureCardinality, setFeatureCardinality] = useState(null);
     const [featureOnlineDistribution, setFeatureOnlineDistribution] = useState(null);
     const {ref, inView} = useInView();
-    const {_id} = useParams();
+    const allSqlFilters = useAllSqlFilters();
+    const allOfflineSqlFilters = useAllSqlFilters({useReferenceRange: true});
 
     useEffect(() => {
         if (inView && !featureType) {
@@ -103,8 +81,7 @@ const FeatureIntegrityRow = ({modelStore, name, timeStore}) => {
             timeseriesClient({
                 query: `
                   SELECT "${name}" FROM "dioptra-gt-combined-eventstream"
-                  WHERE "${name}" IS NOT NULL
-                    AND ${timeStore.sqlTimeFilter}
+                  WHERE "${name}" IS NOT NULL AND ${allSqlFilters}
                   LIMIT 100
                 `
             }).then((values) => {
@@ -116,7 +93,7 @@ const FeatureIntegrityRow = ({modelStore, name, timeStore}) => {
                 }
             }).catch(console.error);
         }
-    }, [inView, timeStore.sqlTimeFilter]);
+    }, [inView, allSqlFilters]);
 
     useEffect(() => {
 
@@ -126,14 +103,14 @@ const FeatureIntegrityRow = ({modelStore, name, timeStore}) => {
                 query: `
                   SELECT COUNT(DISTINCT "${name}") as "count"
                   FROM "dioptra-gt-combined-eventstream"
-                  WHERE "${name}" IS NOT NULL AND ${timeStore.sqlTimeFilter}
+                  WHERE "${name}" IS NOT NULL AND ${allSqlFilters}
                 `
             }).then((values) => {
 
                 setFeatureCardinality(values[0].count);
             }).catch(console.error);
         }
-    }, [inView, timeStore.sqlTimeFilter]);
+    }, [inView, allSqlFilters]);
 
     useEffect(() => {
 
@@ -149,14 +126,14 @@ const FeatureIntegrityRow = ({modelStore, name, timeStore}) => {
                               from (
                                   SELECT count(*) as my_count, "${name}"
                                   FROM "dioptra-gt-combined-eventstream"
-                                  WHERE ${timeStore.sqlTimeFilter}
+                                  WHERE ${allSqlFilters}
                                   GROUP BY 2
                                   LIMIT 20
                               ) as my_table
                               NATURAL JOIN (
                                   SELECT count(*) as total_count
                                   FROM "dioptra-gt-combined-eventstream"
-                                  WHERE ${timeStore.sqlTimeFilter}
+                                  WHERE ${allSqlFilters}
                                   LIMIT 20
                               ) as my_count_table
                             `
@@ -173,7 +150,7 @@ const FeatureIntegrityRow = ({modelStore, name, timeStore}) => {
                                 CAST("${name}" AS FLOAT) as my_feature,
                                 '1' as join_key
                               FROM "dioptra-gt-combined-eventstream"
-                              WHERE ${timeStore.sqlTimeFilter}
+                              WHERE ${allSqlFilters}
                               LIMIT 1000
                             ),
 
@@ -250,7 +227,7 @@ const FeatureIntegrityRow = ({modelStore, name, timeStore}) => {
                 }).catch(console.error);
             }
         }
-    }, [featureType, featureCardinality, inView, timeStore.sqlTimeFilter]);
+    }, [featureType, featureCardinality, inView, allSqlFilters]);
 
     return (
         <tr className='py-5' ref={ref}>
@@ -309,8 +286,9 @@ const FeatureIntegrityRow = ({modelStore, name, timeStore}) => {
                                                 fill='url(#color)'
                                                 stroke={theme.primary}
                                                 strokeWidth={2}
+                                                unit='%'
                                             />
-                                            <Tooltip/>
+                                            <Tooltip content={CustomTooltip} allowEscapeViewBox={{x: true, y: true}}/>
                                         </AreaChart>
                                     </ResponsiveContainer>
                                 </div>
@@ -318,18 +296,18 @@ const FeatureIntegrityRow = ({modelStore, name, timeStore}) => {
                             sql={(featureType === 'String' || featureCardinality < 4) ? sql`
                                 WITH my_online_sample_table as (
                                   SELECT
-                                    *,
+                                    __time,
                                     "${name}" as my_feature
                                   FROM "dioptra-gt-combined-eventstream"
-                                  WHERE ${timeStore.sqlTimeFilter}
+                                  WHERE ${allSqlFilters}
                                 ),
 
                                 my_offline_sample_table as (
                                   SELECT
-                                    *,
+                                    __time,
                                     "${name}" as my_feature
                                   FROM "dioptra-gt-combined-eventstream"
-                                  WHERE ${modelStore.getSqlReferencePeriodFilter(_id)}
+                                  WHERE ${allOfflineSqlFilters}
                                 ),
 
                                 my_online_table as (
@@ -378,7 +356,7 @@ const FeatureIntegrityRow = ({modelStore, name, timeStore}) => {
 
                                 SELECT
                                   my_online_table.my_time as x,
-                                  sqrt(sum(POWER(my_online_table.my_percentage - my_offline_table.my_percentage, 2))) as y
+                                  100 * sqrt(sum(POWER(my_online_table.my_percentage - my_offline_table.my_percentage, 2))) as y
                                 FROM my_online_table
                                 JOIN my_offline_table
                                   ON my_offline_table.my_feature = my_online_table.my_feature
@@ -386,20 +364,21 @@ const FeatureIntegrityRow = ({modelStore, name, timeStore}) => {
                             ` : sql`
                                 WITH my_online_sample_table as (
                                   SELECT
-                                    *,
+                                    __time,
                                     CAST("${name}" AS FLOAT) as my_feature,
                                     '1' as join_key
                                   FROM "dioptra-gt-combined-eventstream"
-                                  WHERE ${timeStore.sqlTimeFilter}
+                                  WHERE ${allSqlFilters}
+                                  LIMIT 1000
                                 ),
 
                                 my_offline_sample_table as (
                                   SELECT
-                                    *,
+                                    __time,
                                     CAST("${name}" AS FLOAT) as my_feature,
                                     '1' as join_key
                                   FROM "dioptra-gt-combined-eventstream"
-                                  WHERE ${modelStore.getSqlReferencePeriodFilter(_id)}
+                                  WHERE ${allOfflineSqlFilters}
                                   LIMIT 1000
                                 ),
 
@@ -538,7 +517,7 @@ const FeatureIntegrityRow = ({modelStore, name, timeStore}) => {
 
                                 SELECT
                                   my_online_table.my_time as x,
-                                  sqrt(sum(POWER(my_online_table.my_percentage - my_offline_table.my_percentage, 2))) as y
+                                  100 * sqrt(sum(POWER(my_online_table.my_percentage - my_offline_table.my_percentage, 2))) as y
                                 FROM my_online_table
                                 JOIN my_offline_table
                                 ON my_offline_table.feature_bins = my_online_table.feature_bins
@@ -557,16 +536,16 @@ const FeatureIntegrityRow = ({modelStore, name, timeStore}) => {
 };
 
 FeatureIntegrityRow.propTypes = {
-    modelStore: PropTypes.object,
     name: PropTypes.string,
     timeStore: PropTypes.object
 };
 
 const ObserverFeatureIntegrityRow = setupComponent(FeatureIntegrityRow);
 
-const FeatureIntegrityTable = ({errorStore, timeStore}) => {
+const FeatureIntegrityTable = ({errorStore}) => {
     const [allFeatureNames, setAllFeatureNames] = useState(null);
     const [nonNullFeatureNames, setNonNullFeatureNames] = useState([]);
+    const allSqlFilters = useAllSqlFilters();
 
     useEffect(() => {
         timeseriesClient({
@@ -588,7 +567,7 @@ const FeatureIntegrityTable = ({errorStore, timeStore}) => {
                 query: `
                     SELECT ${allFeatureNames.map((f) => `COUNT("${f}")`).join(', ')}
                     FROM "dioptra-gt-combined-eventstream"
-                    WHERE ${timeStore.sqlTimeFilter}
+                    WHERE ${allSqlFilters}
                 `,
                 resultFormat: 'array'
             }).then(([nonNullCounts]) => {
@@ -596,7 +575,7 @@ const FeatureIntegrityTable = ({errorStore, timeStore}) => {
                 setNonNullFeatureNames(allFeatureNames.filter((_, i) => nonNullCounts && nonNullCounts[i] !== 0));
             }).catch((e) => errorStore.reportError(e));
         }
-    }, [allFeatureNames, timeStore.sqlTimeFilter]);
+    }, [allFeatureNames, allSqlFilters]);
 
     return (
         <div className='border border-1 px-3 pb-3 pt-2 rounded'>
@@ -615,8 +594,7 @@ const FeatureIntegrityTable = ({errorStore, timeStore}) => {
 };
 
 FeatureIntegrityTable.propTypes = {
-    errorStore: PropTypes.object,
-    timeStore: PropTypes.object
+    errorStore: PropTypes.object
 };
 
 export default setupComponent(FeatureIntegrityTable);
