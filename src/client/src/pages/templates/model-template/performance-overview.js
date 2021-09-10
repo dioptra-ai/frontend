@@ -81,6 +81,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                             xAxisName='Time'
                             yAxisDomain={[0, 25]}
                             yAxisName='Average Latency (ms)'
+                            unit='ms'
                         />
                     </Col>
                 </Row>

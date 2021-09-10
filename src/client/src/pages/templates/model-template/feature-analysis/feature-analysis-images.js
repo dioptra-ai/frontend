@@ -113,6 +113,7 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                                   SELECT *
                                   FROM "dioptra-gt-combined-eventstream"
                                   WHERE ${allSqlFilters}
+                                  LIMIT 10000
                                 ),
 
                                 offline_sample_table as (
