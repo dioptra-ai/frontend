@@ -76,15 +76,12 @@ const AreaGraph = ({
     const [refAreaLeft, setRefAreaLeft] = useThrottle(null, 25, true);
     const [refAreaRight, setRefAreaRight] = useThrottle(null, 25, true);
 
-    const stringifiedDots = JSON.stringify(dots);
-    const data = useMemo(() => {
-
-        return dots.map((d) => ({
+    const filledData = useMemo(() => {
+        const data = dots.map((d) => ({
             y: Math.floor(d.y),
             x: new Date(d.x).getTime()
         }));
-    }, [stringifiedDots]);
-    const filledData = useMemo(() => {
+
         if (data.length > 0) {
             const referenceTick = data[0].x;
             const [domainStart, domainEnd] = domain;
@@ -114,7 +111,7 @@ const AreaGraph = ({
 
             return [];
         }
-    }, [stringifiedDots]);
+    }, [JSON.stringify(dots)]);
 
     const zoomIn = () => {
 
