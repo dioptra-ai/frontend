@@ -14,7 +14,7 @@ import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
     const allSqlFilters = useAllSqlFilters();
     const allOfflineSqlFilters = useAllSqlFilters({useReferenceRange: true});
-    const sqlTimeGranularity = timeStore.getTimeGranularityMs().toISOString();
+    const timeGranularity = timeStore.getTimeGranularityMs().toISOString();
 
     return (
         <div>
@@ -56,7 +56,7 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                                 />
                             )}
                             sql={sql`
-                                SELECT TIME_FLOOR(__time, '${sqlTimeGranularity}') as "__time",
+                                SELECT TIME_FLOOR(__time, '${timeGranularity}') as "__time",
                                 100 * CAST(COUNT(distinct MV_TO_STRING("feature.image_embedding", '')) as double) / COUNT(*) as "uniques"
                                 FROM "dioptra-gt-combined-eventstream"
                                 WHERE ${allSqlFilters}
@@ -126,7 +126,7 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                                 my_online_table as (
                                   SELECT
                                     1 as join_key,
-                                    TIME_FLOOR(__time, '${sqlTimeGranularity}') as my_time,
+                                    TIME_FLOOR(__time, '${timeGranularity}') as my_time,
                                     CAST(SUM(case WHEN MV_OFFSET(STRING_TO_MV(MV_OFFSET(REPLACE(REPLACE("feature.image_embedding", '[', ''), ']', ''), 0), ', '), 0) < -2 THEN 1 ELSE 0 END) AS DOUBLE) / count(*) as dim_0_0,
                                     CAST(SUM(case WHEN MV_OFFSET(STRING_TO_MV(MV_OFFSET(REPLACE(REPLACE("feature.image_embedding", '[', ''), ']', ''), 0), ', '), 0) >= -2 AND MV_OFFSET(STRING_TO_MV(MV_OFFSET(REPLACE(REPLACE("feature.image_embedding", '[', ''), ']', ''), 0), ', '), 0) < -1 THEN 1 ELSE 0 END) AS DOUBLE) / count(*) as dim_0_1,
                                     CAST(SUM(case WHEN MV_OFFSET(STRING_TO_MV(MV_OFFSET(REPLACE(REPLACE("feature.image_embedding", '[', ''), ']', ''), 0), ', '), 0) >= -1 AND MV_OFFSET(STRING_TO_MV(MV_OFFSET(REPLACE(REPLACE("feature.image_embedding", '[', ''), ']', ''), 0), ', '), 0) < -0 THEN 1 ELSE 0 END) AS DOUBLE) / count(*) as dim_0_2,

@@ -1,6 +1,6 @@
 /* eslint-disable max-lines */
 
-import {Area, AreaChart, Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis} from 'recharts';
+import {Bar, BarChart, Cell, Tooltip} from 'recharts';
 import React, {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import {Table} from 'react-bootstrap';
@@ -8,11 +8,10 @@ import {useInView} from 'react-intersection-observer';
 
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 import TimeseriesQuery, {sql} from 'components/timeseries-query';
-import {CustomTooltip} from 'components/area-graph';
+import {CustomTooltip, SmallChart} from 'components/area-graph';
 import {IconNames} from 'constants';
 import {getHexColor} from 'helpers/color-helper';
 import FontIcon from 'components/font-icon';
-import theme from 'styles/theme.module.scss';
 import {setupComponent} from 'helpers/component-helper';
 import timeseriesClient from 'clients/timeseries';
 
@@ -74,6 +73,8 @@ const FeatureIntegrityRow = ({name, timeStore}) => {
     const {ref, inView} = useInView();
     const allSqlFilters = useAllSqlFilters();
     const allOfflineSqlFilters = useAllSqlFilters({useReferenceRange: true});
+    const maxTimeseriesTicks = 20;
+    const timeGranularity = timeStore.getTimeGranularityMs(maxTimeseriesTicks).toISOString();
 
     useEffect(() => {
         if (inView && !featureType) {
@@ -258,41 +259,10 @@ const FeatureIntegrityRow = ({name, timeStore}) => {
                             defaultData={[]}
                             renderData={(data) => (
                                 <div style={{height: 150}}>
-                                    <ResponsiveContainer height='100%' width='100%'>
-                                        <AreaChart data={data.map(({x, y}) => ({
-                                            y,
-                                            x: new Date(x).getTime()
-                                        }))}>
-                                            <defs>
-                                                <linearGradient id='color' x1='0' x2='0' y1='0' y2='1'>
-                                                    <stop offset='10%' stopColor={theme.primary} stopOpacity={0.7}/>
-                                                    <stop offset='90%' stopColor='#FFFFFF' stopOpacity={0.1}/>
-                                                </linearGradient>
-                                                <linearGradient id='warning' x1='0' x2='0' y1='0' y2='1'>
-                                                    <stop offset='10%' stopColor={theme.warning} stopOpacity={0.9}/>
-                                                    <stop offset='90%' stopColor='#FFFFFF' stopOpacity={0.1}/>
-                                                </linearGradient>
-                                            </defs>
-                                            <XAxis
-                                                axisLine={false}
-                                                dataKey='x'
-                                                domain={timeStore.rangeMillisec}
-                                                scale='time'
-                                                tick={false}
-                                                type='number'
-                                            />
-                                            <Area
-                                                dataKey='y'
-                                                fill='url(#color)'
-                                                stroke={theme.primary}
-                                                strokeWidth={2}
-                                                unit='%'
-                                            />
-                                            <Tooltip content={CustomTooltip} allowEscapeViewBox={{x: true, y: true}}/>
-                                        </AreaChart>
-                                    </ResponsiveContainer>
+                                    <SmallChart data={data} unit='%'/>
                                 </div>
                             )}
+                            sqlOuterLimit={maxTimeseriesTicks}
                             sql={(featureType === 'String' || featureCardinality < 4) ? sql`
                                 WITH my_online_sample_table as (
                                   SELECT
@@ -317,7 +287,7 @@ const FeatureIntegrityRow = ({name, timeStore}) => {
                                     my_feature
                                   FROM (
                                     SELECT
-                                      floor(__time to MINUTE) as my_time,
+                                      TIME_FLOOR(__time, '${timeGranularity}') as my_time,
                                       count(1) as my_count,
                                       CASE WHEN my_feature <> '' THEN my_feature ELSE 'null' END as my_feature
                                     FROM my_online_sample_table
@@ -325,7 +295,7 @@ const FeatureIntegrityRow = ({name, timeStore}) => {
                                   ) as my_table
                                   JOIN (
                                     SELECT
-                                      floor(__time to MINUTE) as my_time,
+                                      TIME_FLOOR(__time, '${timeGranularity}') as my_time,
                                       count(*) as total_count
                                     FROM my_online_sample_table
                                     GROUP BY 1
@@ -398,7 +368,7 @@ const FeatureIntegrityRow = ({name, timeStore}) => {
                                     feature_bins
                                   FROM (
                                     SELECT
-                                      floor(__time to MINUTE) as my_time,
+                                      TIME_FLOOR(__time, '${timeGranularity}') as my_time,
                                       count(1) as my_count,
                                       CASE
                                         WHEN
@@ -446,7 +416,7 @@ const FeatureIntegrityRow = ({name, timeStore}) => {
                                     GROUP BY 1, 3
                                   ) as my_table
                                   JOIN (
-                                    SELECT floor(__time to MINUTE) as my_time, count(*) as total_count
+                                    SELECT TIME_FLOOR(__time, '${timeGranularity}') as my_time, count(*) as total_count
                                     FROM my_online_sample_table
                                     GROUP BY 1
                                   ) as my_count_table

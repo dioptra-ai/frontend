@@ -115,7 +115,7 @@
       "lines-between-class-members": "error",
       "max-depth": "off",
       "max-len": "off",
-      "max-lines": "error",
+      "max-lines": "off",
       "max-nested-callbacks": "error",
       "max-params": "off",
       "max-statements": "off",
