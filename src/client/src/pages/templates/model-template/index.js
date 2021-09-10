@@ -1,6 +1,6 @@
 import React, {useEffect} from 'react';
 import PropTypes from 'prop-types';
-import {Route, useLocation, useParams} from 'react-router-dom';
+import {Route, useParams} from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
 
 import GeneralSearchBar from '../general-search-bar';
@@ -51,7 +51,6 @@ export const ModelTabsConfigs = (id) => (
 );
 
 const Model = ({modelStore}) => {
-    const location = useLocation();
     const activeModelId = useParams()._id;
     const model = useModel();
 
@@ -64,8 +63,7 @@ const Model = ({modelStore}) => {
             <GeneralSearchBar/>
             <Breadcrumb links={[
                 {name: 'Models', path: Paths().MODELS},
-                {name: model.name, path: Paths(activeModelId).MODEL_PERFORMANCE_OVERVIEW},
-                {...getModelTab(activeModelId, location.pathname)}
+                {name: model.name, path: Paths({modelId: activeModelId}).MODEL_PERFORMANCE_OVERVIEW}
             ]}/>
             <ModelDescription {...model}/>
             <StickyParamsRouter getParamsFromStores={({timeStore, filtersStore, segmentationStore}) => ({
