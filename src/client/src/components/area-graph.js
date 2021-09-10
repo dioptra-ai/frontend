@@ -19,7 +19,6 @@ import {formatDateTime} from 'helpers/date-helper';
 import {setupComponent} from 'helpers/component-helper';
 import fontSizes from 'styles/font-sizes.module.scss';
 
-
 export const CustomTooltip = ({payload, label}) => {
     if (payload && payload.length) {
         const [{value, unit}] = payload;
@@ -264,3 +263,40 @@ AreaGraph.propTypes = {
 };
 
 export default setupComponent(AreaGraph);
+
+export const SmallChart = setupComponent(({timeStore, data, unit}) => (
+    <ResponsiveContainer height='100%' width='100%'>
+        <AreaChart data={data.map(({x, y}) => ({
+            y,
+            x: new Date(x).getTime()
+        }))}>
+            <defs>
+                <linearGradient id='color' x1='0' x2='0' y1='0' y2='1'>
+                    <stop offset='10%' stopColor={theme.primary} stopOpacity={0.7}/>
+                    <stop offset='90%' stopColor='#FFFFFF' stopOpacity={0.1}/>
+                </linearGradient>
+                <linearGradient id='warning' x1='0' x2='0' y1='0' y2='1'>
+                    <stop offset='10%' stopColor={theme.warning} stopOpacity={0.9}/>
+                    <stop offset='90%' stopColor='#FFFFFF' stopOpacity={0.1}/>
+                </linearGradient>
+            </defs>
+            <XAxis
+                axisLine={false}
+                dataKey='x'
+                domain={timeStore.rangeMillisec}
+                scale='time'
+                tick={false}
+                type='number'
+            />
+            <Area
+                dataKey='y'
+                fill='url(#color)'
+                stroke={theme.primary}
+                strokeWidth={2}
+                unit={unit}
+            />
+            <Tooltip content={CustomTooltip} allowEscapeViewBox={{x: true, y: true}}/>
+        </AreaChart>
+    </ResponsiveContainer>
+));
+
