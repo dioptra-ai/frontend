@@ -72,7 +72,6 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                                     unit='%'
                                 />
                             )}
-                            // TODO: replace fixed time ranges by those stored in the model object.
                             sql={sql`
                                   SELECT
                                     TRUNCATE(100 * cast(my_table.my_count as float) / cast(my_count_table.total_count as float), 2) as my_percentage,
@@ -114,7 +113,6 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                                     yAxisName='Distance'
                                 />
                             )}
-                            // TODO: replace fixed time ranges by those stored in the model object.
                             sql={sql`WITH my_online_table as (
                                       SELECT
                                         my_table.my_time,
