@@ -112,6 +112,8 @@ const _AccuracyCell = ({timeStore, segmentationStore, row}) => {
     const {ref, inView} = useInView();
     const [accuracyData, setAccuracyData] = useState([]);
     const allSqlFilters = useAllSqlFilters();
+    const maxTimeseriesTicks = 20;
+    const timeGranularity = timeStore.getTimeGranularityMs(maxTimeseriesTicks).toISOString();
 
     useEffect(() => {
 
@@ -123,10 +125,12 @@ const _AccuracyCell = ({timeStore, segmentationStore, row}) => {
                     FROM "dioptra-gt-combined-eventstream"
                     WHERE ${allSqlFilters} AND ${groupByColumns.map((c) => `"${c}"='${row.original[c]}'`).join(' AND ')})
                     SELECT 
-                      FLOOR(__time TO MINUTE) AS x,
+                      TIME_FLOOR(__time, '${timeGranularity}') AS x,
                       100 * cast(sum(CASE WHEN groundtruth=prediction THEN 1 ELSE 0 end) AS float) / count(*) AS y
                     FROM my_sample_table
-                    GROUP BY FLOOR(__time TO MINUTE), ${groupByColumns.map((c) => `"${c}"`).join(', ')}`
+                    GROUP BY 1, ${groupByColumns.map((c) => `"${c}"`).join(', ')}
+                `,
+                sqlOuterLimit: maxTimeseriesTicks
             }).then((data) => {
                 setAccuracyData(data);
             });

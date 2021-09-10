@@ -14,7 +14,7 @@ import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 const PredictionAnalysis = ({timeStore, filtersStore}) => {
     const allSqlFilters = useAllSqlFilters();
     const allOfflineSqlFilters = useAllSqlFilters({useReferenceRange: true});
-    const sqlTimeGranularity = timeStore.getTimeGranularityMs().toISOString();
+    const timeGranularity = timeStore.getTimeGranularityMs().toISOString();
 
     return (
         <>
@@ -122,7 +122,7 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                                         my_table.prediction
                                       FROM (
                                         SELECT
-                                            TIME_FLOOR(__time, '${sqlTimeGranularity}') as my_time,
+                                            TIME_FLOOR(__time, '${timeGranularity}') as my_time,
                                             count(1) as my_count,
                                             prediction
                                         FROM "dioptra-gt-combined-eventstream"
@@ -131,7 +131,7 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                                       ) AS my_table
                                       JOIN (
                                         SELECT
-                                            TIME_FLOOR(__time, '${sqlTimeGranularity}') as my_time,
+                                            TIME_FLOOR(__time, '${timeGranularity}') as my_time,
                                             count(*) as total_count
                                         FROM "dioptra-gt-combined-eventstream"
                                         WHERE ${allSqlFilters}

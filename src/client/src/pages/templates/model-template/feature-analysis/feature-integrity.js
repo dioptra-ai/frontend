@@ -74,7 +74,7 @@ const FeatureIntegrityRow = ({name, timeStore}) => {
     const allSqlFilters = useAllSqlFilters();
     const allOfflineSqlFilters = useAllSqlFilters({useReferenceRange: true});
     const maxTimeseriesTicks = 20;
-    const sqlTimeGranularity = timeStore.getTimeGranularityMs(maxTimeseriesTicks).toISOString();
+    const timeGranularity = timeStore.getTimeGranularityMs(maxTimeseriesTicks).toISOString();
 
     useEffect(() => {
         if (inView && !featureType) {
@@ -287,7 +287,7 @@ const FeatureIntegrityRow = ({name, timeStore}) => {
                                     my_feature
                                   FROM (
                                     SELECT
-                                      TIME_FLOOR(__time, '${sqlTimeGranularity}') as my_time,
+                                      TIME_FLOOR(__time, '${timeGranularity}') as my_time,
                                       count(1) as my_count,
                                       CASE WHEN my_feature <> '' THEN my_feature ELSE 'null' END as my_feature
                                     FROM my_online_sample_table
@@ -295,7 +295,7 @@ const FeatureIntegrityRow = ({name, timeStore}) => {
                                   ) as my_table
                                   JOIN (
                                     SELECT
-                                      TIME_FLOOR(__time, '${sqlTimeGranularity}') as my_time,
+                                      TIME_FLOOR(__time, '${timeGranularity}') as my_time,
                                       count(*) as total_count
                                     FROM my_online_sample_table
                                     GROUP BY 1
@@ -368,7 +368,7 @@ const FeatureIntegrityRow = ({name, timeStore}) => {
                                     feature_bins
                                   FROM (
                                     SELECT
-                                      TIME_FLOOR(__time, '${sqlTimeGranularity}') as my_time,
+                                      TIME_FLOOR(__time, '${timeGranularity}') as my_time,
                                       count(1) as my_count,
                                       CASE
                                         WHEN
@@ -416,7 +416,7 @@ const FeatureIntegrityRow = ({name, timeStore}) => {
                                     GROUP BY 1, 3
                                   ) as my_table
                                   JOIN (
-                                    SELECT TIME_FLOOR(__time, '${sqlTimeGranularity}') as my_time, count(*) as total_count
+                                    SELECT TIME_FLOOR(__time, '${timeGranularity}') as my_time, count(*) as total_count
                                     FROM my_online_sample_table
                                     GROUP BY 1
                                   ) as my_count_table

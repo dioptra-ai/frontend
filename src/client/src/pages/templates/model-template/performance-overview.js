@@ -40,7 +40,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
             }
         />
     );
-    const sqlTimeGranularity = timeStore.getTimeGranularityMs().toISOString();
+    const timeGranularity = timeStore.getTimeGranularityMs().toISOString();
 
 
     return (
@@ -288,7 +288,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                         )}
                         sql={{
                             [ModelPerformanceMetrics.ACCURACY.value]: sql`
-                                SELECT TIME_FLOOR(__time, '${sqlTimeGranularity}') as x,
+                                SELECT TIME_FLOOR(__time, '${timeGranularity}') as x,
                                   100 * CAST(sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) AS DOUBLE) / CAST(sum(1) AS DOUBLE) AS y
                                 FROM "dioptra-gt-combined-eventstream"
                                 WHERE ${allSqlFilters}
@@ -296,7 +296,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                             [ModelPerformanceMetrics.PRECISION.value]: sql`
                                 WITH true_positive as (
                                   SELECT
-                                    TIME_FLOOR(__time, '${sqlTimeGranularity}') as "my_time",
+                                    TIME_FLOOR(__time, '${timeGranularity}') as "my_time",
                                     groundtruth as label,
                                     sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) as cnt_tp
                                   FROM
@@ -307,7 +307,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 ),
                                 true_sum as (
                                   SELECT
-                                    TIME_FLOOR(__time, '${sqlTimeGranularity}') as "my_time",
+                                    TIME_FLOOR(__time, '${timeGranularity}') as "my_time",
                                     prediction as label,
                                     count(1) as cnt_ts
                                   FROM
@@ -318,7 +318,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 ),
                                 pred_sum as (
                                   SELECT
-                                    TIME_FLOOR(__time, '${sqlTimeGranularity}') as "my_time",
+                                    TIME_FLOOR(__time, '${timeGranularity}') as "my_time",
                                     groundtruth as label,
                                     count(1) as cnt_ps
                                   FROM
@@ -337,7 +337,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                             [ModelPerformanceMetrics.RECALL.value]: sql`
                                 WITH true_positive as (
                                   SELECT
-                                    TIME_FLOOR(__time, '${sqlTimeGranularity}') as "my_time",
+                                    TIME_FLOOR(__time, '${timeGranularity}') as "my_time",
                                     groundtruth as label,
                                     sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) as cnt_tp
                                   FROM
@@ -348,7 +348,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 ),
                                 true_sum as (
                                   SELECT
-                                    TIME_FLOOR(__time, '${sqlTimeGranularity}') as "my_time",
+                                    TIME_FLOOR(__time, '${timeGranularity}') as "my_time",
                                     prediction as label,
                                     count(1) as cnt_ts
                                   FROM
@@ -359,7 +359,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 ),
                                 pred_sum as (
                                   SELECT
-                                    TIME_FLOOR(__time, '${sqlTimeGranularity}') as "my_time",
+                                    TIME_FLOOR(__time, '${timeGranularity}') as "my_time",
                                     groundtruth as label,
                                     count(1) as cnt_ps
                                   FROM
@@ -379,7 +379,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                             [ModelPerformanceMetrics.F1_SCORE.value]: sql`
                                 WITH true_positive as (
                                   SELECT
-                                    TIME_FLOOR(__time, '${sqlTimeGranularity}') as "my_time",
+                                    TIME_FLOOR(__time, '${timeGranularity}') as "my_time",
                                     groundtruth as label,
                                     sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) as cnt_tp
                                   FROM
@@ -390,7 +390,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 ),
                                 true_sum as (
                                   SELECT
-                                    TIME_FLOOR(__time, '${sqlTimeGranularity}') as "my_time",
+                                    TIME_FLOOR(__time, '${timeGranularity}') as "my_time",
                                     prediction as label,
                                     count(1) as cnt_ts
                                   FROM
@@ -401,7 +401,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 ),
                                 pred_sum as (
                                   SELECT
-                                    TIME_FLOOR(__time, '${sqlTimeGranularity}') as "my_time",
+                                    TIME_FLOOR(__time, '${timeGranularity}') as "my_time",
                                     groundtruth as label,
                                     count(1) as cnt_ps
                                   FROM
