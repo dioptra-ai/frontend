@@ -8,23 +8,13 @@ const {SQL_OUTER_LIMIT} = TimeseriesClient;
 
 const granularityLadderMs = [
     moment.duration(1, 'second'),
-    moment.duration(5, 'second'),
     moment.duration(10, 'second'),
-    moment.duration(30, 'second'),
     moment.duration(1, 'minute'),
-    moment.duration(5, 'minute'),
     moment.duration(10, 'minute'),
-    moment.duration(30, 'minute'),
     moment.duration(1, 'hour'),
-    moment.duration(2, 'hour'),
     moment.duration(3, 'hour'),
-    moment.duration(6, 'hour'),
-    moment.duration(12, 'hour'),
     moment.duration(1, 'day'),
-    moment.duration(2, 'day'),
     moment.duration(5, 'day'),
-    moment.duration(10, 'day'),
-    moment.duration(15, 'day'),
     moment.duration(1, 'month')
 ];
 
