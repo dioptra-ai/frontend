@@ -1,4 +1,4 @@
-import React, {useMemo, useState} from 'react';
+import React, {useState} from 'react';
 import PropTypes from 'prop-types';
 import DateRangePicker from 'react-bootstrap-daterangepicker';
 import {formatDateTimeRange, lastDays, lastHours, lastMinutes} from '../helpers/date-helper';
@@ -17,7 +17,7 @@ const initialSettings = {
 };
 const DateTimeRangePicker = ({onChange, start, end, classNames, datePickerSettings, width}) => {
     const [isCalendarVisible, setIsCalendarVisible] = useState(false);
-    const ranges = useMemo(() => ({
+    const ranges = {
         'Last 5 minutes': lastMinutes(5),
         'Last 15 minutes': lastMinutes(15),
         'Last 1 hours': lastHours(1),
@@ -27,7 +27,7 @@ const DateTimeRangePicker = ({onChange, start, end, classNames, datePickerSettin
         'Last 2 days': lastDays(2),
         'Last 7 days': lastDays(7),
         'Last 30 days': lastDays(30)
-    }));
+    };
 
     const handleChange = (newStart, newEnd) => {
         if (newStart !== null && newEnd !== null && isMoment(newStart) && isMoment(newEnd)) {
@@ -35,7 +35,7 @@ const DateTimeRangePicker = ({onChange, start, end, classNames, datePickerSettin
         }
     };
 
-    const dateComponent = useMemo(() => {
+    const dateComponent = () => {
         return (<DateRangePicker initialSettings={{
             startDate: start,
             endDate: end,
@@ -54,11 +54,11 @@ const DateTimeRangePicker = ({onChange, start, end, classNames, datePickerSettin
                 <FontIcon className='text-secondary' icon={isCalendarVisible ? IconNames.ARROW_UP : IconNames.ARROW_DOWN} size={10}/>
             </div>
         </DateRangePicker>);
-    }, [ranges, isCalendarVisible]);
+    };
 
     return (
         <div style={{width}}>
-            {dateComponent}
+            {dateComponent()}
         </div>
     );
 };
