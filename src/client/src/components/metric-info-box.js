@@ -28,10 +28,9 @@ const MetricInfoBox = ({value, notifications, warnings, name, sampleSize, unit, 
         <span className='text-dark metric-box-diffText'>
             {difference ? difference.toFixed(2) : '-'}{unit}
             {difference && <FontIcon
-                className='text-warning'
+                className='text-warning metric-box-arrowIcon'
                 icon={difference > 0 ? IconNames.ARROW_UP : IconNames.ARROW_DOWN}
                 size={12}
-                className='metric-box-arrowIcon'
             />
             }
         </span>
