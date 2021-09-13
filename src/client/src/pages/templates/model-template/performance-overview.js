@@ -29,6 +29,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
     const [selectedMetric, setSelectedMetric] = useState(ModelPerformanceMetrics.ACCURACY.value);
     const [selectedIndicator, setSelectedIndicator] = useState(ModelPerformanceIndicators.ADOPTION.value);
     const allSqlFilters = useAllSqlFilters();
+    const sqlFiltersWithModelTime = useAllSqlFilters({useReferenceRange: true});
     const sampleSizeComponent = (
         <TimeseriesQuery
             defaultData={[{sampleSize: 0}]}
@@ -41,7 +42,6 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
         />
     );
     const timeGranularity = timeStore.getTimeGranularityMs().toISOString();
-
 
     return (
         <>
@@ -93,11 +93,22 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                         <TimeseriesQuery
                             defaultData={[{accuracy: NaN}]}
                             renderData={([{accuracy}]) => (
-                                <MetricInfoBox
-                                    name='Accuracy'
-                                    sampleSize={sampleSizeComponent}
-                                    unit='%'
-                                    value={accuracy}
+                                <TimeseriesQuery
+                                    defaultData={[]}
+                                    renderData={([data]) => (
+                                        <MetricInfoBox
+                                            name='Accuracy'
+                                            sampleSize={sampleSizeComponent}
+                                            unit='%'
+                                            value={accuracy}
+                                            difference={accuracy - data?.accuracy}
+                                        />
+                                    )}
+                                    sql={sql`
+                                SELECT 100 * CAST(sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) AS DOUBLE) / sum(1) AS accuracy
+                                FROM "dioptra-gt-combined-eventstream"
+                                WHERE ${sqlFiltersWithModelTime}`
+                                    }
                                 />
                             )}
                             sql={sql`
@@ -111,11 +122,57 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                         <TimeseriesQuery
                             defaultData={[{f1Score: NaN}]}
                             renderData={([{f1Score}]) => (
-                                <MetricInfoBox
-                                    name='F1 Score'
-                                    sampleSize={sampleSizeComponent}
-                                    unit='%'
-                                    value={100 * f1Score}
+                                <TimeseriesQuery
+                                    defaultData={[]}
+                                    renderData={([data]) => (
+                                        <MetricInfoBox
+                                            name='F1 Score'
+                                            sampleSize={sampleSizeComponent}
+                                            unit='%'
+                                            value={100 * f1Score}
+                                            difference={100 * (f1Score - data?.f1Score)}
+                                        />
+                                    )}
+                                    sql={sql`
+                                      WITH true_positive as (
+                                        SELECT
+                                          groundtruth as label,
+                                          sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) as cnt_tp
+                                        FROM "dioptra-gt-combined-eventstream"
+                                        WHERE ${sqlFiltersWithModelTime}
+                                        GROUP BY groundtruth
+                                        ORDER by groundtruth
+                                      ),
+                                      true_sum as (
+                                        SELECT
+                                          prediction as label,
+                                          count(1) as cnt_ts
+                                        FROM "dioptra-gt-combined-eventstream"
+                                        WHERE ${sqlFiltersWithModelTime}
+                                        GROUP BY prediction
+                                        ORDER by prediction
+                                      ),
+                                      pred_sum as (
+                                        SELECT
+                                          groundtruth as label,
+                                          count(1) as cnt_ps
+                                        FROM "dioptra-gt-combined-eventstream"
+                                        WHERE ${sqlFiltersWithModelTime}
+                                        GROUP BY groundtruth
+                                        ORDER BY groundtruth
+                                      )
+                                      SELECT
+                                        2 * ((my_table.my_precision * my_table.my_recall) / (my_table.my_precision + my_table.my_recall)) as f1Score
+                                      FROM (
+                                        SELECT
+                                          AVG(cast(true_positive.cnt_tp as double) / true_sum.cnt_ts) as my_recall,
+                                          AVG(cast(true_positive.cnt_tp as double) / pred_sum.cnt_ps) as my_precision
+                                        FROM true_positive
+                                        JOIN pred_sum ON pred_sum.label = true_positive.label
+                                        JOIN true_sum ON true_sum.label = true_positive.label
+                                      ) as my_table
+                                  `
+                                    }
                                 />
                             )}
                             sql={sql`
@@ -164,11 +221,56 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                         <TimeseriesQuery
                             defaultData={[{recall: NaN}]}
                             renderData={([{recall}]) => (
-                                <MetricInfoBox
-                                    name='Recall'
-                                    sampleSize={sampleSizeComponent}
-                                    unit='%'
-                                    value={100 * recall}
+                                <TimeseriesQuery
+                                    defaultData={[]}
+                                    renderData={([data]) => (
+                                        <MetricInfoBox
+                                            name='Recall'
+                                            sampleSize={sampleSizeComponent}
+                                            unit='%'
+                                            value={100 * recall}
+                                            difference={100 * (recall - data?.recall)}
+                                        />
+                                    )}
+                                    sql={sql`
+                                  WITH true_positive as (
+                                    SELECT
+                                      groundtruth as label,
+                                      sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) as cnt_tp
+                                    FROM
+                                      "dioptra-gt-combined-eventstream"
+                                    WHERE ${sqlFiltersWithModelTime}
+                                    GROUP BY groundtruth
+                                    order by groundtruth
+                                  ),
+                                  true_sum as (
+                                    SELECT
+                                      prediction as label,
+                                      count(1) as cnt_ts
+                                    FROM
+                                      "dioptra-gt-combined-eventstream"
+                                    WHERE ${sqlFiltersWithModelTime}
+                                    GROUP BY prediction
+                                    order by prediction
+                                  ),
+                                  pred_sum as (
+                                    SELECT
+                                      groundtruth as label,
+                                      count(1) as cnt_ps
+                                    FROM
+                                      "dioptra-gt-combined-eventstream"
+                                    WHERE ${sqlFiltersWithModelTime}
+                                    GROUP BY groundtruth
+                                    ORDER BY groundtruth
+                                  )
+  
+                                  SELECT 
+                                    AVG(cast(true_positive.cnt_tp as double) / true_sum.cnt_ts) as recall
+                                  FROM true_positive
+                                  JOIN true_sum
+                                  ON true_sum.label = true_positive.label
+                              `
+                                    }
                                 />
                             )}
                             sql={sql`
@@ -216,11 +318,53 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                         <TimeseriesQuery
                             defaultData={[{precision: NaN}]}
                             renderData={([{precision}]) => (
-                                <MetricInfoBox
-                                    name='Precision'
-                                    sampleSize={sampleSizeComponent}
-                                    unit='%'
-                                    value={100 * precision}
+                                <TimeseriesQuery
+                                    defaultData={[]}
+                                    renderData={([data]) => (
+                                        <MetricInfoBox
+                                            name='Precision'
+                                            sampleSize={sampleSizeComponent}
+                                            unit='%'
+                                            value={100 * precision}
+                                            difference={100 * (precision - data?.precision)}
+                                        />
+                                    )}
+                                    sql={sql`WITH true_positive as (
+                                SELECT
+                                  groundtruth as label,
+                                  sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) as cnt_tp
+                                FROM
+                                  "dioptra-gt-combined-eventstream"
+                                WHERE ${sqlFiltersWithModelTime}
+                                GROUP BY groundtruth
+                                ORDER BY groundtruth
+                              ),
+                              true_sum as (
+                                SELECT
+                                  prediction as label,
+                                  count(1) as cnt_ts
+                                FROM
+                                  "dioptra-gt-combined-eventstream"
+                                WHERE ${sqlFiltersWithModelTime}
+                                GROUP BY prediction
+                                ORDER BY prediction
+                              ),
+                              pred_sum as (
+                                SELECT
+                                  groundtruth as label,
+                                  count(1) as cnt_ps
+                                FROM
+                                  "dioptra-gt-combined-eventstream"
+                                WHERE ${sqlFiltersWithModelTime}
+                                GROUP BY groundtruth
+                                ORDER BY groundtruth
+                              )
+  
+                              SELECT 
+                                AVG(cast(true_positive.cnt_tp as double) / pred_sum.cnt_ps) as "precision"
+                              FROM true_positive
+                              JOIN pred_sum
+                              ON pred_sum.label = true_positive.label`}
                                 />
                             )}
                             sql={sql`WITH true_positive as (

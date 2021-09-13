@@ -1,0 +1,14 @@
+.metric-box {
+   position: relative;
+
+   &-diffText{
+    font-size: 16px;
+    position: absolute;
+    top: 2px;
+    right: 8px;
+   }
+
+   &-arrowIcon{
+     margin-left: 4px;
+   }
+}
