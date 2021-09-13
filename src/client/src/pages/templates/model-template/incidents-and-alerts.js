@@ -6,14 +6,30 @@ import {setupComponent} from '../../../helpers/component-helper';
 
 const IncidentsAndAlerts = () => {
     return (
-        <Row>
-            <Col lg={6}>
-                <Incidents />
-            </Col>
-            <Col lg={6}>
-                <Alerts />
-            </Col>
-        </Row>
+        <div style={{position: 'relative'}}>
+            <Row>
+                <Col lg={6}>
+                    <Incidents />
+                </Col>
+                <Col lg={6}>
+                    <Alerts />
+                </Col>
+            </Row>
+            <div style={{
+                background: 'rgba(255, 255, 255, 0.8)',
+                position: 'absolute',
+                top: 0,
+                right: 0,
+                bottom: 0,
+                left: 0,
+                color: 'rgba(0, 0, 0, 0.4)',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center'
+            }}>
+                <h1>This Feature Will Be Available Soon</h1>
+            </div>
+        </div>
     );
 };
 
