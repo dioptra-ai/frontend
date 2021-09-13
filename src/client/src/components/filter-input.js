@@ -1,7 +1,9 @@
 import React, {useEffect, useState} from 'react';
+import OutsideClickHandler from 'react-outside-click-handler';
 import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
 import {useParams} from 'react-router-dom';
+
 import timeseriesClient from 'clients/timeseries';
 import {setupComponent} from 'helpers/component-helper';
 import FontIcon from './font-icon';
@@ -34,6 +36,7 @@ const FilterInput = ({
     );
     const [suggestions, setSuggestions] = useState([]);
     const [suggestionIndex, setSuggestionIndex] = useState(-1);
+    const [showSuggestions, setShowSuggestions] = useState(false);
 
     const {_id} = useParams();
 
@@ -60,35 +63,34 @@ const FilterInput = ({
             timeseriesClient({
                 query: `SELECT COLUMN_NAME as allKeyOptions
                     FROM INFORMATION_SCHEMA.COLUMNS 
-                    WHERE TABLE_NAME = 'dioptra-gt-combined-eventstream' AND COLUMN_NAME LIKE '${key}%'`
-            })
-                .then(async (data) => {
-                    const [allKeyOptions] = await timeseriesClient({
-                        query: `SELECT ${data
-                            .map(({allKeyOptions: key}) => `COUNT("${key}")`)
-                            .join(', ')}
-                    FROM "dioptra-gt-combined-eventstream"
-                    WHERE model_id='${mlModelId}'
-                    LIMIT 10
-                    `,
-                        resultFormat: 'array'
-                    });
+                    WHERE TABLE_NAME = 'dioptra-gt-combined-eventstream' AND COLUMN_NAME LIKE '${key}%'
+                `
+            }).then(async (data) => {
+                const [allKeyOptions] = await timeseriesClient({
+                    query: `SELECT ${data
+                        .map(({allKeyOptions: key}) => `COUNT("${key}")`)
+                        .join(', ')}
+                FROM "dioptra-gt-combined-eventstream"
+                WHERE model_id='${mlModelId}'
+                LIMIT 10
+                `,
+                    resultFormat: 'array'
+                });
 
-                    const filteredKeys = data
-                        .filter((_, i) => allKeyOptions && allKeyOptions[i] > 0)
-                        .map(({allKeyOptions}) => allKeyOptions);
+                const filteredKeys = data
+                    .filter((_, i) => allKeyOptions && allKeyOptions[i] > 0)
+                    .map(({allKeyOptions}) => allKeyOptions);
 
-                    setSuggestions([...filteredKeys]);
-                })
-                .catch(() => setSuggestions([]));
+                setSuggestions([...filteredKeys]);
+            }).catch(() => setSuggestions([]));
         }
     };
 
     useEffect(() => {
-        if (newFilter.length) {
+        if (showSuggestions) {
             getSuggestions();
         }
-    }, [newFilter]);
+    }, [newFilter, showSuggestions]);
 
     const handleInputChange = (e) => {
         setNewFilter(e.target.value.trim());
@@ -184,42 +186,48 @@ const FilterInput = ({
 
     return (
         <div className='my-5'>
-            <div className='filter-input mb-4'>
-                {filters.map((filter, index) => (
-                    <Filter filter={filter} key={index} onDelete={handleRemoveFilter} />
-                ))}
-                <input
-                    onChange={handleInputChange}
-                    onKeyUp={handleKeyUp}
-                    placeholder={filters.length === 0 ? inputPlaceholder : ''}
-                    type='text'
-                    value={newFilter}
-                />
-                <Button
-                    className='bg-dark text-white border-0 bold-text fs-7'
-                    onClick={() => {
-                        handleAppliedFiltersChange([...appliedFilters, ...filters]);
-                        setFilters([]);
-                        setNewFilter('');
-                        setSuggestionIndex(-1);
-                    }}
-                >
-          APPLY FILTERS
-                </Button>
-                {newFilter.length !== 0 && (
-                    <ul className='suggestions bg-white text-dark'>
-                        {suggestions.map((suggestion, index) => (
-                            <li
-                                className={suggestionIndex === index ? 'active' : ''}
-                                key={index}
-                                onClick={() => handleSuggestionClick(suggestion)}
-                            >
-                                {suggestion}
-                            </li>
-                        ))}
-                    </ul>
-                )}
-            </div>
+            <OutsideClickHandler useCapture onOutsideClick={() => {
+                setShowSuggestions(false);
+            }}>
+                <div className='filter-input mb-4'>
+                    {filters.map((filter, index) => (
+                        <Filter filter={filter} key={index} onDelete={handleRemoveFilter} />
+                    ))}
+                    <input
+                        onChange={handleInputChange}
+                        onKeyUp={handleKeyUp}
+                        placeholder={filters.length === 0 ? inputPlaceholder : ''}
+                        type='text'
+                        value={newFilter}
+                        onFocus={() => setShowSuggestions(true)}
+                    />
+                    <Button
+                        className='bg-dark text-white border-0 bold-text fs-7'
+                        onClick={() => {
+                            handleAppliedFiltersChange([...appliedFilters, ...filters]);
+                            setFilters([]);
+                            setNewFilter('');
+                            setSuggestionIndex(-1);
+                            setShowSuggestions(false);
+                        }}
+                    >
+              APPLY FILTERS
+                    </Button>
+                    {showSuggestions && (
+                        <ul className='suggestions bg-white text-dark'>
+                            {suggestions.map((suggestion, index) => (
+                                <li
+                                    className={suggestionIndex === index ? 'active' : ''}
+                                    key={index}
+                                    onClick={() => handleSuggestionClick(suggestion)}
+                                >
+                                    {suggestion}
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
+            </OutsideClickHandler>
             {appliedFilters.length !== 0 && (
                 <div>
                     {appliedFilters.map((filter, index) => (
