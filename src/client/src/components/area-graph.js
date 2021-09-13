@@ -111,7 +111,7 @@ const AreaGraph = ({
 
             return [];
         }
-    }, [JSON.stringify(dots)]);
+    }, [JSON.stringify(dots), JSON.stringify(domain)]);
 
     const zoomIn = () => {
 
