@@ -6,9 +6,15 @@
     position: absolute;
     top: 2px;
     right: 8px;
+    display: flex;
+    align-items: center;
    }
 
    &-arrowIcon{
      margin-left: 4px;
+
+     &-inverted {
+       transform:  rotate(180deg);
+     }
    }
 }

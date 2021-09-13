@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import {Link} from 'react-router-dom';
+import {IoTriangle} from 'react-icons/io5';
 
 import FontIcon from 'components/font-icon';
 import {IconNames} from 'constants';
@@ -25,12 +26,10 @@ const MetricInfoBox = ({value, notifications, warnings, name, sampleSize, unit, 
             </div>}
         </div>
         <span className='text-dark' style={{fontSize: '60px'}}>{value ? value.toFixed(1) : '-'}{unit}</span>
-        <span className='text-dark metric-box-diffText'>
-            {difference ? difference.toFixed(2) : '-'}{unit}
-            {difference && <FontIcon
-                className='text-warning metric-box-arrowIcon'
-                icon={difference > 0 ? IconNames.ARROW_UP : IconNames.ARROW_DOWN}
-                size={12}
+        <span className='text-primary metric-box-diffText'>
+            {difference ? `${difference > 0 ? '+' : '-'}${difference.toFixed(2)}` : '-'}{unit}
+            {difference && <IoTriangle
+                className={`metric-box-arrowIcon ${difference < 0 ? 'metric-box-arrowIcon-inverted' : ''}`}
             />
             }
         </span>
