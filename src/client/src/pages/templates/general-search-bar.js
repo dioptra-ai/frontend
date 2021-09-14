@@ -21,13 +21,19 @@ const GeneralSearchBar = ({shouldShowOnlySearchInput, timeStore}) => {
             {shouldShowOnlySearchInput ? null : (
                 <>
                     <DateTimeRangePicker
-                        end={timeStore.endMoment}
-                        onChange={(start, end) => timeStore.setTimeRange(start, end)}
-                        start={timeStore.startMoment}
+                        end={timeStore.end}
+                        onChange={({start, end, lastMs}) => {
+                            if (lastMs) {
+                                timeStore.setLastMs(lastMs);
+                            } else {
+                                timeStore.setTimeRange({start, end});
+                            }
+                        }}
+                        start={timeStore.start}
                     />
                     <Button
                         className='text-white d-flex align-items-center justify-content-between px-4 py-2 ms-3'
-                        disabled={!timeStore.refreshable}
+                        disabled={!timeStore.lastMs}
                         onClick={() => timeStore.refreshTimeRange()}
                         variant='primary'
                     >

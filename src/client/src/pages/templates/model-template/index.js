@@ -67,8 +67,9 @@ const Model = ({modelStore}) => {
             ]}/>
             <ModelDescription {...model}/>
             <StickyParamsRouter getParamsFromStores={({timeStore, filtersStore, segmentationStore}) => ({
-                startTime: timeStore.start.toISOString(),
-                endTime: timeStore.end.toISOString(),
+                startTime: timeStore.start?.toISOString() || '',
+                endTime: timeStore.end?.toISOString() || '',
+                lastMs: timeStore.lastMs || '',
                 filters: JSON.stringify(filtersStore.filters),
                 mlModelVersion: filtersStore.mlModelVersion,
                 segmentation: JSON.stringify(segmentationStore.segmentation)

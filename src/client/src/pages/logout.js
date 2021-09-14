@@ -7,6 +7,7 @@ const Logout = ({authStore}) => {
 
     useEffect(() => {
         authStore.tryLogout();
+        localStorage.clear();
     });
 
     if (authStore.isAuthenticated) {
