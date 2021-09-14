@@ -43,7 +43,7 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                 </p>
                 <Form autoComplete='off' className='w-100'>
                     <InputGroup className='mt-3 text-center'>
-                        <Form.Label>Reference Date Range</Form.Label>
+                        <Form.Label>Benchmark Date Range</Form.Label>
                         <DateTimeRangePicker
                             classNames={'justify-content-around bg-light'}
                             datePickerSettings={{
@@ -136,7 +136,7 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                             value={formData.mlModelType}
                         >
                             <option disabled value=''>
-                Select ML Modal Type
+                Select ML Model Type
                             </option>
                             <option value='IMAGE_CLASSIFIER'>Image Classifier</option>
                             <option value='TABULAR_CLASSIFIER'>Tabular Classifier</option>
