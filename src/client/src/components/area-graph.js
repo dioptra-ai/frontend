@@ -83,35 +83,38 @@ const AreaGraph = ({
         }));
 
         if (data.length > 0) {
-            const referenceTick = data[0].x;
-            const [domainStart, domainEnd] = domain;
-            // Fill the ticks with timestamps aligned with the first datapoint,
-            // in both directions.
-            const numTicksLeft = Math.floor((referenceTick - domainStart) / granularityMs);
-            const numTicksRight = Math.floor((domainEnd - referenceTick) / granularityMs);
-            const ticks = [];
+            const firstTick = data[0].x;
+            const lastTick = data[data.length - 1].x;
+            // In case a datapoint falls off the requested range because of border effects
+            // of granularity in the timeseries DB.
+            const domainStart = Math.min(firstTick, domain[0]);
+            const domainEnd = Math.max(lastTick, domain[1]);
+            const numTicksLeft = Math.floor((firstTick - domainStart) / granularityMs);
+            const numTicksRight = Math.floor((domainEnd - lastTick) / granularityMs);
+            const timeseries = [];
 
-            new Array(numTicksLeft).fill().forEach((_, i) => {
-                ticks.push(referenceTick - (numTicksLeft - i) * granularityMs);
+            for (let i = 0; i < numTicksLeft; i++) {
+                timeseries.push({
+                    x: firstTick - (numTicksLeft - i) * granularityMs
+                });
+            }
+
+            data.forEach((d) => {
+                timeseries.push(d);
             });
 
-            // We add one at the end otherwise we won't reach
-            // referenceTick + numTicksRight * granularityMs.
-            new Array(numTicksRight + 1).fill().forEach((_, i) => {
-                ticks.push(referenceTick + i * granularityMs);
-            });
+            for (let i = 0; i < numTicksRight; i++) {
+                timeseries.push({
+                    x: lastTick + i * granularityMs
+                });
+            }
 
-            const timeSeries = data.reduce((agg, d) => ({
-                ...agg,
-                [d.x]: d
-            }), {});
-
-            return ticks.map((x) => timeSeries[x] || {x});
+            return timeseries;
         } else {
 
             return [];
         }
-    }, [JSON.stringify(dots)]);
+    }, [JSON.stringify(dots), JSON.stringify(domain)]);
 
     const zoomIn = () => {
 
