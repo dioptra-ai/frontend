@@ -1,11 +1,12 @@
 import PropTypes from 'prop-types';
 import {Link} from 'react-router-dom';
+import {IoTriangle} from 'react-icons/io5';
 
 import FontIcon from 'components/font-icon';
 import {IconNames} from 'constants';
 
-const MetricInfoBox = ({value, notifications, warnings, name, sampleSize, unit}) => (
-    <div className='border rounded p-3 w-100 d-flex flex-column align-items-center justify-content-center'>
+const MetricInfoBox = ({value, notifications, warnings, name, sampleSize, unit, difference}) => (
+    <div className='border rounded p-3 w-100 d-flex flex-column align-items-center justify-content-center metric-box'>
         <div className='d-flex flex-wrap'>
             <span className='text-dark-bold bold-text'>{name}</span>
             {sampleSize && <span className='text-primary mx-1'>(n={sampleSize})</span>}
@@ -25,6 +26,13 @@ const MetricInfoBox = ({value, notifications, warnings, name, sampleSize, unit})
             </div>}
         </div>
         <span className='text-dark' style={{fontSize: '60px'}}>{value ? value.toFixed(1) : '-'}{unit}</span>
+        <span className='text-primary metric-box-diffText'>
+            {difference ? `${difference > 0 ? '+' : '-'}${difference.toFixed(2)}` : '-'}{unit}
+            {difference && <IoTriangle
+                className={`metric-box-arrowIcon ${difference < 0 ? 'metric-box-arrowIcon-inverted' : ''}`}
+            />
+            }
+        </span>
     </div>
 );
 
@@ -34,7 +42,8 @@ MetricInfoBox.propTypes = {
     sampleSize: PropTypes.any,
     unit: PropTypes.string,
     value: PropTypes.number,
-    warnings: PropTypes.number
+    warnings: PropTypes.number,
+    difference: PropTypes.number
 };
 
 export default MetricInfoBox;
