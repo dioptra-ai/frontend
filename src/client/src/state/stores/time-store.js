@@ -90,9 +90,7 @@ class TimeStore {
 
     refreshTimeRange() {
         if (this._lastMs) {
-            const [start, end] = lastMilliseconds(this._lastMs);
-
-            this.setTimeRange({start, end});
+            this.setLastMs(this._lastMs);
         }
     }
 
