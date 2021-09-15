@@ -16,6 +16,7 @@ import {Area, ComposedChart, Line} from 'recharts';
 import theme from 'styles/theme.module.scss';
 import ModalComponent from 'components/modal';
 import ModelForm from './model-form';
+import timeseriesClient from 'clients/timeseries';
 
 const NUMBER_OF_RECORDS_PER_PAGE = 10;
 
@@ -130,7 +131,7 @@ ModelRow.propTypes = {
     model: PropTypes.object
 };
 
-const Models = ({modelStore}) => {
+const Models = ({modelStore, timeStore}) => {
     const [pageNumber, setPageNumber] = useState(0);
     const [showModal, setShowModal] = useState(false);
     const [errors, setErrors] = useState({});
@@ -174,6 +175,22 @@ const Models = ({modelStore}) => {
                 setErrors(errObj.err);
             });
     };
+
+    useEffect(() => {
+        if (data.length) {
+            timeseriesClient({
+                query: `SELECT TIME_FLOOR(__time, '${timeStore.getTimeGranularityMs().toISOString()}') as "__time",
+                COUNT(*) / ${timeStore.getTimeGranularityMs().asSeconds()} as throughput
+                FROM "dioptra-gt-combined-eventstream"
+                WHERE ${data.map(({mlModelId}) => mlModelId).map((id) => `model_id='${id}'`).join(' AND ')}
+                GROUP BY 1, model_id`
+            })
+                .then((data) => {
+                    console.log('here', data);
+                })
+                .catch((e) => console.log('error', e));
+        }
+    }, [data, pageNumber]);
 
     return (
         <>
@@ -240,7 +257,8 @@ const Models = ({modelStore}) => {
 };
 
 Models.propTypes = {
-    modelStore: PropTypes.object
+    modelStore: PropTypes.object,
+    timeStore: PropTypes.object
 };
 
 export default setupComponent(Models);
