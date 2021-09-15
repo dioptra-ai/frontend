@@ -96,7 +96,7 @@ const FilterInput = ({
         setNewFilter(e.target.value.trim());
     };
 
-    const handleKeyUp = (e) => {
+    const handleKeyDown = (e) => {
         const [key, value] = e.target.value.split('=');
 
         if (e.keyCode === 38 && suggestionIndex > 0) {
@@ -109,7 +109,10 @@ const FilterInput = ({
             //escape
             setSuggestions([]);
             setSuggestionIndex(-1);
-        } else if (e.keyCode === 13 && suggestionIndex !== -1) {
+        } else if ((e.keyCode === 13 || e.keyCode === 9) && suggestionIndex !== -1) {
+            if (e.keyCode === 9) {
+                e.preventDefault();
+            }
             //on enter while suggestion is selected
             if (e.target.value.includes('=')) {
                 const currentFilter = `${key}=${suggestions[suggestionIndex]}`;
@@ -195,7 +198,7 @@ const FilterInput = ({
                     ))}
                     <input
                         onChange={handleInputChange}
-                        onKeyUp={handleKeyUp}
+                        onKeyDown={handleKeyDown}
                         placeholder={filters.length === 0 ? inputPlaceholder : ''}
                         type='text'
                         value={newFilter}
