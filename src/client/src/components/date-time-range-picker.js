@@ -41,7 +41,6 @@ const initialSettings = {
     applyButtonClasses: 'btn-primary px-4 py-2 text-white m-2',
     cancelButtonClasses: 'btn-light px-4 py-2 text-secondary m-2'
 };
-
 const DateTimeRangePicker = ({onChange, start, end, classNames, datePickerSettings, width}) => {
     const [isCalendarVisible, setIsCalendarVisible] = useState(false);
     const handleChange = ({startDate, endDate, chosenLabel}) => {
