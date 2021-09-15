@@ -89,27 +89,29 @@ const AreaGraph = ({
             // of granularity in the timeseries DB.
             const domainStart = Math.min(firstTick, domain[0]);
             const domainEnd = Math.max(lastTick, domain[1]);
+            // We'll generate a completely synthetic set of ticks evenly spaced
+            // aligned on the first datapoint.
             const numTicksLeft = Math.floor((firstTick - domainStart) / granularityMs);
-            const numTicksRight = Math.floor((domainEnd - lastTick) / granularityMs);
-            const timeseries = [];
+            const numTicksRight = Math.floor((domainEnd - firstTick) / granularityMs);
+            const ticks = [];
 
-            for (let i = 0; i < numTicksLeft; i++) {
-                timeseries.push({
-                    x: firstTick - (numTicksLeft - i) * granularityMs
-                });
-            }
-
-            data.forEach((d) => {
-                timeseries.push(d);
+            new Array(numTicksLeft).fill().forEach((_, i) => {
+                ticks.push(firstTick - (numTicksLeft - i) * granularityMs);
             });
 
-            for (let i = 0; i < numTicksRight; i++) {
-                timeseries.push({
-                    x: lastTick + i * granularityMs
-                });
-            }
+            // We add one at the end otherwise we won't reach
+            // firstTick + numTicksRight * granularityMs.
+            new Array(numTicksRight + 1).fill().forEach((_, i) => {
+                ticks.push(firstTick + i * granularityMs);
+            });
 
-            return timeseries;
+            const timeSeries = data.reduce((agg, d) => ({
+                ...agg,
+                [d.x]: d
+            }), {});
+
+            // Now we populate our nice ticks list with the data that's available.
+            return ticks.map((x) => timeSeries[x] || {x});
         } else {
 
             return [];
@@ -123,7 +125,6 @@ const AreaGraph = ({
                 start: Math.min(refAreaLeft, refAreaRight),
                 end: Math.max(refAreaLeft, refAreaRight)
             });
-
         }
 
         setRefAreaLeft(null);
