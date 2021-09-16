@@ -44,7 +44,6 @@ const initialSettings = {
 const DateTimeRangePicker = ({onChange, start, end, classNames, datePickerSettings, width}) => {
     const [isCalendarVisible, setIsCalendarVisible] = useState(false);
     const handleChange = ({startDate, endDate, chosenLabel}) => {
-
         if (chosenLabel) {
             // Clicked a "lastXXXHours" type range.
             const getLastDurationMs = GET_RANGE_DURATION[chosenLabel];
@@ -53,6 +52,7 @@ const DateTimeRangePicker = ({onChange, start, end, classNames, datePickerSettin
         } else {
             onChange({start: startDate, end: endDate});
         }
+        setIsCalendarVisible(false);
     };
 
     return (
@@ -64,6 +64,7 @@ const DateTimeRangePicker = ({onChange, start, end, classNames, datePickerSettin
                     ...initialSettings,
                     ...datePickerSettings
                 }}
+                key={start.format('YYYY-MM-DD HH:mm:sss')}
                 onApply={(_, {startDate, endDate, chosenLabel}) => {
                     handleChange({startDate, endDate, chosenLabel});
                 }}
