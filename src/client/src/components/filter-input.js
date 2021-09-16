@@ -96,6 +96,27 @@ const FilterInput = ({
         setNewFilter(e.target.value.trim());
     };
 
+    const handleEnterOrTab = (e, key) => {
+        if (e.keyCode === 9) {
+            e.preventDefault();
+        }
+        //on enter while suggestion is selected
+        if (e.target.value.includes('=')) {
+            const currentFilter = `${key}=${suggestions[suggestionIndex]}`;
+
+            setNewFilter(currentFilter);
+            if (filters.indexOf(currentFilter) === -1 && appliedFilters.indexOf(currentFilter) === -1) {
+                const updatedFilters = [...filters];
+
+                updatedFilters.push(currentFilter);
+                setFilters(updatedFilters);
+            }
+            setNewFilter('');
+        } else {
+            setNewFilter(`${suggestions[suggestionIndex]}=`);
+        }
+    };
+
     const handleKeyDown = (e) => {
         const [key, value] = e.target.value.split('=');
 
@@ -110,24 +131,7 @@ const FilterInput = ({
             setSuggestions([]);
             setSuggestionIndex(-1);
         } else if ((e.keyCode === 13 || e.keyCode === 9) && suggestionIndex !== -1) {
-            if (e.keyCode === 9) {
-                e.preventDefault();
-            }
-            //on enter while suggestion is selected
-            if (e.target.value.includes('=')) {
-                const currentFilter = `${key}=${suggestions[suggestionIndex]}`;
-
-                setNewFilter(currentFilter);
-                if (filters.indexOf(currentFilter) === -1 && appliedFilters.indexOf(currentFilter) === -1) {
-                    const updatedFilters = [...filters];
-
-                    updatedFilters.push(currentFilter);
-                    setFilters(updatedFilters);
-                }
-                setNewFilter('');
-            } else {
-                setNewFilter(`${suggestions[suggestionIndex]}=`);
-            }
+            handleEnterOrTab(e, key);
             setSuggestionIndex(-1);
         } else if (e.keyCode === 32 && newFilter !== '') { //on space
             if (key && value) {
@@ -141,6 +145,12 @@ const FilterInput = ({
             } else {
                 setNewFilter(`${key}=`);
             }
+        } else if (e.keyCode === 13 && !e.target.value && filters.length) {
+            handleAppliedFiltersChange([...appliedFilters, ...filters]);
+            setFilters([]);
+            setNewFilter('');
+            setSuggestionIndex(-1);
+            setShowSuggestions(false);
         }
     };
 
