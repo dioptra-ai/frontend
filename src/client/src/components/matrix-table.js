@@ -52,19 +52,17 @@ const MatrixTable = ({columns, data, onCellClick}) => {
 
                     return (
                         <tr className='border-2 border-white' key={i}>
-                            {row.cells.map((cell, i) => {
-                                return (
-                                    <td
-                                        className={`border-white border-2 px-2 py-3 text-${i ? 'center' : 'left'} align-middle`}
-                                        key={i}
-                                        onClick={() => i && cell.value && handleCellClick(cell)}
-                                        {...cell.getCellProps()}
-                                        style={{backgroundColor: getCellBackground(cell.value), cursor: (i && cell.value) ? 'pointer' : 'auto', position: 'relative', width: `${100 / columns.length}%`}}
-                                    >
-                                        {cell.render('Cell')}
-                                        <div className={`border border-2 border-${cell.getCellProps().key === selectedCellKey ? 'dark' : 'white'}`} style={{position: 'absolute', inset: 0}}></div>
-                                    </td>);
-                            })}
+                            {row.cells.map((cell, i) => (
+                                <td
+                                    className={`border-white border-2 px-2 pt-4 text-${i ? 'center' : 'left'} align-middle`}
+                                    key={i}
+                                    onClick={() => i && cell.value.value && handleCellClick(cell)}
+                                    {...cell.getCellProps()}
+                                    style={{backgroundColor: getCellBackground(cell.value.value), cursor: (i && cell.value.value) ? 'pointer' : 'auto', position: 'relative', width: `${100 / columns.length}%`}}
+                                >
+                                    {cell.render('Cell')}
+                                    <div className={`border border-2 border-${cell.getCellProps().key === selectedCellKey ? 'dark' : 'white'}`} style={{position: 'absolute', inset: 0}}></div>
+                                </td>))}
                         </tr>
                     );
                 })}
