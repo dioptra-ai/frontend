@@ -11,12 +11,12 @@ const Menu = () => {
     const renderItems = (configs) => {
         return (
             <div>
-                {configs.map(({icon, url, comingSoon}, idx) => {
+                {configs.map(({icon, url, comingSoon, title}, idx) => {
                     const matchingConfig = getMatchingRouteConfig(location.pathname);
                     const isActive = location.pathname.startsWith(url) || matchingConfig.menuMatch === url;
 
                     return (
-                        <Link key={idx} to={url} className={`${comingSoon ? 'menu-item-disabled' : ''}`} >
+                        <Link key={idx} title={title} to={comingSoon ? '' : url} >
                             <MenuItem
                                 className='my-4 d-flex justify-content-center align-items-center'
                                 icon={icon}
