@@ -26,8 +26,8 @@ const MetricInfoBox = ({value, notifications, warnings, name, sampleSize, unit, 
             </div>}
         </div>
         <span className='text-dark' style={{fontSize: '60px'}}>{value ? value.toFixed(1) : '-'}{unit}</span>
-        <span className='text-primary metric-box-diffText'>
-            {difference ? `${difference > 0 ? '+' : '-'}${difference.toFixed(2)}` : '-'}{unit}
+        <span className='text-secondary metric-box-diffText' title='vs. Benchmark Date Range'>
+            {difference ? `${difference > 0 ? '+' : ''}${difference.toFixed(2)}` : '-'}{unit}
             {difference && <IoTriangle
                 className={`metric-box-arrowIcon ${difference < 0 ? 'metric-box-arrowIcon-inverted' : ''}`}
             />

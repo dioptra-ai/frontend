@@ -102,7 +102,7 @@ class TimeStore {
         return `"__time" >= TIME_PARSE('${this._start.toISOString()}') AND "__time" < TIME_PARSE('${this._end.toISOString()}')`;
     }
 
-    getTimeGranularityMs(maxTicks = SQL_OUTER_LIMIT) {
+    getTimeGranularity(maxTicks = SQL_OUTER_LIMIT) {
         const rangeSeconds = this._end.diff(this._start) / 1000;
         const DURATION_MAX_SEC_TO_GRANULARITY = granularityLadderMs.map((duration) => {
             return {

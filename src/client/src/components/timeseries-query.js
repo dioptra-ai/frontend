@@ -17,6 +17,8 @@ const TimeseriesQuery = ({sql, children, renderData, defaultData, renderError, r
     useEffect(() => {
 
         setLoading(true);
+        setError(null);
+        setData(null);
 
         timeseriesClient({query, ...rest})
             .then((data) => {
@@ -35,21 +37,21 @@ const TimeseriesQuery = ({sql, children, renderData, defaultData, renderError, r
     if (children) {
 
         return children({data, loading, error});
-    } else if (data) {
-
-        if (data.length) {
-
-            return renderData(data);
-        } else {
-
-            return renderData(defaultData);
-        }
     } else if (loading) {
 
         return renderLoading();
     } else if (error) {
 
         return renderError(error);
+    } else if (data) {
+
+        if (data?.length) {
+
+            return renderData(data);
+        } else {
+
+            return renderData(defaultData);
+        }
     } else return null;
 };
 

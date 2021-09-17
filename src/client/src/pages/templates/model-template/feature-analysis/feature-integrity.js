@@ -74,7 +74,7 @@ const FeatureIntegrityRow = ({name, timeStore}) => {
     const allSqlFilters = useAllSqlFilters();
     const allOfflineSqlFilters = useAllSqlFilters({useReferenceRange: true});
     const maxTimeseriesTicks = 20;
-    const timeGranularity = timeStore.getTimeGranularityMs(maxTimeseriesTicks).toISOString();
+    const timeGranularity = timeStore.getTimeGranularity(maxTimeseriesTicks).toISOString();
 
     useEffect(() => {
         if (inView && !featureType) {

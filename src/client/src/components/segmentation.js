@@ -113,7 +113,7 @@ const _AccuracyCell = ({timeStore, segmentationStore, row}) => {
     const [accuracyData, setAccuracyData] = useState([]);
     const allSqlFilters = useAllSqlFilters();
     const maxTimeseriesTicks = 20;
-    const timeGranularity = timeStore.getTimeGranularityMs(maxTimeseriesTicks).toISOString();
+    const timeGranularity = timeStore.getTimeGranularity(maxTimeseriesTicks).toISOString();
 
     useEffect(() => {
 
