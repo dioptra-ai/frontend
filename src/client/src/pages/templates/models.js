@@ -1,4 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
+import moment from 'moment';
 import Tooltip from 'react-bootstrap/Tooltip';
 import Overlay from 'react-bootstrap/Overlay';
 import Table from 'react-bootstrap/Table';
@@ -131,7 +132,7 @@ ModelRow.propTypes = {
     model: PropTypes.object
 };
 
-const Models = ({modelStore, timeStore}) => {
+const Models = ({modelStore}) => {
     const [pageNumber, setPageNumber] = useState(0);
     const [showModal, setShowModal] = useState(false);
     const [errors, setErrors] = useState({});
@@ -179,10 +180,9 @@ const Models = ({modelStore, timeStore}) => {
     useEffect(() => {
         if (data.length) {
             timeseriesClient({
-                query: `SELECT TIME_FLOOR(__time, '${timeStore.getTimeGranularityMs().toISOString()}') as "__time",
-                COUNT(*) / ${timeStore.getTimeGranularityMs().asSeconds()} as throughput
+                query: `SELECT TIME_FLOOR(__time, 'PT1H') as "time", COUNT(*) as throughput, model_id
                 FROM "dioptra-gt-combined-eventstream"
-                WHERE ${data.map(({mlModelId}) => mlModelId).map((id) => `model_id='${id}'`).join(' AND ')}
+                WHERE __time >= TIME_PARSE('${moment().subtract(1, 'days').toISOString()}')
                 GROUP BY 1, model_id`
             })
                 .then((data) => {
@@ -257,8 +257,7 @@ const Models = ({modelStore, timeStore}) => {
 };
 
 Models.propTypes = {
-    modelStore: PropTypes.object,
-    timeStore: PropTypes.object
+    modelStore: PropTypes.object
 };
 
 export default setupComponent(Models);
