@@ -58,7 +58,6 @@ const AreaGraph = ({
     hasBorder = true,
     color = theme.primary,
     xAxisName = '',
-    xAxisInterval,
     yAxisName = '',
     yAxisDomain,
     margin = {
@@ -70,7 +69,7 @@ const AreaGraph = ({
     unit,
     timeStore
 }) => {
-    const granularityMs = timeStore.getTimeGranularityMs();
+    const granularityMs = timeStore.getTimeGranularity().asMilliseconds();
     const domain = timeStore.rangeMillisec;
     const [showBtn, setShowBtn] = useState(false);
     const [refAreaLeft, setRefAreaLeft] = useThrottle(null, 25, true);
@@ -82,27 +81,28 @@ const AreaGraph = ({
             x: new Date(d.x).getTime()
         }));
 
-        if (data.length > 0) {
-            const firstTick = data[0].x;
-            const lastTick = data[data.length - 1].x;
-            // In case a datapoint falls off the requested range because of border effects
-            // of granularity in the timeseries DB.
-            const domainStart = Math.min(firstTick, domain[0]);
-            const domainEnd = Math.max(lastTick, domain[1]);
+        const [domainStart, domainEnd] = domain;
+        const referencePoint = data.find((d) => domainStart < d.x && d.x < domainEnd);
+
+        if (!referencePoint) {
+
+            return [];
+        } else {
             // We'll generate a completely synthetic set of ticks evenly spaced
-            // aligned on the first datapoint.
-            const numTicksLeft = Math.floor((firstTick - domainStart) / granularityMs);
-            const numTicksRight = Math.floor((domainEnd - firstTick) / granularityMs);
+            // aligned on the first datapoint we find inside the domain.
+            const referenceTick = referencePoint.x;
+            const numTicksLeft = Math.floor((referenceTick - domainStart) / granularityMs);
+            const numTicksRight = Math.floor((domainEnd - referenceTick) / granularityMs);
             const ticks = [];
 
             new Array(numTicksLeft).fill().forEach((_, i) => {
-                ticks.push(firstTick - (numTicksLeft - i) * granularityMs);
+                ticks.push(referenceTick - (numTicksLeft - i) * granularityMs);
             });
 
             // We add one at the end otherwise we won't reach
-            // firstTick + numTicksRight * granularityMs.
+            // referenceTick + numTicksRight * granularityMs.
             new Array(numTicksRight + 1).fill().forEach((_, i) => {
-                ticks.push(firstTick + i * granularityMs);
+                ticks.push(referenceTick + i * granularityMs);
             });
 
             const timeSeries = data.reduce((agg, d) => ({
@@ -112,14 +112,10 @@ const AreaGraph = ({
 
             // Now we populate our nice ticks list with the data that's available.
             return ticks.map((x) => timeSeries[x] || {x});
-        } else {
-
-            return [];
         }
     }, [JSON.stringify(dots), JSON.stringify(domain)]);
 
     const zoomIn = () => {
-
         if (refAreaLeft !== refAreaRight && refAreaRight !== null) {
             timeStore.setTimeRange({
                 start: Math.min(refAreaLeft, refAreaRight),
@@ -192,7 +188,7 @@ const AreaGraph = ({
                             dataKey='x'
                             domain={domain}
                             dy={5}
-                            interval={xAxisInterval}
+                            interval='preserveStartEnd'
                             label={{
                                 fill: theme.dark,
                                 value: xAxisName,
@@ -260,7 +256,6 @@ AreaGraph.propTypes = {
     timeStore: PropTypes.object.isRequired,
     title: PropTypes.string,
     unit: PropTypes.string,
-    xAxisInterval: PropTypes.number,
     xAxisName: PropTypes.string,
     yAxisDomain: PropTypes.array,
     yAxisName: PropTypes.string

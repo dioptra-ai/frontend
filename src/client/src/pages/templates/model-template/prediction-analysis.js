@@ -14,7 +14,7 @@ import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 const PredictionAnalysis = ({timeStore, filtersStore}) => {
     const allSqlFilters = useAllSqlFilters();
     const allOfflineSqlFilters = useAllSqlFilters({useReferenceRange: true});
-    const timeGranularity = timeStore.getTimeGranularityMs().toISOString();
+    const timeGranularity = timeStore.getTimeGranularity().toISOString();
 
     return (
         <>
@@ -101,11 +101,7 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                             defaultData={[]}
                             renderData={(data) => (
                                 <AreaGraph
-                                    dots={data.map(({x, y}) => ({
-                                        y,
-                                        x: new Date(x).getTime()
-                                    }))}
-                                    isTimeDependent
+                                    dots={data}
                                     title='Offline / Online Distribution Distance'
                                     unit='%'
                                     xAxisDomain={timeStore.rangeMillisec}

@@ -41,7 +41,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
             }
         />
     );
-    const timeGranularity = timeStore.getTimeGranularityMs().toISOString();
+    const timeGranularity = timeStore.getTimeGranularity().toISOString();
 
     return (
         <>
@@ -65,8 +65,8 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 />
                             )}
                             sql={sql`
-                                SELECT TIME_FLOOR(__time, '${timeStore.getTimeGranularityMs().toISOString()}') as "__time",
-                                    COUNT(*) / ${timeStore.getTimeGranularityMs().asSeconds()} as throughput
+                                SELECT TIME_FLOOR(__time, '${timeStore.getTimeGranularity().toISOString()}') as "__time",
+                                    COUNT(*) / ${timeStore.getTimeGranularity().asSeconds()} as throughput
                                 FROM "dioptra-gt-combined-eventstream"
                                 WHERE ${allSqlFilters}
                                 GROUP BY 1
