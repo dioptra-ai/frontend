@@ -4,8 +4,7 @@ import FontIcon from './font-icon';
 import {IconNames} from '../constants';
 import PropTypes from 'prop-types';
 import Pagination from './pagination';
-import {Link} from 'react-router-dom';
-import {Paths} from 'configs/route-config';
+import {Link, useParams} from 'react-router-dom';
 import useModal from '../customHooks/useModal';
 import Modal from './modal';
 
@@ -59,6 +58,7 @@ Alert.propTypes = {
 const Alerts = () => {
     const [selectedAlert, setSelectedAlert] = useState(null);
     const [deleteAlertModal, setDeleteAlertModal] = useModal(false);
+    const {_id} = useParams();
 
     const closeModal = () => {
         setDeleteAlertModal(false);
@@ -82,7 +82,7 @@ const Alerts = () => {
             <div className='alerts'>
                 <div className='header mb-3'>
                     <p className='bold-text fs-3 text-dark'>Alerts</p>
-                    <Link to={Paths().ADD_ALERT}>
+                    <Link to={`/${_id}/add-alert`}>
                         <Button className='text-white bold-text fs-6' variant='primary'>
                             <FontIcon className='text-white' icon='Plus' size={10} />
               ADD ALERT
