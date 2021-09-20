@@ -25,6 +25,7 @@ import theme from '../styles/theme.module.scss';
 import TimeseriesQuery, {sql} from 'components/timeseries-query';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 import {useParams} from 'react-router-dom';
+import {IoTriangle} from 'react-icons/io5';
 
 const AddColumnModal = ({onCancel, onApply, allColumns, selected}) => {
     const featureColumns = allColumns.filter((c) => c.startsWith('feature.'));
@@ -99,12 +100,22 @@ AddColumnModal.propTypes = {
     selected: PropTypes.array
 };
 
-const Text = ({value}) => {
-    return <span>{value}</span>;
-};
+const Text = ({value, difference}) => (
+    <div style={{position: 'relative'}}>
+        <span>{value}</span>
+        <span className='text-secondary metric-box-diffText' title='vs. Benchmark Date Range' style={{top: -24, right: 0, left: 24}}>
+            {difference ? `${difference > 0 ? '+' : ''}${difference.toFixed(2)}` : '-'}
+            {difference && <IoTriangle
+                className={`metric-box-arrowIcon ${difference < 0 ? 'metric-box-arrowIcon-inverted' : ''}`}
+            />
+            }
+        </span>
+    </div>
+);
 
 Text.propTypes = {
-    value: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
+    value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    difference: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
 };
 
 const _AccuracyCell = ({timeStore, segmentationStore, row}) => {
@@ -245,6 +256,7 @@ const DistributionCell = setupComponent(_DistributionCell);
 
 const Segmentation = ({timeStore, modelStore, segmentationStore}) => {
     const allSqlFilters = useAllSqlFilters();
+    const sqlFiltersWithModelTime = useAllSqlFilters({useReferenceRange: true});
     const [addColModal, setAddColModal] = useModal(false);
     const {_id} = useParams();
     const groupByColumns = segmentationStore.segmentation;
@@ -278,31 +290,59 @@ const Segmentation = ({timeStore, modelStore, segmentationStore}) => {
                 <TimeseriesQuery
                     defaultData={[]}
                     renderData={(data) => (
-                        <Table
-                            columns={[
-                                {
-                                    id: 'accuracy',
-                                    Header: 'Accuracy Trend',
-                                    Cell: AccuracyCell
-                                },
-                                {
-                                    accessor: 'sampleSize',
-                                    Header: 'Sample Size',
-                                    Cell: Text
-                                },
-                                {
-                                    id: 'prediction',
-                                    Header: 'Online Predictions',
-                                    Cell: DistributionCell
-                                }
-                            ].concat(
-                                groupByColumns.map((column) => ({
-                                    accessor: (c) => c[column],
-                                    Header: column,
-                                    Cell: Text
-                                }))
-                            )}
-                            data={data}
+                        <TimeseriesQuery
+                            defaultData={[]}
+                            renderData={(diffData) => (
+                                <Table
+                                    columns={[
+                                        {
+                                            id: 'accuracy',
+                                            Header: 'Accuracy Trend',
+                                            Cell: AccuracyCell
+                                        },
+                                        {
+                                            accessor: 'sampleSize',
+                                            Header: 'Sample Size',
+                                            Cell: Object.assign(({value, row: {index}}) => {
+                                                const difference = value - diffData[index]?.sampleSize || 0;
+
+                                                return <Text value={value} difference={difference} />;
+                                            }, {displayName: 'Sample Size Cell'})
+
+                                        },
+                                        {
+                                            id: 'prediction',
+                                            Header: 'Online Predictions',
+                                            Cell: DistributionCell
+                                        }
+                                    ].concat(
+                                        groupByColumns.map((column) => ({
+                                            accessor: (c) => c[column],
+                                            Header: column,
+                                            Cell: Text
+                                        }))
+                                    )}
+                                    data={data}
+                                />
+                            )
+                            }
+                            sql={
+                                groupByColumns.length ?
+                                    sql`
+                        SELECT
+                          ${groupByColumns.map((c) => `"${c}"`).join(', ')},
+                          count(1) as sampleSize
+                        FROM "dioptra-gt-combined-eventstream"
+                        WHERE ${sqlFiltersWithModelTime}
+                        GROUP BY ${groupByColumns.map((c) => `"${c}"`).join(', ')}
+                        ORDER BY sampleSize DESC
+                        ` :
+                                    sql`
+                    SELECT null 
+                    FROM "dioptra-gt-combined-eventstream" 
+                    where false
+                    `
+                            }
                         />
                     )}
                     sql={
