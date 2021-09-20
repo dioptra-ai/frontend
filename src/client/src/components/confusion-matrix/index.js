@@ -7,7 +7,7 @@ import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 import ImageExamples from './image-examples';
 import TabularExamples from './tabular-examples';
 import useModel from 'customHooks/use-model';
-import {IoTriangle} from 'react-icons/io5';
+import DifferenceLabel from '../differenceLabels';
 
 const Table = ({data, diffData, onCellClick, groundtruthClasses, predictionClasses}) => {
     const getColumns = (predictionClasses) => {
@@ -18,27 +18,16 @@ const Table = ({data, diffData, onCellClick, groundtruthClasses, predictionClass
                 const {value, difference} = data;
 
                 return (
-                    <>
-                        <span>{value ? `${(value * 100).toFixed(2)} %` : 0}</span>
-                        <span className='text-primary metric-box-diffText'>
-                            {difference ? `${difference > 0 ? '+' : ''}${(difference * 100).toFixed(2)}` : '-'}%
-                            {difference && <IoTriangle
-                                className={`metric-box-arrowIcon ${difference < 0 ? 'metric-box-arrowIcon-inverted' : ''}`}
-                            />
-                            }
-                        </span>
-                    </>
+                    <DifferenceLabel value={value} difference={difference} />
                 );
             }, {displayName: 'Cell'})
         }));
 
-        const res = [{
+        return [{
             Header: '',
             accessor: 'groundtruth',
             Cell: ({value}) => getName(value)
         }, ...classes];
-
-        return res;
     };
 
     const getTableRows = (groundtruthClasses, matrixData) => {
@@ -55,16 +44,12 @@ const Table = ({data, diffData, onCellClick, groundtruthClasses, predictionClass
                 };
             });
 
-            console.log(cells);
-
             return cells;
 
         });
 
         return (rows);
     };
-
-    // console.log(getColumns(predictionClasses), getTableRows(groundtruthClasses, data));
 
     return (
         <>
