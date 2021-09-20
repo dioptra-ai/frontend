@@ -3,7 +3,6 @@ import Home from 'pages/home';
 import Profile from 'pages/profile';
 import Models from 'pages/templates/models';
 import Model from 'pages/templates/model-template';
-import AddAlertPage from 'pages/add-alert';
 import Expermentations from 'pages/expermentations';
 import Alerts from 'pages/alerts';
 import Settings from 'pages/settings';
@@ -16,12 +15,6 @@ export const Paths = (args = {}) => {
         LOGIN: '/login',
         MODELS: '/models',
         MODEL: `/models/${modelId}`,
-        MODEL_PERFORMANCE_OVERVIEW: `/models/${modelId}/performance-overview`,
-        MODEL_PERFORMANCE_DETAILS: `/models/${modelId}/performance-details`,
-        MODEL_PREDICTION_ANALYSIS: `/models/${modelId}/prediction-analysis`,
-        MODEL_FEATURE_ANALYSIS: `/models/${modelId}/feature-analysis`,
-        MODEL_INCIDENTS_AND_ALERTS: `/models/${modelId}/incidents-&-alerts`,
-        ADD_ALERT: '/add-alert',
         EXPERIMENTATIONS: '/experimentations',
         ALERTS: '/alerts',
         SETTINGS: '/settings',
@@ -39,13 +32,7 @@ export const AuthorizedRouteConfigs = [
     {path: Paths().EXPERIMENTATIONS, isExact: false, component: Expermentations},
     {path: Paths().ALERTS, isExact: false, component: Alerts},
     {path: Paths().SETTINGS, isExact: false, component: Settings},
-    {path: Paths().PROFILE, isExact: false, component: Profile},
-    {
-        path: Paths().ADD_ALERT,
-        isExact: true,
-        component: AddAlertPage,
-        menuMatch: Paths().MODELS
-    }
+    {path: Paths().PROFILE, isExact: false, component: Profile}
 ];
 
 export const getMatchingRouteConfig = (pathToMatch) => {

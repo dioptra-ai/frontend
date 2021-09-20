@@ -11,15 +11,14 @@ const Tabs = ({tabs = []}) => {
                         activeClassName='active'
                         className='tab fs-5'
                         key={i}
-                        to={tab.path}
+                        to={tab.to}
                     >
                         {tab.name}
                         <span className='d-block mt-4 rounded-top'></span>
-                    </NavLink >
+                    </NavLink>
                 ))}
             </div>
         </Row>
-
     );
 };
 
