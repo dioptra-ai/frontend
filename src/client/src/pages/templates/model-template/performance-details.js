@@ -12,7 +12,7 @@ import ConfusionMatrix from 'components/confusion-matrix';
 import TimeseriesQuery, {sql} from 'components/timeseries-query';
 import Segmentation from 'components/segmentation';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
-import {IoTriangle} from 'react-icons/io5';
+import DifferenceLabel from 'components/difference-labels';
 
 const PerformanceBox = ({
     title = '',
@@ -103,14 +103,7 @@ const ClassRow = ({name = '', value, difference = 0}) => {
             </div>
             <div className='w-100 d-flex align-items-center'>
                 <ProgressBar completed={value / 1 * 100}/>
-                <span className='mx-2'>{value}</span>
-                <span className='text-secondary metric-box-diffText' style={{position: 'static'}} title='vs. Benchmark Date Range'>
-                    {difference ? `${difference > 0 ? '+' : ''}${difference.toFixed(2)}` : '-'}
-                    {difference && <IoTriangle
-                        className={`metric-box-arrowIcon ${difference < 0 ? 'metric-box-arrowIcon-inverted' : ''}`}
-                    />
-                    }
-                </span>
+                <DifferenceLabel value={value} difference={difference.toFixed(2)} baseClasses='mx-2' diffStyles={{position: 'static'}} />
             </div>
         </div>
     );
