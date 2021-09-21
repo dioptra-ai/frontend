@@ -25,7 +25,7 @@ import theme from '../styles/theme.module.scss';
 import TimeseriesQuery, {sql} from 'components/timeseries-query';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 import {useParams} from 'react-router-dom';
-import {IoTriangle} from 'react-icons/io5';
+import DifferenceLabel from './difference-labels';
 
 const AddColumnModal = ({onCancel, onApply, allColumns, selected}) => {
     const featureColumns = allColumns.filter((c) => c.startsWith('feature.'));
@@ -100,18 +100,9 @@ AddColumnModal.propTypes = {
     selected: PropTypes.array
 };
 
-const Text = ({value, difference}) => (
-    <div style={{position: 'relative'}}>
-        <span>{value}</span>
-        <span className='text-secondary metric-box-diffText' title='vs. Benchmark Date Range' style={{top: -24, right: 0, left: 24}}>
-            {difference ? `${difference > 0 ? '+' : ''}${difference.toFixed(2)}` : '-'}
-            {difference && <IoTriangle
-                className={`metric-box-arrowIcon ${difference < 0 ? 'metric-box-arrowIcon-inverted' : ''}`}
-            />
-            }
-        </span>
-    </div>
-);
+const Text = ({value}) => {
+    return <span>{value}</span>;
+};
 
 Text.propTypes = {
     value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
@@ -306,7 +297,7 @@ const Segmentation = ({timeStore, modelStore, segmentationStore}) => {
                                             Cell: Object.assign(({value, row: {index}}) => {
                                                 const difference = value - diffData[index]?.sampleSize || 0;
 
-                                                return <Text value={value} difference={difference} />;
+                                                return <DifferenceLabel value={value} difference={difference.toFixed(2)} containerStyle={{position: 'relative'}} diffStyles={{top: -24, right: 0, left: 24}} />;
                                             }, {displayName: 'Sample Size Cell'})
 
                                         },

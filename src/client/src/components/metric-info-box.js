@@ -1,6 +1,5 @@
 import PropTypes from 'prop-types';
 import {Link} from 'react-router-dom';
-import {IoTriangle} from 'react-icons/io5';
 
 import FontIcon from 'components/font-icon';
 import {IconNames} from 'constants';
