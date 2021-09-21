@@ -7,29 +7,41 @@ import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 import ImageExamples from './image-examples';
 import TabularExamples from './tabular-examples';
 import useModel from 'customHooks/use-model';
+import DifferenceLabel from '../differenceLabels';
 
-const Table = ({data, onCellClick, groundtruthClasses, predictionClasses}) => {
+const Table = ({data, diffData, onCellClick, groundtruthClasses, predictionClasses}) => {
     const getColumns = (predictionClasses) => {
         const classes = predictionClasses.map((c) => ({
             Header: getName(c),
             accessor: c,
-            Cell: ({value}) => !value ? 0 : `${(value * 100).toFixed(2)} %`
+            Cell: Object.assign(({value: data}) => {
+                const {value, difference} = data;
+
+                return (
+                    <DifferenceLabel value={value} difference={difference} />
+                );
+            }, {displayName: 'Cell'})
         }));
 
-        return ([{
+        return [{
             Header: '',
             accessor: 'groundtruth',
             Cell: ({value}) => getName(value)
-        }, ...classes]);
+        }, ...classes];
     };
 
     const getTableRows = (groundtruthClasses, matrixData) => {
         const rows = groundtruthClasses.map((c) => {
             const filtered = matrixData.filter((d) => d.groundtruth === c);
+            const diffFiltered = diffData.filter((d) => d.groundtruth === c);
+
             const cells = {groundtruth: c};
 
-            filtered.forEach((e) => {
-                cells[e.prediction] = e.distribution;
+            filtered.forEach((e, i) => {
+                cells[e.prediction] = {
+                    value: e.distribution,
+                    difference: diffFiltered[i].distribution ? e.distribution - diffFiltered[i].distribution : 0
+                };
             });
 
             return cells;
@@ -57,6 +69,7 @@ const Table = ({data, onCellClick, groundtruthClasses, predictionClasses}) => {
 
 Table.propTypes = {
     data: PropTypes.array,
+    diffData: PropTypes.array,
     groundtruthClasses: PropTypes.array,
     onCellClick: PropTypes.func,
     predictionClasses: PropTypes.array
@@ -66,6 +79,7 @@ const ConfusionMatrix = () => {
     const [selectedCell, setSelectedCell] = useState(null);
     const model = useModel();
     const allSqlFilters = useAllSqlFilters();
+    const sqlFiltersWithModelTime = useAllSqlFilters({useReferenceRange: true});
 
     const getClasses = (data, key) => {
         const classes = [];
@@ -87,11 +101,42 @@ const ConfusionMatrix = () => {
                 <TimeseriesQuery
                     defaultData={[]}
                     renderData={(data) => (
-                        <Table
-                            data={data}
-                            groundtruthClasses={getClasses(data, 'groundtruth')}
-                            onCellClick={(prediction, groundtruth) => setSelectedCell({prediction, groundtruth})}
-                            predictionClasses = {getClasses(data, 'prediction')}
+                        <TimeseriesQuery
+                            defaultData={[]}
+                            renderData={(rangeData) => {
+
+                                // console.log(getClasses(data, 'groundtruth'), getClasses(data, 'prediction'));
+
+                                return (
+                                    <Table
+                                        data={data}
+                                        groundtruthClasses={getClasses(data, 'groundtruth')}
+                                        onCellClick={(prediction, groundtruth) => setSelectedCell({prediction, groundtruth})}
+                                        predictionClasses = {getClasses(data, 'prediction')}
+                                        diffData={rangeData}
+                                    />
+                                );
+                            }}
+                            sql={sql`
+                        SELECT
+                        predictionTable.groundtruth,
+                        predictionTable.prediction,
+                        cast(predictionTable.c as FLOAT) / cast(groundTable.c as FLOAT) as distribution
+                        FROM (
+                            SELECT groundtruth, prediction, COUNT(*) AS c
+                            FROM "dioptra-gt-combined-eventstream"
+                            WHERE ${sqlFiltersWithModelTime}
+                            GROUP BY groundtruth, prediction
+                            ORDER BY groundtruth, prediction
+                        )  as predictionTable
+                        LEFT JOIN (
+                            SELECT groundtruth, COUNT(*) AS c
+                            FROM "dioptra-gt-combined-eventstream"
+                            WHERE ${sqlFiltersWithModelTime}
+                            GROUP BY groundtruth
+                        ) AS groundTable
+                        ON groundTable.groundtruth = predictionTable.groundtruth
+                    `}
                         />
                     )}
                     sql={sql`
