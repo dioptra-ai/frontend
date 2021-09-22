@@ -7,7 +7,7 @@ import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 import ImageExamples from './image-examples';
 import TabularExamples from './tabular-examples';
 import useModel from 'customHooks/use-model';
-import DifferenceLabel from '../differenceLabels';
+import DifferenceLabel from 'components/difference-labels';
 
 const Table = ({data, diffData, onCellClick, groundtruthClasses, predictionClasses}) => {
     const getColumns = (predictionClasses) => {
@@ -18,7 +18,7 @@ const Table = ({data, diffData, onCellClick, groundtruthClasses, predictionClass
                 const {value, difference} = data;
 
                 return (
-                    <DifferenceLabel value={value} difference={difference} />
+                    <DifferenceLabel value={value ? `${(value * 100).toFixed(2)} %` : 0} difference={(difference * 100).toFixed(2)} />
                 );
             }, {displayName: 'Cell'})
         }));

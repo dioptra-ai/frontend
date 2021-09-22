@@ -12,11 +12,13 @@ import ConfusionMatrix from 'components/confusion-matrix';
 import TimeseriesQuery, {sql} from 'components/timeseries-query';
 import Segmentation from 'components/segmentation';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
+import DifferenceLabel from 'components/difference-labels';
 
 const PerformanceBox = ({
     title = '',
     sampleSize,
     data,
+    diffData,
     performanceType
 }) => {
     const [sortAcs, setSortAsc] = useState(true);
@@ -66,13 +68,18 @@ const PerformanceBox = ({
                     paddingRight: 10,
                     marginLeft: -10
                 }}>
-                    {classes.map((c, i) => (
-                        <ClassRow
-                            key={i}
-                            name={getName(c.label)}
-                            value={c[performanceType].toFixed(1)}
-                        />
-                    ))}
+                    {classes.map((c, i) => {
+                        const difference = c[performanceType] - diffData.find(({label}) => label === c.label)[performanceType];
+
+                        return (
+                            <ClassRow
+                                key={i}
+                                name={getName(c.label)}
+                                value={c[performanceType].toFixed(1)}
+                                difference={difference}
+                            />
+                        );
+                    })}
                 </div>
             </div>
 
@@ -82,12 +89,13 @@ const PerformanceBox = ({
 
 PerformanceBox.propTypes = {
     data: PropTypes.array,
+    diffData: PropTypes.array,
     performanceType: PropTypes.string,
     sampleSize: PropTypes.any,
     title: PropTypes.string
 };
 
-const ClassRow = ({name = '', value}) => {
+const ClassRow = ({name = '', value, difference = 0}) => {
     return (
         <div className='d-flex align-items-center text-dark class-row'>
             <div className='w-100'>
@@ -95,13 +103,14 @@ const ClassRow = ({name = '', value}) => {
             </div>
             <div className='w-100 d-flex align-items-center'>
                 <ProgressBar completed={value / 1 * 100}/>
-                <span className='mx-2'>{value}</span>
+                <DifferenceLabel value={value} difference={difference.toFixed(2)} baseClasses='mx-2' diffStyles={{position: 'static'}} />
             </div>
         </div>
     );
 };
 
 ClassRow.propTypes = {
+    difference: PropTypes.number,
     maxValue: PropTypes.number,
     name: PropTypes.string,
     value: PropTypes.any
@@ -110,6 +119,7 @@ ClassRow.propTypes = {
 
 const PerformanceDetails = ({filtersStore}) => {
     const allSqlFilters = useAllSqlFilters();
+    const sqlFiltersWithModelTime = useAllSqlFilters({useReferenceRange: true});
 
     const sampleSizeComponent = (
         <TimeseriesQuery
@@ -133,11 +143,60 @@ const PerformanceDetails = ({filtersStore}) => {
                         <TimeseriesQuery
                             defaultData={[]}
                             renderData={(data) => (
-                                <PerformanceBox
-                                    data={data}
-                                    performanceType='precision'
-                                    sampleSize={sampleSizeComponent}
-                                    title='Precision per class'
+                                <TimeseriesQuery
+                                    defaultData={[]}
+                                    renderData={(diffData) => (
+                                        <PerformanceBox
+                                            data={data}
+                                            performanceType='precision'
+                                            sampleSize={sampleSizeComponent}
+                                            title='Precision per class'
+                                            diffData={diffData}
+                                        />
+                                    )}
+                                    sql={sql`
+                                WITH
+                                true_positive as (
+                                select
+                                    'true_positive' as key,
+                                    groundtruth as label,
+                                    sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) as cnt_tp
+                                from
+                                    "dioptra-gt-combined-eventstream"
+                                WHERE ${sqlFiltersWithModelTime}
+                                group by groundtruth
+                                order by groundtruth
+                                ),
+                                true_sum as (
+                                select
+                                    'true_sum' as key,
+                                    prediction as label,
+                                    count(1) as cnt_ts
+                                from
+                                    "dioptra-gt-combined-eventstream"
+                                WHERE ${sqlFiltersWithModelTime}
+                                group by prediction
+                                order by prediction
+                                ),
+                                pred_sum as (
+                                select
+                                    'pred_sum' as key,
+                                    groundtruth as label,
+                                    count(1) as cnt_ps
+                                from
+                                    "dioptra-gt-combined-eventstream"
+                                WHERE ${sqlFiltersWithModelTime}
+                                group by groundtruth
+                                order by groundtruth
+                                )
+                
+                                SELECT
+                                pred_sum.label,
+                                cast(true_positive.cnt_tp as double) / pred_sum.cnt_ps as "precision"
+                                FROM true_positive
+                                JOIN pred_sum
+                                ON pred_sum.label = true_positive.label
+                            `}
                                 />
                             )}
                             sql={sql`
@@ -189,12 +248,61 @@ const PerformanceDetails = ({filtersStore}) => {
                         <TimeseriesQuery
                             defaultData={[]}
                             renderData={(data) => (
-                                <PerformanceBox
-                                    data={data}
-                                    performanceType='recall'
-                                    sampleSize={sampleSizeComponent}
-                                    title='Recall per class'
+                                <TimeseriesQuery
+                                    defaultData={[]}
+                                    renderData={(diffData) => (
+                                        <PerformanceBox
+                                            data={data}
+                                            performanceType='recall'
+                                            sampleSize={sampleSizeComponent}
+                                            title='Recall per class'
+                                            diffData={diffData}
 
+                                        />
+                                    )}
+                                    sql={sql`
+                                WITH
+                                true_positive as (
+                                select
+                                    'true_positive' as key,
+                                    groundtruth as label,
+                                    sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) as cnt_tp
+                                from
+                                    "dioptra-gt-combined-eventstream"
+                                WHERE ${sqlFiltersWithModelTime}
+                                group by groundtruth
+                                order by groundtruth
+                                ),
+                                true_sum as (
+                                select
+                                    'true_sum' as key,
+                                    prediction as label,
+                                    count(1) as cnt_ts
+                                from
+                                    "dioptra-gt-combined-eventstream"
+                                WHERE ${sqlFiltersWithModelTime}
+                                group by prediction
+                                order by prediction
+                                ),
+                                pred_sum as (
+                                select
+                                    'pred_sum' as key,
+                                    groundtruth as label,
+                                    count(1) as cnt_ps
+                                from
+                                    "dioptra-gt-combined-eventstream"
+                                WHERE ${sqlFiltersWithModelTime}
+                                group by groundtruth
+                                order by groundtruth
+                                )
+                
+                                SELECT
+                                true_sum.label,
+                                cast(true_positive.cnt_tp as double) / true_sum.cnt_ts as "recall"
+                                FROM true_positive
+                                JOIN true_sum
+                                ON true_sum.label = true_positive.label
+                            `}
                                 />
                             )}
                             sql={sql`

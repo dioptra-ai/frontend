@@ -1,9 +1,9 @@
 import PropTypes from 'prop-types';
 import {Link} from 'react-router-dom';
-import {IoTriangle} from 'react-icons/io5';
 
 import FontIcon from 'components/font-icon';
 import {IconNames} from 'constants';
+import DifferenceLabel from './difference-labels';
 
 const MetricInfoBox = ({value, notifications, warnings, name, sampleSize, unit, difference}) => (
     <div className='border rounded p-3 w-100 d-flex flex-column align-items-center justify-content-center metric-box'>
@@ -25,14 +25,7 @@ const MetricInfoBox = ({value, notifications, warnings, name, sampleSize, unit, 
                 </Link>
             </div>}
         </div>
-        <span className='text-dark' style={{fontSize: '60px'}}>{value ? value.toFixed(1) : '-'}{unit}</span>
-        <span className='text-secondary metric-box-diffText' title='vs. Benchmark Date Range'>
-            {difference ? `${difference > 0 ? '+' : ''}${difference.toFixed(2)}` : '-'}{unit}
-            {difference && <IoTriangle
-                className={`metric-box-arrowIcon ${difference < 0 ? 'metric-box-arrowIcon-inverted' : ''}`}
-            />
-            }
-        </span>
+        <DifferenceLabel value={`${value ? value.toFixed(1) : '-'}${unit}`} difference={difference.toFixed(2)} baseClasses='text-dark metric-box-font-60' />
     </div>
 );
 
