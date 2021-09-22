@@ -14,7 +14,7 @@ const CustomTooltip = ({payload, label, unit}) => {
                     whiteSpace: 'nowrap',
                     maxWidth: 200
                 }}>
-                    {label || '<empty>'}
+                    {label === '' ? '<empty>' : label}
                 </p>
             </div>
         );

@@ -35,7 +35,6 @@ userSchema.statics.validatePassword = async (username, password) => {
     if (!valid) {
         throw new Error('Unauthenticated');
     } else {
-        foundUser.set('password', undefined);
 
         return foundUser;
     }
