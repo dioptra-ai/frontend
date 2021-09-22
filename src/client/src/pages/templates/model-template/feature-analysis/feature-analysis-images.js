@@ -9,6 +9,8 @@ import TimeseriesQuery, {sql} from 'components/timeseries-query';
 import MetricInfoBox from 'components/metric-info-box';
 import AreaGraph from 'components/area-graph';
 import BarGraph from 'components/bar-graph';
+import Async from 'components/async';
+import baseJsonClient from 'clients/base-json-client';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 
 const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
@@ -93,6 +95,19 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                 <h3 className='text-dark bold-text fs-3 mb-3'>Embedding Analysis</h3>
                 <Row>
                     <div>
+                        <Async
+                            fetchData={() => {
+
+                                return baseJsonClient('/api/metrics', {
+                                    method: 'post',
+                                    body: {query: 'SELECT 1 as "one"'}
+                                });
+                            }}
+                            renderData={(jsonResponse) => {
+
+                                return JSON.stringify(jsonResponse);
+                            }}
+                        />
                         <TimeseriesQuery
                             defaultData={[]}
                             renderData={(data) => (

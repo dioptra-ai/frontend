@@ -11,6 +11,7 @@ AuthRouter.post('/login', (req, res, next) => {
     } else {
 
         passport.authenticate('local', (error, user) => {
+
             if (error) {
 
                 res.status(401);
@@ -27,8 +28,11 @@ AuthRouter.post('/login', (req, res, next) => {
                         res.status(401);
                         next(new Error('Unauthorized'));
                     } else {
+                        const safeUser = user.toObject();
 
-                        res.json(user);
+                        delete safeUser.password;
+
+                        res.json(safeUser);
                     }
                 });
             }
@@ -39,7 +43,7 @@ AuthRouter.post('/login', (req, res, next) => {
 // eslint-disable-next-line no-unused-vars
 AuthRouter.post('/logout', (req, res, next) => {
     req.logout();
-    res.send({err: 'logged out'});
+    res.redirect('/');
 });
 
 export default AuthRouter;
