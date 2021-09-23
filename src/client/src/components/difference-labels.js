@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 const DifferenceLabel = ({value, difference, containerStyle = {}, baseClasses = '', diffStyles = {}}) => {
     return (<div style={containerStyle}>
         <span className={baseClasses}>{value}</span>
-        <span className='text-primary metric-box-diffText' style={diffStyles}>
+        <span className='text-primary metric-box-diffText' style={diffStyles} title='vs. Benchmark Date Range'>
             {difference ? `${difference > 0 ? '+' : ''}${difference}` : '-'}%
             {difference && <IoTriangle
                 className={`metric-box-arrowIcon ${difference < 0 ? 'metric-box-arrowIcon-inverted' : ''}`}
