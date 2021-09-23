@@ -20,6 +20,9 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
         },
         ...initialValue
     });
+    const [isSelectOpen, setIsSelectOpen] = useState(false);
+
+    const toggleSelectOpen = () => setIsSelectOpen(!isSelectOpen);
 
     const handleChange = (event) => setFormData({...formData, [event.target.name]: event.target.value});
 
@@ -32,10 +35,13 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
         onSubmit(formData);
     };
 
+    console.log(isSelectOpen);
+
     return (
         <Container
             className='model fs-6 d-flex align-items-center justify-content-center'
             fluid
+            onClick={() => isSelectOpen && setIsSelectOpen(false)}
         >
             <div className='model-form d-flex flex-column align-items-center'>
                 <p className='text-dark bold-text fs-3 mb-4'>
@@ -126,13 +132,14 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                         />
                     )}
                     <Form.Label className='mt-3 mb-0'>Type</Form.Label>
-                    <InputGroup className='mt-1'>
+                    <InputGroup className='mt-1 position-relative'>
                         <select
                             className={`form-control bg-light ${
                                 errors.mlModelType ? 'error' : ''
                             }`}
                             name='mlModelType'
                             onChange={handleChange}
+                            onClick={toggleSelectOpen}
                             value={formData.mlModelType}
                         >
                             <option disabled value=''>
@@ -141,6 +148,8 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                             <option value='IMAGE_CLASSIFIER'>Image Classifier</option>
                             <option value='TABULAR_CLASSIFIER'>Tabular Classifier</option>
                         </select>
+                        <FontIcon className='text-secondary position-absolute select-icon' icon={isSelectOpen ? IconNames.ARROW_UP : IconNames.ARROW_DOWN} size={10}/>
+
                         {errors.mlModelType && (
                             <FontIcon
                                 className='text-warning error-icon'
