@@ -186,7 +186,7 @@ const Models = ({modelStore}) => {
             timeseriesClient({
                 query: `SELECT TIME_FLOOR(__time, 'PT1H') as "time", COUNT(*) as throughput, model_id
                 FROM "dioptra-gt-combined-eventstream"
-                WHERE __time >= TIME_PARSE('${moment().subtract(90, 'days').toISOString()}')
+                WHERE __time >= TIME_PARSE('${moment().subtract(1, 'day').toISOString()}')
                 GROUP BY 1, model_id`
             })
                 .then((trafficData) => {
