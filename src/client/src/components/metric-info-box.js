@@ -25,7 +25,7 @@ const MetricInfoBox = ({value, notifications, warnings, name, sampleSize, unit, 
                 </Link>
             </div>}
         </div>
-        <DifferenceLabel value={`${value ? value.toFixed(1) : '-'}${unit}`} difference={difference.toFixed(2)} baseClasses='text-dark metric-box-font-60' />
+        <DifferenceLabel value={`${!isNaN(value) ? value.toFixed(1) : '-'}${unit}`} difference={!isNaN(difference) ? difference.toFixed(2) : '-'} baseClasses='text-dark metric-box-font-60' />
     </div>
 );
 
