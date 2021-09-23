@@ -5,7 +5,7 @@ import FontIcon from 'components/font-icon';
 import {IconNames} from 'constants';
 import DifferenceLabel from './difference-labels';
 
-const MetricInfoBox = ({value, notifications, warnings, name, sampleSize, unit, difference = 0}) => (
+const MetricInfoBox = ({value, notifications, warnings, name, sampleSize, unit, difference}) => (
     <div className='border rounded p-3 w-100 d-flex flex-column align-items-center justify-content-center metric-box'>
         <div className='d-flex flex-wrap'>
             <span className='text-dark-bold bold-text'>{name}</span>
