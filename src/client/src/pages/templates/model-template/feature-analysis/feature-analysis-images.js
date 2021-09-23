@@ -103,9 +103,9 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                                     body: {query: 'SELECT 1 as "one"'}
                                 });
                             }}
-                            renderData={(jsonResponse) => {
+                            renderData={() => {
 
-                                return JSON.stringify(jsonResponse);
+                                return null; // JSON.stringify(jsonResponse);
                             }}
                         />
                         <TimeseriesQuery
