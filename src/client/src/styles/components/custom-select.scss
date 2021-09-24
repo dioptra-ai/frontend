@@ -1,0 +1,26 @@
+.select {
+  &-header {
+    border: 0;
+    outline: 0;
+    width: 100%;
+    text-align: left;
+    height: 100%;
+  }
+
+  &-list {
+      position: absolute;
+      left: 0;
+      top: 60px;
+      flex-direction: column;
+      flex-wrap: wrap;
+      max-height: 120px;
+      z-index: 1;
+
+      &-item {
+          height: 100%;
+          border: 0;
+          outline: 0;
+          text-align: left;
+      }
+  }
+}
