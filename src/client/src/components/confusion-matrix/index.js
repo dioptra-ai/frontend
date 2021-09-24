@@ -15,7 +15,7 @@ const Table = ({data, diffData, onCellClick, groundtruthClasses, predictionClass
             Header: getName(c),
             accessor: c,
             Cell: Object.assign(({value: data}) => {
-                const {value, difference} = data;
+                const {value, difference} = {...data};
 
                 return (
                     <DifferenceLabel value={value ? `${(value * 100).toFixed(2)} %` : 0} difference={(difference * 100).toFixed(2)} />
