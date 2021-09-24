@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import moment from 'moment';
 import Tooltip from 'react-bootstrap/Tooltip';
 import Overlay from 'react-bootstrap/Overlay';
@@ -145,10 +145,10 @@ const Models = ({modelStore}) => {
     const totalPages = Math.ceil(
         modelStore.models.length / NUMBER_OF_RECORDS_PER_PAGE
     );
-    const data = useMemo(() => modelStore.models.slice(
+    const data = modelStore.models.slice(
         pageNumber * NUMBER_OF_RECORDS_PER_PAGE,
         (pageNumber + 1) * NUMBER_OF_RECORDS_PER_PAGE
-    ), [pageNumber, modelStore.models]);
+    );
 
     useEffect(() => {
         modelStore.fetchModels();
