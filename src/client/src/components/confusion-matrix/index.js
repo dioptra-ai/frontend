@@ -14,8 +14,8 @@ const Table = ({data, diffData, onCellClick, groundtruthClasses, predictionClass
         const classes = predictionClasses.map((c) => ({
             Header: getName(c),
             accessor: c,
-            Cell: Object.assign(({value: data}) => {
-                const {value, difference} = {...data};
+            Cell: Object.assign(({value: data = {}}) => {
+                const {value, difference} = data;
 
                 return (
                     <DifferenceLabel value={value ? `${(value * 100).toFixed(2)} %` : 0} difference={(difference * 100).toFixed(2)} />
