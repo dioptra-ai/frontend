@@ -1,0 +1,19 @@
+.scatterGraph {
+  margin: auto !important;
+  &-leftBox {
+    height: 55vh;
+    min-height: 400px;
+  }
+
+  &-examples {
+    flex-wrap: wrap;
+    max-height: 440px;
+    height: 100%;
+  }
+
+  &-item {
+    width: 120px;
+    height: #{120 * 1.2941}px; // US letter aspect ratio
+    cursor: pointer;
+  }
+}

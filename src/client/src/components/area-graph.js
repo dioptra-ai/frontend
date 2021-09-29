@@ -173,7 +173,7 @@ const AreaGraph = ({
                         }}
                         onMouseUp={zoomIn}
                     >
-                        <CartesianGrid strokeDasharray='5 5' />
+                        <CartesianGrid strokeDasharray='5 5' stroke={theme.light}/>
                         <defs>
                             <linearGradient id='color' x1='0' x2='0' y1='0' y2='1'>
                                 <stop offset='10%' stopColor={color} stopOpacity={0.7} />
