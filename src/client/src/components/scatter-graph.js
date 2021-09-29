@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import {useState} from 'react';
 import {
     CartesianGrid,
     Legend,
@@ -37,23 +37,15 @@ const CustomTooltip = ({payload}) => {
 CustomTooltip.propTypes = {
     payload: PropTypes.array
 };
+const LARGE_DOT_SIZE = 200;
+const MEDIUM_DOT_SIZE = 100;
+const SMALL_DOT_SIZE = 60;
 const ScatterGraph = ({data}) => {
-    const [samples, setSamples] = useState([]);
+    const firstOutlier = data.find(({outlier}) => outlier);
+    const firstNonOutlier = data.find(({outlier}) => !outlier);
+    const [selectedPoint, setSelectedPoint] = useState(firstOutlier || firstNonOutlier);
     const [exampleInModal, setExampleInModal] = useModal(false);
-
-    const modifiedData = data.map((d) => ({...d, size: d.outlier ? 20 : 14}));
-
-    useEffect(() => {
-        const {samples} = data.find(({outlier}) => outlier);
-
-        if (samples) {
-            setSamples(samples);
-        } else {
-            setSamples(data[0]?.samples);
-        }
-    }, [data]);
-
-    const handleClick = ({samples}) => setSamples(samples || []);
+    const samples = selectedPoint?.samples || [];
 
     return (
         <>
@@ -61,7 +53,7 @@ const ScatterGraph = ({data}) => {
                 <Col lg={4} className='scatterGraph-leftBox'>
                     <ResponsiveContainer width='100%' height='100%'>
                         <ScatterChart>
-                            <CartesianGrid strokeDasharray='6 2' />
+                            <CartesianGrid strokeDasharray='6 2' stroke={theme.light}/>
                             <XAxis
                                 type='number'
                                 dataKey='PCA1'
@@ -92,19 +84,29 @@ const ScatterGraph = ({data}) => {
                                 tick={() => null}
                                 tickCount={10}
                             />
-                            <ZAxis type='number' dataKey='size' range={[10, 100]} />
+                            <ZAxis type='number' dataKey='size' range={[SMALL_DOT_SIZE, LARGE_DOT_SIZE]} />
                             <Tooltip content={CustomTooltip} />
                             <Legend wrapperStyle={{bottom: '-5px'}} />
                             <Scatter
-                                onClick={handleClick}
+                                isAnimationActive={false}
+                                cursor='pointer'
+                                onClick={setSelectedPoint}
                                 name='Outlier'
-                                data={modifiedData.filter(({outlier}) => outlier)}
+                                data={data.filter(({outlier}) => outlier).map((d) => ({
+                                    size: d.PCA1 === selectedPoint.PCA1 && d.PCA2 === selectedPoint.PCA2 ? LARGE_DOT_SIZE : MEDIUM_DOT_SIZE,
+                                    ...d
+                                }))}
                                 fill='#F8886C'
                             />
                             <Scatter
-                                onClick={handleClick}
+                                isAnimationActive={false}
+                                cursor='pointer'
+                                onClick={setSelectedPoint}
                                 name='Non-Outlier'
-                                data={modifiedData.filter(({outlier}) => !outlier)}
+                                data={data.filter(({outlier}) => !outlier).map((d) => ({
+                                    size: d.PCA1 === selectedPoint.PCA1 && d.PCA2 === selectedPoint.PCA2 ? LARGE_DOT_SIZE : SMALL_DOT_SIZE,
+                                    ...d
+                                }))}
                                 fill='#1FA9C8'
                             />
                         </ScatterChart>
@@ -113,25 +115,28 @@ const ScatterGraph = ({data}) => {
 
                 <Col lg={8} className='rounded p-3 bg-white-blue'>
                     <p className='text-dark m-0 bold-text'>Examples</p>
-                    <div
-                        className={`d-flex p-4 overflow-auto flex-grow-1 justify-content-center ${
-                            !samples.length ? 'align-items-center' : ''
-                        } scatterGraph-examples`}
-                    >
-                        {samples.length ? (
-                            samples.map((sample, i) => (
-                                <div
-                                    key={i}
-                                    className='d-flex justify-content-center align-items-center p-2 m-5 bg-white scatterGraph-item'
-                                    onClick={() => setExampleInModal(sample)}
-                                >
-                                    {sample}
-                                </div>
-                            ))
-                        ) : (
-                            <h3 className='text-primary m-0'>No Examples Available</h3>
-                        )}
-                    </div>
+                    {samples.length ? (
+                        <div
+                            className={'d-flex p-2 overflow-auto flex-grow-1 justify-content-left scatterGraph-examples'}
+                        >{
+                                samples.map((sample, i) => (
+                                    <div
+                                        key={i}
+                                        className='d-flex justify-content-center align-items-center m-4 bg-white scatterGraph-item'
+                                        onClick={() => setExampleInModal(sample)}
+                                    >
+                                        {sample}
+                                    </div>
+                                ))
+
+                            } </div>
+                    ) : (
+                        <div
+                            className={'d-flex p-2 overflow-auto flex-grow-1 justify-content-center align-items-center scatterGraph-examples'}
+                        >
+                            <h3 className='text-secondary m-0'>No Examples Available</h3>
+                        </div>
+                    )}
                 </Col>
             </Row>
             {exampleInModal && (
@@ -158,7 +163,7 @@ const ScatterGraph = ({data}) => {
 };
 
 ScatterGraph.propTypes = {
-    data: PropTypes.array
+    data: PropTypes.array.isRequired
 };
 
 export default ScatterGraph;

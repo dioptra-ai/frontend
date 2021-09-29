@@ -12,7 +12,8 @@
   }
 
   &-item {
-    width: 160px;
-    height: 220px;
+    width: 120px;
+    height: #{120 * 1.2941}px; // US letter aspect ratio
+    cursor: pointer;
   }
 }

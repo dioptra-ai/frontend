@@ -19,7 +19,13 @@ const dummyOutlierData = [
         PCA1: 123,
         PCA2: 456,
         outlier: true,
-        samples: []
+        samples: [
+            'https://xyz.com',
+            'https://xyz.com',
+            'https://xyz.com',
+            'https://xyz.com',
+            'https://xyz.com'
+        ]
     },
     {
         PCA1: 234,
