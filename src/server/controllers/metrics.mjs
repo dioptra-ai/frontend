@@ -17,7 +17,6 @@ MetricsRouter.post('/', async (req, res, next) => {
 
         druidResponse.body.pipe(res);
     } catch (e) {
-        console.log(e);
         next(e);
     }
 });

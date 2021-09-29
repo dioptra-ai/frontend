@@ -195,16 +195,16 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                 <h3 className='text-dark bold-text fs-3 mb-3'>Embedding Analysis</h3>
                 <Row>
                     <div>
-                        <Async
+                        <Async refetchOnChanged={[allOfflineSqlFilters, allSqlFilters, timeGranularity]}
                             fetchData={() => {
                                 return baseJsonClient('/api/metrics', {
                                     method: 'post',
                                     body:
                                     {
-                                        'metrics_type': 'bi_non_cat_distance',
-                                        'reference_filters': allOfflineSqlFilters,
-                                        'current_filters': allSqlFilters,
-                                        'time_granularity': timeGranularity
+                                        metrics_type: 'bi_non_cat_distance',
+                                        reference_filters: allOfflineSqlFilters,
+                                        current_filters: allSqlFilters,
+                                        time_granularity: timeGranularity
                                     }
                                 });
                             }}
