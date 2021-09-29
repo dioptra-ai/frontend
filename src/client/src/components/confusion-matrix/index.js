@@ -14,7 +14,7 @@ const Table = ({data, diffData, onCellClick, groundtruthClasses, predictionClass
         const classes = predictionClasses.map((c) => ({
             Header: getName(c),
             accessor: c,
-            Cell: Object.assign(({value: data}) => {
+            Cell: Object.assign(({value: data = {}}) => {
                 const {value, difference} = data;
 
                 return (
