@@ -69,7 +69,10 @@ const PerformanceBox = ({
                     marginLeft: -10
                 }}>
                     {classes.map((c, i) => {
-                        const difference = c[performanceType] - diffData.find(({label}) => label === c.label)[performanceType];
+                        const classMetric = c[performanceType];
+                        const classReferenceData = diffData.find(({label}) => label === c.label);
+                        const classReferenceMetric = classReferenceData?.[performanceType];
+                        const difference = classMetric - classReferenceMetric;
 
                         return (
                             <ClassRow
@@ -96,6 +99,8 @@ PerformanceBox.propTypes = {
 };
 
 const ClassRow = ({name = '', value, difference = 0}) => {
+    console.log(name, value, difference);
+
     return (
         <div className='d-flex align-items-center text-dark class-row'>
             <div className='w-100'>

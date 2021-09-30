@@ -40,7 +40,7 @@ const Table = ({data, diffData, onCellClick, groundtruthClasses, predictionClass
             filtered.forEach((e, i) => {
                 cells[e.prediction] = {
                     value: e.distribution,
-                    difference: diffFiltered[i].distribution ? e.distribution - diffFiltered[i].distribution : 0
+                    difference: e.distribution - diffFiltered[i].distribution
                 };
             });
 

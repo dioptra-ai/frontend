@@ -17,42 +17,36 @@ const TimeseriesQuery = ({sql, children, renderData, defaultData, renderError, r
     useEffect(() => {
 
         setLoading(true);
-        setError(null);
-        setData(null);
 
-        timeseriesClient({query, ...rest})
-            .then((data) => {
-                setError(null);
-                setData(data);
-            })
-            .catch((error) => {
-                setError(error);
-                setData(null);
-            })
-            .finally(() => {
-                setLoading(false);
-            });
+        timeseriesClient({query, ...rest}).then((data) => {
+            setError(null);
+            setData(data);
+        }).catch((error) => {
+            setError(error);
+            setData(null);
+        }).finally(() => {
+            setLoading(false);
+        });
     }, [query, JSON.stringify(parameters)]);
 
     if (children) {
 
-        return children({data, loading, error});
-    } else if (loading) {
+        return children({
+            data: data?.length ? data : defaultData,
+            loading, error});
+    } else if (loading && renderLoading) {
 
         return renderLoading();
     } else if (error) {
 
         return renderError(error);
-    } else if (data) {
+    } else if (data?.length) {
 
-        if (data?.length) {
+        return renderData(data);
+    } else {
 
-            return renderData(data);
-        } else {
-
-            return renderData(defaultData);
-        }
-    } else return null;
+        return renderData(defaultData);
+    }
 };
 
 TimeseriesQuery.propTypes = {
@@ -68,8 +62,7 @@ TimeseriesQuery.propTypes = {
 };
 
 TimeseriesQuery.defaultProps = {
-    renderError: String,
-    renderLoading: () => 'Loading...'
+    renderError: String
 };
 
 export default TimeseriesQuery;

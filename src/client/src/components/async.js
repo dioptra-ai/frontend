@@ -9,8 +9,6 @@ const Async = ({children, renderData, renderError, renderLoading, fetchData, ref
     useEffect(() => {
 
         setLoading(true);
-        setError(null);
-        setData(null);
 
         fetchData().then((data) => {
 
@@ -29,7 +27,7 @@ const Async = ({children, renderData, renderError, renderLoading, fetchData, ref
     if (children) {
 
         return children({data, loading, error});
-    } else if (loading) {
+    } else if (loading && renderLoading) {
 
         return renderLoading();
     } else if (error) {
@@ -54,8 +52,7 @@ Async.propTypes = {
 };
 
 Async.defaultProps = {
-    renderError: String,
-    renderLoading: () => 'Loading...'
+    renderError: String
 };
 
 export default Async;
