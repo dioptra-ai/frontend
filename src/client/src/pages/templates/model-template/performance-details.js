@@ -18,7 +18,7 @@ const PerformanceBox = ({
     title = '',
     sampleSize,
     data,
-    diffData,
+    referenceData,
     performanceType
 }) => {
     const [sortAcs, setSortAsc] = useState(true);
@@ -70,7 +70,7 @@ const PerformanceBox = ({
                 }}>
                     {classes.map((c, i) => {
                         const classMetric = c[performanceType];
-                        const classReferenceData = diffData.find(({label}) => label === c.label);
+                        const classReferenceData = referenceData.find(({label}) => label === c.label);
                         const classReferenceMetric = classReferenceData?.[performanceType];
                         const difference = classMetric - classReferenceMetric;
 
@@ -92,7 +92,7 @@ const PerformanceBox = ({
 
 PerformanceBox.propTypes = {
     data: PropTypes.array,
-    diffData: PropTypes.array,
+    referenceData: PropTypes.array,
     performanceType: PropTypes.string,
     sampleSize: PropTypes.any,
     title: PropTypes.string
@@ -150,13 +150,13 @@ const PerformanceDetails = ({filtersStore}) => {
                             renderData={(data) => (
                                 <TimeseriesQuery
                                     defaultData={[]}
-                                    renderData={(diffData) => (
+                                    renderData={(referenceData) => (
                                         <PerformanceBox
                                             data={data}
                                             performanceType='precision'
                                             sampleSize={sampleSizeComponent}
                                             title='Precision per class'
-                                            diffData={diffData}
+                                            referenceData={referenceData}
                                         />
                                     )}
                                     sql={sql`
@@ -255,13 +255,13 @@ const PerformanceDetails = ({filtersStore}) => {
                             renderData={(data) => (
                                 <TimeseriesQuery
                                     defaultData={[]}
-                                    renderData={(diffData) => (
+                                    renderData={(referenceData) => (
                                         <PerformanceBox
                                             data={data}
                                             performanceType='recall'
                                             sampleSize={sampleSizeComponent}
                                             title='Recall per class'
-                                            diffData={diffData}
+                                            referenceData={referenceData}
 
                                         />
                                     )}
