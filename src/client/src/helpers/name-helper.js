@@ -1,4 +1,4 @@
-export const getName = (string) => {
+export const getName = (string = '') => {
     const words = string
         .toLowerCase()
         .replaceAll('-', ' ')

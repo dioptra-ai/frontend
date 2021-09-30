@@ -26,10 +26,10 @@ CustomTooltip.propTypes = {
     payload: PropTypes.array,
     unit: PropTypes.string
 };
-const BarGraph = ({title, bars, unit, yAxisName, xAxisName, yAxisDomain}) => {
+const BarGraph = ({title, bars, unit, yAxisName, xAxisName, yAxisDomain, className}) => {
 
     return (
-        <div className='border rounded p-3 w-100'>
+        <div className={`border rounded p-3 w-100 ${className}`}>
             <p className='text-dark bold-text fs-4'>{title}</p>
             <div style={{height: '300px'}}>
                 <ResponsiveContainer height='100%' width='100%'>
@@ -66,6 +66,7 @@ const BarGraph = ({title, bars, unit, yAxisName, xAxisName, yAxisDomain}) => {
 
 BarGraph.propTypes = {
     bars: PropTypes.array,
+    className: PropTypes.string,
     title: PropTypes.string,
     unit: PropTypes.string,
     xAxisName: PropTypes.string,

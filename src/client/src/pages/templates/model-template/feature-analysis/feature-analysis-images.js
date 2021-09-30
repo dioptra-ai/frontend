@@ -13,12 +13,14 @@ import Async from 'components/async';
 import baseJsonClient from 'clients/base-json-client';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 import ScatterGraph from 'components/scatter-graph';
+import useModel from 'customHooks/use-model';
 
 
 const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
     const allSqlFilters = useAllSqlFilters();
     const allOfflineSqlFilters = useAllSqlFilters({useReferenceRange: true});
     const timeGranularity = timeStore.getTimeGranularity().toISOString();
+    const {mlModelType} = useModel();
 
     return (
         <div>
@@ -118,7 +120,11 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                                         x: new Date(time).getTime()
                                     }))}
                                     isTimeDependent
-                                    title='Embedding Distance'
+                                    title={`${
+                                        mlModelType === 'DOCUMENT_PROCESSING' ?
+                                            'Offline / Online Embeddings Skew' :
+                                            'Embedding Distance'
+                                    }`}
                                     xAxisDomain={timeStore.rangeMillisec}
                                     xAxisName='Time'
                                     yAxisName='Distance (%)'

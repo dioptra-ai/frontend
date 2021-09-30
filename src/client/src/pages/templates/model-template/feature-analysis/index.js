@@ -8,10 +8,10 @@ const FeatureAnalysis = () => {
 
     switch (model.mlModelType) {
     case 'IMAGE_CLASSIFIER':
+    case 'DOCUMENT_PROCESSING':
 
         return <FeatureAnalysisImages model={model}/>;
     case 'TABULAR_CLASSIFIER':
-
         return <FeatureIntegrityTable model={model}/>;
     default:
 

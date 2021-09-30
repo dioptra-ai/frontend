@@ -10,6 +10,7 @@ import {setupComponent} from 'helpers/component-helper';
 import TimeseriesQuery, {sql} from 'components/timeseries-query';
 import {getName} from 'helpers/name-helper';
 import MetricInfoBox from 'components/metric-info-box';
+import useModel from 'customHooks/use-model';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 
 const ModelPerformanceMetrics = {
@@ -30,6 +31,9 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
     const [selectedIndicator, setSelectedIndicator] = useState(ModelPerformanceIndicators.ADOPTION.value);
     const allSqlFilters = useAllSqlFilters();
     const sqlFiltersWithModelTime = useAllSqlFilters({useReferenceRange: true});
+
+    const {mlModelType} = useModel();
+
     const sampleSizeComponent = (
         <TimeseriesQuery
             defaultData={[{sampleSize: 0}]}
@@ -59,9 +63,9 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                         x: new Date(__time).getTime()
                                     }))}
                                     isTimeDependent
-                                    title='Average Throughput (QPS)'
+                                    title={`${mlModelType !== 'DOCUMENT_PROCESSING' ? 'Average ' : ''}Throughput (QPS)`}
                                     xAxisName='Time'
-                                    yAxisName='Average Throughput (QPS)'
+                                    yAxisName={`${mlModelType !== 'DOCUMENT_PROCESSING' ? 'Average Throughput (QPS)' : 'Daily Throughput QPS'}`}
                                 />
                             )}
                             sql={sql`
@@ -77,10 +81,10 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                         <AreaGraph
                             dots={[]}
                             isTimeDependent
-                            title='Average Latency (ms)'
+                            title={`${mlModelType !== 'DOCUMENT_PROCESSING' ? 'Average ' : ''}Latency (ms)`}
                             xAxisName='Time'
                             yAxisDomain={[0, 25]}
-                            yAxisName='Average Latency (ms)'
+                            yAxisName={`${mlModelType !== 'DOCUMENT_PROCESSING' ? 'Average ' : 'Daily Average '}Latency (ms)`}
                             unit='ms'
                         />
                     </Col>
