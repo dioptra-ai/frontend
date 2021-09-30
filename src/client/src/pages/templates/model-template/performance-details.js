@@ -99,7 +99,6 @@ PerformanceBox.propTypes = {
 };
 
 const ClassRow = ({name = '', value, difference = 0}) => {
-    console.log(name, value, difference);
 
     return (
         <div className='d-flex align-items-center text-dark class-row'>
