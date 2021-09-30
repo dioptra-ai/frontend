@@ -1,4 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
+import moment from 'moment';
 import Tooltip from 'react-bootstrap/Tooltip';
 import Overlay from 'react-bootstrap/Overlay';
 import Table from 'react-bootstrap/Table';
@@ -16,6 +17,7 @@ import {Area, ComposedChart, Line} from 'recharts';
 import theme from 'styles/theme.module.scss';
 import ModalComponent from 'components/modal';
 import ModelForm from './model-form';
+import timeseriesClient from 'clients/timeseries';
 
 const NUMBER_OF_RECORDS_PER_PAGE = 10;
 
@@ -94,7 +96,10 @@ const ModelRow = ({model, idx, color}) => {
             </td>
             <td className='fs-6 py-2 align-middle'>
                 <div className='d-flex align-items-center justify-content-center'>
-                    <ComposedChart data={model.traffic} height={65} width={140}>
+                    <ComposedChart data={model.traffic.map(({throughput, time}) => ({
+                        y: throughput,
+                        x: new Date(time).getTime()
+                    }))} height={65} width={140}>
                         <defs>
                             <linearGradient id='areaColor' x1='0' x2='0' y1='0' y2='1'>
                                 <stop offset='5%' stopColor={color} stopOpacity={0.7} />
@@ -134,6 +139,7 @@ const Models = ({modelStore}) => {
     const [pageNumber, setPageNumber] = useState(0);
     const [showModal, setShowModal] = useState(false);
     const [errors, setErrors] = useState({});
+    const [formattedData, setFormattedData] = useState([]);
 
     const color = theme.primary;
     const totalPages = Math.ceil(
@@ -174,6 +180,25 @@ const Models = ({modelStore}) => {
                 setErrors(errObj.err);
             });
     };
+
+    useEffect(() => {
+        if (data.length) {
+            timeseriesClient({
+                query: `SELECT TIME_FLOOR(__time, 'PT1H') as "time", COUNT(*) as throughput, model_id
+                FROM "dioptra-gt-combined-eventstream"
+                WHERE __time >= TIME_PARSE('${moment().subtract(1, 'day').toISOString()}')
+                GROUP BY 1, model_id`
+            })
+                .then((trafficData) => {
+                    setFormattedData([...data.map((d) => {
+                        d.traffic = trafficData.filter(({model_id}) => model_id === d.mlModelId);
+
+                        return d;
+                    })]);
+                })
+                .catch(() => setFormattedData([]));
+        }
+    }, [data, pageNumber]);
 
     return (
         <>
@@ -219,7 +244,7 @@ const Models = ({modelStore}) => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {data.map((model) => (
+                                {formattedData.map((model) => (
                                     <ModelRow color={color} key={model._id} model={model} />
                                 ))}
                             </tbody>
