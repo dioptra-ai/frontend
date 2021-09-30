@@ -15,10 +15,10 @@ const Table = ({data, referenceData, onCellClick, groundtruthClasses, prediction
             Header: getName(c),
             accessor: c,
             Cell: Object.assign(({value: data = {}}) => {
-                const {value, difference} = data;
+                const {value = 0, difference} = data;
 
                 return (
-                    <DifferenceLabel value={value ? `${(value * 100).toFixed(2)} %` : 0} difference={(difference * 100).toFixed(2)} />
+                    <DifferenceLabel value={`${(value * 100).toFixed(2)} %`} difference={(difference * 100).toFixed(2)} />
                 );
             }, {displayName: 'Cell'})
         }));

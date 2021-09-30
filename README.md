@@ -3,6 +3,10 @@
 ## See Your First Code Change
 
 1. Clone this repo and navigate inside it: `cd frontend`
+1. Pull all submodules recursively:
+   ```bash
+   git submodule update --init --recursive
+   ```
 1. Install [docker and docker-compose](https://docs.docker.com/compose/install/) and start docker.
 1. Create the application container and start the local the database - these will run in the background and this command will return.
     ```bash
