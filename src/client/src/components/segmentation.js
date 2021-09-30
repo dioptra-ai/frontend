@@ -283,7 +283,7 @@ const Segmentation = ({timeStore, modelStore, segmentationStore}) => {
                     renderData={(data) => (
                         <TimeseriesQuery
                             defaultData={[]}
-                            renderData={(diffData) => (
+                            renderData={(referenceData) => (
                                 <Table
                                     columns={[
                                         {
@@ -295,7 +295,7 @@ const Segmentation = ({timeStore, modelStore, segmentationStore}) => {
                                             accessor: 'sampleSize',
                                             Header: 'Sample Size',
                                             Cell: Object.assign(({value, row: {index}}) => {
-                                                const difference = value - diffData[index]?.sampleSize || 0;
+                                                const difference = value - referenceData[index]?.sampleSize || 0;
 
                                                 return <DifferenceLabel value={value} difference={difference.toFixed(2)} containerStyle={{position: 'relative'}} diffStyles={{top: -24, right: 0, left: 24}} />;
                                             }, {displayName: 'Sample Size Cell'})

@@ -9,7 +9,7 @@ import TabularExamples from './tabular-examples';
 import useModel from 'customHooks/use-model';
 import DifferenceLabel from 'components/difference-labels';
 
-const Table = ({data, diffData, onCellClick, groundtruthClasses, predictionClasses}) => {
+const Table = ({data, referenceData, onCellClick, groundtruthClasses, predictionClasses}) => {
     const getColumns = (predictionClasses) => {
         const classes = predictionClasses.map((c) => ({
             Header: getName(c),
@@ -31,24 +31,24 @@ const Table = ({data, diffData, onCellClick, groundtruthClasses, predictionClass
     };
 
     const getTableRows = (groundtruthClasses, matrixData) => {
-        const rows = groundtruthClasses.map((c) => {
+
+        return groundtruthClasses.map((c) => {
             const filtered = matrixData.filter((d) => d.groundtruth === c);
-            const diffFiltered = diffData.filter((d) => d.groundtruth === c);
+            const referenceDataForClass = referenceData.filter((d) => d.groundtruth === c);
 
             const cells = {groundtruth: c};
 
-            filtered.forEach((e, i) => {
+            filtered.forEach((e) => {
+                const referenceDataForCell = referenceDataForClass.find((d) => d.prediction === e.prediction);
+
                 cells[e.prediction] = {
                     value: e.distribution,
-                    difference: e.distribution - diffFiltered[i].distribution
+                    difference: e.distribution - referenceDataForCell?.distribution
                 };
             });
 
             return cells;
-
         });
-
-        return (rows);
     };
 
     return (
@@ -69,7 +69,7 @@ const Table = ({data, diffData, onCellClick, groundtruthClasses, predictionClass
 
 Table.propTypes = {
     data: PropTypes.array,
-    diffData: PropTypes.array,
+    referenceData: PropTypes.array,
     groundtruthClasses: PropTypes.array,
     onCellClick: PropTypes.func,
     predictionClasses: PropTypes.array
@@ -113,7 +113,7 @@ const ConfusionMatrix = () => {
                                         groundtruthClasses={getClasses(data, 'groundtruth')}
                                         onCellClick={(prediction, groundtruth) => setSelectedCell({prediction, groundtruth})}
                                         predictionClasses = {getClasses(data, 'prediction')}
-                                        diffData={rangeData}
+                                        referenceData={rangeData}
                                     />
                                 );
                             }}
