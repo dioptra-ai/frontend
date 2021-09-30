@@ -32,6 +32,8 @@ spec:
               value: "12"
             - name: DB_CONNECTION_URI
               value: mongodb://db.default.svc.cluster.local:4005/dioptra
+            - name: METRICS_ENGINE_URL
+              value: http://metrics-engine.default.svc.cluster.local:4006
             - name: FLAG_DISABLE_REGISTER
               value: "true"
             - name: PORT

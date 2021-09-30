@@ -24,6 +24,7 @@ services:
       DB_CONNECTION_URI: "mongodb://dioptra-db:27017/dioptra"
       PORT: "4004"
       FLAG_DISABLE_REGISTER: "true"
+      METRICS_ENGINE_URL: "http://metrics-engine:4006"
     ports:
       - "4004:4004"
     networks:
@@ -32,6 +33,19 @@ services:
       - ./src:/app/src
       - ./index.mjs:/app/index.mjs
     entrypoint: /bin/sleep 36000
+  metrics-engine:
+    build:
+      context: submodules/metrics-engine
+      target: builder
+    image: metrics-engine:latest
+    container_name: metrics-engine
+    restart: always
+    environment:
+      DRUID_DB_URL: "http://a92314013981f428db440843327743d6-71829038.us-east-2.elb.amazonaws.com:8888/druid/v2/sql/"
+    ports:
+      - "4006:4006"
+    networks:
+      - app-network
 
 networks:
   app-network:
