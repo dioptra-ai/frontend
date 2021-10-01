@@ -7,7 +7,6 @@ import FontIcon from 'components/font-icon';
 import {IconNames} from 'constants';
 import DateTimeRangePicker from 'components/date-time-range-picker';
 import {setupComponent} from 'helpers/component-helper';
-import CustomSelect from 'components/custom-select';
 
 const ModelForm = ({initialValue, onSubmit, errors}) => {
     const [formData, setFormData] = useState({
@@ -128,13 +127,20 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                     )}
                     <Form.Label className='mt-3 mb-0'>Type</Form.Label>
                     <InputGroup className='mt-1 position-relative'>
-                        <CustomSelect
-                            items={[{value: 'IMAGE_CLASSIFIER', label: 'Image Classifier'}, {value: 'TABULAR_CLASSIFIER', label: 'Tabular Classifier'}]}
+                        <Form.Control
+                            as='select'
+                            className={`form-select bg-light ${errors.mlModelType ? 'error' : ''}`}
                             name='mlModelType'
-                            onChange={handleChange}
                             value={formData.mlModelType}
-                            placeholder='Select ML Model Type'
-                        />
+                            onChange={handleChange}
+                            custom
+                        >
+                            <option disabled value=''>
+                Select ML Model Type
+                            </option>{' '}
+                            <option value='IMAGE_CLASSIFIER'>Image Classifier</option>
+                            <option value='TABULAR_CLASSIFIER'>Tabular Classifier</option>
+                        </Form.Control>
                         {errors.mlModelType && (
                             <FontIcon
                                 className='text-warning error-icon'
