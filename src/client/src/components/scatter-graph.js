@@ -125,7 +125,12 @@ const ScatterGraph = ({data}) => {
                                         className='d-flex justify-content-center align-items-center m-4 bg-white scatterGraph-item'
                                         onClick={() => setExampleInModal(sample)}
                                     >
-                                        {sample}
+                                        <img
+                                            alt='Example'
+                                            className='rounded modal-image'
+                                            src={sample}
+                                            width='100%'
+                                        />
                                     </div>
                                 ))
 

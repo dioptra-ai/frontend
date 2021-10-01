@@ -6,7 +6,7 @@ metadata:
     io.kompose.service: metrics-engine
   name: metrics-engine
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   ports:
     - name: "4006"
       port: 4006
