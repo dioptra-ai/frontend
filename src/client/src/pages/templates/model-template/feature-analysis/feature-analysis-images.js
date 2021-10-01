@@ -14,103 +14,6 @@ import baseJsonClient from 'clients/base-json-client';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 import ScatterGraph from 'components/scatter-graph';
 
-const dummyOutlierData = [
-    {
-        PCA1: 123,
-        PCA2: 456,
-        outlier: true,
-        samples: [
-            'https://xyz.com',
-            'https://xyz.com',
-            'https://xyz.com',
-            'https://xyz.com',
-            'https://xyz.com'
-        ]
-    },
-    {
-        PCA1: 234,
-        PCA2: 567,
-        outlier: false,
-        samples: [
-            'https://xyz.com',
-            'https://xyz.com',
-            'https://xyz.com',
-            'https://xyz.com',
-            'https://xyz.com'
-        ]
-    },
-    {
-        PCA1: 345,
-        PCA2: 678,
-        outlier: true,
-        samples: [
-            'https://xyz.com',
-            'https://xyz.com',
-            'https://xyz.com',
-            'https://xyz.com',
-            'https://xyz.com'
-        ]
-    },
-    {
-        PCA1: 456,
-        PCA2: 789,
-        outlier: true,
-        samples: [
-            'https://xyz.com',
-            'https://xyz.com',
-            'https://xyz.com',
-            'https://xyz.com',
-            'https://xyz.com'
-        ]
-    },
-    {
-        PCA1: 567,
-        PCA2: 890,
-        outlier: true,
-        samples: [
-            'https://xyz.com',
-            'https://xyz.com',
-            'https://xyz.com',
-            'https://xyz.com',
-            'https://xyz.com'
-        ]
-    },
-    {
-        PCA1: 678,
-        PCA2: 901,
-        outlier: false,
-        samples: [
-            'https://xyz.com',
-            'https://xyz.com',
-            'https://xyz.com',
-            'https://xyz.com',
-            'https://xyz.com'
-        ]
-    },
-    {
-        PCA1: 789,
-        PCA2: 12,
-        outlier: true,
-        samples: [
-            'https://xyz.com',
-            'https://xyz.com',
-            'https://xyz.com',
-            'https://xyz.com',
-            'https://xyz.com'
-        ]
-    },
-    {
-        PCA1: 890,
-        PCA2: 123,
-        outlier: true,
-        samples: ['https://xyz.com']
-    },
-    {
-        PCA1: 500,
-        PCA2: 500,
-        outlier: false
-    }
-];
 
 const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
     const allSqlFilters = useAllSqlFilters();
@@ -230,10 +133,26 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                 <h3 className='text-dark bold-text fs-3 mb-3'>Feature Space Outliers</h3>
                 <Row>
                     <Col>
-                        <TimeseriesQuery
-                            defaultData={[]}
-                            renderData={() => <ScatterGraph data={dummyOutlierData} />}
-                            sql={sql`SELECT 1`}
+                        <Async refetchOnChanged={[allOfflineSqlFilters, allSqlFilters, timeGranularity]}
+                            fetchData={() => {
+                                return baseJsonClient('/api/metrics', {
+                                    method: 'post',
+                                    body:
+                                    {
+                                        metrics_type: 'outlier_detection',
+                                        current_filters: allSqlFilters
+                                    }
+                                });
+                            }}
+                            renderData={(data) => (
+                                <ScatterGraph data={data.outlier_analysis.map(({image_url, dimensions, outlier}) => ({
+                                    samples: [image_url],
+                                    PCA1: dimensions[0],
+                                    PCA2: dimensions[1],
+                                    outlier
+                                }))}
+                                />
+                            )}
                         />
                     </Col>
                 </Row>
