@@ -25,6 +25,7 @@ services:
       PORT: "4004"
       FLAG_DISABLE_REGISTER: "true"
       METRICS_ENGINE_URL: "http://metrics-engine:4006"
+      DRUID_DB_URL: "http://a92314013981f428db440843327743d6-71829038.us-east-2.elb.amazonaws.com:8888/druid/v2/sql/"
     ports:
       - "4004:4004"
     networks:

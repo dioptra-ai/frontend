@@ -6,13 +6,13 @@ metadata:
     kompose.version: 1.22.0 (955b78124)
   creationTimestamp: null
   labels:
-    io.kompose.service: nodejs
-  name: nodejs
+    io.kompose.service: {{ .Release.Name }}-{{ .Values.environment }}-dioptra-app
+  name: {{ .Release.Name }}-{{ .Values.environment }}-dioptra-app
 spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: nodejs
+      io.kompose.service: {{ .Release.Name }}-{{ .Values.environment }}-dioptra-app
   strategy: {}
   template:
     metadata:
@@ -22,7 +22,7 @@ spec:
       creationTimestamp: null
       labels:
         io.kompose.network/app-network: "true"
-        io.kompose.service: nodejs
+        io.kompose.service: {{ .Release.Name }}-{{ .Values.environment }}-dioptra-app
     spec:
       containers:
         - env:
@@ -31,9 +31,11 @@ spec:
             - name: COOKIE_DURATION_HRS
               value: "12"
             - name: DB_CONNECTION_URI
-              value: mongodb://db.default.svc.cluster.local:4005/dioptra
+              value: mongodb://{{ .Release.Name }}-{{ .Values.environment }}-mongodb.default.svc.cluster.local:4005/dioptra
             - name: METRICS_ENGINE_URL
-              value: http://metrics-engine.default.svc.cluster.local:4006
+              value: http://{{ .Release.Name }}-{{ .Values.environment }}-metrics-engine.default.svc.cluster.local:4006
+            - name: DRUID_DB_URL
+              value: "http://dioptra-druid-router.default.svc.cluster.local:8888/druid/v2/sql/"
             - name: FLAG_DISABLE_REGISTER
               value: "true"
             - name: PORT

@@ -8,8 +8,8 @@ metadata:
     service.beta.kubernetes.io/aws-load-balancer-subnets: subnet-03e737304afa6f1ea,subnet-025456614c12331e9
   creationTimestamp: null
   labels:
-    io.kompose.service: nodejs
-  name: nodejs
+    io.kompose.service: {{ .Release.Name }}-{{ .Values.environment }}-dioptra-app
+  name: {{ .Release.Name }}-{{ .Values.environment }}-dioptra-app
 spec:
   type: LoadBalancer
   ports:
@@ -17,6 +17,6 @@ spec:
       port: 443
       targetPort: 4004
   selector:
-    io.kompose.service: nodejs
+    io.kompose.service: {{ .Release.Name }}-{{ .Values.environment }}-dioptra-app
 status:
   loadBalancer: {}

@@ -6,14 +6,15 @@ metadata:
     kompose.version: 1.22.0 (955b78124)
   creationTimestamp: null
   labels:
-    io.kompose.service: db
-  name: db
+    io.kompose.service: {{ .Release.Name }}-{{ .Values.environment }}-mongodb
+  name: {{ .Release.Name }}-{{ .Values.environment }}-mongodb
 spec:
+  type: LoadBalancer
   ports:
     - name: "4005"
       port: 4005
       targetPort: 27017
   selector:
-    io.kompose.service: db
+    io.kompose.service: {{ .Release.Name }}-{{ .Values.environment }}-mongodb
 status:
   loadBalancer: {}
