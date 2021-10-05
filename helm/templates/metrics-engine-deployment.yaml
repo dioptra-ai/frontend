@@ -6,13 +6,13 @@ metadata:
     kompose.version: 1.22.0 (955b78124)
   creationTimestamp: null
   labels:
-    io.kompose.service: metrics-engine
-  name: metrics-engine
+    io.kompose.service: {{ .Release.Name }}-{{ .Values.environment }}-metrics-engine
+  name: {{ .Release.Name }}-{{ .Values.environment }}-metrics-engine
 spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: metrics-engine
+      io.kompose.service: {{ .Release.Name }}-{{ .Values.environment }}-metrics-engine
   strategy: {}
   template:
     metadata:
@@ -22,7 +22,7 @@ spec:
       creationTimestamp: null
       labels:
         io.kompose.network/app-network: "true"
-        io.kompose.service: metrics-engine
+        io.kompose.service: {{ .Release.Name }}-{{ .Values.environment }}-metrics-engine
     spec:
       containers:
         - env:
