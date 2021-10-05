@@ -5,8 +5,15 @@ services:
     image: mongo:latest
     container_name: dioptra-db
     restart: always
+<<<<<<< cd8849532991c5c9f6bc48c2be64c2330399d547
     ports: 
       - "4005:27017"
+=======
+    volumes:
+      - dioptra-dbdata:/data/db
+    ports:
+      - '4005:27017'
+>>>>>>> Heatmap and bounding box
     networks:
       - app-network
 
@@ -25,7 +32,7 @@ services:
       DRUID_DB_URL: "http://a92314013981f428db440843327743d6-71829038.us-east-2.elb.amazonaws.com:8888/druid/v2/sql/"
       ADMIN_ORG_ID: "615e0dfeb8f78ad92061ef6f"
     ports:
-      - "4004:4004"
+      - '4004:4004'
     networks:
       - app-network
     volumes:
@@ -34,8 +41,9 @@ services:
     entrypoint: /bin/sleep 36000
   metrics-engine:
     build:
-      context: submodules/metrics-engine
-      target: builder
+      submodules/metrics-engine
+      # context: submodules/metrics-engine
+      # target: builder
     image: metrics-engine:latest
     container_name: metrics-engine
     restart: always
@@ -43,7 +51,7 @@ services:
       DRUID_DB_URL: "http://a92314013981f428db440843327743d6-71829038.us-east-2.elb.amazonaws.com:8888/druid/v2/sql/"
       LIMIT_EMBEDDING_QUERY: "1000"
     ports:
-      - "4006:4006"
+      - '4006:4006'
     networks:
       - app-network
 

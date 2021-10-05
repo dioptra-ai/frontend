@@ -16,6 +16,8 @@ import DifferenceLabel from 'components/difference-labels';
 import useModel from 'customHooks/use-model';
 import MetricInfoBox from 'components/metric-info-box';
 import BarGraph from 'components/bar-graph';
+import AreaGraph from 'components/area-graph';
+import Select from 'components/select';
 
 const PerformanceBox = ({
     title = '',
@@ -78,7 +80,9 @@ const PerformanceBox = ({
                 >
                     {classes.map((c, i) => {
                         const classMetric = c[performanceType];
-                        const classReferenceData = referenceData.find(({label}) => label === c.label);
+                        const classReferenceData = referenceData.find(
+                            ({label}) => label === c.label
+                        );
                         const classReferenceMetric = classReferenceData?.[performanceType];
                         const difference = classMetric - classReferenceMetric;
 
@@ -106,7 +110,6 @@ PerformanceBox.propTypes = {
 };
 
 const ClassRow = ({name = '', value, difference = 0}) => {
-
     return (
         <div className='d-flex align-items-center text-dark class-row'>
             <div className='w-100'>{name}</div>
@@ -133,6 +136,9 @@ ClassRow.propTypes = {
 const PerformanceDetails = ({filtersStore}) => {
     const allSqlFilters = useAllSqlFilters();
     const sqlFiltersWithModelTime = useAllSqlFilters({useReferenceRange: true});
+    const [classFilter, setClassFilter] = useState('all_classes');
+    const [iouFilter, setIouFilter] = useState(0.5);
+
     const {mlModelType} = useModel();
 
     const sampleSizeComponent = (
@@ -160,13 +166,19 @@ const PerformanceDetails = ({filtersStore}) => {
                             <Col className='d-flex' lg={2}>
                                 <TimeseriesQuery
                                     defaultData={[]}
-                                    renderData={(referenceData) => (
-                                        <PerformanceBox
-                                            data={data}
-                                            performanceType='precision'
-                                            sampleSize={sampleSizeComponent}
-                                            title='Precision per class'
-                                            referenceData={referenceData}
+                                    renderData={() => (
+                                        <TimeseriesQuery
+                                            defaultData={[]}
+                                            renderData={() => (
+                                                <MetricInfoBox
+                                                    name='AP'
+                                                    sampleSize={sampleSizeComponent}
+                                                    unit='%'
+                                                    value={0.0}
+                                                    difference={0.0}
+                                                />
+                                            )}
+                                            sql={sql`SELECT 1 as "one"`}
                                         />
                                     )}
                                     sql={sql`SELECT 1 as "one"`}
@@ -175,14 +187,19 @@ const PerformanceDetails = ({filtersStore}) => {
                             <Col className='d-flex' lg={2}>
                                 <TimeseriesQuery
                                     defaultData={[]}
-                                    renderData={(referenceData) => (
-                                        <PerformanceBox
-                                            data={data}
-                                            performanceType='recall'
-                                            sampleSize={sampleSizeComponent}
-                                            title='Recall per class'
-                                            referenceData={referenceData}
-
+                                    renderData={() => (
+                                        <TimeseriesQuery
+                                            defaultData={[]}
+                                            renderData={() => (
+                                                <MetricInfoBox
+                                                    name='AP'
+                                                    sampleSize={sampleSizeComponent}
+                                                    unit='%'
+                                                    value={0.0}
+                                                    difference={0.0}
+                                                />
+                                            )}
+                                            sql={sql`SELECT 1 as "one"`}
                                         />
                                     )}
                                     sql={sql`SELECT 1 as "one"`}
@@ -277,7 +294,7 @@ const PerformanceDetails = ({filtersStore}) => {
                     <div className='my-5'>
                         <h3 className='text-dark bold-text fs-3 mb-3'>Class Breakdown</h3>
                         <Row className='my-5 mx-2 border rounded'>
-                            <Col className='d-flex' lg={3}>
+                            <Col className='d-flex' lg={12}>
                                 <TimeseriesQuery
                                     defaultData={[]}
                                     renderData={() => (
@@ -286,53 +303,67 @@ const PerformanceDetails = ({filtersStore}) => {
                                             title='Precision'
                                             unit='%'
                                             yAxisName='Precision'
-                                            xAxisName='SSN'
+                                            xAxisName={['SSN', 'First Name', 'Last Name', 'Zip Code']}
                                             className='border-0'
                                         />
                                     )}
                                     sql={sql`SELECT 1 as "one"`}
                                 />
                             </Col>
-                            <Col className='d-flex' lg={3}>
+                        </Row>
+                        <Row className='my-5 mx-2 border rounded'>
+                            <Col className='d-flex' lg={12}>
                                 <TimeseriesQuery
                                     defaultData={[]}
                                     renderData={() => (
                                         <BarGraph
                                             bars={[]}
-                                            title=' '
+                                            title='Recall'
                                             unit='%'
-                                            xAxisName='First Name'
+                                            yAxisName='Recall'
+                                            xAxisName={['SSN', 'First Name', 'Last Name', 'Zip Code']}
                                             className='border-0'
                                         />
                                     )}
                                     sql={sql`SELECT 1 as "one"`}
                                 />
                             </Col>
-                            <Col className='d-flex' lg={3}>
-                                <TimeseriesQuery
-                                    defaultData={[]}
-                                    renderData={() => (
-                                        <BarGraph
-                                            bars={[]}
-                                            title=' '
-                                            unit='%'
-                                            xAxisName='Last Name'
-                                            className='border-0'
-                                        />
-                                    )}
-                                    sql={sql`SELECT 1 as "one"`}
+                        </Row>
+                        <Row className='my-5 border rounded mx-1'>
+                            <Col lg={{span: 3, offset: 6}} className='my-3'>
+                                <Select
+                                    options={[
+                                        {name: 'All Classes', value: 'all_classes'},
+                                        {name: 'SSN', value: 'ssn'},
+                                        {name: 'First Name', value: 'first_name'},
+                                        {name: 'Last Name', value: 'last_name'},
+                                        {name: 'Zip Code', value: 'zip_code'}
+                                    ]}
+                                    initialValue={classFilter}
+                                    onChange={setClassFilter}
                                 />
                             </Col>
-                            <Col className='d-flex' lg={3}>
+                            <Col lg={3} className='my-3'>
+                                <Select
+                                    options={[
+                                        {name: 'iou=0.5', value: 0.5},
+                                        {name: 'iou=0.75', value: 0.75},
+                                        {name: 'iou=0.95', value: 0.95}
+                                    ]}
+                                    initialValue={iouFilter}
+                                    onChange={setIouFilter}
+                                />
+                            </Col>
+                            <Col className='d-flex px-4' lg={12}>
                                 <TimeseriesQuery
                                     defaultData={[]}
                                     renderData={() => (
-                                        <BarGraph
-                                            bars={[]}
-                                            title=' '
-                                            unit='%'
-                                            xAxisName='Zip Code'
-                                            className='border-0'
+                                        <AreaGraph
+                                            dots={[]}
+                                            title='Precision Recall Curve'
+                                            xAxisName='Recall'
+                                            yAxisName='Precision'
+                                            hasBorder={false}
                                         />
                                     )}
                                     sql={sql`SELECT 1 as "one"`}

@@ -13,6 +13,8 @@ import {getName} from 'helpers/name-helper';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 import useModel from 'customHooks/use-model';
 import {useState} from 'react';
+import {HeatMapGrid} from 'react-grid-heatmap';
+import data from './bounding-box-location-analysis-data';
 
 const PredictionAnalysis = ({timeStore, filtersStore}) => {
     const allSqlFilters = useAllSqlFilters();
@@ -20,8 +22,13 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
     const timeGranularity = timeStore.getTimeGranularity().toISOString();
     const [classFilter, setClassFilter] = useState('all_classes');
 
-    console.log(classFilter);
     const {mlModelType} = useModel();
+
+    const heatmapData = new Array(20)
+        .fill([])
+        .map((_, i) => data.filter(({y}) => y === i).map(({x}) => x || 0));
+
+    console.log(heatmapData);
 
     return (
         <>
@@ -193,7 +200,7 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
             {mlModelType === 'DOCUMENT_PROCESSING' ? (
                 <>
                     <div className='my-5'>
-                        <h3 className='text-dark bold-text fs-3 mb-3'>
+                        <h3 className='text-dark bold-text fs-2 mb-3'>
               Bounding Box Size Analysis
                         </h3>
                         <Row className='my-5 rounded border mx-1'>
@@ -224,6 +231,61 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                                             unit='%'
                                             className='border-0'
                                         />
+                                    )}
+                                    sql={sql`SELECT 1 as "one"`}
+                                />
+                            </Col>
+                            <Col className='d-flex' lg={8}>
+                                <TimeseriesQuery
+                                    defaultData={[]}
+                                    renderData={(data) => (
+                                        <AreaGraph
+                                            dots={data}
+                                            title='Average'
+                                            unit='%'
+                                            xAxisDomain={timeStore.rangeMillisec}
+                                            xAxisName='Time'
+                                            yAxisName='Relative Coordinates (%)'
+                                            className='border-0'
+                                            hasBorder={false}
+                                        />
+                                    )}
+                                    sql={sql`SELECT 1 as "one"`}
+                                />
+                            </Col>
+                        </Row>
+                    </div>
+                    <div className='my-5'>
+                        <h3 className='text-dark bold-text fs-3 mb-3'>
+              Bounding Box Location Analysis
+                        </h3>
+                        <Row className='my-5 rounded border mx-1'>
+                            <Col className='d-flex align-items-center' lg={4}>
+                                <h4 className='text-dark bold-text fs-4 m-0'>Heat Map</h4>
+                            </Col>
+                            <Col className='d-flex align-items-center' lg={4}>
+                                <h4 className='text-dark bold-text fs-4 m-0'>
+                  Bounding Box Outlier
+                                </h4>
+                            </Col>
+                            <Col lg={{span: 3, offset: 1}} className='my-3'>
+                                <Select
+                                    options={[
+                                        {name: 'All Classes', value: 'all_classes'},
+                                        {name: 'SSN', value: 'ssn'},
+                                        {name: 'First Name', value: 'first_name'},
+                                        {name: 'Last Name', value: 'last_name'},
+                                        {name: 'Zip Code', value: 'zip_code'}
+                                    ]}
+                                    initialValue={classFilter}
+                                    onChange={setClassFilter}
+                                />
+                            </Col>
+                            <Col className='d-flex' lg={4}>
+                                <TimeseriesQuery
+                                    defaultData={[]}
+                                    renderData={() => (
+                                        <HeatMapGrid data={heatmapData} xLabels={null} yLabels={null} />
                                     )}
                                     sql={sql`SELECT 1 as "one"`}
                                 />
