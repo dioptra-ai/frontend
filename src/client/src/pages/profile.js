@@ -45,14 +45,14 @@ const Profile = ({authStore}) => {
 
     return (
         <Container
-            className='login fs-6 d-flex align-items-center justify-content-center'
+            className='login fs-6 d-flex px-4'
             fluid
         >
-            <div className='login-form d-flex flex-column align-items-center'>
-                <p className='text-dark bold-text fs-3 mb-4'>Update Profile</p>
+            <div className='login-form d-flex flex-column m-4'>
+                <p className='text-dark bold-text fs-3'>Your Profile</p>
                 <Form autoComplete='off' className='w-100' onSubmit={handleSubmit}>
                     <Form.Group className='mb-3'>
-                        <Form.Label>New Email</Form.Label>
+                        <Form.Label>Email</Form.Label>
                         <InputGroup>
                             <Form.Control
                                 className={`bg-light ${emailError ? 'error' : ''}`}
@@ -152,6 +152,17 @@ const Profile = ({authStore}) => {
             Logout
                     </Button>
                 </p>
+            </div>
+            <div className='login-form d-flex flex-column m-4'>
+                <p className='text-dark bold-text fs-3'>Your Organization</p>
+                <Form>
+                    <Form.Group className='mb-3'>
+                        <Form.Label>Organization Name</Form.Label>
+                        <InputGroup>
+                            <pre>{authStore.userData.activeOrganizationMembership?.organization.name}</pre>
+                        </InputGroup>
+                    </Form.Group>
+                </Form>
             </div>
         </Container>
     );

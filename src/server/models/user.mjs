@@ -1,7 +1,9 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 
-const userSchema = new mongoose.Schema({
+const Schema = mongoose.Schema;
+
+const userSchema = new Schema({
     username: {type: String, required: true},
     password: {
         type: String,
@@ -11,13 +13,27 @@ const userSchema = new mongoose.Schema({
             // eslint-disable-next-line no-sync
             return bcrypt.hashSync(password, 10);
         }
+    },
+    activeOrganizationMembership: {
+        type: Schema.Types.ObjectId,
+        ref: 'OrganizationMembership'
     }
-}, {timestamps: true});
+}, {timestamps: true, toJSON: {virtuals: true}, toObject: {virtuals: true}});
+
+userSchema.virtual('organizationMemberships', {
+    ref: 'OrganizationMembership',
+    localField: '_id',
+    foreignField: 'user'
+});
 
 userSchema.statics.initializeCollection = async () => {
 
     if (!await User.exists()) {
-        await User.create({username: 'admin', password: 'admin'});
+        const Organization = mongoose.model('Organization');
+
+        await User.createAsMemberOf({
+            username: 'admin', password: 'admin'
+        }, await new Organization({name: 'Admin Organization'}).save());
 
         console.log('Admin User Created');
     }
@@ -38,6 +54,19 @@ userSchema.statics.validatePassword = async (username, password) => {
 
         return foundUser;
     }
+};
+
+userSchema.statics.createAsMemberOf = async (userProps, organization) => {
+    const OrganizationMembership = mongoose.model('OrganizationMembership');
+    const newUser = await User.create(userProps);
+    const newOrgMembership = await OrganizationMembership.create({
+        user: newUser._id,
+        organization: organization._id
+    });
+
+    newUser.activeOrganizationMembership = newOrgMembership;
+
+    return newUser.save();
 };
 
 const User = mongoose.model('User', userSchema);

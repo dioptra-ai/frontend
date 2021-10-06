@@ -2,13 +2,13 @@ import mongoose from 'mongoose';
 
 import Dashboard from './dashboard.mjs';
 import MlModel from './ml-model.mjs';
-import TeamMember from './team-member.mjs';
-import Team from './team.mjs';
+import OrganizationMembership from './organization-membership.mjs';
+import Organization from './organization.mjs';
 import User from './user.mjs';
 
 mongoose.set('useCreateIndex', true);
 
-const allModels = [Dashboard, MlModel, TeamMember, Team, User];
+const allModels = [Dashboard, MlModel, OrganizationMembership, Organization, User];
 
 const connectionOptions = {
     keepAlive: true,
