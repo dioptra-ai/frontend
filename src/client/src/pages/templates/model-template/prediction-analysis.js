@@ -16,6 +16,9 @@ import {useState} from 'react';
 import {HeatMapGrid} from 'react-grid-heatmap';
 import data from './bounding-box-location-analysis-data';
 
+const HEATMAP_X_AXIS_LENGTH = 20;
+const HEATMAP_Y_AXIS_LENGTH = 20;
+
 const PredictionAnalysis = ({timeStore, filtersStore}) => {
     const allSqlFilters = useAllSqlFilters();
     const allOfflineSqlFilters = useAllSqlFilters({useReferenceRange: true});
@@ -27,9 +30,9 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
 
     const samples = selectedPoint?.samples || [];
 
-    const heatmapData = new Array(20)
+    const heatmapData = new Array(HEATMAP_Y_AXIS_LENGTH)
         .fill([])
-        .map((_, i) => new Array(20)
+        .map((_, i) => new Array(HEATMAP_X_AXIS_LENGTH)
             .fill(0)
             .map((_, j) => data.find(({x, y}) => y === i && x === j)?.outlier || 0));
 
@@ -138,11 +141,7 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                             renderData={(data) => (
                                 <AreaGraph
                                     dots={data}
-                                    title={`${
-                                        mlModelType !== 'DOCUMENT_PROCESSING' ?
-                                            'Offline / Online Distribution ' :
-                                            ''
-                                    }Distance`}
+                                    title='Offline / Online Distribution Distance'
                                     unit='%'
                                     xAxisDomain={timeStore.rangeMillisec}
                                     xAxisName='Time'
