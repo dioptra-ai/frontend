@@ -5,8 +5,6 @@ services:
     image: mongo:latest
     container_name: dioptra-db
     restart: always
-    volumes:  
-      - dioptra-dbdata:/data/db
     ports: 
       - "4005:27017"
     networks:
@@ -26,6 +24,7 @@ services:
       FLAG_DISABLE_REGISTER: "true"
       METRICS_ENGINE_URL: "http://metrics-engine:4006"
       DRUID_DB_URL: "http://a92314013981f428db440843327743d6-71829038.us-east-2.elb.amazonaws.com:8888/druid/v2/sql/"
+      DEMO_ORG_ID: "615e0dfeb8f78ad92061ef6f"
     ports:
       - "4004:4004"
     networks:
@@ -51,6 +50,3 @@ services:
 networks:
   app-network:
     driver: bridge
-
-volumes:
-  dioptra-dbdata: {}

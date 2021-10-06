@@ -33,7 +33,12 @@ userSchema.statics.initializeCollection = async () => {
 
         await User.createAsMemberOf({
             username: 'admin', password: 'admin'
-        }, await new Organization({name: 'Admin Organization'}).save());
+        }, await new Organization(
+            {
+                name: 'Demo Organization',
+                ...process.env.DEMO_ORG_ID && {_id: process.env.DEMO_ORG_ID}
+            }
+        ).save());
 
         console.log('Admin User Created');
     }
