@@ -1,11 +1,11 @@
 import {isAuthenticated} from '../middleware/authentication.mjs';
 import express from 'express';
-import Mongoose from 'mongoose';
+import mongoose from 'mongoose';
 
-const UserModel = Mongoose.model('User');
 const UserRouter = express.Router();
 
 UserRouter.put('/', isAuthenticated, async (req, res, next) => {
+    const UserModel = mongoose.model('User');
     const {username} = req.body;
     const authUser = req.user;
     const existingUser = await UserModel.findOne({username});
@@ -32,6 +32,7 @@ UserRouter.put('/', isAuthenticated, async (req, res, next) => {
 
 UserRouter.post('/', async (req, res, next) => {
     try {
+        const UserModel = mongoose.model('User');
         const {username, password} = req.body;
 
         if (await UserModel.exists({username})) {
@@ -39,10 +40,13 @@ UserRouter.post('/', async (req, res, next) => {
             res.status(400);
             throw new Error('Username already taken.');
         } else {
+            const Organization = mongoose.model('Organization');
 
-            res.json(await UserModel.create({
-                username, password
-            }));
+            res.json(
+                await UserModel.createAsMemberOf({
+                    username, password
+                }, await new Organization({name: `Organization of ${username}`}).save())
+            );
         }
     } catch (e) {
         next(e);

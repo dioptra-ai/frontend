@@ -25,12 +25,17 @@ const userAuth = (passport) => {
 
     passport.use(strategy);
     passport.serializeUser((user, done) => {
-        done(null, user.id);
+        done(null, user._id);
     });
 
-    passport.deserializeUser(async (id, done) => {
+    passport.deserializeUser(async (_id, done) => {
         try {
-            const user = await User.findById(id);
+            const user = await User.findOne({_id}).populate({
+                path: 'activeOrganizationMembership',
+                populate: {
+                    path: 'organization'
+                }
+            });
 
             done(null, user);
         } catch (error) {
