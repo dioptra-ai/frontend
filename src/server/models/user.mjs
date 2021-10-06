@@ -36,7 +36,7 @@ userSchema.statics.initializeCollection = async () => {
         }, await new Organization(
             {
                 name: 'Demo Organization',
-                _id: '61576d836c52d6ce00652c35' // Demo org ID
+                ...process.env.DEMO_ORG_ID && {_id: process.env.DEMO_ORG_ID}
             }
         ).save());
 
