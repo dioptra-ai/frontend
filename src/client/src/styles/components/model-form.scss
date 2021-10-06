@@ -13,7 +13,7 @@
 
     .input-group {
       position: relative;
-      .form-control {
+      .form-control, .custom-select {
         min-height: 55px;
         border: 1px solid transparent;
         border-radius: 5px !important;

@@ -126,21 +126,21 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                         />
                     )}
                     <Form.Label className='mt-3 mb-0'>Type</Form.Label>
-                    <InputGroup className='mt-1'>
-                        <select
-                            className={`form-control bg-light ${
-                                errors.mlModelType ? 'error' : ''
-                            }`}
+                    <InputGroup className='mt-1 position-relative'>
+                        <Form.Control
+                            as='select'
+                            className={`form-select bg-light ${errors.mlModelType ? 'error' : ''}`}
                             name='mlModelType'
-                            onChange={handleChange}
                             value={formData.mlModelType}
+                            onChange={handleChange}
+                            custom
                         >
                             <option disabled value=''>
                 Select ML Model Type
-                            </option>
+                            </option>{' '}
                             <option value='IMAGE_CLASSIFIER'>Image Classifier</option>
                             <option value='TABULAR_CLASSIFIER'>Tabular Classifier</option>
-                        </select>
+                        </Form.Control>
                         {errors.mlModelType && (
                             <FontIcon
                                 className='text-warning error-icon'
