@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {
     CartesianGrid,
     Legend,
@@ -22,19 +22,49 @@ const LARGE_DOT_SIZE = 200;
 const MEDIUM_DOT_SIZE = 100;
 const SMALL_DOT_SIZE = 60;
 const ScatterGraph = ({data}) => {
+    const ref = useRef();
     const firstOutlier = data.find(({outlier}) => outlier);
     const firstNonOutlier = data.find(({outlier}) => !outlier);
-    const [selectedPoint, setSelectedPoint] = useState(firstOutlier || firstNonOutlier);
+    const [selectedPoint, setSelectedPoint] = useState(
+        firstOutlier || firstNonOutlier
+    );
     const [exampleInModal, setExampleInModal] = useModal(false);
-    const samples = selectedPoint?.samples || [];
+    const [shiftPressed, setShiftPressed] = useState(false);
+    const [samples, setSamples] = useState([]);
+
+    const handleKeyDown = ({keyCode}) => {
+        if (keyCode === 16) setShiftPressed(true);
+    };
+
+    const handleKeyUp = ({keyCode}) => {
+        if (keyCode === 16) setShiftPressed(false);
+    };
+
+    useEffect(() => {
+        setSamples([...selectedPoint?.samples]);
+        window.addEventListener('keydown', handleKeyDown);
+        window.addEventListener('keyup', handleKeyUp);
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+            window.removeEventListener('keyup', handleKeyUp);
+        };
+    }, []);
+
+    const handlePointSelect = (point) => {
+        setSelectedPoint(point);
+        if (shiftPressed) {
+            setSamples([...samples, ...(point?.samples || [])]);
+        } else setSamples([...(point?.samples || [])]);
+    };
 
     return (
         <>
-            <Row className='border rounded p-3 w-100 scatterGraph'>
+            <Row className='border rounded p-3 w-100 scatterGraph' ref={ref}>
                 <Col lg={4} className='scatterGraph-leftBox'>
                     <ResponsiveContainer width='100%' height='100%'>
                         <ScatterChart>
-                            <CartesianGrid strokeDasharray='6 2' stroke={theme.light}/>
+                            <CartesianGrid strokeDasharray='6 2' stroke={theme.light} />
                             <XAxis
                                 type='number'
                                 dataKey='PCA1'
@@ -77,7 +107,7 @@ const ScatterGraph = ({data}) => {
                             <Scatter
                                 isAnimationActive={false}
                                 cursor='pointer'
-                                onClick={setSelectedPoint}
+                                onClick={handlePointSelect}
                                 name='Outlier'
                                 data={data.filter(({outlier, novelty}) => outlier && !novelty).map((d) => ({
                                     size: d.PCA1 === selectedPoint.PCA1 && d.PCA2 === selectedPoint.PCA2 ? LARGE_DOT_SIZE : MEDIUM_DOT_SIZE,
@@ -126,27 +156,30 @@ const ScatterGraph = ({data}) => {
                     <p className='text-dark m-0 bold-text'>Examples</p>
                     {samples.length ? (
                         <div
-                            className={'d-flex p-2 overflow-auto flex-grow-1 justify-content-left scatterGraph-examples'}
-                        >{
-                                samples.map((sample, i) => (
-                                    <div
-                                        key={i}
-                                        className='d-flex justify-content-center align-items-center m-4 bg-white scatterGraph-item'
-                                        onClick={() => setExampleInModal(sample)}
-                                    >
-                                        <img
-                                            alt='Example'
-                                            className='rounded modal-image'
-                                            src={sample}
-                                            width='100%'
-                                        />
-                                    </div>
-                                ))
-
-                            } </div>
+                            className={
+                                'd-flex p-2 overflow-auto flex-grow-1 justify-content-left scatterGraph-examples'
+                            }
+                        >
+                            {samples.map((sample, i) => (
+                                <div
+                                    key={i}
+                                    className='d-flex justify-content-center align-items-center m-4 bg-white scatterGraph-item'
+                                    onClick={() => setExampleInModal(sample)}
+                                >
+                                    <img
+                                        alt='Example'
+                                        className='rounded modal-image'
+                                        src={sample}
+                                        width='100%'
+                                    />
+                                </div>
+                            ))}{' '}
+                        </div>
                     ) : (
                         <div
-                            className={'d-flex p-2 overflow-auto flex-grow-1 justify-content-center align-items-center scatterGraph-examples'}
+                            className={
+                                'd-flex p-2 overflow-auto flex-grow-1 justify-content-center align-items-center scatterGraph-examples'
+                            }
                         >
                             <h3 className='text-secondary m-0'>No Examples Available</h3>
                         </div>
