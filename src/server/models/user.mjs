@@ -26,24 +26,6 @@ userSchema.virtual('organizationMemberships', {
     foreignField: 'user'
 });
 
-userSchema.statics.initializeCollection = async () => {
-
-    if (!await User.exists()) {
-        const Organization = mongoose.model('Organization');
-
-        await User.createAsMemberOf({
-            username: 'admin', password: 'admin'
-        }, await new Organization(
-            {
-                name: 'Demo Organization',
-                ...process.env.DEMO_ORG_ID && {_id: process.env.DEMO_ORG_ID}
-            }
-        ).save());
-
-        console.log('Admin User Created');
-    }
-};
-
 userSchema.statics.validatePassword = async (username, password) => {
     const foundUser = await User.findOne({username}).select('+password');
 
@@ -63,7 +45,7 @@ userSchema.statics.validatePassword = async (username, password) => {
 
 userSchema.statics.createAsMemberOf = async (userProps, organization) => {
     const OrganizationMembership = mongoose.model('OrganizationMembership');
-    const newUser = await User.create(userProps);
+    const newUser = new User(userProps);
     const newOrgMembership = await OrganizationMembership.create({
         user: newUser._id,
         organization: organization._id
