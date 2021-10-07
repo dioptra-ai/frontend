@@ -15,9 +15,11 @@ MlModelRouter.get('/:_id', async (req, res, next) => {
 
 MlModelRouter.get('/', async (req, res, next) => {
     try {
-        const MlModel = mongoose.model('MlModel');
+        await req.user.activeOrganizationmembership.organization.populate('mlModels');
 
-        res.json(await MlModel.find());
+        const {mlModels} = req.user.activeOrganizationmembership.organization;
+
+        res.json(mlModels);
     } catch (e) {
         next(e);
     }

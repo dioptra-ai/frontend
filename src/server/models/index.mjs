@@ -21,7 +21,7 @@ mongoose.connect(process.env.DB_CONNECTION_URI, connectionOptions);
 
 mongoose.connection.on('error', console.error.bind(console, 'DB connection error:'));
 mongoose.connection.once('open', () => {
-    console.log('Connected to DB');
+    console.log('Connected to MongoDB');
 
     allModels.forEach(async (model) => {
 
