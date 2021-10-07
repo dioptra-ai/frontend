@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 const Schema = mongoose.Schema;
-const organizationMembershipSchema = new Schema({
+const keySchema = new Schema({
     user: {
         type: Schema.Types.ObjectId,
         ref: 'User',
@@ -12,15 +12,12 @@ const organizationMembershipSchema = new Schema({
         ref: 'Organization',
         required: true
     },
-    type: { // i think this needs typePojoToMixed: false
+    awsApiKey: {
         type: String,
-        enum: ['ADMIN', 'MEMBER'],
-        default: 'ADMIN',
         required: true
     }
 }, {
-    timestamps: true,
-    typePojoToMixed: false
+    timestamps: true
 });
 
-export default mongoose.model('OrganizationMembership', organizationMembershipSchema);
+export default mongoose.model('Organization', keySchema);
