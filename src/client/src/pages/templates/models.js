@@ -13,7 +13,7 @@ import {formatDateTime} from 'helpers/date-helper';
 import Pagination from 'components/pagination';
 import FontIcon from 'components/font-icon';
 import {IconNames} from 'constants';
-import {Area, ComposedChart, Line} from 'recharts';
+import {Area, AreaChart, Line, XAxis} from 'recharts';
 import theme from 'styles/theme.module.scss';
 import ModalComponent from 'components/modal';
 import ModelForm from './model-form';
@@ -40,7 +40,7 @@ IncidentsTooltipContent.propTypes = {
     incidents: PropTypes.array
 };
 
-const ModelRow = ({model, idx, color}) => {
+const _ModelRow = ({model, idx, color, timeStore}) => {
     const incidentsRef = useRef(null);
     const hasIncidents = false;
     const [shouldShowTooltip, setShouldShowTooltip] = useState(false);
@@ -96,7 +96,7 @@ const ModelRow = ({model, idx, color}) => {
             </td>
             <td className='fs-6 py-2 align-middle'>
                 <div className='d-flex align-items-center justify-content-center'>
-                    <ComposedChart data={model.traffic.map(({throughput, time}) => ({
+                    <AreaChart data={model.traffic.map(({throughput, time}) => ({
                         y: throughput,
                         x: new Date(time).getTime()
                     }))} height={65} width={140}>
@@ -115,6 +115,14 @@ const ModelRow = ({model, idx, color}) => {
                             strokeWidth={1}
                             type='linear'
                         />
+                        <XAxis
+                            axisLine={false}
+                            dataKey='x'
+                            domain={timeStore.rangeMillisec}
+                            scale='time'
+                            tick={false}
+                            type='number'
+                        />
                         <Area
                             dataKey='y'
                             fill='url(#areaColor)'
@@ -122,18 +130,21 @@ const ModelRow = ({model, idx, color}) => {
                             strokeWidth={1}
                             type='linear'
                         />
-                    </ComposedChart>
+                    </AreaChart>
                 </div>
             </td>
         </tr>
     );
 };
 
-ModelRow.propTypes = {
+_ModelRow.propTypes = {
     color: PropTypes.string,
     idx: PropTypes.number,
-    model: PropTypes.object
+    model: PropTypes.object,
+    timeStore: PropTypes.object.isRequired
 };
+
+const ModelRow = setupComponent(_ModelRow);
 
 const Models = ({modelStore}) => {
     const [pageNumber, setPageNumber] = useState(0);
@@ -190,15 +201,15 @@ const Models = ({modelStore}) => {
                 GROUP BY 1, model_id`
             })
                 .then((trafficData) => {
-                    setFormattedData([...data.map((d) => {
+                    setFormattedData(data.map((d) => {
                         d.traffic = trafficData.filter(({model_id}) => model_id === d.mlModelId);
 
                         return d;
-                    })]);
+                    }));
                 })
                 .catch(() => setFormattedData([]));
         }
-    }, [data, pageNumber]);
+    }, [data.length, pageNumber]);
 
     return (
         <>
