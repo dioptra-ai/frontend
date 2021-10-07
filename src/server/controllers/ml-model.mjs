@@ -7,7 +7,12 @@ MlModelRouter.get('/:_id', async (req, res, next) => {
     try {
         const MlModel = mongoose.model('MlModel');
 
-        res.json(await MlModel.findById(req.params._id));
+        res.json(
+            await MlModel.findOne({
+                _id: req.params._id, organization:
+                req.user.activeOrganizationMembership.organization
+            })
+        );
     } catch (e) {
         next(e);
     }
@@ -15,9 +20,9 @@ MlModelRouter.get('/:_id', async (req, res, next) => {
 
 MlModelRouter.get('/', async (req, res, next) => {
     try {
-        await req.user.activeOrganizationmembership.organization.populate('mlModels');
+        await req.user.activeOrganizationMembership.organization.populate('mlModels');
 
-        const {mlModels} = req.user.activeOrganizationmembership.organization;
+        const {mlModels} = req.user.activeOrganizationMembership.organization;
 
         res.json(mlModels);
     } catch (e) {
@@ -31,14 +36,13 @@ MlModelRouter.post('/', async (req, res, next) => {
 
         const modelData = await MlModel.create(req.body);
 
-        res.send(modelData);
-
+        res.json(modelData);
     } catch (e) {
-        const {code, keyValue} = e;
+        const {code} = e;
 
         if (code === 11000) {
-            res.status(400).json({err: {[`${Object.keys(keyValue)[0]}`]: 'Model with ID Already Exists.'}});
-            next();
+            res.status(400);
+            next(new Error('A model with this id already exists'));
         } else {
             next(e);
         }
@@ -51,14 +55,14 @@ MlModelRouter.put('/:id', async (req, res, next) => {
 
         const modelData = await MlModel.findByIdAndUpdate(req.params.id, req.body, {new: true, runValidators: true});
 
-        res.send(modelData);
+        res.json(modelData);
 
     } catch (e) {
-        const {code, keyValue} = e;
+        const {code} = e;
 
         if (code === 11000) {
-            res.status(400).json({err: {[`${Object.keys(keyValue)[0]}`]: 'Model with ID Already Exists.'}});
-            next();
+            res.status(400);
+            next(new Error('A model with this id already exists'));
         } else {
             next(e);
         }
