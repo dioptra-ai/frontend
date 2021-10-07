@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 const Schema = mongoose.Schema;
-const keySchema = new Schema({
+const ApiKeySchema = new Schema({
     user: {
         type: Schema.Types.ObjectId,
         ref: 'User',
@@ -12,6 +12,10 @@ const keySchema = new Schema({
         ref: 'Organization',
         required: true
     },
+    awsApiKeyId: {
+        type: String,
+        required: true
+    },
     awsApiKey: {
         type: String,
         required: true
@@ -20,4 +24,4 @@ const keySchema = new Schema({
     timestamps: true
 });
 
-export default mongoose.model('Organization', keySchema);
+export default mongoose.model('ApiKey', ApiKeySchema);

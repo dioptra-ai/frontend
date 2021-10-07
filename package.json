@@ -45,6 +45,7 @@
     "webpack-dev-server": "^3.11.2"
   },
   "dependencies": {
+    "@aws-sdk/client-api-gateway": "^3.35.0",
     "@babel/eslint-parser": "^7.14.7",
     "@react-hook/throttle": "^2.2.0",
     "bcrypt": "^5.0.1",
@@ -54,6 +55,7 @@
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "express-session": "^1.17.2",
+    "install": "^0.13.0",
     "jquery": "^3.6.0",
     "lodash": "^4.17.21",
     "mathjs": "^9.4.3",
@@ -63,6 +65,7 @@
     "moment": "^2.29.1",
     "mongoose": "^6.0.9",
     "node-fetch": "^2.6.1",
+    "npm": "^7.24.2",
     "passport": "^0.4.1",
     "passport-local": "^1.0.0",
     "prop-types": "^15.7.2",
