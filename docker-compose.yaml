@@ -25,8 +25,6 @@ services:
       METRICS_ENGINE_URL: "http://metrics-engine:4006"
       DRUID_DB_URL: "http://a92314013981f428db440843327743d6-71829038.us-east-2.elb.amazonaws.com:8888/druid/v2/sql/"
       ADMIN_ORG_ID: "615e0dfeb8f78ad92061ef6f"
-      AWS_ACCESS_KEY_ID: "AKIAZKP4ZGUD6F5LQ4PA"
-      AWS_SECRET_ACCESS_KEY: "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"
     ports:
       - "4004:4004"
     networks:

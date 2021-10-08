@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {useHistory} from 'react-router';
+import {Link} from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
@@ -9,6 +10,12 @@ import Tooltip from '../components/tooltip';
 import FontIcon from '../components/font-icon';
 import {setupComponent} from '../helpers/component-helper';
 import {IconNames} from '../constants';
+import baseJSONClient from 'clients/base-json-client';
+
+const apiKeyClient = (method, id = '') => {
+
+    return baseJSONClient(`/api/api-key/${id}`, {method});
+};
 
 const Profile = ({authStore}) => {
     const [profileData, setProfileData] = useState({
@@ -18,6 +25,7 @@ const Profile = ({authStore}) => {
     });
     const [emailError, setEmailError] = useState('');
     const [confirmPasswordError, setConfirmPasswordError] = useState('');
+    const [apiKeys, setApiKeys] = useState([]);
     const history = useHistory();
 
     const handleSubmit = (e) => {
@@ -37,11 +45,26 @@ const Profile = ({authStore}) => {
         }
     };
 
+    const handleCreateApiKey = async () => {
+        await apiKeyClient('post');
+
+        return apiKeyClient('get').then(setApiKeys);
+    };
+    const handleDeleteApiKey = async (_id) => {
+        await apiKeyClient('delete', _id);
+
+        return apiKeyClient('get').then(setApiKeys);
+    };
+
     useEffect(() => {
         if (authStore.error) {
             setEmailError(authStore.error);
         }
     }, [authStore.error]);
+
+    useEffect(() => {
+        apiKeyClient('get').then(setApiKeys);
+    }, []);
 
     return (
         <Container
@@ -49,7 +72,7 @@ const Profile = ({authStore}) => {
             fluid
         >
             <div className='login-form d-flex flex-column m-4'>
-                <p className='text-dark bold-text fs-3'>Your Profile</p>
+                <p className='text-dark bold-text fs-3'>Profile</p>
                 <Form autoComplete='off' className='w-100' onSubmit={handleSubmit}>
                     <Form.Group className='mb-3'>
                         <Form.Label>Email</Form.Label>
@@ -149,12 +172,12 @@ const Profile = ({authStore}) => {
                         onClick={() => history.push('/logout')}
                         variant='secondary'
                     >
-            Logout
+                        Logout
                     </Button>
                 </p>
             </div>
             <div className='login-form d-flex flex-column m-4'>
-                <p className='text-dark bold-text fs-3'>Your Organization</p>
+                <p className='text-dark bold-text fs-3'>Organization</p>
                 <Form>
                     <Form.Group className='mb-3'>
                         <Form.Label>Organization Name</Form.Label>
@@ -163,6 +186,19 @@ const Profile = ({authStore}) => {
                         </InputGroup>
                     </Form.Group>
                 </Form>
+                <div className='text-secondary border-top border-muted mt-5 pt-5 w-100'>
+                    <p className='text-dark bold-text fs-3'>Api Keys</p>
+                    {
+                        apiKeys.map((apiKey) => (
+                            <div key={apiKey._id}>
+                                <pre style={{display: 'inline'}}>{apiKey.awsApiKey}</pre>
+                                &nbsp;
+                                <Link className='cursor-pointer' to='#' onClick={() => handleDeleteApiKey(apiKey._id)}>(Delete)</Link>
+                            </div>
+                        ))
+                    }
+                    <Button className='w-100 text-white btn-submit mt-5' onClick={handleCreateApiKey}>Create Api Key</Button>
+                </div>
             </div>
         </Container>
     );
