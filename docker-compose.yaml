@@ -42,6 +42,7 @@ services:
     restart: always
     environment:
       DRUID_DB_URL: "http://a92314013981f428db440843327743d6-71829038.us-east-2.elb.amazonaws.com:8888/druid/v2/sql/"
+      LIMIT_EMBEDDING_QUERY: "1000"
     ports:
       - "4006:4006"
     networks:
