@@ -40,6 +40,16 @@ spec:
               value: "true"
             - name: PORT
               value: "4004"
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: aws-key-frontend
+                  key: aws_access_key_id
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: aws-key-frontend
+                  key: aws_secret_access_key
           image: 641017132295.dkr.ecr.us-east-2.amazonaws.com/frontend:latest
           name: dioptra-frontend
           ports:
