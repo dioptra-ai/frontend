@@ -1,10 +1,14 @@
 import express from 'express';
 import mongoose from 'mongoose';
-// import {APIGatewayClient, CreateApiKeyCommand, DeleteApiKeyCommand} from '@aws-sdk/client-api-gateway';
+import {
+    APIGatewayClient,
+    CreateApiKeyCommand, CreateUsagePlanKeyCommand,
+    DeleteApiKeyCommand
+} from '@aws-sdk/client-api-gateway';
 
 import {isAuthenticated} from '../middleware/authentication.mjs';
 
-// const client = new APIGatewayClient({region: 'us-east-2'});
+const client = new APIGatewayClient({region: 'us-east-2'});
 
 const ApiKeyRouter = express.Router();
 
@@ -14,26 +18,28 @@ ApiKeyRouter.post('/', async (req, res, next) => {
 
     try {
         const ApiKey = mongoose.model('ApiKey');
-        // const dioptraUserId = req.user._id;
-        // const dioptraOrganizationId = req.user.activeOrganizationMembership.organization._id;
+        const dioptraUserId = req.user._id;
+        const activeOrganization = req.user.activeOrganizationMembership.organization;
+        const dioptraOrganizationId = activeOrganization._id;
         const dioptraApiKey = new ApiKey({
             user: req.user._id,
             organization: req.user.activeOrganizationMembership.organization._id
         });
+        const awsApiKey = await client.send(new CreateApiKeyCommand({
+            enabled: true,
+            name: `${dioptraApiKey._id} (as: ${req.user.username} | ${activeOrganization.name})`,
+            tags: {
+                dioptraUserId, dioptraOrganizationId,
+                dioptraApiKeyId: dioptraApiKey._id
+            }
+        }));
 
-        // Hard-coding for now so Adnan can work.
-        const awsApiKey = {
-            id: 'foobar',
-            value: 'foobar'
-        };
-
-        // const awsApiKey = await client.send(new CreateApiKeyCommand({
-        //     enabled: true,
-        //     tags: {
-        //         dioptraUserId, dioptraOrganizationId,
-        //         dioptraApiKeyId: dioptraApiKey._id
-        //     }
-        // }));
+        await client.send(new CreateUsagePlanKeyCommand({
+            keyId: awsApiKey.id,
+            keyType: 'API_KEY',
+            // TODO: Change this depending on what plan the organization is on when people are paying us.
+            usagePlanId: 'emtm28' // 'Demo Plan'.
+        }));
 
         dioptraApiKey.awsApiKeyId = awsApiKey.id;
         dioptraApiKey.awsApiKey = awsApiKey.value;
@@ -53,9 +59,9 @@ ApiKeyRouter.delete('/:_id', async (req, res, next) => {
             user: req.user._id
         });
 
-        // const awsApiKey = await client.send(new DeleteApiKeyCommand({
-        //     apiKey: dioptraApiKey.awsApiKeyId
-        // }));
+        await client.send(new DeleteApiKeyCommand({
+            apiKey: dioptraApiKey.awsApiKeyId
+        }));
 
         res.json(dioptraApiKey);
     } catch (e) {
