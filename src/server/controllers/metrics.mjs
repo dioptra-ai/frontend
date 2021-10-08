@@ -1,9 +1,12 @@
 import express from 'express';
 import fetch from 'node-fetch';
+import {isAuthenticated} from '../middleware/authentication.mjs';
 
 const MetricsRouter = express.Router();
 
-MetricsRouter.post('/', async (req, res, next) => {
+MetricsRouter.all('*', isAuthenticated);
+
+MetricsRouter.post('/', isAuthenticated, async (req, res, next) => {
 
     try {
         // TODO: change this to the metrics service

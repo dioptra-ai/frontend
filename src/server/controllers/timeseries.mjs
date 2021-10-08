@@ -1,7 +1,10 @@
 import express from 'express';
 import fetch from 'node-fetch';
+import {isAuthenticated} from '../middleware/authentication.mjs';
 
 const TimeseriesRouter = express.Router();
+
+TimeseriesRouter.all('*', isAuthenticated);
 
 TimeseriesRouter.post('/', async (req, res, next) => {
 

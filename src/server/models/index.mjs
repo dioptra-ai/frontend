@@ -4,8 +4,9 @@ import MlModel from './ml-model.mjs';
 import OrganizationMembership from './organization-membership.mjs';
 import Organization from './organization.mjs';
 import User from './user.mjs';
+import ApiKey from './api-key.mjs';
 
-const allModels = [MlModel, OrganizationMembership, Organization, User];
+const allModels = [MlModel, OrganizationMembership, Organization, User, ApiKey];
 
 const connectionOptions = {
     keepAlive: true

@@ -26,7 +26,7 @@ const memoizedFetch = mem(jsonFetch, {
     cacheKey: JSON.stringify,
     maxAge: 1000 * 60 * 5 // 5 minutes
 });
-const baseJSONClient = (url, {method = 'get', body, headers = {'content-type': 'application/json'}, memoized = true} = {}) => {
+const baseJSONClient = (url, {method = 'get', body, headers = {'content-type': 'application/json'}, memoized = false} = {}) => {
     const fetch = memoized ? memoizedFetch : jsonFetch;
 
     return fetch(url, {

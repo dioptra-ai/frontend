@@ -1,7 +1,10 @@
 import express from 'express';
 import mongoose from 'mongoose';
+import {isAuthenticated} from '../middleware/authentication.mjs';
 
 const MlModelRouter = express.Router();
+
+MlModelRouter.all('*', isAuthenticated);
 
 MlModelRouter.get('/:_id', async (req, res, next) => {
     try {

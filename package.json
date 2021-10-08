@@ -45,6 +45,7 @@
     "webpack-dev-server": "^3.11.2"
   },
   "dependencies": {
+    "@aws-sdk/client-api-gateway": "^3.35.0",
     "@babel/eslint-parser": "^7.14.7",
     "@react-hook/throttle": "^2.2.0",
     "bcrypt": "^5.0.1",
