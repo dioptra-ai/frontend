@@ -86,28 +86,56 @@ const ScatterGraph = ({data}) => {
                             />
                             <ZAxis type='number' dataKey='size' range={[SMALL_DOT_SIZE, LARGE_DOT_SIZE]} />
                             <Tooltip content={CustomTooltip} />
-                            <Legend wrapperStyle={{bottom: '-5px'}} />
+                            <Legend wrapperStyle={{bottom: '-5px'}} fill='black'/>
+                            <defs>
+                                <linearGradient id='colorGrad' x1='0' y1='0' x2='1' y2='0'>
+                                    <stop offset='50%' stopColor={theme.warning} stopOpacity={1}/>
+                                    <stop offset='50%' stopColor={theme.success} stopOpacity={1}/>
+                                </linearGradient>
+                            </defs>
                             <Scatter
                                 isAnimationActive={false}
                                 cursor='pointer'
                                 onClick={setSelectedPoint}
                                 name='Outlier'
-                                data={data.filter(({outlier}) => outlier).map((d) => ({
+                                data={data.filter(({outlier, novelty}) => outlier && !novelty).map((d) => ({
                                     size: d.PCA1 === selectedPoint.PCA1 && d.PCA2 === selectedPoint.PCA2 ? LARGE_DOT_SIZE : MEDIUM_DOT_SIZE,
                                     ...d
                                 }))}
-                                fill='#F8886C'
+                                fill={theme.warning}
                             />
                             <Scatter
                                 isAnimationActive={false}
                                 cursor='pointer'
                                 onClick={setSelectedPoint}
-                                name='Non-Outlier'
-                                data={data.filter(({outlier}) => !outlier).map((d) => ({
+                                name='Novelty'
+                                data={data.filter(({outlier, novelty}) => !outlier && novelty).map((d) => ({
+                                    size: d.PCA1 === selectedPoint.PCA1 && d.PCA2 === selectedPoint.PCA2 ? LARGE_DOT_SIZE : MEDIUM_DOT_SIZE,
+                                    ...d
+                                }))}
+                                fill={theme.success}
+                            />
+                            <Scatter
+                                isAnimationActive={false}
+                                cursor='pointer'
+                                onClick={setSelectedPoint}
+                                legendType='none'
+                                data={data.filter(({outlier, novelty}) => outlier && novelty).map((d) => ({
+                                    size: d.PCA1 === selectedPoint.PCA1 && d.PCA2 === selectedPoint.PCA2 ? LARGE_DOT_SIZE : MEDIUM_DOT_SIZE,
+                                    ...d
+                                }))}
+                                fill='url(#colorGrad)'
+                            />
+                            <Scatter
+                                isAnimationActive={false}
+                                cursor='pointer'
+                                onClick={setSelectedPoint}
+                                name='Inlier'
+                                data={data.filter(({outlier, novelty}) => !outlier && !novelty).map((d) => ({
                                     size: d.PCA1 === selectedPoint.PCA1 && d.PCA2 === selectedPoint.PCA2 ? LARGE_DOT_SIZE : SMALL_DOT_SIZE,
                                     ...d
                                 }))}
-                                fill='#1FA9C8'
+                                fill={theme.primary}
                             />
                         </ScatterChart>
                     </ResponsiveContainer>
