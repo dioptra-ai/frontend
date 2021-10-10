@@ -5,7 +5,6 @@ import {
     ResponsiveContainer,
     Scatter,
     ScatterChart,
-    Tooltip,
     XAxis,
     YAxis,
     ZAxis
@@ -19,24 +18,6 @@ import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import Modal from 'components/modal';
 
-const CustomTooltip = ({payload}) => {
-    if (payload && payload.length) {
-        return (
-            <div className='line-graph-tooltip bg-white p-3'>
-                <p className='text-dark bold-text fs-5 m-0'>
-                    {payload[0].name}: {payload[0].value}
-                </p>
-                <p className='text-dark bold-text fs-5 m-0'>
-                    {payload[1].name}: {payload[1].value}
-                </p>
-            </div>
-        );
-    } else return null;
-};
-
-CustomTooltip.propTypes = {
-    payload: PropTypes.array
-};
 const LARGE_DOT_SIZE = 200;
 const MEDIUM_DOT_SIZE = 100;
 const SMALL_DOT_SIZE = 60;
@@ -61,7 +42,7 @@ const ScatterGraph = ({data}) => {
                                 label={{
                                     value: 'PCA1',
                                     position: 'insideBottom',
-                                    offset: 0,
+                                    offset: 10,
                                     fill: theme.secondary
                                 }}
                                 axisLine={false}
@@ -77,6 +58,7 @@ const ScatterGraph = ({data}) => {
                                     value: 'PCA2',
                                     angle: -90,
                                     position: 'insideLeft',
+                                    offset: 20,
                                     fill: theme.secondary
                                 }}
                                 axisLine={false}
@@ -85,8 +67,7 @@ const ScatterGraph = ({data}) => {
                                 tickCount={10}
                             />
                             <ZAxis type='number' dataKey='size' range={[SMALL_DOT_SIZE, LARGE_DOT_SIZE]} />
-                            <Tooltip content={CustomTooltip} />
-                            <Legend wrapperStyle={{bottom: '-5px'}} fill='black'/>
+                            <Legend wrapperStyle={{bottom: '-10px'}} fill='black'/>
                             <defs>
                                 <linearGradient id='colorGrad' x1='0' y1='0' x2='1' y2='0'>
                                     <stop offset='50%' stopColor={theme.warning} stopOpacity={1}/>

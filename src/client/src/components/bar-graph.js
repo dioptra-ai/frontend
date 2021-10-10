@@ -55,7 +55,7 @@ const BarGraph = ({title, bars, unit, yAxisName, xAxisName, yAxisDomain}) => {
                             unit={unit}
                         />
                         <Tooltip content={<CustomTooltip unit={unit}/>}/>
-                        {bars.length < 6 ? <Legend data={bars}/> : null}
+                        {bars.length > 4 && bars.length < 9 ? <Legend data={bars}/> : null}
                         <Bar dataKey='value' fill='#8884d8' maxBarSize={50} minPointSize={2}/>
                     </BarChart>
                 </ResponsiveContainer>
