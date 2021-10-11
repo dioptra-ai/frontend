@@ -61,10 +61,6 @@ const ScatterGraph = ({data}) => {
         };
     }, []);
 
-    useEffect(() => {
-        setSamples(selectedPoint?.samples || []);
-    }, [selectedPoint]);
-
     const handlePointSelect = (point) => {
         setSelectedPoint(point);
         if (shiftPressed) {
