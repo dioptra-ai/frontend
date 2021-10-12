@@ -13,11 +13,12 @@ const useAllSqlFilters = ({useReferenceRange = false} = {}) => {
         const activeModel = modelStore.getModelById(activeModelId);
         const timeFilter = useReferenceRange ? modelStore.getSqlReferencePeriodFilter(activeModelId) : timeStore.sqlTimeFilter;
 
-        return `${timeFilter} AND ${filtersStore.sqlFilters} AND organization_id='${organizationId}'` +
+        // _WEBPACK_DEF_TIMESERIES_ORG_ID_
+        return `${timeFilter} AND ${filtersStore.sqlFilters} AND organization_id='${_WEBPACK_DEF_TIMESERIES_ORG_ID_ || organizationId}'` +
                ` AND ${activeModelId ? `model_id='${activeModel.mlModelId}'` : 'TRUE'}`;
     } else {
 
-        return `${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters} AND organization_id='${organizationId}'`;
+        return `${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters} AND organization_id='${_WEBPACK_DEF_TIMESERIES_ORG_ID_ || organizationId}'`;
     }
 
 };

@@ -1,6 +1,5 @@
 const path = require('path');
 const webpack = require('webpack');
-const HtmlWebPackPlugin = require('html-webpack-plugin');
 
 module.exports = {
     devServer: {
@@ -66,13 +65,5 @@ module.exports = {
                 ]
             }
         ]
-    },
-    plugins: [
-        new HtmlWebPackPlugin({
-            template: './src/client/public/index.html'
-        }),
-        new webpack.DefinePlugin({
-            _WEBPACK_DEF_FLAG_DISABLE_REGISTER_: true
-        })
-    ]
+    }
 };

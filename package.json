@@ -78,15 +78,15 @@
     "react-outside-click-handler": "^1.3.0",
     "react-router-dom": "^5.2.0",
     "react-table": "^7.7.0",
-    "recharts": "^2.0.9"
+    "recharts": "^2.0.9",
+    "webpack-merge": "^5.8.0"
   },
   "scripts": {
     "start": "node index.mjs",
     "dev-server": "nodemon --watch index.mjs --watch src/server index.mjs",
-    "dev-client": "webpack --watch --mode=development",
+    "dev-client": "webpack --watch --mode=development --config webpack.dev.js",
     "dev-lint": "esw --color --watch --cache --fix --ext .js --ext .mjs ./src",
-    "start:frontend": "webpack serve --mode=development --open --hot",
-    "build:frontend": "webpack --mode=production",
+    "build:frontend": "webpack --mode=production --config webpack.prod.js",
     "lint": "eslint ./src --cache --fix --ext .js --ext .mjs",
     "prepare": "husky install",
     "test": "jest",
