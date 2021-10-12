@@ -21,7 +21,6 @@ services:
     environment:
       DB_CONNECTION_URI: "mongodb://dioptra-db:27017/dioptra"
       PORT: "4004"
-      _WEBPACK_DEF_FLAG_DISABLE_REGISTER_: "true"
       METRICS_ENGINE_URL: "http://metrics-engine:4006"
       DRUID_DB_URL: "http://a92314013981f428db440843327743d6-71829038.us-east-2.elb.amazonaws.com:8888/druid/v2/sql/"
       ADMIN_ORG_ID: "615e0dfeb8f78ad92061ef6f"
