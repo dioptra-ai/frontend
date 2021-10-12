@@ -4,6 +4,8 @@ version: 2.1
 jobs:
   deploy-to-demo:
     executor: aws-eks/python
+    environment:
+      - _WEBPACK_DEF_FLAG_DISABLE_REGISTER_: true
     steps:
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: dioptra-eks
