@@ -5,7 +5,7 @@ import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Button from 'react-bootstrap/Button';
 import Logo from '../components/logo';
-import {Redirect, useLocation} from 'react-router-dom';
+import {Link, Redirect, useLocation} from 'react-router-dom';
 import Tooltip from '../components/tooltip';
 import FontIcon from '../components/font-icon';
 import {setupComponent} from '../helpers/component-helper';
@@ -110,10 +110,11 @@ const Login = ({authStore}) => {
                             LOG IN
                     </Button>
                 </Form>
-                {/* TODO: FLAG_DISABLE_REGISTER doesn't work with webpack.DefinePlugin, of course. */}
-                {/* <Link className='text-dark mt-3' to='/register'> */}
-                {/*         Register */}
-                {/* </Link> */}
+                {!_WEBPACK_DEF_FLAG_DISABLE_REGISTER_ ? (
+                    <Link className='text-dark mt-3' to='/register'>
+                        Register
+                    </Link>
+                ) : null}
                 <p className='text-secondary text-center border-top border-muted mt-3 p-2'>
                         Forgot password? If you need help with log in, please contact us at
                         &nbsp;
