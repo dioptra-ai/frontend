@@ -36,8 +36,6 @@ spec:
               value: http://{{ .Release.Name }}-{{ .Values.environment }}-metrics-engine.default.svc.cluster.local:4006
             - name: DRUID_DB_URL
               value: "http://dioptra-druid-router.default.svc.cluster.local:8888/druid/v2/sql/"
-            - name: FLAG_DISABLE_REGISTER
-              value: "true"
             - name: PORT
               value: "4004"
             - name: AWS_ACCESS_KEY_ID
