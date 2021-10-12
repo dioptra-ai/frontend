@@ -1,3 +1,4 @@
+import {useState} from 'react';
 import PropTypes from 'prop-types';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -12,39 +13,18 @@ import {getHexColor} from 'helpers/color-helper';
 import {getName} from 'helpers/name-helper';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 import useModel from 'customHooks/use-model';
-import {useState} from 'react';
-import {HeatMapGrid} from 'react-grid-heatmap';
+import HeatMap from 'components/heatmap';
 import data from './bounding-box-location-analysis-data';
 
-const HEATMAP_X_AXIS_LENGTH = 20;
-const HEATMAP_Y_AXIS_LENGTH = 20;
 
 const PredictionAnalysis = ({timeStore, filtersStore}) => {
     const allSqlFilters = useAllSqlFilters();
     const allOfflineSqlFilters = useAllSqlFilters({useReferenceRange: true});
     const timeGranularity = timeStore.getTimeGranularity().toISOString();
     const [classFilter, setClassFilter] = useState('all_classes');
-    const [selectedPoint, setSelectedPoint] = useState(null);
+    const [heatMapSamples, setHeatMapSamples] = useState([]);
 
     const {mlModelType} = useModel();
-
-    const samples = selectedPoint?.samples || [];
-
-    const heatmapData = new Array(HEATMAP_Y_AXIS_LENGTH)
-        .fill([])
-        .map((_, i) => new Array(HEATMAP_X_AXIS_LENGTH)
-            .fill(0)
-            .map((_, j) => data.find(({x, y}) => y === i && x === j)?.outlier || 0));
-
-    // const dataNew = new Array(20)
-    //     .fill(0)
-    //     .map(() => new Array(20).fill(0).map(() => Math.floor(Math.random() * 100)));
-
-    const handleClick = (_x, _y) => {
-        const outlierData = data.find(({x, y}) => x === _y && y === _x);
-
-        setSelectedPoint(outlierData);
-    };
 
     return (
         <>
@@ -296,61 +276,18 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                             <Col lg={4}>
                                 <TimeseriesQuery
                                     defaultData={[]}
-                                    renderData={() => (
-                                        <div className='heat-map'>
-                                            <HeatMapGrid
-                                                // data={dataNew}
-                                                data={heatmapData}
-                                                cellStyle={() => ({
-                                                    maxWidth: 27,
-                                                    width: '100%',
-                                                    height: 30,
-                                                    borderRadius: 0,
-                                                    borderWidth: '1px 1px 1px 1px',
-                                                    borderStyle: 'dashed',
-                                                    borderColor: '#E5E5E5',
-                                                    background: 'none'
-                                                })}
-                                                cellRender={(_, __, value) => (
-                                                    <div
-                                                        className='heat-map-cell'
-                                                        style={{
-                                                            background:
-                                value <= 50 ?
-                                    `rgba(31, 169, 200, ${value / 50})` :
-                                    `rgba(248, 136, 108, ${value / 100})`
-                                                        }}
-                                                    />
-                                                )}
-                                                onClick={handleClick}
-                                            />
-                                            <div className='w-100 my-4 d-flex'>
-                                                <div className='d-flex align-items-center'>
-                                                    <div className='heat-map-legend heat-map-legend_red' />
-                                                    <span className='text-secondary heat-map-legend-text'>
-                            Outlier
-                                                    </span>
-                                                </div>
-                                                <div className='d-flex align-items-center'>
-                                                    <div className='heat-map-legend heat-map-legend_blue' />
-                                                    <span className='text-secondary heat-map-legend-text'>
-                            Non-Outlier
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )}
+                                    renderData={() => <HeatMap data={data} setHeatMapSamples={setHeatMapSamples} />}
                                     sql={sql`SELECT 1 as "one"`}
                                 />
                             </Col>
                             <Col lg={8} className='rounded p-3 pt-0'>
-                                {samples.length ? (
+                                {heatMapSamples.length ? (
                                     <div
                                         className={
                                             'd-flex p-2 overflow-auto flex-grow-1 justify-content-left flex-wrap w-100 h-100 bg-white-blue'
                                         }
                                     >
-                                        {samples.map(({image_url, width, height, bounding_box}, i) => (
+                                        {heatMapSamples.map(({image_url, width, height, bounding_box}, i) => (
                                             <div key={i} className='m-4 heat-map-item'>
                                                 <img
                                                     alt='Example'

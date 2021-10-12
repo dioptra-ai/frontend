@@ -1,7 +1,14 @@
 .heat-map {
+  position: relative;
   &-cell {
     width: 100%;
     height: 100%;
+    border: none;
+    outline: none;
+
+    &-active {
+      border: 1px solid #000;
+    }
   }
 
   &-legend {
@@ -33,5 +40,10 @@
     box-sizing: border-box;
     border-radius: 5px;
     position: absolute;
+  }
+
+  &-refArea {
+    position: absolute;
+    opacity: 0.75;
   }
 }
