@@ -1,20 +1,25 @@
 .breadcrumb {
-    .link {
-        &::after {
-            content: '>';
-            padding: 0 5px;
-        }
-        &:last-child {
-            opacity: 0.5;
-            &::after {
-                content: '';
-            }
-            a {
-                cursor: auto;
-            }
-        }
-        a {
-            text-decoration: none;
-        }
+  .link {
+    button {
+      outline: none;
+      border: none;
+      background: transparent;
     }
+    &::after {
+      content: '>';
+      padding: 0 5px;
+    }
+    &:last-child {
+      opacity: 0.5;
+      &::after {
+        content: '';
+      }
+      a {
+        cursor: pointer;
+      }
+    }
+    a {
+      text-decoration: none;
+    }
+  }
 }
