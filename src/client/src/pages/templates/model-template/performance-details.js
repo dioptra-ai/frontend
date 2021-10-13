@@ -80,7 +80,7 @@ const PerformanceBox = ({
                 >
                     {classes.map((c, i) => {
                         const classMetric = c[performanceType];
-                        const classReferenceData = referenceData.find(
+                        const classReferenceData = referenceData?.find(
                             ({label}) => label === c.label
                         );
                         const classReferenceMetric = classReferenceData?.[performanceType];

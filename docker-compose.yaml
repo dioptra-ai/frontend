@@ -5,15 +5,8 @@ services:
     image: mongo:latest
     container_name: dioptra-db
     restart: always
-<<<<<<< cd8849532991c5c9f6bc48c2be64c2330399d547
     ports: 
       - "4005:27017"
-=======
-    volumes:
-      - dioptra-dbdata:/data/db
-    ports:
-      - '4005:27017'
->>>>>>> Heatmap and bounding box
     networks:
       - app-network
 
