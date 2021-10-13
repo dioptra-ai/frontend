@@ -140,6 +140,7 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                             </option>{' '}
                             <option value='IMAGE_CLASSIFIER'>Image Classifier</option>
                             <option value='TABULAR_CLASSIFIER'>Tabular Classifier</option>
+                            <option value='DOCUMENT_PROCESSING'>Document Processing</option>
                         </Form.Control>
                         {errors.mlModelType && (
                             <FontIcon
