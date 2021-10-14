@@ -10,6 +10,7 @@ import {
     YAxis,
     ZAxis
 } from 'recharts';
+import {useThrottle} from '@react-hook/throttle';
 import theme from 'styles/theme.module.scss';
 import PropTypes from 'prop-types';
 import useModal from 'customHooks/useModal';
@@ -32,15 +33,19 @@ const ScatterGraph = ({data}) => {
     const ref = useRef();
     const firstOutlier = data.find(({outlier}) => outlier);
     const firstNonOutlier = data.find(({outlier}) => !outlier);
-    const [selectedPoint, setSelectedPoint] = useState(
+    const [selectedPoints, setSelectedPoints] = useState([
         firstOutlier || firstNonOutlier
-    );
+    ]);
     const [exampleInModal, setExampleInModal] = useModal(false);
     const [shiftPressed, setShiftPressed] = useState(false);
-    const [samples, setSamples] = useState([]);
-    const [refTopLeft, setRefTopLeft] = useState(null);
-    const [refBottomRight, setRefBottomRight] = useState(null);
+    const [refTopLeft, setRefTopLeft] = useThrottle(null, 25, true);
+    const [refBottomRight, setRefBottomRight] = useThrottle(null, 25, true);
     const [multiSelect, setMultiSelect] = useState(false);
+
+    const samples = selectedPoints?.reduce(
+        (combinedSamples, {samples}) => [...combinedSamples, samples],
+        []
+    );
 
     const handleKeyDown = ({keyCode}) => {
         if (keyCode === 16) setShiftPressed(true);
@@ -51,7 +56,6 @@ const ScatterGraph = ({data}) => {
     };
 
     useEffect(() => {
-        setSamples([...selectedPoint?.samples]);
         window.addEventListener('keydown', handleKeyDown);
         window.addEventListener('keyup', handleKeyUp);
 
@@ -62,10 +66,16 @@ const ScatterGraph = ({data}) => {
     }, []);
 
     const handlePointSelect = (point) => {
-        setSelectedPoint(point);
         if (shiftPressed) {
-            setSamples([...samples, ...(point?.samples || [])]);
-        } else setSamples([...(point?.samples || [])]);
+            const pointExists = selectedPoints.find(
+                ({PCA1, PCA2}) => point.PCA1 === PCA1 && point.PCA2 === PCA2
+            );
+
+            if (!pointExists) {
+                setSelectedPoints([...selectedPoints, point]);
+            }
+        } else setSelectedPoints([...[point]]);
+        if (refTopLeft) setRefTopLeft(null);
     };
 
     const handleMouseUp = () => {
@@ -79,12 +89,7 @@ const ScatterGraph = ({data}) => {
                 ({PCA1, PCA2}) => inRange(PCA1, x1, x2) && inRange(PCA2, y1, y2)
             );
 
-            const multiSamples = filteredData.reduce(
-                (samples, d) => [...samples, ...(d.samples || [])],
-                []
-            );
-
-            setSamples(multiSamples);
+            setSelectedPoints([...filteredData]);
         }
         setMultiSelect(false);
     };
@@ -141,12 +146,16 @@ const ScatterGraph = ({data}) => {
                                 tickCount={10}
                                 yAxisId='PCA2'
                             />
-                            <ZAxis type='number' dataKey='size' range={[SMALL_DOT_SIZE, LARGE_DOT_SIZE]} />
-                            <Legend wrapperStyle={{bottom: '-10px'}} fill='black'/>
+                            <ZAxis
+                                type='number'
+                                dataKey='size'
+                                range={[SMALL_DOT_SIZE, LARGE_DOT_SIZE]}
+                            />
+                            <Legend wrapperStyle={{bottom: '-10px'}} fill='black' />
                             <defs>
                                 <linearGradient id='colorGrad' x1='0' y1='0' x2='1' y2='0'>
-                                    <stop offset='50%' stopColor={theme.warning} stopOpacity={1}/>
-                                    <stop offset='50%' stopColor={theme.success} stopOpacity={1}/>
+                                    <stop offset='50%' stopColor={theme.warning} stopOpacity={1} />
+                                    <stop offset='50%' stopColor={theme.success} stopOpacity={1} />
                                 </linearGradient>
                             </defs>
                             <Scatter
@@ -154,10 +163,16 @@ const ScatterGraph = ({data}) => {
                                 cursor='pointer'
                                 onClick={handlePointSelect}
                                 name='Outlier'
-                                data={data.filter(({outlier, novelty}) => outlier && !novelty).map((d) => ({
-                                    size: d.PCA1 === selectedPoint.PCA1 && d.PCA2 === selectedPoint.PCA2 ? LARGE_DOT_SIZE : MEDIUM_DOT_SIZE,
-                                    ...d
-                                }))}
+                                data={data
+                                    .filter(({outlier, novelty}) => outlier && !novelty)
+                                    .map((d) => ({
+                                        size:
+                      selectedPoints.find(({PCA1}) => d.PCA1 === PCA1) &&
+                      selectedPoints.find(({PCA2}) => d.PCA2 === PCA2) ?
+                          LARGE_DOT_SIZE :
+                          MEDIUM_DOT_SIZE,
+                                        ...d
+                                    }))}
                                 fill={theme.warning}
                                 xAxisId='PCA1'
                                 yAxisId='PCA2'
@@ -167,10 +182,16 @@ const ScatterGraph = ({data}) => {
                                 cursor='pointer'
                                 onClick={handlePointSelect}
                                 name='Novelty'
-                                data={data.filter(({outlier, novelty}) => !outlier && novelty).map((d) => ({
-                                    size: d.PCA1 === selectedPoint.PCA1 && d.PCA2 === selectedPoint.PCA2 ? LARGE_DOT_SIZE : MEDIUM_DOT_SIZE,
-                                    ...d
-                                }))}
+                                data={data
+                                    .filter(({outlier, novelty}) => !outlier && novelty)
+                                    .map((d) => ({
+                                        size:
+                      selectedPoints.find(({PCA1}) => d.PCA1 === PCA1) &&
+                      selectedPoints.find(({PCA2}) => d.PCA2 === PCA2) ?
+                          LARGE_DOT_SIZE :
+                          MEDIUM_DOT_SIZE,
+                                        ...d
+                                    }))}
                                 fill={theme.success}
                                 xAxisId='PCA1'
                                 yAxisId='PCA2'
@@ -180,10 +201,16 @@ const ScatterGraph = ({data}) => {
                                 cursor='pointer'
                                 onClick={handlePointSelect}
                                 legendType='none'
-                                data={data.filter(({outlier, novelty}) => outlier && novelty).map((d) => ({
-                                    size: d.PCA1 === selectedPoint.PCA1 && d.PCA2 === selectedPoint.PCA2 ? LARGE_DOT_SIZE : MEDIUM_DOT_SIZE,
-                                    ...d
-                                }))}
+                                data={data
+                                    .filter(({outlier, novelty}) => outlier && novelty)
+                                    .map((d) => ({
+                                        size:
+                      selectedPoints.find(({PCA1}) => d.PCA1 === PCA1) &&
+                      selectedPoints.find(({PCA2}) => d.PCA2 === PCA2) ?
+                          LARGE_DOT_SIZE :
+                          MEDIUM_DOT_SIZE,
+                                        ...d
+                                    }))}
                                 fill='url(#colorGrad)'
                                 xAxisId='PCA1'
                                 yAxisId='PCA2'
@@ -193,10 +220,16 @@ const ScatterGraph = ({data}) => {
                                 cursor='pointer'
                                 onClick={handlePointSelect}
                                 name='Inlier'
-                                data={data.filter(({outlier, novelty}) => !outlier && !novelty).map((d) => ({
-                                    size: d.PCA1 === selectedPoint.PCA1 && d.PCA2 === selectedPoint.PCA2 ? LARGE_DOT_SIZE : SMALL_DOT_SIZE,
-                                    ...d
-                                }))}
+                                data={data
+                                    .filter(({outlier, novelty}) => !outlier && !novelty)
+                                    .map((d) => ({
+                                        size:
+                      selectedPoints.find(({PCA1}) => d.PCA1 === PCA1) &&
+                      selectedPoints.find(({PCA2}) => d.PCA2 === PCA2) ?
+                          LARGE_DOT_SIZE :
+                          SMALL_DOT_SIZE,
+                                        ...d
+                                    }))}
                                 fill={theme.primary}
                                 xAxisId='PCA1'
                                 yAxisId='PCA2'
