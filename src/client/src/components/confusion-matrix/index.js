@@ -10,52 +10,49 @@ import useModel from 'customHooks/use-model';
 import DifferenceLabel from 'components/difference-labels';
 
 const Table = ({data, referenceData, onCellClick, groundtruthClasses, predictionClasses}) => {
-    const getColumns = (predictionClasses) => {
-        const classes = predictionClasses.map((c) => ({
-            Header: getName(c),
-            accessor: c,
-            Cell: Object.assign(({value: data = {}}) => {
-                const {value = 0, difference} = data;
 
-                return (
-                    <DifferenceLabel value={`${(value * 100).toFixed(2)} %`} difference={(difference * 100).toFixed(2)} />
-                );
-            }, {displayName: 'Cell'})
-        }));
+    const classes = predictionClasses.sort().map((c) => ({
+        Header: getName(c),
+        accessor: c,
+        Cell: Object.assign(({value: cell = {}}) => {
+            const {value = 0, difference} = cell;
 
-        return [{
-            Header: '',
-            accessor: 'groundtruth',
-            Cell: ({value}) => getName(value)
-        }, ...classes];
-    };
+            return (
+                <DifferenceLabel value={`${(value * 100).toFixed(2)} %`} difference={(difference * 100).toFixed(2)} />
+            );
+        }, {displayName: 'Cell'})
+    }));
 
-    const getTableRows = (groundtruthClasses, matrixData) => {
+    const columns = [{
+        Header: '',
+        accessor: 'groundtruth',
+        Cell: ({value}) => getName(value)
+    }, ...classes];
 
-        return groundtruthClasses.map((c) => {
-            const filtered = matrixData.filter((d) => d.groundtruth === c);
-            const referenceDataForClass = referenceData.filter((d) => d.groundtruth === c);
 
-            const cells = {groundtruth: c};
+    const rows = groundtruthClasses.sort().map((c) => {
+        const filtered = data.filter((d) => d.groundtruth === c);
+        const referenceDataForClass = referenceData.filter((d) => d.groundtruth === c);
 
-            filtered.forEach((e) => {
-                const referenceDataForCell = referenceDataForClass.find((d) => d.prediction === e.prediction);
+        const cells = {groundtruth: c};
 
-                cells[e.prediction] = {
-                    value: e.distribution,
-                    difference: e.distribution - referenceDataForCell?.distribution
-                };
-            });
+        filtered.forEach((e) => {
+            const referenceDataForCell = referenceDataForClass.find((d) => d.prediction === e.prediction);
 
-            return cells;
+            cells[e.prediction] = {
+                value: e.distribution,
+                difference: e.distribution - referenceDataForCell?.distribution
+            };
         });
-    };
+
+        return cells;
+    });
 
     return (
         <>
             <div className='position-relative' style={{marginLeft: '30px'}}>
                 <p className='text-secondary m-0 mb-2 text-center bold-text'>Prediction</p>
-                <MatrixTable columns={getColumns(predictionClasses)} data={getTableRows(groundtruthClasses, data)} onCellClick={onCellClick}/>
+                <MatrixTable columns={columns} data={rows} onCellClick={onCellClick}/>
                 <p
                     className='position-absolute text-secondary m-0 text-center bold-text'
                     style={{transform: 'rotate(-90deg)', top: '50%', left: '-70px'}}

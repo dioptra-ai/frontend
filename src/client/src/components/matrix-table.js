@@ -16,13 +16,15 @@ const MatrixTable = ({columns, data, onCellClick}) => {
     );
     const [selectedCellKey, setSelectedCellKey] = useState('');
 
-    const getCellBackground = (value) => {
-        if (typeof value === 'number') {
-            return `rgba(31, 169, 200, ${(0.1 + value).toFixed(1)})`;
-        } else if (!value) {
-            return theme.mercury;
-        } else {
+    const getCellBackground = (cell, i) => {
+
+        if (i === 0) { // Row head
+
             return 'transparent';
+        } else {
+            const value = cell?.value?.value;
+
+            return value ? `rgba(31, 169, 200, ${(0.1 + value).toFixed(1)})` : theme.mercury;
         }
     };
 
@@ -33,7 +35,7 @@ const MatrixTable = ({columns, data, onCellClick}) => {
 
     return (
         <table className='table fs-6' style={{marginBottom: '50px', position: 'relative'}} >
-            <thead className='text-dark bold-text'>
+            <thead className='text-dark bold-text border-0'>
                 <tr className='w-100'>
                     {headers.map((column, i) => (
                         <th
@@ -46,22 +48,34 @@ const MatrixTable = ({columns, data, onCellClick}) => {
                     ))}
                 </tr>
             </thead>
-            <tbody className='text-dark bold-text'>
+            <tbody className='text-dark bold-text border-0'>
                 {rows.map((row, i) => {
                     prepareRow(row);
 
                     return (
-                        <tr className='border-2 border-white' key={i}>
+                        <tr className='border-0' key={i}>
                             {row.cells.map((cell, i) => (
                                 <td
-                                    className={`border-white border-2 px-2 pt-4 text-${i ? 'center' : 'left'} align-middle`}
+                                    className={`border-0 rounded-1 px-2 ${i ? 'pt-4 text-center' : 'text-left'} align-middle`}
                                     key={i}
                                     onClick={() => i && cell?.value?.value && handleCellClick(cell)}
                                     {...cell.getCellProps()}
-                                    style={{backgroundColor: getCellBackground(cell?.value?.value), cursor: (i && cell?.value?.value) ? 'pointer' : 'auto', position: 'relative', width: `${100 / columns.length}%`}}
+                                    style={{
+                                        backgroundColor: getCellBackground(cell, i),
+                                        cursor: (i && cell?.value?.value) ? 'pointer' : 'auto',
+                                        position: 'relative',
+                                        width: `${100 / columns.length}%`,
+                                        whiteSpace: 'nowrap'
+                                    }}
                                 >
+                                    <div
+                                        className={`border rounded-1 ${cell.getCellProps().key === selectedCellKey ? 'border-2 border-dark' : 'border-1 border-white'}`}
+                                        style={{
+                                            position: 'absolute',
+                                            inset: 0
+                                        }}
+                                    />
                                     {cell.render('Cell')}
-                                    <div className={`border border-2 border-${cell.getCellProps().key === selectedCellKey ? 'dark' : 'white'}`} style={{position: 'absolute', inset: 0}}></div>
                                 </td>))}
                         </tr>
                     );
