@@ -1,4 +1,4 @@
-import {useEffect, useRef, useState} from 'react';
+import {useEffect, useMemo, useRef, useState} from 'react';
 import {
     CartesianGrid,
     Legend,
@@ -89,8 +89,12 @@ const ScatterGraph = ({data}) => {
                 ({PCA1, PCA2}) => inRange(PCA1, x1, x2) && inRange(PCA2, y1, y2)
             );
 
-            setSelectedPoints([...filteredData]);
-        } else {
+            if (shiftPressed) {
+                setSelectedPoints([...selectedPoints, ...filteredData]);
+            } else {
+                setSelectedPoints([...filteredData]);
+            }
+        } else if (!shiftPressed) {
             setSelectedPoints([]);
         }
         setMultiSelect(false);
@@ -98,35 +102,45 @@ const ScatterGraph = ({data}) => {
         setRefBottomRight(null);
     };
 
-    const outliers = data
-        .filter(({outlier}) => outlier)
-        .map((d) => ({
-            size:
-                      selectedPoints.find(({PCA1}) => d.PCA1 === PCA1) &&
-                      selectedPoints.find(({PCA2}) => d.PCA2 === PCA2) ?
-                          LARGE_DOT_SIZE :
-                          MEDIUM_DOT_SIZE,
-            ...d
-        }));
+    const outliers = useMemo(() => {
 
-    const novelty = data.filter(({outlier, novelty}) => !outlier && novelty)
-        .map((d) => ({
-            size:
+        return data
+            .filter(({outlier}) => outlier)
+            .map((d) => ({
+                size:
                       selectedPoints.find(({PCA1}) => d.PCA1 === PCA1) &&
                       selectedPoints.find(({PCA2}) => d.PCA2 === PCA2) ?
                           LARGE_DOT_SIZE :
                           MEDIUM_DOT_SIZE,
-            ...d
-        }));
-    const inliers = data.filter(({outlier, novelty}) => !outlier && !novelty)
-        .map((d) => ({
-            size:
+                ...d
+            }));
+    }, [data, selectedPoints]);
+
+    const novelty = useMemo(() => {
+
+        return data.filter(({outlier, novelty}) => !outlier && novelty)
+            .map((d) => ({
+                size:
+                      selectedPoints.find(({PCA1}) => d.PCA1 === PCA1) &&
+                      selectedPoints.find(({PCA2}) => d.PCA2 === PCA2) ?
+                          LARGE_DOT_SIZE :
+                          MEDIUM_DOT_SIZE,
+                ...d
+            }));
+    }, [data, selectedPoints]);
+
+    const inliers = useMemo(() => {
+
+        return data.filter(({outlier, novelty}) => !outlier && !novelty)
+            .map((d) => ({
+                size:
                       selectedPoints.find(({PCA1}) => d.PCA1 === PCA1) &&
                       selectedPoints.find(({PCA2}) => d.PCA2 === PCA2) ?
                           LARGE_DOT_SIZE :
                           SMALL_DOT_SIZE,
-            ...d
-        }));
+                ...d
+            }));
+    }, [data, selectedPoints]);
 
     return (
         <>
@@ -186,7 +200,7 @@ const ScatterGraph = ({data}) => {
                                 range={[SMALL_DOT_SIZE, LARGE_DOT_SIZE]}
                                 scale='linear'
                             />
-                            <Legend wrapperStyle={{bottom: '-10px'}} fill='black' />
+                            <Legend wrapperStyle={{bottom: '10px'}} fill='black' />
                             <defs>
                                 <linearGradient id='colorGrad' x1='0' y1='0' x2='1' y2='0'>
                                     <stop offset='50%' stopColor={theme.warning} stopOpacity={1} />
@@ -240,36 +254,24 @@ const ScatterGraph = ({data}) => {
 
                 <Col lg={8} className='rounded p-3 bg-white-blue'>
                     <p className='text-dark m-0 bold-text'>Examples</p>
-                    {samples.length ? (
-                        <div
-                            className={
-                                'd-flex p-2 overflow-auto flex-grow-1 justify-content-left scatterGraph-examples'
-                            }
-                        >
-                            {samples.map((sample, i) => (
-                                <div
-                                    key={i}
-                                    className='d-flex justify-content-center align-items-center m-4 bg-white scatterGraph-item'
-                                    onClick={() => setExampleInModal(sample)}
-                                >
-                                    <img
-                                        alt='Example'
-                                        className='rounded modal-image'
-                                        src={sample}
-                                        width='100%'
-                                    />
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <div
-                            className={
-                                'd-flex p-2 overflow-auto flex-grow-1 justify-content-center align-items-center scatterGraph-examples'
-                            }
-                        >
+                    <div className={`d-flex p-2 overflow-auto flex-grow-0 ${samples.length ? 'justify-content-left' : 'justify-content-center align-items-center'} scatterGraph-examples`}>
+                        {samples.length ? samples.map((sample, i) => (
+                            <div
+                                key={i}
+                                className='d-flex justify-content-center align-items-center m-4 bg-white scatterGraph-item'
+                                onClick={() => setExampleInModal(sample)}
+                            >
+                                <img
+                                    alt='Example'
+                                    className='rounded modal-image'
+                                    src={sample}
+                                    width='100%'
+                                />
+                            </div>
+                        )) : (
                             <h3 className='text-secondary m-0'>No Examples Available</h3>
-                        </div>
-                    )}
+                        )}
+                    </div>
                 </Col>
             </Row>
             {exampleInModal && (
