@@ -1,27 +1,34 @@
 import {useEffect, useState} from 'react';
 import {HeatMapGrid} from 'react-grid-heatmap';
 import PropTypes from 'prop-types';
+import {useThrottle} from '@react-hook/throttle';
+import _ from 'lodash';
 
 const HEATMAP_X_AXIS_LENGTH = 20;
 const HEATMAP_Y_AXIS_LENGTH = 20;
 
-const min = (n, m) => (n < m ? n : m);
-const max = (n, m) => (n > m ? n : m);
-
 const inRange = (num, min, max) => num >= min && num <= max;
 
-const HeatMap = ({data, setHeatMapSamples}) => {
-    const [selectedPoint, setSelectedPoint] = useState(null);
+const HeatMap = ({data, setHeatMapSamples, selectedSamples}) => {
+    const [selectedPoints, setSelectedPoints] = useThrottle([], 25, true);
     const [shiftPressed, setShiftPressed] = useState(false);
-    const [samples, setSamples] = useState([]);
 
-    const [refTopLeft, setRefTopLeft] = useState(null);
-    const [refBottomRight, setRefBottomRight] = useState(null);
+    const [refTopLeft, setRefTopLeft] = useThrottle(null, 25, true);
+    // const [refBottomRight, setRefBottomRight] = useThrottle(null, 25, true);
     const [multiSelect, setMultiSelect] = useState(false);
 
+    const samples = selectedPoints?.reduce(
+        (combinedSamples, {samples}) => [...combinedSamples, ...samples],
+        []
+    );
+
     useEffect(() => {
-        setHeatMapSamples(samples);
-    }, [samples]);
+        const isSame = _.isEqual(selectedSamples, samples);
+
+        if (!isSame) {
+            setHeatMapSamples(samples);
+        }
+    }, [samples, selectedSamples]);
 
     const heatmapData = new Array(HEATMAP_Y_AXIS_LENGTH)
         .fill([])
@@ -50,33 +57,38 @@ const HeatMap = ({data, setHeatMapSamples}) => {
     const handleClick = (_x, _y) => {
         const outlierData = data.find(({x, y}) => x === _y && y === _x);
 
-        setSelectedPoint(outlierData);
-        if (shiftPressed) {
-            setSamples([...samples, ...(outlierData?.samples || [])]);
-        } else setSamples([...(outlierData?.samples || [])]);
+        if (outlierData) {
+            if (shiftPressed) {
+                const pointExists = selectedPoints.find(
+                    ({x, y}) => outlierData.x === x && outlierData.y === y
+                );
+
+                if (!pointExists) {
+                    setSelectedPoints([...selectedPoints, outlierData]);
+                }
+            } else setSelectedPoints([...[outlierData]]);
+        }
+    };
+
+    const handleMouseMove = (x, y) => {
+        // setRefBottomRight({x, y});
+        const x1 = Math.min(refTopLeft?.x, x);
+        const x2 = Math.max(refTopLeft?.x, x);
+        const y1 = Math.min(refTopLeft?.y, y);
+        const y2 = Math.max(refTopLeft?.y, y);
+
+        if (x1 >= 0 && y1 >= 0 && x2 >= 0 && y2 >= 0) {
+            const filteredData = data.filter(
+                ({x, y}) => inRange(x, y1, y2) && inRange(y, x1, x2)
+            );
+
+            setSelectedPoints([...filteredData]);
+        }
     };
 
     const handleMouseUp = () => {
-        const x1 = min(refTopLeft?.x, refBottomRight?.x);
-        const x2 = max(refTopLeft?.x, refBottomRight?.x);
-        const y1 = min(refTopLeft?.y, refBottomRight?.y);
-        const y2 = max(refTopLeft?.y, refBottomRight?.y);
-
-        if (x1 && y1 && x2 && y2) {
-            const filteredData = data.filter(
-                ({x, y}) => inRange(x, x1, x2) && inRange(y, y1, y2)
-            );
-
-            const multiSamples = filteredData.reduce(
-                (samples, d) => [...samples, ...(d.samples || [])],
-                []
-            );
-
-            setSamples(multiSamples);
-        }
         setMultiSelect(false);
     };
-
 
     return (
         <div className='heat-map'>
@@ -94,20 +106,21 @@ const HeatMap = ({data, setHeatMapSamples}) => {
                 })}
                 cellRender={(x, y, value) => (
                     <button
-                        disabled={!value}
                         onMouseDown={() => {
-                            if (x && y) {
+                            if (x >= 0 && y >= 0 && value >= 0) {
                                 setRefTopLeft({x, y});
                                 setMultiSelect(true);
-                                setRefBottomRight(null);
+                                // setRefBottomRight(null);
                             }
                         }}
-                        onMouseUp={handleMouseUp}
+                        onMouseUp={() => {
+                            if (value >= 0) handleMouseUp();
+                        }}
                         onMouseMove={() => {
-                            if (multiSelect) setRefBottomRight({x, y});
+                            if (multiSelect && value >= 0) handleMouseMove(x, y);
                         }}
                         className={`heat-map-cell ${
-                            x === selectedPoint?.y && y === selectedPoint?.x ?
+                            selectedPoints.find((point) => point.x === y && point.y === x) ?
                                 'heat-map-cell-active' :
                                 ''
                         }`}
@@ -132,24 +145,26 @@ const HeatMap = ({data, setHeatMapSamples}) => {
                     <span className='text-secondary heat-map-legend-text'>Non-Outlier</span>
                 </div>
             </div>
-            {refTopLeft && refBottomRight && (
+            {/* Math for this is not properly working */}
+            {/* {refTopLeft && refBottomRight && (
                 <div
                     className='heat-map-refArea bg-white-blue'
                     style={{
-                        top: `${refTopLeft?.y}vw`,
-                        left: `${refTopLeft?.x}vw`,
-                        width: `${Math.abs(refBottomRight?.y - refTopLeft?.x)}vw`,
-                        height: `${Math.abs(refBottomRight?.y - refTopLeft?.x)}vw`
+                        top: `${refTopLeft?.x}vw`,
+                        left: `${refTopLeft?.y}vw`,
+                        width: `${refBottomRight?.y}vw`,
+                        height: `${refBottomRight?.x}vw`
                     }}
                 />
-            )}
+            )} */}
         </div>
     );
 };
 
 HeatMap.propTypes = {
     data: PropTypes.array.isRequired,
-    setHeatMapSamples: PropTypes.func.isRequired
+    setHeatMapSamples: PropTypes.func.isRequired,
+    selectedSamples: PropTypes.array.isRequired
 };
 
 export default HeatMap;

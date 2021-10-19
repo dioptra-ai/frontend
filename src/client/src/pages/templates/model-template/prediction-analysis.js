@@ -276,7 +276,7 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                             <Col lg={4}>
                                 <TimeseriesQuery
                                     defaultData={[]}
-                                    renderData={() => <HeatMap data={data} setHeatMapSamples={setHeatMapSamples} />}
+                                    renderData={() => <HeatMap data={data} setHeatMapSamples={setHeatMapSamples} selectedSamples={heatMapSamples} />}
                                     sql={sql`SELECT 1 as "one"`}
                                 />
                             </Col>
@@ -286,6 +286,7 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                                         className={
                                             'd-flex p-2 overflow-auto flex-grow-1 justify-content-left flex-wrap w-100 h-100 bg-white-blue'
                                         }
+                                        style={{maxHeight: 600}}
                                     >
                                         {heatMapSamples.map(({image_url, width, height, bounding_box}, i) => (
                                             <div key={i} className='m-4 heat-map-item'>
