@@ -71,8 +71,11 @@ const ScatterGraph = ({data}) => {
             if (!pointExists) {
                 setSelectedPoints([...selectedPoints, point]);
             }
-        } else setSelectedPoints([...[point]]);
-        if (refTopLeft) setRefTopLeft(null);
+        } else {
+            setSelectedPoints([point]);
+        }
+
+        setRefTopLeft(null);
     };
 
     const handleMouseUp = () => {
@@ -87,9 +90,43 @@ const ScatterGraph = ({data}) => {
             );
 
             setSelectedPoints([...filteredData]);
+        } else {
+            setSelectedPoints([]);
         }
         setMultiSelect(false);
+        setRefTopLeft(null);
+        setRefBottomRight(null);
     };
+
+    const outliers = data
+        .filter(({outlier}) => outlier)
+        .map((d) => ({
+            size:
+                      selectedPoints.find(({PCA1}) => d.PCA1 === PCA1) &&
+                      selectedPoints.find(({PCA2}) => d.PCA2 === PCA2) ?
+                          LARGE_DOT_SIZE :
+                          MEDIUM_DOT_SIZE,
+            ...d
+        }));
+
+    const novelty = data.filter(({outlier, novelty}) => !outlier && novelty)
+        .map((d) => ({
+            size:
+                      selectedPoints.find(({PCA1}) => d.PCA1 === PCA1) &&
+                      selectedPoints.find(({PCA2}) => d.PCA2 === PCA2) ?
+                          LARGE_DOT_SIZE :
+                          MEDIUM_DOT_SIZE,
+            ...d
+        }));
+    const inliers = data.filter(({outlier, novelty}) => !outlier && !novelty)
+        .map((d) => ({
+            size:
+                      selectedPoints.find(({PCA1}) => d.PCA1 === PCA1) &&
+                      selectedPoints.find(({PCA2}) => d.PCA2 === PCA2) ?
+                          LARGE_DOT_SIZE :
+                          SMALL_DOT_SIZE,
+            ...d
+        }));
 
     return (
         <>
@@ -147,6 +184,7 @@ const ScatterGraph = ({data}) => {
                                 type='number'
                                 dataKey='size'
                                 range={[SMALL_DOT_SIZE, LARGE_DOT_SIZE]}
+                                scale='linear'
                             />
                             <Legend wrapperStyle={{bottom: '-10px'}} fill='black' />
                             <defs>
@@ -160,16 +198,7 @@ const ScatterGraph = ({data}) => {
                                 cursor='pointer'
                                 onClick={handlePointSelect}
                                 name='Outlier'
-                                data={data
-                                    .filter(({outlier, novelty}) => outlier && !novelty)
-                                    .map((d) => ({
-                                        size:
-                      selectedPoints.find(({PCA1}) => d.PCA1 === PCA1) &&
-                      selectedPoints.find(({PCA2}) => d.PCA2 === PCA2) ?
-                          LARGE_DOT_SIZE :
-                          MEDIUM_DOT_SIZE,
-                                        ...d
-                                    }))}
+                                data={outliers}
                                 fill={theme.warning}
                                 xAxisId='PCA1'
                                 yAxisId='PCA2'
@@ -179,16 +208,7 @@ const ScatterGraph = ({data}) => {
                                 cursor='pointer'
                                 onClick={handlePointSelect}
                                 name='Novelty'
-                                data={data
-                                    .filter(({outlier, novelty}) => !outlier && novelty)
-                                    .map((d) => ({
-                                        size:
-                      selectedPoints.find(({PCA1}) => d.PCA1 === PCA1) &&
-                      selectedPoints.find(({PCA2}) => d.PCA2 === PCA2) ?
-                          LARGE_DOT_SIZE :
-                          MEDIUM_DOT_SIZE,
-                                        ...d
-                                    }))}
+                                data={novelty}
                                 fill={theme.success}
                                 xAxisId='PCA1'
                                 yAxisId='PCA2'
@@ -197,43 +217,15 @@ const ScatterGraph = ({data}) => {
                                 isAnimationActive={false}
                                 cursor='pointer'
                                 onClick={handlePointSelect}
-                                legendType='none'
-                                data={data
-                                    .filter(({outlier, novelty}) => outlier && novelty)
-                                    .map((d) => ({
-                                        size:
-                      selectedPoints.find(({PCA1}) => d.PCA1 === PCA1) &&
-                      selectedPoints.find(({PCA2}) => d.PCA2 === PCA2) ?
-                          LARGE_DOT_SIZE :
-                          MEDIUM_DOT_SIZE,
-                                        ...d
-                                    }))}
-                                fill='url(#colorGrad)'
-                                xAxisId='PCA1'
-                                yAxisId='PCA2'
-                            />
-                            <Scatter
-                                isAnimationActive={false}
-                                cursor='pointer'
-                                onClick={handlePointSelect}
                                 name='Inlier'
-                                data={data
-                                    .filter(({outlier, novelty}) => !outlier && !novelty)
-                                    .map((d) => ({
-                                        size:
-                      selectedPoints.find(({PCA1}) => d.PCA1 === PCA1) &&
-                      selectedPoints.find(({PCA2}) => d.PCA2 === PCA2) ?
-                          LARGE_DOT_SIZE :
-                          SMALL_DOT_SIZE,
-                                        ...d
-                                    }))}
+                                data={inliers}
                                 fill={theme.primary}
                                 xAxisId='PCA1'
                                 yAxisId='PCA2'
                             />
                             {refTopLeft && refBottomRight ? (
                                 <ReferenceArea
-                                    strokeOpacity={0.3}
+                                    fillOpacity={0.3}
                                     x1={refTopLeft.x}
                                     y1={refTopLeft.y}
                                     x2={refBottomRight.x}
