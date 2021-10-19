@@ -24,9 +24,6 @@ const LARGE_DOT_SIZE = 200;
 const MEDIUM_DOT_SIZE = 100;
 const SMALL_DOT_SIZE = 60;
 
-const min = (n, m) => (n < m ? n : m);
-const max = (n, m) => (n > m ? n : m);
-
 const inRange = (num, min, max) => num >= min && num <= max;
 
 const ScatterGraph = ({data}) => {
@@ -79,10 +76,10 @@ const ScatterGraph = ({data}) => {
     };
 
     const handleMouseUp = () => {
-        const x1 = min(refTopLeft?.x, refBottomRight?.x);
-        const x2 = max(refTopLeft?.x, refBottomRight?.x);
-        const y1 = min(refTopLeft?.y, refBottomRight?.y);
-        const y2 = max(refTopLeft?.y, refBottomRight?.y);
+        const x1 = Math.min(refTopLeft?.x, refBottomRight?.x);
+        const x2 = Math.max(refTopLeft?.x, refBottomRight?.x);
+        const y1 = Math.min(refTopLeft?.y, refBottomRight?.y);
+        const y2 = Math.max(refTopLeft?.y, refBottomRight?.y);
 
         if (x1 && y1 && x2 && y2) {
             const filteredData = data.filter(
