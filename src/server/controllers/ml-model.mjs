@@ -37,7 +37,10 @@ MlModelRouter.post('/', async (req, res, next) => {
     try {
         const MlModel = mongoose.model('MlModel');
 
-        const modelData = await MlModel.create(req.body);
+        const modelData = await MlModel.create({
+            ...req.body,
+            organization: req.user.activeOrganizationMembership.organization._id
+        });
 
         res.json(modelData);
     } catch (e) {

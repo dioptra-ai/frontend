@@ -16,7 +16,7 @@ const mlModelSchema = new mongoose.Schema({
     mlModelTier: Number,
     mlModelType: {
         type: String,
-        enum: ['IMAGE_CLASSIFIER', 'TABULAR_CLASSIFIER'],
+        enum: ['IMAGE_CLASSIFIER', 'TABULAR_CLASSIFIER', 'DOCUMENT_PROCESSING'],
         required: true
     },
     referencePeriod: {

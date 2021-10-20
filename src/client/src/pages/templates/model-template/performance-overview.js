@@ -26,10 +26,15 @@ const ModelPerformanceIndicators = {
 };
 
 const PerformanceOverview = ({timeStore, filtersStore}) => {
-    const [selectedMetric, setSelectedMetric] = useState(ModelPerformanceMetrics.ACCURACY.value);
-    const [selectedIndicator, setSelectedIndicator] = useState(ModelPerformanceIndicators.ADOPTION.value);
+    const [selectedMetric, setSelectedMetric] = useState(
+        ModelPerformanceMetrics.ACCURACY.value
+    );
+    const [selectedIndicator, setSelectedIndicator] = useState(
+        ModelPerformanceIndicators.ADOPTION.value
+    );
     const allSqlFilters = useAllSqlFilters();
     const sqlFiltersWithModelTime = useAllSqlFilters({useReferenceRange: true});
+
     const sampleSizeComponent = (
         <TimeseriesQuery
             defaultData={[{sampleSize: 0}]}
@@ -37,15 +42,17 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
             sql={sql`
                 SELECT COUNT(*) as sampleSize 
                 FROM "dioptra-gt-combined-eventstream"
-                WHERE ${allSqlFilters}`
-            }
+                WHERE ${allSqlFilters}`}
         />
     );
     const timeGranularity = timeStore.getTimeGranularity().toISOString();
 
     return (
         <>
-            <FilterInput defaultFilters={filtersStore.filters} onChange={(filters) => filtersStore.filters = filters}/>
+            <FilterInput
+                defaultFilters={filtersStore.filters}
+                onChange={(filters) => (filtersStore.filters = filters)}
+            />
             <div className='my-5'>
                 <h3 className='text-dark bold-text fs-3 mb-3'>Service Performance</h3>
                 <Row>
@@ -65,8 +72,12 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 />
                             )}
                             sql={sql`
-                                SELECT TIME_FLOOR(__time, '${timeStore.getTimeGranularity().toISOString()}') as "__time",
-                                    COUNT(*) / ${timeStore.getTimeGranularity().asSeconds()} as throughput
+                                SELECT TIME_FLOOR(__time, '${timeStore
+            .getTimeGranularity()
+            .toISOString()}') as "__time",
+                                    COUNT(*) / ${timeStore
+            .getTimeGranularity()
+            .asSeconds()} as throughput
                                 FROM "dioptra-gt-combined-eventstream"
                                 WHERE ${allSqlFilters}
                                 GROUP BY 1
@@ -107,15 +118,13 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                     sql={sql`
                                 SELECT 100 * CAST(sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) AS DOUBLE) / sum(1) AS accuracy
                                 FROM "dioptra-gt-combined-eventstream"
-                                WHERE ${sqlFiltersWithModelTime}`
-                                    }
+                                WHERE ${sqlFiltersWithModelTime}`}
                                 />
                             )}
                             sql={sql`
                                 SELECT 100 * CAST(sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) AS DOUBLE) / sum(1) AS accuracy
                                 FROM "dioptra-gt-combined-eventstream"
-                                WHERE ${allSqlFilters}`
-                            }
+                                WHERE ${allSqlFilters}`}
                         />
                     </Col>
                     <Col className='d-flex' lg={3}>
@@ -171,8 +180,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                         JOIN pred_sum ON pred_sum.label = true_positive.label
                                         JOIN true_sum ON true_sum.label = true_positive.label
                                       ) as my_table
-                                  `
-                                    }
+                                  `}
                                 />
                             )}
                             sql={sql`
@@ -213,8 +221,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                       JOIN pred_sum ON pred_sum.label = true_positive.label
                                       JOIN true_sum ON true_sum.label = true_positive.label
                                     ) as my_table
-                                `
-                            }
+                                `}
                         />
                     </Col>
                     <Col className='d-flex' lg={3}>
@@ -269,8 +276,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                   FROM true_positive
                                   JOIN true_sum
                                   ON true_sum.label = true_positive.label
-                              `
-                                    }
+                              `}
                                 />
                             )}
                             sql={sql`
@@ -310,8 +316,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 FROM true_positive
                                 JOIN true_sum
                                 ON true_sum.label = true_positive.label
-                            `
-                            }
+                            `}
                         />
                     </Col>
                     <Col className='d-flex' lg={3}>
@@ -423,21 +428,22 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 dots={metric}
                                 hasBorder={false}
                                 isTimeDependent
-                                margin = {{right: 0, bottom: 30}}
+                                margin={{right: 0, bottom: 30}}
                                 unit='%'
                                 xAxisName='Time'
                                 yAxisDomain={[0, 100]}
                                 yAxisName={getName(selectedMetric)}
                             />
                         )}
-                        sql={{
-                            [ModelPerformanceMetrics.ACCURACY.value]: sql`
+                        sql={
+                            {
+                                [ModelPerformanceMetrics.ACCURACY.value]: sql`
                                 SELECT TIME_FLOOR(__time, '${timeGranularity}') as x,
                                   100 * CAST(sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) AS DOUBLE) / CAST(sum(1) AS DOUBLE) AS y
                                 FROM "dioptra-gt-combined-eventstream"
                                 WHERE ${allSqlFilters}
                                 GROUP BY 1`,
-                            [ModelPerformanceMetrics.PRECISION.value]: sql`
+                                [ModelPerformanceMetrics.PRECISION.value]: sql`
                                 WITH true_positive as (
                                   SELECT
                                     TIME_FLOOR(__time, '${timeGranularity}') as "my_time",
@@ -478,7 +484,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 JOIN pred_sum ON pred_sum.label = true_positive.label AND pred_sum.my_time = true_positive.my_time
                                 GROUP BY 1
                             `,
-                            [ModelPerformanceMetrics.RECALL.value]: sql`
+                                [ModelPerformanceMetrics.RECALL.value]: sql`
                                 WITH true_positive as (
                                   SELECT
                                     TIME_FLOOR(__time, '${timeGranularity}') as "my_time",
@@ -520,7 +526,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 JOIN true_sum ON true_sum.label = true_positive.label AND true_sum.my_time = true_positive.my_time
                                 GROUP BY 1
                             `,
-                            [ModelPerformanceMetrics.F1_SCORE.value]: sql`
+                                [ModelPerformanceMetrics.F1_SCORE.value]: sql`
                                 WITH true_positive as (
                                   SELECT
                                     TIME_FLOOR(__time, '${timeGranularity}') as "my_time",
@@ -569,7 +575,8 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                   GROUP BY 1
                                 ) as my_table
                             `
-                        }[selectedMetric]}
+                            }[selectedMetric]
+                        }
                     />
                 </div>
             </div>
@@ -599,7 +606,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 dots={[]}
                                 hasBorder={false}
                                 isTimeDependent
-                                margin = {{right: 0, bottom: 30, left: 5}}
+                                margin={{right: 0, bottom: 30, left: 5}}
                                 xAxisName='Time'
                                 yAxisDomain={[0, 1000]}
                                 yAxisName={getName(selectedIndicator)}

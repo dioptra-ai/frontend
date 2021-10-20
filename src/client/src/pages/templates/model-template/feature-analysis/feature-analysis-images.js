@@ -14,7 +14,6 @@ import baseJsonClient from 'clients/base-json-client';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 import ScatterGraph from 'components/scatter-graph';
 
-
 const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
     const allSqlFilters = useAllSqlFilters();
     const allOfflineSqlFilters = useAllSqlFilters({useReferenceRange: true});

@@ -25,7 +25,7 @@ services:
       DRUID_DB_URL: "http://a92314013981f428db440843327743d6-71829038.us-east-2.elb.amazonaws.com:8888/druid/v2/sql/"
       ADMIN_ORG_ID: "615e0dfeb8f78ad92061ef6f"
     ports:
-      - "4004:4004"
+      - '4004:4004'
     networks:
       - app-network
     volumes:
@@ -34,8 +34,9 @@ services:
     entrypoint: /bin/sleep 36000
   metrics-engine:
     build:
-      context: submodules/metrics-engine
-      target: builder
+      submodules/metrics-engine
+      # context: submodules/metrics-engine
+      # target: builder
     image: metrics-engine:latest
     container_name: metrics-engine
     restart: always
@@ -43,7 +44,7 @@ services:
       DRUID_DB_URL: "http://a92314013981f428db440843327743d6-71829038.us-east-2.elb.amazonaws.com:8888/druid/v2/sql/"
       LIMIT_EMBEDDING_QUERY: "1000"
     ports:
-      - "4006:4006"
+      - '4006:4006'
     networks:
       - app-network
 
