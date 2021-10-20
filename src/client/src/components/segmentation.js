@@ -25,7 +25,6 @@ import theme from '../styles/theme.module.scss';
 import TimeseriesQuery, {sql} from 'components/timeseries-query';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 import {useParams} from 'react-router-dom';
-import DifferenceLabel from './difference-labels';
 
 const AddColumnModal = ({onCancel, onApply, allColumns, selected}) => {
     const featureColumns = allColumns.filter((c) => c.startsWith('feature.'));
@@ -47,32 +46,36 @@ const AddColumnModal = ({onCancel, onApply, allColumns, selected}) => {
             <p className='text-dark fw-bold fs-4 pb-3 mb-4 border-bottom border-mercury'>
         Add or remove columns from the table
             </p>
-            {featureColumns.length > 0 && <div className='d-flex flex-column mb-4'>
-                <p className='text-dark fw-bold fs-6'>FEATURES</p>
-                {featureColumns.map((feature, i) => (
-                    <label className='checkbox my-2 fs-6' key={i}>
-                        <input
-                            defaultChecked={selectedColumns.includes(feature)}
-                            onChange={(e) => handleChange(e, feature)}
-                            type='checkbox'
-                        />
-                        <span className='fs-6'>{feature}</span>
-                    </label>
-                ))}
-            </div>}
-            {tagColumns.length > 0 && <div className='d-flex flex-column mb-4'>
-                <p className='text-dark fw-bold fs-6'>TAGS</p>
-                {tagColumns.map((tag, i) => (
-                    <label className='checkbox my-2 fs-6' key={i}>
-                        <input
-                            defaultChecked={selectedColumns.includes(tag)}
-                            onChange={(e) => handleChange(e, tag)}
-                            type='checkbox'
-                        />
-                        <span className='fs-6'>{tag}</span>
-                    </label>
-                ))}
-            </div>}
+            {featureColumns.length > 0 && (
+                <div className='d-flex flex-column mb-4'>
+                    <p className='text-dark fw-bold fs-6'>FEATURES</p>
+                    {featureColumns.map((feature, i) => (
+                        <label className='checkbox my-2 fs-6' key={i}>
+                            <input
+                                defaultChecked={selectedColumns.includes(feature)}
+                                onChange={(e) => handleChange(e, feature)}
+                                type='checkbox'
+                            />
+                            <span className='fs-6'>{feature}</span>
+                        </label>
+                    ))}
+                </div>
+            )}
+            {tagColumns.length > 0 && (
+                <div className='d-flex flex-column mb-4'>
+                    <p className='text-dark fw-bold fs-6'>TAGS</p>
+                    {tagColumns.map((tag, i) => (
+                        <label className='checkbox my-2 fs-6' key={i}>
+                            <input
+                                defaultChecked={selectedColumns.includes(tag)}
+                                onChange={(e) => handleChange(e, tag)}
+                                type='checkbox'
+                            />
+                            <span className='fs-6'>{tag}</span>
+                        </label>
+                    ))}
+                </div>
+            )}
             <div className='border-top border-mercury py-3'>
                 <Button
                     className='text-white fw-bold fs-6 px-5 py-2'
@@ -115,17 +118,19 @@ const _AccuracyCell = ({timeStore, segmentationStore, row}) => {
     const [accuracyData, setAccuracyData] = useState([]);
     const allSqlFilters = useAllSqlFilters();
     const maxTimeseriesTicks = 20;
-    const timeGranularity = timeStore.getTimeGranularity(maxTimeseriesTicks).toISOString();
+    const timeGranularity = timeStore
+        .getTimeGranularity(maxTimeseriesTicks)
+        .toISOString();
 
     useEffect(() => {
-
         if (inView) {
-
             timeseriesClient({
                 query: `WITH my_sample_table as (
                     SELECT *
                     FROM "dioptra-gt-combined-eventstream"
-                    WHERE ${allSqlFilters} AND ${groupByColumns.map((c) => `"${c}"='${row.original[c]}'`).join(' AND ')})
+                    WHERE ${allSqlFilters} AND ${groupByColumns
+    .map((c) => `"${c}"='${row.original[c]}'`)
+    .join(' AND ')})
                     SELECT 
                       TIME_FLOOR(__time, '${timeGranularity}') AS x,
                       100 * cast(sum(CASE WHEN groundtruth=prediction THEN 1 ELSE 0 end) AS float) / count(*) AS y
@@ -199,7 +204,9 @@ const _DistributionCell = ({row, segmentationStore}) => {
                 query: `WITH distribution_sample_table as (
                   SELECT *
                   FROM "dioptra-gt-combined-eventstream"
-                  WHERE ${allSqlFilters} AND ${groupByColumns.map((c) => `"${c}"='${row.original[c]}'`).join(' AND ')})
+                  WHERE ${allSqlFilters} AND ${groupByColumns
+    .map((c) => `"${c}"='${row.original[c]}'`)
+    .join(' AND ')})
                 SELECT
                   cast(my_sub_table.my_count as float) / my_sub_count_table.total_count as dist,
                   my_sub_table.prediction as "value"
@@ -218,7 +225,11 @@ const _DistributionCell = ({row, segmentationStore}) => {
                     FROM distribution_sample_table
                     GROUP BY ${sqlColumns}
                   ) AS my_sub_count_table
-                  ON ${groupByColumns.map((column) => `my_sub_table."${column}" = my_sub_count_table."${column}"`).join(' AND ')}`
+                  ON ${groupByColumns
+        .map(
+            (column) => `my_sub_table."${column}" = my_sub_count_table."${column}"`
+        )
+        .join(' AND ')}`
             }).then((data) => {
                 setDistributionData(data);
             });
@@ -247,7 +258,6 @@ const DistributionCell = setupComponent(_DistributionCell);
 
 const Segmentation = ({timeStore, modelStore, segmentationStore}) => {
     const allSqlFilters = useAllSqlFilters();
-    const sqlFiltersWithModelTime = useAllSqlFilters({useReferenceRange: true});
     const [addColModal, setAddColModal] = useModal(false);
     const {_id} = useParams();
     const groupByColumns = segmentationStore.segmentation;
@@ -281,59 +291,31 @@ const Segmentation = ({timeStore, modelStore, segmentationStore}) => {
                 <TimeseriesQuery
                     defaultData={[]}
                     renderData={(data) => (
-                        <TimeseriesQuery
-                            defaultData={[]}
-                            renderData={(referenceData) => (
-                                <Table
-                                    columns={[
-                                        {
-                                            id: 'accuracy',
-                                            Header: 'Accuracy Trend',
-                                            Cell: AccuracyCell
-                                        },
-                                        {
-                                            accessor: 'sampleSize',
-                                            Header: 'Sample Size',
-                                            Cell: Object.assign(({value, row: {index}}) => {
-                                                const difference = value - referenceData[index]?.sampleSize || 0;
-
-                                                return <DifferenceLabel value={value} difference={difference.toFixed(2)} containerStyle={{position: 'relative'}} diffStyles={{top: -24, right: 0, left: 24}} />;
-                                            }, {displayName: 'Sample Size Cell'})
-
-                                        },
-                                        {
-                                            id: 'prediction',
-                                            Header: 'Online Predictions',
-                                            Cell: DistributionCell
-                                        }
-                                    ].concat(
-                                        groupByColumns.map((column) => ({
-                                            accessor: (c) => c[column],
-                                            Header: column,
-                                            Cell: Text
-                                        }))
-                                    )}
-                                    data={data}
-                                />
-                            )
-                            }
-                            sql={
-                                groupByColumns.length ?
-                                    sql`
-                        SELECT
-                          ${groupByColumns.map((c) => `"${c}"`).join(', ')},
-                          count(1) as sampleSize
-                        FROM "dioptra-gt-combined-eventstream"
-                        WHERE ${sqlFiltersWithModelTime}
-                        GROUP BY ${groupByColumns.map((c) => `"${c}"`).join(', ')}
-                        ORDER BY sampleSize DESC
-                        ` :
-                                    sql`
-                    SELECT null 
-                    FROM "dioptra-gt-combined-eventstream" 
-                    where false
-                    `
-                            }
+                        <Table
+                            columns={[
+                                {
+                                    id: 'accuracy',
+                                    Header: 'Accuracy Trend',
+                                    Cell: AccuracyCell
+                                },
+                                {
+                                    accessor: 'sampleSize',
+                                    Header: 'Sample Size',
+                                    Cell: Text
+                                },
+                                {
+                                    id: 'prediction',
+                                    Header: 'Online Predictions',
+                                    Cell: DistributionCell
+                                }
+                            ].concat(
+                                groupByColumns.map((column) => ({
+                                    accessor: (c) => c[column],
+                                    Header: column,
+                                    Cell: Text
+                                }))
+                            )}
+                            data={data}
                         />
                     )}
                     sql={
@@ -362,18 +344,23 @@ const Segmentation = ({timeStore, modelStore, segmentationStore}) => {
                                 defaultData={[]}
                                 renderData={([data]) => (
                                     <AddColumnModal
-                                        allColumns={featuresAndTags.filter((_, i) => data && data[i] > 0).map((d) => d.column)}
+                                        allColumns={featuresAndTags
+                                            .filter((_, i) => data && data[i] > 0)
+                                            .map((d) => d.column)}
                                         onApply={handleApply}
                                         onCancel={() => setAddColModal(false)}
                                         selected={groupByColumns}
                                     />
-                                )
-                                }
+                                )}
                                 resultFormat='array'
                                 sql={sql`
-                                SELECT ${featuresAndTags.map(({column}) => `COUNT("${column}")`).join(', ')}
+                                SELECT ${featuresAndTags
+                                .map(({column}) => `COUNT("${column}")`)
+                                .join(', ')}
                                 FROM "dioptra-gt-combined-eventstream"
-                                WHERE ${timeStore.sqlTimeFilter} AND model_id = '${mlModelId}'
+                                WHERE ${
+                            timeStore.sqlTimeFilter
+                            } AND model_id = '${mlModelId}'
                                 `}
                             />
                         )}
@@ -382,7 +369,8 @@ const Segmentation = ({timeStore, modelStore, segmentationStore}) => {
                             FROM INFORMATION_SCHEMA.COLUMNS 
                             WHERE TABLE_NAME = 'dioptra-gt-combined-eventstream'
                             AND (${
-                    mlModelType !== 'IMAGE_CLASSIFIER' ? 'COLUMN_NAME LIKE \'feature.%\' OR' :
+                    mlModelType !== 'IMAGE_CLASSIFIER' ?
+                        "COLUMN_NAME LIKE 'feature.%' OR" :
                         ''
                     } COLUMN_NAME LIKE 'tag.%')
                         `}
