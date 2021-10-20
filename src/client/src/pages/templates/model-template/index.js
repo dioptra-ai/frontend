@@ -1,6 +1,6 @@
 import React, {useEffect} from 'react';
 import PropTypes from 'prop-types';
-import {Route, Switch, useParams} from 'react-router-dom';
+import {Route, Switch, useHistory, useParams} from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
 
 import GeneralSearchBar from '../general-search-bar';
@@ -8,7 +8,6 @@ import AddAlertPage from 'pages/add-alert';
 import ModelDescription from 'components/model-description';
 import Breadcrumb from 'components/breadcrumb';
 import Tabs from 'components/tabs';
-import {Paths} from 'configs/route-config';
 import {setupComponent} from 'helpers/component-helper';
 import PerformanceOverview from './performance-overview';
 import PerformanceDetails from './performance-details';
@@ -21,6 +20,8 @@ import StickyParamsRouter from 'components/sticky-params-router';
 const Model = ({modelStore}) => {
     const mlModelId = useParams()._id;
     const model = useModel();
+
+    const history = useHistory();
 
     useEffect(() => {
         modelStore.fetchModel(mlModelId);
@@ -43,8 +44,8 @@ const Model = ({modelStore}) => {
                 <Route>
                     <GeneralSearchBar/>
                     <Breadcrumb links={[
-                        {name: 'Models', path: Paths().MODELS},
-                        {name: model.name, path: Paths({modelId: mlModelId}).MODEL_PERFORMANCE_OVERVIEW}
+                        {name: 'Models', path: () => history.push('/')},
+                        {name: model.name, path: `/${mlModelId}/performance-overview`}
                     ]}/>
                     <ModelDescription {...model}/>
                     <Container fluid>
