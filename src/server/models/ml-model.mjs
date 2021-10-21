@@ -3,7 +3,18 @@ import mongoose from 'mongoose';
 const mlModelSchema = new mongoose.Schema({
     mlModelId: {
         type: String,
-        unique: true // Change this uniqueness when doing multitenancy.
+        required: [true, 'Model ID is required'],
+        validate: {
+            async validator(mlModelId) {
+                const existsForOrg = await MlModel.exists({
+                    mlModelId,
+                    organization: this.organization
+                });
+
+                return !existsForOrg;
+            },
+            message: ({value}) => `Model ID "${value}" already exists in this organization.`
+        }
     },
     name: String,
     organization: {

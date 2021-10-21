@@ -19,7 +19,7 @@ import Select from './select';
 const ModelDescription = ({_id, filtersStore, modelStore, name, description, team, tier, lastDeployed, incidents, mlModelId, mlModelType, referencePeriod}) => {
     const [expand, setExpand] = useState(false);
     const [showModal, setShowModal] = useState(false);
-    const [errors, setErrors] = useState({});
+    const [errors, setErrors] = useState([]);
     const mlModelVersion = filtersStore.modelVersion;
     const [allMlModelVersions, setAllMlModelVersions] = useState([]);
 
@@ -42,7 +42,7 @@ const ModelDescription = ({_id, filtersStore, modelStore, name, description, tea
 
     const handleSubmit = (data) => {
         if (errors) {
-            setErrors({});
+            setErrors([]);
         }
 
         fetch(`/api/ml-model/${_id}`, {
@@ -54,16 +54,16 @@ const ModelDescription = ({_id, filtersStore, modelStore, name, description, tea
         })
             .then((res) => res.json())
             .then((modelData) => {
-                if (modelData.hasOwnProperty('err')) {
-                    throw new Error(JSON.stringify(modelData));
+                if (modelData.error) {
+
+                    throw new Error(modelData.error);
                 }
                 modelStore.setModelById(_id, modelData);
                 setShowModal(false);
             })
             .catch((e) => {
-                const errObj = JSON.parse(e.message);
 
-                setErrors(errObj.err);
+                setErrors([e.message]);
             });
     };
 

@@ -2,9 +2,6 @@ import React, {useState} from 'react';
 import {Button, Container, Form, InputGroup} from 'react-bootstrap';
 import moment from 'moment';
 import PropTypes from 'prop-types';
-import Tooltip from 'components/tooltip';
-import FontIcon from 'components/font-icon';
-import {IconNames} from 'constants';
 import DateTimeRangePicker from 'components/date-time-range-picker';
 import {setupComponent} from 'helpers/component-helper';
 
@@ -28,7 +25,8 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
         referencePeriod: {start: start.toISOString(), end: end.toISOString()}
     });
 
-    const handleSubmit = () => {
+    const handleSubmit = (e) => {
+        e.preventDefault();
         onSubmit(formData);
     };
 
@@ -41,7 +39,10 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                 <p className='text-dark bold-text fs-3 mb-4'>
                     {Object.keys(initialValue).length ? 'Update' : 'Create New'} Model
                 </p>
-                <Form autoComplete='off' className='w-100'>
+                {errors?.length && errors.map((e, i) => (
+                    <div key={i} className='bg-warning text-white p-3 mt-2'>{e}</div>
+                ))}
+                <Form autoComplete='off' className='w-100' onSubmit={handleSubmit}>
                     <InputGroup className='mt-3 text-center'>
                         <Form.Label>Benchmark Date Range</Form.Label>
                         <DateTimeRangePicker
@@ -58,109 +59,60 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                     <Form.Label className='mt-3 mb-0'>Model ID</Form.Label>
                     <InputGroup className='mt-1'>
                         <Form.Control
-                            className={`bg-light ${errors.mlModelId ? 'error' : ''}`}
+                            className={'bg-light'}
                             name='mlModelId'
                             onChange={handleChange}
                             placeholder='Enter Model ID'
                             type='text'
                             value={formData.mlModelId}
+                            required
                         />
-                        {errors.mlModelId && (
-                            <FontIcon
-                                className='text-warning error-icon'
-                                icon={IconNames.WARNING}
-                                size={20}
-                            />
-                        )}
                     </InputGroup>
-                    {errors.mlModelId && (
-                        <Tooltip className='p-3 mt-2' color='warning' text={errors.mlModelId} />
-                    )}
                     <Form.Label className='mt-3 mb-0'>Name</Form.Label>
                     <InputGroup className='mt-1'>
                         <Form.Control
-                            className={`bg-light ${errors.name ? 'error' : ''}`}
+                            className={'bg-light'}
                             name='name'
                             onChange={handleChange}
                             placeholder='Enter Model Name'
                             type='text'
                             value={formData.name}
+                            required
                         />
-                        {errors.name && (
-                            <FontIcon
-                                className='text-warning error-icon'
-                                icon={IconNames.WARNING}
-                                size={20}
-                            />
-                        )}
                     </InputGroup>
-                    {errors.name && (
-                        <Tooltip className='p-3 mt-2' color='warning' text={errors.name} />
-                    )}
                     <Form.Label className='mt-3 mb-0'>Description</Form.Label>
                     <InputGroup className='mt-1'>
                         <textarea
-                            className={`form-control bg-light textarea ${
-                                errors.description ? 'error' : ''
-                            }`}
+                            className={'form-control bg-light textarea'}
                             name='description'
                             onChange={handleChange}
                             placeholder='Enter Model Description'
                             rows={3}
                             type='textarea'
                             value={formData.description}
+                            required
                         />
-                        {errors.description && (
-                            <FontIcon
-                                className='text-warning error-icon'
-                                icon={IconNames.WARNING}
-                                size={20}
-                            />
-                        )}
                     </InputGroup>
-                    {errors.description && (
-                        <Tooltip
-                            className='p-3 mt-2'
-                            color='warning'
-                            text={errors.description}
-                        />
-                    )}
                     <Form.Label className='mt-3 mb-0'>Type</Form.Label>
                     <InputGroup className='mt-1 position-relative'>
                         <Form.Control
                             as='select'
-                            className={`form-select bg-light ${errors.mlModelType ? 'error' : ''}`}
+                            className={'form-select bg-light'}
                             name='mlModelType'
                             value={formData.mlModelType}
                             onChange={handleChange}
                             custom
+                            required
                         >
-                            <option disabled value=''>
-                Select ML Model Type
-                            </option>{' '}
+                            <option disabled value=''>Select ML Model Type</option>
                             <option value='IMAGE_CLASSIFIER'>Image Classifier</option>
                             <option value='TABULAR_CLASSIFIER'>Tabular Classifier</option>
                             <option value='DOCUMENT_PROCESSING'>Document Processing</option>
                         </Form.Control>
-                        {errors.mlModelType && (
-                            <FontIcon
-                                className='text-warning error-icon'
-                                icon={IconNames.WARNING}
-                                size={20}
-                            />
-                        )}
                     </InputGroup>
-                    {errors.mlModelType && (
-                        <Tooltip
-                            className='p-3 mt-2'
-                            color='warning'
-                            text={errors.mlModelType}
-                        />
-                    )}
                     <Button
                         className='w-100 text-white btn-submit mt-5'
-                        onClick={handleSubmit}
-                        variant='primary'
+                        variant='primary' type='submit'
                     >
                         {Object.keys(initialValue).length ? 'Update Model' : 'Create Model'}
                     </Button>
@@ -171,7 +123,7 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
 };
 
 ModelForm.propTypes = {
-    errors: PropTypes.object,
+    errors: PropTypes.array,
     initialValue: PropTypes.object,
     onSubmit: PropTypes.func
 };
