@@ -149,7 +149,7 @@ const ModelRow = setupComponent(_ModelRow);
 const Models = ({modelStore}) => {
     const [pageNumber, setPageNumber] = useState(0);
     const [showModal, setShowModal] = useState(false);
-    const [errors, setErrors] = useState({});
+    const [errors, setErrors] = useState([]);
     const [formattedData, setFormattedData] = useState([]);
 
     const color = theme.primary;
@@ -167,7 +167,7 @@ const Models = ({modelStore}) => {
 
     const handleSubmit = (data) => {
         if (errors) {
-            setErrors({});
+            setErrors([]);
         }
 
         fetch('/api/ml-model', {
@@ -179,16 +179,16 @@ const Models = ({modelStore}) => {
         })
             .then((res) => res.json())
             .then((modelData) => {
-                if (modelData.hasOwnProperty('err')) {
-                    throw new Error(JSON.stringify(modelData));
+                if (modelData.error) {
+
+                    throw new Error(modelData.error);
                 }
                 modelStore.setModelById(modelData._id, modelData);
                 setShowModal(false);
             })
             .catch((e) => {
-                const errObj = JSON.parse(e.message);
 
-                setErrors(errObj.err);
+                setErrors([e.message]);
             });
     };
 
