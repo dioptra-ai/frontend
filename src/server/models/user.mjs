@@ -39,7 +39,12 @@ userSchema.statics.validatePassword = async (username, password) => {
         throw new Error('Unauthenticated');
     } else {
 
-        return foundUser;
+        return foundUser.populate({
+            path: 'activeOrganizationMembership',
+            populate: {
+                path: 'organization'
+            }
+        });
     }
 };
 
