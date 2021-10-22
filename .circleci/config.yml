@@ -16,6 +16,7 @@ jobs:
           release-name: frontend
           update-repositories: false
           recreate-pods: true
+          values: ./helm/values.demo.yaml
 
 orbs:
   aws-ecr: circleci/aws-ecr@7.0.0

@@ -27,7 +27,7 @@ spec:
       containers:
         - env:
             - name: DRUID_DB_URL
-              value: "http://dioptra-druid-router.default.svc.cluster.local:8888/druid/v2/sql/"
+              value: "http://dioptra-druid-router:8888/druid/v2/sql/"
             - name: LIMIT_EMBEDDING_QUERY
               value: "1000"
           image: 641017132295.dkr.ecr.us-east-2.amazonaws.com/metrics-engine:latest
