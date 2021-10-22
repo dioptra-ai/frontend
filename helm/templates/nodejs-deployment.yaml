@@ -31,11 +31,11 @@ spec:
             - name: COOKIE_DURATION_HRS
               value: "12"
             - name: DB_CONNECTION_URI
-              value: mongodb://{{ .Release.Name }}-{{ .Values.environment }}-mongodb.default.svc.cluster.local:4005/dioptra
+              value: mongodb://{{ .Release.Name }}-{{ .Values.environment }}-mongodb:4005/dioptra
             - name: METRICS_ENGINE_URL
-              value: http://{{ .Release.Name }}-{{ .Values.environment }}-metrics-engine.default.svc.cluster.local:4006
+              value: http://{{ .Release.Name }}-{{ .Values.environment }}-metrics-engine:4006
             - name: DRUID_DB_URL
-              value: "http://dioptra-druid-router.default.svc.cluster.local:8888/druid/v2/sql/"
+              value: "http://dioptra-druid-router:8888/druid/v2/sql/"
             - name: PORT
               value: "4004"
             - name: AWS_ACCESS_KEY_ID
@@ -43,11 +43,13 @@ spec:
                 secretKeyRef:
                   name: aws-key-frontend
                   key: aws_access_key_id
+                  optional: true
             - name: AWS_SECRET_ACCESS_KEY
               valueFrom:
                 secretKeyRef:
                   name: aws-key-frontend
                   key: aws_secret_access_key
+                  optional: true
           image: 641017132295.dkr.ecr.us-east-2.amazonaws.com/frontend:latest
           name: dioptra-frontend
           ports:

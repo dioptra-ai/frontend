@@ -1,0 +1,3 @@
+environment: demo
+app:
+  awsLoadBalancerSubnets: subnet-03e737304afa6f1ea,subnet-025456614c12331e9
