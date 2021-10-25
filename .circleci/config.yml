@@ -2,11 +2,11 @@
 version: 2.1
 
 jobs:
-  deploy-to-demo:
+  deploy-to-dev:
     executor: aws-eks/python
     steps:
       - aws-eks/update-kubeconfig-with-authenticator:
-          cluster-name: dioptra-eks
+          cluster-name: dioptra-dev-eks
           aws-region: us-east-2
       - checkout
       - helm/upgrade-helm-chart:
@@ -16,7 +16,7 @@ jobs:
           release-name: frontend
           update-repositories: false
           recreate-pods: true
-          values: ./helm/values.demo.yaml
+          values: ./helm/values.dev.yaml
 
 orbs:
   aws-ecr: circleci/aws-ecr@7.0.0
@@ -56,7 +56,7 @@ workflows:
             branches:
               only:
                 - main
-      - deploy-to-demo:
+      - deploy-to-dev:
           context:
             - aws-creds
           requires:
