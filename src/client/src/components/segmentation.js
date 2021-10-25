@@ -80,15 +80,13 @@ const AddColumnModal = ({onCancel, onApply, allColumns, selected}) => {
                 <p className='text-secondary fs-6 mb-4 text-center'>No Columns Available</p>
             ) : null}
             <div className='border-top border-mercury py-3'>
-                {tagColumns.length || featureColumns.length ? (
-                    <Button
-                        className='text-white fw-bold fs-6 px-5 py-2'
-                        onClick={() => onApply(selectedColumns)}
-                        variant='primary'
-                    >
-            APPLY
-                    </Button>
-                ) : null}
+                <Button
+                    className='text-white fw-bold fs-6 px-5 py-2'
+                    onClick={() => onApply(selectedColumns)}
+                    variant='primary'
+                >
+          APPLY
+                </Button>
                 <Button
                     className='text-secondary fw-bold fs-6 px-5 py-2 mx-3'
                     onClick={onCancel}
