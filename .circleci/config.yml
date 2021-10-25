@@ -45,6 +45,7 @@ workflows:
           create-repo: true
           dockerfile: Dockerfile
           executor:
+            name: default
             use-docker-layer-caching: true
           path: .
           region: AWS_REGION
