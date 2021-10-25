@@ -18,6 +18,9 @@ import MetricInfoBox from 'components/metric-info-box';
 import BarGraph from 'components/bar-graph';
 import AreaGraph from 'components/area-graph';
 import Select from 'components/select';
+import baseJsonClient from 'clients/base-json-client';
+import Async from 'components/async';
+import {precisionRecallData} from './bounding-box-location-analysis-data';
 
 const PerformanceBox = ({
     title = '',
@@ -133,11 +136,12 @@ ClassRow.propTypes = {
     value: PropTypes.any
 };
 
-const PerformanceDetails = ({filtersStore}) => {
+const PerformanceDetails = ({filtersStore, timeStore}) => {
     const allSqlFilters = useAllSqlFilters();
     const sqlFiltersWithModelTime = useAllSqlFilters({useReferenceRange: true});
     const [classFilter, setClassFilter] = useState('all_classes');
     const [iouFilter, setIouFilter] = useState(0.5);
+    const timeGranularity = timeStore.getTimeGranularity().toISOString();
 
     const {mlModelType} = useModel();
 
@@ -351,22 +355,52 @@ const PerformanceDetails = ({filtersStore}) => {
                                         {name: 'iou=0.95', value: 0.95}
                                     ]}
                                     initialValue={iouFilter}
-                                    onChange={setIouFilter}
+                                    onChange={(val) => setIouFilter(Number(val))}
                                 />
                             </Col>
                             <Col className='d-flex px-4' lg={12}>
-                                <TimeseriesQuery
-                                    defaultData={[]}
-                                    renderData={() => (
+                                <Async
+                                    refetchOnChanged={[
+                                        iouFilter,
+                                        classFilter,
+                                        allSqlFilters,
+                                        timeGranularity
+                                    ]}
+                                    fetchData={() => baseJsonClient('/api/metrics/precision_recall', {
+                                        method: 'post',
+                                        body: {
+                                            prediction: classFilter,
+                                            iou: iouFilter,
+                                            current_filters: allSqlFilters,
+                                            time_granularity: timeGranularity
+                                        }
+                                    })
+                                    }
+                                    renderData={(data) => (
                                         <AreaGraph
-                                            dots={[]}
+                                            dots={data.map(({precision, recall}) => ({
+                                                x: recall,
+                                                y: precision
+                                            }))}
                                             title='Precision Recall Curve'
                                             xAxisName='Recall'
                                             yAxisName='Precision'
                                             hasBorder={false}
                                         />
                                     )}
-                                    sql={sql`SELECT 1 as "one"`}
+                                    // Will be removed after API is working
+                                    renderError={() => (
+                                        <AreaGraph
+                                            dots={precisionRecallData.map(({precision, recall}) => ({
+                                                x: recall,
+                                                y: precision
+                                            }))}
+                                            title='Precision Recall Curve'
+                                            xAxisName='Recall'
+                                            yAxisName='Precision'
+                                            hasBorder={false}
+                                        />
+                                    )}
                                 />
                             </Col>
                         </Row>
@@ -596,7 +630,8 @@ const PerformanceDetails = ({filtersStore}) => {
 };
 
 PerformanceDetails.propTypes = {
-    filtersStore: PropTypes.object.isRequired
+    filtersStore: PropTypes.object.isRequired,
+    timeStore: PropTypes.object.isRequired
 };
 
 export default setupComponent(PerformanceDetails);
