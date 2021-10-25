@@ -76,6 +76,9 @@ const AddColumnModal = ({onCancel, onApply, allColumns, selected}) => {
                     ))}
                 </div>
             )}
+            {!tagColumns.length && !featureColumns.length ? (
+                <p className='text-secondary fs-6 mb-4 text-center'>No Columns Available</p>
+            ) : null}
             <div className='border-top border-mercury py-3'>
                 <Button
                     className='text-white fw-bold fs-6 px-5 py-2'
@@ -339,7 +342,7 @@ const Segmentation = ({timeStore, modelStore, segmentationStore}) => {
                 {addColModal && (
                     <TimeseriesQuery
                         defaultData={[]}
-                        renderData={(featuresAndTags) => (
+                        renderData={(featuresAndTags) => featuresAndTags.length ? (
                             <TimeseriesQuery
                                 defaultData={[]}
                                 renderData={([data]) => (
@@ -363,7 +366,8 @@ const Segmentation = ({timeStore, modelStore, segmentationStore}) => {
                             } AND model_id = '${mlModelId}'
                                 `}
                             />
-                        )}
+                        ) : null
+                        }
                         sql={sql`
                             SELECT COLUMN_NAME as "column"
                             FROM INFORMATION_SCHEMA.COLUMNS 
