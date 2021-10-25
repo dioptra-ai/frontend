@@ -44,6 +44,7 @@ workflows:
           aws-secret-access-key: AWS_SECRET_ACCESS_KEY
           create-repo: true
           dockerfile: Dockerfile
+          use-docker-layer-caching: true
           path: .
           region: AWS_REGION
           repo: frontend
