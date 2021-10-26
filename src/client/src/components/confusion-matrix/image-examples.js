@@ -8,9 +8,29 @@ import TimeseriesQuery, {sql} from 'components/timeseries-query';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 import TabularExamples from './tabular-examples';
 
-const ImageExamples = ({onClose, groundtruth, prediction}) => {
+const ImageExamples = ({onClose, groundtruth, prediction, iou, model}) => {
     const [exampleInModal, setExampleInModal] = useModal(false);
     const allSqlFilters = useAllSqlFilters();
+
+    const generateQuery = () => {
+        switch (model.mlModelType) {
+        case 'DOCUMENT_PROCESSING':
+            return `SELECT distinct "feature.image_url"
+                    FROM "dioptra-gt-combined-eventstream"
+                    WHERE "bboxes.groundtruth" = '${groundtruth}' 
+                        AND "bboxes.groundtruth" = '${prediction}' 
+                        AND cast("bboxes.iou" as FLOAT) >= ${iou}
+                        AND ${allSqlFilters}
+                    LIMIT 20`;
+        default:
+            return `SELECT distinct "feature.image_url"
+                    FROM "dioptra-gt-combined-eventstream"
+                    WHERE groundtruth = '${groundtruth}' 
+                        AND prediction = '${prediction}'
+                        AND ${allSqlFilters}
+                    LIMIT 20`;
+        }
+    };
 
     return (
         <div className='bg-white-blue my-3 p-3'>
@@ -38,13 +58,7 @@ const ImageExamples = ({onClose, groundtruth, prediction}) => {
                     />
                 )
                 }
-                sql={sql`
-                        SELECT distinct "feature.image_url"
-                        FROM "dioptra-gt-combined-eventstream"
-                        WHERE groundtruth = '${groundtruth}' AND prediction = '${prediction}'
-                        AND ${allSqlFilters}
-                        LIMIT 20
-                    `}
+                sql={sql`${generateQuery()}`}
             />
             {exampleInModal && (
                 <Modal isOpen={true} onClose={() => setExampleInModal(null)}>
@@ -71,6 +85,8 @@ const ImageExamples = ({onClose, groundtruth, prediction}) => {
 
 ImageExamples.propTypes = {
     groundtruth: PropTypes.string.isRequired,
+    iou: PropTypes.number,
+    model: PropTypes.object,
     onClose: PropTypes.func.isRequired,
     prediction: PropTypes.string.isRequired
 };
