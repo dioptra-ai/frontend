@@ -366,16 +366,26 @@ const PerformanceDetails = ({filtersStore, timeStore}) => {
                                         allSqlFilters,
                                         timeGranularity
                                     ]}
-                                    fetchData={() => baseJsonClient('/api/metrics/precision_recall', {
-                                        method: 'post',
-                                        body: {
-                                            prediction: classFilter,
-                                            iou: iouFilter,
-                                            current_filters: allSqlFilters,
-                                            time_granularity: timeGranularity
-                                        }
-                                    })
-                                    }
+                                    fetchData={[
+                                        baseJsonClient('/api/metrics/precision_recall', {
+                                            method: 'post',
+                                            body: {
+                                                prediction: classFilter,
+                                                iou: iouFilter,
+                                                current_filters: allSqlFilters,
+                                                time_granularity: timeGranularity
+                                            }
+                                        }),
+                                        baseJsonClient('/api/metrics/precision_recall1', {
+                                            method: 'post',
+                                            body: {
+                                                prediction: classFilter,
+                                                iou: iouFilter,
+                                                current_filters: allSqlFilters,
+                                                time_granularity: timeGranularity
+                                            }
+                                        })
+                                    ]}
                                     renderData={(data) => (
                                         <AreaGraph
                                             dots={data.map(({precision, recall}) => ({
