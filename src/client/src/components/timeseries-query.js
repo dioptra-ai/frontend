@@ -1,52 +1,35 @@
-import {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import {InView} from 'react-intersection-observer';
+import Async from 'components/async';
 
 import timeseriesClient from 'clients/timeseries';
 
-const TimeseriesQuery = ({sql, children, renderData, defaultData, renderError, renderLoading, ...rest}) => {
-    const [data, setData] = useState(null);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
+const TimeseriesQuery = ({
+    sql,
+    children,
+    renderData,
+    defaultData,
+    renderError,
+    renderLoading,
+    ...rest
+}) => {
     const {query, parameters} = sql;
 
     if (!query || !parameters) {
-        throw new Error('The "sql" prop must be a return value of the sql`...` tagged template from: import {sql} from \'components/timeseries-query\';');
+        throw new Error(
+            'The "sql" prop must be a return value of the sql`...` tagged template from: import {sql} from \'components/timeseries-query\';'
+        );
     }
 
-    useEffect(() => {
-
-        setLoading(true);
-
-        timeseriesClient({query, ...rest}).then((data) => {
-            setError(null);
-            setData(data);
-        }).catch((error) => {
-            setError(error);
-            setData(null);
-        }).finally(() => {
-            setLoading(false);
-        });
-    }, [query, JSON.stringify(parameters)]);
-
-    if (children) {
-
-        return children({
-            data: data?.length ? data : defaultData,
-            loading, error});
-    } else if (loading && renderLoading) {
-
-        return renderLoading();
-    } else if (error) {
-
-        return renderError(error);
-    } else if (data?.length) {
-
-        return renderData(data);
-    } else {
-
-        return renderData(defaultData);
-    }
+    return (
+        <Async
+            refetchOnChanged={[query, JSON.stringify(parameters)]}
+            fetchData={() => timeseriesClient({query, ...rest})}
+            renderData={(data) => renderData(data?.length ? data : defaultData)}
+            renderError={renderError}
+            renderLoading={renderLoading}
+        >{children}</Async>
+    );
 };
 
 TimeseriesQuery.propTypes = {
@@ -68,15 +51,22 @@ TimeseriesQuery.defaultProps = {
 export default TimeseriesQuery;
 
 export const TimeseriesQueryInView = (props) => (
-    <InView>{({inView, ref}) => inView ? (
-        <div ref={ref}><TimeseriesQuery {...props}/></div>
-    ) : null}</InView>
+    <InView>
+        {({inView, ref}) => inView ? (
+            <div ref={ref}>
+                <TimeseriesQuery {...props} />
+            </div>
+        ) : null
+        }
+    </InView>
 );
 
 export const sql = (strings, ...parameters) => {
-    const query = parameters.map((p, i) => strings[i] + p).join('') + strings[strings.length - 1];
+    const query =
+    parameters.map((p, i) => strings[i] + p).join('') + strings[strings.length - 1];
 
     return {
-        query, parameters
+        query,
+        parameters
     };
 };
