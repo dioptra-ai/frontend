@@ -15,20 +15,11 @@ const Async = ({
 
     useEffect(() => {
         setLoading(true);
-        if (Array.isArray(fetchData)) {
-            Promise.all(fetchData)
-                .then((data) => {
-                    setError(null);
-                    setData(data);
-                })
-                .catch((error) => {
-                    setData(null);
-                    setError(error);
-                })
-                .finally(() => {
-                    setLoading(false);
-                });
-        } else fetchData()
+        const fetchAllData = Array.isArray(fetchData) ?
+            Promise.all(fetchData) :
+            fetchData;
+
+        (typeof fetchAllData === 'function' ? fetchAllData() : fetchAllData)
             .then((data) => {
                 setError(null);
                 setData(data);
