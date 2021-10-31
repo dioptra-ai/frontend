@@ -171,126 +171,90 @@ const PerformanceDetails = ({filtersStore, timeStore}) => {
                                 <TimeseriesQuery
                                     defaultData={[]}
                                     renderData={() => (
-                                        <TimeseriesQuery
-                                            defaultData={[]}
-                                            renderData={() => (
-                                                <MetricInfoBox
-                                                    name='AP'
-                                                    sampleSize={sampleSizeComponent}
-                                                    unit='%'
-                                                    value={0.0}
-                                                    difference={0.0}
-                                                />
-                                            )}
-                                            sql={sql`SELECT 1 as "one"`}
+                                        <MetricInfoBox
+                                            name='AP'
+                                            sampleSize={sampleSizeComponent}
+                                            unit='%'
+                                            value={0.0}
+                                            difference={0.0}
                                         />
                                     )}
-                                    sql={sql`SELECT 1 as "one"`}
+                                    sql={[sql`SELECT 1 as "one"`, sql`SELECT 1 as "one"`]}
                                 />
                             </Col>
                             <Col className='d-flex' lg={2}>
                                 <TimeseriesQuery
                                     defaultData={[]}
                                     renderData={() => (
-                                        <TimeseriesQuery
-                                            defaultData={[]}
-                                            renderData={() => (
-                                                <MetricInfoBox
-                                                    name='AP'
-                                                    sampleSize={sampleSizeComponent}
-                                                    unit='%'
-                                                    value={0.0}
-                                                    difference={0.0}
-                                                />
-                                            )}
-                                            sql={sql`SELECT 1 as "one"`}
+                                        <MetricInfoBox
+                                            name='AP'
+                                            sampleSize={sampleSizeComponent}
+                                            unit='%'
+                                            value={0.0}
+                                            difference={0.0}
                                         />
                                     )}
-                                    sql={sql`SELECT 1 as "one"`}
+                                    sql={[sql`SELECT 1 as "one"`, sql`SELECT 1 as "one"`]}
                                 />
                             </Col>
                             <Col className='d-flex' lg={2}>
                                 <TimeseriesQuery
                                     defaultData={[]}
                                     renderData={() => (
-                                        <TimeseriesQuery
-                                            defaultData={[]}
-                                            renderData={() => (
-                                                <MetricInfoBox
-                                                    name='AP'
-                                                    sampleSize={sampleSizeComponent}
-                                                    unit='%'
-                                                    value={0.0}
-                                                    difference={0.0}
-                                                />
-                                            )}
-                                            sql={sql`SELECT 1 as "one"`}
+                                        <MetricInfoBox
+                                            name='AP'
+                                            sampleSize={sampleSizeComponent}
+                                            unit='%'
+                                            value={0.0}
+                                            difference={0.0}
                                         />
                                     )}
-                                    sql={sql`SELECT 1 as "one"`}
+                                    sql={[sql`SELECT 1 as "one"`, sql`SELECT 1 as "one"`]}
                                 />
                             </Col>
                             <Col className='d-flex' lg={2}>
                                 <TimeseriesQuery
                                     defaultData={[]}
                                     renderData={() => (
-                                        <TimeseriesQuery
-                                            defaultData={[]}
-                                            renderData={() => (
-                                                <MetricInfoBox
-                                                    name='AR'
-                                                    sampleSize={sampleSizeComponent}
-                                                    unit='%'
-                                                    value={0.0}
-                                                    difference={0.0}
-                                                />
-                                            )}
-                                            sql={sql`SELECT 1 as "one"`}
+                                        <MetricInfoBox
+                                            name='AR'
+                                            sampleSize={sampleSizeComponent}
+                                            unit='%'
+                                            value={0.0}
+                                            difference={0.0}
                                         />
                                     )}
-                                    sql={sql`SELECT 1 as "one"`}
+                                    sql={[sql`SELECT 1 as "one"`, sql`SELECT 1 as "one"`]}
                                 />
                             </Col>
                             <Col className='d-flex' lg={2}>
                                 <TimeseriesQuery
                                     defaultData={[]}
                                     renderData={() => (
-                                        <TimeseriesQuery
-                                            defaultData={[]}
-                                            renderData={() => (
-                                                <MetricInfoBox
-                                                    name='AR'
-                                                    sampleSize={sampleSizeComponent}
-                                                    unit='%'
-                                                    value={0.0}
-                                                    difference={0.0}
-                                                />
-                                            )}
-                                            sql={sql`SELECT 1 as "one"`}
+                                        <MetricInfoBox
+                                            name='AR'
+                                            sampleSize={sampleSizeComponent}
+                                            unit='%'
+                                            value={0.0}
+                                            difference={0.0}
                                         />
                                     )}
-                                    sql={sql`SELECT 1 as "one"`}
+                                    sql={[sql`SELECT 1 as "one"`, sql`SELECT 1 as "one"`]}
                                 />
                             </Col>
                             <Col className='d-flex' lg={2}>
                                 <TimeseriesQuery
                                     defaultData={[]}
                                     renderData={() => (
-                                        <TimeseriesQuery
-                                            defaultData={[]}
-                                            renderData={() => (
-                                                <MetricInfoBox
-                                                    name='AR'
-                                                    sampleSize={sampleSizeComponent}
-                                                    unit='%'
-                                                    value={0.0}
-                                                    difference={0.0}
-                                                />
-                                            )}
-                                            sql={sql`SELECT 1 as "one"`}
+                                        <MetricInfoBox
+                                            name='AR'
+                                            sampleSize={sampleSizeComponent}
+                                            unit='%'
+                                            value={0.0}
+                                            difference={0.0}
                                         />
                                     )}
-                                    sql={sql`SELECT 1 as "one"`}
+                                    sql={[sql`SELECT 1 as "one"`, sql`SELECT 1 as "one"`]}
                                 />
                             </Col>
                         </Row>
@@ -423,64 +387,17 @@ const PerformanceDetails = ({filtersStore, timeStore}) => {
                         <Col lg={6}>
                             <TimeseriesQuery
                                 defaultData={[]}
-                                renderData={(data) => (
-                                    <TimeseriesQuery
-                                        defaultData={[]}
-                                        renderData={(diffData) => (
-                                            <PerformanceBox
-                                                data={data}
-                                                performanceType='precision'
-                                                sampleSize={sampleSizeComponent}
-                                                title='Precision per class'
-                                                diffData={diffData}
-                                            />
-                                        )}
-                                        sql={sql`
-                            WITH
-                            true_positive as (
-                            select
-                                'true_positive' as key,
-                                groundtruth as label,
-                                sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) as cnt_tp
-                            from
-                                "dioptra-gt-combined-eventstream"
-                            WHERE ${sqlFiltersWithModelTime}
-                            group by groundtruth
-                            order by groundtruth
-                            ),
-                            true_sum as (
-                            select
-                                'true_sum' as key,
-                                prediction as label,
-                                count(1) as cnt_ts
-                            from
-                                "dioptra-gt-combined-eventstream"
-                            WHERE ${sqlFiltersWithModelTime}
-                            group by prediction
-                            order by prediction
-                            ),
-                            pred_sum as (
-                            select
-                                'pred_sum' as key,
-                                groundtruth as label,
-                                count(1) as cnt_ps
-                            from
-                                "dioptra-gt-combined-eventstream"
-                            WHERE ${sqlFiltersWithModelTime}
-                            group by groundtruth
-                            order by groundtruth
-                            )
-            
-                            SELECT
-                            pred_sum.label,
-                            cast(true_positive.cnt_tp as double) / pred_sum.cnt_ps as "precision"
-                            FROM true_positive
-                            JOIN pred_sum
-                            ON pred_sum.label = true_positive.label
-                        `}
+                                renderData={([data, diffData]) => (
+                                    <PerformanceBox
+                                        data={data}
+                                        performanceType='precision'
+                                        sampleSize={sampleSizeComponent}
+                                        title='Precision per class'
+                                        diffData={diffData}
                                     />
                                 )}
-                                sql={sql`
+                                sql={[
+                                    sql`
                             WITH
                             true_positive as (
                             select
@@ -522,70 +439,66 @@ const PerformanceDetails = ({filtersStore, timeStore}) => {
                             FROM true_positive
                             JOIN pred_sum
                             ON pred_sum.label = true_positive.label
-                        `}
+                        `,
+                                    sql`
+                        WITH
+                        true_positive as (
+                        select
+                            'true_positive' as key,
+                            groundtruth as label,
+                            sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) as cnt_tp
+                        from
+                            "dioptra-gt-combined-eventstream"
+                        WHERE ${sqlFiltersWithModelTime}
+                        group by groundtruth
+                        order by groundtruth
+                        ),
+                        true_sum as (
+                        select
+                            'true_sum' as key,
+                            prediction as label,
+                            count(1) as cnt_ts
+                        from
+                            "dioptra-gt-combined-eventstream"
+                        WHERE ${sqlFiltersWithModelTime}
+                        group by prediction
+                        order by prediction
+                        ),
+                        pred_sum as (
+                        select
+                            'pred_sum' as key,
+                            groundtruth as label,
+                            count(1) as cnt_ps
+                        from
+                            "dioptra-gt-combined-eventstream"
+                        WHERE ${sqlFiltersWithModelTime}
+                        group by groundtruth
+                        order by groundtruth
+                        )
+        
+                        SELECT
+                        pred_sum.label,
+                        cast(true_positive.cnt_tp as double) / pred_sum.cnt_ps as "precision"
+                        FROM true_positive
+                        JOIN pred_sum
+                        ON pred_sum.label = true_positive.label
+                    `
+                                ]}
                             />
                         </Col>
                         <Col lg={6}>
                             <TimeseriesQuery
                                 defaultData={[]}
-                                renderData={(data) => (
-                                    <TimeseriesQuery
-                                        defaultData={[]}
-                                        renderData={(diffData) => (
-                                            <PerformanceBox
-                                                data={data}
-                                                performanceType='recall'
-                                                sampleSize={sampleSizeComponent}
-                                                title='Recall per class'
-                                                diffData={diffData}
-                                            />
-                                        )}
-                                        sql={sql`
-                            WITH
-                            true_positive as (
-                            select
-                                'true_positive' as key,
-                                groundtruth as label,
-                                sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) as cnt_tp
-                            from
-                                "dioptra-gt-combined-eventstream"
-                            WHERE ${sqlFiltersWithModelTime}
-                            group by groundtruth
-                            order by groundtruth
-                            ),
-                            true_sum as (
-                            select
-                                'true_sum' as key,
-                                prediction as label,
-                                count(1) as cnt_ts
-                            from
-                                "dioptra-gt-combined-eventstream"
-                            WHERE ${sqlFiltersWithModelTime}
-                            group by prediction
-                            order by prediction
-                            ),
-                            pred_sum as (
-                            select
-                                'pred_sum' as key,
-                                groundtruth as label,
-                                count(1) as cnt_ps
-                            from
-                                "dioptra-gt-combined-eventstream"
-                            WHERE ${sqlFiltersWithModelTime}
-                            group by groundtruth
-                            order by groundtruth
-                            )
-            
-                            SELECT
-                            true_sum.label,
-                            cast(true_positive.cnt_tp as double) / true_sum.cnt_ts as "recall"
-                            FROM true_positive
-                            JOIN true_sum
-                            ON true_sum.label = true_positive.label
-                        `}
+                                renderData={([data, diffData]) => (
+                                    <PerformanceBox
+                                        data={data}
+                                        performanceType='recall'
+                                        sampleSize={sampleSizeComponent}
+                                        title='Recall per class'
+                                        diffData={diffData}
                                     />
-                                )}
-                                sql={sql`
+                                )} sql=
+                                    {[sql`
                             WITH
                             true_positive as (
                             select
@@ -627,7 +540,49 @@ const PerformanceDetails = ({filtersStore, timeStore}) => {
                             FROM true_positive
                             JOIN true_sum
                             ON true_sum.label = true_positive.label
-                        `}
+                        `, sql`
+                        WITH
+                        true_positive as (
+                        select
+                            'true_positive' as key,
+                            groundtruth as label,
+                            sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) as cnt_tp
+                        from
+                            "dioptra-gt-combined-eventstream"
+                        WHERE ${sqlFiltersWithModelTime}
+                        group by groundtruth
+                        order by groundtruth
+                        ),
+                        true_sum as (
+                        select
+                            'true_sum' as key,
+                            prediction as label,
+                            count(1) as cnt_ts
+                        from
+                            "dioptra-gt-combined-eventstream"
+                        WHERE ${sqlFiltersWithModelTime}
+                        group by prediction
+                        order by prediction
+                        ),
+                        pred_sum as (
+                        select
+                            'pred_sum' as key,
+                            groundtruth as label,
+                            count(1) as cnt_ps
+                        from
+                            "dioptra-gt-combined-eventstream"
+                        WHERE ${sqlFiltersWithModelTime}
+                        group by groundtruth
+                        order by groundtruth
+                        )
+        
+                        SELECT
+                        true_sum.label,
+                        cast(true_positive.cnt_tp as double) / true_sum.cnt_ts as "recall"
+                        FROM true_positive
+                        JOIN true_sum
+                        ON true_sum.label = true_positive.label
+                    `]}
                             />
                         </Col>
                     </Row>
