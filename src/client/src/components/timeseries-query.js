@@ -13,22 +13,32 @@ const TimeseriesQuery = ({
     renderLoading,
     ...rest
 }) => {
-    const {query, parameters} = sql;
+    const timeseriesClients = Array.isArray(sql) ?
+        sql.map((qry) => {
+            const {query, parameters} = qry;
 
-    if (!query || !parameters) {
-        throw new Error(
-            'The "sql" prop must be a return value of the sql`...` tagged template from: import {sql} from \'components/timeseries-query\';'
-        );
-    }
+            if (!query || !parameters) {
+                throw new Error(
+                    'The "sql" prop must be a return value of the sql`...` tagged template from: import {sql} from \'components/timeseries-query\';'
+                );
+            }
+
+            return timeseriesClient({query, ...rest});
+        }) :
+        timeseriesClient({query: sql.query, ...rest});
 
     return (
         <Async
-            refetchOnChanged={[query, JSON.stringify(parameters)]}
-            fetchData={() => timeseriesClient({query, ...rest})}
+            refetchOnChanged={[timeseriesClients]}
+            fetchData={
+                timeseriesClients.length > 1 ? timeseriesClients : timeseriesClients
+            }
             renderData={(data) => renderData(data?.length ? data : defaultData)}
             renderError={renderError}
             renderLoading={renderLoading}
-        >{children}</Async>
+        >
+            {children}
+        </Async>
     );
 };
 
@@ -38,10 +48,13 @@ TimeseriesQuery.propTypes = {
     renderData: PropTypes.func,
     renderError: PropTypes.func,
     renderLoading: PropTypes.func,
-    sql: PropTypes.shape({
-        parameters: PropTypes.array.isRequired,
-        query: PropTypes.string.isRequired
-    }).isRequired
+    sql: PropTypes.oneOfType([
+        PropTypes.array,
+        PropTypes.shape({
+            parameters: PropTypes.array.isRequired,
+            query: PropTypes.string.isRequired
+        }).isRequired
+    ])
 };
 
 TimeseriesQuery.defaultProps = {
