@@ -11,21 +11,25 @@ import FontIcon from '../components/font-icon';
 import {setupComponent} from '../helpers/component-helper';
 import {IconNames} from '../constants';
 import baseJSONClient from 'clients/base-json-client';
+import ModalComponent from 'components/modal';
 
 const apiKeyClient = (method, id = '') => {
-
     return baseJSONClient(`/api/api-key/${id}`, {method});
 };
 
 const Profile = ({authStore}) => {
+    const {userData} = authStore;
     const [profileData, setProfileData] = useState({
-        email: authStore.userData.username,
+        email: userData.username,
         password: '',
         confirmPassword: ''
     });
     const [emailError, setEmailError] = useState('');
     const [confirmPasswordError, setConfirmPasswordError] = useState('');
     const [apiKeys, setApiKeys] = useState([]);
+    const [openEditModal, setOpenEditModal] = useState(false);
+    const [orgName, setOrgName] = useState('');
+    const [error, setError] = useState(null);
     const history = useHistory();
 
     const handleSubmit = (e) => {
@@ -56,6 +60,25 @@ const Profile = ({authStore}) => {
         return apiKeyClient('get').then(setApiKeys);
     };
 
+    const handleOrgRename = () => {
+        baseJSONClient('/api/organization/rename', {
+            method: 'POST',
+            body: {name: orgName}
+        }).then((res) => {
+            setError('');
+            if (res) {
+                authStore.userData = {
+                    ...userData,
+                    activeOrganizationMembership: {
+                        ...userData.activeOrganizationMembership,
+                        organization: res
+                    }
+                };
+            }
+            setOpenEditModal(false);
+        }).catch(() => setError('Something went wrong! Try again.'));
+    };
+
     useEffect(() => {
         if (authStore.error) {
             setEmailError(authStore.error);
@@ -66,11 +89,16 @@ const Profile = ({authStore}) => {
         apiKeyClient('get').then(setApiKeys);
     }, []);
 
+    useEffect(() => {
+        const {activeOrganizationMembership} = userData;
+
+        if (activeOrganizationMembership && activeOrganizationMembership?.organization) {
+            setOrgName(activeOrganizationMembership?.organization?.name);
+        }
+    }, [userData, openEditModal]);
+
     return (
-        <Container
-            className='login fs-6 d-flex px-4'
-            fluid
-        >
+        <Container className='login fs-6 d-flex px-4 profile' fluid>
             <div className='login-form d-flex flex-column m-4'>
                 <p className='text-dark bold-text fs-3'>Profile</p>
                 <Form autoComplete='off' className='w-100' onSubmit={handleSubmit}>
@@ -104,9 +132,7 @@ const Profile = ({authStore}) => {
                         <Form.Label>New Password</Form.Label>
                         <InputGroup>
                             <Form.Control
-                                className={`bg-light ${
-                                    confirmPasswordError ? 'error' : ''
-                                }`}
+                                className={`bg-light ${confirmPasswordError ? 'error' : ''}`}
                                 name='password'
                                 onChange={(e) => {
                                     setProfileData({...profileData, ['password']: e.target.value});
@@ -127,9 +153,7 @@ const Profile = ({authStore}) => {
                         <Form.Label>Confirm New Password</Form.Label>
                         <InputGroup>
                             <Form.Control
-                                className={`bg-light ${
-                                    confirmPasswordError ? 'error' : ''
-                                }`}
+                                className={`bg-light ${confirmPasswordError ? 'error' : ''}`}
                                 name='confirmPassword'
                                 onChange={(e) => {
                                     setProfileData({
@@ -172,34 +196,84 @@ const Profile = ({authStore}) => {
                         onClick={() => history.push('/logout')}
                         variant='secondary'
                     >
-                        Logout
+            Logout
                     </Button>
                 </p>
             </div>
             <div className='login-form d-flex flex-column m-4'>
                 <p className='text-dark bold-text fs-3'>Organization</p>
-                <Form>
-                    <Form.Group className='mb-3'>
-                        <Form.Label>Organization Name</Form.Label>
-                        <InputGroup>
-                            <pre>{authStore.userData.activeOrganizationMembership?.organization.name}</pre>
-                        </InputGroup>
-                    </Form.Group>
-                </Form>
+                <div className='mb-3'>
+                    <p className='m-0'>Organization Name</p>
+                    <div className='d-flex justify-content-between align-items-center'>
+                        <h6>{userData?.activeOrganizationMembership?.organization?.name}</h6>
+                        {userData?.activeOrganizationMembership?.type === 'ADMIN' ? (
+                            <Button
+                                className='text-white btn-submit edit-button'
+                                onClick={() => setOpenEditModal(true)}
+                            >
+                Edit
+                            </Button>
+                        ) : null}
+                    </div>
+                </div>
                 <div className='text-secondary border-top border-muted mt-5 pt-5 w-100'>
                     <p className='text-dark bold-text fs-3'>Api Keys</p>
-                    {
-                        apiKeys.map((apiKey) => (
-                            <div key={apiKey._id}>
-                                <pre style={{display: 'inline'}}>{apiKey.awsApiKey}</pre>
-                                &nbsp;
-                                <Link className='cursor-pointer' to='#' onClick={() => handleDeleteApiKey(apiKey._id)}>(Delete)</Link>
-                            </div>
-                        ))
-                    }
-                    <Button className='w-100 text-white btn-submit mt-5' onClick={handleCreateApiKey}>Create Api Key</Button>
+                    {apiKeys.map((apiKey) => (
+                        <div key={apiKey._id}>
+                            <pre style={{display: 'inline'}}>{apiKey.awsApiKey}</pre>
+              &nbsp;
+                            <Link
+                                className='cursor-pointer'
+                                to='#'
+                                onClick={() => handleDeleteApiKey(apiKey._id)}
+                            >
+                (Delete)
+                            </Link>
+                        </div>
+                    ))}
+                    <Button
+                        className='w-100 text-white btn-submit mt-5'
+                        onClick={handleCreateApiKey}
+                    >
+            Create Api Key
+                    </Button>
                 </div>
             </div>
+            <ModalComponent isOpen={openEditModal} onClose={() => setOpenEditModal(false)}>
+                <Container
+                    className='model fs-6 d-flex align-items-center justify-content-center'
+                    fluid
+                >
+                    <div className='model-form d-flex flex-column align-items-center'>
+                        <p className='text-dark bold-text fs-3 mb-4'>Update Organisation Name</p>
+                        {error ?
+                            <div className='bg-warning text-white p-3 mt-2'>{error}</div> :
+                            null}
+                        <Form autoComplete='off' className='w-100'>
+                            <Form.Label className='mt-3 mb-0'>Organisation Name</Form.Label>
+                            <InputGroup className='mt-1'>
+                                <Form.Control
+                                    className={'bg-light'}
+                                    name='mlModelId'
+                                    onChange={({target}) => setOrgName(target.value)}
+                                    placeholder='Enter Organisation Name'
+                                    type='text'
+                                    value={orgName}
+                                    required
+                                />
+                            </InputGroup>
+                            <Button
+                                className='w-100 text-white btn-submit mt-5'
+                                variant='primary'
+                                onClick={handleOrgRename}
+                                disabled={!orgName}
+                            >
+                Update
+                            </Button>
+                        </Form>
+                    </div>
+                </Container>
+            </ModalComponent>
         </Container>
     );
 };
