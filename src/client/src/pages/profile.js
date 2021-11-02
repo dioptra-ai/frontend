@@ -12,9 +12,172 @@ import {setupComponent} from '../helpers/component-helper';
 import {IconNames} from '../constants';
 import baseJSONClient from 'clients/base-json-client';
 import ModalComponent from 'components/modal';
+import Table from 'components/table';
+import Async from 'components/async';
+import moment from 'moment';
+import {HiPencilAlt, HiTrash} from 'react-icons/hi';
 
 const apiKeyClient = (method, id = '') => {
     return baseJSONClient(`/api/api-key/${id}`, {method});
+};
+
+const SinceDate = ({value}) => {
+    return `${moment().diff(moment(value), 'days')} days`;
+};
+
+SinceDate.propTypes = {
+    value: PropTypes.string.isRequired
+};
+
+const RowActions = () => {
+    return (
+        <div className='d-flex justify-content-evenly'>
+            <HiPencilAlt className='cursor-pointer' style={{fontSize: 20}} />
+            <HiTrash className='cursor-pointer' style={{fontSize: 20}} />
+        </div>
+    );
+};
+
+const MembersTable = ({isAdmin, orgID}) => {
+    const [openMemberModal, setOpenMemberModal] = useState(false);
+    const [newMemberForm, setNewMemberForm] = useState({
+        username: '',
+        type: ''
+    });
+    const [error, setError] = useState(null);
+
+    const handleChange = (event) => setNewMemberForm({...newMemberForm, [event.target.name]: event.target.value});
+
+    useEffect(() => {
+        setNewMemberForm({
+            username: '',
+            type: ''
+        });
+    }, [openMemberModal, orgID]);
+
+    const handleSubmit = () => {
+        baseJSONClient(`/api/organization/members/${orgID}`, {
+            method: 'post',
+            body: newMemberForm
+        })
+            .then(() => {
+                setError(null);
+                setOpenMemberModal(false);
+            })
+            .catch((e) => setError(e.message));
+    };
+
+    return (
+        <>
+            <div className='members'>
+                <p className='text-dark bold-text d-flex justify-content-between align-items-center'>
+                    <span>Members</span>
+                    {isAdmin && (
+                        <Button
+                            className='text-white btn-submit add-member-button'
+                            onClick={() => setOpenMemberModal(true)}
+                            variant='secondary'
+                        >
+              Add Member
+                        </Button>
+                    )}
+                </p>
+            </div>
+            <Async
+                refetchOnChanged={[orgID, openMemberModal]}
+                fetchData={() => baseJSONClient(`/api/organization/members/${orgID}`)}
+                renderData={(members) => (
+                    <Table
+                        data={members}
+                        columns={[
+                            {
+                                accessor: 'user.username',
+                                Header: 'User'
+                            },
+                            {
+                                accessor: 'type',
+                                Header: 'Membership Type'
+                            },
+                            {
+                                accessor: 'createdAt',
+                                Header: 'Member Since',
+                                Cell: SinceDate
+                            }
+                        ].concat(
+                            isAdmin ?
+                                [
+                                    {
+                                        id: 'actions',
+                                        Header: 'Actions',
+                                        Cell: RowActions
+                                    }
+                                ] :
+                                []
+                        )}
+                    />
+                )}
+            />
+
+            <ModalComponent
+                isOpen={openMemberModal}
+                onClose={() => setOpenMemberModal(false)}
+            >
+                <Container
+                    className='model fs-6 d-flex align-items-center justify-content-center'
+                    fluid
+                >
+                    <div className='model-form d-flex flex-column align-items-center'>
+                        <p className='text-dark bold-text fs-3 mb-4'>Add New Member</p>
+                        {error && <div className='bg-warning text-white p-3 mt-2'>{error}</div>}
+                        <Form autoComplete='off' className='w-100'>
+                            <InputGroup className='mt-1 flex-column px-1'>
+                                <Form.Label className='mt-3 mb-0 w-100'>Member Name</Form.Label>
+                                <Form.Control
+                                    className='bg-light w-100'
+                                    name='username'
+                                    onChange={handleChange}
+                                    placeholder='Enter User Email'
+                                    type='email'
+                                    value={newMemberForm.username}
+                                    required
+                                />
+                            </InputGroup>
+                            <InputGroup className='mt-1 flex-column px-1'>
+                                <Form.Label className='mt-3 mb-0 w-100'>Membership Type</Form.Label>
+                                <Form.Control
+                                    as='select'
+                                    className={'form-select bg-light w-100'}
+                                    name='type'
+                                    value={newMemberForm.type}
+                                    onChange={handleChange}
+                                    custom
+                                    required
+                                >
+                                    <option disabled value=''>
+                    Select Membership Type
+                                    </option>
+                                    <option value='ADMIN'>Admin</option>
+                                    <option value='MEMBER'>Member</option>
+                                </Form.Control>
+                            </InputGroup>
+                            <Button
+                                className='w-100 text-white btn-submit mt-5'
+                                variant='primary'
+                                onClick={handleSubmit}
+                            >
+                Add Member
+                            </Button>
+                        </Form>
+                    </div>
+                </Container>
+            </ModalComponent>
+        </>
+    );
+};
+
+MembersTable.propTypes = {
+    isAdmin: PropTypes.bool.isRequired,
+    orgID: PropTypes.string.isRequired
 };
 
 const Profile = ({authStore}) => {
@@ -218,6 +381,10 @@ const Profile = ({authStore}) => {
                         ) : null}
                     </div>
                 </div>
+                <MembersTable
+                    isAdmin={userData?.activeOrganizationMembership?.type === 'ADMIN'}
+                    orgID={userData?.activeOrganizationMembership?.organization?._id}
+                />
                 <div className='text-secondary border-top border-muted mt-5 pt-5 w-100'>
                     <p className='text-dark bold-text fs-3'>Api Keys</p>
                     {apiKeys.map((apiKey) => (
