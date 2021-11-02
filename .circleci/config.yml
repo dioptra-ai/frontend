@@ -67,6 +67,7 @@ workflows:
             branches:
               only:
                 - main
+                - dev
       - helm-upgrade:
           name: upgrade-dev
           cluster-name: dioptra-dev-eks
