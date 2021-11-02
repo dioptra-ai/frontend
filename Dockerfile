@@ -1,4 +1,4 @@
-FROM node:16
+FROM node:16.4.0
 MAINTAINER "Jacques Arnoux <jacques@dioptra.ai>"
 
 WORKDIR /app/

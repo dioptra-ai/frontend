@@ -2,7 +2,15 @@
 version: 2.1
 
 jobs:
-  deploy-to-dev:
+  helm-upgrade:
+    parameters:
+      cluster-name:
+        type: string
+      aws-region:
+        type: string
+        default: us-east-2
+      helm-values:
+        type: string
     executor: aws-eks/python
     steps:
       - aws-eks/update-kubeconfig-with-authenticator:
@@ -38,7 +46,7 @@ workflows:
       #     requires:
       #       - lint
       - aws-ecr/build-and-push-image:
-          name: package
+          name: build-image
           account-url: AWS_ECR_ACCOUNT_URL
           aws-access-key-id: AWS_ACCESS_KEY_ID
           aws-secret-access-key: AWS_SECRET_ACCESS_KEY
@@ -59,11 +67,26 @@ workflows:
             branches:
               only:
                 - main
-      - deploy-to-dev:
+      - helm-upgrade:
+          name: upgrade-dev
+          cluster-name: dioptra-dev-eks
+          helm-values: ./helm/values.dev.yaml
           context:
             - aws-creds
           requires:
-            - package
+            - build-image
+          filters:
+            branches:
+              only:
+                - dev
+      - helm-upgrade:
+          name: upgrade-prod
+          cluster-name: dioptra-prod-eks
+          helm-values: ./helm/values.prod.yaml
+          context:
+            - aws-creds
+          requires:
+            - build-image
           filters:
             branches:
               only:
