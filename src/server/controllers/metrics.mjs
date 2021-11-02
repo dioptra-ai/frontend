@@ -9,8 +9,7 @@ MetricsRouter.all('*', isAuthenticated);
 MetricsRouter.post('/', isAuthenticated, async (req, res, next) => {
 
     try {
-        // TODO: change this to the metrics service
-        const druidResponse = await fetch(`${process.env.METRICS_ENGINE_URL}/compute`, {
+        const metricsResponse = await fetch(`${process.env.METRICS_ENGINE_URL}/compute`, {
             headers: {
                 'content-type': 'application/json;charset=UTF-8'
             },
@@ -18,7 +17,20 @@ MetricsRouter.post('/', isAuthenticated, async (req, res, next) => {
             method: 'post'
         });
 
-        druidResponse.body.pipe(res);
+        if (metricsResponse.status !== 200) {
+            let errorMessage = 'Internal Server Error';
+
+            try {
+                errorMessage = await metricsResponse.json().then((json) => json.error.message);
+            } catch {
+                errorMessage = metricsResponse.statusText;
+            }
+            res.status(metricsResponse.status);
+            res.send(errorMessage);
+        }
+
+        metricsResponse.body.pipe(res);
+
     } catch (e) {
         next(e);
     }
