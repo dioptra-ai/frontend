@@ -67,6 +67,7 @@ workflows:
             branches:
               only:
                 - main
+                - dev
       - helm-upgrade:
           name: upgrade-dev
           cluster-name: dioptra-dev-eks
@@ -87,15 +88,6 @@ workflows:
             - aws-creds
           requires:
             - build-image
-          filters:
-            branches:
-              only:
-                - dev
-      - deploy-to-prod:
-          context:
-            - aws-creds
-          requires:
-            - package
           filters:
             branches:
               only:
