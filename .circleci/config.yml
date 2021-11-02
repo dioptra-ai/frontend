@@ -67,4 +67,13 @@ workflows:
           filters:
             branches:
               only:
+                - dev
+      - deploy-to-prod:
+          context:
+            - aws-creds
+          requires:
+            - package
+          filters:
+            branches:
+              only:
                 - main
