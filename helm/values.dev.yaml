@@ -1,3 +1,4 @@
 environment: dev
 app:
   awsLoadBalancerSubnets:
+  awsApiGatewayPlanId: 'w0ffue'

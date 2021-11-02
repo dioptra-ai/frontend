@@ -38,6 +38,8 @@ spec:
               value: "http://dioptra-druid-router:8888/druid/v2/sql/"
             - name: PORT
               value: "4004"
+            - name: AWS_API_GATEWAY_PLAN_ID
+              value: "{{ .Values.app.awsApiGatewayPlanId }}"
             - name: AWS_ACCESS_KEY_ID
               valueFrom:
                 secretKeyRef:
