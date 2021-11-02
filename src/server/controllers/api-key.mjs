@@ -8,7 +8,7 @@ import {
 
 import {isAuthenticated} from '../middleware/authentication.mjs';
 
-const {AWS_ACCESS_KEY_ID} = process.env;
+const {AWS_ACCESS_KEY_ID, AWS_API_GATEWAY_PLAN_ID} = process.env;
 
 const client = new APIGatewayClient({region: 'us-east-2'});
 
@@ -62,7 +62,7 @@ ApiKeyRouter.post('/', async (req, res, next) => {
                 keyId: awsApiKey.id,
                 keyType: 'API_KEY',
                 // TODO: Change this depending on what plan the organization is on when people are paying us.
-                usagePlanId: 'emtm28' // 'Demo Plan'.
+                usagePlanId: AWS_API_GATEWAY_PLAN_ID
             }));
         }
 
