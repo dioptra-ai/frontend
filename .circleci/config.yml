@@ -46,7 +46,7 @@ workflows:
       #     requires:
       #       - lint
       - aws-ecr/build-and-push-image:
-          name: "Build Docker Image"
+          name: build-image
           account-url: AWS_ECR_ACCOUNT_URL
           aws-access-key-id: AWS_ACCESS_KEY_ID
           aws-secret-access-key: AWS_SECRET_ACCESS_KEY
@@ -68,25 +68,25 @@ workflows:
               only:
                 - main
       - helm-upgrade:
-          name: "Upgrade dev Environment"
+          name: upgrade-dev
           cluster-name: dioptra-dev-eks
           helm-values: ./helm/values.dev.yaml
           context:
             - aws-creds
           requires:
-            - package
+            - build-image
           filters:
             branches:
               only:
                 - dev
       - helm-upgrade:
-          name: "Upgrade prod Environment"
+          name: upgrade-prod
           cluster-name: dioptra-prod-eks
           helm-values: ./helm/values.prod.yaml
           context:
             - aws-creds
           requires:
-            - package
+            - build-image
           filters:
             branches:
               only:
