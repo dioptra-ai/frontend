@@ -1,6 +1,13 @@
 .profile {
-    .edit-button, .add-member-button {
-        max-height: 30px;
-        line-height: 1;
-    }
+  .edit-button,
+  .add-member-button {
+    max-height: 30px;
+    line-height: 1;
+  }
+}
+
+.edit-modal {
+  .delete-button {
+    width: 45%;
+  }
 }

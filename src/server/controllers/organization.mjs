@@ -11,7 +11,8 @@ OrganizationRouter.get('/:id/members', async (req, res, next) => {
         const OrganizationMembershipModel = mongoose.model('OrganizationMembership');
 
         const result = await OrganizationMembershipModel.find({
-            organization: req.params.id
+            organization: req.params.id,
+            user: {$nin: [req.user._id]}
         }).populate('user');
 
         res.send(result);
@@ -91,6 +92,39 @@ OrganizationRouter.post('/:id/members', isAdmin, async (req, res, next) => {
                     `A new user with username ${newMember.username} is now a member of ${organisationDetails.name}. Their password has been set to password and should be changed in their profile page.`
                 );
         }
+    } catch (e) {
+        next(e);
+    }
+});
+
+OrganizationRouter.delete('/member', isAdmin, async (req, res, next) => {
+    try {
+        const {organizationMembershipID, user} = req.body;
+        const UserModel = mongoose.model('User');
+        const OrganizationMembershipModel = mongoose.model('OrganizationMembership');
+
+        await OrganizationMembershipModel.findByIdAndDelete(organizationMembershipID);
+
+        await UserModel.findByIdAndUpdate(user, {
+            activeOrganizationMembership: undefined
+        });
+
+        res.sendStatus(204);
+    } catch (e) {
+        next(e);
+    }
+});
+
+OrganizationRouter.put('/member', isAdmin, async (req, res, next) => {
+    try {
+        const {organizationMembershipID, type} = req.body;
+        const OrganizationMembershipModel = mongoose.model('OrganizationMembership');
+
+        await OrganizationMembershipModel.findByIdAndUpdate(organizationMembershipID, {
+            type
+        });
+
+        res.sendStatus(201);
     } catch (e) {
         next(e);
     }
