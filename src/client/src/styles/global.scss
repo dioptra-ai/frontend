@@ -3,7 +3,7 @@
         display: none;
     }
     -ms-overflow-style: none;
-    scrollbar-width: none;  
+    scrollbar-width: none;
 }
 
 .bold-text {
@@ -28,4 +28,8 @@
     &:hover {
         background-color: theme-color('light-blue');
     }
+}
+
+b {
+    font-family: 'Inter Extra Bold';
 }

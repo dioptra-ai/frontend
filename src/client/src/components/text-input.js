@@ -4,7 +4,7 @@ import {FormText} from 'react-bootstrap';
 import {noop} from 'constants';
 
 const DEFAULT_INITIAL_VALUE = '';
-const TextInput = ({className, placeholder, onChange = noop, initialValue = DEFAULT_INITIAL_VALUE}) => {
+const TextInput = ({className, placeholder, onChange = noop, initialValue = DEFAULT_INITIAL_VALUE, ...restProps}) => {
     const [value, setValue] = useState(initialValue);
 
     if (initialValue !== DEFAULT_INITIAL_VALUE && initialValue !== value) {
@@ -22,7 +22,9 @@ const TextInput = ({className, placeholder, onChange = noop, initialValue = DEFA
             className={className}
             onChange={handleChange}
             placeholder={placeholder}
-            value={value}/>
+            value={value}
+            {...restProps}
+        />
     );
 };
 
