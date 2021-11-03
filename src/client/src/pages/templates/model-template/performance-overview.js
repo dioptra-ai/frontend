@@ -102,7 +102,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                 <Row className='mb-3 align-items-stretch'>
                     <Col className='d-flex' lg={3}>
                         <TimeseriesQuery
-                            defaultData={[{accuracy: NaN}]}
+                            defaultData={[[{accuracy: 0}], [{accuracy: 0}]]}
                             renderData={([[{accuracy}], [data]]) => (
                                 <MetricInfoBox
                                     name='Accuracy'
@@ -126,7 +126,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                     </Col>
                     <Col className='d-flex' lg={3}>
                         <TimeseriesQuery
-                            defaultData={[{f1Score: NaN}]}
+                            defaultData={[[{f1Score: 0}], [{f1Score: 0}]]}
                             renderData={([[{f1Score}], [data]]) => (
                                 <MetricInfoBox
                                     name='F1 Score'
@@ -220,7 +220,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                     </Col>
                     <Col className='d-flex' lg={3}>
                         <TimeseriesQuery
-                            defaultData={[{recall: NaN}]}
+                            defaultData={[[{recall: 0}], [{recall: 0}]]}
                             renderData={([[{recall}], [data]]) => (
                                 <MetricInfoBox
                                     name='Recall'
@@ -312,7 +312,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                     </Col>
                     <Col className='d-flex' lg={3}>
                         <TimeseriesQuery
-                            defaultData={[{precision: NaN}]}
+                            defaultData={[[{precision: 0}], [{precision: 0}]]}
                             renderData={([[{precision}], [data]]) => (
                                 <MetricInfoBox
                                     name='Precision'

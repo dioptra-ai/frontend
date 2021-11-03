@@ -13,8 +13,10 @@ const TimeseriesQuery = ({
     renderLoading,
     ...rest
 }) => {
-    const timeseriesClients = Array.isArray(sql) ?
-        sql.map((qry) => {
+    let timeseriesClients = null;
+
+    if (Array.isArray(sql)) {
+        timeseriesClients = sql.map((qry) => {
             const {query, parameters} = qry;
 
             if (!query || !parameters) {
@@ -24,16 +26,34 @@ const TimeseriesQuery = ({
             }
 
             return timeseriesClient({query, ...rest});
-        }) :
-        timeseriesClient({query: sql.query, ...rest});
+        });
+    } else {
+        const {query, parameters} = sql;
+
+        if (!query || !parameters) {
+            throw new Error(
+                'The "sql" prop must be a return value of the sql`...` tagged template from: import {sql} from \'components/timeseries-query\';'
+            );
+        }
+
+        timeseriesClients = timeseriesClient({query: sql.query, ...rest});
+    }
+
+    const decideOnData = (data) => {
+        if (data.length) {
+            if (Array.isArray(timeseriesClients)) {
+                return data?.map((d, index) => (d.length ? d : defaultData[index]));
+            }
+        }
+
+        return defaultData;
+    };
 
     return (
         <Async
             refetchOnChanged={[timeseriesClients]}
-            fetchData={
-                timeseriesClients.length > 1 ? timeseriesClients : timeseriesClients
-            }
-            renderData={(data) => renderData(data?.length ? data : defaultData)}
+            fetchData={timeseriesClients}
+            renderData={(data) => renderData(decideOnData(data))}
             renderError={renderError}
             renderLoading={renderLoading}
         >

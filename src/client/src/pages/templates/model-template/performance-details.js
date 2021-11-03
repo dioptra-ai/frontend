@@ -169,7 +169,7 @@ const PerformanceDetails = ({filtersStore, timeStore}) => {
                         <Row className='mb-3 align-items-stretch'>
                             <Col className='d-flex' lg={2}>
                                 <TimeseriesQuery
-                                    defaultData={[]}
+                                    defaultData={[[], []]}
                                     renderData={() => (
                                         <MetricInfoBox
                                             name='AP'
@@ -184,7 +184,7 @@ const PerformanceDetails = ({filtersStore, timeStore}) => {
                             </Col>
                             <Col className='d-flex' lg={2}>
                                 <TimeseriesQuery
-                                    defaultData={[]}
+                                    defaultData={[[], []]}
                                     renderData={() => (
                                         <MetricInfoBox
                                             name='AP'
@@ -199,7 +199,7 @@ const PerformanceDetails = ({filtersStore, timeStore}) => {
                             </Col>
                             <Col className='d-flex' lg={2}>
                                 <TimeseriesQuery
-                                    defaultData={[]}
+                                    defaultData={[[], []]}
                                     renderData={() => (
                                         <MetricInfoBox
                                             name='AP'
@@ -214,7 +214,7 @@ const PerformanceDetails = ({filtersStore, timeStore}) => {
                             </Col>
                             <Col className='d-flex' lg={2}>
                                 <TimeseriesQuery
-                                    defaultData={[]}
+                                    defaultData={[[], []]}
                                     renderData={() => (
                                         <MetricInfoBox
                                             name='AR'
@@ -229,7 +229,7 @@ const PerformanceDetails = ({filtersStore, timeStore}) => {
                             </Col>
                             <Col className='d-flex' lg={2}>
                                 <TimeseriesQuery
-                                    defaultData={[]}
+                                    defaultData={[[], []]}
                                     renderData={() => (
                                         <MetricInfoBox
                                             name='AR'
@@ -244,7 +244,7 @@ const PerformanceDetails = ({filtersStore, timeStore}) => {
                             </Col>
                             <Col className='d-flex' lg={2}>
                                 <TimeseriesQuery
-                                    defaultData={[]}
+                                    defaultData={[[], []]}
                                     renderData={() => (
                                         <MetricInfoBox
                                             name='AR'
@@ -386,7 +386,7 @@ const PerformanceDetails = ({filtersStore, timeStore}) => {
                     <Row>
                         <Col lg={6}>
                             <TimeseriesQuery
-                                defaultData={[]}
+                                defaultData={[[], []]}
                                 renderData={([data, diffData]) => (
                                     <PerformanceBox
                                         data={data}
@@ -488,7 +488,7 @@ const PerformanceDetails = ({filtersStore, timeStore}) => {
                         </Col>
                         <Col lg={6}>
                             <TimeseriesQuery
-                                defaultData={[]}
+                                defaultData={[[], []]}
                                 renderData={([data, diffData]) => (
                                     <PerformanceBox
                                         data={data}
@@ -497,8 +497,9 @@ const PerformanceDetails = ({filtersStore, timeStore}) => {
                                         title='Recall per class'
                                         diffData={diffData}
                                     />
-                                )} sql=
-                                    {[sql`
+                                )}
+                                sql={[
+                                    sql`
                             WITH
                             true_positive as (
                             select
@@ -540,7 +541,8 @@ const PerformanceDetails = ({filtersStore, timeStore}) => {
                             FROM true_positive
                             JOIN true_sum
                             ON true_sum.label = true_positive.label
-                        `, sql`
+                        `,
+                                    sql`
                         WITH
                         true_positive as (
                         select
@@ -582,7 +584,8 @@ const PerformanceDetails = ({filtersStore, timeStore}) => {
                         FROM true_positive
                         JOIN true_sum
                         ON true_sum.label = true_positive.label
-                    `]}
+                    `
+                                ]}
                             />
                         </Col>
                     </Row>

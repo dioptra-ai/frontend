@@ -173,7 +173,7 @@ const ConfusionMatrix = () => {
                 ) : null}
 
                 <TimeseriesQuery
-                    defaultData={[]}
+                    defaultData={[[], []]}
                     renderData={([data, rangeData]) => (
                         <Table
                             data={data}
