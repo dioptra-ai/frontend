@@ -173,24 +173,21 @@ const ConfusionMatrix = () => {
                 ) : null}
 
                 <TimeseriesQuery
-                    defaultData={[]}
-                    renderData={(data) => (
-                        <TimeseriesQuery
-                            defaultData={[]}
-                            renderData={(rangeData) => (
-                                <Table
-                                    data={data}
-                                    groundtruthClasses={getClasses(data, 'groundtruth')}
-                                    onCellClick={(prediction, groundtruth) => setSelectedCell({prediction, groundtruth})
-                                    }
-                                    predictionClasses={getClasses(data, 'prediction')}
-                                    referenceData={rangeData}
-                                />
-                            )}
-                            sql={sql`${generateQuery(sqlFiltersWithModelTime)}`}
+                    defaultData={[[], []]}
+                    renderData={([data, rangeData]) => (
+                        <Table
+                            data={data}
+                            groundtruthClasses={getClasses(data, 'groundtruth')}
+                            onCellClick={(prediction, groundtruth) => setSelectedCell({prediction, groundtruth})
+                            }
+                            predictionClasses={getClasses(data, 'prediction')}
+                            referenceData={rangeData}
                         />
                     )}
-                    sql={sql`${generateQuery(allSqlFilters)}`}
+                    sql={[
+                        sql`${generateQuery(allSqlFilters)}`,
+                        sql`${generateQuery(sqlFiltersWithModelTime)}`
+                    ]}
                 />
                 {selectedCell &&
           (model.mlModelType === 'IMAGE_CLASSIFIER' ? (
