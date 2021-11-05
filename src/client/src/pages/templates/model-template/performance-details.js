@@ -168,9 +168,36 @@ const PerformanceDetails = ({filtersStore, timeStore}) => {
                         <h3 className='text-dark bold-text fs-3 mb-3'>Overview</h3>
                         <Row className='mb-3 align-items-stretch'>
                             <Col className='d-flex' lg={2}>
-                                <TimeseriesQuery
-                                    defaultData={[[], []]}
-                                    renderData={() => (
+                                <Async
+                                    refetchOnChanged={[allSqlFilters]}
+                                    fetchData={[
+                                        baseJsonClient('/api/metrics', {
+                                            method: 'post',
+                                            body: {
+                                                metrics_type: 'map_mar',
+                                                current_filters: allSqlFilters,
+                                                per_class: true
+                                            }
+                                        }),
+                                        baseJsonClient('/api/metrics', {
+                                            method: 'post',
+                                            body: {
+                                                metrics_type: 'map_mar',
+                                                current_filters: sqlFiltersWithModelTime,
+                                                per_class: true
+                                            }
+                                        })
+                                    ]}
+                                    renderData={(data) => (
+                                        <MetricInfoBox
+                                            name='AP'
+                                            sampleSize={sampleSizeComponent}
+                                            unit='%'
+                                            value={data}
+                                            difference={data}
+                                        />
+                                    )}
+                                    renderError={() => (
                                         <MetricInfoBox
                                             name='AP'
                                             sampleSize={sampleSizeComponent}
@@ -179,13 +206,39 @@ const PerformanceDetails = ({filtersStore, timeStore}) => {
                                             difference={0.0}
                                         />
                                     )}
-                                    sql={[sql`SELECT 1 as "one"`, sql`SELECT 1 as "one"`]}
                                 />
                             </Col>
                             <Col className='d-flex' lg={2}>
-                                <TimeseriesQuery
-                                    defaultData={[[], []]}
-                                    renderData={() => (
+                                <Async
+                                    refetchOnChanged={[allSqlFilters]}
+                                    fetchData={[
+                                        baseJsonClient('/api/metrics', {
+                                            method: 'post',
+                                            body: {
+                                                metrics_type: 'map_mar',
+                                                current_filters: allSqlFilters,
+                                                per_class: true
+                                            }
+                                        }),
+                                        baseJsonClient('/api/metrics', {
+                                            method: 'post',
+                                            body: {
+                                                metrics_type: 'map_mar',
+                                                current_filters: sqlFiltersWithModelTime,
+                                                per_class: true
+                                            }
+                                        })
+                                    ]}
+                                    renderData={(data) => (
+                                        <MetricInfoBox
+                                            name='AP'
+                                            sampleSize={sampleSizeComponent}
+                                            unit='%'
+                                            value={data}
+                                            difference={data}
+                                        />
+                                    )}
+                                    renderError={() => (
                                         <MetricInfoBox
                                             name='AP'
                                             sampleSize={sampleSizeComponent}
@@ -194,13 +247,39 @@ const PerformanceDetails = ({filtersStore, timeStore}) => {
                                             difference={0.0}
                                         />
                                     )}
-                                    sql={[sql`SELECT 1 as "one"`, sql`SELECT 1 as "one"`]}
                                 />
                             </Col>
                             <Col className='d-flex' lg={2}>
-                                <TimeseriesQuery
-                                    defaultData={[[], []]}
-                                    renderData={() => (
+                                <Async
+                                    refetchOnChanged={[allSqlFilters]}
+                                    fetchData={[
+                                        baseJsonClient('/api/metrics', {
+                                            method: 'post',
+                                            body: {
+                                                metrics_type: 'map_mar',
+                                                current_filters: allSqlFilters,
+                                                per_class: true
+                                            }
+                                        }),
+                                        baseJsonClient('/api/metrics', {
+                                            method: 'post',
+                                            body: {
+                                                metrics_type: 'map_mar',
+                                                current_filters: sqlFiltersWithModelTime,
+                                                per_class: true
+                                            }
+                                        })
+                                    ]}
+                                    renderData={(data) => (
+                                        <MetricInfoBox
+                                            name='AP'
+                                            sampleSize={sampleSizeComponent}
+                                            unit='%'
+                                            value={data}
+                                            difference={data}
+                                        />
+                                    )}
+                                    renderError={() => (
                                         <MetricInfoBox
                                             name='AP'
                                             sampleSize={sampleSizeComponent}
@@ -209,13 +288,39 @@ const PerformanceDetails = ({filtersStore, timeStore}) => {
                                             difference={0.0}
                                         />
                                     )}
-                                    sql={[sql`SELECT 1 as "one"`, sql`SELECT 1 as "one"`]}
                                 />
                             </Col>
                             <Col className='d-flex' lg={2}>
-                                <TimeseriesQuery
-                                    defaultData={[[], []]}
-                                    renderData={() => (
+                                <Async
+                                    refetchOnChanged={[allSqlFilters]}
+                                    fetchData={[
+                                        baseJsonClient('/api/metrics', {
+                                            method: 'post',
+                                            body: {
+                                                metrics_type: 'map_mar',
+                                                current_filters: allSqlFilters,
+                                                per_class: true
+                                            }
+                                        }),
+                                        baseJsonClient('/api/metrics', {
+                                            method: 'post',
+                                            body: {
+                                                metrics_type: 'map_mar',
+                                                current_filters: sqlFiltersWithModelTime,
+                                                per_class: true
+                                            }
+                                        })
+                                    ]}
+                                    renderData={(data) => (
+                                        <MetricInfoBox
+                                            name='AR'
+                                            sampleSize={sampleSizeComponent}
+                                            unit='%'
+                                            value={data}
+                                            difference={data}
+                                        />
+                                    )}
+                                    renderError={() => (
                                         <MetricInfoBox
                                             name='AR'
                                             sampleSize={sampleSizeComponent}
@@ -224,13 +329,39 @@ const PerformanceDetails = ({filtersStore, timeStore}) => {
                                             difference={0.0}
                                         />
                                     )}
-                                    sql={[sql`SELECT 1 as "one"`, sql`SELECT 1 as "one"`]}
                                 />
                             </Col>
                             <Col className='d-flex' lg={2}>
-                                <TimeseriesQuery
-                                    defaultData={[[], []]}
-                                    renderData={() => (
+                                <Async
+                                    refetchOnChanged={[allSqlFilters]}
+                                    fetchData={[
+                                        baseJsonClient('/api/metrics', {
+                                            method: 'post',
+                                            body: {
+                                                metrics_type: 'map_mar',
+                                                current_filters: allSqlFilters,
+                                                per_class: true
+                                            }
+                                        }),
+                                        baseJsonClient('/api/metrics', {
+                                            method: 'post',
+                                            body: {
+                                                metrics_type: 'map_mar',
+                                                current_filters: sqlFiltersWithModelTime,
+                                                per_class: true
+                                            }
+                                        })
+                                    ]}
+                                    renderData={(data) => (
+                                        <MetricInfoBox
+                                            name='AR'
+                                            sampleSize={sampleSizeComponent}
+                                            unit='%'
+                                            value={data}
+                                            difference={data}
+                                        />
+                                    )}
+                                    renderError={() => (
                                         <MetricInfoBox
                                             name='AR'
                                             sampleSize={sampleSizeComponent}
@@ -239,13 +370,39 @@ const PerformanceDetails = ({filtersStore, timeStore}) => {
                                             difference={0.0}
                                         />
                                     )}
-                                    sql={[sql`SELECT 1 as "one"`, sql`SELECT 1 as "one"`]}
                                 />
                             </Col>
                             <Col className='d-flex' lg={2}>
-                                <TimeseriesQuery
-                                    defaultData={[[], []]}
-                                    renderData={() => (
+                                <Async
+                                    refetchOnChanged={[allSqlFilters]}
+                                    fetchData={[
+                                        baseJsonClient('/api/metrics', {
+                                            method: 'post',
+                                            body: {
+                                                metrics_type: 'map_mar',
+                                                current_filters: allSqlFilters,
+                                                per_class: true
+                                            }
+                                        }),
+                                        baseJsonClient('/api/metrics', {
+                                            method: 'post',
+                                            body: {
+                                                metrics_type: 'map_mar',
+                                                current_filters: sqlFiltersWithModelTime,
+                                                per_class: true
+                                            }
+                                        })
+                                    ]}
+                                    renderData={(data) => (
+                                        <MetricInfoBox
+                                            name='AR'
+                                            sampleSize={sampleSizeComponent}
+                                            unit='%'
+                                            value={data}
+                                            difference={data}
+                                        />
+                                    )}
+                                    renderError={() => (
                                         <MetricInfoBox
                                             name='AR'
                                             sampleSize={sampleSizeComponent}
@@ -254,7 +411,6 @@ const PerformanceDetails = ({filtersStore, timeStore}) => {
                                             difference={0.0}
                                         />
                                     )}
-                                    sql={[sql`SELECT 1 as "one"`, sql`SELECT 1 as "one"`]}
                                 />
                             </Col>
                         </Row>
