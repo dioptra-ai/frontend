@@ -3,14 +3,12 @@ import session from 'express-session';
 import MongoStore from 'connect-mongo';
 import User from '../models/user.mjs';
 
-
 const customFields = {
     usernameField: 'username',
     passwordField: 'password'
 };
 
 const verifyCallback = async (username, password, done) => {
-
     try {
         const user = await User.validatePassword(username, password);
 
@@ -44,7 +42,6 @@ const userAuth = (passport) => {
     });
 };
 
-
 const sessionStore = new MongoStore({
     mongoUrl: process.env.DB_CONNECTION_URI,
     collectionName: 'sessions'
@@ -69,5 +66,13 @@ const isAuthenticated = (req, res, next) => {
     }
 };
 
-export {isAuthenticated, sessionHandler, userAuth};
+const isAdmin = (req, res, next) => {
+    if (req.user && req?.user?.activeOrganizationMembership?.type === 'ADMIN') {
+        next();
+    } else {
+        res.status(403);
+        next(new Error('Not Authorized.'));
+    }
+};
 
+export {isAuthenticated, sessionHandler, userAuth, isAdmin};
