@@ -25,6 +25,8 @@ import theme from '../styles/theme.module.scss';
 import TimeseriesQuery, {sql} from 'components/timeseries-query';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 import {useParams} from 'react-router-dom';
+import Async from 'components/async';
+import baseJsonClient from 'clients/base-json-client';
 
 const AddColumnModal = ({onCancel, onApply, allColumns, selected}) => {
     const featureColumns = allColumns.filter((c) => c.startsWith('feature.'));
@@ -259,6 +261,69 @@ _DistributionCell.propTypes = {
 
 const DistributionCell = setupComponent(_DistributionCell);
 
+const mAPCell = ({timeStore}) => {
+    const allSqlFilters = useAllSqlFilters();
+    const timeGranularity = timeStore.getTimeGranularity().toISOString();
+
+    return (
+        <Async
+            refetchOnChanged={[allSqlFilters, timeGranularity]}
+            fetchData={() => baseJsonClient('/api/metrics', {
+                method: 'post',
+                body: {
+                    metrics_type: 'map_mar_over_time',
+                    current_filters: allSqlFilters,
+                    time_granularity: timeGranularity,
+                    per_class: true
+                }
+            })
+            }
+            renderData={(data) => (
+                <div style={{height: '150px'}}>
+                    <ResponsiveContainer height='100%' width='100%'>
+                        <AreaChart
+                            data={data.map(({x, y}) => ({
+                                y,
+                                x: new Date(x).getTime()
+                            }))}
+                        >
+                            <defs>
+                                <linearGradient id='color' x1='0' x2='0' y1='0' y2='1'>
+                                    <stop offset='10%' stopColor={theme.primary} stopOpacity={0.7} />
+                                    <stop offset='90%' stopColor='#FFFFFF' stopOpacity={0.1} />
+                                </linearGradient>
+                                <linearGradient id='warning' x1='0' x2='0' y1='0' y2='1'>
+                                    <stop offset='10%' stopColor={theme.warning} stopOpacity={0.9} />
+                                    <stop offset='90%' stopColor='#FFFFFF' stopOpacity={0.1} />
+                                </linearGradient>
+                            </defs>
+                            <XAxis
+                                axisLine={false}
+                                dataKey='x'
+                                domain={timeStore.rangeMillisec}
+                                scale='time'
+                                tick={false}
+                                type='number'
+                            />
+                            <Area
+                                dataKey='y'
+                                fill='url(#color)'
+                                stroke={theme.primary}
+                                strokeWidth={2}
+                            />
+                        </AreaChart>
+                    </ResponsiveContainer>
+                </div>
+            )}
+            renderError={() => <p>Something went wrong!</p>}
+        />
+    );
+};
+
+mAPCell.propTypes = {
+    timeStore: PropTypes.object.isRequired
+};
+
 const Segmentation = ({timeStore, modelStore, segmentationStore}) => {
     const allSqlFilters = useAllSqlFilters();
     const [addColModal, setAddColModal] = useModal(false);
@@ -295,23 +360,52 @@ const Segmentation = ({timeStore, modelStore, segmentationStore}) => {
                     defaultData={[]}
                     renderData={(data) => (
                         <Table
-                            columns={[
-                                {
-                                    id: 'accuracy',
-                                    Header: 'Accuracy Trend',
-                                    Cell: AccuracyCell
-                                },
-                                {
-                                    accessor: 'sampleSize',
-                                    Header: 'Sample Size',
-                                    Cell: Text
-                                },
-                                {
-                                    id: 'prediction',
-                                    Header: 'Online Predictions',
-                                    Cell: DistributionCell
-                                }
-                            ].concat(
+                            columns={(mlModelType === 'DOCUMENT_PROCESSING' ?
+                                [
+                                    {
+                                        id: 'mAP',
+                                        Header: 'mAP',
+                                        Cell: mAPCell
+                                    },
+                                    {
+                                        id: 'mAR',
+                                        Header: 'mAR',
+                                        Cell: mAPCell
+                                    },
+                                    {
+                                        id: 'CER',
+                                        Header: 'CER',
+                                        Cell: mAPCell
+                                    },
+                                    {
+                                        id: 'classes',
+                                        Header: 'Classes',
+                                        Cell: DistributionCell
+                                    },
+                                    {
+                                        accessor: 'sampleSize',
+                                        Header: 'Sample Size',
+                                        Cell: Text
+                                    }
+                                ] :
+                                [
+                                    {
+                                        id: 'accuracy',
+                                        Header: 'Accuracy Trend',
+                                        Cell: AccuracyCell
+                                    },
+                                    {
+                                        accessor: 'sampleSize',
+                                        Header: 'Sample Size',
+                                        Cell: Text
+                                    },
+                                    {
+                                        id: 'prediction',
+                                        Header: 'Online Predictions',
+                                        Cell: DistributionCell
+                                    }
+                                ]
+                            ).concat(
                                 groupByColumns.map((column) => ({
                                     accessor: (c) => c[column],
                                     Header: column,

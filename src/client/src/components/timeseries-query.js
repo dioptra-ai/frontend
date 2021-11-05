@@ -44,6 +44,8 @@ const TimeseriesQuery = ({
             if (Array.isArray(timeseriesClients)) {
                 return data?.map((d, index) => (d.length ? d : defaultData[index]));
             }
+
+            return data;
         }
 
         return defaultData;
