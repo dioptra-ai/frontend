@@ -6,7 +6,7 @@ const OrganizationRouter = express.Router();
 
 OrganizationRouter.all('*', isAuthenticated);
 
-OrganizationRouter.get('/members/:id', async (req, res, next) => {
+OrganizationRouter.get('/:id/members', async (req, res, next) => {
     try {
         const OrganizationMembershipModel = mongoose.model('OrganizationMembership');
 
@@ -20,12 +20,13 @@ OrganizationRouter.get('/members/:id', async (req, res, next) => {
     }
 });
 
-OrganizationRouter.post('/members/:id', isAdmin, async (req, res, next) => {
+OrganizationRouter.post('/:id/members', isAdmin, async (req, res, next) => {
     const {username, type} = req.body;
     const {id: organizationID} = req.params;
 
     try {
         const UserModel = mongoose.model('User');
+        const Organization = mongoose.model('Organization');
         const OrganizationMembershipModel = mongoose.model('OrganizationMembership');
 
         const existingUser = await UserModel.findOne({username});
@@ -34,12 +35,14 @@ OrganizationRouter.post('/members/:id', isAdmin, async (req, res, next) => {
             user: existingUser?._id
         });
 
+        const organisationDetails = await Organization.findById(organizationID);
+
         // No modification needed if member is already part of the same organisation
         if (
             organizationMembershipDetails &&
-      organizationMembershipDetails.organization === organizationID
+      organizationMembershipDetails.organization.equals(organizationID)
         ) {
-            res.status(400).send('Member already exists in this organization!');
+            throw new Error('Member already exists in this organization!');
         } else if (existingUser) {
             let newOrganizationMemberDetails = null;
 
@@ -64,7 +67,11 @@ OrganizationRouter.post('/members/:id', isAdmin, async (req, res, next) => {
                 activeOrganizationMembership: newOrganizationMemberDetails._id
             });
 
-            res.sendStatus(200);
+            res
+                .status(200)
+                .send(
+                    `${existingUser.username} is now a member of ${organisationDetails.name}`
+                );
         } else {
             const newMember = await UserModel.create({username, password: 'password'});
 
@@ -78,7 +85,11 @@ OrganizationRouter.post('/members/:id', isAdmin, async (req, res, next) => {
                 activeOrganizationMembership: newOrganizationMemberDetails._id
             });
 
-            res.sendStatus(200);
+            res
+                .status(200)
+                .send(
+                    `A new user with username ${newMember.username} is now a member of ${organisationDetails.name}. Their password has been set to password and should be changed in their profile page.`
+                );
         }
     } catch (e) {
         next(e);
@@ -91,7 +102,11 @@ OrganizationRouter.post('/rename', isAdmin, async (req, res, next) => {
         const {name} = req.body;
         const OrganizationModel = mongoose.model('Organization');
 
-        const result = await OrganizationModel.findByIdAndUpdate(activeOrganizationMembership.organization._id, {name}, {new: true});
+        const result = await OrganizationModel.findByIdAndUpdate(
+            activeOrganizationMembership.organization._id,
+            {name},
+            {new: true}
+        );
 
         res.send(result);
     } catch (e) {

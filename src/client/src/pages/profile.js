@@ -45,6 +45,7 @@ const MembersTable = ({isAdmin, orgID}) => {
         type: ''
     });
     const [error, setError] = useState(null);
+    const [successMsg, setSuccessMsg] = useState(null);
 
     const handleChange = (event) => setNewMemberForm({...newMemberForm, [event.target.name]: event.target.value});
 
@@ -53,15 +54,24 @@ const MembersTable = ({isAdmin, orgID}) => {
             username: '',
             type: ''
         });
+        setError(null);
     }, [openMemberModal, orgID]);
 
-    const handleSubmit = () => {
-        baseJSONClient(`/api/organization/members/${orgID}`, {
+    useEffect(() => {
+        if (successMsg) {
+            setTimeout(() => setSuccessMsg(null), 5000);
+        }
+    }, [successMsg]);
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        setError(null);
+        baseJSONClient(`/api/organization/${orgID}/members`, {
             method: 'post',
             body: newMemberForm
         })
-            .then(() => {
-                setError(null);
+            .then((res) => {
+                setSuccessMsg(res);
                 setOpenMemberModal(false);
             })
             .catch((e) => setError(e.message));
@@ -83,9 +93,10 @@ const MembersTable = ({isAdmin, orgID}) => {
                     )}
                 </p>
             </div>
+            {successMsg && <p>{successMsg}</p>}
             <Async
                 refetchOnChanged={[orgID, openMemberModal]}
-                fetchData={() => baseJSONClient(`/api/organization/members/${orgID}`)}
+                fetchData={() => baseJSONClient(`/api/organization/${orgID}/members`)}
                 renderData={(members) => (
                     <Table
                         data={members}
@@ -129,7 +140,7 @@ const MembersTable = ({isAdmin, orgID}) => {
                     <div className='model-form d-flex flex-column align-items-center'>
                         <p className='text-dark bold-text fs-3 mb-4'>Add New Member</p>
                         {error && <div className='bg-warning text-white p-3 mt-2'>{error}</div>}
-                        <Form autoComplete='off' className='w-100'>
+                        <Form autoComplete='off' className='w-100' onSubmit={handleSubmit}>
                             <InputGroup className='mt-1 flex-column px-1'>
                                 <Form.Label className='mt-3 mb-0 w-100'>Member Name</Form.Label>
                                 <Form.Control
@@ -137,7 +148,7 @@ const MembersTable = ({isAdmin, orgID}) => {
                                     name='username'
                                     onChange={handleChange}
                                     placeholder='Enter User Email'
-                                    type='email'
+                                    type='text'
                                     value={newMemberForm.username}
                                     required
                                 />
@@ -163,7 +174,7 @@ const MembersTable = ({isAdmin, orgID}) => {
                             <Button
                                 className='w-100 text-white btn-submit mt-5'
                                 variant='primary'
-                                onClick={handleSubmit}
+                                type='submit'
                             >
                 Add Member
                             </Button>
