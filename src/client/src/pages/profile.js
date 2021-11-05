@@ -60,23 +60,27 @@ const Profile = ({authStore}) => {
         return apiKeyClient('get').then(setApiKeys);
     };
 
-    const handleOrgRename = () => {
+    const handleOrgRename = (e) => {
+        e.preventDefault();
+
         baseJSONClient('/api/organization/rename', {
             method: 'POST',
             body: {name: orgName}
-        }).then((res) => {
-            setError('');
-            if (res) {
-                authStore.userData = {
-                    ...userData,
-                    activeOrganizationMembership: {
-                        ...userData.activeOrganizationMembership,
-                        organization: res
-                    }
-                };
-            }
-            setOpenEditModal(false);
-        }).catch(() => setError('Something went wrong! Try again.'));
+        })
+            .then((res) => {
+                setError('');
+                if (res) {
+                    authStore.userData = {
+                        ...userData,
+                        activeOrganizationMembership: {
+                            ...userData.activeOrganizationMembership,
+                            organization: res
+                        }
+                    };
+                }
+                setOpenEditModal(false);
+            })
+            .catch(() => setError('Something went wrong! Try again.'));
     };
 
     useEffect(() => {
@@ -92,9 +96,7 @@ const Profile = ({authStore}) => {
     useEffect(() => {
         const {activeOrganizationMembership} = userData;
 
-        if (activeOrganizationMembership && activeOrganizationMembership?.organization) {
-            setOrgName(activeOrganizationMembership?.organization?.name);
-        }
+        setOrgName(activeOrganizationMembership?.organization?.name || '');
     }, [userData, openEditModal]);
 
     return (
@@ -246,10 +248,10 @@ const Profile = ({authStore}) => {
                 >
                     <div className='model-form d-flex flex-column align-items-center'>
                         <p className='text-dark bold-text fs-3 mb-4'>Update Organisation Name</p>
-                        {error ?
-                            <div className='bg-warning text-white p-3 mt-2'>{error}</div> :
-                            null}
-                        <Form autoComplete='off' className='w-100'>
+                        {error ? (
+                            <div className='bg-warning text-white p-3 mt-2'>{error}</div>
+                        ) : null}
+                        <Form autoComplete='off' className='w-100' onSubmit={handleOrgRename}>
                             <Form.Label className='mt-3 mb-0'>Organisation Name</Form.Label>
                             <InputGroup className='mt-1'>
                                 <Form.Control
@@ -265,7 +267,7 @@ const Profile = ({authStore}) => {
                             <Button
                                 className='w-100 text-white btn-submit mt-5'
                                 variant='primary'
-                                onClick={handleOrgRename}
+                                type='submit'
                                 disabled={!orgName}
                             >
                 Update

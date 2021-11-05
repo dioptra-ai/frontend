@@ -67,11 +67,11 @@ const isAuthenticated = (req, res, next) => {
 };
 
 const isAdmin = (req, res, next) => {
-    if (req.user && req.user.activeOrganizationMembership?.type === 'ADMIN') {
+    if (req.user && req?.user?.activeOrganizationMembership?.type === 'ADMIN') {
         next();
     } else {
         res.status(403);
-        next(new Error('Not Authroized.'));
+        next(new Error('Not Authorized.'));
     }
 };
 

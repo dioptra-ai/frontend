@@ -9,9 +9,10 @@ OrganizationRouter.all('*', isAuthenticated);
 OrganizationRouter.post('/rename', isAdmin, async (req, res, next) => {
     try {
         const {activeOrganizationMembership} = req.user;
+        const {name} = req.body;
         const OrganizationModel = mongoose.model('Organization');
 
-        const result = await OrganizationModel.findByIdAndUpdate(activeOrganizationMembership.organization._id, req.body, {new: true});
+        const result = await OrganizationModel.findByIdAndUpdate(activeOrganizationMembership.organization._id, {name}, {new: true});
 
         res.send(result);
     } catch (e) {
