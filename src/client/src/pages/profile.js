@@ -29,7 +29,7 @@ SinceDate.propTypes = {
     value: PropTypes.string.isRequired
 };
 
-const RowActions = ({row, data, fetchAgain, fetch}) => {
+const RowActions = ({row, data, fetchAgain, fetch, organizationID}) => {
     const [openEditModal, setOpenEditModal] = useState(false);
     const [error, setError] = useState(null);
     const [type, setType] = useState('');
@@ -39,6 +39,11 @@ const RowActions = ({row, data, fetchAgain, fetch}) => {
     useEffect(() => {
         setType(userAccessType);
     }, [userAccessType, openEditModal]);
+
+    useEffect(() => {
+        setError(null);
+        setType('');
+    }, [openEditModal]);
 
     const handleUpdate = () => {
         baseJSONClient('/api/organization/member', {
@@ -58,7 +63,8 @@ const RowActions = ({row, data, fetchAgain, fetch}) => {
             method: 'delete',
             body: {
                 organizationMembershipID: user.activeOrganizationMembership,
-                user: user._id
+                userID: user._id,
+                organizationID
             }
         })
             .then(() => {
@@ -132,7 +138,8 @@ RowActions.propTypes = {
     row: PropTypes.object.isRequired,
     data: PropTypes.array.isRequired,
     fetch: PropTypes.bool.isRequired,
-    fetchAgain: PropTypes.func.isRequired
+    fetchAgain: PropTypes.func.isRequired,
+    organizationID: PropTypes.string.isRequired
 };
 
 const MembersTable = ({isAdmin, orgID}) => {
@@ -222,6 +229,7 @@ const MembersTable = ({isAdmin, orgID}) => {
                                                 {...props}
                                                 fetchAgain={setRefetch}
                                                 fetch={refetch}
+                                                organizationID={orgID}
                                             />
                                         )
                                     }

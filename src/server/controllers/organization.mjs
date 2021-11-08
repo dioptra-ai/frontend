@@ -32,16 +32,17 @@ OrganizationRouter.post('/:id/members', isAdmin, async (req, res, next) => {
 
         const existingUser = await UserModel.findOne({username});
 
-        const organizationMembershipDetails = await OrganizationMembershipModel.findOne({
-            user: existingUser?._id
-        });
+        const organizationMembershipDetails =
+            await OrganizationMembershipModel.findOne({
+                user: existingUser?._id
+            });
 
         const organisationDetails = await Organization.findById(organizationID);
 
         // No modification needed if member is already part of the same organisation
         if (
             organizationMembershipDetails &&
-      organizationMembershipDetails.organization.equals(organizationID)
+            organizationMembershipDetails.organization.equals(organizationID)
         ) {
             throw new Error('Member already exists in this organization!');
         } else if (existingUser) {
@@ -49,48 +50,49 @@ OrganizationRouter.post('/:id/members', isAdmin, async (req, res, next) => {
 
             if (organizationMembershipDetails) {
                 newOrganizationMemberDetails =
-          await OrganizationMembershipModel.findByIdAndUpdate(
-              organizationMembershipDetails._id,
-              {
-                  organization: organizationID,
-                  type
-              }
-          );
+                    await OrganizationMembershipModel.findByIdAndUpdate(
+                        organizationMembershipDetails._id,
+                        {
+                            organization: organizationID,
+                            type
+                        }
+                    );
             } else {
-                newOrganizationMemberDetails = await OrganizationMembershipModel.create({
-                    organization: organizationID,
-                    user: existingUser?._id,
-                    type
-                });
+                newOrganizationMemberDetails =
+                    await OrganizationMembershipModel.create({
+                        organization: organizationID,
+                        user: existingUser?._id,
+                        type
+                    });
             }
 
             await UserModel.findByIdAndUpdate(existingUser._id, {
                 activeOrganizationMembership: newOrganizationMemberDetails._id
             });
 
-            res
-                .status(200)
-                .send(
-                    `${existingUser.username} is now a member of ${organisationDetails.name}`
-                );
+            res.status(200).send(
+                `${existingUser.username} is now a member of ${organisationDetails.name}`
+            );
         } else {
-            const newMember = await UserModel.create({username, password: 'password'});
-
-            const newOrganizationMemberDetails = await OrganizationMembershipModel.create({
-                organization: organizationID,
-                user: newMember?._id,
-                type
+            const newMember = await UserModel.create({
+                username,
+                password: 'password'
             });
+
+            const newOrganizationMemberDetails =
+                await OrganizationMembershipModel.create({
+                    organization: organizationID,
+                    user: newMember?._id,
+                    type
+                });
 
             await UserModel.findByIdAndUpdate(newMember._id, {
                 activeOrganizationMembership: newOrganizationMemberDetails._id
             });
 
-            res
-                .status(200)
-                .send(
-                    `A new user with username ${newMember.username} is now a member of ${organisationDetails.name}. Their password has been set to password and should be changed in their profile page.`
-                );
+            res.status(200).send(
+                `A new user with username ${newMember.username} is now a member of ${organisationDetails.name}. Their password has been set to password and should be changed in their profile page.`
+            );
         }
     } catch (e) {
         next(e);
@@ -99,17 +101,33 @@ OrganizationRouter.post('/:id/members', isAdmin, async (req, res, next) => {
 
 OrganizationRouter.delete('/member', isAdmin, async (req, res, next) => {
     try {
-        const {organizationMembershipID, user} = req.body;
+        const {organizationMembershipID, userID, organizationID} = req.body;
         const UserModel = mongoose.model('User');
         const OrganizationMembershipModel = mongoose.model('OrganizationMembership');
 
-        await OrganizationMembershipModel.findByIdAndDelete(organizationMembershipID);
-
-        await UserModel.findByIdAndUpdate(user, {
-            activeOrganizationMembership: undefined
+        const allAdminOfOrg = await OrganizationMembershipModel.find({
+            organization: organizationID,
+            type: 'ADMIN',
+            user: {$nin: userID}
+        });
+        const allOrgsOfUser = await OrganizationMembershipModel.find({
+            user: userID,
+            organization: {$nin: organizationID}
         });
 
-        res.sendStatus(204);
+        if (allAdminOfOrg.length > 0 && allOrgsOfUser.length > 0) {
+            await OrganizationMembershipModel.findByIdAndDelete(
+                organizationMembershipID
+            );
+
+            await UserModel.findByIdAndUpdate(userID, {
+                activeOrganizationMembership: allOrgsOfUser[0]?._id
+            });
+
+            res.sendStatus(204);
+        }
+
+        throw new Error('Operation not allowed for this user!');
     } catch (e) {
         next(e);
     }
@@ -120,9 +138,12 @@ OrganizationRouter.put('/member', isAdmin, async (req, res, next) => {
         const {organizationMembershipID, type} = req.body;
         const OrganizationMembershipModel = mongoose.model('OrganizationMembership');
 
-        await OrganizationMembershipModel.findByIdAndUpdate(organizationMembershipID, {
-            type
-        });
+        await OrganizationMembershipModel.findByIdAndUpdate(
+            organizationMembershipID,
+            {
+                type
+            }
+        );
 
         res.sendStatus(201);
     } catch (e) {

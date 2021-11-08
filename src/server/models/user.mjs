@@ -16,7 +16,8 @@ const userSchema = new Schema({
     },
     activeOrganizationMembership: {
         type: Schema.Types.ObjectId,
-        ref: 'OrganizationMembership'
+        ref: 'OrganizationMembership',
+        required: true
     }
 }, {timestamps: true, toJSON: {virtuals: true}, toObject: {virtuals: true}});
 
