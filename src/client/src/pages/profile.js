@@ -29,7 +29,7 @@ SinceDate.propTypes = {
     value: PropTypes.string.isRequired
 };
 
-const RowActions = ({row, data, fetchAgain, fetch, organizationID}) => {
+const RowActions = ({row, data, fetchAgain, fetch}) => {
     const [openEditModal, setOpenEditModal] = useState(false);
     const [error, setError] = useState(null);
     const [type, setType] = useState('');
@@ -46,9 +46,9 @@ const RowActions = ({row, data, fetchAgain, fetch, organizationID}) => {
     }, [openEditModal]);
 
     const handleUpdate = () => {
-        baseJSONClient('/api/organization/member', {
+        baseJSONClient(`/api/organization-membership/${user.activeOrganizationMembership}/member`, {
             method: 'put',
-            body: {organizationMembershipID: user.activeOrganizationMembership, type}
+            body: {type}
         })
             .then(() => {
                 setError(null);
@@ -59,13 +59,8 @@ const RowActions = ({row, data, fetchAgain, fetch, organizationID}) => {
     };
 
     const handleDelete = () => {
-        baseJSONClient('/api/organization/member', {
-            method: 'delete',
-            body: {
-                organizationMembershipID: user.activeOrganizationMembership,
-                userID: user._id,
-                organizationID
-            }
+        baseJSONClient(`/api/organization-membership/${user.activeOrganizationMembership}`, {
+            method: 'delete'
         })
             .then(() => {
                 setError(null);
@@ -138,8 +133,7 @@ RowActions.propTypes = {
     row: PropTypes.object.isRequired,
     data: PropTypes.array.isRequired,
     fetch: PropTypes.bool.isRequired,
-    fetchAgain: PropTypes.func.isRequired,
-    organizationID: PropTypes.string.isRequired
+    fetchAgain: PropTypes.func.isRequired
 };
 
 const MembersTable = ({isAdmin, orgID}) => {
@@ -171,7 +165,7 @@ const MembersTable = ({isAdmin, orgID}) => {
     const handleSubmit = (e) => {
         e.preventDefault();
         setError(null);
-        baseJSONClient(`/api/organization/${orgID}/members`, {
+        baseJSONClient(`/api/organization-membership/${orgID}/members`, {
             method: 'post',
             body: newMemberForm
         })
@@ -201,7 +195,7 @@ const MembersTable = ({isAdmin, orgID}) => {
             {successMsg && <p>{successMsg}</p>}
             <Async
                 refetchOnChanged={[orgID, openMemberModal, refetch]}
-                fetchData={() => baseJSONClient(`/api/organization/${orgID}/members`)}
+                fetchData={() => baseJSONClient(`/api/organization-membership/${orgID}/members`)}
                 renderData={(members) => (
                     <Table
                         data={members}
@@ -229,7 +223,6 @@ const MembersTable = ({isAdmin, orgID}) => {
                                                 {...props}
                                                 fetchAgain={setRefetch}
                                                 fetch={refetch}
-                                                organizationID={orgID}
                                             />
                                         )
                                     }

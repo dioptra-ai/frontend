@@ -52,6 +52,8 @@ userSchema.statics.validatePassword = async (username, password) => {
 userSchema.statics.createAsMemberOf = async (userProps, organization) => {
     const OrganizationMembership = mongoose.model('OrganizationMembership');
     const newUser = new User(userProps);
+
+    console.log('User: ', newUser);
     const newOrgMembership = await OrganizationMembership.create({
         user: newUser._id,
         organization: organization._id
