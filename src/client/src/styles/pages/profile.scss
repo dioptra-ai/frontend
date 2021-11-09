@@ -1,13 +1,32 @@
 .profile {
   .edit-button,
-  .add-member-button {
+  .add-member-button,
+  .switch-button {
     max-height: 30px;
     line-height: 1;
+  }
+
+  .switch-button {
+    margin-right: 1rem;
   }
 }
 
 .edit-modal {
   .delete-button {
     width: 45%;
+  }
+}
+
+.switch-modal {
+  .active {
+    pointer-events: none;
+    & > td {
+      background-color: theme-color('mercury');
+
+      .pill {
+        background-color: theme-color('success') !important;
+        margin-left: 0.5rem;
+      }
+    }
   }
 }

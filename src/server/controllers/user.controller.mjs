@@ -57,4 +57,42 @@ UserRouter.post('/', async (req, res, next) => {
     }
 });
 
+UserRouter.get('/my-memberships', isAuthenticated, async (req, res, next) => {
+    try {
+        const OrganizationMembershipModel = mongoose.model('OrganizationMembership');
+
+        const result = await OrganizationMembershipModel.find({
+            user: req.user._id
+        }).populate('organization');
+
+        res.send(result);
+    } catch (e) {
+        next(e);
+    }
+});
+
+UserRouter.put('/change-membership', isAuthenticated, async (req, res, next) => {
+    try {
+        const {organizationMembershipID} = req.body;
+        const UserModel = mongoose.model('User');
+
+        const updatedUser = await UserModel.findByIdAndUpdate(
+            req.user._id,
+            {
+                activeOrganizationMembership: organizationMembershipID
+            },
+            {new: true}
+        ).populate({
+            path: 'activeOrganizationMembership',
+            populate: {
+                path: 'organization'
+            }
+        });
+
+        res.send(updatedUser);
+    } catch (e) {
+        next(e);
+    }
+});
+
 export default UserRouter;
