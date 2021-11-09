@@ -87,21 +87,13 @@ OrganizationMembershipRouter.post(
                     `${existingUser.username} is now a member of ${organisationDetails.name}`
                 );
             } else {
-                const newMember = await UserModel.create({
-                    username,
-                    password: 'password'
-                });
-
-                const newOrganizationMemberDetails =
-                    await OrganizationMembershipModel.create({
-                        organization: organizationID,
-                        user: newMember?._id,
-                        type
-                    });
-
-                await UserModel.findByIdAndUpdate(newMember._id, {
-                    activeOrganizationMembership: newOrganizationMemberDetails._id
-                });
+                const newMember = await UserModel.createAsMemberOf(
+                    {
+                        username,
+                        password: 'password'
+                    },
+                    organisationDetails
+                );
 
                 res.status(200).send(
                     `A new user with username ${newMember.username} is now a member of ${organisationDetails.name}. Their password has been set to password and should be changed in their profile page.`
@@ -149,9 +141,9 @@ OrganizationMembershipRouter.delete(
                 });
 
                 res.sendStatus(204);
+            } else {
+                throw new Error('Operation not allowed for this user!');
             }
-
-            throw new Error('Operation not allowed for this user!');
         } catch (e) {
             next(e);
         }
