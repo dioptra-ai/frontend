@@ -4,6 +4,7 @@ import {timeStore} from './time-store';
 import {filtersStore} from './filters-store';
 import {authStore} from './auth-store';
 import {segmentationStore} from './segmentation';
+import {iouStore} from './iou-store';
 
 export default {
     modelStore,
@@ -11,5 +12,6 @@ export default {
     timeStore,
     filtersStore,
     authStore,
-    segmentationStore
+    segmentationStore,
+    iouStore
 };

@@ -47,7 +47,9 @@ const PerformanceBox = ({
     return (
         <div className='border rounded p-3 pb-0'>
             <span className='text-dark bold-text fs-5'>{title}</span>
-            {sampleSize && <span className='text-primary mx-1'>(n={sampleSize})</span>}
+            {sampleSize && (
+                <span className='text-primary mx-1'>(n={sampleSize})</span>
+            )}
             <div className='d-flex py-3 text-secondary bold-text border-bottom'>
                 <span className='w-100'>Label</span>
                 <div
@@ -86,7 +88,8 @@ const PerformanceBox = ({
                         const classReferenceData = referenceData?.find(
                             ({label}) => label === c.label
                         );
-                        const classReferenceMetric = classReferenceData?.[performanceType];
+                        const classReferenceMetric =
+                            classReferenceData?.[performanceType];
                         const difference = classMetric - classReferenceMetric;
 
                         return (
@@ -136,11 +139,10 @@ ClassRow.propTypes = {
     value: PropTypes.any
 };
 
-const PerformanceDetails = ({filtersStore, timeStore}) => {
+const PerformanceDetails = ({filtersStore, timeStore, iouStore}) => {
     const allSqlFilters = useAllSqlFilters();
     const sqlFiltersWithModelTime = useAllSqlFilters({useReferenceRange: true});
     const [classFilter, setClassFilter] = useState('all_classes');
-    const [iouFilter, setIouFilter] = useState(0.5);
     const timeGranularity = timeStore.getTimeGranularity().toISOString();
 
     const {mlModelType} = useModel();
@@ -149,6 +151,7 @@ const PerformanceDetails = ({filtersStore, timeStore}) => {
         <TimeseriesQuery
             defaultData={[{sampleSize: 0}]}
             renderData={([{sampleSize}]) => sampleSize}
+            renderError={() => 0}
             sql={sql`
                 SELECT COUNT(*) as sampleSize 
                 FROM "dioptra-gt-combined-eventstream"
@@ -183,7 +186,8 @@ const PerformanceDetails = ({filtersStore, timeStore}) => {
                                             method: 'post',
                                             body: {
                                                 metrics_type: 'map_mar',
-                                                current_filters: sqlFiltersWithModelTime,
+                                                current_filters:
+                                                    sqlFiltersWithModelTime,
                                                 per_class: true
                                             }
                                         })
@@ -224,7 +228,8 @@ const PerformanceDetails = ({filtersStore, timeStore}) => {
                                             method: 'post',
                                             body: {
                                                 metrics_type: 'map_mar',
-                                                current_filters: sqlFiltersWithModelTime,
+                                                current_filters:
+                                                    sqlFiltersWithModelTime,
                                                 per_class: true
                                             }
                                         })
@@ -265,7 +270,8 @@ const PerformanceDetails = ({filtersStore, timeStore}) => {
                                             method: 'post',
                                             body: {
                                                 metrics_type: 'map_mar',
-                                                current_filters: sqlFiltersWithModelTime,
+                                                current_filters:
+                                                    sqlFiltersWithModelTime,
                                                 per_class: true
                                             }
                                         })
@@ -306,48 +312,8 @@ const PerformanceDetails = ({filtersStore, timeStore}) => {
                                             method: 'post',
                                             body: {
                                                 metrics_type: 'map_mar',
-                                                current_filters: sqlFiltersWithModelTime,
-                                                per_class: true
-                                            }
-                                        })
-                                    ]}
-                                    renderData={(data) => (
-                                        <MetricInfoBox
-                                            name='AR'
-                                            sampleSize={sampleSizeComponent}
-                                            unit='%'
-                                            value={data}
-                                            difference={data}
-                                        />
-                                    )}
-                                    renderError={() => (
-                                        <MetricInfoBox
-                                            name='AR'
-                                            sampleSize={sampleSizeComponent}
-                                            unit='%'
-                                            value={0.0}
-                                            difference={0.0}
-                                        />
-                                    )}
-                                />
-                            </Col>
-                            <Col className='d-flex' lg={2}>
-                                <Async
-                                    refetchOnChanged={[allSqlFilters]}
-                                    fetchData={[
-                                        baseJsonClient('/api/metrics', {
-                                            method: 'post',
-                                            body: {
-                                                metrics_type: 'map_mar',
-                                                current_filters: allSqlFilters,
-                                                per_class: true
-                                            }
-                                        }),
-                                        baseJsonClient('/api/metrics', {
-                                            method: 'post',
-                                            body: {
-                                                metrics_type: 'map_mar',
-                                                current_filters: sqlFiltersWithModelTime,
+                                                current_filters:
+                                                    sqlFiltersWithModelTime,
                                                 per_class: true
                                             }
                                         })
@@ -388,7 +354,50 @@ const PerformanceDetails = ({filtersStore, timeStore}) => {
                                             method: 'post',
                                             body: {
                                                 metrics_type: 'map_mar',
-                                                current_filters: sqlFiltersWithModelTime,
+                                                current_filters:
+                                                    sqlFiltersWithModelTime,
+                                                per_class: true
+                                            }
+                                        })
+                                    ]}
+                                    renderData={(data) => (
+                                        <MetricInfoBox
+                                            name='AR'
+                                            sampleSize={sampleSizeComponent}
+                                            unit='%'
+                                            value={data}
+                                            difference={data}
+                                        />
+                                    )}
+                                    renderError={() => (
+                                        <MetricInfoBox
+                                            name='AR'
+                                            sampleSize={sampleSizeComponent}
+                                            unit='%'
+                                            value={0.0}
+                                            difference={0.0}
+                                        />
+                                    )}
+                                />
+                            </Col>
+                            <Col className='d-flex' lg={2}>
+                                <Async
+                                    refetchOnChanged={[allSqlFilters]}
+                                    fetchData={[
+                                        baseJsonClient('/api/metrics', {
+                                            method: 'post',
+                                            body: {
+                                                metrics_type: 'map_mar',
+                                                current_filters: allSqlFilters,
+                                                per_class: true
+                                            }
+                                        }),
+                                        baseJsonClient('/api/metrics', {
+                                            method: 'post',
+                                            body: {
+                                                metrics_type: 'map_mar',
+                                                current_filters:
+                                                    sqlFiltersWithModelTime,
                                                 per_class: true
                                             }
                                         })
@@ -416,7 +425,9 @@ const PerformanceDetails = ({filtersStore, timeStore}) => {
                         </Row>
                     </div>
                     <div className='my-5'>
-                        <h3 className='text-dark bold-text fs-3 mb-3'>Class Breakdown</h3>
+                        <h3 className='text-dark bold-text fs-3 mb-3'>
+                            Class Breakdown
+                        </h3>
                         <Row className='my-5 mx-2 border rounded'>
                             <Col className='d-flex' lg={12}>
                                 <TimeseriesQuery
@@ -427,7 +438,12 @@ const PerformanceDetails = ({filtersStore, timeStore}) => {
                                             title='Precision'
                                             unit='%'
                                             yAxisName='Precision'
-                                            xAxisName={['SSN', 'First Name', 'Last Name', 'Zip Code']}
+                                            xAxisName={[
+                                                'SSN',
+                                                'First Name',
+                                                'Last Name',
+                                                'Zip Code'
+                                            ]}
                                             className='border-0'
                                         />
                                     )}
@@ -445,7 +461,12 @@ const PerformanceDetails = ({filtersStore, timeStore}) => {
                                             title='Recall'
                                             unit='%'
                                             yAxisName='Recall'
-                                            xAxisName={['SSN', 'First Name', 'Last Name', 'Zip Code']}
+                                            xAxisName={[
+                                                'SSN',
+                                                'First Name',
+                                                'Last Name',
+                                                'Zip Code'
+                                            ]}
                                             className='border-0'
                                         />
                                     )}
@@ -474,44 +495,54 @@ const PerformanceDetails = ({filtersStore, timeStore}) => {
                                         {name: 'iou=0.75', value: 0.75},
                                         {name: 'iou=0.95', value: 0.95}
                                     ]}
-                                    initialValue={iouFilter}
-                                    onChange={(val) => setIouFilter(Number(val))}
+                                    initialValue={iouStore.iou}
+                                    onChange={(val) => {
+                                        iouStore.iou = Number(val);
+                                    }}
                                 />
                             </Col>
                             <Col className='d-flex px-4' lg={12}>
                                 <Async
                                     refetchOnChanged={[
-                                        iouFilter,
+                                        iouStore.iou,
                                         classFilter,
                                         allSqlFilters,
                                         timeGranularity
                                     ]}
                                     fetchData={[
-                                        baseJsonClient('/api/metrics/precision_recall', {
-                                            method: 'post',
-                                            body: {
-                                                prediction: classFilter,
-                                                iou: iouFilter,
-                                                current_filters: allSqlFilters,
-                                                time_granularity: timeGranularity
+                                        baseJsonClient(
+                                            '/api/metrics/precision_recall',
+                                            {
+                                                method: 'post',
+                                                body: {
+                                                    prediction: classFilter,
+                                                    iou: iouStore.iou,
+                                                    current_filters: allSqlFilters,
+                                                    time_granularity: timeGranularity
+                                                }
                                             }
-                                        }),
-                                        baseJsonClient('/api/metrics/precision_recall1', {
-                                            method: 'post',
-                                            body: {
-                                                prediction: classFilter,
-                                                iou: iouFilter,
-                                                current_filters: allSqlFilters,
-                                                time_granularity: timeGranularity
+                                        ),
+                                        baseJsonClient(
+                                            '/api/metrics/precision_recall1',
+                                            {
+                                                method: 'post',
+                                                body: {
+                                                    prediction: classFilter,
+                                                    iou: iouStore.iou,
+                                                    current_filters: allSqlFilters,
+                                                    time_granularity: timeGranularity
+                                                }
                                             }
-                                        })
+                                        )
                                     ]}
                                     renderData={(data) => (
                                         <AreaGraph
-                                            dots={data.map(({precision, recall}) => ({
-                                                x: recall,
-                                                y: precision
-                                            }))}
+                                            dots={data.map(
+                                                ({precision, recall}) => ({
+                                                    x: recall,
+                                                    y: precision
+                                                })
+                                            )}
                                             title='Precision Recall Curve'
                                             xAxisName='Recall'
                                             yAxisName='Precision'
@@ -521,10 +552,12 @@ const PerformanceDetails = ({filtersStore, timeStore}) => {
                                     // Will be removed after API is working
                                     renderError={() => (
                                         <AreaGraph
-                                            dots={precisionRecallData.map(({precision, recall}) => ({
-                                                x: recall,
-                                                y: precision
-                                            }))}
+                                            dots={precisionRecallData.map(
+                                                ({precision, recall}) => ({
+                                                    x: recall,
+                                                    y: precision
+                                                })
+                                            )}
                                             title='Precision Recall Curve'
                                             xAxisName='Recall'
                                             yAxisName='Precision'
@@ -538,7 +571,9 @@ const PerformanceDetails = ({filtersStore, timeStore}) => {
                 </>
             ) : (
                 <div className='my-5'>
-                    <h3 className='text-dark bold-text fs-3 mb-3'>Performance per class</h3>
+                    <h3 className='text-dark bold-text fs-3 mb-3'>
+                        Performance per class
+                    </h3>
                     <Row>
                         <Col lg={6}>
                             <TimeseriesQuery
@@ -755,6 +790,7 @@ const PerformanceDetails = ({filtersStore, timeStore}) => {
 
 PerformanceDetails.propTypes = {
     filtersStore: PropTypes.object.isRequired,
+    iouStore: PropTypes.object.isRequired,
     timeStore: PropTypes.object.isRequired
 };
 

@@ -2,7 +2,7 @@ import {useParams} from 'react-router-dom';
 
 import stores from 'state/stores';
 
-const {filtersStore, timeStore, modelStore, authStore} = stores;
+const {filtersStore, timeStore, modelStore, authStore, iouStore} = stores;
 
 const useAllSqlFilters = ({useReferenceRange = false} = {}) => {
     const params = useParams();
@@ -13,11 +13,10 @@ const useAllSqlFilters = ({useReferenceRange = false} = {}) => {
         const activeModel = modelStore.getModelById(activeModelId);
         const timeFilter = useReferenceRange ? modelStore.getSqlReferencePeriodFilter(activeModelId) : timeStore.sqlTimeFilter;
 
-        return `${timeFilter} AND ${filtersStore.sqlFilters} AND organization_id='${organizationId}'` +
+        return `${timeFilter} AND ${filtersStore.sqlFilters} AND organization_id='${organizationId}' AND iou >= ${iouStore.iou}` +
                ` AND ${activeModelId ? `model_id='${activeModel.mlModelId}'` : 'TRUE'}`;
     } else {
-
-        return `${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters} AND organization_id='${organizationId}'`;
+        return `${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters} AND organization_id='${organizationId}' AND iou >= ${iouStore.iou}`;
     }
 
 };
