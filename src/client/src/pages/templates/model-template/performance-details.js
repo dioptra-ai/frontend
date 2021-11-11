@@ -179,7 +179,7 @@ const PerformanceDetails = ({filtersStore, timeStore, iouStore}) => {
                                             body: {
                                                 metrics_type: 'map_mar',
                                                 current_filters: allSqlFilters,
-                                                per_class: true
+                                                per_class: false
                                             }
                                         }),
                                         baseJsonClient('/api/metrics', {
@@ -188,7 +188,7 @@ const PerformanceDetails = ({filtersStore, timeStore, iouStore}) => {
                                                 metrics_type: 'map_mar',
                                                 current_filters:
                                                     sqlFiltersWithModelTime,
-                                                per_class: true
+                                                per_class: false
                                             }
                                         })
                                     ]}
@@ -221,7 +221,7 @@ const PerformanceDetails = ({filtersStore, timeStore, iouStore}) => {
                                             body: {
                                                 metrics_type: 'map_mar',
                                                 current_filters: allSqlFilters,
-                                                per_class: true
+                                                per_class: false
                                             }
                                         }),
                                         baseJsonClient('/api/metrics', {
@@ -230,7 +230,7 @@ const PerformanceDetails = ({filtersStore, timeStore, iouStore}) => {
                                                 metrics_type: 'map_mar',
                                                 current_filters:
                                                     sqlFiltersWithModelTime,
-                                                per_class: true
+                                                per_class: false
                                             }
                                         })
                                     ]}
@@ -263,7 +263,7 @@ const PerformanceDetails = ({filtersStore, timeStore, iouStore}) => {
                                             body: {
                                                 metrics_type: 'map_mar',
                                                 current_filters: allSqlFilters,
-                                                per_class: true
+                                                per_class: false
                                             }
                                         }),
                                         baseJsonClient('/api/metrics', {
@@ -272,7 +272,7 @@ const PerformanceDetails = ({filtersStore, timeStore, iouStore}) => {
                                                 metrics_type: 'map_mar',
                                                 current_filters:
                                                     sqlFiltersWithModelTime,
-                                                per_class: true
+                                                per_class: false
                                             }
                                         })
                                     ]}
@@ -305,7 +305,7 @@ const PerformanceDetails = ({filtersStore, timeStore, iouStore}) => {
                                             body: {
                                                 metrics_type: 'map_mar',
                                                 current_filters: allSqlFilters,
-                                                per_class: true
+                                                per_class: false
                                             }
                                         }),
                                         baseJsonClient('/api/metrics', {
@@ -314,49 +314,7 @@ const PerformanceDetails = ({filtersStore, timeStore, iouStore}) => {
                                                 metrics_type: 'map_mar',
                                                 current_filters:
                                                     sqlFiltersWithModelTime,
-                                                per_class: true
-                                            }
-                                        })
-                                    ]}
-                                    renderData={(data) => (
-                                        <MetricInfoBox
-                                            name='AR'
-                                            sampleSize={sampleSizeComponent}
-                                            unit='%'
-                                            value={data}
-                                            difference={data}
-                                        />
-                                    )}
-                                    renderError={() => (
-                                        <MetricInfoBox
-                                            name='AR'
-                                            sampleSize={sampleSizeComponent}
-                                            unit='%'
-                                            value={0.0}
-                                            difference={0.0}
-                                        />
-                                    )}
-                                />
-                            </Col>
-                            <Col className='d-flex' lg={2}>
-                                <Async
-                                    refetchOnChanged={[allSqlFilters]}
-                                    fetchData={[
-                                        baseJsonClient('/api/metrics', {
-                                            method: 'post',
-                                            body: {
-                                                metrics_type: 'map_mar',
-                                                current_filters: allSqlFilters,
-                                                per_class: true
-                                            }
-                                        }),
-                                        baseJsonClient('/api/metrics', {
-                                            method: 'post',
-                                            body: {
-                                                metrics_type: 'map_mar',
-                                                current_filters:
-                                                    sqlFiltersWithModelTime,
-                                                per_class: true
+                                                per_class: false
                                             }
                                         })
                                     ]}
@@ -389,7 +347,7 @@ const PerformanceDetails = ({filtersStore, timeStore, iouStore}) => {
                                             body: {
                                                 metrics_type: 'map_mar',
                                                 current_filters: allSqlFilters,
-                                                per_class: true
+                                                per_class: false
                                             }
                                         }),
                                         baseJsonClient('/api/metrics', {
@@ -398,7 +356,49 @@ const PerformanceDetails = ({filtersStore, timeStore, iouStore}) => {
                                                 metrics_type: 'map_mar',
                                                 current_filters:
                                                     sqlFiltersWithModelTime,
-                                                per_class: true
+                                                per_class: false
+                                            }
+                                        })
+                                    ]}
+                                    renderData={(data) => (
+                                        <MetricInfoBox
+                                            name='AR'
+                                            sampleSize={sampleSizeComponent}
+                                            unit='%'
+                                            value={data}
+                                            difference={data}
+                                        />
+                                    )}
+                                    renderError={() => (
+                                        <MetricInfoBox
+                                            name='AR'
+                                            sampleSize={sampleSizeComponent}
+                                            unit='%'
+                                            value={0.0}
+                                            difference={0.0}
+                                        />
+                                    )}
+                                />
+                            </Col>
+                            <Col className='d-flex' lg={2}>
+                                <Async
+                                    refetchOnChanged={[allSqlFilters]}
+                                    fetchData={[
+                                        baseJsonClient('/api/metrics', {
+                                            method: 'post',
+                                            body: {
+                                                metrics_type: 'map_mar',
+                                                current_filters: allSqlFilters,
+                                                per_class: false
+                                            }
+                                        }),
+                                        baseJsonClient('/api/metrics', {
+                                            method: 'post',
+                                            body: {
+                                                metrics_type: 'map_mar',
+                                                current_filters:
+                                                    sqlFiltersWithModelTime,
+                                                per_class: false
                                             }
                                         })
                                     ]}
