@@ -9,6 +9,7 @@ import Metrics from './controllers/metrics.mjs';
 import ApiKey from './controllers/api-key.mjs';
 import OrganizationRouter from './controllers/organization.mjs';
 import OrganizationMembershipRouter from './controllers/organization-membership.mjs';
+import IntegrationRouter from './controllers/integrations.mjs';
 
 ApiRouter.use('/user', UserRouter);
 ApiRouter.use('/auth', AuthRouter);
@@ -18,5 +19,6 @@ ApiRouter.use('/metrics', Metrics);
 ApiRouter.use('/api-key', ApiKey);
 ApiRouter.use('/organization', OrganizationRouter);
 ApiRouter.use('/organization-membership', OrganizationMembershipRouter);
+ApiRouter.use('/integration', IntegrationRouter);
 
 export default ApiRouter;
