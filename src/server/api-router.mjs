@@ -8,6 +8,7 @@ import Timeseries from './controllers/timeseries.mjs';
 import Metrics from './controllers/metrics.mjs';
 import ApiKey from './controllers/api-key.mjs';
 import OrganizationRouter from './controllers/organization.mjs';
+import OrganizationMembershipRouter from './controllers/organization-membership.mjs';
 
 ApiRouter.use('/user', UserRouter);
 ApiRouter.use('/auth', AuthRouter);
@@ -16,5 +17,6 @@ ApiRouter.use('/timeseries', Timeseries);
 ApiRouter.use('/metrics', Metrics);
 ApiRouter.use('/api-key', ApiKey);
 ApiRouter.use('/organization', OrganizationRouter);
+ApiRouter.use('/organization-membership', OrganizationMembershipRouter);
 
 export default ApiRouter;

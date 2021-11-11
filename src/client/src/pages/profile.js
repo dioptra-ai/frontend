@@ -15,7 +15,7 @@ import ModalComponent from 'components/modal';
 import Table from 'components/table';
 import Async from 'components/async';
 import moment from 'moment';
-import {HiPencilAlt, HiTrash} from 'react-icons/hi';
+import {HiPencilAlt} from 'react-icons/hi';
 
 const apiKeyClient = (method, id = '') => {
     return baseJSONClient(`/api/api-key/${id}`, {method});
@@ -29,13 +29,111 @@ SinceDate.propTypes = {
     value: PropTypes.string.isRequired
 };
 
-const RowActions = () => {
+const RowActions = ({row, data, fetchAgain, fetch}) => {
+    const [openEditModal, setOpenEditModal] = useState(false);
+    const [error, setError] = useState(null);
+    const [type, setType] = useState('');
+
+    const {user, type: userAccessType} = data[row.index];
+
+    useEffect(() => {
+        setType(userAccessType);
+    }, [userAccessType, openEditModal]);
+
+    useEffect(() => {
+        setError(null);
+        setType('');
+    }, [openEditModal]);
+
+    const handleUpdate = () => {
+        baseJSONClient(`/api/organization-membership/${user.activeOrganizationMembership}/member`, {
+            method: 'put',
+            body: {type}
+        })
+            .then(() => {
+                setError(null);
+                setOpenEditModal(false);
+                fetchAgain(!fetch);
+            })
+            .catch((e) => setError(e.message));
+    };
+
+    const handleDelete = () => {
+        baseJSONClient(`/api/organization-membership/${user.activeOrganizationMembership}`, {
+            method: 'delete'
+        })
+            .then(() => {
+                setError(null);
+                setOpenEditModal(false);
+                fetchAgain(!fetch);
+            })
+            .catch((e) => setError(e.message));
+    };
+
     return (
-        <div className='d-flex justify-content-evenly'>
-            <HiPencilAlt className='cursor-pointer' style={{fontSize: 20}} />
-            <HiTrash className='cursor-pointer' style={{fontSize: 20}} />
-        </div>
+        <>
+            <HiPencilAlt
+                className='cursor-pointer'
+                style={{fontSize: 20}}
+                onClick={() => setOpenEditModal(true)}
+            />
+            <ModalComponent isOpen={openEditModal} onClose={() => setOpenEditModal(false)}>
+                <Container
+                    className='model fs-6 d-flex align-items-center justify-content-center edit-modal'
+                    fluid
+                >
+                    <div className='model-form d-flex flex-column align-items-center'>
+                        <p className='text-dark bold-text fs-3 mb-4'>
+              Edit Member: {user.username}
+                        </p>
+                        {error && <div className='bg-warning text-white p-3 mt-2'>{error}</div>}
+                        <Form autoComplete='off' className='w-100'>
+                            <InputGroup className='mt-1 flex-column px-1'>
+                                <Form.Label className='mt-3 mb-0 w-100'>Membership Type</Form.Label>
+                                <Form.Control
+                                    as='select'
+                                    className={'form-select bg-light w-100'}
+                                    value={type}
+                                    onChange={({target}) => setType(target.value)}
+                                    custom
+                                    required
+                                >
+                                    <option disabled value=''>
+                    Select Membership Type
+                                    </option>
+                                    <option value='ADMIN'>Admin</option>
+                                    <option value='MEMBER'>Member</option>
+                                </Form.Control>
+                            </InputGroup>
+                            <div className='mt-5 d-flex justify-content-between'>
+                                <Button
+                                    className='text-white btn-submit delete-button'
+                                    variant='secondary'
+                                    onClick={handleDelete}
+                                >
+                  Delete Member
+                                </Button>
+                                <Button
+                                    className='text-white btn-submit delete-button'
+                                    variant='primary'
+                                    onClick={handleUpdate}
+                                >
+                  Update Member
+                                </Button>
+                            </div>
+                        </Form>
+                    </div>
+                </Container>
+            </ModalComponent>
+        </>
     );
+};
+
+RowActions.propTypes = {
+    row: PropTypes.object.isRequired,
+    data: PropTypes.array.isRequired,
+    fetch: PropTypes.bool.isRequired,
+    fetchAgain: PropTypes.func.isRequired
 };
 
 const MembersTable = ({isAdmin, orgID}) => {
@@ -46,6 +144,7 @@ const MembersTable = ({isAdmin, orgID}) => {
     });
     const [error, setError] = useState(null);
     const [successMsg, setSuccessMsg] = useState(null);
+    const [refetch, setRefetch] = useState(true);
 
     const handleChange = (event) => setNewMemberForm({...newMemberForm, [event.target.name]: event.target.value});
 
@@ -66,7 +165,7 @@ const MembersTable = ({isAdmin, orgID}) => {
     const handleSubmit = (e) => {
         e.preventDefault();
         setError(null);
-        baseJSONClient(`/api/organization/${orgID}/members`, {
+        baseJSONClient(`/api/organization-membership/${orgID}/members`, {
             method: 'post',
             body: newMemberForm
         })
@@ -95,8 +194,8 @@ const MembersTable = ({isAdmin, orgID}) => {
             </div>
             {successMsg && <p>{successMsg}</p>}
             <Async
-                refetchOnChanged={[orgID, openMemberModal]}
-                fetchData={() => baseJSONClient(`/api/organization/${orgID}/members`)}
+                refetchOnChanged={[orgID, openMemberModal, refetch]}
+                fetchData={() => baseJSONClient(`/api/organization-membership/${orgID}/members`)}
                 renderData={(members) => (
                     <Table
                         data={members}
@@ -119,8 +218,13 @@ const MembersTable = ({isAdmin, orgID}) => {
                                 [
                                     {
                                         id: 'actions',
-                                        Header: 'Actions',
-                                        Cell: RowActions
+                                        Cell: (props) => (
+                                            <RowActions
+                                                {...props}
+                                                fetchAgain={setRefetch}
+                                                fetch={refetch}
+                                            />
+                                        )
                                     }
                                 ] :
                                 []

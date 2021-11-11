@@ -16,7 +16,8 @@ const userSchema = new Schema({
     },
     activeOrganizationMembership: {
         type: Schema.Types.ObjectId,
-        ref: 'OrganizationMembership'
+        ref: 'OrganizationMembership',
+        required: true
     }
 }, {timestamps: true, toJSON: {virtuals: true}, toObject: {virtuals: true}});
 
@@ -51,6 +52,7 @@ userSchema.statics.validatePassword = async (username, password) => {
 userSchema.statics.createAsMemberOf = async (userProps, organization) => {
     const OrganizationMembership = mongoose.model('OrganizationMembership');
     const newUser = new User(userProps);
+
     const newOrgMembership = await OrganizationMembership.create({
         user: newUser._id,
         organization: organization._id
