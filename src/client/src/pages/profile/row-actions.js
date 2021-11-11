@@ -16,17 +16,17 @@ const RowActions = ({row, data, fetchAgain, fetch}) => {
     const {user, type: userAccessType} = data[row.index];
 
     useEffect(() => {
-        setType(userAccessType);
-    }, [userAccessType, openEditModal]);
-
-    useEffect(() => {
         setError(null);
         setType('');
     }, [openEditModal]);
 
+    useEffect(() => {
+        setType(userAccessType);
+    }, [userAccessType, openEditModal]);
+
     const handleUpdate = () => {
         baseJSONClient(
-            `/api/organization-membership/${user.activeOrganizationMembership}/member`,
+            `/api/organization-membership/${user.activeOrganizationMembership._id}/member`,
             {
                 method: 'put',
                 body: {type}
@@ -42,7 +42,7 @@ const RowActions = ({row, data, fetchAgain, fetch}) => {
 
     const handleDelete = () => {
         baseJSONClient(
-            `/api/organization-membership/${user.activeOrganizationMembership}`,
+            `/api/organization-membership/${user.activeOrganizationMembership._id}`,
             {
                 method: 'delete'
             }
