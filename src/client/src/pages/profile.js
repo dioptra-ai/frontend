@@ -46,7 +46,7 @@ const RowActions = ({row, data, fetchAgain, fetch}) => {
     }, [openEditModal]);
 
     const handleUpdate = () => {
-        baseJSONClient(`/api/organization-membership/${user.activeOrganizationMembership}/member`, {
+        baseJSONClient(`/api/organization-membership/${user.activeOrganizationMembership._id}/member`, {
             method: 'put',
             body: {type}
         })
@@ -59,7 +59,7 @@ const RowActions = ({row, data, fetchAgain, fetch}) => {
     };
 
     const handleDelete = () => {
-        baseJSONClient(`/api/organization-membership/${user.activeOrganizationMembership}`, {
+        baseJSONClient(`/api/organization-membership/${user.activeOrganizationMembership._id}`, {
             method: 'delete'
         })
             .then(() => {
@@ -323,7 +323,7 @@ const Profile = ({authStore}) => {
                 ...(profileData.password && profileData.confirmPassword ?
                     {password: profileData.password} :
                     {})
-            });
+            }).then(() => setProfileData({...profileData, password: '', confirmPassword: ''}));
         }
     };
 
@@ -485,8 +485,8 @@ const Profile = ({authStore}) => {
                 <div className='mb-3'>
                     <p className='m-0'>Organization Name</p>
                     <div className='d-flex justify-content-between align-items-center'>
-                        <h6>{userData?.activeOrganizationMembership?.organization?.name}</h6>
-                        {userData?.activeOrganizationMembership?.type === 'ADMIN' ? (
+                        <h6>{userData.activeOrganizationMembership.organization.name}</h6>
+                        {userData.activeOrganizationMembership.type === 'ADMIN' ? (
                             <Button
                                 className='text-white btn-submit edit-button'
                                 onClick={() => setOpenEditModal(true)}

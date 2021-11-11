@@ -17,7 +17,7 @@ OrganizationMembershipRouter.get(
             const result = await OrganizationMembershipModel.find({
                 organization: req.params.organizationID,
                 user: {$nin: [req.user._id]}
-            }).populate('user');
+            });
 
             res.send(
                 result.filter(({_id, user}) => user.activeOrganizationMembership.equals(_id))

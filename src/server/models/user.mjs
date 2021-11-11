@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
+import autopopulate from 'mongoose-autopopulate';
 
 const Schema = mongoose.Schema;
 
@@ -17,9 +18,12 @@ const userSchema = new Schema({
     activeOrganizationMembership: {
         type: Schema.Types.ObjectId,
         ref: 'OrganizationMembership',
-        required: true
+        required: true,
+        autopopulate: true
     }
 }, {timestamps: true, toJSON: {virtuals: true}, toObject: {virtuals: true}});
+
+userSchema.plugin(autopopulate);
 
 userSchema.virtual('organizationMemberships', {
     ref: 'OrganizationMembership',
@@ -40,12 +44,7 @@ userSchema.statics.validatePassword = async (username, password) => {
         throw new Error('Unauthenticated');
     } else {
 
-        return foundUser.populate({
-            path: 'activeOrganizationMembership',
-            populate: {
-                path: 'organization'
-            }
-        });
+        return foundUser;
     }
 };
 
