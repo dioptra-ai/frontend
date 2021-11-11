@@ -28,12 +28,7 @@ const userAuth = (passport) => {
 
     passport.deserializeUser(async (_id, done) => {
         try {
-            const user = await User.findOne({_id}).populate({
-                path: 'activeOrganizationMembership',
-                populate: {
-                    path: 'organization'
-                }
-            });
+            const user = await User.findOne({_id});
 
             done(null, user);
         } catch (error) {

@@ -6,7 +6,7 @@ const UserRouter = express.Router();
 
 UserRouter.put('/', isAuthenticated, async (req, res, next) => {
     const UserModel = mongoose.model('User');
-    const {username} = req.body;
+    const {username, password} = req.body;
     const authUser = req.user;
     const existingUser = await UserModel.findOne({username});
 
@@ -18,15 +18,11 @@ UserRouter.put('/', isAuthenticated, async (req, res, next) => {
             const resp = await UserModel.findByIdAndUpdate(
                 authUser._id,
                 {
-                    ...req.body
+                    username,
+                    password
                 },
                 {new: true}
-            ).populate({
-                path: 'activeOrganizationMembership',
-                populate: {
-                    path: 'organization'
-                }
-            });
+            );
 
             res.json(resp);
         }
