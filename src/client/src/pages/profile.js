@@ -46,7 +46,7 @@ const RowActions = ({row, data, fetchAgain, fetch}) => {
     }, [openEditModal]);
 
     const handleUpdate = () => {
-        baseJSONClient(`/api/organization-membership/${user.activeOrganizationMembership}/member`, {
+        baseJSONClient(`/api/organization-membership/${user.activeOrganizationMembership._id}/member`, {
             method: 'put',
             body: {type}
         })
@@ -59,7 +59,7 @@ const RowActions = ({row, data, fetchAgain, fetch}) => {
     };
 
     const handleDelete = () => {
-        baseJSONClient(`/api/organization-membership/${user.activeOrganizationMembership}`, {
+        baseJSONClient(`/api/organization-membership/${user.activeOrganizationMembership._id}`, {
             method: 'delete'
         })
             .then(() => {
