@@ -54,8 +54,7 @@ OrganizationMembershipRouter.post(
 
             // No modification needed if member is already part of the same organisation
             if (
-                organizationMembershipDetails &&
-                existingUser?.activeOrganizationMembership?.equals(organizationID)
+                organizationMembershipDetails
             ) {
                 throw new Error('Member already exists in this organization!');
             } else if (existingUser) {
