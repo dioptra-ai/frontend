@@ -266,8 +266,8 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 SELECT 
                                   AVG(cast(true_positive.cnt_tp as double) / true_sum.cnt_ts) as recall
                                 FROM true_positive
-                                JOIN true_sum
-                                ON true_sum.label = true_positive.label
+                                  JOIN pred_sum ON pred_sum.label = true_positive.label
+                                  JOIN true_sum ON true_sum.label = true_positive.label
                             `,
                                 sql`
                             WITH true_positive as (
@@ -304,8 +304,8 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                             SELECT 
                               AVG(cast(true_positive.cnt_tp as double) / true_sum.cnt_ts) as recall
                             FROM true_positive
-                            JOIN true_sum
-                            ON true_sum.label = true_positive.label
+                              JOIN pred_sum ON pred_sum.label = true_positive.label
+                              JOIN true_sum ON true_sum.label = true_positive.label
                         `
                             ]}
                         />
@@ -357,8 +357,9 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                             SELECT 
                               AVG(cast(true_positive.cnt_tp as double) / pred_sum.cnt_ps) as "precision"
                             FROM true_positive
-                            JOIN pred_sum
-                            ON pred_sum.label = true_positive.label`,
+                              JOIN pred_sum ON pred_sum.label = true_positive.label
+                              JOIN true_sum ON true_sum.label = true_positive.label
+                            `,
                                 sql`WITH true_positive as (
                               SELECT
                                 groundtruth as label,
@@ -393,8 +394,9 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                             SELECT 
                               AVG(cast(true_positive.cnt_tp as double) / pred_sum.cnt_ps) as "precision"
                             FROM true_positive
-                            JOIN pred_sum
-                            ON pred_sum.label = true_positive.label`
+                              JOIN pred_sum ON pred_sum.label = true_positive.label
+                              JOIN true_sum ON true_sum.label = true_positive.label
+                            `
                             ]}
                         />
                     </Col>
@@ -469,7 +471,8 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                   true_positive.my_time as x,
                                   100 * AVG(cast(true_positive.cnt_tp as double) / pred_sum.cnt_ps) as y
                                 FROM true_positive
-                                JOIN pred_sum ON pred_sum.label = true_positive.label AND pred_sum.my_time = true_positive.my_time
+                                  JOIN pred_sum ON pred_sum.label = true_positive.label AND pred_sum.my_time = true_positive.my_time
+                                  JOIN true_sum ON true_sum.label = true_positive.label AND true_sum.my_time = true_positive.my_time
                                 GROUP BY 1
                             `,
                                 [ModelPerformanceMetrics.RECALL.value]: sql`
@@ -511,7 +514,8 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                   true_positive.my_time as x,
                                   100 * AVG(cast(true_positive.cnt_tp as double) / true_sum.cnt_ts) as y
                                 FROM true_positive
-                                JOIN true_sum ON true_sum.label = true_positive.label AND true_sum.my_time = true_positive.my_time
+                                  JOIN pred_sum ON pred_sum.label = true_positive.label AND pred_sum.my_time = true_positive.my_time
+                                  JOIN true_sum ON true_sum.label = true_positive.label AND true_sum.my_time = true_positive.my_time
                                 GROUP BY 1
                             `,
                                 [ModelPerformanceMetrics.F1_SCORE.value]: sql`
