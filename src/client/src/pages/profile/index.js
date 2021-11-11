@@ -107,7 +107,7 @@ const Profile = ({authStore}) => {
     useEffect(() => {
         const {activeOrganizationMembership} = userData;
 
-        setOrgName(activeOrganizationMembership?.organization?.name || '');
+        setOrgName(activeOrganizationMembership.organization.name || '');
     }, [userData, openEditModal]);
 
     return (
