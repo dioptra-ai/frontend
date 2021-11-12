@@ -11,6 +11,7 @@ import TimeseriesQuery, {sql} from 'components/timeseries-query';
 import {getName} from 'helpers/name-helper';
 import MetricInfoBox from 'components/metric-info-box';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
+import useModel from 'customHooks/use-model';
 
 const ModelPerformanceMetrics = {
     ACCURACY: {value: 'ACCURACY', name: 'Accuracy'},
@@ -34,6 +35,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
     );
     const allSqlFilters = useAllSqlFilters();
     const sqlFiltersWithModelTime = useAllSqlFilters({useReferenceRange: true});
+    const model = useModel();
 
     const sampleSizeComponent = (
         <TimeseriesQuery
@@ -46,6 +48,8 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
         />
     );
     const timeGranularity = timeStore.getTimeGranularity().toISOString();
+    const predictionName = model.mlModelType === 'DOCUMENT_PROCESSING' ? '"prediction.class_name"' : '"prediction"';
+    const groundTruthName = model.mlModelType === 'DOCUMENT_PROCESSING' ? '"groundtruth.class_name"' : '"groundtruth"';
 
     return (
         <>
@@ -130,11 +134,11 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                             )}
                             sql={[
                                 sql`
-                                SELECT 100 * CAST(sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) AS DOUBLE) / sum(1) AS accuracy
+                                SELECT 100 * CAST(sum(CASE WHEN ${predictionName}=${groundTruthName} THEN 1 ELSE 0 END) AS DOUBLE) / sum(1) AS accuracy
                                 FROM "dioptra-gt-combined-eventstream"
                                 WHERE ${allSqlFilters}`,
                                 sql`
-                                SELECT 100 * CAST(sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) AS DOUBLE) / sum(1) AS accuracy
+                                SELECT 100 * CAST(sum(CASE WHEN ${predictionName}=${groundTruthName} THEN 1 ELSE 0 END) AS DOUBLE) / sum(1) AS accuracy
                                 FROM "dioptra-gt-combined-eventstream"
                                 WHERE ${sqlFiltersWithModelTime}`
                             ]}
@@ -156,30 +160,30 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 sql`
                                     WITH true_positive as (
                                       SELECT
-                                        groundtruth as label,
-                                        sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) as cnt_tp
+                                        ${groundTruthName} as label,
+                                        sum(CASE WHEN ${predictionName}=${groundTruthName} THEN 1 ELSE 0 END) as cnt_tp
                                       FROM "dioptra-gt-combined-eventstream"
                                       WHERE ${allSqlFilters}
-                                      GROUP BY groundtruth
-                                      ORDER by groundtruth
+                                      GROUP BY ${groundTruthName}
+                                      ORDER by ${groundTruthName}
                                     ),
                                     true_sum as (
                                       SELECT
-                                        prediction as label,
+                                        ${predictionName} as label,
                                         count(1) as cnt_ts
                                       FROM "dioptra-gt-combined-eventstream"
                                       WHERE ${allSqlFilters}
-                                      GROUP BY prediction
-                                      ORDER by prediction
+                                      GROUP BY ${predictionName}
+                                      ORDER by ${predictionName}
                                     ),
                                     pred_sum as (
                                       SELECT
-                                        groundtruth as label,
+                                        ${groundTruthName} as label,
                                         count(1) as cnt_ps
                                       FROM "dioptra-gt-combined-eventstream"
                                       WHERE ${allSqlFilters}
-                                      GROUP BY groundtruth
-                                      ORDER BY groundtruth
+                                      GROUP BY ${groundTruthName}
+                                      ORDER BY ${groundTruthName}
                                     )
                                     SELECT
                                       2 * ((my_table.my_precision * my_table.my_recall) / (my_table.my_precision + my_table.my_recall)) as f1Score
@@ -195,30 +199,30 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 sql`
                                 WITH true_positive as (
                                   SELECT
-                                    groundtruth as label,
-                                    sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) as cnt_tp
+                                    ${groundTruthName} as label,
+                                    sum(CASE WHEN ${predictionName}=${groundTruthName} THEN 1 ELSE 0 END) as cnt_tp
                                   FROM "dioptra-gt-combined-eventstream"
                                   WHERE ${sqlFiltersWithModelTime}
-                                  GROUP BY groundtruth
-                                  ORDER by groundtruth
+                                  GROUP BY ${groundTruthName}
+                                  ORDER by ${groundTruthName}
                                 ),
                                 true_sum as (
                                   SELECT
-                                    prediction as label,
+                                    ${predictionName} as label,
                                     count(1) as cnt_ts
                                   FROM "dioptra-gt-combined-eventstream"
                                   WHERE ${sqlFiltersWithModelTime}
-                                  GROUP BY prediction
-                                  ORDER by prediction
+                                  GROUP BY ${predictionName}
+                                  ORDER by ${predictionName}
                                 ),
                                 pred_sum as (
                                   SELECT
-                                    groundtruth as label,
+                                    ${groundTruthName} as label,
                                     count(1) as cnt_ps
                                   FROM "dioptra-gt-combined-eventstream"
                                   WHERE ${sqlFiltersWithModelTime}
-                                  GROUP BY groundtruth
-                                  ORDER BY groundtruth
+                                  GROUP BY ${groundTruthName}
+                                  ORDER BY ${groundTruthName}
                                 )
                                 SELECT
                                   2 * ((my_table.my_precision * my_table.my_recall) / (my_table.my_precision + my_table.my_recall)) as f1Score
@@ -250,33 +254,33 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 sql`
                                 WITH true_positive as (
                                   SELECT
-                                    groundtruth as label,
-                                    sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) as cnt_tp
+                                    ${groundTruthName} as label,
+                                    sum(CASE WHEN ${predictionName}=${groundTruthName} THEN 1 ELSE 0 END) as cnt_tp
                                   FROM
                                     "dioptra-gt-combined-eventstream"
                                   WHERE ${allSqlFilters}
-                                  GROUP BY groundtruth
-                                  order by groundtruth
+                                  GROUP BY ${groundTruthName}
+                                  order by ${groundTruthName}
                                 ),
                                 true_sum as (
                                   SELECT
-                                    prediction as label,
+                                    ${predictionName} as label,
                                     count(1) as cnt_ts
                                   FROM
                                     "dioptra-gt-combined-eventstream"
                                   WHERE ${allSqlFilters}
-                                  GROUP BY prediction
-                                  order by prediction
+                                  GROUP BY ${predictionName}
+                                  order by ${predictionName}
                                 ),
                                 pred_sum as (
                                   SELECT
-                                    groundtruth as label,
+                                    ${groundTruthName} as label,
                                     count(1) as cnt_ps
                                   FROM
                                     "dioptra-gt-combined-eventstream"
                                   WHERE ${allSqlFilters}
-                                  GROUP BY groundtruth
-                                  ORDER BY groundtruth
+                                  GROUP BY ${groundTruthName}
+                                  ORDER BY ${groundTruthName}
                                 )
 
                                 SELECT 
@@ -288,33 +292,33 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 sql`
                             WITH true_positive as (
                               SELECT
-                                groundtruth as label,
-                                sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) as cnt_tp
+                                ${groundTruthName} as label,
+                                sum(CASE WHEN ${predictionName}=${groundTruthName} THEN 1 ELSE 0 END) as cnt_tp
                               FROM
                                 "dioptra-gt-combined-eventstream"
                               WHERE ${sqlFiltersWithModelTime}
-                              GROUP BY groundtruth
-                              order by groundtruth
+                              GROUP BY ${groundTruthName}
+                              order by ${groundTruthName}
                             ),
                             true_sum as (
                               SELECT
-                                prediction as label,
+                                ${predictionName} as label,
                                 count(1) as cnt_ts
                               FROM
                                 "dioptra-gt-combined-eventstream"
                               WHERE ${sqlFiltersWithModelTime}
-                              GROUP BY prediction
-                              order by prediction
+                              GROUP BY ${predictionName}
+                              order by ${predictionName}
                             ),
                             pred_sum as (
                               SELECT
-                                groundtruth as label,
+                                ${groundTruthName} as label,
                                 count(1) as cnt_ps
                               FROM
                                 "dioptra-gt-combined-eventstream"
                               WHERE ${sqlFiltersWithModelTime}
-                              GROUP BY groundtruth
-                              ORDER BY groundtruth
+                              GROUP BY ${groundTruthName}
+                              ORDER BY ${groundTruthName}
                             )
 
                             SELECT 
@@ -341,33 +345,33 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                             sql={[
                                 sql`WITH true_positive as (
                               SELECT
-                                groundtruth as label,
-                                sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) as cnt_tp
+                                ${groundTruthName} as label,
+                                sum(CASE WHEN ${predictionName}=${groundTruthName} THEN 1 ELSE 0 END) as cnt_tp
                               FROM
                                 "dioptra-gt-combined-eventstream"
                               WHERE ${allSqlFilters}
-                              GROUP BY groundtruth
-                              ORDER BY groundtruth
+                              GROUP BY ${groundTruthName}
+                              ORDER BY ${groundTruthName}
                             ),
                             true_sum as (
                               SELECT
-                                prediction as label,
+                                ${predictionName} as label,
                                 count(1) as cnt_ts
                               FROM
                                 "dioptra-gt-combined-eventstream"
                               WHERE ${allSqlFilters}
-                              GROUP BY prediction
-                              ORDER BY prediction
+                              GROUP BY ${predictionName}
+                              ORDER BY ${predictionName}
                             ),
                             pred_sum as (
                               SELECT
-                                groundtruth as label,
+                                ${groundTruthName} as label,
                                 count(1) as cnt_ps
                               FROM
                                 "dioptra-gt-combined-eventstream"
                               WHERE ${allSqlFilters}
-                              GROUP BY groundtruth
-                              ORDER BY groundtruth
+                              GROUP BY ${groundTruthName}
+                              ORDER BY ${groundTruthName}
                             )
 
                             SELECT 
@@ -378,33 +382,33 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                             `,
                                 sql`WITH true_positive as (
                               SELECT
-                                groundtruth as label,
-                                sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) as cnt_tp
+                                ${groundTruthName} as label,
+                                sum(CASE WHEN ${predictionName}=${groundTruthName} THEN 1 ELSE 0 END) as cnt_tp
                               FROM
                                 "dioptra-gt-combined-eventstream"
                               WHERE ${sqlFiltersWithModelTime}
-                              GROUP BY groundtruth
-                              ORDER BY groundtruth
+                              GROUP BY ${groundTruthName}
+                              ORDER BY ${groundTruthName}
                             ),
                             true_sum as (
                               SELECT
-                                prediction as label,
+                                ${predictionName} as label,
                                 count(1) as cnt_ts
                               FROM
                                 "dioptra-gt-combined-eventstream"
                               WHERE ${sqlFiltersWithModelTime}
-                              GROUP BY prediction
-                              ORDER BY prediction
+                              GROUP BY ${predictionName}
+                              ORDER BY ${predictionName}
                             ),
                             pred_sum as (
                               SELECT
-                                groundtruth as label,
+                                ${groundTruthName} as label,
                                 count(1) as cnt_ps
                               FROM
                                 "dioptra-gt-combined-eventstream"
                               WHERE ${sqlFiltersWithModelTime}
-                              GROUP BY groundtruth
-                              ORDER BY groundtruth
+                              GROUP BY ${groundTruthName}
+                              ORDER BY ${groundTruthName}
                             )
 
                             SELECT 
@@ -445,7 +449,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                             {
                                 [ModelPerformanceMetrics.ACCURACY.value]: sql`
                                 SELECT TIME_FLOOR(__time, '${timeGranularity}') as x,
-                                  100 * CAST(sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) AS DOUBLE) / CAST(sum(1) AS DOUBLE) AS y
+                                  100 * CAST(sum(CASE WHEN ${predictionName}=${groundTruthName} THEN 1 ELSE 0 END) AS DOUBLE) / CAST(sum(1) AS DOUBLE) AS y
                                 FROM "dioptra-gt-combined-eventstream"
                                 WHERE ${allSqlFilters}
                                 GROUP BY 1`,
@@ -453,35 +457,35 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 WITH true_positive as (
                                   SELECT
                                     TIME_FLOOR(__time, '${timeGranularity}') as "my_time",
-                                    groundtruth as label,
-                                    sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) as cnt_tp
+                                    ${groundTruthName} as label,
+                                    sum(CASE WHEN ${predictionName}=${groundTruthName} THEN 1 ELSE 0 END) as cnt_tp
                                   FROM
                                     "dioptra-gt-combined-eventstream"
                                   WHERE ${allSqlFilters}
                                   GROUP BY 1, 2
-                                  order by groundtruth
+                                  order by ${groundTruthName}
                                 ),
                                 true_sum as (
                                   SELECT
                                     TIME_FLOOR(__time, '${timeGranularity}') as "my_time",
-                                    prediction as label,
+                                    ${predictionName} as label,
                                     count(1) as cnt_ts
                                   FROM
                                     "dioptra-gt-combined-eventstream"
                                   WHERE ${allSqlFilters}
                                   GROUP BY 1, 2
-                                  order by prediction
+                                  order by ${predictionName}
                                 ),
                                 pred_sum as (
                                   SELECT
                                     TIME_FLOOR(__time, '${timeGranularity}') as "my_time",
-                                    groundtruth as label,
+                                    ${groundTruthName} as label,
                                     count(1) as cnt_ps
                                   FROM
                                     "dioptra-gt-combined-eventstream"
                                   WHERE ${allSqlFilters}
                                   GROUP BY 1, 2
-                                  ORDER BY groundtruth
+                                  ORDER BY ${groundTruthName}
                                 )
                                 SELECT
                                   true_positive.my_time as x,
@@ -495,35 +499,35 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 WITH true_positive as (
                                   SELECT
                                     TIME_FLOOR(__time, '${timeGranularity}') as "my_time",
-                                    groundtruth as label,
-                                    sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) as cnt_tp
+                                    ${groundTruthName} as label,
+                                    sum(CASE WHEN ${predictionName}=${groundTruthName} THEN 1 ELSE 0 END) as cnt_tp
                                   FROM
                                     "dioptra-gt-combined-eventstream"
                                   WHERE ${allSqlFilters}
                                   GROUP BY 1, 2
-                                  order by groundtruth
+                                  order by ${groundTruthName}
                                 ),
                                 true_sum as (
                                   SELECT
                                     TIME_FLOOR(__time, '${timeGranularity}') as "my_time",
-                                    prediction as label,
+                                    ${predictionName} as label,
                                     count(1) as cnt_ts
                                   FROM
                                     "dioptra-gt-combined-eventstream"
                                   WHERE ${allSqlFilters}
                                   GROUP BY 1, 2
-                                  order by prediction
+                                  order by ${predictionName}
                                 ),
                                 pred_sum as (
                                   SELECT
                                     TIME_FLOOR(__time, '${timeGranularity}') as "my_time",
-                                    groundtruth as label,
+                                    ${groundTruthName} as label,
                                     count(1) as cnt_ps
                                   FROM
                                     "dioptra-gt-combined-eventstream"
                                   WHERE ${allSqlFilters}
                                   GROUP BY 1, 2
-                                  ORDER BY groundtruth
+                                  ORDER BY ${groundTruthName}
                                 )
 
                                 SELECT
@@ -538,35 +542,35 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 WITH true_positive as (
                                   SELECT
                                     TIME_FLOOR(__time, '${timeGranularity}') as "my_time",
-                                    groundtruth as label,
-                                    sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) as cnt_tp
+                                    ${groundTruthName} as label,
+                                    sum(CASE WHEN ${predictionName}=${groundTruthName} THEN 1 ELSE 0 END) as cnt_tp
                                   FROM
                                     "dioptra-gt-combined-eventstream"
                                   WHERE ${allSqlFilters}
                                   GROUP BY 1, 2
-                                  order by groundtruth
+                                  order by ${groundTruthName}
                                 ),
                                 true_sum as (
                                   SELECT
                                     TIME_FLOOR(__time, '${timeGranularity}') as "my_time",
-                                    prediction as label,
+                                    ${predictionName} as label,
                                     count(1) as cnt_ts
                                   FROM
                                     "dioptra-gt-combined-eventstream"
                                   WHERE ${allSqlFilters}
                                   GROUP BY 1, 2
-                                  order by prediction
+                                  order by ${predictionName}
                                 ),
                                 pred_sum as (
                                   SELECT
                                     TIME_FLOOR(__time, '${timeGranularity}') as "my_time",
-                                    groundtruth as label,
+                                    ${groundTruthName} as label,
                                     count(1) as cnt_ps
                                   FROM
                                     "dioptra-gt-combined-eventstream"
                                   WHERE ${allSqlFilters}
                                   GROUP BY 1, 2
-                                  ORDER BY groundtruth
+                                  ORDER BY ${groundTruthName}
                                 )
 
                                 SELECT
