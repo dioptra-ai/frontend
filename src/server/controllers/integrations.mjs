@@ -12,31 +12,16 @@ IntegrationRouter.post('/', async (req, res, next) => {
         const {apiKey, endpoint} = req.body;
         const IntegrationModel = mongoose.model('Integrations');
 
-        const integrationExists = await IntegrationModel.findOne({
-            organization: activeOrganizationMembership.organization._id
-        });
-
-        let integration = null;
-
-        if (integrationExists) {
-            integration = await IntegrationModel.findByIdAndUpdate(
-                integrationExists._id,
-                {
-                    apiKey,
-                    endpoint,
-                    addedBy,
-                    organization: activeOrganizationMembership.organization._id
-                },
-                {new: true}
-            );
-        } else {
-            integration = await IntegrationModel.create({
+        const integration = await IntegrationModel.findOneAndUpdate(
+            {organization: activeOrganizationMembership.organization._id},
+            {
                 apiKey,
                 endpoint,
                 addedBy,
                 organization: activeOrganizationMembership.organization._id
-            });
-        }
+            },
+            {new: true, upsert: true}
+        );
 
         res.send(integration);
     } catch (e) {
@@ -44,12 +29,14 @@ IntegrationRouter.post('/', async (req, res, next) => {
     }
 });
 
-IntegrationRouter.get('/:orgId', async (req, res, next) => {
+IntegrationRouter.get('/:type', async (req, res, next) => {
     try {
+        const {activeOrganizationMembership} = req.user;
         const IntegrationModel = mongoose.model('Integrations');
 
         const integration = await IntegrationModel.findOne({
-            organization: req.params.orgId
+            organization: activeOrganizationMembership.organization._id,
+            type: req.params.type
         });
 
         res.send(integration);

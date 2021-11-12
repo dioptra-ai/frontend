@@ -1,17 +1,13 @@
 import React, {useEffect, useState} from 'react';
-import PropTypes from 'prop-types';
 import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Button from 'react-bootstrap/Button';
 import FontIcon from '../components/font-icon';
-import {setupComponent} from '../helpers/component-helper';
 import {IconNames} from '../constants';
 import baseJSONClient from 'clients/base-json-client';
 
-const Settings = ({authStore}) => {
-    const {userData} = authStore;
-
+const Settings = () => {
     const [formData, setFormData] = useState({
         apiKey: '',
         endpoint: ''
@@ -22,10 +18,9 @@ const Settings = ({authStore}) => {
     const isDisabled = !(formData.apiKey && formData.endpoint);
 
     useEffect(() => {
-        baseJSONClient(`/api/integration/${userData.activeOrganizationMembership.organization._id}`)
+        baseJSONClient('/api/integration/REDASH')
             .then((res) => {
                 setError('');
-                console.log('Res: ', res);
                 if (res) {
                     const {apiKey, endpoint} = res;
 
@@ -44,7 +39,7 @@ const Settings = ({authStore}) => {
 
         baseJSONClient('/api/integration', {
             method: 'POST',
-            body: formData
+            body: {...formData, type: 'REDASH'}
         })
             .then((res) => {
                 setError('');
@@ -124,8 +119,4 @@ const Settings = ({authStore}) => {
     );
 };
 
-Settings.propTypes = {
-    authStore: PropTypes.object
-};
-
-export default setupComponent(Settings);
+export default Settings;

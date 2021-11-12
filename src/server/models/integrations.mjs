@@ -15,6 +15,12 @@ const integrationSchema = new Schema({
         ref: 'Organization',
         required: true
     },
+    type: {
+        type: String,
+        enum: ['REDASH'],
+        default: 'REDASH',
+        required: true
+    },
     addedBy: {
         type: Schema.Types.ObjectId,
         ref: 'User',
