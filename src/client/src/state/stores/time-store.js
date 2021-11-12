@@ -99,7 +99,7 @@ class TimeStore {
     }
 
     get sqlTimeFilter() {
-        return `"timestamp" >= TIME_PARSE('${this._start.toISOString()}') AND "timestamp" < TIME_PARSE('${this._end.toISOString()}')`;
+        return `"__time" >= TIME_PARSE('${this._start.toISOString()}') AND "__time" < TIME_PARSE('${this._end.toISOString()}')`;
     }
 
     getTimeGranularity(maxTicks = SQL_OUTER_LIMIT) {
