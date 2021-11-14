@@ -21,9 +21,9 @@ const DifferenceLabel = ({value, difference, containerStyle = {}, baseClasses = 
 DifferenceLabel.propTypes = {
     baseClasses: PropTypes.string,
     containerStyle: PropTypes.object,
-    difference: PropTypes.number.isRequired,
+    difference: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
     diffStyles: PropTypes.object,
-    value: PropTypes.number.isRequired
+    value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired
 };
 
 export default DifferenceLabel;

@@ -82,8 +82,7 @@ const MembersTable = ({isAdmin, orgID}) => {
             {successMsg && <p>{successMsg}</p>}
             <Async
                 refetchOnChanged={[orgID, openMemberModal, refetch]}
-                fetchData={() => baseJSONClient(`/api/organization-membership/${orgID}/members`)
-                }
+                fetchData={() => baseJSONClient(`/api/organization-membership/${orgID}/members`)}
                 renderData={(members) => members.length ? (
                     <Table
                         data={members}

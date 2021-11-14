@@ -40,6 +40,14 @@ organizationSchema.statics.createAndInitialize = async (orgProps, firstUserProps
             mlModelTier: 5,
             mlModelType: 'TABULAR_CLASSIFIER',
             organization: org._id
+        }, {
+            mlModelId: 'document_extraction',
+            name: 'Document Extraction',
+            description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque bibendum sem eget convallis malesuada. Quisque accumsan nisi ut ipsum tincidunt, a posuere nisi viverra. Quisque a lorem tellus.',
+            lastDeployed: new Date('2021-07-14T01:20:51.873Z'),
+            mlModelTier: 5,
+            mlModelType: 'DOCUMENT_PROCESSING',
+            organization: org._id
         }])
     ]);
 

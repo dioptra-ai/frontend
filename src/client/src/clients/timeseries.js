@@ -22,7 +22,7 @@ const memoizedFetch = mem(async (...args) => {
  * @return {Any}
  *      see https://druid.apache.org/docs/latest/querying/sql.html#responses
  */
-const TimeseriesClient = ({query, resultFormat = 'object', sqlOuterLimit}) => {
+const timeseriesClient = ({query, resultFormat = 'object', sqlOuterLimit}) => {
 
     return memoizedFetch('/api/timeseries', {
         headers: {
@@ -33,7 +33,7 @@ const TimeseriesClient = ({query, resultFormat = 'object', sqlOuterLimit}) => {
             resultFormat,
             header: true,
             context: {
-                sqlOuterLimit: sqlOuterLimit || TimeseriesClient.SQL_OUTER_LIMIT
+                sqlOuterLimit: sqlOuterLimit || timeseriesClient.SQL_OUTER_LIMIT
             }
         }),
         method: 'post'
@@ -50,6 +50,6 @@ const TimeseriesClient = ({query, resultFormat = 'object', sqlOuterLimit}) => {
     });
 };
 
-export default TimeseriesClient;
+export default timeseriesClient;
 
-TimeseriesClient.SQL_OUTER_LIMIT = 100;
+timeseriesClient.SQL_OUTER_LIMIT = 100;

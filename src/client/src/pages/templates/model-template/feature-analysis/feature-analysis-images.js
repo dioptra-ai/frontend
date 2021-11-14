@@ -98,18 +98,16 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                 <Row>
                     <div>
                         <Async refetchOnChanged={[allOfflineSqlFilters, allSqlFilters, timeGranularity]}
-                            fetchData={() => {
-                                return baseJsonClient('/api/metrics', {
-                                    method: 'post',
-                                    body:
-                                    {
-                                        metrics_type: 'bi_non_cat_distance',
-                                        reference_filters: allOfflineSqlFilters,
-                                        current_filters: allSqlFilters,
-                                        time_granularity: timeGranularity
-                                    }
-                                });
-                            }}
+                            fetchData={() => baseJsonClient('/api/metrics', {
+                                method: 'post',
+                                body:
+                                {
+                                    metrics_type: 'bi_non_cat_distance',
+                                    reference_filters: allOfflineSqlFilters,
+                                    current_filters: allSqlFilters,
+                                    time_granularity: timeGranularity
+                                }
+                            })}
                             renderData={(data) => (
                                 <AreaGraph
                                     dots={data.distance.map(({time, distance}) => ({
@@ -133,17 +131,15 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                 <Row>
                     <Col>
                         <Async refetchOnChanged={[allOfflineSqlFilters, allSqlFilters, timeGranularity]}
-                            fetchData={() => {
-                                return baseJsonClient('/api/metrics', {
-                                    method: 'post',
-                                    body:
-                                    {
-                                        metrics_type: 'outlier_detection',
-                                        current_filters: allSqlFilters,
-                                        reference_filters: allOfflineSqlFilters
-                                    }
-                                });
-                            }}
+                            fetchData={() => baseJsonClient('/api/metrics', {
+                                method: 'post',
+                                body:
+                                {
+                                    metrics_type: 'outlier_detection',
+                                    current_filters: allSqlFilters,
+                                    reference_filters: allOfflineSqlFilters
+                                }
+                            })}
                             renderData={(data) => (
                                 <ScatterGraph data={data.outlier_analysis.map(({image_url, dimensions, outlier, novelty}) => ({
                                     samples: [image_url],

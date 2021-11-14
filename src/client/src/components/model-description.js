@@ -4,8 +4,6 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import PropTypes from 'prop-types';
 import FontIcon from './font-icon';
-import {Link} from 'react-router-dom';
-import {Paths} from '../configs/route-config';
 import {IconNames} from 'constants';
 import {formatDateTime} from 'helpers/date-helper';
 import {Button} from 'react-bootstrap';
@@ -16,7 +14,7 @@ import timeSeriesClient from 'clients/timeseries';
 import Select from './select';
 
 
-const ModelDescription = ({_id, filtersStore, modelStore, name, description, team, tier, lastDeployed, incidents, mlModelId, mlModelType, referencePeriod}) => {
+const ModelDescription = ({_id, filtersStore, modelStore, name, description, team, tier, lastDeployed, mlModelId, mlModelType, referencePeriod}) => {
     const [expand, setExpand] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [errors, setErrors] = useState([]);
@@ -81,15 +79,6 @@ const ModelDescription = ({_id, filtersStore, modelStore, name, description, tea
                     </button>
                 </Col>
                 <Col className='d-flex justify-content-end' lg={5}>
-                    <Link className='btn-incidents text-decoration-none text-dark bold-text fs-4 p-3' to={Paths({modelId: _id}).MODEL_INCIDENTS_AND_ALERTS}>
-                        Open Incidents
-                        <FontIcon
-                            className={`${incidents ? 'text-warning' : 'text-success'} mx-2`}
-                            icon={incidents ? IconNames.WARNING : IconNames.CHECK}
-                            size={40}
-                        />
-                        <span className='text-warning'>{incidents !== 0 && incidents}</span>
-                    </Link>
                     <Button
                         className='py-3 fs-6 bold-text px-5 text-white ms-3'
                         onClick={() => setShowModal(true)}
@@ -149,7 +138,6 @@ const ModelDescription = ({_id, filtersStore, modelStore, name, description, tea
 ModelDescription.propTypes = {
     description: PropTypes.string,
     filtersStore: PropTypes.object,
-    incidents: PropTypes.number,
     lastDeployed: PropTypes.string,
     modelStore: PropTypes.object,
     name: PropTypes.string,
