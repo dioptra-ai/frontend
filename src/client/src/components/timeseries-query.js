@@ -13,10 +13,10 @@ const TimeseriesQuery = ({
     renderLoading,
     ...rest
 }) => {
-    let timeseriesClients = null;
+    let fetchTimeseries = null;
 
     if (Array.isArray(sql)) {
-        timeseriesClients = sql.map((qry) => {
+        fetchTimeseries = sql.map((qry) => {
             const {query, parameters} = qry;
 
             if (!query || !parameters) {
@@ -25,7 +25,7 @@ const TimeseriesQuery = ({
                 );
             }
 
-            return timeseriesClient({query, ...rest});
+            return () => timeseriesClient({query, ...rest});
         });
     } else {
         const {query, parameters} = sql;
@@ -36,26 +36,27 @@ const TimeseriesQuery = ({
             );
         }
 
-        timeseriesClients = timeseriesClient({query: sql.query, ...rest});
+        fetchTimeseries = () => timeseriesClient({query: sql.query, ...rest});
     }
-
-    const decideOnData = (data) => {
-        if (data.length) {
-            if (Array.isArray(timeseriesClients)) {
-                return data?.map((d, index) => (d.length ? d : defaultData[index]));
-            }
-
-            return data;
-        }
-
-        return defaultData;
-    };
 
     return (
         <Async
-            refetchOnChanged={[timeseriesClients]}
-            fetchData={timeseriesClients}
-            renderData={(data) => renderData(decideOnData(data))}
+            refetchOnChanged={[fetchTimeseries]}
+            fetchData={fetchTimeseries}
+            renderData={(data) => {
+                if (data.length) {
+                    if (Array.isArray(fetchTimeseries)) {
+
+                        return renderData(data?.map((d, index) => (d.length ? d : defaultData[index])));
+                    } else {
+
+                        return renderData(data);
+                    }
+                } else {
+
+                    return renderData(defaultData);
+                }
+            }}
             renderError={renderError}
             renderLoading={renderLoading}
         >

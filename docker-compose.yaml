@@ -36,8 +36,6 @@ services:
   metrics-engine:
     build:
       submodules/metrics-engine
-      # context: submodules/metrics-engine
-      # target: builder
     image: metrics-engine:latest
     container_name: metrics-engine
     restart: always
@@ -49,6 +47,7 @@ services:
       - '4006:4006'
     networks:
       - app-network
+    entrypoint: /bin/sleep 36000
 
 networks:
   app-network:

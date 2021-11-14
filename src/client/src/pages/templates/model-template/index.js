@@ -61,7 +61,7 @@ const Model = ({modelStore}) => {
                             render={() => (
                                 <div className='px-3'>
                                     <h2 className='text-dark bold-text fs-2 my-5'>Performance Overview</h2>
-                                    <PerformanceOverview model={model}/>
+                                    <PerformanceOverview/>
                                 </div>
                             )}
                         />
@@ -69,7 +69,7 @@ const Model = ({modelStore}) => {
                             render={() => (
                                 <div className='px-3'>
                                     <h2 className='text-dark bold-text fs-2 my-5'>Performance Details</h2>
-                                    <PerformanceDetails model={model}/>
+                                    <PerformanceDetails/>
                                 </div>
                             )}
                         />
@@ -77,7 +77,7 @@ const Model = ({modelStore}) => {
                             render={() => (
                                 <div className='px-3'>
                                     <h2 className='text-dark bold-text fs-2 my-5'>Prediction Analysis</h2>
-                                    <PredictionAnalysis model={model}/>
+                                    <PredictionAnalysis/>
                                 </div>
                             )}
                         />
@@ -85,7 +85,7 @@ const Model = ({modelStore}) => {
                             render={() => (
                                 <div className='px-3'>
                                     <h2 className='text-dark bold-text fs-2 my-5'>Feature Analysis</h2>
-                                    <FeatureAnalysis model={model}/>
+                                    <FeatureAnalysis/>
                                 </div>
                             )}
                         />
@@ -93,7 +93,7 @@ const Model = ({modelStore}) => {
                             render={() => (
                                 <div className='px-3'>
                                     <h2 className='text-dark bold-text fs-2 my-5'>Incidents & Alerts</h2>
-                                    <IncidentsAndAlerts model={model}/>
+                                    <IncidentsAndAlerts/>
                                 </div>
                             )}
                         />
