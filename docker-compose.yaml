@@ -48,6 +48,8 @@ services:
     networks:
       - app-network
     entrypoint: /bin/sleep 36000
+    volumes:
+      - ./submodules/metrics-engine:/app
 
 networks:
   app-network:
