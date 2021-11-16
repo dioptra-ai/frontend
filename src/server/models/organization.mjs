@@ -59,8 +59,7 @@ organizationSchema.statics.initializeCollection = async () => {
     if (!await Organization.exists()) {
 
         await Organization.createAndInitialize({
-            name: 'Admin Organization',
-            ...process.env.ADMIN_ORG_ID && {_id: process.env.ADMIN_ORG_ID}
+            name: 'Admin Organization'
         }, {
             username: 'admin', password: 'admin'
         });

@@ -24,7 +24,7 @@ services:
       METRICS_ENGINE_URL: "http://metrics-engine:4006"
       # Druid router on arn:aws:eks:us-east-2:641017132295:cluster/dioptra-dev-eks
       DRUID_DB_URL: "http://a2db86db7435c46a58524f6d90839799-413940887.us-east-2.elb.amazonaws.com:8888/druid/v2/sql/"
-      ADMIN_ORG_ID: "615e0dfeb8f78ad92061ef6f"
+      OVERRIDE_DRUID_ORG_ID: "61723d86f1796f8b73854a2d"
     ports:
       - '4004:4004'
     networks:
@@ -32,6 +32,7 @@ services:
     volumes:
       - ./src:/app/src
       - ./index.mjs:/app/index.mjs
+      - ./webpack.config.js:/app/webpack.config.js
     entrypoint: /bin/sleep 36000
   metrics-engine:
     build:
