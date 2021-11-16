@@ -11,6 +11,8 @@ jobs:
         default: us-east-2
       helm-values:
         type: string
+      image-tag:
+        type: string
     executor: aws-eks/python
     steps:
       - aws-eks/update-kubeconfig-with-authenticator:
@@ -25,6 +27,7 @@ jobs:
           update-repositories: false
           recreate-pods: true
           values: <<parameters.helm-values>>
+          values-to-override: image=<<parameters.image-tag>>
 
 orbs:
   aws-ecr: circleci/aws-ecr@7.0.0
@@ -72,6 +75,7 @@ workflows:
           name: upgrade-dev
           cluster-name: dioptra-dev-eks
           helm-values: ./helm/values.dev.yaml
+          image-tag: 0.1.1.$CIRCLE_BUILD_NUM
           context:
             - aws-creds
           requires:
@@ -84,6 +88,7 @@ workflows:
           name: upgrade-prod
           cluster-name: dioptra-prod-eks
           helm-values: ./helm/values.prod.yaml
+          image-tag: 0.1.1.$CIRCLE_BUILD_NUM
           context:
             - aws-creds
           requires:
