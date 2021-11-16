@@ -20,6 +20,8 @@ import ModelForm from './model-form';
 import timeseriesClient from 'clients/timeseries';
 
 const NUMBER_OF_RECORDS_PER_PAGE = 10;
+const TRAFFIC_START_MOMENT = moment().subtract(1, 'day');
+const TRAFFIC_END_MOMENT = moment();
 
 const IncidentsTooltipContent = ({incidents}) => {
     return (
@@ -40,7 +42,7 @@ IncidentsTooltipContent.propTypes = {
     incidents: PropTypes.array
 };
 
-const _ModelRow = ({model, idx, color, timeStore}) => {
+const _ModelRow = ({model, idx, color}) => {
     const incidentsRef = useRef(null);
     const hasIncidents = false;
     const [shouldShowTooltip, setShouldShowTooltip] = useState(false);
@@ -118,7 +120,7 @@ const _ModelRow = ({model, idx, color, timeStore}) => {
                         <XAxis
                             axisLine={false}
                             dataKey='x'
-                            domain={timeStore.rangeMillisec}
+                            domain={[TRAFFIC_START_MOMENT.valueOf(), TRAFFIC_END_MOMENT.valueOf()]}
                             scale='time'
                             tick={false}
                             type='number'
@@ -140,8 +142,7 @@ const _ModelRow = ({model, idx, color, timeStore}) => {
 _ModelRow.propTypes = {
     color: PropTypes.string,
     idx: PropTypes.number,
-    model: PropTypes.object,
-    timeStore: PropTypes.object.isRequired
+    model: PropTypes.object
 };
 
 const ModelRow = setupComponent(_ModelRow);
@@ -197,7 +198,7 @@ const Models = ({modelStore}) => {
             timeseriesClient({
                 query: `SELECT TIME_FLOOR(__time, 'PT1H') as "time", COUNT(*) as throughput, model_id
                 FROM "dioptra-gt-combined-eventstream"
-                WHERE __time >= TIME_PARSE('${moment().subtract(1, 'day').toISOString()}')
+                WHERE __time >= TIME_PARSE('${TRAFFIC_START_MOMENT.toISOString()}')
                 GROUP BY 1, model_id`
             })
                 .then((trafficData) => {

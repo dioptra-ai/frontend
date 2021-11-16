@@ -491,9 +491,9 @@ const PerformanceDetails = ({filtersStore, timeStore, iouStore}) => {
                             <Col lg={3} className='my-3'>
                                 <Select
                                     options={[
-                                        {name: 'iou=0.5', value: 0.5},
-                                        {name: 'iou=0.75', value: 0.75},
-                                        {name: 'iou=0.95', value: 0.95}
+                                        {name: 'iou >= 0.5', value: 0.5},
+                                        {name: 'iou >= 0.75', value: 0.75},
+                                        {name: 'iou >= 0.95', value: 0.95}
                                     ]}
                                     initialValue={iouStore.iou}
                                     onChange={(val) => {
