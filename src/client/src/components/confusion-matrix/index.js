@@ -116,20 +116,20 @@ const ConfusionMatrix = () => {
                 predictionTable.prediction,
                 cast(predictionTable.c as FLOAT) / cast(groundTable.c as FLOAT) as distribution
             FROM (
-                SELECT "bboxes.groundtruth" as groundtruth, 
-                    "bboxes.prediction" as prediction, 
+                SELECT "groundtruth.class_name" as groundtruth, 
+                    "prediction.class_name" as prediction, 
                     COUNT(*) AS c
                 FROM "dioptra-gt-combined-eventstream"
-                WHERE cast("bboxes.iou" as FLOAT) > ${iou} AND ${filters}
-                GROUP BY "bboxes.groundtruth", "bboxes.prediction"
-                ORDER BY "bboxes.groundtruth", "bboxes.groundtruth"
+                WHERE cast("iou" as FLOAT) > ${iou} AND ${filters}
+                GROUP BY "groundtruth.class_name", "prediction.class_name"
+                ORDER BY "groundtruth.class_name", "groundtruth.class_name"
             )  as predictionTable
             LEFT JOIN (
-                SELECT "bboxes.groundtruth" as groundtruth,
+                SELECT "groundtruth.class_name" as groundtruth,
                     COUNT(*) AS c
                 FROM "dioptra-gt-combined-eventstream"
-                WHERE cast("bboxes.iou" as FLOAT) >= ${iou} AND ${filters}
-                GROUP BY "bboxes.groundtruth"
+                WHERE cast("iou" as FLOAT) >= ${iou} AND ${filters}
+                GROUP BY "groundtruth.class_name"
             ) AS groundTable
             ON groundTable.groundtruth = predictionTable.groundtruth`;
         default:
