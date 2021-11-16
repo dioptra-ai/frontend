@@ -15,15 +15,15 @@ const ImageExamples = ({onClose, groundtruth, prediction, iou, model}) => {
     const generateQuery = () => {
         switch (model.mlModelType) {
         case 'DOCUMENT_PROCESSING':
-            return `SELECT distinct "feature.image_url"
+            return `SELECT distinct "image_metadata.uri"
                     FROM "dioptra-gt-combined-eventstream"
                     WHERE "groundtruth.class_name" = '${groundtruth}' 
-                        AND "groundtruth.class_name" = '${prediction}' 
+                        AND "prediction.class_name" = '${prediction}' 
                         AND cast("iou" as FLOAT) >= ${iou}
                         AND ${allSqlFilters}
                     LIMIT 20`;
         default:
-            return `SELECT distinct "feature.image_url"
+            return `SELECT distinct "image_metadata.uri"
                     FROM "dioptra-gt-combined-eventstream"
                     WHERE groundtruth = '${groundtruth}' 
                         AND prediction = '${prediction}'
@@ -45,9 +45,9 @@ const ImageExamples = ({onClose, groundtruth, prediction, iou, model}) => {
             </div>
             <TimeseriesQuery
                 defaultData={[]}
-                renderData={(data) => data.every((img) => img['feature.image_url'].replace(/"/g, '').match(/^https?:\/\//)) ? (
+                renderData={(data) => data.every((img) => img['image_metadata.uri'].replace(/"/g, '').match(/^https?:\/\//)) ? (
                     <CustomCarousel
-                        items={data.map((x) => x['feature.image_url'].replace(/"/g, ''))}
+                        items={data.map((x) => x['image_metadata.uri'].replace(/"/g, ''))}
                         onItemClick={setExampleInModal}
                     />
                 ) : (

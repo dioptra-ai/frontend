@@ -162,9 +162,9 @@ const ConfusionMatrix = () => {
                     <Col lg={{span: 3, offset: 9}}>
                         <Select
                             options={[
-                                {name: 'iou=0.5', value: 0.5},
-                                {name: 'iou=0.75', value: 0.75},
-                                {name: 'iou=0.95', value: 0.95}
+                                {name: 'iou >= 0.5', value: 0.5},
+                                {name: 'iou >= 0.75', value: 0.75},
+                                {name: 'iou >= 0.95', value: 0.95}
                             ]}
                             initialValue={iou}
                             onChange={(val) => setIou(Number(val))}
@@ -190,7 +190,7 @@ const ConfusionMatrix = () => {
                     ]}
                 />
                 {selectedCell &&
-          (model.mlModelType === 'IMAGE_CLASSIFIER' ? (
+          (model.mlModelType === 'IMAGE_CLASSIFIER' || model.mlModelType === 'DOCUMENT_PROCESSING' ? (
               <ImageExamples
                   groundtruth={selectedCell.groundtruth}
                   model={model}

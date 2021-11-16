@@ -36,7 +36,7 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                                 <MetricInfoBox name='% Unique' unit='%' value={unique} />
                             )}
                             sql={sql`
-                                SELECT 100 * CAST(COUNT(distinct MV_TO_STRING("feature.image_embedding", '')) as double) / COUNT(*) as "unique"
+                                SELECT 100 * CAST(COUNT(distinct MV_TO_STRING("embeddings", '')) as double) / COUNT(*) as "unique"
                                 FROM "dioptra-gt-combined-eventstream"
                                 WHERE ${allSqlFilters}
                             `}
@@ -60,7 +60,7 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                             )}
                             sql={sql`
                                 SELECT TIME_FLOOR(__time, '${timeGranularity}') as "__time",
-                                100 * CAST(COUNT(distinct MV_TO_STRING("feature.image_embedding", '')) as double) / COUNT(*) as "uniques"
+                                100 * CAST(COUNT(distinct MV_TO_STRING("embeddings", '')) as double) / COUNT(*) as "uniques"
                                 FROM "dioptra-gt-combined-eventstream"
                                 WHERE ${allSqlFilters}
                                 GROUP BY 1
@@ -82,7 +82,7 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                                 />
                             )}
                             sql={sql`
-                            SELECT CAST("feature.rotation" AS INTEGER) as "name",
+                            SELECT CAST("image_metadata.rotation" AS INTEGER) as "name",
                               COUNT(*) AS "value"
                                 FROM "dioptra-gt-combined-eventstream"
                                 WHERE ${allSqlFilters}

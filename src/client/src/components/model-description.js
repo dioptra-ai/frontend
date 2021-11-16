@@ -146,7 +146,7 @@ ModelDescription.propTypes = {
     _id: PropTypes.string.isRequired,
     mlModelId: PropTypes.string.isRequired,
     mlModelType: PropTypes.string.isRequired,
-    referencePeriod: PropTypes.object.isRequired
+    referencePeriod: PropTypes.object
 };
 
 export default setupComponent(ModelDescription);
