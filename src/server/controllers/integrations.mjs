@@ -8,7 +8,7 @@ IntegrationRouter.all('*', isAuthenticated);
 
 IntegrationRouter.post('/', async (req, res, next) => {
     try {
-        const {_id: addedBy, activeOrganizationMembership} = req.user;
+        const {_id: createdBy, activeOrganizationMembership} = req.user;
         const {apiKey, endpoint} = req.body;
         const IntegrationModel = mongoose.model('Integrations');
 
@@ -17,13 +17,13 @@ IntegrationRouter.post('/', async (req, res, next) => {
             {
                 apiKey,
                 endpoint,
-                addedBy,
+                createdBy,
                 organization: activeOrganizationMembership.organization._id
             },
             {new: true, upsert: true}
         );
 
-        res.send(integration);
+        res.json(integration);
     } catch (e) {
         next(e);
     }
@@ -39,7 +39,7 @@ IntegrationRouter.get('/:type', async (req, res, next) => {
             type: req.params.type
         });
 
-        res.send(integration);
+        res.json(integration);
     } catch (e) {
         next(e);
     }

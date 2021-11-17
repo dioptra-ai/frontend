@@ -45,7 +45,7 @@ const Settings = () => {
                 setError('');
                 setUpdate(Boolean(res));
             })
-            .catch(() => setError('Something went wrong! Try again.'));
+            .catch((e) => setError(e.message));
     };
 
     return (

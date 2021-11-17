@@ -21,7 +21,7 @@ const integrationSchema = new Schema({
         default: 'REDASH',
         required: true
     },
-    addedBy: {
+    createdBy: {
         type: Schema.Types.ObjectId,
         ref: 'User',
         required: true
