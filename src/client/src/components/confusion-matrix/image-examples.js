@@ -17,8 +17,8 @@ const ImageExamples = ({onClose, groundtruth, prediction, iou, model}) => {
         case 'DOCUMENT_PROCESSING':
             return `SELECT distinct "image_metadata.uri"
                     FROM "dioptra-gt-combined-eventstream"
-                    WHERE "groundtruth.class_name" = '${groundtruth}' 
-                        AND "prediction.class_name" = '${prediction}' 
+                    WHERE "groundtruth.class_name" = '${groundtruth}'
+                        AND "prediction.class_name" = '${prediction}'
                         AND cast("iou" as FLOAT) >= ${iou}
                         AND ${allSqlFilters}
                     LIMIT 20`;

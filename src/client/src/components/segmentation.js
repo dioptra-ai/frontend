@@ -29,8 +29,8 @@ import Async from 'components/async';
 import baseJsonClient from 'clients/base-json-client';
 
 const AddColumnModal = ({onCancel, onApply, allColumns, selected}) => {
-    const featureColumns = allColumns.filter((c) => c.startsWith('feature.'));
-    const tagColumns = allColumns.filter((c) => c.startsWith('tag.'));
+    const featureColumns = allColumns.filter((c) => c.startsWith('features.'));
+    const tagColumns = allColumns.filter((c) => c.startsWith('tags.'));
     const [selectedColumns, setSelectedColumns] = useState(selected);
 
     const handleChange = (e, col) => {
@@ -467,10 +467,10 @@ const Segmentation = ({timeStore, modelStore, segmentationStore}) => {
                             FROM INFORMATION_SCHEMA.COLUMNS 
                             WHERE TABLE_NAME = 'dioptra-gt-combined-eventstream'
                             AND (${
-                    mlModelType !== 'IMAGE_CLASSIFIER' ?
-                        "COLUMN_NAME LIKE 'feature.%' OR" :
+                    mlModelType === 'TABULAR_CLASSIFIER' ?
+                        "COLUMN_NAME LIKE 'features.%' OR" :
                         ''
-                    } COLUMN_NAME LIKE 'tag.%')
+                    } COLUMN_NAME LIKE 'tags.%')
                         `}
                     />
                 )}
