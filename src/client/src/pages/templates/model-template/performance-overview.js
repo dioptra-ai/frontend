@@ -1,5 +1,5 @@
 /* eslint-disable max-lines */
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -21,24 +21,28 @@ const ModelPerformanceMetrics = {
     PRECISION: {value: 'PRECISION', name: 'Precision'},
     RECALL: {value: 'RECALL', name: 'Recall'}
 };
-const ModelPerformanceIndicators = {
-    ADOPTION: {value: 'ADOPTION', name: 'Adoption'},
-    CHURN: {value: 'CHURN', name: 'Churn'},
-    CTR: {value: 'CTR', name: 'CTR'},
-    CONVERSION: {value: 'CONVERSION', name: 'Conversion'}
-};
 
 const PerformanceOverview = ({timeStore, filtersStore}) => {
     const [selectedMetric, setSelectedMetric] = useState(
         ModelPerformanceMetrics.ACCURACY.value
     );
-    const [selectedIndicator, setSelectedIndicator] = useState(
-        ModelPerformanceIndicators.ADOPTION.value
-    );
+    const [modelPerformanceIndicators, setModelPerformanceIndicators] = useState([]);
+    const [selectedIndicator, setSelectedIndicator] = useState(null);
     const allSqlFilters = useAllSqlFilters();
     const allSqlFiltersWithoutOrgId = useAllSqlFilters({__REMOVE_ME__excludeOrgId: true});
     const sqlFiltersWithModelTime = useAllSqlFilters({useReferenceRange: true});
     const model = useModel();
+
+    useEffect(() => {
+        baseJSONClient('/api/redash').then(({results = []}) => {
+            if (results.length) {
+                setSelectedIndicator(String(results[0].id));
+            }
+            setModelPerformanceIndicators(
+                results.map(({id, name}) => ({value: String(id), name, img: <img src={RedashLogo} height={20} width={20} />}))
+            );
+        });
+    }, []);
 
     const sampleSizeComponent = (
         <TimeseriesQuery
@@ -51,8 +55,14 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
         />
     );
     const timeGranularity = timeStore.getTimeGranularity().toISOString();
-    const predictionName = model.mlModelType === 'DOCUMENT_PROCESSING' ? '"prediction.class_name"' : '"prediction"';
-    const groundTruthName = model.mlModelType === 'DOCUMENT_PROCESSING' ? '"groundtruth.class_name"' : '"groundtruth"';
+    const predictionName =
+        model.mlModelType === 'DOCUMENT_PROCESSING' ?
+            '"prediction.class_name"' :
+            '"prediction"';
+    const groundTruthName =
+        model.mlModelType === 'DOCUMENT_PROCESSING' ?
+            '"groundtruth.class_name"' :
+            '"groundtruth"';
 
     return (
         <>
@@ -61,7 +71,9 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                 onChange={(filters) => (filtersStore.filters = filters)}
             />
             <div className='my-5'>
-                <h3 className='text-dark bold-text fs-3 mb-3'>Service Performance</h3>
+                <h3 className='text-dark bold-text fs-3 mb-3'>
+                    Service Performance
+                </h3>
                 <Row>
                     <Col>
                         <TimeseriesQuery
@@ -90,6 +102,35 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 GROUP BY 1
                             `}
                         />
+                    </Col>
+                    <Col lg={6}>
+                        <div style={{position: 'relative'}}>
+                            <AreaGraph
+                                dots={[]}
+                                isTimeDependent
+                                title='Average Latency (ms)'
+                                xAxisName='Time'
+                                yAxisDomain={[0, 25]}
+                                yAxisName='Average Latency (ms)'
+                                unit='ms'
+                            />
+                            <div
+                                style={{
+                                    background: 'rgba(255, 255, 255, 0.7)',
+                                    position: 'absolute',
+                                    top: 0,
+                                    right: 0,
+                                    bottom: 0,
+                                    left: 0,
+                                    color: 'rgba(0, 0, 0, 0.6)',
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center'
+                                }}
+                            >
+                                <h4>This Feature Will Be Available Soon</h4>
+                            </div>
+                        </div>
                     </Col>
                 </Row>
             </div>
@@ -614,15 +655,23 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                 </div>
             </div>
             <div className='my-5'>
-                <h3 className='text-dark bold-text fs-3 mb-3'>Key Performance Indicators</h3>
+                <h3 className='text-dark bold-text fs-3 mb-3'>
+                    Key Performance Indicators
+                </h3>
                 <div className='border rounded p-3'>
                     <div className='d-flex justify-content-end my-3'>
                         <div style={{width: '200px'}}>
-                            <Select
-                                initialValue={selectedIndicator}
-                                onChange={setSelectedIndicator}
-                                options={Object.values(ModelPerformanceIndicators)}
-                            />
+                            {modelPerformanceIndicators.length && (
+                                <Select
+                                    initialValue={
+                                        selectedIndicator ||
+                                        String(modelPerformanceIndicators[0].value)
+                                    }
+                                    onChange={setSelectedIndicator}
+                                    options={modelPerformanceIndicators}
+                                    hasImage
+                                />
+                            )}
                         </div>
                     </div>
                     <Row className='m-0'>
@@ -631,19 +680,39 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                             lg={4}
                             style={{height: '295px'}}
                         >
-                            <p className='text-dark bold-text fs-6'>Correlation to KPIs</p>
+                            <p className='text-dark bold-text fs-6'>
+                                Correlation to KPIs
+                            </p>
                             <span className='text-dark bold-text fs-1'>37.6</span>
                         </Col>
                         <Col className='p-0 d-flex' lg={8}>
-                            <AreaGraph
-                                dots={[]}
-                                hasBorder={false}
-                                isTimeDependent
-                                margin={{right: 0, bottom: 30, left: 5}}
-                                xAxisName='Time'
-                                yAxisDomain={[0, 1000]}
-                                yAxisName={getName(selectedIndicator)}
-                            />
+                            {selectedIndicator ? <Async
+                                refetchOnChanged={[selectedIndicator]}
+                                fetchData={() => baseJSONClient(`/api/redash/${selectedIndicator}`)}
+                                renderData={({query_result}) => {
+                                    const {rows} = query_result?.data;
+
+                                    return (
+                                        <AreaGraph
+                                            dots={rows.map(({accuracy, time}) => {
+                                                const [h, m] = time.split(':');
+
+                                                return ({y: accuracy * 100, x: moment(moment().format('YYYY-MM-DD')).add({'hour': Number(h), 'minute': Number(m)}).valueOf()});
+                                            })}
+                                            hasBorder={false}
+                                            isTimeDependent
+                                            margin={{right: 0, bottom: 30, left: 5}}
+                                            xAxisName='Time'
+                                            yAxisDomain={[0, 100]}
+                                            yAxisName={getName(
+                                                modelPerformanceIndicators.find(
+                                                    ({value}) => value === selectedIndicator
+                                                )?.name
+                                            )}
+                                        />
+                                    );
+                                }}
+                            /> : null}
                         </Col>
                     </Row>
                 </div>

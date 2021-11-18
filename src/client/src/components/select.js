@@ -15,7 +15,8 @@ const Select = ({
     onChange = noop,
     options,
     initialValue,
-    isTextBold
+    isTextBold,
+    hasImage
 }) => {
 
     const [value, setValue] = useState(initialValue ? initialValue : options[0].value);
@@ -47,7 +48,8 @@ const Select = ({
                     eventKey={o.value}
                     key={o.value}
                     onSelect={handleSelect}>
-                    <span className={`text-${textColor}`}>{o.name || '<empty>'}</span>
+                    {hasImage ? o.img : null}
+                    <span className={`text-${textColor} ${hasImage ? 'm-2' : ''}`}>{o.name || '<empty>'}</span>
                 </DropdownItem>)}
             </DropdownMenu>
         </Dropdown>
@@ -57,6 +59,7 @@ const Select = ({
 Select.propTypes = {
     backgroundColor: PropTypes.string,
     borderColor: PropTypes.string,
+    hasImage: PropTypes.bool,
     initialValue: PropTypes.any,
     isTextBold: PropTypes.bool,
     onChange: PropTypes.func,
