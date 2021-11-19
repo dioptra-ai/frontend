@@ -139,11 +139,12 @@ ClassRow.propTypes = {
     value: PropTypes.any
 };
 
-const PerformanceDetails = ({filtersStore, timeStore, iouStore}) => {
+const PerformanceDetails = ({filtersStore, timeStore}) => {
     const allSqlFilters = useAllSqlFilters();
     const sqlFiltersWithModelTime = useAllSqlFilters({useReferenceRange: true});
     const [classFilter, setClassFilter] = useState('all_classes');
     const timeGranularity = timeStore.getTimeGranularity().toISOString();
+    const [iouFilter, setIouFilter] = useState(0.5);
 
     const {mlModelType} = useModel();
 
@@ -495,16 +496,16 @@ const PerformanceDetails = ({filtersStore, timeStore, iouStore}) => {
                                         {name: 'iou >= 0.75', value: 0.75},
                                         {name: 'iou >= 0.95', value: 0.95}
                                     ]}
-                                    initialValue={iouStore.iou}
+                                    initialValue={iouFilter}
                                     onChange={(val) => {
-                                        iouStore.iou = Number(val);
+                                        setIouFilter(Number(val));
                                     }}
                                 />
                             </Col>
                             <Col className='d-flex px-4' lg={12}>
                                 <Async
                                     refetchOnChanged={[
-                                        iouStore.iou,
+                                        iouFilter,
                                         classFilter,
                                         allSqlFilters,
                                         timeGranularity
@@ -516,7 +517,7 @@ const PerformanceDetails = ({filtersStore, timeStore, iouStore}) => {
                                                 method: 'post',
                                                 body: {
                                                     prediction: classFilter,
-                                                    iou: iouStore.iou,
+                                                    iou: iouFilter,
                                                     current_filters: allSqlFilters,
                                                     time_granularity: timeGranularity
                                                 }
@@ -528,7 +529,7 @@ const PerformanceDetails = ({filtersStore, timeStore, iouStore}) => {
                                                 method: 'post',
                                                 body: {
                                                     prediction: classFilter,
-                                                    iou: iouStore.iou,
+                                                    iou: iouFilter,
                                                     current_filters: allSqlFilters,
                                                     time_granularity: timeGranularity
                                                 }
@@ -790,7 +791,6 @@ const PerformanceDetails = ({filtersStore, timeStore, iouStore}) => {
 
 PerformanceDetails.propTypes = {
     filtersStore: PropTypes.object.isRequired,
-    iouStore: PropTypes.object.isRequired,
     timeStore: PropTypes.object.isRequired
 };
 
