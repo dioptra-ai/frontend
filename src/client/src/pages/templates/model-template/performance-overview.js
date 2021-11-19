@@ -11,6 +11,8 @@ import TimeseriesQuery, {sql} from 'components/timeseries-query';
 import {getName} from 'helpers/name-helper';
 import MetricInfoBox from 'components/metric-info-box';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
+import Async from 'components/async';
+import baseJSONClient from 'clients/base-json-client';
 import useModel from 'customHooks/use-model';
 import Async from 'components/async';
 import baseJSONClient from 'clients/base-json-client';
@@ -658,10 +660,12 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                             lg={4}
                             style={{height: '295px'}}
                         >
-                            <p className='text-dark bold-text fs-6'>
-                                Correlation to KPIs
-                            </p>
-                            <span className='text-dark bold-text fs-1'>37.6</span>
+                            <p className='text-dark bold-text fs-6'>Correlation to KPIs</p>
+                            <Async
+                                refetchOnChanged={[]}
+                                fetchData={() => baseJSONClient('/api/correlation')}
+                                renderData={(correlationResponse) => <span className='text-dark bold-text fs-1'>{correlationResponse}</span> }
+                                renderError={() => <span className='text-dark bold-text fs-1'>0</span> } />
                         </Col>
                         <Col className='p-0 d-flex' lg={8}>
                             {selectedIndicator ? (
