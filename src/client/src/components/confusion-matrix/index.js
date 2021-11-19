@@ -1,15 +1,16 @@
 import React, {useState} from 'react';
 import PropTypes from 'prop-types';
 import {getName} from 'helpers/name-helper';
-import TimeseriesQuery, {sql} from 'components/timeseries-query';
 import MatrixTable from 'components/matrix-table';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 import ImageExamples from './image-examples';
 import TabularExamples from './tabular-examples';
 import useModel from 'customHooks/use-model';
 import DifferenceLabel from 'components/difference-labels';
+import Async from 'components/async';
 import Select from 'components/select';
 import Col from 'react-bootstrap/Col';
+import baseJSONClient from 'clients/base-json-client';
 
 const Table = ({
     data,
@@ -92,8 +93,8 @@ Table.propTypes = {
 const ConfusionMatrix = () => {
     const [selectedCell, setSelectedCell] = useState(null);
     const model = useModel();
-    const allSqlFilters = useAllSqlFilters();
-    const sqlFiltersWithModelTime = useAllSqlFilters({useReferenceRange: true});
+    const allSqlFilters = useAllSqlFilters({__REMOVE_ME__excludeOrgId: true});
+    const sqlFiltersWithModelTime = useAllSqlFilters({useReferenceRange: true, __REMOVE_ME__excludeOrgId: true});
     const [iou, setIou] = useState(0.5);
 
     const getClasses = (data, key) => {
@@ -106,52 +107,6 @@ const ConfusionMatrix = () => {
         });
 
         return classes;
-    };
-
-    const generateQuery = (filters) => {
-        switch (model.mlModelType) {
-        case 'DOCUMENT_PROCESSING':
-            return `SELECT
-                predictionTable.groundtruth,
-                predictionTable.prediction,
-                cast(predictionTable.c as FLOAT) / cast(groundTable.c as FLOAT) as distribution
-            FROM (
-                SELECT "groundtruth.class_name" as groundtruth, 
-                    "prediction.class_name" as prediction, 
-                    COUNT(*) AS c
-                FROM "dioptra-gt-combined-eventstream"
-                WHERE cast("iou" as FLOAT) > ${iou} AND ${filters}
-                GROUP BY "groundtruth.class_name", "prediction.class_name"
-                ORDER BY "groundtruth.class_name", "groundtruth.class_name"
-            )  as predictionTable
-            LEFT JOIN (
-                SELECT "groundtruth.class_name" as groundtruth,
-                    COUNT(*) AS c
-                FROM "dioptra-gt-combined-eventstream"
-                WHERE cast("iou" as FLOAT) >= ${iou} AND ${filters}
-                GROUP BY "groundtruth.class_name"
-            ) AS groundTable
-            ON groundTable.groundtruth = predictionTable.groundtruth`;
-        default:
-            return `SELECT
-                predictionTable.groundtruth,
-                predictionTable.prediction,
-                cast(predictionTable.c as FLOAT) / cast(groundTable.c as FLOAT) as distribution
-                FROM (
-                    SELECT groundtruth, prediction, COUNT(*) AS c
-                    FROM "dioptra-gt-combined-eventstream"
-                    WHERE ${filters}
-                    GROUP BY groundtruth, prediction
-                    ORDER BY groundtruth, prediction
-                )  as predictionTable
-                LEFT JOIN (
-                    SELECT groundtruth, COUNT(*) AS c
-                    FROM "dioptra-gt-combined-eventstream"
-                    WHERE ${filters}
-                    GROUP BY groundtruth
-                ) AS groundTable
-                ON groundTable.groundtruth = predictionTable.groundtruth`;
-        }
     };
 
     return (
@@ -171,9 +126,7 @@ const ConfusionMatrix = () => {
                         />
                     </Col>
                 ) : null}
-
-                <TimeseriesQuery
-                    defaultData={[[], []]}
+                <Async
                     renderData={([data, rangeData]) => (
                         <Table
                             data={data}
@@ -184,10 +137,23 @@ const ConfusionMatrix = () => {
                             referenceData={rangeData}
                         />
                     )}
-                    sql={[
-                        sql`${generateQuery(allSqlFilters)}`,
-                        sql`${generateQuery(sqlFiltersWithModelTime)}`
+                    fetchData={[
+                        () => baseJSONClient('/api/metrics/confusion-matrix', {
+                            method: 'post',
+                            body: {
+                                sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ?
+                                    `cast("iou" as FLOAT) > ${iou} AND ${allSqlFilters}` : allSqlFilters
+                            }
+                        }),
+                        () => baseJSONClient('/api/metrics/confusion-matrix', {
+                            method: 'post',
+                            body: {
+                                sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ?
+                                    `cast("iou" as FLOAT) > ${iou} AND ${sqlFiltersWithModelTime}` : sqlFiltersWithModelTime
+                            }
+                        })
                     ]}
+                    refetchOnChanged={[iou, allSqlFilters, sqlFiltersWithModelTime]}
                 />
                 {selectedCell &&
           (model.mlModelType === 'IMAGE_CLASSIFIER' || model.mlModelType === 'DOCUMENT_PROCESSING' ? (
