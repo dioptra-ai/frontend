@@ -356,7 +356,7 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                             </Col>
                             <Col className='d-flex align-items-center' lg={4}>
                                 <h4 className='text-dark bold-text fs-4 m-0'>
-                  Bounding Box Outlier
+                  Bounding Box Examples
                                 </h4>
                             </Col>
                             <Col lg={{span: 3, offset: 1}} className='my-3'>
