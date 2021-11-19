@@ -44,13 +44,6 @@ class FiltersStore {
         this.mlModelVersion = v;
     }
 
-    // TODO: Get rid of this when multitenancy is properly implemented server-side.
-    // eslint-disable-next-line class-methods-use-this
-    get organizationIdFilter() {
-
-        return `organization_id='${_WEBPACK_DEF_OVERRIDE_ORG_ID_ || authStore.userData.activeOrganizationMembership.organization._id}'`;
-    }
-
     get sqlFilters() {
         const keyValues = this.f.reduce((agg, {
             key,
@@ -75,9 +68,37 @@ class FiltersStore {
             filters.push(`"model_version"='${this.mlModelVersion}'`);
         }
 
-        filters.push(this.organizationIdFilter);
+        filters.push(`organization_id='${_WEBPACK_DEF_OVERRIDE_ORG_ID_ || authStore.userData.activeOrganizationMembership.organization._id}'`);
 
         return filters.join(' AND ') || ' TRUE ';
+    }
+
+    get __RENAME_ME__sqlFilters() {
+        const keyValues = this.f.reduce((agg, {
+            key,
+            value
+        }) => {
+            if (!agg[key]) {
+                agg[key] = [];
+            }
+
+            agg[key].push(value);
+
+            return agg;
+        }, {});
+
+        const filters = Object.keys(keyValues).map((key) => {
+            const values = keyValues[key];
+
+            return `(${values.map((v) => `"${key}"='${v}'`).join(' OR ')})`;
+        });
+
+        if (this.mlModelVersion && this.mlModelVersion !== 'null') {
+            filters.push(`"model_version"='${this.mlModelVersion}'`);
+        }
+
+        return filters.join(' AND ') || ' TRUE ';
+
     }
 }
 
