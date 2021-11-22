@@ -12,8 +12,7 @@ CorrelationRouter.get('/', async (req, res, next) => {
             headers: {
                 'content-type': 'application/json;charset=UTF-8'
             },
-            body: JSON.stringify(req.body),
-            method: 'post'
+            method: 'get'
         });
 
         if (correlationResponse.status !== 200) {
@@ -26,9 +25,9 @@ CorrelationRouter.get('/', async (req, res, next) => {
             }
             res.status(correlationResponse.status);
             res.send(errorMessage);
+        } else {
+            correlationResponse.body.pipe(res);
         }
-
-        correlationResponse.body.pipe(res);
     } catch (e) {
         next(e);
     }
