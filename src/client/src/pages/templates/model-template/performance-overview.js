@@ -661,7 +661,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                 <div className='border rounded p-3'>
                     <div className='d-flex justify-content-end my-3'>
                         <div style={{width: '200px'}}>
-                            {modelPerformanceIndicators.length && (
+                            {modelPerformanceIndicators.length ? (
                                 <Select
                                     initialValue={
                                         selectedIndicator ||
@@ -669,9 +669,8 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                     }
                                     onChange={setSelectedIndicator}
                                     options={modelPerformanceIndicators}
-                                    hasImage
                                 />
-                            )}
+                            ) : null}
                         </div>
                     </div>
                     <Row className='m-0'>
