@@ -13,6 +13,8 @@ import {
     YAxis
 } from 'recharts';
 import {HiOutlineZoomOut} from 'react-icons/hi';
+import {FaQuestion} from 'react-icons/fa';
+import {Tooltip as BootstrapTooltip, OverlayTrigger} from 'react-bootstrap';
 
 import theme from 'styles/theme.module.scss';
 import {formatDateTime} from 'helpers/date-helper';
@@ -67,7 +69,8 @@ const AreaGraph = ({
         bottom: 35
     },
     unit,
-    timeStore
+    timeStore,
+    isDisabled
 }) => {
     const granularityMs = timeStore.getTimeGranularity().asMilliseconds();
     const domain = timeStore.rangeMillisec;
@@ -82,17 +85,22 @@ const AreaGraph = ({
         }));
 
         const [domainStart, domainEnd] = domain;
-        const referencePoint = data.find((d) => domainStart < d.x && d.x < domainEnd);
+        const referencePoint = data.find(
+            (d) => domainStart < d.x && d.x < domainEnd
+        );
 
         if (!referencePoint) {
-
             return [];
         } else {
             // We'll generate a completely synthetic set of ticks evenly spaced
             // aligned on the first datapoint we find inside the domain.
             const referenceTick = referencePoint.x;
-            const numTicksLeft = Math.floor((referenceTick - domainStart) / granularityMs);
-            const numTicksRight = Math.floor((domainEnd - referenceTick) / granularityMs);
+            const numTicksLeft = Math.floor(
+                (referenceTick - domainStart) / granularityMs
+            );
+            const numTicksRight = Math.floor(
+                (domainEnd - referenceTick) / granularityMs
+            );
             const ticks = [];
 
             new Array(numTicksLeft).fill().forEach((_, i) => {
@@ -105,10 +113,13 @@ const AreaGraph = ({
                 ticks.push(referenceTick + i * granularityMs);
             });
 
-            const timeSeries = data.reduce((agg, d) => ({
-                ...agg,
-                [d.x]: d
-            }), {});
+            const timeSeries = data.reduce(
+                (agg, d) => ({
+                    ...agg,
+                    [d.x]: d
+                }),
+                {}
+            );
 
             // Now we populate our nice ticks list with the data that's available.
             return ticks.map((x) => timeSeries[x] || {x});
@@ -140,24 +151,50 @@ const AreaGraph = ({
     };
 
     return (
-        <div className={`${hasBorder ? 'border px-3' : ''} rounded py-3 w-100`} style={{userSelect: 'none'}}>
+        <div
+            className={`${hasBorder ? 'border px-3' : ''} rounded py-3 w-100`}
+            style={{userSelect: 'none'}}
+        >
             {title && <p className='text-dark bold-text fs-4'>{title}</p>}
-            <div onMouseEnter={() => setShowBtn(true)}
+            <div
+                onMouseEnter={() => setShowBtn(true)}
                 onMouseLeave={() => setShowBtn(false)}
-                style={{height: '355px', display: 'flex', flexDirection: 'column', position: 'relative'}}
+                style={{
+                    height: '355px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    position: 'relative'
+                }}
             >
-                {showBtn && <HiOutlineZoomOut
-                    className='cursor-pointer'
-                    onClick={zoomOut}
-                    style={{
-                        fontSize: 30,
-                        position: 'absolute',
-                        right: 40,
-                        zIndex: 1,
-                        top: 20
-                    }}
-                    title='Zoom out'
-                />}
+                {showBtn && (
+                    <HiOutlineZoomOut
+                        className='cursor-pointer'
+                        onClick={zoomOut}
+                        style={{
+                            fontSize: 30,
+                            position: 'absolute',
+                            right: 40,
+                            zIndex: 1,
+                            top: 20
+                        }}
+                        title='Zoom out'
+                    />
+                )}
+                {timeStore.aggregationPeriod && !isDisabled ? <OverlayTrigger
+                    placement='bottom'
+                    overlay={
+                        <BootstrapTooltip>
+                            The aggregation period automatically adapts to the time
+                            range. A fixed aggregation period can also be set next to
+                            the time picker.
+                        </BootstrapTooltip>
+                    }
+                >
+                    <FaQuestion
+                        className='cursor-pointer blinking'
+                        style={{position: 'absolute', top: '-1rem', right: '2rem'}}
+                    />
+                </OverlayTrigger> : null}
                 <ResponsiveContainer height='100%' width='100%'>
                     <AreaChart
                         data={filledData}
@@ -166,22 +203,37 @@ const AreaGraph = ({
                             setRefAreaLeft(e.activeLabel);
                         }}
                         onMouseMove={(e) => {
-
                             if (refAreaLeft) {
                                 setRefAreaRight(e.activeLabel);
                             }
                         }}
                         onMouseUp={zoomIn}
                     >
-                        <CartesianGrid strokeDasharray='5 5' stroke={theme.light}/>
+                        <CartesianGrid strokeDasharray='5 5' stroke={theme.light} />
                         <defs>
                             <linearGradient id='color' x1='0' x2='0' y1='0' y2='1'>
-                                <stop offset='10%' stopColor={color} stopOpacity={0.7} />
-                                <stop offset='90%' stopColor='#FFFFFF' stopOpacity={0.1} />
+                                <stop
+                                    offset='10%'
+                                    stopColor={color}
+                                    stopOpacity={0.7}
+                                />
+                                <stop
+                                    offset='90%'
+                                    stopColor='#FFFFFF'
+                                    stopOpacity={0.1}
+                                />
                             </linearGradient>
                             <linearGradient id='warning' x1='0' x2='0' y1='0' y2='1'>
-                                <stop offset='10%' stopColor={theme.warning} stopOpacity={0.9} />
-                                <stop offset='90%' stopColor='#FFFFFF' stopOpacity={0.1} />
+                                <stop
+                                    offset='10%'
+                                    stopColor={theme.warning}
+                                    stopOpacity={0.9}
+                                />
+                                <stop
+                                    offset='90%'
+                                    stopColor='#FFFFFF'
+                                    stopOpacity={0.1}
+                                />
                             </linearGradient>
                         </defs>
                         <XAxis
@@ -199,7 +251,8 @@ const AreaGraph = ({
                             stroke='transparent'
                             tick={{fill: theme.secondary, fontSize: fontSizes.fs_7}}
                             tickCount={5}
-                            tickFormatter={(tick) => formatDateTime(tick, granularityMs)}
+                            tickFormatter={(tick) => formatDateTime(tick, granularityMs)
+                            }
                             type='number'
                         />
                         <YAxis
@@ -218,7 +271,7 @@ const AreaGraph = ({
                             yAxisId='1'
                             unit={unit}
                         />
-                        <Tooltip content={CustomTooltip}/>
+                        <Tooltip content={CustomTooltip} />
                         <Area
                             animationDuration={300}
                             dataKey='y'
@@ -252,6 +305,7 @@ AreaGraph.propTypes = {
     color: PropTypes.string,
     dots: PropTypes.array,
     hasBorder: PropTypes.bool,
+    isDisabled: PropTypes.bool,
     margin: PropTypes.object,
     timeStore: PropTypes.object.isRequired,
     title: PropTypes.string,
@@ -265,18 +319,20 @@ export default setupComponent(AreaGraph);
 
 export const SmallChart = setupComponent(({timeStore, data, unit}) => (
     <ResponsiveContainer height='100%' width='100%'>
-        <AreaChart data={data.map(({x, y}) => ({
-            y,
-            x: new Date(x).getTime()
-        }))}>
+        <AreaChart
+            data={data.map(({x, y}) => ({
+                y,
+                x: new Date(x).getTime()
+            }))}
+        >
             <defs>
                 <linearGradient id='color' x1='0' x2='0' y1='0' y2='1'>
-                    <stop offset='10%' stopColor={theme.primary} stopOpacity={0.7}/>
-                    <stop offset='90%' stopColor='#FFFFFF' stopOpacity={0.1}/>
+                    <stop offset='10%' stopColor={theme.primary} stopOpacity={0.7} />
+                    <stop offset='90%' stopColor='#FFFFFF' stopOpacity={0.1} />
                 </linearGradient>
                 <linearGradient id='warning' x1='0' x2='0' y1='0' y2='1'>
-                    <stop offset='10%' stopColor={theme.warning} stopOpacity={0.9}/>
-                    <stop offset='90%' stopColor='#FFFFFF' stopOpacity={0.1}/>
+                    <stop offset='10%' stopColor={theme.warning} stopOpacity={0.9} />
+                    <stop offset='90%' stopColor='#FFFFFF' stopOpacity={0.1} />
                 </linearGradient>
             </defs>
             <XAxis
@@ -294,8 +350,10 @@ export const SmallChart = setupComponent(({timeStore, data, unit}) => (
                 strokeWidth={2}
                 unit={unit}
             />
-            <Tooltip content={CustomTooltip} allowEscapeViewBox={{x: true, y: true}}/>
+            <Tooltip
+                content={CustomTooltip}
+                allowEscapeViewBox={{x: true, y: true}}
+            />
         </AreaChart>
     </ResponsiveContainer>
 ));
-
