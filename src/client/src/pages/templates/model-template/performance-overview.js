@@ -660,12 +660,31 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                             lg={4}
                             style={{height: '295px'}}
                         >
-                            <p className='text-dark bold-text fs-6'>Correlation to KPIs</p>
+                            <p className='text-dark bold-text fs-6'>
+                                Correlation to KPIs
+                            </p>
                             <Async
                                 refetchOnChanged={[]}
-                                fetchData={() => baseJSONClient('/api/correlation')}
-                                renderData={(correlationResponse) => <span className='text-dark bold-text fs-1'>{correlationResponse}</span> }
-                                renderError={() => <span className='text-dark bold-text fs-1'>0</span> } />
+                                fetchData={() => baseJSONClient('/api/metrics/correlation', {
+                                    method: 'post',
+                                    body: {
+                                        current_filters: allSqlFilters,
+                                        reference_filters:
+                                                sqlFiltersWithModelTime
+                                    }
+                                })
+                                }
+                                renderData={(correlationResponse) => (
+                                    <span className='text-dark bold-text fs-1'>
+                                        {correlationResponse}
+                                    </span>
+                                )}
+                                renderError={() => (
+                                    <span className='text-dark bold-text fs-1'>
+                                        0
+                                    </span>
+                                )}
+                            />
                         </Col>
                         <Col className='p-0 d-flex' lg={8}>
                             {selectedIndicator ? (
