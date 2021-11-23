@@ -2,24 +2,30 @@ import {useParams} from 'react-router-dom';
 
 import stores from 'state/stores';
 
-const {filtersStore, timeStore, modelStore, authStore, iouStore} = stores;
+const {filtersStore, timeStore, modelStore} = stores;
 
-const useAllSqlFilters = ({useReferenceRange = false} = {}) => {
+const useAllSqlFilters = ({useReferenceRange = false, __REMOVE_ME__excludeOrgId} = {}) => {
     const params = useParams();
     const activeModelId = params._id;
-    const organizationId = authStore.userData.activeOrganizationMembership?.organization._id;
-    const {mlModelId, mlModelType} = modelStore.getModelById(activeModelId);
-
-    const iouFilter = mlModelType === 'DOCUMENT_PROCESSING' ? `iou >= ${iouStore.iou}` : 'TRUE';
+    const {mlModelId} = modelStore.getModelById(activeModelId);
+    const allFilters = [
+        __REMOVE_ME__excludeOrgId ? filtersStore.__RENAME_ME__sqlFilters :
+            filtersStore.sqlFilters
+    ];
 
     if (mlModelId) {
-        const timeFilter = useReferenceRange ? modelStore.getSqlReferencePeriodFilter(activeModelId) : timeStore.sqlTimeFilter;
+        allFilters.push(`model_id='${mlModelId}'`);
 
-        return `${timeFilter} AND ${filtersStore.sqlFilters} AND organization_id='${organizationId}' AND model_id='${mlModelId}' AND ${iouFilter}`;
+        if (useReferenceRange) {
+            allFilters.push(modelStore.getSqlReferencePeriodFilter(activeModelId));
+        } else {
+            allFilters.push(timeStore.sqlTimeFilter);
+        }
     } else {
-        return `${timeStore.sqlTimeFilter} AND ${filtersStore.sqlFilters} AND organization_id='${organizationId}' AND ${iouFilter}`;
+        allFilters.push(timeStore.sqlTimeFilter);
     }
 
+    return allFilters.join(' AND ');
 };
 
 export default useAllSqlFilters;
