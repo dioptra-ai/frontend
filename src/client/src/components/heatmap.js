@@ -6,7 +6,7 @@ import _ from 'lodash';
 
 const inRange = (num, min, max) => num >= min && num <= max;
 
-const HeatMap = ({data, numBoxesH, numBoxesW, setHeatMapSamples, selectedSamples}) => {
+const HeatMap = ({data, numCellsH, numCellsW, setHeatMapSamples, selectedSamples}) => {
     const [selectedPoints, setSelectedPoints] = useThrottle([], 25, true);
     const [shiftPressed, setShiftPressed] = useState(false);
 
@@ -19,8 +19,8 @@ const HeatMap = ({data, numBoxesH, numBoxesW, setHeatMapSamples, selectedSamples
         []
     );
 
-    const heatmapData = new Array(numBoxesH).fill()
-        .map((_, i) => new Array(numBoxesW).fill()
+    const heatmapData = new Array(numCellsH).fill()
+        .map((_, i) => new Array(numCellsW).fill()
             .map((_, j) => data.find(({x, y}) => y === i && x === j)?.outlier || 0));
 
     const handleKeyDown = ({keyCode}) => {
@@ -159,8 +159,8 @@ HeatMap.propTypes = {
     data: PropTypes.array.isRequired,
     setHeatMapSamples: PropTypes.func.isRequired,
     selectedSamples: PropTypes.array.isRequired,
-    numBoxesH: PropTypes.number.isRequired,
-    numBoxesW: PropTypes.number.isRequired
+    numCellsH: PropTypes.number.isRequired,
+    numCellsW: PropTypes.number.isRequired
 };
 
 export default HeatMap;

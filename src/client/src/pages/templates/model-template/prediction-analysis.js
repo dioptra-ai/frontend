@@ -385,11 +385,11 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                                         sql_filters: `${allSqlFiltersWithoutOrgId} AND 
                                             ${classFilter.value ? `"prediction.class_name"='${classFilter.value}'` : 'TRUE'}`
                                     })}
-                                    renderData={({num_boxes_h, num_boxes_w, boxes}) => (
+                                    renderData={({num_cells_h, num_cells_w, cells}) => (
                                         <HeatMap
-                                            numBoxesH={num_boxes_h}
-                                            numBoxesW={num_boxes_w}
-                                            data={boxes}
+                                            numCellsH={num_cells_h}
+                                            numCellsW={num_cells_w}
+                                            data={cells}
                                             setHeatMapSamples={setHeatMapSamples}
                                             selectedSamples={heatMapSamples}
                                         />
