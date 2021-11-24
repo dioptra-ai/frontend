@@ -68,7 +68,8 @@ MetricsRouter.get('/integrations/:sourceName/:queryId', async (req, res, next) =
         const organization_id =
             req.user.activeOrganizationmembership.organization._id;
 
-        const parameters = req.body
+        const parameters = req.body;
+
         await axios
             .post(
                 `${process.env.METRICS_ENGINE_URL}/kpi/${sourceName}/results/${queryId}?org_id=${organization_id}`,
