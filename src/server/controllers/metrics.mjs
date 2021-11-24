@@ -1,3 +1,4 @@
+import axios from 'axios';
 import express from 'express';
 import fetch from 'node-fetch';
 import {isAuthenticated} from '../middleware/authentication.mjs';
@@ -9,7 +10,6 @@ const MetricsRouter = express.Router();
 MetricsRouter.all('*', isAuthenticated);
 
 MetricsRouter.post('/:method?', async (req, res, next) => {
-
     try {
         const metricsEnginePath = `${process.env.METRICS_ENGINE_URL}/${req.params.method || 'compute'}`;
         const metricsResponse = await fetch(metricsEnginePath, {
@@ -27,7 +27,9 @@ MetricsRouter.post('/:method?', async (req, res, next) => {
             let errorMessage = 'Internal Server Error';
 
             try {
-                errorMessage = await metricsResponse.json().then((json) => json.error.message);
+                errorMessage = await metricsResponse
+                    .json()
+                    .then((json) => json.error.message);
             } catch {
                 errorMessage = metricsResponse.statusText;
             }
@@ -36,7 +38,47 @@ MetricsRouter.post('/:method?', async (req, res, next) => {
         }
 
         metricsResponse.body.pipe(res);
+    } catch (e) {
+        next(e);
+    }
+});
 
+MetricsRouter.get('/integrations/:sourceName', async (req, res, next) => {
+    try {
+        const sourceName = req.params.sourceName;
+        const organization_id =
+            req.user.activeOrganizationmembership.organization._id;
+
+        await axios
+            .get(
+                `${process.env.METRICS_ENGINE_URL}/kpi/${sourceName}/queries?org_id=${organization_id}`
+            )
+            .then((response) => {
+                res.status(response.status);
+                res.json(response.data);
+            });
+    } catch (e) {
+        next(e);
+    }
+});
+
+MetricsRouter.get('/integrations/:sourceName/:queryId', async (req, res, next) => {
+    try {
+        const {sourceName, queryId} = req.params;
+        const organization_id =
+            req.user.activeOrganizationmembership.organization._id;
+
+        const parameters = req.body;
+
+        await axios
+            .post(
+                `${process.env.METRICS_ENGINE_URL}/kpi/${sourceName}/results/${queryId}?org_id=${organization_id}`,
+                parameters
+            )
+            .then((response) => {
+                res.status(response.status);
+                res.json(response.data);
+            });
     } catch (e) {
         next(e);
     }
