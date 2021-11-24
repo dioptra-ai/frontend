@@ -4,12 +4,9 @@ import PropTypes from 'prop-types';
 import {useThrottle} from '@react-hook/throttle';
 import _ from 'lodash';
 
-const HEATMAP_X_AXIS_LENGTH = 20;
-const HEATMAP_Y_AXIS_LENGTH = 20;
-
 const inRange = (num, min, max) => num >= min && num <= max;
 
-const HeatMap = ({data, setHeatMapSamples, selectedSamples}) => {
+const HeatMap = ({data, numBoxesH, numBoxesW, setHeatMapSamples, selectedSamples}) => {
     const [selectedPoints, setSelectedPoints] = useThrottle([], 25, true);
     const [shiftPressed, setShiftPressed] = useState(false);
 
@@ -22,18 +19,8 @@ const HeatMap = ({data, setHeatMapSamples, selectedSamples}) => {
         []
     );
 
-    useEffect(() => {
-        const isSame = _.isEqual(selectedSamples, samples);
-
-        if (!isSame) {
-            setHeatMapSamples(samples);
-        }
-    }, [samples, selectedSamples]);
-
-    const heatmapData = new Array(HEATMAP_Y_AXIS_LENGTH)
-        .fill([])
-        .map((_, i) => new Array(HEATMAP_X_AXIS_LENGTH)
-            .fill(0)
+    const heatmapData = new Array(numBoxesH).fill()
+        .map((_, i) => new Array(numBoxesW).fill()
             .map((_, j) => data.find(({x, y}) => y === i && x === j)?.outlier || 0));
 
     const handleKeyDown = ({keyCode}) => {
@@ -43,6 +30,13 @@ const HeatMap = ({data, setHeatMapSamples, selectedSamples}) => {
     const handleKeyUp = ({keyCode}) => {
         if (keyCode === 16) setShiftPressed(false);
     };
+
+    useEffect(() => {
+
+        if (!_.isEqual(selectedSamples, samples)) {
+            setHeatMapSamples(samples);
+        }
+    }, [samples, selectedSamples]);
 
     useEffect(() => {
         window.addEventListener('keydown', handleKeyDown);
@@ -126,10 +120,10 @@ const HeatMap = ({data, setHeatMapSamples, selectedSamples}) => {
                         }`}
                         style={{
                             cursor: value ? 'pointer' : 'not-allowed',
-                            background:
-                value <= 50 ?
-                    `rgba(31, 169, 200, ${value / 50})` :
-                    `rgba(248, 136, 108, ${value / 100})`
+                            background: value === 0 ? 'transparent' :
+                                value <= 50 ?
+                                    `rgba(31, 169, 200, ${1 - (value / 50)})` :
+                                    `rgba(248, 136, 108, ${value / 100})`
                         }}
                     />
                 )}
@@ -164,7 +158,9 @@ const HeatMap = ({data, setHeatMapSamples, selectedSamples}) => {
 HeatMap.propTypes = {
     data: PropTypes.array.isRequired,
     setHeatMapSamples: PropTypes.func.isRequired,
-    selectedSamples: PropTypes.array.isRequired
+    selectedSamples: PropTypes.array.isRequired,
+    numBoxesH: PropTypes.number.isRequired,
+    numBoxesW: PropTypes.number.isRequired
 };
 
 export default HeatMap;

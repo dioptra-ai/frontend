@@ -14,11 +14,12 @@ import {getName} from 'helpers/name-helper';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 import useModel from 'customHooks/use-model';
 import HeatMap from 'components/heatmap';
-import data from './bounding-box-location-analysis-data';
-
+import metricsClient from 'clients/metrics';
+import Async from 'components/async';
 
 const PredictionAnalysis = ({timeStore, filtersStore}) => {
     const allSqlFilters = useAllSqlFilters();
+    const allSqlFiltersWithoutOrgId = useAllSqlFilters({__REMOVE_ME__excludeOrgId: true});
     const allOfflineSqlFilters = useAllSqlFilters({useReferenceRange: true});
     const timeGranularity = timeStore.getTimeGranularity().toISOString();
     const [classFilter, setClassFilter] = useState('all_classes');
@@ -360,23 +361,40 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                                 </h4>
                             </Col>
                             <Col lg={{span: 3, offset: 1}} className='my-3'>
-                                <Select
-                                    options={[
-                                        {name: 'All Classes', value: 'all_classes'},
-                                        {name: 'SSN', value: 'ssn'},
-                                        {name: 'First Name', value: 'first_name'},
-                                        {name: 'Last Name', value: 'last_name'},
-                                        {name: 'Zip Code', value: 'zip_code'}
-                                    ]}
-                                    initialValue={classFilter}
-                                    onChange={setClassFilter}
+                                <Async
+                                    fetchData={() => metricsClient('get-distinct', {
+                                        field: 'prediction.class_name',
+                                        sql_filters: allSqlFiltersWithoutOrgId
+                                    })}
+                                    renderData={(data) => (
+                                        <Select
+                                            options={data.map((d) => {
+                                                const c = d['prediction.class_name'];
+
+                                                return {name: c, value: c};
+                                            })}
+                                            initialValue={classFilter}
+                                            onChange={setClassFilter}
+                                        />
+                                    )}
                                 />
                             </Col>
                             <Col lg={4}>
-                                <TimeseriesQuery
-                                    defaultData={[]}
-                                    renderData={() => <HeatMap data={data} setHeatMapSamples={setHeatMapSamples} selectedSamples={heatMapSamples} />}
-                                    sql={sql`SELECT 1 as "one"`}
+                                <Async
+                                    fetchData={() => metricsClient('bbox-locations', {
+                                        sql_filters: `${allSqlFiltersWithoutOrgId} AND 
+                                            ${classFilter.value ? `"prediction.class_name"='${classFilter.value}'` : 'TRUE'}`
+                                    })}
+                                    renderData={({num_boxes_h, num_boxes_w, boxes}) => (
+                                        <HeatMap
+                                            numBoxesH={num_boxes_h}
+                                            numBoxesW={num_boxes_w}
+                                            data={boxes}
+                                            setHeatMapSamples={setHeatMapSamples}
+                                            selectedSamples={heatMapSamples}
+                                        />
+                                    )}
+                                    refetchOnChanged={[allSqlFiltersWithoutOrgId, classFilter.value]}
                                 />
                             </Col>
                             <Col lg={8} className='rounded p-3 pt-0'>
@@ -392,15 +410,14 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                                                 <img
                                                     alt='Example'
                                                     className='rounded'
-                                                    src={`${image_url}${width}x${height}/`}
-                                                    height={height}
-                                                    width={width}
+                                                    src={image_url}
+                                                    height={100}
                                                 />
                                                 <div className='heat-map-box' style={{
-                                                    height: bounding_box?.height,
-                                                    width: bounding_box?.width,
-                                                    top: bounding_box?.y,
-                                                    left: bounding_box?.x
+                                                    height: bounding_box.h * 100,
+                                                    width: bounding_box.w * (100 * width / height),
+                                                    top: bounding_box.y * 100,
+                                                    left: bounding_box.x * (100 * width / height)
                                                 }}/>
                                             </div>
                                         ))}{' '}
