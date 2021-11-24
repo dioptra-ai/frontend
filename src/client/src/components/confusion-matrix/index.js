@@ -10,7 +10,7 @@ import DifferenceLabel from 'components/difference-labels';
 import Async from 'components/async';
 import Select from 'components/select';
 import Col from 'react-bootstrap/Col';
-import baseJSONClient from 'clients/base-json-client';
+import metricsClient from 'clients/metrics';
 
 const Table = ({
     data,
@@ -138,19 +138,13 @@ const ConfusionMatrix = () => {
                         />
                     )}
                     fetchData={[
-                        () => baseJSONClient('/api/metrics/confusion-matrix', {
-                            method: 'post',
-                            body: {
-                                sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ?
-                                    `cast("iou" as FLOAT) > ${iou} AND ${allSqlFilters}` : allSqlFilters
-                            }
+                        () => metricsClient('confusion-matrix', {
+                            sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ?
+                                `cast("iou" as FLOAT) > ${iou} AND ${allSqlFilters}` : allSqlFilters
                         }),
-                        () => baseJSONClient('/api/metrics/confusion-matrix', {
-                            method: 'post',
-                            body: {
-                                sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ?
-                                    `cast("iou" as FLOAT) > ${iou} AND ${sqlFiltersWithModelTime}` : sqlFiltersWithModelTime
-                            }
+                        () => metricsClient('confusion-matrix', {
+                            sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ?
+                                `cast("iou" as FLOAT) > ${iou} AND ${sqlFiltersWithModelTime}` : sqlFiltersWithModelTime
                         })
                     ]}
                     refetchOnChanged={[iou, allSqlFilters, sqlFiltersWithModelTime]}
