@@ -43,20 +43,6 @@ MetricsRouter.post('/:method?', async (req, res, next) => {
     }
 });
 
-// eslint-disable-next-line no-unused-vars
-MetricsRouter.get('/source/list', async (req, res, next) => {
-    try {
-        await axios
-            .get(`${process.env.METRICS_ENGINE_URL}/kpi/source/list`)
-            .then((response) => {
-                res.status(response.status);
-                res.json(response.data);
-            });
-    } catch (e) {
-        next(e);
-    }
-});
-
 MetricsRouter.get('/integrations/:sourceName', async (req, res, next) => {
     try {
         const sourceName = req.params.sourceName;
@@ -82,9 +68,11 @@ MetricsRouter.get('/integrations/:sourceName/:queryId', async (req, res, next) =
         const organization_id =
             req.user.activeOrganizationmembership.organization._id;
 
+        const parameters = req.body
         await axios
-            .get(
-                `${process.env.METRICS_ENGINE_URL}/kpi/${sourceName}/results/${queryId}?org_id=${organization_id}`
+            .post(
+                `${process.env.METRICS_ENGINE_URL}/kpi/${sourceName}/results/${queryId}?org_id=${organization_id}`,
+                parameters
             )
             .then((response) => {
                 res.status(response.status);
