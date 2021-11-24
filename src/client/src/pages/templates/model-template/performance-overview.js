@@ -12,6 +12,8 @@ import {getName} from 'helpers/name-helper';
 import MetricInfoBox from 'components/metric-info-box';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 import useModel from 'customHooks/use-model';
+import Async from 'components/async';
+import baseJSONClient from 'clients/base-json-client';
 
 const ModelPerformanceMetrics = {
     ACCURACY: {value: 'ACCURACY', name: 'Accuracy'},
@@ -36,6 +38,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
     const allSqlFilters = useAllSqlFilters();
     const sqlFiltersWithModelTime = useAllSqlFilters({useReferenceRange: true});
     const model = useModel();
+    const [iou] = useState(0.5);
 
     const sampleSizeComponent = (
         <TimeseriesQuery
@@ -61,8 +64,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                 <h3 className='text-dark bold-text fs-3 mb-3'>Service Performance</h3>
                 <Row>
                     <Col lg={6}>
-                        <TimeseriesQuery
-                            defaultData={[]}
+                        <Async
                             renderData={(data) => (
                                 <AreaGraph
                                     dots={data.map(({throughput, __time}) => ({
@@ -75,17 +77,17 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                     yAxisName='Average Throughput (QPS)'
                                 />
                             )}
-                            sql={sql`
-                                SELECT TIME_FLOOR(__time, '${timeStore
-            .getTimeGranularity()
-            .toISOString()}') as "__time",
-                                    COUNT(*) / ${timeStore
-            .getTimeGranularity()
-            .asSeconds()} as throughput
-                                FROM "dioptra-gt-combined-eventstream"
-                                WHERE ${allSqlFilters}
-                                GROUP BY 1
-                            `}
+                            fetchData={
+                                () => baseJSONClient('/api/metrics/throughput', {
+                                    method: 'post',
+                                    body: {
+                                        sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ?
+                                            `cast("iou" as FLOAT) > ${iou} AND ${allSqlFilters}` : allSqlFilters,
+                                        granular_time_as_string: timeStore.getTimeGranularity().toISOString(),
+                                        granular_time_as_seconds: timeStore.getTimeGranularity().asSeconds()
+                                    }
+                                })
+                            }
                         />
                     </Col>
                     <Col lg={6}>
