@@ -46,8 +46,8 @@ MetricsRouter.post('/:method?', async (req, res, next) => {
 MetricsRouter.get('/integrations/:sourceName', async (req, res, next) => {
     try {
         const sourceName = req.params.sourceName;
-        const organization_id =
-            req.user.activeOrganizationmembership.organization._id;
+        const {activeOrganizationMembership} = req.user;
+        const organization_id = activeOrganizationMembership.organization._id;
 
         await axios
             .get(
@@ -62,12 +62,11 @@ MetricsRouter.get('/integrations/:sourceName', async (req, res, next) => {
     }
 });
 
-MetricsRouter.get('/integrations/:sourceName/:queryId', async (req, res, next) => {
+MetricsRouter.post('/integrations/:sourceName/:queryId', async (req, res, next) => {
     try {
         const {sourceName, queryId} = req.params;
-        const organization_id =
-            req.user.activeOrganizationmembership.organization._id;
-
+        const {activeOrganizationMembership} = req.user;
+        const organization_id = activeOrganizationMembership.organization._id;
         const parameters = req.body;
 
         await axios
