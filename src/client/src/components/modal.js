@@ -17,7 +17,7 @@ const customStyles = {
     }
 };
 
-const ModalComponent = ({onClose, isOpen, children}) => {
+const ModalComponent = ({onClose, isOpen = true, children}) => {
     return (
         <Modal isOpen={isOpen} onRequestClose={onClose} style={customStyles}>
             {children}
