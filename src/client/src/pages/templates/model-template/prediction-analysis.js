@@ -16,6 +16,10 @@ import useModel from 'customHooks/use-model';
 import HeatMap from 'components/heatmap';
 import metricsClient from 'clients/metrics';
 import Async from 'components/async';
+import useModal from 'customHooks/useModal';
+import BtnIcon from 'components/btn-icon';
+import Modal from 'components/modal';
+import {IconNames} from 'constants';
 
 const PredictionAnalysis = ({timeStore, filtersStore}) => {
     const allSqlFilters = useAllSqlFilters();
@@ -24,6 +28,7 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
     const timeGranularity = timeStore.getTimeGranularity().toISOString();
     const [classFilter, setClassFilter] = useState('all_classes');
     const [heatMapSamples, setHeatMapSamples] = useState([]);
+    const [exampleInModal, setExampleInModal] = useModal(null);
 
     const {mlModelType} = useModel();
 
@@ -405,22 +410,29 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                                         }
                                         style={{maxHeight: 600}}
                                     >
-                                        {heatMapSamples.map(({image_url, width, height, bounding_box}, i) => (
-                                            <div key={i} className='m-4 heat-map-item'>
-                                                <img
-                                                    alt='Example'
-                                                    className='rounded'
-                                                    src={image_url}
-                                                    height={100}
-                                                />
-                                                <div className='heat-map-box' style={{
-                                                    height: bounding_box.h * 100,
-                                                    width: bounding_box.w * (100 * width / height),
-                                                    top: bounding_box.y * 100,
-                                                    left: bounding_box.x * (100 * width / height)
-                                                }}/>
-                                            </div>
-                                        ))}{' '}
+                                        {heatMapSamples.map((sample, i) => {
+                                            const {image_url, width, height, bounding_box} = sample;
+
+                                            return (
+                                                <div
+                                                    key={i} className='m-4 heat-map-item cursor-pointer'
+                                                    onClick={() => setExampleInModal(sample)}
+                                                >
+                                                    <img
+                                                        alt='Example'
+                                                        className='rounded'
+                                                        src={image_url}
+                                                        height={100}
+                                                    />
+                                                    <div className='heat-map-box' style={{
+                                                        height: bounding_box.h * 100,
+                                                        width: bounding_box.w * (100 * width / height),
+                                                        top: bounding_box.y * 100,
+                                                        left: bounding_box.x * (100 * width / height)
+                                                    }}/>
+                                                </div>
+                                            );
+                                        })}&nbsp;
                                     </div>
                                 ) : (
                                     <div
@@ -433,6 +445,33 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                                 )}
                             </Col>
                         </Row>
+                        {exampleInModal ? <Modal onClose={() => setExampleInModal(null)}>
+                            <div className='d-flex align-items-center'>
+                                <p className='m-0 flex-grow-1'></p>
+                                <BtnIcon
+                                    className='border-0'
+                                    icon={IconNames.CLOSE}
+                                    onClick={() => setExampleInModal(null)}
+                                    size={15}
+                                />
+                            </div>
+                            <div style={{position: 'relative'}}>
+                                <img
+                                    alt='Example'
+                                    className='rounded modal-image'
+                                    src={exampleInModal.image_url}
+                                    style={{
+                                        height: 600
+                                    }}
+                                />
+                                <div className='heat-map-box' style={{
+                                    height: exampleInModal.bounding_box.h * 600,
+                                    width: exampleInModal.bounding_box.w * exampleInModal.width * 600 / exampleInModal.height,
+                                    top: exampleInModal.bounding_box.y * 600,
+                                    left: exampleInModal.bounding_box.x * exampleInModal.width * 600 / exampleInModal.height
+                                }}/>
+                            </div>
+                        </Modal> : null}
                     </div>
                 </>
             ) : null}
