@@ -14,6 +14,7 @@ import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 import useModel from 'customHooks/use-model';
 import Async from 'components/async';
 import baseJsonClient from 'clients/base-json-client';
+import moment from 'moment';
 
 const ModelPerformanceMetrics = {
     ACCURACY: {value: 'ACCURACY', name: 'Accuracy'},
@@ -34,12 +35,15 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
     const model = useModel();
 
     useEffect(() => {
-        baseJSONClient('/api/redash').then(({results = []}) => {
-            if (results.length) {
-                setSelectedIndicator(String(results[0].id));
+        baseJSONClient('/api/metrics/integrations/redash').then(({queries = []}) => {
+            if (queries.length) {
+                setSelectedIndicator(String(queries[0].id));
             }
             setModelPerformanceIndicators(
-                results.map(({id, name}) => ({value: String(id), name, img: <img src={RedashLogo} height={20} width={20} />}))
+                queries.map(({id, name}) => ({
+                    value: String(id),
+                    name
+                }))
             );
         });
     }, []);
@@ -685,22 +689,52 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                             <span className='text-dark bold-text fs-1'>37.6</span>
                         </Col>
                         <Col className='p-0 d-flex' lg={8}>
-                            {selectedIndicator ? <Async
-                                refetchOnChanged={[selectedIndicator]}
-                                fetchData={() => baseJSONClient(`/api/redash/${selectedIndicator}`)}
-                                renderData={({query_result}) => {
-                                    const {rows} = query_result?.data;
-
-                                    return (
+                            {selectedIndicator ? (
+                                <Async
+                                    refetchOnChanged={[selectedIndicator]}
+                                    fetchData={() => baseJSONClient(
+                                        `/api/metrics/integrations/redash/${selectedIndicator}`,
+                                        {
+                                            method: 'post',
+                                            body: {
+                                                parameters: {
+                                                    time_start: timeStore.start
+                                                        .utc()
+                                                        .format(),
+                                                    time_end: timeStore.end
+                                                        .utc()
+                                                        .format(),
+                                                    time_granularity:
+                                                            timeStore.getTimeGranularity()
+                                                }
+                                            }
+                                        }
+                                    )
+                                    }
+                                    renderData={({results = []}) => (
                                         <AreaGraph
-                                            dots={rows.map(({accuracy, time}) => {
+                                            dots={results.map(({accuracy, time}) => {
                                                 const [h, m] = time.split(':');
 
-                                                return ({y: accuracy * 100, x: moment(moment().format('YYYY-MM-DD')).add({'hour': Number(h), 'minute': Number(m)}).valueOf()});
+                                                return {
+                                                    y: accuracy * 100,
+                                                    x: moment(
+                                                        moment().format('YYYY-MM-DD')
+                                                    )
+                                                        .add({
+                                                            hour: Number(h),
+                                                            minute: Number(m)
+                                                        })
+                                                        .valueOf()
+                                                };
                                             })}
                                             hasBorder={false}
                                             isTimeDependent
-                                            margin={{right: 0, bottom: 30, left: 5}}
+                                            margin={{
+                                                right: 0,
+                                                bottom: 30,
+                                                left: 5
+                                            }}
                                             xAxisName='Time'
                                             yAxisDomain={[0, 100]}
                                             yAxisName={getName(
@@ -709,9 +743,9 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                                 )?.name
                                             )}
                                         />
-                                    );
-                                }}
-                            /> : null}
+                                    )}
+                                />
+                            ) : null}
                         </Col>
                     </Row>
                 </div>
