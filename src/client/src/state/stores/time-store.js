@@ -25,7 +25,7 @@ class TimeStore {
 
     _lastMs = null;
 
-    _aggregationPeriod = null;
+    _aggregationPeriod = 'auto';
 
     get start() {
         return this._start;
@@ -111,7 +111,7 @@ class TimeStore {
     }
 
     getTimeGranularity(maxTicks = SQL_OUTER_LIMIT) {
-        if (this._aggregationPeriod) {
+        if (this._aggregationPeriod !== 'auto') {
             return moment.duration(this._aggregationPeriod);
         }
         const rangeSeconds = this._end?.diff(this._start) / 1000;

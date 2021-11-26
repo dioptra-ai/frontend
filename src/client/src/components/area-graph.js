@@ -180,7 +180,7 @@ const AreaGraph = ({
                         title='Zoom out'
                     />
                 )}
-                {timeStore.aggregationPeriod && !isDisabled ? <OverlayTrigger
+                {timeStore.aggregationPeriod !== 'auto' && !isDisabled ? <OverlayTrigger
                     placement='bottom'
                     overlay={
                         <BootstrapTooltip>
