@@ -61,7 +61,6 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                 WHERE ${allSqlFilters}`}
         />
     );
-
     const timeGranularityValue = timeStore.getTimeGranularity();
     const timeGranularity = timeGranularityValue.toISOString();
     const predictionName =
@@ -668,9 +667,13 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 fetchData={() => baseJSONClient('/api/metrics/correlation', {
                                     method: 'post',
                                     body: {
-                                        current_filters: allSqlFilters,
-                                        reference_filters:
-                                                sqlFiltersWithModelTime
+                                        parameters: {
+                                            time_start: timeStore.start,
+                                            time_end: timeStore.end,
+                                            time_granularity:
+                                                    timeGranularityValue,
+                                            sql_filters: allSqlFilters
+                                        }
                                     }
                                 })
                                 }
