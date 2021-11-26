@@ -14,7 +14,6 @@ import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 import useModel from 'customHooks/use-model';
 import Async from 'components/async';
 import baseJSONClient from 'clients/base-json-client';
-import moment from 'moment';
 
 const ModelPerformanceMetrics = {
     ACCURACY: {value: 'ACCURACY', name: 'Accuracy'},
@@ -724,21 +723,12 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                     }
                                     renderData={({results = []}) => (
                                         <AreaGraph
-                                            dots={results.map(({accuracy, time}) => {
-                                                const [h, m] = time.split(':');
-
-                                                return {
-                                                    y: accuracy * 100,
-                                                    x: moment(
-                                                        moment().format('YYYY-MM-DD')
-                                                    )
-                                                        .add({
-                                                            hour: Number(h),
-                                                            minute: Number(m)
-                                                        })
-                                                        .valueOf()
-                                                };
-                                            })}
+                                            dots={results.map(
+                                                ({accuracy, time}) => ({
+                                                    x: time,
+                                                    y: accuracy * 100
+                                                })
+                                            )}
                                             hasBorder={false}
                                             isTimeDependent
                                             margin={{
