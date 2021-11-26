@@ -108,6 +108,7 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                             <option value='IMAGE_CLASSIFIER'>Image Classifier</option>
                             <option value='TABULAR_CLASSIFIER'>Tabular Classifier</option>
                             <option value='DOCUMENT_PROCESSING'>Document Processing</option>
+                            <option value='Q_N_A'>Question Answering</option>
                         </Form.Control>
                     </InputGroup>
                     <Button
