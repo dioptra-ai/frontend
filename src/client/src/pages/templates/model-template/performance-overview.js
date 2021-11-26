@@ -13,7 +13,7 @@ import MetricInfoBox from 'components/metric-info-box';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 import useModel from 'customHooks/use-model';
 import Async from 'components/async';
-import baseJsonClient from 'clients/base-json-client';
+import baseJSONClient from 'clients/base-json-client';
 import moment from 'moment';
 
 const ModelPerformanceMetrics = {
@@ -30,7 +30,9 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
     const [modelPerformanceIndicators, setModelPerformanceIndicators] = useState([]);
     const [selectedIndicator, setSelectedIndicator] = useState(null);
     const allSqlFilters = useAllSqlFilters();
-    const allSqlFiltersWithoutOrgId = useAllSqlFilters({__REMOVE_ME__excludeOrgId: true});
+    const allSqlFiltersWithoutOrgId = useAllSqlFilters({
+        __REMOVE_ME__excludeOrgId: true
+    });
     const sqlFiltersWithModelTime = useAllSqlFilters({useReferenceRange: true});
     const model = useModel();
 
@@ -58,7 +60,9 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                 WHERE ${allSqlFilters}`}
         />
     );
-    const timeGranularity = timeStore.getTimeGranularity().toISOString();
+
+    const timeGranularityValue = timeStore.getTimeGranularity();
+    const timeGranularity = timeGranularityValue.toISOString();
     const predictionName =
         model.mlModelType === 'DOCUMENT_PROCESSING' ?
             '"prediction.class_name"' :
@@ -79,7 +83,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                     Service Performance
                 </h3>
                 <Row>
-                    <Col>
+                    <Col lg={6}>
                         <TimeseriesQuery
                             defaultData={[]}
                             renderData={(data) => (
@@ -140,88 +144,89 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
             </div>
             <div className='my-5'>
                 <h3 className='text-dark bold-text fs-3 mb-3'>Model Performance</h3>
-                {
-                    model.mlModelType === 'Q_N_A' ? (
-                        <Row className='mb-3 align-items-stretch'>
-                            <Col className='d-flex' lg={3}>
-                                <Async
-                                    fetchData={() => baseJsonClient('/api/metrics/exact-match', {
-                                        method: 'post',
-                                        body: {
-                                            sql_filters: allSqlFiltersWithoutOrgId
-                                        }
-                                    })}
-                                    refetchOnChanged={[allSqlFiltersWithoutOrgId]}
-                                    renderData={([{exact_match}]) => (
-                                        <MetricInfoBox
-                                            name='EM'
-                                            sampleSize={sampleSizeComponent}
-                                            unit='%'
-                                            value={100 * exact_match}
-                                        />
-                                    )}
-                                />
-                            </Col>
-                            <Col className='d-flex' lg={3}>
-                                <Async
-                                    fetchData={() => baseJsonClient('/api/metrics/f1-score', {
-                                        method: 'post',
-                                        body: {
-                                            sql_filters: allSqlFiltersWithoutOrgId
-                                        }
-                                    })}
-                                    refetchOnChanged={[allSqlFiltersWithoutOrgId]}
-                                    renderData={([{f1_score}]) => (
-                                        <MetricInfoBox
-                                            name='F1 Score'
-                                            sampleSize={sampleSizeComponent}
-                                            unit='%'
-                                            value={100 * f1_score}
-                                        />
-                                    )}
-                                />
-                            </Col>
-                        </Row>
-                    ) : (
-                        <Row className='mb-3 align-items-stretch'>
-                            <Col className='d-flex' lg={3}>
-                                <TimeseriesQuery
-                                    defaultData={[[{accuracy: 0}], [{accuracy: 0}]]}
-                                    renderData={([[{accuracy}], [data]]) => (
-                                        <MetricInfoBox
-                                            name='Accuracy'
-                                            sampleSize={sampleSizeComponent}
-                                            unit='%'
-                                            value={accuracy}
-                                            difference={accuracy - data?.accuracy}
-                                        />
-                                    )}
-                                    sql={[
-                                        sql`
+                {model.mlModelType === 'Q_N_A' ? (
+                    <Row className='mb-3 align-items-stretch'>
+                        <Col className='d-flex' lg={3}>
+                            <Async
+                                fetchData={() => baseJSONClient('/api/metrics/exact-match', {
+                                    method: 'post',
+                                    body: {
+                                        sql_filters: allSqlFiltersWithoutOrgId
+                                    }
+                                })
+                                }
+                                refetchOnChanged={[allSqlFiltersWithoutOrgId]}
+                                renderData={([{exact_match}]) => (
+                                    <MetricInfoBox
+                                        name='EM'
+                                        sampleSize={sampleSizeComponent}
+                                        unit='%'
+                                        value={100 * exact_match}
+                                    />
+                                )}
+                            />
+                        </Col>
+                        <Col className='d-flex' lg={3}>
+                            <Async
+                                fetchData={() => baseJSONClient('/api/metrics/f1-score', {
+                                    method: 'post',
+                                    body: {
+                                        sql_filters: allSqlFiltersWithoutOrgId
+                                    }
+                                })
+                                }
+                                refetchOnChanged={[allSqlFiltersWithoutOrgId]}
+                                renderData={([{f1_score}]) => (
+                                    <MetricInfoBox
+                                        name='F1 Score'
+                                        sampleSize={sampleSizeComponent}
+                                        unit='%'
+                                        value={100 * f1_score}
+                                    />
+                                )}
+                            />
+                        </Col>
+                    </Row>
+                ) : (
+                    <Row className='mb-3 align-items-stretch'>
+                        <Col className='d-flex' lg={3}>
+                            <TimeseriesQuery
+                                defaultData={[[{accuracy: 0}], [{accuracy: 0}]]}
+                                renderData={([[{accuracy}], [data]]) => (
+                                    <MetricInfoBox
+                                        name='Accuracy'
+                                        sampleSize={sampleSizeComponent}
+                                        unit='%'
+                                        value={accuracy}
+                                        difference={accuracy - data?.accuracy}
+                                    />
+                                )}
+                                sql={[
+                                    sql`
                                         SELECT 100 * CAST(sum(CASE WHEN ${predictionName}=${groundTruthName} THEN 1 ELSE 0 END) AS DOUBLE) / sum(1) AS accuracy
                                         FROM "dioptra-gt-combined-eventstream"
                                         WHERE ${allSqlFilters}`,
-                                        sql`
+                                    sql`
                                         SELECT 100 * CAST(sum(CASE WHEN ${predictionName}=${groundTruthName} THEN 1 ELSE 0 END) AS DOUBLE) / sum(1) AS accuracy
                                         FROM "dioptra-gt-combined-eventstream"
                                         WHERE ${sqlFiltersWithModelTime}`
-                                    ]}
-                                />
-                            </Col>
-                            <Col className='d-flex' lg={3}>
-                                <TimeseriesQuery
-                                    defaultData={[[{f1Score: 0}], [{f1Score: 0}]]}
-                                    renderData={([[{f1Score}], [data]]) => (
-                                        <MetricInfoBox
-                                            name='F1 Score'
-                                            sampleSize={sampleSizeComponent}
-                                            unit='%'
-                                            value={100 * f1Score}
-                                            difference={100 * (f1Score - data?.f1Score)}
-                                        />
-                                    )}
-                                    sql={[
-                                        sql`
+                                ]}
+                            />
+                        </Col>
+                        <Col className='d-flex' lg={3}>
+                            <TimeseriesQuery
+                                defaultData={[[{f1Score: 0}], [{f1Score: 0}]]}
+                                renderData={([[{f1Score}], [data]]) => (
+                                    <MetricInfoBox
+                                        name='F1 Score'
+                                        sampleSize={sampleSizeComponent}
+                                        unit='%'
+                                        value={100 * f1Score}
+                                        difference={100 * (f1Score - data?.f1Score)}
+                                    />
+                                )}
+                                sql={[
+                                    sql`
                                             WITH true_positive as (
                                               SELECT
                                                 ${groundTruthName} as label,
@@ -260,7 +265,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                               JOIN true_sum ON true_sum.label = true_positive.label
                                             ) as my_table
                                         `,
-                                        sql`
+                                    sql`
                                         WITH true_positive as (
                                           SELECT
                                             ${groundTruthName} as label,
@@ -299,23 +304,23 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                           JOIN true_sum ON true_sum.label = true_positive.label
                                         ) as my_table
                                     `
-                                    ]}
-                                />
-                            </Col>
-                            <Col className='d-flex' lg={3}>
-                                <TimeseriesQuery
-                                    defaultData={[[{recall: 0}], [{recall: 0}]]}
-                                    renderData={([[{recall}], [data]]) => (
-                                        <MetricInfoBox
-                                            name='Recall'
-                                            sampleSize={sampleSizeComponent}
-                                            unit='%'
-                                            value={100 * recall}
-                                            difference={100 * (recall - data?.recall)}
-                                        />
-                                    )}
-                                    sql={[
-                                        sql`
+                                ]}
+                            />
+                        </Col>
+                        <Col className='d-flex' lg={3}>
+                            <TimeseriesQuery
+                                defaultData={[[{recall: 0}], [{recall: 0}]]}
+                                renderData={([[{recall}], [data]]) => (
+                                    <MetricInfoBox
+                                        name='Recall'
+                                        sampleSize={sampleSizeComponent}
+                                        unit='%'
+                                        value={100 * recall}
+                                        difference={100 * (recall - data?.recall)}
+                                    />
+                                )}
+                                sql={[
+                                    sql`
                                         WITH true_positive as (
                                           SELECT
                                             ${groundTruthName} as label,
@@ -353,7 +358,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                           JOIN pred_sum ON pred_sum.label = true_positive.label
                                           JOIN true_sum ON true_sum.label = true_positive.label
                                     `,
-                                        sql`
+                                    sql`
                                     WITH true_positive as (
                                       SELECT
                                         ${groundTruthName} as label,
@@ -391,23 +396,25 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                       JOIN pred_sum ON pred_sum.label = true_positive.label
                                       JOIN true_sum ON true_sum.label = true_positive.label
                                 `
-                                    ]}
-                                />
-                            </Col>
-                            <Col className='d-flex' lg={3}>
-                                <TimeseriesQuery
-                                    defaultData={[[{precision: 0}], [{precision: 0}]]}
-                                    renderData={([[{precision}], [data]]) => (
-                                        <MetricInfoBox
-                                            name='Precision'
-                                            sampleSize={sampleSizeComponent}
-                                            unit='%'
-                                            value={100 * precision}
-                                            difference={100 * (precision - data?.precision)}
-                                        />
-                                    )}
-                                    sql={[
-                                        sql`WITH true_positive as (
+                                ]}
+                            />
+                        </Col>
+                        <Col className='d-flex' lg={3}>
+                            <TimeseriesQuery
+                                defaultData={[[{precision: 0}], [{precision: 0}]]}
+                                renderData={([[{precision}], [data]]) => (
+                                    <MetricInfoBox
+                                        name='Precision'
+                                        sampleSize={sampleSizeComponent}
+                                        unit='%'
+                                        value={100 * precision}
+                                        difference={
+                                            100 * (precision - data?.precision)
+                                        }
+                                    />
+                                )}
+                                sql={[
+                                    sql`WITH true_positive as (
                                       SELECT
                                         ${groundTruthName} as label,
                                         sum(CASE WHEN ${predictionName}=${groundTruthName} THEN 1 ELSE 0 END) as cnt_tp
@@ -444,7 +451,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                       JOIN pred_sum ON pred_sum.label = true_positive.label
                                       JOIN true_sum ON true_sum.label = true_positive.label
                                     `,
-                                        sql`WITH true_positive as (
+                                    sql`WITH true_positive as (
                                       SELECT
                                         ${groundTruthName} as label,
                                         sum(CASE WHEN ${predictionName}=${groundTruthName} THEN 1 ELSE 0 END) as cnt_tp
@@ -481,12 +488,11 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                       JOIN pred_sum ON pred_sum.label = true_positive.label
                                       JOIN true_sum ON true_sum.label = true_positive.label
                                     `
-                                    ]}
-                                />
-                            </Col>
-                        </Row>
-                    )
-                }
+                                ]}
+                            />
+                        </Col>
+                    </Row>
+                )}
                 <div className='border rounded p-3'>
                     <div className='d-flex justify-content-end my-3'>
                         <div style={{width: '200px'}}>
@@ -691,7 +697,12 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                         <Col className='p-0 d-flex' lg={8}>
                             {selectedIndicator ? (
                                 <Async
-                                    refetchOnChanged={[selectedIndicator]}
+                                    refetchOnChanged={[
+                                        selectedIndicator,
+                                        timeStore.start,
+                                        timeStore.end,
+                                        timeGranularityValue
+                                    ]}
                                     fetchData={() => baseJSONClient(
                                         `/api/metrics/integrations/redash/${selectedIndicator}`,
                                         {
@@ -705,7 +716,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                                         .utc()
                                                         .format(),
                                                     time_granularity:
-                                                            timeStore.getTimeGranularity()
+                                                            timeGranularityValue
                                                 }
                                             }
                                         }
