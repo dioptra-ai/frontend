@@ -52,7 +52,15 @@ const Settings = () => {
         <Container className='login fs-6 d-flex px-4 profile' fluid>
             <div className='login-form d-flex flex-column m-4'>
                 <p className='text-dark bold-text fs-3'>Integrations</p>
-                <p className='text-dark bold-text fs-4'>Redash</p>
+                <p className='text-dark bold-text fs-4 m-0'>Redash</p>
+                <caption>
+                    In your query please use the next parameters to filter the data:
+                    <ul>
+                        <li>"time_start": UTC_TIME</li>
+                        <li>"time_end": UTC_TIME</li>
+                        <li>"time_granularity": String</li>
+                    </ul>
+                </caption>
                 <Form autoComplete='off' className='w-100' onSubmit={handleSubmit}>
                     <Form.Group className='mb-3'>
                         <Form.Label>API Key</Form.Label>
@@ -83,9 +91,7 @@ const Settings = () => {
                         <Form.Label>Redash Endpoint</Form.Label>
                         <InputGroup>
                             <Form.Control
-                                className={`bg-light ${
-                                    error ? 'error' : ''
-                                }`}
+                                className={`bg-light ${error ? 'error' : ''}`}
                                 name='endpoint'
                                 onChange={(e) => {
                                     setFormData({
