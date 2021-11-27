@@ -120,21 +120,20 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 yAxisDomain={[0, 25]}
                                 yAxisName='Average Latency (ms)'
                                 unit='ms'
+                                isDisabled
                             />
-                            <div
-                                style={{
-                                    background: 'rgba(255, 255, 255, 0.7)',
-                                    position: 'absolute',
-                                    top: 0,
-                                    right: 0,
-                                    bottom: 0,
-                                    left: 0,
-                                    color: 'rgba(0, 0, 0, 0.6)',
-                                    display: 'flex',
-                                    justifyContent: 'center',
-                                    alignItems: 'center'
-                                }}
-                            >
+                            <div style={{
+                                background: 'rgba(255, 255, 255, 0.7)',
+                                position: 'absolute',
+                                top: 0,
+                                right: 0,
+                                bottom: 0,
+                                left: 0,
+                                color: 'rgba(0, 0, 0, 0.6)',
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center'
+                            }}>
                                 <h4>This Feature Will Be Available Soon</h4>
                             </div>
                         </div>

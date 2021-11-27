@@ -51,7 +51,7 @@ const Model = ({modelStore}) => {
                     <Container fluid>
                         <Tabs tabs={[
                             {name: 'Performance Overview', to: `/${mlModelId}/performance-overview`},
-                            {name: 'Performance Details', to: `/${mlModelId}/performance-details`},
+                            {name: 'Performance Analysis', to: `/${mlModelId}/performance-details`},
                             {name: 'Prediction Analysis', to: `/${mlModelId}/prediction-analysis`},
                             {name: 'Feature Analysis', to: `/${mlModelId}/feature-analysis`},
                             {name: 'Incidents & Alerts', to: `/${mlModelId}/incidents-&-alerts`}
@@ -67,7 +67,7 @@ const Model = ({modelStore}) => {
                         <Route exact path='/:_id/performance-details'
                             render={() => (
                                 <div className='px-3'>
-                                    <h2 className='text-dark bold-text fs-2 my-5'>Performance Details</h2>
+                                    <h2 className='text-dark bold-text fs-2 my-5'>Performance Analysis</h2>
                                     <PerformanceDetails/>
                                 </div>
                             )}
