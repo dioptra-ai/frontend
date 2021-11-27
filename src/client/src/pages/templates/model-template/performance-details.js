@@ -21,6 +21,7 @@ import Select from 'components/select';
 import baseJsonClient from 'clients/base-json-client';
 import Async from 'components/async';
 import {precisionRecallData} from './bounding-box-location-analysis-data';
+import QAPerfAnalysis from './qa-perf-analysis';
 
 const PerformanceBox = ({
     title = '',
@@ -570,6 +571,14 @@ const PerformanceDetails = ({filtersStore, timeStore}) => {
                         </Row>
                     </div>
                 </>
+            ) : mlModelType === 'Q_N_A' ? (
+                <div>
+                    <Row>
+                        <Col>
+                            <QAPerfAnalysis/>
+                        </Col>
+                    </Row>
+                </div>
             ) : (
                 <div className='my-5'>
                     <h3 className='text-dark bold-text fs-3 mb-3'>
