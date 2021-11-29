@@ -227,8 +227,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                 </h3>
                 <Row>
                     <Col>
-                        <TimeseriesQuery
-                            defaultData={[]}
+                        <Async
                             renderData={(data) => (
                                 <AreaGraph
                                     dots={data.map(({throughput, __time}) => ({
@@ -241,17 +240,16 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                     yAxisName='Average Throughput (QPS)'
                                 />
                             )}
-                            sql={sql`
-                                SELECT TIME_FLOOR(__time, '${timeStore
-            .getTimeGranularity()
-            .toISOString()}') as "__time",
-                                    COUNT(*) / ${timeStore
-            .getTimeGranularity()
-            .asSeconds()} as throughput
-                                FROM "dioptra-gt-combined-eventstream"
-                                WHERE ${allSqlFilters}
-                                GROUP BY 1
-                            `}
+                            fetchData={
+                                () => baseJSONClient('/api/metrics/throughput', {
+                                    method: 'post',
+                                    body: {
+                                        sql_filters: allSqlFilters,
+                                        granular_time_as_string: timeStore.getTimeGranularity().toISOString(),
+                                        granular_time_as_seconds: timeStore.getTimeGranularity().asSeconds()
+                                    }
+                                })
+                            }
                         />
                     </Col>
                 </Row>
