@@ -11,14 +11,18 @@ MetricsRouter.all('*', isAuthenticated);
 
 MetricsRouter.post('/:method?', async (req, res, next) => {
     try {
-        const metricsEnginePath = `${process.env.METRICS_ENGINE_URL}/${req.params.method || 'compute'}`;
+        const metricsEnginePath = `${process.env.METRICS_ENGINE_URL}/${
+            req.params.method || 'compute'
+        }`;
         const metricsResponse = await fetch(metricsEnginePath, {
             headers: {
                 'content-type': 'application/json;charset=UTF-8'
             },
             body: JSON.stringify({
                 ...req.body,
-                organization_id: OVERRIDE_DRUID_ORG_ID || req.user.activeOrganizationMembership.organization._id
+                organization_id:
+                    OVERRIDE_DRUID_ORG_ID ||
+                    req.user.activeOrganizationMembership.organization._id
             }),
             method: 'post'
         });
@@ -51,7 +55,7 @@ MetricsRouter.get('/integrations/:sourceName', async (req, res, next) => {
 
         await axios
             .get(
-                `${process.env.METRICS_ENGINE_URL}/kpi/${sourceName}/queries?org_id=${organization_id}`
+                `${process.env.METRICS_ENGINE_URL}/integrations/${sourceName}/queries?org_id=${organization_id}`
             )
             .then((response) => {
                 res.status(response.status);
@@ -71,7 +75,7 @@ MetricsRouter.post('/integrations/:sourceName/:queryId', async (req, res, next) 
 
         await axios
             .post(
-                `${process.env.METRICS_ENGINE_URL}/kpi/${sourceName}/results/${queryId}?org_id=${organization_id}`,
+                `${process.env.METRICS_ENGINE_URL}/integrations/${sourceName}/results/${queryId}?org_id=${organization_id}`,
                 parameters
             )
             .then((response) => {
@@ -82,5 +86,29 @@ MetricsRouter.post('/integrations/:sourceName/:queryId', async (req, res, next) 
         next(e);
     }
 });
+
+MetricsRouter.post(
+    '/integrations/correlation/:sourceName/:queryId',
+    async (req, res, next) => {
+        try {
+            const {sourceName, queryId} = req.params;
+            const {activeOrganizationMembership} = req.user;
+            const organization_id = activeOrganizationMembership.organization._id;
+            const payload = req.body;
+
+            await axios
+                .post(
+                    `${process.env.METRICS_ENGINE_URL}/integrations/${sourceName}/correlation/${queryId}?org_id=${organization_id}`,
+                    payload
+                )
+                .then((response) => {
+                    res.status(response.status);
+                    res.json(response.data);
+                });
+        } catch (e) {
+            next(e);
+        }
+    }
+);
 
 export default MetricsRouter;
