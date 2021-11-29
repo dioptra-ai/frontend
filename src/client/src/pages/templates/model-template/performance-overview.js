@@ -38,7 +38,6 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
     const allSqlFilters = useAllSqlFilters();
     const sqlFiltersWithModelTime = useAllSqlFilters({useReferenceRange: true});
     const model = useModel();
-    const [iou] = useState(0.5);
 
     const sampleSizeComponent = (
         <TimeseriesQuery
@@ -81,8 +80,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 () => baseJSONClient('/api/metrics/throughput', {
                                     method: 'post',
                                     body: {
-                                        sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ?
-                                            `cast("iou" as FLOAT) > ${iou} AND ${allSqlFilters}` : allSqlFilters,
+                                        sql_filters: allSqlFilters,
                                         granular_time_as_string: timeStore.getTimeGranularity().toISOString(),
                                         granular_time_as_seconds: timeStore.getTimeGranularity().asSeconds()
                                     }
