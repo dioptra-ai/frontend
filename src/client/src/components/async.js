@@ -7,9 +7,10 @@ const Async = ({
     renderError,
     renderLoading,
     fetchData,
-    refetchOnChanged = []
+    refetchOnChanged = [],
+    defaultData
 }) => {
-    const [data, setData] = useState(null);
+    const [data, setData] = useState();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
@@ -39,13 +40,13 @@ const Async = ({
         return renderLoading();
     } else if (error) {
 
-        return renderError(error);
-    } else if (data) {
-
-        return renderData(data);
+        return renderError(error, loading);
     } else {
 
-        return null;
+        return renderData(
+            data || defaultData || (Array.isArray(fetchData) ? fetchData.map(() => []) : []),
+            loading
+        );
     }
 };
 
@@ -58,11 +59,12 @@ Async.propTypes = {
         PropTypes.func,
         PropTypes.arrayOf(PropTypes.func)
     ]),
-    refetchOnChanged: PropTypes.array
+    refetchOnChanged: PropTypes.array,
+    defaultData: PropTypes.object
 };
 
 Async.defaultProps = {
-    renderError: String
+    renderError: (error, loading) => loading ? 'Loading...' : String(error)
 };
 
 export default Async;

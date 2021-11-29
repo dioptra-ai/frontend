@@ -2,6 +2,7 @@ import {Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis
 import PropTypes from 'prop-types';
 import Legend from './graph-legend';
 import fontSizes from '../styles/font-sizes.module.scss';
+import Spinner from 'components/spinner';
 
 const CustomTooltip = ({payload, label, unit}) => {
     if (payload && payload.length) {
@@ -26,10 +27,11 @@ CustomTooltip.propTypes = {
     payload: PropTypes.array,
     unit: PropTypes.string
 };
-const BarGraph = ({title, bars, unit, yAxisName, xAxisName, yAxisDomain, className, onClick}) => {
+const BarGraph = ({loading, title, bars, unit, yAxisName, xAxisName, yAxisDomain, className, onClick}) => {
 
     return (
-        <div className={`border rounded p-3 pe-5 my-3 w-100 ${className}`}>
+        <div className={`border rounded p-3 pe-5 my-3 w-100 ${className}`} style={{position: 'relative'}}>
+            <Spinner loading={loading}/>
             <p className='text-dark bold-text fs-4'>{title}</p>
             <div style={{height: '300px'}}>
                 <ResponsiveContainer height='100%' width='100%'>
@@ -72,7 +74,8 @@ BarGraph.propTypes = {
     xAxisName: PropTypes.string,
     yAxisDomain: PropTypes.array,
     yAxisName: PropTypes.string,
-    onClick: PropTypes.func
+    onClick: PropTypes.func,
+    loading: PropTypes.bool
 };
 
 export default BarGraph;
