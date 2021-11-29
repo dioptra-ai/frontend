@@ -4,29 +4,33 @@ import {Link} from 'react-router-dom';
 import FontIcon from 'components/font-icon';
 import {IconNames} from 'constants';
 import DifferenceLabel from './difference-labels';
+import Spinner, {SpinnerWrapper} from 'components/spinner';
 
 const MetricInfoBox = ({value, notifications, warnings, name, sampleSize, unit, difference}) => (
-    <div className='border rounded p-3 w-100 d-flex flex-column align-items-center justify-content-center metric-box'>
-        <div className='d-flex flex-wrap'>
-            <span className='text-dark-bold bold-text'>{name}</span>
-            {sampleSize && <span className='text-primary mx-1'>(n={sampleSize})</span>}
-            {notifications && <FontIcon
-                className='text-dark flex-grow-1'
-                icon={IconNames.ALERTS_BELL}
-                size={16}
-            />}
-            {warnings && <div className='d-flex align-items-center'>
-                <FontIcon
-                    className='text-warning'
-                    icon={IconNames.WARNING}
-                    size={16}/>
-                <Link className='text-warning mx-1 fs-7' to='/'>
-                    View Incidents
-                </Link>
-            </div>}
+    <SpinnerWrapper>
+        <Spinner/>
+        <div className='border rounded p-3 w-100 d-flex flex-column align-items-center justify-content-center metric-box'>
+            <div className='d-flex flex-wrap'>
+                <span className='text-dark-bold bold-text'>{name}</span>
+                {sampleSize && <span className='text-primary mx-1'>(n={sampleSize})</span>}
+                {notifications && <FontIcon
+                    className='text-dark flex-grow-1'
+                    icon={IconNames.ALERTS_BELL}
+                    size={16}
+                />}
+                {warnings && <div className='d-flex align-items-center'>
+                    <FontIcon
+                        className='text-warning'
+                        icon={IconNames.WARNING}
+                        size={16}/>
+                    <Link className='text-warning mx-1 fs-7' to='/'>
+                        View Incidents
+                    </Link>
+                </div>}
+            </div>
+            <DifferenceLabel value={`${!isNaN(value) ? value.toFixed(1) : '-'}${unit}`} difference={!isNaN(difference) ? difference.toFixed(2) : '-'} baseClasses='text-dark metric-box-font-60' />
         </div>
-        <DifferenceLabel value={`${!isNaN(value) ? value.toFixed(1) : '-'}${unit}`} difference={!isNaN(difference) ? difference.toFixed(2) : '-'} baseClasses='text-dark metric-box-font-60' />
-    </div>
+    </SpinnerWrapper>
 );
 
 MetricInfoBox.propTypes = {

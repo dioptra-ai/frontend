@@ -15,6 +15,7 @@ import {
 import {HiOutlineZoomOut} from 'react-icons/hi';
 import {FaQuestion} from 'react-icons/fa';
 import {Tooltip as BootstrapTooltip, OverlayTrigger} from 'react-bootstrap';
+import Spinner, {SpinnerWrapper} from 'components/spinner';
 
 import theme from 'styles/theme.module.scss';
 import {formatDateTime} from 'helpers/date-helper';
@@ -155,148 +156,151 @@ const AreaGraph = ({
             className={`${hasBorder ? 'border px-3' : ''} rounded py-3 w-100`}
             style={{userSelect: 'none'}}
         >
-            {title && <p className='text-dark bold-text fs-4'>{title}</p>}
-            <div
-                onMouseEnter={() => setShowBtn(true)}
-                onMouseLeave={() => setShowBtn(false)}
-                style={{
-                    height: '355px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    position: 'relative'
-                }}
-            >
-                {showBtn && (
-                    <HiOutlineZoomOut
-                        className='cursor-pointer'
-                        onClick={zoomOut}
-                        style={{
-                            fontSize: 30,
-                            position: 'absolute',
-                            right: 40,
-                            zIndex: 1,
-                            top: 20
-                        }}
-                        title='Zoom out'
-                    />
-                )}
-                {timeStore.aggregationPeriod !== 'auto' && !isDisabled ? <OverlayTrigger
-                    placement='bottom'
-                    overlay={
-                        <BootstrapTooltip>
-                            The aggregation period automatically adapts to the time
-                            range. A fixed aggregation period can also be set next to
-                            the time picker.
-                        </BootstrapTooltip>
-                    }
+            <SpinnerWrapper>
+                <Spinner/>
+                {title && <p className='text-dark bold-text fs-4'>{title}</p>}
+                <div
+                    onMouseEnter={() => setShowBtn(true)}
+                    onMouseLeave={() => setShowBtn(false)}
+                    style={{
+                        height: '355px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        position: 'relative'
+                    }}
                 >
-                    <FaQuestion
-                        className='cursor-pointer blinking'
-                        style={{position: 'absolute', top: '-1rem', right: '2rem'}}
-                    />
-                </OverlayTrigger> : null}
-                <ResponsiveContainer height='100%' width='100%'>
-                    <AreaChart
-                        data={filledData}
-                        margin={margin}
-                        onMouseDown={(e) => {
-                            setRefAreaLeft(e.activeLabel);
-                        }}
-                        onMouseMove={(e) => {
-                            if (refAreaLeft) {
-                                setRefAreaRight(e.activeLabel);
-                            }
-                        }}
-                        onMouseUp={zoomIn}
+                    {showBtn && (
+                        <HiOutlineZoomOut
+                            className='cursor-pointer'
+                            onClick={zoomOut}
+                            style={{
+                                fontSize: 30,
+                                position: 'absolute',
+                                right: 40,
+                                zIndex: 1,
+                                top: 20
+                            }}
+                            title='Zoom out'
+                        />
+                    )}
+                    {timeStore.aggregationPeriod !== 'auto' && !isDisabled ? <OverlayTrigger
+                        placement='bottom'
+                        overlay={
+                            <BootstrapTooltip>
+                                The aggregation period automatically adapts to the time
+                                range. A fixed aggregation period can also be set next to
+                                the time picker.
+                            </BootstrapTooltip>
+                        }
                     >
-                        <CartesianGrid strokeDasharray='5 5' stroke={theme.light} />
-                        <defs>
-                            <linearGradient id='color' x1='0' x2='0' y1='0' y2='1'>
-                                <stop
-                                    offset='10%'
-                                    stopColor={color}
-                                    stopOpacity={0.7}
-                                />
-                                <stop
-                                    offset='90%'
-                                    stopColor='#FFFFFF'
-                                    stopOpacity={0.1}
-                                />
-                            </linearGradient>
-                            <linearGradient id='warning' x1='0' x2='0' y1='0' y2='1'>
-                                <stop
-                                    offset='10%'
-                                    stopColor={theme.warning}
-                                    stopOpacity={0.9}
-                                />
-                                <stop
-                                    offset='90%'
-                                    stopColor='#FFFFFF'
-                                    stopOpacity={0.1}
-                                />
-                            </linearGradient>
-                        </defs>
-                        <XAxis
-                            dataKey='x'
-                            domain={domain}
-                            dy={5}
-                            interval='preserveStartEnd'
-                            label={{
-                                fill: theme.dark,
-                                value: xAxisName,
-                                dy: 30,
-                                fontSize: fontSizes.fs_7
-                            }}
-                            scale='time'
-                            stroke='transparent'
-                            tick={{fill: theme.secondary, fontSize: fontSizes.fs_7}}
-                            tickCount={5}
-                            tickFormatter={(tick) => formatDateTime(tick, granularityMs)
-                            }
-                            type='number'
+                        <FaQuestion
+                            className='cursor-pointer blinking'
+                            style={{position: 'absolute', top: '-1rem', right: '2rem'}}
                         />
-                        <YAxis
-                            domain={yAxisDomain}
-                            dx={-5}
-                            label={{
-                                fill: theme.dark,
-                                value: yAxisName,
-                                angle: -90,
-                                dx: -20,
-                                fontSize: fontSizes.fs_7
+                    </OverlayTrigger> : null}
+                    <ResponsiveContainer height='100%' width='100%'>
+                        <AreaChart
+                            data={filledData}
+                            margin={margin}
+                            onMouseDown={(e) => {
+                                setRefAreaLeft(e.activeLabel);
                             }}
-                            stroke='transparent'
-                            tick={{fill: theme.secondary, fontSize: fontSizes.fs_7}}
-                            tickCount={6}
-                            yAxisId='1'
-                            unit={unit}
-                        />
-                        <Tooltip content={CustomTooltip} />
-                        <Area
-                            animationDuration={300}
-                            dataKey='y'
-                            fill='url(#color)'
-                            stroke={color}
-                            strokeWidth={2}
-                            type='linear'
-                            yAxisId='1'
-                            unit={unit}
-                            dot={{
-                                r: 1,
-                                strokeWidth: 2
+                            onMouseMove={(e) => {
+                                if (refAreaLeft) {
+                                    setRefAreaRight(e.activeLabel);
+                                }
                             }}
-                        />
-                        {refAreaLeft && refAreaRight ? (
-                            <ReferenceArea
-                                strokeOpacity={0.3}
-                                x1={refAreaLeft}
-                                x2={refAreaRight}
-                                yAxisId='1'
+                            onMouseUp={zoomIn}
+                        >
+                            <CartesianGrid strokeDasharray='5 5' stroke={theme.light} />
+                            <defs>
+                                <linearGradient id='color' x1='0' x2='0' y1='0' y2='1'>
+                                    <stop
+                                        offset='10%'
+                                        stopColor={color}
+                                        stopOpacity={0.7}
+                                    />
+                                    <stop
+                                        offset='90%'
+                                        stopColor='#FFFFFF'
+                                        stopOpacity={0.1}
+                                    />
+                                </linearGradient>
+                                <linearGradient id='warning' x1='0' x2='0' y1='0' y2='1'>
+                                    <stop
+                                        offset='10%'
+                                        stopColor={theme.warning}
+                                        stopOpacity={0.9}
+                                    />
+                                    <stop
+                                        offset='90%'
+                                        stopColor='#FFFFFF'
+                                        stopOpacity={0.1}
+                                    />
+                                </linearGradient>
+                            </defs>
+                            <XAxis
+                                dataKey='x'
+                                domain={domain}
+                                dy={5}
+                                interval='preserveStartEnd'
+                                label={{
+                                    fill: theme.dark,
+                                    value: xAxisName,
+                                    dy: 30,
+                                    fontSize: fontSizes.fs_7
+                                }}
+                                scale='time'
+                                stroke='transparent'
+                                tick={{fill: theme.secondary, fontSize: fontSizes.fs_7}}
+                                tickCount={5}
+                                tickFormatter={(tick) => formatDateTime(tick, granularityMs)
+                                }
+                                type='number'
                             />
-                        ) : null}
-                    </AreaChart>
-                </ResponsiveContainer>
-            </div>
+                            <YAxis
+                                domain={yAxisDomain}
+                                dx={-5}
+                                label={{
+                                    fill: theme.dark,
+                                    value: yAxisName,
+                                    angle: -90,
+                                    dx: -20,
+                                    fontSize: fontSizes.fs_7
+                                }}
+                                stroke='transparent'
+                                tick={{fill: theme.secondary, fontSize: fontSizes.fs_7}}
+                                tickCount={6}
+                                yAxisId='1'
+                                unit={unit}
+                            />
+                            <Tooltip content={CustomTooltip} />
+                            <Area
+                                animationDuration={300}
+                                dataKey='y'
+                                fill='url(#color)'
+                                stroke={color}
+                                strokeWidth={2}
+                                type='linear'
+                                yAxisId='1'
+                                unit={unit}
+                                dot={{
+                                    r: 1,
+                                    strokeWidth: 2
+                                }}
+                            />
+                            {refAreaLeft && refAreaRight ? (
+                                <ReferenceArea
+                                    strokeOpacity={0.3}
+                                    x1={refAreaLeft}
+                                    x2={refAreaRight}
+                                    yAxisId='1'
+                                />
+                            ) : null}
+                        </AreaChart>
+                    </ResponsiveContainer>
+                </div>
+            </SpinnerWrapper>
         </div>
     );
 };

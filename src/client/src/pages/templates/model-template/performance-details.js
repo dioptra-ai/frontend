@@ -162,7 +162,7 @@ const PerformanceDetails = ({filtersStore, timeStore}) => {
     );
 
     return (
-        <>
+        <div className='pb-5'>
             <FilterInput
                 defaultFilters={filtersStore.filters}
                 onChange={(filters) => (filtersStore.filters = filters)}
@@ -792,9 +792,9 @@ const PerformanceDetails = ({filtersStore, timeStore}) => {
                     </Row>
                 </div>
             )}
-            <ConfusionMatrix />
-            <Segmentation />
-        </>
+            {mlModelType !== 'Q_N_A' ? <ConfusionMatrix /> : null}
+            {mlModelType !== 'Q_N_A' ? <Segmentation /> : null}
+        </div>
     );
 };
 
