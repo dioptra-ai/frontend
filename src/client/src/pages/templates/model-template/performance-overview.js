@@ -62,13 +62,13 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
     const timeGranularityValue = timeStore.getTimeGranularity();
     const timeGranularity = timeGranularityValue.toISOString();
     const predictionName =
-        model.mlModelType === 'DOCUMENT_PROCESSING'
-            ? '"prediction.class_name"'
-            : '"prediction"';
+        model.mlModelType === 'DOCUMENT_PROCESSING' ?
+            '"prediction.class_name"' :
+            '"prediction"';
     const groundTruthName =
-        model.mlModelType === 'DOCUMENT_PROCESSING'
-            ? '"groundtruth.class_name"'
-            : '"groundtruth"';
+        model.mlModelType === 'DOCUMENT_PROCESSING' ?
+            '"groundtruth.class_name"' :
+            '"groundtruth"';
 
     const getSelectedQuery = () => {
         return {
@@ -221,8 +221,8 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                 defaultFilters={filtersStore.filters}
                 onChange={(filters) => (filtersStore.filters = filters)}
             />
-            <div className="my-5">
-                <h3 className="text-dark bold-text fs-3 mb-3">
+            <div className='my-5'>
+                <h3 className='text-dark bold-text fs-3 mb-3'>
                     Service Performance
                 </h3>
                 <Row>
@@ -236,18 +236,18 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                         x: new Date(__time).getTime()
                                     }))}
                                     isTimeDependent
-                                    title="Average Throughput (QPS)"
-                                    xAxisName="Time"
-                                    yAxisName="Average Throughput (QPS)"
+                                    title='Average Throughput (QPS)'
+                                    xAxisName='Time'
+                                    yAxisName='Average Throughput (QPS)'
                                 />
                             )}
                             sql={sql`
                                 SELECT TIME_FLOOR(__time, '${timeStore
-                                    .getTimeGranularity()
-                                    .toISOString()}') as "__time",
+            .getTimeGranularity()
+            .toISOString()}') as "__time",
                                     COUNT(*) / ${timeStore
-                                        .getTimeGranularity()
-                                        .asSeconds()} as throughput
+            .getTimeGranularity()
+            .asSeconds()} as throughput
                                 FROM "dioptra-gt-combined-eventstream"
                                 WHERE ${allSqlFilters}
                                 GROUP BY 1
@@ -256,47 +256,45 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                     </Col>
                 </Row>
             </div>
-            <div className="my-5">
-                <h3 className="text-dark bold-text fs-3 mb-3">Model Performance</h3>
+            <div className='my-5'>
+                <h3 className='text-dark bold-text fs-3 mb-3'>Model Performance</h3>
                 {model.mlModelType === 'Q_N_A' ? (
-                    <Row className="mb-3 align-items-stretch">
-                        <Col className="d-flex" lg={3}>
+                    <Row className='mb-3 align-items-stretch'>
+                        <Col className='d-flex' lg={3}>
                             <Async
-                                fetchData={() =>
-                                    baseJSONClient('/api/metrics/exact-match', {
-                                        method: 'post',
-                                        body: {
-                                            sql_filters: allSqlFiltersWithoutOrgId
-                                        }
-                                    })
+                                fetchData={() => baseJSONClient('/api/metrics/exact-match', {
+                                    method: 'post',
+                                    body: {
+                                        sql_filters: allSqlFiltersWithoutOrgId
+                                    }
+                                })
                                 }
                                 refetchOnChanged={[allSqlFiltersWithoutOrgId]}
                                 renderData={([{exact_match} = {}]) => (
                                     <MetricInfoBox
-                                        name="EM"
+                                        name='EM'
                                         sampleSize={sampleSizeComponent}
-                                        unit="%"
+                                        unit='%'
                                         value={100 * exact_match}
                                     />
                                 )}
                             />
                         </Col>
-                        <Col className="d-flex" lg={3}>
+                        <Col className='d-flex' lg={3}>
                             <Async
-                                fetchData={() =>
-                                    baseJSONClient('/api/metrics/f1-score', {
-                                        method: 'post',
-                                        body: {
-                                            sql_filters: allSqlFiltersWithoutOrgId
-                                        }
-                                    })
+                                fetchData={() => baseJSONClient('/api/metrics/f1-score', {
+                                    method: 'post',
+                                    body: {
+                                        sql_filters: allSqlFiltersWithoutOrgId
+                                    }
+                                })
                                 }
                                 refetchOnChanged={[allSqlFiltersWithoutOrgId]}
                                 renderData={([{f1_score} = {}]) => (
                                     <MetricInfoBox
-                                        name="F1 Score"
+                                        name='F1 Score'
                                         sampleSize={sampleSizeComponent}
-                                        unit="%"
+                                        unit='%'
                                         value={100 * f1_score}
                                     />
                                 )}
@@ -304,15 +302,15 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                         </Col>
                     </Row>
                 ) : (
-                    <Row className="mb-3 align-items-stretch">
-                        <Col className="d-flex" lg={3}>
+                    <Row className='mb-3 align-items-stretch'>
+                        <Col className='d-flex' lg={3}>
                             <TimeseriesQuery
                                 defaultData={[[{accuracy: 0}], [{accuracy: 0}]]}
                                 renderData={([[{accuracy}], [data]]) => (
                                     <MetricInfoBox
-                                        name="Accuracy"
+                                        name='Accuracy'
                                         sampleSize={sampleSizeComponent}
-                                        unit="%"
+                                        unit='%'
                                         value={accuracy}
                                         difference={accuracy - data?.accuracy}
                                     />
@@ -329,14 +327,14 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 ]}
                             />
                         </Col>
-                        <Col className="d-flex" lg={3}>
+                        <Col className='d-flex' lg={3}>
                             <TimeseriesQuery
                                 defaultData={[[{f1Score: 0}], [{f1Score: 0}]]}
                                 renderData={([[{f1Score}], [data]]) => (
                                     <MetricInfoBox
-                                        name="F1 Score"
+                                        name='F1 Score'
                                         sampleSize={sampleSizeComponent}
-                                        unit="%"
+                                        unit='%'
                                         value={100 * f1Score}
                                         difference={100 * (f1Score - data?.f1Score)}
                                     />
@@ -423,14 +421,14 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 ]}
                             />
                         </Col>
-                        <Col className="d-flex" lg={3}>
+                        <Col className='d-flex' lg={3}>
                             <TimeseriesQuery
                                 defaultData={[[{recall: 0}], [{recall: 0}]]}
                                 renderData={([[{recall}], [data]]) => (
                                     <MetricInfoBox
-                                        name="Recall"
+                                        name='Recall'
                                         sampleSize={sampleSizeComponent}
-                                        unit="%"
+                                        unit='%'
                                         value={100 * recall}
                                         difference={100 * (recall - data?.recall)}
                                     />
@@ -515,14 +513,14 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 ]}
                             />
                         </Col>
-                        <Col className="d-flex" lg={3}>
+                        <Col className='d-flex' lg={3}>
                             <TimeseriesQuery
                                 defaultData={[[{precision: 0}], [{precision: 0}]]}
                                 renderData={([[{precision}], [data]]) => (
                                     <MetricInfoBox
-                                        name="Precision"
+                                        name='Precision'
                                         sampleSize={sampleSizeComponent}
-                                        unit="%"
+                                        unit='%'
                                         value={100 * precision}
                                         difference={
                                             100 * (precision - data?.precision)
@@ -609,8 +607,8 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                         </Col>
                     </Row>
                 )}
-                <div className="border rounded p-3">
-                    <div className="d-flex justify-content-end my-3">
+                <div className='border rounded p-3'>
+                    <div className='d-flex justify-content-end my-3'>
                         <div style={{width: '200px'}}>
                             <Select
                                 initialValue={selectedMetric}
@@ -627,8 +625,8 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 hasBorder={false}
                                 isTimeDependent
                                 margin={{right: 0, bottom: 30}}
-                                unit="%"
-                                xAxisName="Time"
+                                unit='%'
+                                xAxisName='Time'
                                 yAxisDomain={[0, 100]}
                                 yAxisName={getName(selectedMetric)}
                             />
@@ -637,12 +635,12 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                     />
                 </div>
             </div>
-            <div className="my-5">
-                <h3 className="text-dark bold-text fs-3 mb-3">
+            <div className='my-5'>
+                <h3 className='text-dark bold-text fs-3 mb-3'>
                     Key Performance Indicators
                 </h3>
-                <div className="border rounded p-3">
-                    <div className="d-flex justify-content-end my-3">
+                <div className='border rounded p-3'>
+                    <div className='d-flex justify-content-end my-3'>
                         <div style={{width: '200px'}}>
                             {modelPerformanceIndicators.length ? (
                                 <Select
@@ -656,13 +654,13 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                             ) : null}
                         </div>
                     </div>
-                    <Row className="m-0">
+                    <Row className='m-0'>
                         <Col
-                            className="border rounded d-flex flex-column align-items-center justify-content-center my-3 p-3"
+                            className='border rounded d-flex flex-column align-items-center justify-content-center my-3 p-3'
                             lg={4}
                             style={{height: '295px'}}
                         >
-                            <p className="text-dark bold-text fs-6">
+                            <p className='text-dark bold-text fs-6'>
                                 Correlation to KPIs
                             </p>
                             {selectedIndicator ? (
@@ -673,52 +671,50 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                         timeStore.end,
                                         timeGranularityValue
                                     ]}
-                                    fetchData={() =>
-                                        baseJSONClient(
-                                            `/api/metrics/integrations/correlation/redash/${selectedIndicator}`,
-                                            {
-                                                method: 'post',
-                                                body: {
-                                                    parameters: {
-                                                        time_start: timeStore.start,
-                                                        time_end: timeStore.end,
-                                                        time_granularity:
+                                    fetchData={() => baseJSONClient(
+                                        `/api/metrics/integrations/correlation/redash/${selectedIndicator}`,
+                                        {
+                                            method: 'post',
+                                            body: {
+                                                parameters: {
+                                                    time_start: timeStore.start,
+                                                    time_end: timeStore.end,
+                                                    time_granularity:
                                                             timeGranularityValue
-                                                    },
-                                                    model_performance_query:
+                                                },
+                                                model_performance_query:
                                                         getSelectedQuery().query
-                                                }
                                             }
-                                        )
+                                        }
+                                    )
                                     }
-                                    renderData={(correlationResponse) =>
-                                        correlationResponse.correlation && (
-                                            <span className="text-dark bold-text fs-1 d-flex justify-content-between gap-2">
-                                                <span>
-                                                    {correlationResponse.correlation.value.toFixed(
-                                                        1
-                                                    )}
-                                                </span>
-                                                {correlationResponse.correlation
-                                                    .p_value < 0.05 && (
-                                                    <span>*</span>
-                                                )}
-                                                {correlationResponse.correlation
-                                                    .p_value < 0.01 && (
-                                                    <span>*</span>
+                                    renderData={(correlationResponse) => correlationResponse.correlation && (
+                                        <span className='text-dark bold-text fs-1 d-flex justify-content-between gap-2'>
+                                            <span>
+                                                {correlationResponse.correlation.value.toFixed(
+                                                    1
                                                 )}
                                             </span>
-                                        )
+                                            {correlationResponse.correlation
+                                                .p_value < 0.05 && (
+                                                <span>*</span>
+                                            )}
+                                            {correlationResponse.correlation
+                                                .p_value < 0.01 && (
+                                                <span>*</span>
+                                            )}
+                                        </span>
+                                    )
                                     }
                                     renderError={() => (
-                                        <span className="text-dark bold-text fs-1">
+                                        <span className='text-dark bold-text fs-1'>
                                             0
                                         </span>
                                     )}
                                 />
                             ) : null}
                         </Col>
-                        <Col className="p-0 d-flex" lg={8}>
+                        <Col className='p-0 d-flex' lg={8}>
                             {selectedIndicator ? (
                                 <Async
                                     refetchOnChanged={[
@@ -727,25 +723,24 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                         timeStore.end,
                                         timeGranularityValue
                                     ]}
-                                    fetchData={() =>
-                                        baseJSONClient(
-                                            `/api/metrics/integrations/redash/${selectedIndicator}`,
-                                            {
-                                                method: 'post',
-                                                body: {
-                                                    parameters: {
-                                                        time_start: timeStore.start
-                                                            .utc()
-                                                            .format(),
-                                                        time_end: timeStore.end
-                                                            .utc()
-                                                            .format(),
-                                                        time_granularity:
+                                    fetchData={() => baseJSONClient(
+                                        `/api/metrics/integrations/redash/${selectedIndicator}`,
+                                        {
+                                            method: 'post',
+                                            body: {
+                                                parameters: {
+                                                    time_start: timeStore.start
+                                                        .utc()
+                                                        .format(),
+                                                    time_end: timeStore.end
+                                                        .utc()
+                                                        .format(),
+                                                    time_granularity:
                                                             timeGranularityValue
-                                                    }
                                                 }
                                             }
-                                        )
+                                        }
+                                    )
                                     }
                                     renderData={({results = []}) => (
                                         <AreaGraph
@@ -762,12 +757,11 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                                 bottom: 30,
                                                 left: 5
                                             }}
-                                            xAxisName="Time"
+                                            xAxisName='Time'
                                             yAxisDomain={[0, 100]}
                                             yAxisName={getName(
                                                 modelPerformanceIndicators.find(
-                                                    ({value}) =>
-                                                        value === selectedIndicator
+                                                    ({value}) => value === selectedIndicator
                                                 )?.name
                                             )}
                                         />
