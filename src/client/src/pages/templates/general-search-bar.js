@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {IconNames} from 'constants';
 import {Button} from 'react-bootstrap';
 import PropTypes from 'prop-types';
@@ -8,11 +8,74 @@ import DateTimeRangePicker from 'components/date-time-range-picker';
 import TextInput from 'components/text-input';
 import {setupComponent} from 'helpers/component-helper';
 import baseJsonClient from 'clients/base-json-client';
+import Select from 'components/select';
+import moment from 'moment';
+
+const granularityOptions = [
+    {name: 'Auto', value: 'auto'},
+    {
+        name: '1 Second',
+        value: moment.duration(1, 'second').asSeconds().toString(),
+        isDisabled: true
+    },
+    {
+        name: '10 Seconds',
+        value: moment.duration(10, 'second').asSeconds().toString(),
+        isDisabled: true
+    },
+    {
+        name: '1 Minute',
+        value: moment.duration(1, 'minute').asSeconds().toString(),
+        isDisabled: true
+    },
+    {
+        name: '10 Minutes',
+        value: moment.duration(10, 'minute').asSeconds().toString(),
+        isDisabled: true
+    },
+    {
+        name: '1 Hour',
+        value: moment.duration(1, 'hour').asSeconds().toString(),
+        isDisabled: false
+    },
+    {
+        name: '3 Hours',
+        value: moment.duration(3, 'hour').asSeconds().toString(),
+        isDisabled: true
+    },
+    {
+        name: '1 Day',
+        value: moment.duration(1, 'day').asSeconds().toString(),
+        isDisabled: false
+    },
+    {
+        name: '5 Days',
+        value: moment.duration(5, 'day').asSeconds().toString(),
+        isDisabled: true
+    },
+    {
+        name: '1 Month',
+        value: moment.duration(1, 'month').asSeconds().toString(),
+        isDisabled: true
+    }
+];
 
 const GeneralSearchBar = ({shouldShowOnlySearchInput, timeStore}) => {
     const [searchString, setSearchString] = useState('');
     const [results, setResults] = useState([]);
     const [selectedResultIndex, setSelectedResultIndex] = useState(-1);
+
+    const GRANULARITY_OPTIONS = useMemo(
+        () => granularityOptions.map((opt) => ({
+            ...opt,
+            isDisabled:
+                    opt.value !== 'none' ?
+                        timeStore.end.diff(timeStore.start) / 100000 >
+                          Number(opt.value) :
+                        false
+        })),
+        [timeStore.start, timeStore.end]
+    );
 
     useEffect(() => {
         if (searchString.length > 1) {
@@ -27,7 +90,7 @@ const GeneralSearchBar = ({shouldShowOnlySearchInput, timeStore}) => {
     };
 
     const handleKeyDown = (e) => {
-    //arrow up
+        //arrow up
         if (e.keyCode === 38 && selectedResultIndex > 0) {
             setSelectedResultIndex(selectedResultIndex - 1);
         } else if (e.keyCode === 40 && selectedResultIndex < results.length - 1) {
@@ -46,10 +109,7 @@ const GeneralSearchBar = ({shouldShowOnlySearchInput, timeStore}) => {
 
     const generateHTML = (model) => {
         const {mlModelId, mlModelType, name, description} = model;
-        const nameMatch = name?.replace(
-            new RegExp(searchString, 'gi'),
-            (match) => match.bold()
-        );
+        const nameMatch = name?.replace(new RegExp(searchString, 'gi'), (match) => match.bold());
         const descriptionMatch = description?.replace(
             new RegExp(searchString, 'gi'),
             (match) => match.bold()
@@ -63,13 +123,16 @@ const GeneralSearchBar = ({shouldShowOnlySearchInput, timeStore}) => {
             (match) => match.bold()
         );
 
-
         return `<p>${nameMatch}</p>
             <p>${descriptionMatch}</p>
             <p>
                 <span>ID: </span>${mlModelIdMatch}
                 <span>Type: </span>${mlModelTypeMatch}
             </p>`;
+    };
+
+    const handleChange = (value) => {
+        timeStore.aggregationPeriod = value !== 'auto' ? Number(value) : value;
     };
 
     return (
@@ -109,6 +172,14 @@ const GeneralSearchBar = ({shouldShowOnlySearchInput, timeStore}) => {
                         }}
                         start={timeStore.start}
                     />
+                    <div style={{width: '200px'}} className='ms-3'>
+                        <Select
+                            initialValue={timeStore.aggregationPeriod.toString()}
+                            onChange={handleChange}
+                            options={GRANULARITY_OPTIONS}
+                            dropdownToggleClassname='granularity'
+                        />
+                    </div>
                     <Button
                         className='text-white d-flex align-items-center justify-content-between px-4 py-2 ms-3'
                         disabled={!timeStore.lastMs}

@@ -258,7 +258,7 @@ const ScatterGraph = ({data}) => {
                         {samples.length ? samples.map((sample, i) => (
                             <div
                                 key={i}
-                                className='d-flex justify-content-center align-items-center m-4 bg-white scatterGraph-item'
+                                className='d-flex justify-content-center align-items-center m-4 bg-white scatterGraph-item cursor-pointer'
                                 onClick={() => setExampleInModal(sample)}
                             >
                                 <img

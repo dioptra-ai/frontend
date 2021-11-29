@@ -44,12 +44,13 @@ services:
       # Druid router on arn:aws:eks:us-east-2:641017132295:cluster/dioptra-dev-eks
       DRUID_DB_URL: "http://a2db86db7435c46a58524f6d90839799-413940887.us-east-2.elb.amazonaws.com:8888/druid/v2/sql/"
       LIMIT_EMBEDDING_QUERY: "1000"
+      MONGO_URI: "mongodb://dioptra-db:27017/dioptra"
     ports:
       - '4006:4006'
     networks:
       - app-network
     # Uncomment to run the server manually and develop metrics-engine with docker exec.
-    entrypoint: /bin/sleep 36000
+    # entrypoint: /bin/sleep 36000
     volumes:
       - ./submodules/metrics-engine:/app
 

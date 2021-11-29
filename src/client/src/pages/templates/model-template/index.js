@@ -27,17 +27,30 @@ const Model = ({modelStore}) => {
         modelStore.fetchModel(mlModelId);
     }, [mlModelId]);
 
+    const tabs = [
+        {name: 'Performance Overview', to: `/${mlModelId}/performance-overview`},
+        {name: 'Performance Analysis', to: `/${mlModelId}/performance-details`}
+    ];
+
+    if (model?.mlModelType !== 'Q_N_A') {
+        tabs.push(
+            {name: 'Prediction Analysis', to: `/${mlModelId}/prediction-analysis`},
+            {name: 'Feature Analysis', to: `/${mlModelId}/feature-analysis`}
+        );
+    }
+
+    tabs.push({name: 'Incidents & Alerts', to: `/${mlModelId}/incidents-&-alerts`});
+
     return model ? (
         <StickyParamsRouter
             basename='/models'
-            getParamsFromStores={({timeStore, filtersStore, segmentationStore, iouStore}) => ({
+            getParamsFromStores={({timeStore, filtersStore, segmentationStore}) => ({
                 startTime: timeStore.start?.toISOString() || '',
                 endTime: timeStore.end?.toISOString() || '',
                 lastMs: timeStore.lastMs || '',
                 filters: JSON.stringify(filtersStore.filters),
                 mlModelVersion: filtersStore.mlModelVersion,
-                segmentation: JSON.stringify(segmentationStore.segmentation),
-                iou: JSON.stringify(iouStore.iou)
+                segmentation: JSON.stringify(segmentationStore.segmentation)
             })}
         >
             <Switch>
@@ -50,13 +63,7 @@ const Model = ({modelStore}) => {
                     ]}/>
                     <ModelDescription {...model}/>
                     <Container fluid>
-                        <Tabs tabs={[
-                            {name: 'Performance Overview', to: `/${mlModelId}/performance-overview`},
-                            {name: 'Performance Details', to: `/${mlModelId}/performance-details`},
-                            {name: 'Prediction Analysis', to: `/${mlModelId}/prediction-analysis`},
-                            {name: 'Feature Analysis', to: `/${mlModelId}/feature-analysis`},
-                            {name: 'Incidents & Alerts', to: `/${mlModelId}/incidents-&-alerts`}
-                        ]} />
+                        <Tabs tabs={tabs} />
                         <Route exact path='/:_id/performance-overview'
                             render={() => (
                                 <div className='px-3'>
@@ -68,7 +75,7 @@ const Model = ({modelStore}) => {
                         <Route exact path='/:_id/performance-details'
                             render={() => (
                                 <div className='px-3'>
-                                    <h2 className='text-dark bold-text fs-2 my-5'>Performance Details</h2>
+                                    <h2 className='text-dark bold-text fs-2 my-5'>Performance Analysis</h2>
                                     <PerformanceDetails/>
                                 </div>
                             )}

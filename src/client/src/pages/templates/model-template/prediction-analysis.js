@@ -14,15 +14,21 @@ import {getName} from 'helpers/name-helper';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 import useModel from 'customHooks/use-model';
 import HeatMap from 'components/heatmap';
-import data from './bounding-box-location-analysis-data';
-
+import metricsClient from 'clients/metrics';
+import Async from 'components/async';
+import useModal from 'customHooks/useModal';
+import BtnIcon from 'components/btn-icon';
+import Modal from 'components/modal';
+import {IconNames} from 'constants';
 
 const PredictionAnalysis = ({timeStore, filtersStore}) => {
     const allSqlFilters = useAllSqlFilters();
+    const allSqlFiltersWithoutOrgId = useAllSqlFilters({__REMOVE_ME__excludeOrgId: true});
     const allOfflineSqlFilters = useAllSqlFilters({useReferenceRange: true});
     const timeGranularity = timeStore.getTimeGranularity().toISOString();
     const [classFilter, setClassFilter] = useState('all_classes');
     const [heatMapSamples, setHeatMapSamples] = useState([]);
+    const [exampleInModal, setExampleInModal] = useModal(null);
 
     const {mlModelType} = useModel();
 
@@ -356,27 +362,44 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                             </Col>
                             <Col className='d-flex align-items-center' lg={4}>
                                 <h4 className='text-dark bold-text fs-4 m-0'>
-                  Bounding Box Outlier
+                  Bounding Box Examples
                                 </h4>
                             </Col>
                             <Col lg={{span: 3, offset: 1}} className='my-3'>
-                                <Select
-                                    options={[
-                                        {name: 'All Classes', value: 'all_classes'},
-                                        {name: 'SSN', value: 'ssn'},
-                                        {name: 'First Name', value: 'first_name'},
-                                        {name: 'Last Name', value: 'last_name'},
-                                        {name: 'Zip Code', value: 'zip_code'}
-                                    ]}
-                                    initialValue={classFilter}
-                                    onChange={setClassFilter}
+                                <Async
+                                    fetchData={() => metricsClient('get-distinct', {
+                                        field: 'prediction.class_name',
+                                        sql_filters: allSqlFiltersWithoutOrgId
+                                    })}
+                                    renderData={(data) => (
+                                        <Select
+                                            options={data.map((d) => {
+                                                const c = d['prediction.class_name'];
+
+                                                return {name: c, value: c};
+                                            })}
+                                            initialValue={classFilter}
+                                            onChange={setClassFilter}
+                                        />
+                                    )}
                                 />
                             </Col>
                             <Col lg={4}>
-                                <TimeseriesQuery
-                                    defaultData={[]}
-                                    renderData={() => <HeatMap data={data} setHeatMapSamples={setHeatMapSamples} selectedSamples={heatMapSamples} />}
-                                    sql={sql`SELECT 1 as "one"`}
+                                <Async
+                                    fetchData={() => metricsClient('bbox-locations', {
+                                        sql_filters: `${allSqlFiltersWithoutOrgId} AND 
+                                            ${classFilter.value ? `"prediction.class_name"='${classFilter.value}'` : 'TRUE'}`
+                                    })}
+                                    renderData={({num_cells_h, num_cells_w, cells}) => (
+                                        <HeatMap
+                                            numCellsH={num_cells_h}
+                                            numCellsW={num_cells_w}
+                                            data={cells}
+                                            setHeatMapSamples={setHeatMapSamples}
+                                            selectedSamples={heatMapSamples}
+                                        />
+                                    )}
+                                    refetchOnChanged={[allSqlFiltersWithoutOrgId, classFilter.value]}
                                 />
                             </Col>
                             <Col lg={8} className='rounded p-3 pt-0'>
@@ -387,23 +410,29 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                                         }
                                         style={{maxHeight: 600}}
                                     >
-                                        {heatMapSamples.map(({image_url, width, height, bounding_box}, i) => (
-                                            <div key={i} className='m-4 heat-map-item'>
-                                                <img
-                                                    alt='Example'
-                                                    className='rounded'
-                                                    src={`${image_url}${width}x${height}/`}
-                                                    height={height}
-                                                    width={width}
-                                                />
-                                                <div className='heat-map-box' style={{
-                                                    height: bounding_box?.height,
-                                                    width: bounding_box?.width,
-                                                    top: bounding_box?.y,
-                                                    left: bounding_box?.x
-                                                }}/>
-                                            </div>
-                                        ))}{' '}
+                                        {heatMapSamples.map((sample, i) => {
+                                            const {image_url, width, height, bounding_box} = sample;
+
+                                            return (
+                                                <div
+                                                    key={i} className='m-4 heat-map-item cursor-pointer'
+                                                    onClick={() => setExampleInModal(sample)}
+                                                >
+                                                    <img
+                                                        alt='Example'
+                                                        className='rounded'
+                                                        src={image_url}
+                                                        height={100}
+                                                    />
+                                                    <div className='heat-map-box' style={{
+                                                        height: bounding_box.h * 100,
+                                                        width: bounding_box.w * (100 * width / height),
+                                                        top: bounding_box.y * 100,
+                                                        left: bounding_box.x * (100 * width / height)
+                                                    }}/>
+                                                </div>
+                                            );
+                                        })}&nbsp;
                                     </div>
                                 ) : (
                                     <div
@@ -416,6 +445,33 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                                 )}
                             </Col>
                         </Row>
+                        {exampleInModal ? <Modal onClose={() => setExampleInModal(null)}>
+                            <div className='d-flex align-items-center'>
+                                <p className='m-0 flex-grow-1'></p>
+                                <BtnIcon
+                                    className='border-0'
+                                    icon={IconNames.CLOSE}
+                                    onClick={() => setExampleInModal(null)}
+                                    size={15}
+                                />
+                            </div>
+                            <div style={{position: 'relative'}}>
+                                <img
+                                    alt='Example'
+                                    className='rounded modal-image'
+                                    src={exampleInModal.image_url}
+                                    style={{
+                                        height: 600
+                                    }}
+                                />
+                                <div className='heat-map-box' style={{
+                                    height: exampleInModal.bounding_box.h * 600,
+                                    width: exampleInModal.bounding_box.w * exampleInModal.width * 600 / exampleInModal.height,
+                                    top: exampleInModal.bounding_box.y * 600,
+                                    left: exampleInModal.bounding_box.x * exampleInModal.width * 600 / exampleInModal.height
+                                }}/>
+                            </div>
+                        </Modal> : null}
                     </div>
                 </>
             ) : null}

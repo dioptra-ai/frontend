@@ -15,24 +15,19 @@ const Select = ({
     onChange = noop,
     options,
     initialValue,
-    isTextBold
+    isTextBold,
+    dropdownToggleClassname = ''
 }) => {
-
-    const [value, setValue] = useState(initialValue ? initialValue : options[0].value);
+    const [value, setValue] = useState(initialValue || options[0]?.value);
     const handleSelect = useCallback((newValue) => {
         setValue(newValue);
         onChange(newValue);
     }, []);
-
     const activeOption = options.filter((o) => o.value === value);
-
-    if (value !== initialValue || !value) {
-        setValue(initialValue);
-    }
 
     return (
         <Dropdown className='w-100'>
-            <DropdownToggle bsPrefix='p-0' className={`w-100 text-start p-3 rounded-3 text-${textColor} border-1 border-${borderColor} d-flex align-items-center`} variant={backgroundColor}>
+            <DropdownToggle bsPrefix='p-0' className={`w-100 text-start p-3 rounded-3 text-${textColor} border-1 border-${borderColor} d-flex align-items-center ${dropdownToggleClassname}`} variant={backgroundColor}>
                 <span
                     className={`pe-4 fs-6 w-100 fw-${isTextBold ? 'bold' : 'normal'}`}
                 >{activeOption && activeOption.length ? activeOption[0].name : ''}</span>
@@ -44,10 +39,11 @@ const Select = ({
             </DropdownToggle>
             <DropdownMenu className='p-0 w-100 border-0 shadow fs-6'>
                 {options.map((o) => <DropdownItem
+                    disabled={o.isDisabled}
                     eventKey={o.value}
                     key={o.value}
                     onSelect={handleSelect}>
-                    <span className={`text-${textColor}`}>{o.name || '<empty>'}</span>
+                    <span className={`text-${o.isDisabled ? 'grey' : textColor}`}>{o.name || '<empty>'}</span>
                 </DropdownItem>)}
             </DropdownMenu>
         </Dropdown>
@@ -64,7 +60,8 @@ Select.propTypes = {
         name: PropTypes.any.isRequired,
         value: PropTypes.any.isRequired
     })),
-    textColor: PropTypes.string
+    textColor: PropTypes.string,
+    dropdownToggleClassname: PropTypes.string
 };
 
 export default Select;

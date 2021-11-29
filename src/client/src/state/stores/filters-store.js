@@ -9,7 +9,7 @@ import {
 
 
 class FiltersStore {
-    // [{key, value}]
+    // [{key, op==EQ, value}]
     f = [];
 
     mlModelVersion = ''
