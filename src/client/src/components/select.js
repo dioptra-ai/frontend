@@ -18,17 +18,12 @@ const Select = ({
     isTextBold,
     dropdownToggleClassname = ''
 }) => {
-    const [value, setValue] = useState(initialValue ? initialValue : options[0].value);
+    const [value, setValue] = useState(initialValue || options[0]?.value);
     const handleSelect = useCallback((newValue) => {
         setValue(newValue);
         onChange(newValue);
     }, []);
-
     const activeOption = options.filter((o) => o.value === value);
-
-    if (value !== initialValue || !value) {
-        setValue(initialValue);
-    }
 
     return (
         <Dropdown className='w-100'>
