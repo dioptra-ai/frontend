@@ -27,6 +27,20 @@ const Model = ({modelStore}) => {
         modelStore.fetchModel(mlModelId);
     }, [mlModelId]);
 
+    const tabs = [
+        {name: 'Performance Overview', to: `/${mlModelId}/performance-overview`},
+        {name: 'Performance Analysis', to: `/${mlModelId}/performance-details`}
+    ];
+
+    if (model?.mlModelType !== 'Q_N_A') {
+        tabs.push(
+            {name: 'Prediction Analysis', to: `/${mlModelId}/prediction-analysis`},
+            {name: 'Feature Analysis', to: `/${mlModelId}/feature-analysis`}
+        );
+    }
+
+    tabs.push({name: 'Incidents & Alerts', to: `/${mlModelId}/incidents-&-alerts`});
+
     return model ? (
         <StickyParamsRouter
             basename='/models'
@@ -49,13 +63,7 @@ const Model = ({modelStore}) => {
                     ]}/>
                     <ModelDescription {...model}/>
                     <Container fluid>
-                        <Tabs tabs={[
-                            {name: 'Performance Overview', to: `/${mlModelId}/performance-overview`},
-                            {name: 'Performance Analysis', to: `/${mlModelId}/performance-details`},
-                            {name: 'Prediction Analysis', to: `/${mlModelId}/prediction-analysis`},
-                            {name: 'Feature Analysis', to: `/${mlModelId}/feature-analysis`},
-                            {name: 'Incidents & Alerts', to: `/${mlModelId}/incidents-&-alerts`}
-                        ]} />
+                        <Tabs tabs={tabs} />
                         <Route exact path='/:_id/performance-overview'
                             render={() => (
                                 <div className='px-3'>
