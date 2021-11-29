@@ -495,8 +495,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                         sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ?
                                             `cast("iou" as FLOAT) > ${iou} AND ${allSqlFilters}` : allSqlFilters,
                                         time_granularity: timeStore.getTimeGranularity(),
-                                        prediction_name: predictionName,
-                                        ground_truth_name: groundTruthName
+                                        model_type: model.mlModelType
                                     }
                                 });
                             },
@@ -507,8 +506,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                         sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ?
                                             `cast("iou" as FLOAT) > ${iou} AND ${allSqlFilters}` : allSqlFilters,
                                         time_granularity: timeStore.getTimeGranularity(),
-                                        prediction_name: predictionName,
-                                        ground_truth_name: groundTruthName
+                                        model_type: model.mlModelType
                                     }
                                 });
                             },
@@ -519,8 +517,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                         sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ?
                                             `cast("iou" as FLOAT) > ${iou} AND ${allSqlFilters}` : allSqlFilters,
                                         time_granularity: timeStore.getTimeGranularity(),
-                                        prediction_name: predictionName,
-                                        ground_truth_name: groundTruthName
+                                        model_type: model.mlModelType
                                     }
                                 });
                             },
@@ -531,8 +528,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                         sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ?
                                             `cast("iou" as FLOAT) > ${iou} AND ${allSqlFilters}` : allSqlFilters,
                                         time_granularity: timeStore.getTimeGranularity(),
-                                        prediction_name: predictionName,
-                                        ground_truth_name: groundTruthName
+                                        model_type: model.mlModelType
                                     }
                                 });
                             }
