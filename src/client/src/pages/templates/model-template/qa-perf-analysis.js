@@ -40,7 +40,7 @@ const QAPerfAnalysis = () => {
                         sql_filters: allSqlFilters
                     }
                 })}
-                renderData={(data = [], loading) => {
+                renderData={(data = []) => {
                     const metricNames = data[0]?.metrics.map((m) => m.name) || [];
                     const selectedMetricName = userSelectedMetricName || metricNames[0];
                     const sortedClusters = data.map((c, i) => ({
@@ -81,7 +81,6 @@ const QAPerfAnalysis = () => {
                                 </Col>
                                 <Col lg={12}>
                                     <BarGraph
-                                        loading={loading}
                                         bars={selectedMetric}
                                         title='Performance per Cluster'
                                         onClick={(_, index) => handleClusterClick(index)}
@@ -90,7 +89,7 @@ const QAPerfAnalysis = () => {
                             </Row>
 
                             <SpinnerWrapper>
-                                <Spinner loading={loading}/>
+                                <Spinner/>
                                 <Row>
                                     <Col lg={8}>
                                         <ClusterGraph>
