@@ -14,8 +14,6 @@ import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 import Async from 'components/async';
 import baseJSONClient from 'clients/base-json-client';
 import useModel from 'customHooks/use-model';
-import Async from 'components/async';
-import baseJSONClient from 'clients/base-json-client';
 
 const ModelPerformanceMetrics = {
     ACCURACY: {value: 'ACCURACY', name: 'Accuracy'},
