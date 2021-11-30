@@ -8,6 +8,7 @@ import Select from 'components/select';
 import TimeseriesQuery, {sql} from 'components/timeseries-query';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 import useModel from 'customHooks/use-model';
+<<<<<<< HEAD
 import {setupComponent} from 'helpers/component-helper';
 import {getName} from 'helpers/name-helper';
 import moment from 'moment';
@@ -17,6 +18,8 @@ import {Tooltip as BootstrapTooltip, OverlayTrigger} from 'react-bootstrap';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import {FaExclamation} from 'react-icons/fa';
+=======
+>>>>>>> 8a18f44 (DEV-201: rebased and fixed)
 
 const ModelPerformanceMetrics = {
     ACCURACY: {value: 'ACCURACY', name: 'Accuracy'},
