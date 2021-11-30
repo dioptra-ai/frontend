@@ -36,7 +36,9 @@ services:
     entrypoint: /bin/sleep 36000
   metrics-engine:
     build:
-      submodules/metrics-engine
+      context: submodules/metrics-engine
+      dockerfile: Dockerfile
+      target: builder
     image: metrics-engine:latest
     container_name: metrics-engine
     restart: always
