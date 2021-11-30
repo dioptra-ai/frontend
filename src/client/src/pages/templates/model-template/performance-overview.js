@@ -642,6 +642,12 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 }
                             />
                         )}
+                        refetchOnChanged={[
+                            selectedMetric,
+                            timeGranularity,
+                            model,
+                            allSqlFilters
+                        ]}
                         fetchData={{
                             [ModelPerformanceMetrics.ACCURACY.value]: () => {
                                 return baseJSONClient('/api/metrics/accuracy-metric', {
