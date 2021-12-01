@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import PuffLoader from 'react-spinners/PuffLoader';
+import BarLoader from 'react-spinners/BarLoader';
 import {AsyncContext} from 'components/async';
 
 const Spinner = ({size = 150}) => (
@@ -18,7 +18,7 @@ const Spinner = ({size = 150}) => (
                     zIndex: 10
 
                 }}>
-                    <PuffLoader
+                    <BarLoader
                         loading
                         size={size}
                     />
