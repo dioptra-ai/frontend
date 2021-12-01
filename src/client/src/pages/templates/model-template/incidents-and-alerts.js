@@ -6,7 +6,7 @@ import {setupComponent} from '../../../helpers/component-helper';
 
 const IncidentsAndAlerts = () => {
     return (
-        <Row>
+        <Row className='my-3'>
             <Col lg={6}>
                 <Incidents />
             </Col>

@@ -67,7 +67,6 @@ const Model = ({modelStore}) => {
                         <Route exact path='/:_id/performance-overview'
                             render={() => (
                                 <div className='px-3'>
-                                    <h2 className='text-dark bold-text fs-2 my-5'>Performance Overview</h2>
                                     <PerformanceOverview/>
                                 </div>
                             )}
@@ -75,7 +74,6 @@ const Model = ({modelStore}) => {
                         <Route exact path='/:_id/performance-details'
                             render={() => (
                                 <div className='px-3'>
-                                    <h2 className='text-dark bold-text fs-2 my-5'>Performance Analysis</h2>
                                     <PerformanceDetails/>
                                 </div>
                             )}
@@ -83,7 +81,6 @@ const Model = ({modelStore}) => {
                         <Route exact path='/:_id/prediction-analysis'
                             render={() => (
                                 <div className='px-3'>
-                                    <h2 className='text-dark bold-text fs-2 my-5'>Prediction Analysis</h2>
                                     <PredictionAnalysis/>
                                 </div>
                             )}
@@ -91,7 +88,6 @@ const Model = ({modelStore}) => {
                         <Route exact path='/:_id/feature-analysis'
                             render={() => (
                                 <div className='px-3'>
-                                    <h2 className='text-dark bold-text fs-2 my-5'>Feature Analysis</h2>
                                     <FeatureAnalysis/>
                                 </div>
                             )}
@@ -99,7 +95,6 @@ const Model = ({modelStore}) => {
                         <Route exact path='/:_id/incidents-&-alerts'
                             render={() => (
                                 <div className='px-3'>
-                                    <h2 className='text-dark bold-text fs-2 my-5'>Incidents & Alerts</h2>
                                     <IncidentsAndAlerts/>
                                 </div>
                             )}

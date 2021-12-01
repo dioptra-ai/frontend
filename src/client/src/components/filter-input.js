@@ -198,11 +198,11 @@ const FilterInput = ({
     };
 
     return (
-        <div className='my-5'>
+        <div className='my-3'>
             <OutsideClickHandler useCapture onOutsideClick={() => {
                 setShowSuggestions(false);
             }}>
-                <div className='filter-input mb-4'>
+                <div className='filter-input'>
                     {filters.map((filter, index) => (
                         <Filter filter={filter} key={index} onDelete={handleRemoveFilter} />
                     ))}

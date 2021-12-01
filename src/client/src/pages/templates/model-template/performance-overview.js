@@ -221,10 +221,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                 defaultFilters={filtersStore.filters}
                 onChange={(filters) => (filtersStore.filters = filters)}
             />
-            <div className='my-5'>
-                <h3 className='text-dark bold-text fs-3 mb-3'>
-                    Service Performance
-                </h3>
+            <div className='my-2'>
                 <Row>
                     <Col>
                         <Async
@@ -237,7 +234,6 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                     isTimeDependent
                                     title='Average Throughput (QPS)'
                                     xAxisName='Time'
-                                    yAxisName='Average Throughput (QPS)'
                                 />
                             )}
                             fetchData={
@@ -250,12 +246,12 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                     }
                                 })
                             }
+                            refetchOnChanged={[allSqlFilters, timeStore.getTimeGranularity()]}
                         />
                     </Col>
                 </Row>
             </div>
-            <div className='my-5'>
-                <h3 className='text-dark bold-text fs-3 mb-3'>Model Performance</h3>
+            <div className='my-3'>
                 {model.mlModelType === 'Q_N_A' ? (
                     <Row className='mb-3 align-items-stretch'>
                         <Col className='d-flex' lg={3}>
@@ -606,15 +602,6 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                     </Row>
                 )}
                 <div className='border rounded p-3'>
-                    <div className='d-flex justify-content-end my-3'>
-                        <div style={{width: '200px'}}>
-                            <Select
-                                initialValue={selectedMetric}
-                                onChange={setSelectedMetric}
-                                options={Object.values(ModelPerformanceMetrics)}
-                            />
-                        </div>
-                    </div>
                     <TimeseriesQuery
                         defaultData={[]}
                         renderData={(metric) => (
@@ -626,18 +613,31 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 unit='%'
                                 xAxisName='Time'
                                 yAxisDomain={[0, 100]}
-                                yAxisName={getName(selectedMetric)}
+                                title={(
+                                    <Row>
+                                        <Col>
+                                            {getName(selectedMetric)}
+                                        </Col>
+                                        <Col lg={3}>
+                                            <Select
+                                                initialValue={selectedMetric}
+                                                onChange={setSelectedMetric}
+                                                options={Object.values(ModelPerformanceMetrics)}
+                                            />
+                                        </Col>
+                                    </Row>
+                                )}
                             />
                         )}
                         sql={getSelectedQuery()}
                     />
                 </div>
             </div>
-            <div className='my-5'>
-                <h3 className='text-dark bold-text fs-3 mb-3'>
-                    Key Performance Indicators
-                </h3>
+            <div className='my-3'>
                 <div className='border rounded p-3'>
+                    <h3 className='text-dark bold-text fs-4'>
+                        Key Performance Indicators
+                    </h3>
                     <div className='d-flex justify-content-end my-3'>
                         <div style={{width: '200px'}}>
                             {modelPerformanceIndicators.length ? (

@@ -5,7 +5,7 @@ import {NavLink} from 'react-router-dom';
 const Tabs = ({tabs = []}) => {
     return (
         <Row className='border-bottom px-3'>
-            <div className='d-flex pt-4'>
+            <div className='d-flex pt-3'>
                 {tabs.map((tab, i) => (
                     <NavLink
                         activeClassName='active'
@@ -14,7 +14,7 @@ const Tabs = ({tabs = []}) => {
                         to={tab.to}
                     >
                         {tab.name}
-                        <span className='d-block mt-4 rounded-top'></span>
+                        <span className='d-block mt-3 rounded-top'></span>
                     </NavLink>
                 ))}
             </div>

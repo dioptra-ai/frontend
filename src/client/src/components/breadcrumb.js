@@ -4,22 +4,17 @@ import Container from 'react-bootstrap/Container';
 
 const Breadcrumb = ({links = []}) => {
     return (
-        <Container className='bg-white-blue text-secondary py-4' fluid>
+        <Container className='bg-white-blue text-secondary py-2' fluid>
             <div className='breadcrumb m-0 px-3'>
                 {links.map(({name, path}, i) => (
                     <span className='link' key={i}>
-                        {typeof path !== 'function' ? (
-                            <Link className='text-secondary bold-text fs-7' to={path}>
-                                {name}
-                            </Link>
-                        ) : (
-                            <button
-                                className='text-secondary bold-text fs-7'
-                                onClick={() => path()}
-                            >
-                                {name}
-                            </button>
-                        )}
+                        <Link
+                            className='text-secondary bold-text fs-7'
+                            onClick={typeof path === 'function' ? () => path() : null}
+                            to={typeof path === 'function' ? null : path}
+                        >
+                            {name}
+                        </Link>
                     </span>
                 ))}
             </div>
