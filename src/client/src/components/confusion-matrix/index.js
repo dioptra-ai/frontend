@@ -10,6 +10,7 @@ import DifferenceLabel from 'components/difference-labels';
 import Async from 'components/async';
 import Select from 'components/select';
 import Col from 'react-bootstrap/Col';
+import Row from 'react-bootstrap/Row';
 import metricsClient from 'clients/metrics';
 
 const Table = ({
@@ -110,22 +111,28 @@ const ConfusionMatrix = () => {
     };
 
     return (
-        <div className='my-5'>
-            <h3 className='text-dark bold-text fs-3 mb-3'>Confusion matrix</h3>
+        <div className='my-3'>
             <div className='border rounded p-3'>
-                {model.mlModelType === 'DOCUMENT_PROCESSING' ? (
-                    <Col lg={{span: 3, offset: 9}}>
-                        <Select
-                            options={[
-                                {name: 'iou >= 0.5', value: 0.5},
-                                {name: 'iou >= 0.75', value: 0.75},
-                                {name: 'iou >= 0.95', value: 0.95}
-                            ]}
-                            initialValue={iou}
-                            onChange={(val) => setIou(Number(val))}
-                        />
+                <Row>
+                    <Col>
+                        <p className='text-dark fw-bold fs-4 flex-grow-1'>
+                            Confusion Matrix
+                        </p>
                     </Col>
-                ) : null}
+                    {model.mlModelType === 'DOCUMENT_PROCESSING' ? (
+                        <Col lg={{span: 3}}>
+                            <Select
+                                options={[
+                                    {name: 'iou >= 0.5', value: 0.5},
+                                    {name: 'iou >= 0.75', value: 0.75},
+                                    {name: 'iou >= 0.95', value: 0.95}
+                                ]}
+                                initialValue={iou}
+                                onChange={(val) => setIou(Number(val))}
+                            />
+                        </Col>
+                    ) : null}
+                </Row>
                 <Async
                     renderData={([data, rangeData]) => (
                         <Table

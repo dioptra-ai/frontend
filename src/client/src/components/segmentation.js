@@ -336,11 +336,10 @@ const Segmentation = ({timeStore, modelStore, segmentationStore}) => {
     };
 
     return (
-        <div className='my-5'>
-            <h3 className='text-dark fw-bold fs-3 mb-3'>Segmentation</h3>
+        <div className='my-3'>
             <div className='border rounded p-3'>
                 <div className='d-flex mb-3'>
-                    <p className='text-dark fw-bold fs-5 flex-grow-1'>
+                    <p className='text-dark fw-bold fs-4 flex-grow-1'>
             Fairness &amp; Bias Analysis
                     </p>
                     <Button

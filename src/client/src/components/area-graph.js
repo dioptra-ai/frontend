@@ -1,4 +1,4 @@
-import {useMemo, useState} from 'react';
+import {useMemo} from 'react';
 import {useThrottle} from '@react-hook/throttle';
 import PropTypes from 'prop-types';
 import moment from 'moment';
@@ -15,21 +15,21 @@ import {
 import {HiOutlineZoomOut} from 'react-icons/hi';
 import {FaQuestion} from 'react-icons/fa';
 import {Tooltip as BootstrapTooltip, OverlayTrigger} from 'react-bootstrap';
-import Spinner, {SpinnerWrapper} from 'components/spinner';
+import {SpinnerWrapper} from 'components/spinner';
 
 import theme from 'styles/theme.module.scss';
 import {formatDateTime} from 'helpers/date-helper';
 import {setupComponent} from 'helpers/component-helper';
 import fontSizes from 'styles/font-sizes.module.scss';
 
-export const CustomTooltip = ({payload, label}) => {
+export const CustomTooltip = ({payload, label, precisionDigits = 4}) => {
     if (payload && payload.length) {
         const [{value, unit}] = payload;
 
         return (
             <div className='line-graph-tooltip bg-white p-3'>
                 <p className='text-dark bold-text fs-5 m-0'>
-                    {value.toFixed(1)}
+                    {value.toFixed(precisionDigits)}
                     {unit}
                 </p>
                 <p
@@ -52,7 +52,8 @@ export const CustomTooltip = ({payload, label}) => {
 
 CustomTooltip.propTypes = {
     label: PropTypes.any,
-    payload: PropTypes.array
+    payload: PropTypes.array,
+    precisionDigits: PropTypes.number
 };
 
 const AreaGraph = ({
@@ -75,13 +76,13 @@ const AreaGraph = ({
 }) => {
     const granularityMs = timeStore.getTimeGranularity().asMilliseconds();
     const domain = timeStore.rangeMillisec;
-    const [showBtn, setShowBtn] = useState(false);
+    const [showBtn, setShowBtn] = useThrottle(false);
     const [refAreaLeft, setRefAreaLeft] = useThrottle(null, 25, true);
     const [refAreaRight, setRefAreaRight] = useThrottle(null, 25, true);
 
     const filledData = useMemo(() => {
         const data = dots.map((d) => ({
-            y: Math.floor(d.y),
+            y: d.y,
             x: new Date(d.x).getTime()
         }));
 
@@ -157,13 +158,13 @@ const AreaGraph = ({
             style={{userSelect: 'none'}}
         >
             <SpinnerWrapper>
-                <Spinner/>
-                {title && <p className='text-dark bold-text fs-4'>{title}</p>}
+                {title && <p className='text-dark bold-text fs-4 px-3'>{title}</p>}
                 <div
                     onMouseEnter={() => setShowBtn(true)}
                     onMouseLeave={() => setShowBtn(false)}
+                    onMouseMove={() => setShowBtn(true)}
                     style={{
-                        height: '355px',
+                        height: 300,
                         display: 'flex',
                         flexDirection: 'column',
                         position: 'relative'
@@ -312,7 +313,7 @@ AreaGraph.propTypes = {
     isDisabled: PropTypes.bool,
     margin: PropTypes.object,
     timeStore: PropTypes.object.isRequired,
-    title: PropTypes.string,
+    title: PropTypes.node,
     unit: PropTypes.string,
     xAxisName: PropTypes.string,
     yAxisDomain: PropTypes.array,

@@ -67,7 +67,7 @@ const ModelDescription = ({_id, filtersStore, modelStore, name, description, tea
 
     return (
         <Container className='bg-white-blue model-desc' fluid >
-            <Row className='align-items-center mb-4 px-3'>
+            <Row className='align-items-center mb-3 px-3'>
                 <Col className='d-flex align-items-center'>
                     <h1 className='text-dark fs-1 m-0 bold-text'>{name}</h1>
                     <button className='btn-expand bg-transparent' onClick={() => setExpand(!expand)}>
@@ -78,13 +78,13 @@ const ModelDescription = ({_id, filtersStore, modelStore, name, description, tea
                         />
                     </button>
                 </Col>
-                <Col className='d-flex justify-content-end' lg={5}>
+                <Col className='d-flex justify-content-end' sm={5}>
                     <Button
                         className='py-3 fs-6 bold-text px-5 text-white ms-3'
                         onClick={() => setShowModal(true)}
                         variant='primary'
                     >
-                EDIT MODEL
+                        EDIT MODEL
                     </Button>
                 </Col>
             </Row>

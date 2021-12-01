@@ -4,12 +4,11 @@ import {Link} from 'react-router-dom';
 import FontIcon from 'components/font-icon';
 import {IconNames} from 'constants';
 import DifferenceLabel from './difference-labels';
-import Spinner, {SpinnerWrapper} from 'components/spinner';
+import {SpinnerWrapper} from 'components/spinner';
 
 const MetricInfoBox = ({value, notifications, warnings, name, sampleSize, unit, difference}) => (
-    <SpinnerWrapper>
-        <Spinner/>
-        <div className='border rounded p-3 w-100 d-flex flex-column align-items-center justify-content-center metric-box'>
+    <div className='border rounded p-3 w-100 d-flex flex-column align-items-center justify-content-center metric-box'>
+        <SpinnerWrapper>
             <div className='d-flex flex-wrap'>
                 <span className='text-dark-bold bold-text'>{name}</span>
                 {sampleSize && <span className='text-primary mx-1'>(n={sampleSize})</span>}
@@ -24,13 +23,13 @@ const MetricInfoBox = ({value, notifications, warnings, name, sampleSize, unit, 
                         icon={IconNames.WARNING}
                         size={16}/>
                     <Link className='text-warning mx-1 fs-7' to='/'>
-                        View Incidents
+                            View Incidents
                     </Link>
                 </div>}
             </div>
             <DifferenceLabel value={`${!isNaN(value) ? value.toFixed(1) : '-'}${unit}`} difference={!isNaN(difference) ? difference.toFixed(2) : '-'} baseClasses='text-dark metric-box-font-60' />
-        </div>
-    </SpinnerWrapper>
+        </SpinnerWrapper>
+    </div>
 );
 
 MetricInfoBox.propTypes = {

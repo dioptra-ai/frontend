@@ -169,8 +169,7 @@ const PerformanceDetails = ({filtersStore, timeStore}) => {
             />
             {mlModelType === 'DOCUMENT_PROCESSING' ? (
                 <>
-                    <div className='my-5'>
-                        <h3 className='text-dark bold-text fs-3 mb-3'>Overview</h3>
+                    <div className='my-3'>
                         <Row className='mb-3 align-items-stretch'>
                             <Col className='d-flex' lg={2}>
                                 <Async
@@ -426,149 +425,175 @@ const PerformanceDetails = ({filtersStore, timeStore}) => {
                             </Col>
                         </Row>
                     </div>
-                    <div className='my-5'>
-                        <h3 className='text-dark bold-text fs-3 mb-3'>
-                            Class Breakdown
-                        </h3>
-                        <Row className='my-5 mx-2 border rounded'>
-                            <Col className='d-flex' lg={12}>
-                                <TimeseriesQuery
-                                    defaultData={[]}
-                                    renderData={() => (
-                                        <BarGraph
-                                            bars={[]}
-                                            title='Precision'
-                                            unit='%'
-                                            yAxisName='Precision'
-                                            xAxisName={[
-                                                'SSN',
-                                                'First Name',
-                                                'Last Name',
-                                                'Zip Code'
-                                            ]}
-                                            className='border-0'
-                                        />
-                                    )}
-                                    sql={sql`SELECT 1 as "one"`}
-                                />
-                            </Col>
-                        </Row>
-                        <Row className='my-5 mx-2 border rounded'>
-                            <Col className='d-flex' lg={12}>
-                                <TimeseriesQuery
-                                    defaultData={[]}
-                                    renderData={() => (
-                                        <BarGraph
-                                            bars={[]}
-                                            title='Recall'
-                                            unit='%'
-                                            yAxisName='Recall'
-                                            xAxisName={[
-                                                'SSN',
-                                                'First Name',
-                                                'Last Name',
-                                                'Zip Code'
-                                            ]}
-                                            className='border-0'
-                                        />
-                                    )}
-                                    sql={sql`SELECT 1 as "one"`}
-                                />
-                            </Col>
-                        </Row>
-                        <Row className='my-5 border rounded mx-1'>
-                            <Col lg={{span: 3, offset: 6}} className='my-3'>
-                                <Select
-                                    options={[
-                                        {name: 'All Classes', value: 'all_classes'},
-                                        {name: 'SSN', value: 'ssn'},
-                                        {name: 'First Name', value: 'first_name'},
-                                        {name: 'Last Name', value: 'last_name'},
-                                        {name: 'Zip Code', value: 'zip_code'}
-                                    ]}
-                                    initialValue={classFilter}
-                                    onChange={setClassFilter}
-                                />
-                            </Col>
-                            <Col lg={3} className='my-3'>
-                                <Select
-                                    options={[
-                                        {name: 'iou >= 0.5', value: 0.5},
-                                        {name: 'iou >= 0.75', value: 0.75},
-                                        {name: 'iou >= 0.95', value: 0.95}
-                                    ]}
-                                    initialValue={iouFilter}
-                                    onChange={(val) => {
-                                        setIouFilter(Number(val));
-                                    }}
-                                />
-                            </Col>
-                            <Col className='d-flex px-4' lg={12}>
-                                <Async
-                                    refetchOnChanged={[
-                                        iouFilter,
-                                        classFilter,
-                                        allSqlFilters,
-                                        timeGranularity
-                                    ]}
-                                    fetchData={[
-                                        () => baseJsonClient(
-                                            '/api/metrics/precision_recall',
-                                            {
-                                                method: 'post',
-                                                body: {
-                                                    prediction: classFilter,
-                                                    iou: iouFilter,
-                                                    current_filters: allSqlFilters,
-                                                    time_granularity: timeGranularity
-                                                }
+                    <div className='my-3'>
+                        <div className='d-flex my-3' lg={12}>
+                            <TimeseriesQuery
+                                defaultData={[]}
+                                renderData={() => (
+                                    <BarGraph
+                                        bars={[]}
+                                        title='Precision'
+                                        unit='%'
+                                        yAxisName='Precision'
+                                        xAxisName={[
+                                            'SSN',
+                                            'First Name',
+                                            'Last Name',
+                                            'Zip Code'
+                                        ]}
+                                    />
+                                )}
+                                sql={sql`SELECT 1 as "one"`}
+                            />
+                        </div>
+                        <div className='d-flex my-3' lg={12}>
+                            <TimeseriesQuery
+                                defaultData={[]}
+                                renderData={() => (
+                                    <BarGraph
+                                        bars={[]}
+                                        title='Recall'
+                                        unit='%'
+                                        yAxisName='Recall'
+                                        xAxisName={[
+                                            'SSN',
+                                            'First Name',
+                                            'Last Name',
+                                            'Zip Code'
+                                        ]}
+                                    />
+                                )}
+                                sql={sql`SELECT 1 as "one"`}
+                            />
+                        </div>
+                        <div className='d-flex my-3' lg={12}>
+                            <Async
+                                refetchOnChanged={[
+                                    iouFilter,
+                                    classFilter,
+                                    allSqlFilters,
+                                    timeGranularity
+                                ]}
+                                fetchData={[
+                                    () => baseJsonClient(
+                                        '/api/metrics/precision_recall',
+                                        {
+                                            method: 'post',
+                                            body: {
+                                                prediction: classFilter,
+                                                iou: iouFilter,
+                                                current_filters: allSqlFilters,
+                                                time_granularity: timeGranularity
                                             }
-                                        ),
-                                        () => baseJsonClient(
-                                            '/api/metrics/precision_recall1',
-                                            {
-                                                method: 'post',
-                                                body: {
-                                                    prediction: classFilter,
-                                                    iou: iouFilter,
-                                                    current_filters: allSqlFilters,
-                                                    time_granularity: timeGranularity
-                                                }
+                                        }
+                                    ),
+                                    () => baseJsonClient(
+                                        '/api/metrics/precision_recall1',
+                                        {
+                                            method: 'post',
+                                            body: {
+                                                prediction: classFilter,
+                                                iou: iouFilter,
+                                                current_filters: allSqlFilters,
+                                                time_granularity: timeGranularity
                                             }
-                                        )
-                                    ]}
-                                    renderData={(data) => (
-                                        <AreaGraph
-                                            dots={data.map(
-                                                ({precision, recall}) => ({
-                                                    x: recall,
-                                                    y: precision
-                                                })
-                                            )}
-                                            title='Precision Recall Curve'
-                                            xAxisName='Recall'
-                                            yAxisName='Precision'
-                                            hasBorder={false}
-                                        />
-                                    )}
-                                    // Will be removed after API is working
-                                    renderError={() => (
-                                        <AreaGraph
-                                            dots={precisionRecallData.map(
-                                                ({precision, recall}) => ({
-                                                    x: recall,
-                                                    y: precision
-                                                })
-                                            )}
-                                            title='Precision Recall Curve'
-                                            xAxisName='Recall'
-                                            yAxisName='Precision'
-                                            hasBorder={false}
-                                        />
-                                    )}
-                                />
-                            </Col>
-                        </Row>
+                                        }
+                                    )
+                                ]}
+                                renderData={(data) => (
+                                    <AreaGraph
+                                        dots={data.map(
+                                            ({precision, recall}) => ({
+                                                x: recall,
+                                                y: precision
+                                            })
+                                        )}
+                                        title={(
+                                            <Row>
+                                                <Col>
+                                                    Precision Recall Curve
+                                                </Col>
+                                                <Col lg={3} className='my-3'>
+                                                    <Select
+                                                        options={[
+                                                            {name: 'All Classes', value: 'all_classes'},
+                                                            {name: 'SSN', value: 'ssn'},
+                                                            {name: 'First Name', value: 'first_name'},
+                                                            {name: 'Last Name', value: 'last_name'},
+                                                            {name: 'Zip Code', value: 'zip_code'}
+                                                        ]}
+                                                        initialValue={classFilter}
+                                                        onChange={setClassFilter}
+                                                    />
+                                                </Col>
+                                                <Col lg={3} className='my-3'>
+                                                    <Select
+                                                        options={[
+                                                            {name: 'iou >= 0.5', value: 0.5},
+                                                            {name: 'iou >= 0.75', value: 0.75},
+                                                            {name: 'iou >= 0.95', value: 0.95}
+                                                        ]}
+                                                        initialValue={iouFilter}
+                                                        onChange={(val) => {
+                                                            setIouFilter(Number(val));
+                                                        }}
+                                                    />
+                                                </Col>
+                                            </Row>
+                                        )}
+                                        xAxisName='Recall'
+                                        yAxisName='Precision'
+                                        hasBorder={false}
+                                    />
+                                )}
+                                // Will be removed after API is working
+                                renderError={() => (
+                                    <AreaGraph
+                                        dots={precisionRecallData.map(
+                                            ({precision, recall}) => ({
+                                                x: recall,
+                                                y: precision
+                                            })
+                                        )}
+                                        title={(
+                                            <Row>
+                                                <Col className='d-flex align-items-center'>
+                                                    Precision Recall Curve
+                                                </Col>
+                                                <Col lg={3} className='my-3'>
+                                                    <Select
+                                                        options={[
+                                                            {name: 'All Classes', value: 'all_classes'},
+                                                            {name: 'SSN', value: 'ssn'},
+                                                            {name: 'First Name', value: 'first_name'},
+                                                            {name: 'Last Name', value: 'last_name'},
+                                                            {name: 'Zip Code', value: 'zip_code'}
+                                                        ]}
+                                                        initialValue={classFilter}
+                                                        onChange={setClassFilter}
+                                                    />
+                                                </Col>
+                                                <Col lg={3} className='my-3'>
+                                                    <Select
+                                                        options={[
+                                                            {name: 'iou >= 0.5', value: 0.5},
+                                                            {name: 'iou >= 0.75', value: 0.75},
+                                                            {name: 'iou >= 0.95', value: 0.95}
+                                                        ]}
+                                                        initialValue={iouFilter}
+                                                        onChange={(val) => {
+                                                            setIouFilter(Number(val));
+                                                        }}
+                                                    />
+                                                </Col>
+                                            </Row>
+                                        )}
+                                        xAxisName='Recall'
+                                        yAxisName='Precision'
+                                    />
+                                )}
+                            />
+                        </div>
                     </div>
                 </>
             ) : mlModelType === 'Q_N_A' ? (
