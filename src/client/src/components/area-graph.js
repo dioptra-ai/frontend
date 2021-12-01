@@ -71,8 +71,7 @@ const AreaGraph = ({
         bottom: 35
     },
     unit,
-    timeStore,
-    isDisabled
+    timeStore
 }) => {
     const granularityMs = timeStore.getTimeGranularity().asMilliseconds();
     const domain = timeStore.rangeMillisec;
@@ -87,22 +86,17 @@ const AreaGraph = ({
         }));
 
         const [domainStart, domainEnd] = domain;
-        const referencePoint = data.find(
-            (d) => domainStart < d.x && d.x < domainEnd
-        );
+        const referencePoint = data.find((d) => domainStart < d.x && d.x < domainEnd);
 
         if (!referencePoint) {
+
             return [];
         } else {
             // We'll generate a completely synthetic set of ticks evenly spaced
             // aligned on the first datapoint we find inside the domain.
             const referenceTick = referencePoint.x;
-            const numTicksLeft = Math.floor(
-                (referenceTick - domainStart) / granularityMs
-            );
-            const numTicksRight = Math.floor(
-                (domainEnd - referenceTick) / granularityMs
-            );
+            const numTicksLeft = Math.floor((referenceTick - domainStart) / granularityMs);
+            const numTicksRight = Math.floor((domainEnd - referenceTick) / granularityMs);
             const ticks = [];
 
             new Array(numTicksLeft).fill().forEach((_, i) => {
@@ -115,13 +109,10 @@ const AreaGraph = ({
                 ticks.push(referenceTick + i * granularityMs);
             });
 
-            const timeSeries = data.reduce(
-                (agg, d) => ({
-                    ...agg,
-                    [d.x]: d
-                }),
-                {}
-            );
+            const timeSeries = data.reduce((agg, d) => ({
+                ...agg,
+                [d.x]: d
+            }), {});
 
             // Now we populate our nice ticks list with the data that's available.
             return ticks.map((x) => timeSeries[x] || {x});
@@ -310,7 +301,6 @@ AreaGraph.propTypes = {
     color: PropTypes.string,
     dots: PropTypes.array,
     hasBorder: PropTypes.bool,
-    isDisabled: PropTypes.bool,
     margin: PropTypes.object,
     timeStore: PropTypes.object.isRequired,
     title: PropTypes.node,
@@ -324,20 +314,18 @@ export default setupComponent(AreaGraph);
 
 export const SmallChart = setupComponent(({timeStore, data, unit}) => (
     <ResponsiveContainer height='100%' width='100%'>
-        <AreaChart
-            data={data.map(({x, y}) => ({
-                y,
-                x: new Date(x).getTime()
-            }))}
-        >
+        <AreaChart data={data.map(({x, y}) => ({
+            y,
+            x: new Date(x).getTime()
+        }))}>
             <defs>
                 <linearGradient id='color' x1='0' x2='0' y1='0' y2='1'>
-                    <stop offset='10%' stopColor={theme.primary} stopOpacity={0.7} />
-                    <stop offset='90%' stopColor='#FFFFFF' stopOpacity={0.1} />
+                    <stop offset='10%' stopColor={theme.primary} stopOpacity={0.7}/>
+                    <stop offset='90%' stopColor='#FFFFFF' stopOpacity={0.1}/>
                 </linearGradient>
                 <linearGradient id='warning' x1='0' x2='0' y1='0' y2='1'>
-                    <stop offset='10%' stopColor={theme.warning} stopOpacity={0.9} />
-                    <stop offset='90%' stopColor='#FFFFFF' stopOpacity={0.1} />
+                    <stop offset='10%' stopColor={theme.warning} stopOpacity={0.9}/>
+                    <stop offset='90%' stopColor='#FFFFFF' stopOpacity={0.1}/>
                 </linearGradient>
             </defs>
             <XAxis
@@ -355,10 +343,8 @@ export const SmallChart = setupComponent(({timeStore, data, unit}) => (
                 strokeWidth={2}
                 unit={unit}
             />
-            <Tooltip
-                content={CustomTooltip}
-                allowEscapeViewBox={{x: true, y: true}}
-            />
+            <Tooltip content={CustomTooltip} allowEscapeViewBox={{x: true, y: true}}/>
         </AreaChart>
     </ResponsiveContainer>
 ));
+
