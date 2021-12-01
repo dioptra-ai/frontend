@@ -25,8 +25,6 @@ class TimeStore {
 
     _lastMs = null;
 
-    _aggregationPeriod = 'auto';
-
     get start() {
         return this._start;
     }
@@ -37,14 +35,6 @@ class TimeStore {
 
     get lastMs() {
         return this._lastMs;
-    }
-
-    get aggregationPeriod() {
-        return this._aggregationPeriod;
-    }
-
-    set aggregationPeriod(value) {
-        this._aggregationPeriod = value;
     }
 
     constructor(initialValue) {
@@ -73,9 +63,12 @@ class TimeStore {
     }
 
     init({start, end, lastMs}) {
+
         if (lastMs) {
+
             this.setLastMs(lastMs);
         } else if (start && end) {
+
             this.setTimeRange({start, end});
         }
     }
@@ -84,7 +77,6 @@ class TimeStore {
         this._lastMs = null;
         this._start = moment(start);
         this._end = moment(end);
-
     }
 
     setLastMs(number) {
@@ -111,10 +103,7 @@ class TimeStore {
     }
 
     getTimeGranularity(maxTicks = SQL_OUTER_LIMIT) {
-        if (this._aggregationPeriod !== 'auto') {
-            return moment.duration(this._aggregationPeriod);
-        }
-        const rangeSeconds = this._end?.diff(this._start) / 1000;
+        const rangeSeconds = this._end.diff(this._start) / 1000;
         const DURATION_MAX_SEC_TO_GRANULARITY = granularityLadderMs.map((duration) => {
             return {
                 maxSpanSec: maxTicks * duration.asSeconds(),

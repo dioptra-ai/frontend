@@ -1,51 +1,48 @@
 .general-search-bar {
-    position: relative;
-    .search-input {
-        font-size: 1.25em;
-        font-weight: 500;
-    }
-    .results {
-        position: absolute;
-        top: 65px;
-        left: 0.1em;
-        right: 0.1em;
-        list-style: none;
-        box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.1);
-        padding-left: 0;
-        z-index: 1;
-        li {
-            padding: 0 0 0.5em 0;
-            margin: 0 1.5em;
-            line-height: 32px;
-            cursor: pointer;
-            font-size: 1em;
-            border-bottom: 0.5px solid theme-color('light');
+  position: relative;
+  .search-input {
+    font-size: 1.25em;
+    font-weight: 500;
+  }
+  .results {
+    position: absolute;
+    top: 65px;
+    left: 0.1em;
+    right: 0.1em;
+    list-style: none;
+    box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.1);
+    padding-left: 0;
+    z-index: 1;
+    li {
+      padding: 0 0 0.5em 0;
+      margin: 0 1.5em;
+      line-height: 32px;
+      cursor: pointer;
+      font-size: 1em;
+      border-bottom: 0.5px solid theme-color('light');
 
-            &:first-child {
-                padding-top: 0.5em;
-            }
-            &:last-child {
-                border-bottom: 0;
-            }
-            p {
-                margin: 0;
-                span {
-                    color: theme-color('secondary');
-                    &:last-child {
-                        padding-left: 1.5em;
-                    }
-                }
-            }
-            &.active {
-                background-color: theme-color('light-blue');
-            }
-            &:hover {
-                background-color: theme-color('light-blue');
-            }
+      &:first-child {
+        padding-top: 0.5em;
+      }
+      &:last-child {
+        border-bottom: 0;
+      }
+      p {
+        margin: 0;
+        span {
+          color: theme-color('secondary');
+          &:last-child{
+            padding-left: 1.5em;
+          }
         }
+        
+      }
+      &.active {
+        background-color: theme-color('light-blue');
+      }
+      &:hover {
+        background-color: theme-color('light-blue');
+      }
     }
-}
-
-.granularity {
-    height: 3rem;
+  }
 }
