@@ -150,7 +150,7 @@ const _AccuracyCell = ({timeStore, segmentationStore, row}) => {
     }, [inView, allSqlFilters, groupByColumns.join()]);
 
     return (
-        <div ref={ref} style={{height: '150px'}}>
+        <div ref={ref} style={{height: '150px', width: '300px'}}>
             <ResponsiveContainer height='100%' width='100%'>
                 <AreaChart
                     data={accuracyData.map(({x, y}) => ({
@@ -391,7 +391,8 @@ const Segmentation = ({timeStore, modelStore, segmentationStore}) => {
                                     {
                                         id: 'accuracy',
                                         Header: 'Accuracy Trend',
-                                        Cell: AccuracyCell
+                                        Cell: AccuracyCell,
+                                        width: 200
                                     },
                                     {
                                         accessor: 'sampleSize',

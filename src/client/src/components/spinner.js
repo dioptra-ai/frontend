@@ -4,7 +4,7 @@ import {AsyncContext} from 'components/async';
 
 const Spinner = ({size = 150}) => (
     <AsyncContext.Consumer>
-        {({loading}) => (
+        {({loading} = {}) => (
             loading ? (
                 <div style={{
                     position: 'absolute',

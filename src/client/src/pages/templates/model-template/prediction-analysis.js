@@ -59,14 +59,14 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                                     unit='%'
                                 />
                             )}
-                            sql={mlModelType === 'DOCUMENT_PROCESSING' ? sql`
+                            sql={mlModelType === 'IMAGE_CLASSIFIER' ? sql`
                                   SELECT
                                     TRUNCATE(100 * cast(my_table.my_count as float) / cast(my_count_table.total_count as float), 2) as my_percentage,
                                     my_table.prediction
                                   FROM (
                                     SELECT
                                         count(1) as my_count,
-                                        "prediction.class_name" as prediction,
+                                        "prediction" as prediction,
                                         1 as join_key
                                     FROM "dioptra-gt-combined-eventstream"
                                     WHERE
