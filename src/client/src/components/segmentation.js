@@ -279,7 +279,7 @@ const mAPCell = ({timeStore}) => {
             })
             }
             renderData={(data) => (
-                <div style={{height: '150px'}}>
+                <div style={{height: '150px', width: '300px'}}>
                     <ResponsiveContainer height='100%' width='100%'>
                         <AreaChart
                             data={data.map(({x, y}) => ({
