@@ -801,9 +801,9 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                     renderData={({results = []}) => (
                                         <AreaGraph
                                             dots={results.map(
-                                                ({accuracy, time}) => ({
+                                                ({metric, time}) => ({
                                                     x: time,
-                                                    y: accuracy * 100
+                                                    y: metric * 100
                                                 })
                                             )}
                                             hasBorder={false}
