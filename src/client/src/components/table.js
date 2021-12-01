@@ -21,7 +21,7 @@ const Table = ({columns, data, getRowProps}) => {
                 <tr>
                     {headers.map((column, i) => (
                         <th className='align-middle py-3 border-0' key={i} {...column.getHeaderProps()}
-                            style={{maxWidth: 100, textOverflow: 'ellipsis', overflow: 'hidden'}}
+                            style={{maxWidth: 300, textOverflow: 'ellipsis', overflow: 'hidden'}}
                             title={column.render('Header')}
                         >
                             {column.render('Header')}
