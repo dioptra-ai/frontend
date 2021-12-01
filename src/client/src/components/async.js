@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
-
+import {SpinnerWrapper} from 'components/spinner';
 export const AsyncContext = React.createContext();
 
 const Async = ({
@@ -44,13 +44,16 @@ const Async = ({
         content = renderLoading();
     } else if (error) {
 
-        content = renderError(error, loading);
+        content = renderError(error);
+    } else if (data) {
+
+        content = renderData(data || defaultData);
     } else {
 
-        content = renderData(
-            data ||
-            defaultData ||
-            (Array.isArray(fetchData) ? fetchData.map(() => []) : [])
+        content = (
+            <div style={{width: '100%', height: '100%'}}>
+                <SpinnerWrapper/>
+            </div>
         );
     }
 
@@ -75,7 +78,7 @@ Async.propTypes = {
 };
 
 Async.defaultProps = {
-    renderError: (error, loading) => loading ? 'Loading...' : String(error)
+    renderError: String
 };
 
 export default Async;
