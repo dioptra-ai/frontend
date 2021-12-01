@@ -58,7 +58,6 @@ const Settings = () => {
                     <ul>
                         <li>"time_start": UTC_TIME</li>
                         <li>"time_end": UTC_TIME</li>
-                        <li>"time_granularity": String</li>
                     </ul>
                 </caption>
                 <Form autoComplete='off' className='w-100' onSubmit={handleSubmit}>

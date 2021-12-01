@@ -71,6 +71,7 @@ const AreaGraph = ({
         bottom: 35
     },
     unit,
+    isDisabled,
     timeStore
 }) => {
     const granularityMs = timeStore.getTimeGranularity().asMilliseconds();
@@ -300,6 +301,7 @@ const AreaGraph = ({
 AreaGraph.propTypes = {
     color: PropTypes.string,
     dots: PropTypes.array,
+    isDisabled: PropTypes.bool,
     hasBorder: PropTypes.bool,
     margin: PropTypes.object,
     timeStore: PropTypes.object.isRequired,

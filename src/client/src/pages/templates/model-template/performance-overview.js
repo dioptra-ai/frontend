@@ -1,19 +1,22 @@
 /* eslint-disable max-lines */
-import React, {useEffect, useState} from 'react';
-import PropTypes from 'prop-types';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
-import FilterInput from 'components/filter-input';
-import AreaGraph from 'components/area-graph';
-import Select from 'components/select';
-import {setupComponent} from 'helpers/component-helper';
-import TimeseriesQuery, {sql} from 'components/timeseries-query';
-import {getName} from 'helpers/name-helper';
-import MetricInfoBox from 'components/metric-info-box';
-import useAllSqlFilters from 'customHooks/use-all-sql-filters';
-import Async from 'components/async';
 import baseJSONClient from 'clients/base-json-client';
+import AreaGraph from 'components/area-graph';
+import Async from 'components/async';
+import FilterInput from 'components/filter-input';
+import MetricInfoBox from 'components/metric-info-box';
+import Select from 'components/select';
+import TimeseriesQuery, {sql} from 'components/timeseries-query';
+import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 import useModel from 'customHooks/use-model';
+import {setupComponent} from 'helpers/component-helper';
+import {getName} from 'helpers/name-helper';
+import moment from 'moment';
+import PropTypes from 'prop-types';
+import React, {useEffect, useState} from 'react';
+import {Tooltip as BootstrapTooltip, OverlayTrigger} from 'react-bootstrap';
+import Col from 'react-bootstrap/Col';
+import Row from 'react-bootstrap/Row';
+import {FaExclamation} from 'react-icons/fa';
 
 const ModelPerformanceMetrics = {
     ACCURACY: {value: 'ACCURACY', name: 'Accuracy'},
@@ -236,17 +239,23 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                     xAxisName='Time'
                                 />
                             )}
-                            fetchData={
-                                () => baseJSONClient('/api/metrics/throughput', {
-                                    method: 'post',
-                                    body: {
-                                        sql_filters: allSqlFilters,
-                                        granular_time_as_string: timeStore.getTimeGranularity().toISOString(),
-                                        granular_time_as_seconds: timeStore.getTimeGranularity().asSeconds()
-                                    }
-                                })
+                            fetchData={() => baseJSONClient('/api/metrics/throughput', {
+                                method: 'post',
+                                body: {
+                                    sql_filters: allSqlFilters,
+                                    granular_time_as_string: timeStore
+                                        .getTimeGranularity()
+                                        .toISOString(),
+                                    granular_time_as_seconds: timeStore
+                                        .getTimeGranularity()
+                                        .asSeconds()
+                                }
+                            })
                             }
-                            refetchOnChanged={[allSqlFilters, timeStore.getTimeGranularity()]}
+                            refetchOnChanged={[
+                                allSqlFilters,
+                                timeStore.getTimeGranularity()
+                            ]}
                         />
                     </Col>
                 </Row>
@@ -613,20 +622,20 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 unit='%'
                                 xAxisName='Time'
                                 yAxisDomain={[0, 100]}
-                                title={(
+                                title={
                                     <Row>
-                                        <Col>
-                                            {getName(selectedMetric)}
-                                        </Col>
+                                        <Col>{getName(selectedMetric)}</Col>
                                         <Col lg={3}>
                                             <Select
                                                 initialValue={selectedMetric}
                                                 onChange={setSelectedMetric}
-                                                options={Object.values(ModelPerformanceMetrics)}
+                                                options={Object.values(
+                                                    ModelPerformanceMetrics
+                                                )}
                                             />
                                         </Col>
                                     </Row>
-                                )}
+                                }
                             />
                         )}
                         sql={getSelectedQuery()}
@@ -664,10 +673,11 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                             {selectedIndicator ? (
                                 <Async
                                     refetchOnChanged={[
+                                        selectedMetric,
                                         selectedIndicator,
                                         timeStore.start,
                                         timeStore.end,
-                                        timeGranularityValue
+                                        timeStore.aggregationPeriod
                                     ]}
                                     fetchData={() => baseJSONClient(
                                         `/api/metrics/integrations/correlation/redash/${selectedIndicator}`,
@@ -677,8 +687,11 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                                 parameters: {
                                                     time_start: timeStore.start,
                                                     time_end: timeStore.end,
-                                                    time_granularity:
+                                                    time_granularity: moment
+                                                        .duration(
                                                             timeGranularityValue
+                                                        )
+                                                        .asSeconds()
                                                 },
                                                 model_performance_query:
                                                         getSelectedQuery().query
@@ -690,17 +703,58 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                         <span className='text-dark bold-text fs-1 d-flex justify-content-between gap-2'>
                                             <span>
                                                 {correlationResponse.correlation.value.toFixed(
-                                                    1
+                                                    2
+                                                )}
+                                                {correlationResponse.correlation
+                                                    .p_value !== null &&
+                                                        correlationResponse
+                                                            .correlation.p_value <=
+                                                            0.05 && <span> * </span>}
+                                                {correlationResponse.correlation
+                                                    .p_value !== null &&
+                                                        correlationResponse
+                                                            .correlation.p_value <=
+                                                            0.01 && <span> * </span>}
+
+                                                {(correlationResponse.correlation
+                                                    .p_value === null ||
+                                                        correlationResponse
+                                                            .correlation.p_value >
+                                                            0.05) && (
+                                                    <OverlayTrigger
+                                                        placement='bottom'
+                                                        overlay={
+                                                            <BootstrapTooltip>
+                                                                    P Value of
+                                                                    correlation
+                                                                    coefficient is
+                                                                    above 0.05 (P
+                                                                    value:{' '}
+                                                                {correlationResponse
+                                                                    .correlation
+                                                                    .p_value !==
+                                                                    null ?
+                                                                    correlationResponse.correlation.p_value.toFixed(
+                                                                        2
+                                                                    ) :
+                                                                    'unavailable'})
+                                                            </BootstrapTooltip>
+                                                        }
+                                                    >
+                                                        <FaExclamation
+                                                            className='cursor-pointer blinking'
+                                                            style={{
+                                                                position:
+                                                                        'relative',
+                                                                top: -10,
+                                                                left: 6,
+                                                                width: 20,
+                                                                height: 20
+                                                            }}
+                                                        />
+                                                    </OverlayTrigger>
                                                 )}
                                             </span>
-                                            {correlationResponse.correlation
-                                                .p_value < 0.05 && (
-                                                <span>*</span>
-                                            )}
-                                            {correlationResponse.correlation
-                                                .p_value < 0.01 && (
-                                                <span>*</span>
-                                            )}
                                         </span>
                                     )
                                     }
@@ -716,6 +770,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                             {selectedIndicator ? (
                                 <Async
                                     refetchOnChanged={[
+                                        selectedMetric,
                                         selectedIndicator,
                                         timeStore.start,
                                         timeStore.end,
@@ -733,8 +788,11 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                                     time_end: timeStore.end
                                                         .utc()
                                                         .format(),
-                                                    time_granularity:
+                                                    time_granularity: moment
+                                                        .duration(
                                                             timeGranularityValue
+                                                        )
+                                                        .asSeconds()
                                                 }
                                             }
                                         }
