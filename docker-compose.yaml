@@ -52,7 +52,7 @@ services:
     networks:
       - app-network
     # Uncomment to run the server manually and develop metrics-engine with docker exec.
-    entrypoint: /bin/sleep 36000
+    # entrypoint: /bin/sleep 36000
     volumes:
       - ./submodules/metrics-engine:/app
 
