@@ -624,7 +624,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                                         .asSeconds()
                                                 },
                                                 model_performance_query:
-                                                        getSelectedQuery().query
+                                                        getSelectedQuery()
                                             }
                                         }
                                     )
