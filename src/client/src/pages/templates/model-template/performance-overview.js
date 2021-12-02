@@ -35,9 +35,6 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
     const [modelPerformanceIndicators, setModelPerformanceIndicators] = useState([]);
     const [selectedIndicator, setSelectedIndicator] = useState(null);
     const allSqlFilters = useAllSqlFilters();
-    const allSqlFiltersWithoutOrgId = useAllSqlFilters({
-        __REMOVE_ME__excludeOrgId: true
-    });
     const sqlFiltersWithModelTime = useAllSqlFilters({useReferenceRange: true});
     const model = useModel();
     const [iou] = useState(0.5);
