@@ -9,7 +9,7 @@ import {setupComponent} from 'helpers/component-helper';
 import FontIcon from './font-icon';
 
 const Filter = ({filter, onDelete, applied = false}) => (
-    <span className={`filter fs-6 ${applied ? 'applied' : ''}`}>
+    <span className={`filter fs-6 ${applied ? 'applied' : ''} mt-2`}>
         {filter}{' '}
         <button onClick={onDelete}>
             <FontIcon className='text-dark' icon='Close' size={10} />
