@@ -83,6 +83,157 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
             '"groundtruth.class_name"' :
             '"groundtruth"';
 
+    const getSelectedSQLQuery = () => {
+
+        return {
+            [ModelPerformanceMetrics.ACCURACY.value]: sql`
+        SELECT TIME_FLOOR(__time, '${timeGranularity}') as x,
+          100 * CAST(sum(CASE WHEN ${predictionName}=${groundTruthName} THEN 1 ELSE 0 END) AS DOUBLE) / CAST(sum(1) AS DOUBLE) AS y
+        FROM "dioptra-gt-combined-eventstream"
+        WHERE ${allSqlFilters}
+        GROUP BY 1`,
+            [ModelPerformanceMetrics.PRECISION.value]: sql`
+        WITH true_positive as (
+          SELECT
+            TIME_FLOOR(__time, '${timeGranularity}') as "my_time",
+            ${groundTruthName} as label,
+            sum(CASE WHEN ${predictionName}=${groundTruthName} THEN 1 ELSE 0 END) as cnt_tp
+          FROM
+            "dioptra-gt-combined-eventstream"
+          WHERE ${allSqlFilters}
+          GROUP BY 1, 2
+          order by ${groundTruthName}
+        ),
+        true_sum as (
+          SELECT
+            TIME_FLOOR(__time, '${timeGranularity}') as "my_time",
+            ${predictionName} as label,
+            count(1) as cnt_ts
+          FROM
+            "dioptra-gt-combined-eventstream"
+          WHERE ${allSqlFilters}
+          GROUP BY 1, 2
+          order by ${predictionName}
+        ),
+        pred_sum as (
+          SELECT
+            TIME_FLOOR(__time, '${timeGranularity}') as "my_time",
+            ${groundTruthName} as label,
+            count(1) as cnt_ps
+          FROM
+            "dioptra-gt-combined-eventstream"
+          WHERE ${allSqlFilters}
+          GROUP BY 1, 2
+          ORDER BY ${groundTruthName}
+        )
+        SELECT
+          true_positive.my_time as x,
+          100 * AVG(cast(true_positive.cnt_tp as double) / pred_sum.cnt_ps) as y
+        FROM true_positive
+          JOIN pred_sum ON pred_sum.label = true_positive.label AND pred_sum.my_time = true_positive.my_time
+          JOIN true_sum ON true_sum.label = true_positive.label AND true_sum.my_time = true_positive.my_time
+        GROUP BY 1
+    `,
+            [ModelPerformanceMetrics.RECALL.value]: sql`
+        WITH true_positive as (
+          SELECT
+            TIME_FLOOR(__time, '${timeGranularity}') as "my_time",
+            ${groundTruthName} as label,
+            sum(CASE WHEN ${predictionName}=${groundTruthName} THEN 1 ELSE 0 END) as cnt_tp
+          FROM
+            "dioptra-gt-combined-eventstream"
+          WHERE ${allSqlFilters}
+          GROUP BY 1, 2
+          order by ${groundTruthName}
+        ),
+        true_sum as (
+          SELECT
+            TIME_FLOOR(__time, '${timeGranularity}') as "my_time",
+            ${predictionName} as label,
+            count(1) as cnt_ts
+          FROM
+            "dioptra-gt-combined-eventstream"
+          WHERE ${allSqlFilters}
+          GROUP BY 1, 2
+          order by ${predictionName}
+        ),
+        pred_sum as (
+          SELECT
+            TIME_FLOOR(__time, '${timeGranularity}') as "my_time",
+            ${groundTruthName} as label,
+            count(1) as cnt_ps
+          FROM
+            "dioptra-gt-combined-eventstream"
+          WHERE ${allSqlFilters}
+          GROUP BY 1, 2
+          ORDER BY ${groundTruthName}
+        )
+        SELECT
+          true_positive.my_time as x,
+          100 * AVG(cast(true_positive.cnt_tp as double) / true_sum.cnt_ts) as y
+        FROM true_positive
+          JOIN pred_sum ON pred_sum.label = true_positive.label AND pred_sum.my_time = true_positive.my_time
+          JOIN true_sum ON true_sum.label = true_positive.label AND true_sum.my_time = true_positive.my_time
+        GROUP BY 1
+    `,
+            [ModelPerformanceMetrics.F1_SCORE.value]: sql`
+        WITH true_positive as (
+          SELECT
+            TIME_FLOOR(__time, '${timeGranularity}') as "my_time",
+            ${groundTruthName} as label,
+            sum(CASE WHEN ${predictionName}=${groundTruthName} THEN 1 ELSE 0 END) as cnt_tp
+          FROM
+            "dioptra-gt-combined-eventstream"
+          WHERE ${allSqlFilters}
+          GROUP BY 1, 2
+          order by ${groundTruthName}
+        ),
+        true_sum as (
+          SELECT
+            TIME_FLOOR(__time, '${timeGranularity}') as "my_time",
+            ${predictionName} as label,
+            count(1) as cnt_ts
+          FROM
+            "dioptra-gt-combined-eventstream"
+          WHERE ${allSqlFilters}
+          GROUP BY 1, 2
+          order by ${predictionName}
+        ),
+        pred_sum as (
+          SELECT
+            TIME_FLOOR(__time, '${timeGranularity}') as "my_time",
+            ${groundTruthName} as label,
+            count(1) as cnt_ps
+          FROM
+            "dioptra-gt-combined-eventstream"
+          WHERE ${allSqlFilters}
+          GROUP BY 1, 2
+          ORDER BY ${groundTruthName}
+        )
+        SELECT
+          my_table.my_time as x, 
+          100 * 2 * ((my_table.my_precision * my_table.my_recall) / (my_table.my_precision + my_table.my_recall)) as y
+        FROM (
+          SELECT
+            true_positive.my_time as my_time,
+            AVG(cast(true_positive.cnt_tp as double) / true_sum.cnt_ts) as my_recall,
+            AVG(cast(true_positive.cnt_tp as double) / pred_sum.cnt_ps) as my_precision
+          FROM true_positive
+          JOIN pred_sum ON pred_sum.label = true_positive.label AND pred_sum.my_time = true_positive.my_time
+          JOIN true_sum ON true_sum.label = true_positive.label AND true_sum.my_time = true_positive.my_time
+          GROUP BY 1
+        ) as my_table
+    `, [ModelPerformanceMetrics.EXACT_MATCH.value]: sql`
+            SELECT
+                TIME_FLOOR(__time, '${timeGranularity}') as x,
+                100 * AVG(exact_match) AS y
+            FROM "dioptra-gt-combined-eventstream"
+            WHERE ${allSqlFilters}
+            GROUP BY 1
+    `
+        }[selectedMetric];
+    };
+
     const getSelectedQuery = () => {
         return {
             [ModelPerformanceMetrics.ACCURACY.value]: () => {
@@ -624,7 +775,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                                         .asSeconds()
                                                 },
                                                 model_performance_query:
-                                                        getSelectedQuery()
+                                                        getSelectedSQLQuery().query
                                             }
                                         }
                                     )
