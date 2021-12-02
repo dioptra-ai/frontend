@@ -8,7 +8,6 @@ import Select from 'components/select';
 import TimeseriesQuery, {sql} from 'components/timeseries-query';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 import useModel from 'customHooks/use-model';
-<<<<<<< HEAD
 import {setupComponent} from 'helpers/component-helper';
 import {getName} from 'helpers/name-helper';
 import moment from 'moment';
@@ -18,26 +17,36 @@ import {Tooltip as BootstrapTooltip, OverlayTrigger} from 'react-bootstrap';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import {FaExclamation} from 'react-icons/fa';
-=======
->>>>>>> 8a18f44 (DEV-201: rebased and fixed)
 
 const ModelPerformanceMetrics = {
     ACCURACY: {value: 'ACCURACY', name: 'Accuracy'},
     F1_SCORE: {value: 'F1_SCORE', name: 'F1 Score'},
     PRECISION: {value: 'PRECISION', name: 'Precision'},
-    RECALL: {value: 'RECALL', name: 'Recall'}
+    RECALL: {value: 'RECALL', name: 'Recall'},
+    EXACT_MATCH: {value: 'EXACT_MATCH', name: 'Exact Match'}
 };
 
 const PerformanceOverview = ({timeStore, filtersStore}) => {
-    const [selectedMetric, setSelectedMetric] = useState(
-        ModelPerformanceMetrics.ACCURACY.value
-    );
     const [modelPerformanceIndicators, setModelPerformanceIndicators] = useState([]);
     const [selectedIndicator, setSelectedIndicator] = useState(null);
     const allSqlFilters = useAllSqlFilters();
     const sqlFiltersWithModelTime = useAllSqlFilters({useReferenceRange: true});
     const model = useModel();
     const [iou] = useState(0.5);
+    const selectableMetrics = model.mlModelType === 'Q_N_A' ? [
+        {value: 'EXACT_MATCH', name: 'Exact Match'},
+        {value: 'F1_SCORE', name: 'F1 Score'}
+    // TODO: Uncomment when this is implemented
+    // ] : model.mlModelType === 'DOCUMENT_PROCESSING' ? [
+        // {value: 'MAP', name: 'mAP'},
+        // {value: 'MAR', name: 'mAR'}
+    ] : [
+        {value: 'ACCURACY', name: 'Accuracy'},
+        {value: 'F1_SCORE', name: 'F1 Score'},
+        {value: 'PRECISION', name: 'Precision'},
+        {value: 'RECALL', name: 'Recall'}
+    ];
+    const [selectedMetric, setSelectedMetric] = useState(selectableMetrics[0].value);
 
     useEffect(() => {
         baseJSONClient('/api/metrics/integrations/redash').then(({queries = []}) => {
@@ -616,7 +625,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                     </Row>
                 )}
                 <div className='border rounded p-3'>
-                    <TimeseriesQuery
+                    <Async
                         defaultData={[]}
                         renderData={(metric) => (
                             <AreaGraph
@@ -634,9 +643,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                             <Select
                                                 initialValue={selectedMetric}
                                                 onChange={setSelectedMetric}
-                                                options={Object.values(
-                                                    ModelPerformanceMetrics
-                                                )}
+                                                options={selectableMetrics}
                                             />
                                         </Col>
                                     </Row>
@@ -689,6 +696,16 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                     body: {
                                         sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ?
                                             `cast("iou" as FLOAT) > ${iou} AND ${allSqlFilters}` : allSqlFilters,
+                                        time_granularity: timeStore.getTimeGranularity(),
+                                        model_type: model.mlModelType
+                                    }
+                                });
+                            },
+                            [ModelPerformanceMetrics.EXACT_MATCH.value]: () => {
+                                return baseJSONClient('/api/metrics/exact-match', {
+                                    method: 'post',
+                                    body: {
+                                        sql_filters: allSqlFilters,
                                         time_granularity: timeStore.getTimeGranularity(),
                                         model_type: model.mlModelType
                                     }

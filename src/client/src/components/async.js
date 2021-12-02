@@ -45,7 +45,7 @@ const Async = ({
     } else if (error) {
 
         content = renderError(error);
-    } else if (data) {
+    } else if (data || defaultData) {
 
         content = renderData(data || defaultData);
     } else {
