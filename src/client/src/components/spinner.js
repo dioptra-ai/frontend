@@ -42,5 +42,5 @@ export const SpinnerWrapper = ({children}) => (
 );
 
 SpinnerWrapper.propTypes = {
-    children: PropTypes.node.isRequired
+    children: PropTypes.node
 };
