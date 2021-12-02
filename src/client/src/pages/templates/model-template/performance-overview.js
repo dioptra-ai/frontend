@@ -33,13 +33,13 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
     const sqlFiltersWithModelTime = useAllSqlFilters({useReferenceRange: true});
     const model = useModel();
     const [iou] = useState(0.5);
+    // TODO: Uncomment when this is implemented
+    // ] : model.mlModelType === 'DOCUMENT_PROCESSING' ? [
+    // {value: 'MAP', name: 'mAP'},
+    // {value: 'MAR', name: 'mAR'}
     const selectableMetrics = model.mlModelType === 'Q_N_A' ? [
         {value: 'EXACT_MATCH', name: 'Exact Match'},
         {value: 'F1_SCORE', name: 'F1 Score'}
-    // TODO: Uncomment when this is implemented
-    // ] : model.mlModelType === 'DOCUMENT_PROCESSING' ? [
-        // {value: 'MAP', name: 'mAP'},
-        // {value: 'MAR', name: 'mAR'}
     ] : [
         {value: 'ACCURACY', name: 'Accuracy'},
         {value: 'F1_SCORE', name: 'F1 Score'},
@@ -85,146 +85,60 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
 
     const getSelectedQuery = () => {
         return {
-            [ModelPerformanceMetrics.ACCURACY.value]: sql`
-        SELECT TIME_FLOOR(__time, '${timeGranularity}') as x,
-          100 * CAST(sum(CASE WHEN ${predictionName}=${groundTruthName} THEN 1 ELSE 0 END) AS DOUBLE) / CAST(sum(1) AS DOUBLE) AS y
-        FROM "dioptra-gt-combined-eventstream"
-        WHERE ${allSqlFilters}
-        GROUP BY 1`,
-            [ModelPerformanceMetrics.PRECISION.value]: sql`
-        WITH true_positive as (
-          SELECT
-            TIME_FLOOR(__time, '${timeGranularity}') as "my_time",
-            ${groundTruthName} as label,
-            sum(CASE WHEN ${predictionName}=${groundTruthName} THEN 1 ELSE 0 END) as cnt_tp
-          FROM
-            "dioptra-gt-combined-eventstream"
-          WHERE ${allSqlFilters}
-          GROUP BY 1, 2
-          order by ${groundTruthName}
-        ),
-        true_sum as (
-          SELECT
-            TIME_FLOOR(__time, '${timeGranularity}') as "my_time",
-            ${predictionName} as label,
-            count(1) as cnt_ts
-          FROM
-            "dioptra-gt-combined-eventstream"
-          WHERE ${allSqlFilters}
-          GROUP BY 1, 2
-          order by ${predictionName}
-        ),
-        pred_sum as (
-          SELECT
-            TIME_FLOOR(__time, '${timeGranularity}') as "my_time",
-            ${groundTruthName} as label,
-            count(1) as cnt_ps
-          FROM
-            "dioptra-gt-combined-eventstream"
-          WHERE ${allSqlFilters}
-          GROUP BY 1, 2
-          ORDER BY ${groundTruthName}
-        )
-        SELECT
-          true_positive.my_time as x,
-          100 * AVG(cast(true_positive.cnt_tp as double) / pred_sum.cnt_ps) as y
-        FROM true_positive
-          JOIN pred_sum ON pred_sum.label = true_positive.label AND pred_sum.my_time = true_positive.my_time
-          JOIN true_sum ON true_sum.label = true_positive.label AND true_sum.my_time = true_positive.my_time
-        GROUP BY 1
-    `,
-            [ModelPerformanceMetrics.RECALL.value]: sql`
-        WITH true_positive as (
-          SELECT
-            TIME_FLOOR(__time, '${timeGranularity}') as "my_time",
-            ${groundTruthName} as label,
-            sum(CASE WHEN ${predictionName}=${groundTruthName} THEN 1 ELSE 0 END) as cnt_tp
-          FROM
-            "dioptra-gt-combined-eventstream"
-          WHERE ${allSqlFilters}
-          GROUP BY 1, 2
-          order by ${groundTruthName}
-        ),
-        true_sum as (
-          SELECT
-            TIME_FLOOR(__time, '${timeGranularity}') as "my_time",
-            ${predictionName} as label,
-            count(1) as cnt_ts
-          FROM
-            "dioptra-gt-combined-eventstream"
-          WHERE ${allSqlFilters}
-          GROUP BY 1, 2
-          order by ${predictionName}
-        ),
-        pred_sum as (
-          SELECT
-            TIME_FLOOR(__time, '${timeGranularity}') as "my_time",
-            ${groundTruthName} as label,
-            count(1) as cnt_ps
-          FROM
-            "dioptra-gt-combined-eventstream"
-          WHERE ${allSqlFilters}
-          GROUP BY 1, 2
-          ORDER BY ${groundTruthName}
-        )
-
-        SELECT
-          true_positive.my_time as x,
-          100 * AVG(cast(true_positive.cnt_tp as double) / true_sum.cnt_ts) as y
-        FROM true_positive
-          JOIN pred_sum ON pred_sum.label = true_positive.label AND pred_sum.my_time = true_positive.my_time
-          JOIN true_sum ON true_sum.label = true_positive.label AND true_sum.my_time = true_positive.my_time
-        GROUP BY 1
-    `,
-            [ModelPerformanceMetrics.F1_SCORE.value]: sql`
-        WITH true_positive as (
-          SELECT
-            TIME_FLOOR(__time, '${timeGranularity}') as "my_time",
-            ${groundTruthName} as label,
-            sum(CASE WHEN ${predictionName}=${groundTruthName} THEN 1 ELSE 0 END) as cnt_tp
-          FROM
-            "dioptra-gt-combined-eventstream"
-          WHERE ${allSqlFilters}
-          GROUP BY 1, 2
-          order by ${groundTruthName}
-        ),
-        true_sum as (
-          SELECT
-            TIME_FLOOR(__time, '${timeGranularity}') as "my_time",
-            ${predictionName} as label,
-            count(1) as cnt_ts
-          FROM
-            "dioptra-gt-combined-eventstream"
-          WHERE ${allSqlFilters}
-          GROUP BY 1, 2
-          order by ${predictionName}
-        ),
-        pred_sum as (
-          SELECT
-            TIME_FLOOR(__time, '${timeGranularity}') as "my_time",
-            ${groundTruthName} as label,
-            count(1) as cnt_ps
-          FROM
-            "dioptra-gt-combined-eventstream"
-          WHERE ${allSqlFilters}
-          GROUP BY 1, 2
-          ORDER BY ${groundTruthName}
-        )
-
-        SELECT
-          my_table.my_time as x, 
-          100 * 2 * ((my_table.my_precision * my_table.my_recall) / (my_table.my_precision + my_table.my_recall)) as y
-        FROM (
-          SELECT
-            true_positive.my_time as my_time,
-            AVG(cast(true_positive.cnt_tp as double) / true_sum.cnt_ts) as my_recall,
-            AVG(cast(true_positive.cnt_tp as double) / pred_sum.cnt_ps) as my_precision
-          FROM true_positive
-          JOIN pred_sum ON pred_sum.label = true_positive.label AND pred_sum.my_time = true_positive.my_time
-          JOIN true_sum ON true_sum.label = true_positive.label AND true_sum.my_time = true_positive.my_time
-          GROUP BY 1
-        ) as my_table
-    `
+            [ModelPerformanceMetrics.ACCURACY.value]: () => {
+                return baseJSONClient('/api/metrics/accuracy-metric', {
+                    method: 'post',
+                    body: {
+                        sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ?
+                            `cast("iou" as FLOAT) > ${iou} AND ${allSqlFilters}` : allSqlFilters,
+                        time_granularity: timeStore.getTimeGranularity(),
+                        model_type: model.mlModelType
+                    }
+                });
+            },
+            [ModelPerformanceMetrics.PRECISION.value]: () => {
+                return baseJSONClient('/api/metrics/precision-metric', {
+                    method: 'post',
+                    body: {
+                        sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ?
+                            `cast("iou" as FLOAT) > ${iou} AND ${allSqlFilters}` : allSqlFilters,
+                        time_granularity: timeStore.getTimeGranularity(),
+                        model_type: model.mlModelType
+                    }
+                });
+            },
+            [ModelPerformanceMetrics.RECALL.value]: () => {
+                return baseJSONClient('/api/metrics/recall-metric', {
+                    method: 'post',
+                    body: {
+                        sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ?
+                            `cast("iou" as FLOAT) > ${iou} AND ${allSqlFilters}` : allSqlFilters,
+                        time_granularity: timeStore.getTimeGranularity(),
+                        model_type: model.mlModelType
+                    }
+                });
+            },
+            [ModelPerformanceMetrics.F1_SCORE.value]: () => {
+                return baseJSONClient('/api/metrics/f1-score-metric', {
+                    method: 'post',
+                    body: {
+                        sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ?
+                            `cast("iou" as FLOAT) > ${iou} AND ${allSqlFilters}` : allSqlFilters,
+                        time_granularity: timeStore.getTimeGranularity(),
+                        model_type: model.mlModelType
+                    }
+                });
+            },
+            [ModelPerformanceMetrics.EXACT_MATCH.value]: () => {
+                return baseJSONClient('/api/metrics/exact-match', {
+                    method: 'post',
+                    body: {
+                        sql_filters: allSqlFilters,
+                        time_granularity: timeStore.getTimeGranularity(),
+                        model_type: model.mlModelType
+                    }
+                });
+            }
         }[selectedMetric];
     };
 
@@ -279,7 +193,6 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                     method: 'post',
                                     body: {
                                         sql_filters: allSqlFilters,
-                                        time_granularity: timeStore.getTimeGranularity(),
                                         model_type: model.mlModelType
                                     }
                                 })
@@ -290,7 +203,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                         name='EM'
                                         sampleSize={sampleSizeComponent}
                                         unit='%'
-                                        value={100 * exact_match}
+                                        value={exact_match}
                                     />
                                 )}
                             />
@@ -301,7 +214,6 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                     method: 'post',
                                     body: {
                                         sql_filters: allSqlFilters,
-                                        time_granularity: timeStore.getTimeGranularity(),
                                         model_type: model.mlModelType
                                     }
                                 })
@@ -312,7 +224,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                         name='F1 Score'
                                         sampleSize={sampleSizeComponent}
                                         unit='%'
-                                        value={100 * f1_score}
+                                        value={f1_score}
                                     />
                                 )}
                             />
@@ -656,63 +568,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                             model,
                             allSqlFilters
                         ]}
-                        fetchData={{
-                            [ModelPerformanceMetrics.ACCURACY.value]: () => {
-                                return baseJSONClient('/api/metrics/accuracy-metric', {
-                                    method: 'post',
-                                    body: {
-                                        sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ?
-                                            `cast("iou" as FLOAT) > ${iou} AND ${allSqlFilters}` : allSqlFilters,
-                                        time_granularity: timeStore.getTimeGranularity(),
-                                        model_type: model.mlModelType
-                                    }
-                                });
-                            },
-                            [ModelPerformanceMetrics.PRECISION.value]: () => {
-                                return baseJSONClient('/api/metrics/precision-metric', {
-                                    method: 'post',
-                                    body: {
-                                        sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ?
-                                            `cast("iou" as FLOAT) > ${iou} AND ${allSqlFilters}` : allSqlFilters,
-                                        time_granularity: timeStore.getTimeGranularity(),
-                                        model_type: model.mlModelType
-                                    }
-                                });
-                            },
-                            [ModelPerformanceMetrics.RECALL.value]: () => {
-                                return baseJSONClient('/api/metrics/recall-metric', {
-                                    method: 'post',
-                                    body: {
-                                        sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ?
-                                            `cast("iou" as FLOAT) > ${iou} AND ${allSqlFilters}` : allSqlFilters,
-                                        time_granularity: timeStore.getTimeGranularity(),
-                                        model_type: model.mlModelType
-                                    }
-                                });
-                            },
-                            [ModelPerformanceMetrics.F1_SCORE.value]: () => {
-                                return baseJSONClient('/api/metrics/f1-score-metric', {
-                                    method: 'post',
-                                    body: {
-                                        sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ?
-                                            `cast("iou" as FLOAT) > ${iou} AND ${allSqlFilters}` : allSqlFilters,
-                                        time_granularity: timeStore.getTimeGranularity(),
-                                        model_type: model.mlModelType
-                                    }
-                                });
-                            },
-                            [ModelPerformanceMetrics.EXACT_MATCH.value]: () => {
-                                return baseJSONClient('/api/metrics/exact-match', {
-                                    method: 'post',
-                                    body: {
-                                        sql_filters: allSqlFilters,
-                                        time_granularity: timeStore.getTimeGranularity(),
-                                        model_type: model.mlModelType
-                                    }
-                                });
-                            }
-                        }[selectedMetric]
-                        }
+                        fetchData={getSelectedQuery()}
                     />
                 </div>
             </div>
