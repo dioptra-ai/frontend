@@ -13,8 +13,6 @@ import {
     YAxis
 } from 'recharts';
 import {HiOutlineZoomOut} from 'react-icons/hi';
-import {FaQuestion} from 'react-icons/fa';
-import {Tooltip as BootstrapTooltip, OverlayTrigger} from 'react-bootstrap';
 import {SpinnerWrapper} from 'components/spinner';
 
 import theme from 'styles/theme.module.scss';
@@ -71,7 +69,6 @@ const AreaGraph = ({
         bottom: 35
     },
     unit,
-    isDisabled,
     timeStore
 }) => {
     const granularityMs = timeStore.getTimeGranularity().asMilliseconds();
@@ -176,21 +173,6 @@ const AreaGraph = ({
                             title='Zoom out'
                         />
                     )}
-                    {timeStore.aggregationPeriod !== 'auto' && !isDisabled ? <OverlayTrigger
-                        placement='bottom'
-                        overlay={
-                            <BootstrapTooltip>
-                                The aggregation period automatically adapts to the time
-                                range. A fixed aggregation period can also be set next to
-                                the time picker.
-                            </BootstrapTooltip>
-                        }
-                    >
-                        <FaQuestion
-                            className='cursor-pointer blinking'
-                            style={{position: 'absolute', top: '-1rem', right: '2rem'}}
-                        />
-                    </OverlayTrigger> : null}
                     <ResponsiveContainer height='100%' width='100%'>
                         <AreaChart
                             data={filledData}
@@ -301,7 +283,6 @@ const AreaGraph = ({
 AreaGraph.propTypes = {
     color: PropTypes.string,
     dots: PropTypes.array,
-    isDisabled: PropTypes.bool,
     hasBorder: PropTypes.bool,
     margin: PropTypes.object,
     timeStore: PropTypes.object.isRequired,
