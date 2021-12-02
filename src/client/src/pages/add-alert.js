@@ -99,11 +99,19 @@ const ConditionRow = ({handleRowDataChange, handleDeleteRow, handleAddRow, isFir
                         <Select backgroundColor='white' initialValue={rowState.logicalOperator} isTextBold onChange={handleLogicalChange} options={Object.values(LogicalOperators)} textColor='primary'/>
                     }
                 </Col>
-                <Col xl={3}><Select backgroundColor='white-blue' initialValue={rowState.name} onChange={handleConditionChange} options={Object.values(AlertConditions)} textColor='dark'/></Col>
+                <Col xl={2}><Select backgroundColor='white-blue' initialValue={rowState.name} onChange={handleConditionChange} options={Object.values(AlertConditions)} textColor='dark'/></Col>
 
-                <Col className='d-flex' xl={2}>
+                <Col className='d-flex' xl={3}>
                     <LabelBox text='OF'/>
-                    <div className='mx-2'><LabelBox isUnderlined={true} text='METRIC'/></div>
+                    <div className='mx-2'>
+                        <Select options={[{
+                            name: 'Exact Match',
+                            value: 'EXACT_MATCH'
+                        }, {
+                            name: 'F1 Score',
+                            value: 'F1_SCORE'
+                        }]}/>
+                    </div>
                 </Col>
                 <Col xl={2}><TextInput className='form-control py-3 mt-0 bg-white-blue' initialValue={rowState.metric} onChange={handleMetricChange}/></Col>
                 <Col xl={2}><Select backgroundColor='white' initialValue={rowState.comparator} isTextBold onChange={handleComparatorChange} options={Object.values(Comparators)} textColor='primary'/></Col>
