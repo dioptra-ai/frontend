@@ -727,30 +727,34 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                         }
                                     )
                                     }
-                                    renderData={({results = []}) => (
-                                        <AreaGraph
-                                            dots={results.map(
-                                                ({metric, time}) => ({
-                                                    x: time,
-                                                    y: metric * 100
-                                                })
-                                            )}
-                                            hasBorder={false}
-                                            isTimeDependent
-                                            margin={{
-                                                right: 0,
-                                                bottom: 30,
-                                                left: 5
-                                            }}
-                                            xAxisName='Time'
-                                            yAxisDomain={[0, 100]}
-                                            yAxisName={getName(
-                                                modelPerformanceIndicators.find(
-                                                    ({value}) => value === selectedIndicator
-                                                )?.name
-                                            )}
-                                        />
-                                    )}
+                                    renderData={({results = []}) => {
+                                        const dots = results.map(
+                                            ({metric, time}) => ({
+                                                x: new Date(time).getTime(),
+                                                y: metric * 100
+                                            })
+                                        );
+
+                                        return (
+                                            <AreaGraph
+                                                dots={dots}
+                                                hasBorder={false}
+                                                isTimeDependent
+                                                margin={{
+                                                    right: 0,
+                                                    bottom: 30,
+                                                    left: 5
+                                                }}
+                                                xAxisName='Time'
+                                                yAxisDomain={[0, 100]}
+                                                yAxisName={getName(
+                                                    modelPerformanceIndicators.find(
+                                                        ({value}) => value === selectedIndicator
+                                                    )?.name
+                                                )}
+                                            />
+                                        );
+                                    }}
                                 />
                             ) : null}
                         </Col>
