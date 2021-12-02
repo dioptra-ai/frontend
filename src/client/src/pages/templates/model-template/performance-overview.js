@@ -22,21 +22,31 @@ const ModelPerformanceMetrics = {
     ACCURACY: {value: 'ACCURACY', name: 'Accuracy'},
     F1_SCORE: {value: 'F1_SCORE', name: 'F1 Score'},
     PRECISION: {value: 'PRECISION', name: 'Precision'},
-    RECALL: {value: 'RECALL', name: 'Recall'}
+    RECALL: {value: 'RECALL', name: 'Recall'},
+    EXACT_MATCH: {value: 'EXACT_MATCH', name: 'Exact Match'}
 };
 
 const PerformanceOverview = ({timeStore, filtersStore}) => {
-    const [selectedMetric, setSelectedMetric] = useState(
-        ModelPerformanceMetrics.ACCURACY.value
-    );
     const [modelPerformanceIndicators, setModelPerformanceIndicators] = useState([]);
     const [selectedIndicator, setSelectedIndicator] = useState(null);
     const allSqlFilters = useAllSqlFilters();
-    const allSqlFiltersWithoutOrgId = useAllSqlFilters({
-        __REMOVE_ME__excludeOrgId: true
-    });
     const sqlFiltersWithModelTime = useAllSqlFilters({useReferenceRange: true});
     const model = useModel();
+    const [iou] = useState(0.5);
+    const selectableMetrics = model.mlModelType === 'Q_N_A' ? [
+        {value: 'EXACT_MATCH', name: 'Exact Match'},
+        {value: 'F1_SCORE', name: 'F1 Score'}
+    // TODO: Uncomment when this is implemented
+    // ] : model.mlModelType === 'DOCUMENT_PROCESSING' ? [
+        // {value: 'MAP', name: 'mAP'},
+        // {value: 'MAR', name: 'mAR'}
+    ] : [
+        {value: 'ACCURACY', name: 'Accuracy'},
+        {value: 'F1_SCORE', name: 'F1 Score'},
+        {value: 'PRECISION', name: 'Precision'},
+        {value: 'RECALL', name: 'Recall'}
+    ];
+    const [selectedMetric, setSelectedMetric] = useState(selectableMetrics[0].value);
 
     useEffect(() => {
         baseJSONClient('/api/metrics/integrations/redash').then(({queries = []}) => {
@@ -268,11 +278,13 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 fetchData={() => baseJSONClient('/api/metrics/exact-match', {
                                     method: 'post',
                                     body: {
-                                        sql_filters: allSqlFiltersWithoutOrgId
+                                        sql_filters: allSqlFilters,
+                                        time_granularity: timeStore.getTimeGranularity(),
+                                        model_type: model.mlModelType
                                     }
                                 })
                                 }
-                                refetchOnChanged={[allSqlFiltersWithoutOrgId]}
+                                refetchOnChanged={[timeGranularity, model, allSqlFilters]}
                                 renderData={([{exact_match} = {}]) => (
                                     <MetricInfoBox
                                         name='EM'
@@ -285,14 +297,16 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                         </Col>
                         <Col className='d-flex' lg={3}>
                             <Async
-                                fetchData={() => baseJSONClient('/api/metrics/f1-score', {
+                                fetchData={() => baseJSONClient('/api/metrics/f1-score-metric', {
                                     method: 'post',
                                     body: {
-                                        sql_filters: allSqlFiltersWithoutOrgId
+                                        sql_filters: allSqlFilters,
+                                        time_granularity: timeStore.getTimeGranularity(),
+                                        model_type: model.mlModelType
                                     }
                                 })
                                 }
-                                refetchOnChanged={[allSqlFiltersWithoutOrgId]}
+                                refetchOnChanged={[timeGranularity, model, allSqlFilters]}
                                 renderData={([{f1_score} = {}]) => (
                                     <MetricInfoBox
                                         name='F1 Score'
@@ -611,7 +625,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                     </Row>
                 )}
                 <div className='border rounded p-3'>
-                    <TimeseriesQuery
+                    <Async
                         defaultData={[]}
                         renderData={(metric) => (
                             <AreaGraph
@@ -629,16 +643,76 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                             <Select
                                                 initialValue={selectedMetric}
                                                 onChange={setSelectedMetric}
-                                                options={Object.values(
-                                                    ModelPerformanceMetrics
-                                                )}
+                                                options={selectableMetrics}
                                             />
                                         </Col>
                                     </Row>
                                 }
                             />
                         )}
-                        sql={getSelectedQuery()}
+                        refetchOnChanged={[
+                            selectedMetric,
+                            timeGranularity,
+                            model,
+                            allSqlFilters
+                        ]}
+                        fetchData={{
+                            [ModelPerformanceMetrics.ACCURACY.value]: () => {
+                                return baseJSONClient('/api/metrics/accuracy-metric', {
+                                    method: 'post',
+                                    body: {
+                                        sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ?
+                                            `cast("iou" as FLOAT) > ${iou} AND ${allSqlFilters}` : allSqlFilters,
+                                        time_granularity: timeStore.getTimeGranularity(),
+                                        model_type: model.mlModelType
+                                    }
+                                });
+                            },
+                            [ModelPerformanceMetrics.PRECISION.value]: () => {
+                                return baseJSONClient('/api/metrics/precision-metric', {
+                                    method: 'post',
+                                    body: {
+                                        sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ?
+                                            `cast("iou" as FLOAT) > ${iou} AND ${allSqlFilters}` : allSqlFilters,
+                                        time_granularity: timeStore.getTimeGranularity(),
+                                        model_type: model.mlModelType
+                                    }
+                                });
+                            },
+                            [ModelPerformanceMetrics.RECALL.value]: () => {
+                                return baseJSONClient('/api/metrics/recall-metric', {
+                                    method: 'post',
+                                    body: {
+                                        sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ?
+                                            `cast("iou" as FLOAT) > ${iou} AND ${allSqlFilters}` : allSqlFilters,
+                                        time_granularity: timeStore.getTimeGranularity(),
+                                        model_type: model.mlModelType
+                                    }
+                                });
+                            },
+                            [ModelPerformanceMetrics.F1_SCORE.value]: () => {
+                                return baseJSONClient('/api/metrics/f1-score-metric', {
+                                    method: 'post',
+                                    body: {
+                                        sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ?
+                                            `cast("iou" as FLOAT) > ${iou} AND ${allSqlFilters}` : allSqlFilters,
+                                        time_granularity: timeStore.getTimeGranularity(),
+                                        model_type: model.mlModelType
+                                    }
+                                });
+                            },
+                            [ModelPerformanceMetrics.EXACT_MATCH.value]: () => {
+                                return baseJSONClient('/api/metrics/exact-match', {
+                                    method: 'post',
+                                    body: {
+                                        sql_filters: allSqlFilters,
+                                        time_granularity: timeStore.getTimeGranularity(),
+                                        model_type: model.mlModelType
+                                    }
+                                });
+                            }
+                        }[selectedMetric]
+                        }
                     />
                 </div>
             </div>
