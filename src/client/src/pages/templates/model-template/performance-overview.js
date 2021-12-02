@@ -297,7 +297,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                         </Col>
                         <Col className='d-flex' lg={3}>
                             <Async
-                                fetchData={() => baseJSONClient('/api/metrics/f1-score', {
+                                fetchData={() => baseJSONClient('/api/metrics/f1-score-metric', {
                                     method: 'post',
                                     body: {
                                         sql_filters: allSqlFilters,
