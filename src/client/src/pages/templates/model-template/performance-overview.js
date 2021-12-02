@@ -272,11 +272,13 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 fetchData={() => baseJSONClient('/api/metrics/exact-match', {
                                     method: 'post',
                                     body: {
-                                        sql_filters: allSqlFiltersWithoutOrgId
+                                        sql_filters: allSqlFilters,
+                                        time_granularity: timeStore.getTimeGranularity(),
+                                        model_type: model.mlModelType
                                     }
                                 })
                                 }
-                                refetchOnChanged={[allSqlFiltersWithoutOrgId]}
+                                refetchOnChanged={[timeGranularity, model, allSqlFilters]}
                                 renderData={([{exact_match} = {}]) => (
                                     <MetricInfoBox
                                         name='EM'
@@ -292,11 +294,13 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 fetchData={() => baseJSONClient('/api/metrics/f1-score', {
                                     method: 'post',
                                     body: {
-                                        sql_filters: allSqlFiltersWithoutOrgId
+                                        sql_filters: allSqlFilters,
+                                        time_granularity: timeStore.getTimeGranularity(),
+                                        model_type: model.mlModelType
                                     }
                                 })
                                 }
-                                refetchOnChanged={[allSqlFiltersWithoutOrgId]}
+                                refetchOnChanged={[timeGranularity, model, allSqlFilters]}
                                 renderData={([{f1_score} = {}]) => (
                                     <MetricInfoBox
                                         name='F1 Score'
