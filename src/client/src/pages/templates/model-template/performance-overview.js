@@ -700,7 +700,6 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                             {selectedIndicator ? (
                                 <Async
                                     refetchOnChanged={[
-                                        selectedMetric,
                                         selectedIndicator,
                                         timeStore.start,
                                         timeStore.end,

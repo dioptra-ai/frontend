@@ -27,7 +27,7 @@ export const CustomTooltip = ({payload, label, precisionDigits = 4}) => {
         return (
             <div className='line-graph-tooltip bg-white p-3'>
                 <p className='text-dark bold-text fs-5 m-0'>
-                    {value.toFixed(precisionDigits)}
+                    {Number(value).toFixed(precisionDigits)}
                     {unit}
                 </p>
                 <p

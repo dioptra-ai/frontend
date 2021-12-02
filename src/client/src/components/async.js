@@ -74,7 +74,7 @@ Async.propTypes = {
         PropTypes.arrayOf(PropTypes.func)
     ]),
     refetchOnChanged: PropTypes.array,
-    defaultData: PropTypes.object
+    defaultData: PropTypes.any
 };
 
 Async.defaultProps = {
