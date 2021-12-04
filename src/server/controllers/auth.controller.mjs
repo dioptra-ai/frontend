@@ -42,8 +42,10 @@ AuthRouter.post('/login', (req, res, next) => {
 
 // eslint-disable-next-line no-unused-vars
 AuthRouter.post('/logout', (req, res, next) => {
-    req.logout();
-    res.redirect('/');
+    req.session.destroy(() => {
+        req.logout();
+        res.redirect('/login');
+    });
 });
 
 export default AuthRouter;
