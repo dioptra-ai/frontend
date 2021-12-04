@@ -97,7 +97,7 @@ const MembersTable = ({isAdmin, orgID}) => {
                             },
                             {
                                 accessor: 'createdAt',
-                                Header: 'Member Since',
+                                Header: 'Member for',
                                 Cell: SinceDate
                             }
                         ].concat(

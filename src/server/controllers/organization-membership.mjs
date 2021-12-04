@@ -15,8 +15,7 @@ OrganizationMembershipRouter.get(
             );
 
             const result = await OrganizationMembershipModel.find({
-                organization: req.params.organizationID,
-                user: {$nin: [req.user._id]}
+                organization: req.params.organizationID
             });
 
             res.send(
@@ -104,75 +103,68 @@ OrganizationMembershipRouter.post(
     }
 );
 
-OrganizationMembershipRouter.delete(
-    '/:organizationMembershipID',
-    isAdmin,
+OrganizationMembershipRouter.delete('/:organizationMembershipID', isAdmin,
     async (req, res, next) => {
         try {
             const {organizationMembershipID} = req.params;
             const UserModel = mongoose.model('User');
-            const OrganizationMembershipModel = mongoose.model(
-                'OrganizationMembership'
-            );
-
+            const OrganizationMembershipModel = mongoose.model('OrganizationMembership');
             const {user, organization} = await OrganizationMembershipModel.findById(
                 organizationMembershipID
             );
 
-            const allAdminOfOrg = await OrganizationMembershipModel.find({
-                organization,
-                type: 'ADMIN',
-                user: {$nin: user}
-            });
+            if (user._id.equals(req.user._id)) {
 
-            const allOrgsOfUser = await OrganizationMembershipModel.find({
+                throw new Error('Operation not permitted. Please contact an admin of your organization.');
+            }
+
+            const allOtherOrgsOfUser = await OrganizationMembershipModel.find({
                 user,
                 organization: {$nin: organization}
             });
 
-            if (allAdminOfOrg.length > 0 && allOrgsOfUser.length > 0) {
-                await OrganizationMembershipModel.findByIdAndDelete(
-                    organizationMembershipID
-                );
+            if (allOtherOrgsOfUser.length === 0) {
 
-                await UserModel.findByIdAndUpdate(user, {
-                    activeOrganizationMembership: allOrgsOfUser[0]?._id
-                });
-
-                res.sendStatus(204);
-            } else {
-                throw new Error('Operation not allowed for this user!');
+                throw new Error('Operation not permitted. This organization is the only one the user is a member of.');
             }
+
+            await OrganizationMembershipModel.findByIdAndDelete(
+                organizationMembershipID
+            );
+
+            await UserModel.findByIdAndUpdate(user, {
+                activeOrganizationMembership: allOtherOrgsOfUser[0]?._id
+            });
+
+            res.sendStatus(204);
         } catch (e) {
             next(e);
         }
-    }
-);
+    });
 
-OrganizationMembershipRouter.put(
-    '/:organizationMembershipID/member',
-    isAdmin,
+OrganizationMembershipRouter.put('/:organizationMembershipID/member', isAdmin,
     async (req, res, next) => {
         try {
             const {type} = req.body;
             const {organizationMembershipID} = req.params;
-
-            const OrganizationMembershipModel = mongoose.model(
-                'OrganizationMembership'
-            );
-
+            const OrganizationMembershipModel = mongoose.model('OrganizationMembership');
             const {user, organization} = await OrganizationMembershipModel.findById(
                 organizationMembershipID
             );
 
-            const allAdminOfOrg = await OrganizationMembershipModel.find({
+            if (user._id.equals(req.user._id)) {
+
+                throw new Error('Operation not permitted. Please contact an admin of your organization.');
+            }
+
+            const allOtherAdminsOfOrg = await OrganizationMembershipModel.find({
                 organization,
                 type: 'ADMIN',
                 user: {$nin: user}
             });
 
-            if (type === 'MEMBER' && allAdminOfOrg.length < 1) {
-                throw new Error('Can not set last member of Organization as Member');
+            if (type === 'MEMBER' && allOtherAdminsOfOrg.length < 1) {
+                throw new Error('Operation not permitted. There must be at least one admin.');
             }
 
             await OrganizationMembershipModel.findByIdAndUpdate(
@@ -186,7 +178,6 @@ OrganizationMembershipRouter.put(
         } catch (e) {
             next(e);
         }
-    }
-);
+    });
 
 export default OrganizationMembershipRouter;
