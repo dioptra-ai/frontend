@@ -44,8 +44,8 @@ const sessionStore = new MongoStore({
 
 const sessionHandler = session({
     secret: process.env.COOKIE_SECRET,
-    resave: true,
-    saveUninitialized: true,
+    resave: false,
+    saveUninitialized: false,
     store: sessionStore,
     cookie: {
         maxAge: 1000 * 60 * 60 * Number(process.env.COOKIE_DURATION_HRS)
