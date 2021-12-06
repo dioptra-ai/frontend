@@ -1,6 +1,9 @@
-import {isAuthenticated} from '../middleware/authentication.mjs';
 import express from 'express';
 import mongoose from 'mongoose';
+import {body} from 'express-validator';
+import {isAuthenticated} from '../middleware/authentication.mjs';
+import validate from '../middleware/validate.mjs';
+
 
 const UserRouter = express.Router();
 
@@ -31,31 +34,35 @@ UserRouter.put('/', isAuthenticated, async (req, res, next) => {
     }
 });
 
-UserRouter.post('/', async (req, res, next) => {
-    try {
-        const UserModel = mongoose.model('User');
-        const {username, password} = req.body;
+UserRouter.post('/',
+    body('username').isEmail(),
+    body('password').isLength({min: 5}),
+    validate,
+    async (req, res, next) => {
+        try {
+            const UserModel = mongoose.model('User');
+            const {username, password} = req.body;
 
-        if (await UserModel.exists({username})) {
-            res.status(400);
-            throw new Error('Username already taken.');
-        } else {
-            const Organization = mongoose.model('Organization');
+            if (await UserModel.exists({username})) {
+                res.status(400);
+                throw new Error('Username already taken.');
+            } else {
+                const Organization = mongoose.model('Organization');
 
-            res.json(
-                await UserModel.createAsMemberOf(
-                    {
-                        username,
-                        password
-                    },
-                    await new Organization({name: `Organization of ${username}`}).save()
-                )
-            );
+                res.json(
+                    await UserModel.createAsMemberOf(
+                        {
+                            username,
+                            password
+                        },
+                        await new Organization({name: `Organization of ${username}`}).save()
+                    )
+                );
+            }
+        } catch (e) {
+            next(e);
         }
-    } catch (e) {
-        next(e);
-    }
-});
+    });
 
 UserRouter.get('/my-memberships', isAuthenticated, async (req, res, next) => {
     try {
