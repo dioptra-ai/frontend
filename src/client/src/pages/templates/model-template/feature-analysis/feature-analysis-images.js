@@ -25,8 +25,7 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                 defaultFilters={filtersStore.filters}
                 onChange={(filters) => (filtersStore.filters = filters)}
             />
-
-            <div className='my-5'>
+            <div className='my-3'>
                 <h3 className='text-dark bold-text fs-3 mb-3'>Unique Images</h3>
                 <Row>
                     <Col className='d-flex' lg={2}>
@@ -93,7 +92,7 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                     </Col>
                 </Row>
             </div>
-            <div className='my-5'>
+            <div className='my-3'>
                 <h3 className='text-dark bold-text fs-3 mb-3'>Embedding Analysis</h3>
                 <Row>
                     <div>
@@ -127,7 +126,7 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                     </div>
                 </Row>
             </div>
-            <div className='my-5'>
+            <div className='my-3'>
                 <h3 className='text-dark bold-text fs-3 mb-3'>Feature Space Outliers</h3>
                 <Row>
                     <Col>
