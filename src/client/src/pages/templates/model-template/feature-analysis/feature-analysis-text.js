@@ -54,35 +54,6 @@ const FeatureAnalysisText = ({filtersStore, timeStore}) => {
                 </div>
             </Row>
         </div>
-        <div className='my-3'>
-            <h3 className='text-dark bold-text fs-3 mb-3'>Feature Space Outliers</h3>
-            <Row>
-                <Col>
-                    <Async refetchOnChanged={[allOfflineSqlFilters, allSqlFilters, timeGranularity]}
-                        fetchData={() => baseJsonClient('/api/metrics', {
-                            method: 'post',
-                            body:
-                                {
-                                    metrics_type: 'outlier_detection',
-                                    current_filters: allSqlFilters,
-                                    reference_filters: allOfflineSqlFilters
-                                }
-                        })}
-                        renderData={(data) => (
-                            <ScatterGraph
-                                data={data?.outlier_analysis?.map(({image_url, dimensions, outlier, novelty}) => ({
-                                    samples: [image_url],
-                                    PCA1: dimensions[0],
-                                    PCA2: dimensions[1],
-                                    outlier,
-                                    novelty
-                                }))}
-                            />
-                        )}
-                    />
-                </Col>
-            </Row>
-        </div>
     </>);
 };
 

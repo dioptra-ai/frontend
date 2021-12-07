@@ -234,63 +234,69 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
         }[selectedMetric];
     };
 
-    const getSelectedQuery = () => {
+    const getQueryForMetric = (metricName, timeGranularity) => {
+
         return {
             [ModelPerformanceMetrics.ACCURACY.value]: () => {
+
                 return baseJSONClient('/api/metrics/accuracy-metric', {
                     method: 'post',
                     body: {
                         sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ?
                             `cast("iou" as FLOAT) > ${iou} AND ${allSqlFilters}` : allSqlFilters,
-                        time_granularity: timeStore.getTimeGranularity(),
+                        time_granularity: timeGranularity,
                         model_type: model.mlModelType
                     }
                 });
             },
             [ModelPerformanceMetrics.PRECISION.value]: () => {
+
                 return baseJSONClient('/api/metrics/precision-metric', {
                     method: 'post',
                     body: {
                         sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ?
                             `cast("iou" as FLOAT) > ${iou} AND ${allSqlFilters}` : allSqlFilters,
-                        time_granularity: timeStore.getTimeGranularity(),
+                        time_granularity: timeGranularity,
                         model_type: model.mlModelType
                     }
                 });
             },
             [ModelPerformanceMetrics.RECALL.value]: () => {
+
                 return baseJSONClient('/api/metrics/recall-metric', {
                     method: 'post',
                     body: {
                         sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ?
                             `cast("iou" as FLOAT) > ${iou} AND ${allSqlFilters}` : allSqlFilters,
-                        time_granularity: timeStore.getTimeGranularity(),
+                        time_granularity: timeGranularity,
                         model_type: model.mlModelType
                     }
                 });
             },
             [ModelPerformanceMetrics.F1_SCORE.value]: () => {
+
                 return baseJSONClient('/api/metrics/f1-score-metric', {
                     method: 'post',
                     body: {
                         sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ?
                             `cast("iou" as FLOAT) > ${iou} AND ${allSqlFilters}` : allSqlFilters,
-                        time_granularity: timeStore.getTimeGranularity(),
+                        time_granularity: timeGranularity,
                         model_type: model.mlModelType
                     }
                 });
             },
             [ModelPerformanceMetrics.EXACT_MATCH.value]: () => {
+
                 return baseJSONClient('/api/metrics/exact-match', {
                     method: 'post',
                     body: {
                         sql_filters: allSqlFilters,
-                        time_granularity: timeStore.getTimeGranularity(),
+                        time_granularity: timeGranularity,
                         model_type: model.mlModelType
                     }
                 });
             }
-        }[selectedMetric];
+        }[metricName];
     };
 
     return (
@@ -719,7 +725,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                             model,
                             allSqlFilters
                         ]}
-                        fetchData={getSelectedQuery()}
+                        fetchData={getQueryForMetric(selectedMetric, timeStore.getTimeGranularity())}
                     />
                 </div>
             </div>

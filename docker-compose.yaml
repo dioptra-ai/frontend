@@ -23,7 +23,7 @@ services:
       PORT: "4004"
       METRICS_ENGINE_URL: "http://metrics-engine:4006"
       # Druid router on arn:aws:eks:us-east-2:641017132295:cluster/dioptra-dev-eks
-      DRUID_DB_URL: "http://a2db86db7435c46a58524f6d90839799-413940887.us-east-2.elb.amazonaws.com:8888/druid/v2/sql/"
+      DRUID_DB_URL: "http://a110f947aa2864edea32bb4be2f2d662-730382463.us-east-2.elb.amazonaws.com:8888/druid/v2/sql/"
       OVERRIDE_DRUID_ORG_ID: "61723d86f1796f8b73854a2d"
     ports:
       - '4004:4004'
@@ -44,7 +44,7 @@ services:
     restart: always
     environment:
       # Druid router on arn:aws:eks:us-east-2:641017132295:cluster/dioptra-dev-eks
-      DRUID_DB_URL: "http://a2db86db7435c46a58524f6d90839799-413940887.us-east-2.elb.amazonaws.com:8888/druid/v2/sql/"
+      DRUID_DB_URL: "http://a110f947aa2864edea32bb4be2f2d662-730382463.us-east-2.elb.amazonaws.com:8888/druid/v2/sql/"
       LIMIT_EMBEDDING_QUERY: "1000"
       MONGO_URI: "mongodb://dioptra-db:27017/dioptra"
     ports:
