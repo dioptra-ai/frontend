@@ -17,6 +17,7 @@ import useModel from 'customHooks/use-model';
 import MetricInfoBox from 'components/metric-info-box';
 import BarGraph from 'components/bar-graph';
 import baseJsonClient from 'clients/base-json-client';
+import metricsClient from '../../../clients/metrics';
 import Async from 'components/async';
 import QAPerfAnalysis from './qa-perf-analysis';
 
@@ -187,6 +188,18 @@ const PerformanceDetails = ({filtersStore}) => {
                                             }
                                         })
                                     ]}
+                                    // fetchData={[
+                                    //     metricsClient('', {
+                                    //         metrics_type: 'map_mar',
+                                    //         current_filters: allSqlFilters,
+                                    //         per_class: false
+                                    //     }),
+                                    //     metricsClient('', {
+                                    //         metrics_type: 'map_mar',
+                                    //         current_filters: sqlFiltersWithModelTime,
+                                    //         per_class: false
+                                    //     })
+                                    // ]}
                                     renderData={(data) => (
                                         <MetricInfoBox
                                             name='AP'
