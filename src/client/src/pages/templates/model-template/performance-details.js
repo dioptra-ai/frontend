@@ -19,6 +19,7 @@ import BarGraph from 'components/bar-graph';
 import AreaGraph from 'components/area-graph';
 import Select from 'components/select';
 import baseJsonClient from 'clients/base-json-client';
+import metricsClient from '../../../clients/metrics';
 import Async from 'components/async';
 import {precisionRecallData} from './bounding-box-location-analysis-data';
 import QAPerfAnalysis from './qa-perf-analysis';
@@ -193,6 +194,18 @@ const PerformanceDetails = ({filtersStore, timeStore}) => {
                                             }
                                         })
                                     ]}
+                                    // fetchData={[
+                                    //     metricsClient('', {
+                                    //         metrics_type: 'map_mar',
+                                    //         current_filters: allSqlFilters,
+                                    //         per_class: false
+                                    //     }),
+                                    //     metricsClient('', {
+                                    //         metrics_type: 'map_mar',
+                                    //         current_filters: sqlFiltersWithModelTime,
+                                    //         per_class: false
+                                    //     })
+                                    // ]}
                                     renderData={(data) => (
                                         <MetricInfoBox
                                             name='AP'
