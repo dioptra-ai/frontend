@@ -144,8 +144,8 @@ const Register = ({authStore}) => {
                 <p className='text-secondary text-center border-top border-muted mt-3 p-2'>
                     Forgot password? If you need help with log in, please contact us at
                     &nbsp;
-                    <a className='text-secondary' href='mailto:support@dioptra.com'>
-                        support@dioptra.com
+                    <a className='text-secondary' href='mailto:info@dioptra.ai'>
+                        info@dioptra.ai
                     </a>
                 </p>
             </div>

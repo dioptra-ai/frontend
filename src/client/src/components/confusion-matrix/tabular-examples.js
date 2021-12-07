@@ -7,7 +7,7 @@ import Table from 'components/table';
 import TimeseriesQuery, {sql} from 'components/timeseries-query';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 
-const TabularExamples = ({onClose, groundtruth, prediction}) => {
+const TabularExamples = ({onClose, groundtruth, prediction, previewColumns}) => {
     const [exampleInModal, setExampleInModal] = useModal(false);
     const allSqlFilters = useAllSqlFilters();
 
@@ -27,14 +27,18 @@ const TabularExamples = ({onClose, groundtruth, prediction}) => {
                     defaultData={[]}
                     renderData={(data) => {
                         const allColumns = Object.keys(data[0]);
-                        const firstNonEmptyColumns = allColumns.filter((column) => {
+                        const nonEmptyColumns = allColumns.filter((c) => {
+                            if (previewColumns) {
+                                return previewColumns.some((p) => c.match(p));
+                            } else return true;
+                        }).filter((column) => {
 
                             return column !== '__time' && data.some((d) => d[column]);
                         });
 
                         return (
                             <Table
-                                columns={firstNonEmptyColumns.map((column) => ({
+                                columns={nonEmptyColumns.map((column) => ({
                                     accessor: (c) => c[column],
                                     Header: column
                                 }))}
@@ -85,7 +89,8 @@ const TabularExamples = ({onClose, groundtruth, prediction}) => {
 TabularExamples.propTypes = {
     groundtruth: PropTypes.string.isRequired,
     onClose: PropTypes.func.isRequired,
-    prediction: PropTypes.string.isRequired
+    prediction: PropTypes.string.isRequired,
+    previewColumns: PropTypes.string
 };
 
 export default TabularExamples;

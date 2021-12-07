@@ -59,7 +59,7 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                                     unit='%'
                                 />
                             )}
-                            sql={mlModelType === 'IMAGE_CLASSIFIER' ? sql`
+                            sql={mlModelType === 'IMAGE_CLASSIFIER' || mlModelType === 'TEXT_CLASSIFIER' ? sql`
                                   SELECT
                                     TRUNCATE(100 * cast(my_table.my_count as float) / cast(my_count_table.total_count as float), 2) as my_percentage,
                                     my_table.prediction

@@ -8,7 +8,7 @@ const DifferenceLabel = ({value, difference, containerStyle = {}, baseClasses = 
             <span className='text-secondary metric-box-diffText' style={{
                 fontSize: '80%',
                 ...diffStyles
-            }} title='vs. Benchmark Date Range'>
+            }} title='vs. Benchmark'>
                 {difference ? `${difference > 0 ? '+' : ''}${difference}` : '-'}%
                 {difference && <IoTriangle
                     className={`metric-box-arrowIcon ${difference < 0 ? 'metric-box-arrowIcon-inverted' : ''}`}

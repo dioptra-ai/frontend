@@ -34,9 +34,12 @@ const Model = ({modelStore}) => {
 
     if (model?.mlModelType !== 'Q_N_A') {
         tabs.push(
-            {name: 'Prediction Analysis', to: `/${mlModelId}/prediction-analysis`},
-            {name: 'Feature Analysis', to: `/${mlModelId}/feature-analysis`}
+            {name: 'Prediction Analysis', to: `/${mlModelId}/prediction-analysis`}
         );
+
+        if (model?.mlModelType !== 'TEXT_CLASSIFIER') {
+            tabs.push({name: 'Feature Analysis', to: `/${mlModelId}/feature-analysis`});
+        }
     }
 
     tabs.push({name: 'Incidents & Alerts', to: `/${mlModelId}/incidents-&-alerts`});

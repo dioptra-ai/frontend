@@ -10,9 +10,10 @@ const FeatureAnalysis = () => {
     case 'IMAGE_CLASSIFIER':
     case 'DOCUMENT_PROCESSING':
 
-        return <FeatureAnalysisImages model={model}/>;
+        return <FeatureAnalysisImages/>;
     case 'TABULAR_CLASSIFIER':
-        return <FeatureIntegrityTable model={model}/>;
+
+        return <FeatureIntegrityTable/>;
     default:
 
         throw new Error(`Unknown model type: ${model.mlModelType}`);

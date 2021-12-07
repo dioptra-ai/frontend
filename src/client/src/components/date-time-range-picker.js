@@ -64,7 +64,7 @@ const DateTimeRangePicker = ({onChange, start, end, classNames, datePickerSettin
                     ...initialSettings,
                     ...datePickerSettings
                 }}
-                key={start.format('YYYY-MM-DD HH:mm:sss')}
+                key={JSON.stringify({start, end})}
                 onCallback={(startDate, endDate, chosenLabel) => {
                     handleChange({startDate, endDate, chosenLabel});
                 }}

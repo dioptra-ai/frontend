@@ -12,7 +12,7 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
         description: '',
         mlModelType: '',
         referencePeriod: {
-            start: moment(),
+            start: moment(0),
             end: moment()
         },
         ...initialValue
@@ -39,14 +39,14 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                 <p className='text-dark bold-text fs-3 mb-4'>
                     {Object.keys(initialValue).length ? 'Update' : 'Create New'} Model
                 </p>
-                {errors?.length && errors.map((e, i) => (
+                {errors?.length ? errors.map((e, i) => (
                     <div key={i} className='bg-warning text-white p-3 mt-2'>{e}</div>
-                ))}
+                )) : null}
                 <Form autoComplete='off' className='w-100' onSubmit={handleSubmit}>
                     <InputGroup className='mt-3 text-center'>
                         <Form.Label>Benchmark Date Range</Form.Label>
                         <DateTimeRangePicker
-                            classNames={'justify-content-around bg-light'}
+                            classNames='justify-content-around bg-light'
                             datePickerSettings={{
                                 opens: 'center'
                             }}
@@ -109,6 +109,7 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                             <option value='TABULAR_CLASSIFIER'>Tabular Classifier</option>
                             <option value='DOCUMENT_PROCESSING'>Document Processing</option>
                             <option value='Q_N_A'>Question Answering</option>
+                            <option value='TEXT_CLASSIFIER'>Text Classifier</option>
                         </Form.Control>
                     </InputGroup>
                     <Button
