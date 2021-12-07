@@ -173,6 +173,13 @@ const ConfusionMatrix = () => {
                   onClose={() => setSelectedCell(null)}
                   prediction={selectedCell.prediction}
               />
+          ) : model.mlModelType === 'TEXT_CLASSIFIER' ? (
+              <TabularExamples
+                  groundtruth={selectedCell.groundtruth}
+                  onClose={() => setSelectedCell(null)}
+                  prediction={selectedCell.prediction}
+                  previewColumns={['confidence', 'groundtruth', 'prediction', 'tags', /^text$/]}
+              />
           ) : null)}
             </div>
         </div>
