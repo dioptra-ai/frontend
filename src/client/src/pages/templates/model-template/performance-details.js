@@ -169,46 +169,190 @@ const PerformanceDetails = ({filtersStore}) => {
                             <Col className='d-flex' lg={2}>
                                 <Async
                                     refetchOnChanged={[allSqlFilters]}
-                                    fetchData={[
-                                        () => baseJsonClient('/api/metrics', {
-                                            method: 'post',
-                                            body: {
-                                                metrics_type: 'map_mar',
-                                                current_filters: allSqlFilters,
-                                                per_class: false
-                                            }
-                                        }),
-                                        () => baseJsonClient('/api/metrics', {
-                                            method: 'post',
-                                            body: {
-                                                metrics_type: 'map_mar',
-                                                current_filters:
-                                                    sqlFiltersWithModelTime,
-                                                per_class: false
-                                            }
-                                        })
-                                    ]}
                                     // fetchData={[
-                                    //     metricsClient('', {
-                                    //         metrics_type: 'map_mar',
-                                    //         current_filters: allSqlFilters,
-                                    //         per_class: false
+                                    //     () => baseJsonClient('/api/metrics', {
+                                    //         method: 'post',
+                                    //         body: {
+                                    //             metrics_type: 'map_mar',
+                                    //             current_filters: allSqlFilters,
+                                    //             per_class: false
+                                    //         }
                                     //     }),
-                                    //     metricsClient('', {
-                                    //         metrics_type: 'map_mar',
-                                    //         current_filters: sqlFiltersWithModelTime,
-                                    //         per_class: false
+                                    //     () => baseJsonClient('/api/metrics', {
+                                    //         method: 'post',
+                                    //         body: {
+                                    //             metrics_type: 'map_mar',
+                                    //             current_filters:
+                                    //                 sqlFiltersWithModelTime,
+                                    //             per_class: false
+                                    //         }
                                     //     })
                                     // ]}
-                                    renderData={(data) => (
+                                    fetchData={[
+                                        () => metricsClient('compute', {
+                                            metrics_type: 'map_mar',
+                                            current_filters: allSqlFilters,
+                                            per_class: false,
+                                            method: 'post'
+                                        }),
+                                        () => metricsClient('compute', {
+                                            metrics_type: 'map_mar',
+                                            current_filters: sqlFiltersWithModelTime,
+                                            per_class: false,
+                                            method: 'post'
+                                        })
+                                    ]}
+                                    renderData={(data) => { // Define method here to select the right metric
+                                        let valueToDisplay = 0;
+
+                                        if (data['class_name'] === 'all') {
+                                            for (let i = 0; i < data['results'].length; i++) {
+                                                if (data[i]['iou'] === '0.5:0.95') {
+                                                    valueToDisplay = data[i]['mAP'];
+                                                }
+                                            }
+                                        }
+
                                         <MetricInfoBox
                                             name='AP'
                                             sampleSize={sampleSizeComponent}
                                             unit='%'
-                                            value={data}
-                                            difference={data}
+                                            value={valueToDisplay}
+                                            difference={valueToDisplay}
+                                        />;
+                                    }}
+                                    renderError={() => (
+                                        <MetricInfoBox
+                                            name='AP'
+                                            sampleSize={sampleSizeComponent}
+                                            unit='%'
+                                            value={0.0}
+                                            difference={0.0}
                                         />
                                     )}
+                                />
+                            </Col>
+                            <Col className='d-flex' lg={2}>
+                                <Async
+                                    refetchOnChanged={[allSqlFilters]}
+                                    // fetchData={[
+                                    //     () => baseJsonClient('/api/metrics', {
+                                    //         method: 'post',
+                                    //         body: {
+                                    //             metrics_type: 'map_mar',
+                                    //             current_filters: allSqlFilters,
+                                    //             per_class: false
+                                    //         }
+                                    //     }),
+                                    //     () => baseJsonClient('/api/metrics', {
+                                    //         method: 'post',
+                                    //         body: {
+                                    //             metrics_type: 'map_mar',
+                                    //             current_filters:
+                                    //                 sqlFiltersWithModelTime,
+                                    //             per_class: false
+                                    //         }
+                                    //     })
+                                    // ]}
+                                    fetchData={[
+                                        () => metricsClient('compute', {
+                                            metrics_type: 'map_mar',
+                                            current_filters: allSqlFilters,
+                                            per_class: false,
+                                            method: 'post'
+                                        }),
+                                        () => metricsClient('compute', {
+                                            metrics_type: 'map_mar',
+                                            current_filters: sqlFiltersWithModelTime,
+                                            per_class: false,
+                                            method: 'post'
+                                        })
+                                    ]}
+                                    renderData={(data) => {
+                                        let valueToDisplay = 0;
+
+                                        if (data['class_name'] === 'all') {
+                                            for (let i = 0; i < data['results'].length; i++) {
+                                                if (data[i]['iou'] === '0.5') {
+                                                    valueToDisplay = data[i]['mAP'];
+                                                }
+                                            }
+                                        }
+
+                                        <MetricInfoBox
+                                            name='AP'
+                                            sampleSize={sampleSizeComponent}
+                                            unit='%'
+                                            value={valueToDisplay}
+                                            difference={valueToDisplay}
+                                        />;
+                                    }}
+                                    renderError={() => (
+                                        <MetricInfoBox
+                                            name='AP'
+                                            sampleSize={sampleSizeComponent}
+                                            unit='%'
+                                            value={0.0}
+                                            difference={0.0}
+                                        />
+                                    )}
+                                />
+                            </Col>
+                            <Col className='d-flex' lg={2}>
+                                <Async
+                                    refetchOnChanged={[allSqlFilters]}
+                                    // fetchData={[
+                                    //     () => baseJsonClient('/api/metrics', {
+                                    //         method: 'post',
+                                    //         body: {
+                                    //             metrics_type: 'map_mar',
+                                    //             current_filters: allSqlFilters,
+                                    //             per_class: false
+                                    //         }
+                                    //     }),
+                                    //     () => baseJsonClient('/api/metrics', {
+                                    //         method: 'post',
+                                    //         body: {
+                                    //             metrics_type: 'map_mar',
+                                    //             current_filters:
+                                    //                 sqlFiltersWithModelTime,
+                                    //             per_class: false
+                                    //         }
+                                    //     })
+                                    // ]}
+                                    fetchData={[
+                                        () => metricsClient('compute', {
+                                            metrics_type: 'map_mar',
+                                            current_filters: allSqlFilters,
+                                            per_class: false,
+                                            method: 'post'
+                                        }),
+                                        () => metricsClient('compute', {
+                                            metrics_type: 'map_mar',
+                                            current_filters: sqlFiltersWithModelTime,
+                                            per_class: false,
+                                            method: 'post'
+                                        })
+                                    ]}
+                                    renderData={(data) => {
+                                        let valueToDisplay = 0;
+
+                                        if (data['class_name'] === 'all') {
+                                            for (let i = 0; i < data['results'].length; i++) {
+                                                if (data[i]['iou'] === '0.75') {
+                                                    valueToDisplay = data[i]['mAP'];
+                                                }
+                                            }
+                                        }
+
+                                        <MetricInfoBox
+                                            name='AP'
+                                            sampleSize={sampleSizeComponent}
+                                            unit='%'
+                                            value={valueToDisplay}
+                                            difference={valueToDisplay}
+                                        />;
+                                    }}
                                     renderError={() => (
                                         <MetricInfoBox
                                             name='AP'
@@ -243,90 +387,8 @@ const PerformanceDetails = ({filtersStore}) => {
                                         })
                                     ]}
                                     renderData={(data) => (
-                                        <MetricInfoBox
-                                            name='AP'
-                                            sampleSize={sampleSizeComponent}
-                                            unit='%'
-                                            value={data}
-                                            difference={data}
-                                        />
-                                    )}
-                                    renderError={() => (
-                                        <MetricInfoBox
-                                            name='AP'
-                                            sampleSize={sampleSizeComponent}
-                                            unit='%'
-                                            value={0.0}
-                                            difference={0.0}
-                                        />
-                                    )}
-                                />
-                            </Col>
-                            <Col className='d-flex' lg={2}>
-                                <Async
-                                    refetchOnChanged={[allSqlFilters]}
-                                    fetchData={[
-                                        () => baseJsonClient('/api/metrics', {
-                                            method: 'post',
-                                            body: {
-                                                metrics_type: 'map_mar',
-                                                current_filters: allSqlFilters,
-                                                per_class: false
-                                            }
-                                        }),
-                                        () => baseJsonClient('/api/metrics', {
-                                            method: 'post',
-                                            body: {
-                                                metrics_type: 'map_mar',
-                                                current_filters:
-                                                    sqlFiltersWithModelTime,
-                                                per_class: false
-                                            }
-                                        })
-                                    ]}
-                                    renderData={(data) => (
-                                        <MetricInfoBox
-                                            name='AP'
-                                            sampleSize={sampleSizeComponent}
-                                            unit='%'
-                                            value={data}
-                                            difference={data}
-                                        />
-                                    )}
-                                    renderError={() => (
-                                        <MetricInfoBox
-                                            name='AP'
-                                            sampleSize={sampleSizeComponent}
-                                            unit='%'
-                                            value={0.0}
-                                            difference={0.0}
-                                        />
-                                    )}
-                                />
-                            </Col>
-                            <Col className='d-flex' lg={2}>
-                                <Async
-                                    refetchOnChanged={[allSqlFilters]}
-                                    fetchData={[
-                                        () => baseJsonClient('/api/metrics', {
-                                            method: 'post',
-                                            body: {
-                                                metrics_type: 'map_mar',
-                                                current_filters: allSqlFilters,
-                                                per_class: false
-                                            }
-                                        }),
-                                        () => baseJsonClient('/api/metrics', {
-                                            method: 'post',
-                                            body: {
-                                                metrics_type: 'map_mar',
-                                                current_filters:
-                                                    sqlFiltersWithModelTime,
-                                                per_class: false
-                                            }
-                                        })
-                                    ]}
-                                    renderData={(data) => (
+                                        // Parse 'data' for the exact value we need
+                                        // Turn this into a function where we determine which piece of data to pickup
                                         <MetricInfoBox
                                             name='AR'
                                             sampleSize={sampleSizeComponent}
