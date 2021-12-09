@@ -12,11 +12,6 @@ const metricsClient = (path, body, method = 'get', headers = {'content-type': 'a
         memoized: true
     });
 
-    // return baseJSONClient(`/api/metrics/${path}`, {
-    //     method: 'POST',
-    //     body,
-    //     memoized: true
-    // });
 };
 
 export default metricsClient;

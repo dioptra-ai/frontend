@@ -198,7 +198,7 @@ const PerformanceDetails = ({filtersStore}) => {
                                         }
 
 
-                                        <MetricInfoBox
+                                        return <MetricInfoBox
                                             name='AP'
                                             sampleSize={sampleSizeComponent}
                                             unit='%'
@@ -245,7 +245,7 @@ const PerformanceDetails = ({filtersStore}) => {
                                             }
                                         }
 
-                                        <MetricInfoBox
+                                        return <MetricInfoBox
                                             name='AP'
                                             sampleSize={sampleSizeComponent}
                                             unit='%'
@@ -292,7 +292,7 @@ const PerformanceDetails = ({filtersStore}) => {
                                             }
                                         }
 
-                                        <MetricInfoBox
+                                        return <MetricInfoBox
                                             name='AP'
                                             sampleSize={sampleSizeComponent}
                                             unit='%'
@@ -341,7 +341,7 @@ const PerformanceDetails = ({filtersStore}) => {
                                             }
                                         }
 
-                                        <MetricInfoBox
+                                        return <MetricInfoBox
                                             name='AR'
                                             sampleSize={sampleSizeComponent}
                                             unit='%'
@@ -390,7 +390,7 @@ const PerformanceDetails = ({filtersStore}) => {
                                             }
                                         }
 
-                                        <MetricInfoBox
+                                        return <MetricInfoBox
                                             name='AR'
                                             sampleSize={sampleSizeComponent}
                                             unit='%'
@@ -439,7 +439,7 @@ const PerformanceDetails = ({filtersStore}) => {
                                             }
                                         }
 
-                                        <MetricInfoBox
+                                        return <MetricInfoBox
                                             name='AR'
                                             sampleSize={sampleSizeComponent}
                                             unit='%'
