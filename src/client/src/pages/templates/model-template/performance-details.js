@@ -16,7 +16,13 @@ import DifferenceLabel from 'components/difference-labels';
 import useModel from 'customHooks/use-model';
 import MetricInfoBox from 'components/metric-info-box';
 import BarGraph from 'components/bar-graph';
+<<<<<<< HEAD
 // import baseJsonClient from 'clients/base-json-client';
+=======
+import AreaGraph from 'components/area-graph';
+import Select from 'components/select';
+import baseJsonClient from 'clients/base-json-client';
+>>>>>>> e2907220a8932172c3cf2d281b4c0fb73ca875db
 import metricsClient from '../../../clients/metrics';
 import Async from 'components/async';
 import QAPerfAnalysis from './qa-perf-analysis';
@@ -169,6 +175,25 @@ const PerformanceDetails = ({filtersStore}) => {
                             <Col className='d-flex' lg={2}>
                                 <Async
                                     refetchOnChanged={[allSqlFilters]}
+                                    // fetchData={[
+                                    //     () => baseJsonClient('/api/metrics', {
+                                    //         method: 'post',
+                                    //         body: {
+                                    //             metrics_type: 'map_mar',
+                                    //             current_filters: allSqlFilters,
+                                    //             per_class: false
+                                    //         }
+                                    //     }),
+                                    //     () => baseJsonClient('/api/metrics', {
+                                    //         method: 'post',
+                                    //         body: {
+                                    //             metrics_type: 'map_mar',
+                                    //             current_filters:
+                                    //                 sqlFiltersWithModelTime,
+                                    //             per_class: false
+                                    //         }
+                                    //     })
+                                    // ]}
                                     fetchData={[
                                         () => metricsClient('compute', {
                                             metrics_type: 'map_mar',
@@ -178,15 +203,13 @@ const PerformanceDetails = ({filtersStore}) => {
                                         () => metricsClient('compute', {
                                             metrics_type: 'map_mar',
                                             current_filters: sqlFiltersWithModelTime,
-                                            per_class: false
+                                            per_class: false,
+                                            method: 'post'
                                         })
                                     ]}
                                     renderData={(data) => { // Define method here to select the right metric
                                         let valueToDisplay = 0;
-                                        // We're not getting here right now since the call isn't returning
 
-                                        console.log('data to render');
-                                        console.log(data);
                                         if (data['class_name'] === 'all') {
                                             for (let i = 0; i < data['results'].length; i++) {
                                                 if (data[i]['iou'] === '0.5:0.95') {
@@ -217,11 +240,30 @@ const PerformanceDetails = ({filtersStore}) => {
                             <Col className='d-flex' lg={2}>
                                 <Async
                                     refetchOnChanged={[allSqlFilters]}
+                                    // fetchData={[
+                                    //     () => baseJsonClient('/api/metrics', {
+                                    //         method: 'post',
+                                    //         body: {
+                                    //             metrics_type: 'map_mar',
+                                    //             current_filters: allSqlFilters,
+                                    //             per_class: false
+                                    //         }
+                                    //     }),
+                                    //     () => baseJsonClient('/api/metrics', {
+                                    //         method: 'post',
+                                    //         body: {
+                                    //             metrics_type: 'map_mar',
+                                    //             current_filters:
+                                    //                 sqlFiltersWithModelTime,
+                                    //             per_class: false
+                                    //         }
+                                    //     })
+                                    // ]}
                                     fetchData={[
                                         () => metricsClient('compute', {
                                             metrics_type: 'map_mar',
                                             current_filters: allSqlFilters,
-                                            per_class: false
+                                            per_class: false,
                                         }),
                                         () => metricsClient('compute', {
                                             metrics_type: 'map_mar',
@@ -232,8 +274,6 @@ const PerformanceDetails = ({filtersStore}) => {
                                     renderData={(data) => {
                                         let valueToDisplay = 0;
 
-                                        console.log('data to render');
-                                        console.log(data);
                                         if (data['class_name'] === 'all') {
                                             for (let i = 0; i < data['results'].length; i++) {
                                                 if (data[i]['iou'] === '0.5') {
@@ -264,6 +304,25 @@ const PerformanceDetails = ({filtersStore}) => {
                             <Col className='d-flex' lg={2}>
                                 <Async
                                     refetchOnChanged={[allSqlFilters]}
+                                    // fetchData={[
+                                    //     () => baseJsonClient('/api/metrics', {
+                                    //         method: 'post',
+                                    //         body: {
+                                    //             metrics_type: 'map_mar',
+                                    //             current_filters: allSqlFilters,
+                                    //             per_class: false
+                                    //         }
+                                    //     }),
+                                    //     () => baseJsonClient('/api/metrics', {
+                                    //         method: 'post',
+                                    //         body: {
+                                    //             metrics_type: 'map_mar',
+                                    //             current_filters:
+                                    //                 sqlFiltersWithModelTime,
+                                    //             per_class: false
+                                    //         }
+                                    //     })
+                                    // ]}
                                     fetchData={[
                                         () => metricsClient('compute', {
                                             metrics_type: 'map_mar',
@@ -279,8 +338,6 @@ const PerformanceDetails = ({filtersStore}) => {
                                     renderData={(data) => {
                                         let valueToDisplay = 0;
 
-                                        console.log('data to render');
-                                        console.log(data);
                                         if (data['class_name'] === 'all') {
                                             for (let i = 0; i < data['results'].length; i++) {
                                                 if (data[i]['iou'] === '0.75') {
@@ -337,6 +394,7 @@ const PerformanceDetails = ({filtersStore}) => {
                                                 }
                                             }
                                         }
+
                                         <MetricInfoBox
                                             name='AR'
                                             sampleSize={sampleSizeComponent}
