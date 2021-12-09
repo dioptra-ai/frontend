@@ -6,12 +6,12 @@ import {IconNames} from 'constants';
 import DifferenceLabel from './difference-labels';
 import {SpinnerWrapper} from 'components/spinner';
 
-const MetricInfoBox = ({value, notifications, warnings, name, sampleSize, unit, difference}) => (
+const MetricInfoBox = ({value, notifications, warnings, name, subtext, unit = '', difference}) => (
     <div className='border rounded p-3 w-100 d-flex flex-column align-items-center justify-content-center metric-box'>
         <SpinnerWrapper>
             <div className='d-flex flex-wrap'>
                 <span className='text-dark-bold bold-text'>{name}</span>
-                {sampleSize && <span className='text-primary mx-1'>(n={sampleSize})</span>}
+                {subtext && <span className='text-primary mx-1'>{subtext}</span>}
                 {notifications && <FontIcon
                     className='text-dark flex-grow-1'
                     icon={IconNames.ALERTS_BELL}
@@ -35,7 +35,7 @@ const MetricInfoBox = ({value, notifications, warnings, name, sampleSize, unit, 
 MetricInfoBox.propTypes = {
     name: PropTypes.string,
     notifications: PropTypes.number,
-    sampleSize: PropTypes.any,
+    subtext: PropTypes.any,
     unit: PropTypes.string,
     value: PropTypes.number,
     warnings: PropTypes.number,

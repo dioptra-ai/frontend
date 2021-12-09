@@ -225,7 +225,7 @@ const PerformanceDetails = ({filtersStore}) => {
 
                                         return <MetricInfoBox
                                             name='AP'
-                                            sampleSize={sampleSizeComponent}
+                                            subtext={sampleSizeComponent}
                                             unit='%'
                                             value={valueFromFirstObject}
                                             difference={valueFromSecondObject - valueFromFirstObject}
@@ -234,7 +234,7 @@ const PerformanceDetails = ({filtersStore}) => {
                                     renderError={() => (
                                         <MetricInfoBox
                                             name='AP'
-                                            sampleSize={sampleSizeComponent}
+                                            subtext={sampleSizeComponent}
                                             unit='%'
                                             value={0.0}
                                             difference={0.0}
@@ -284,7 +284,7 @@ const PerformanceDetails = ({filtersStore}) => {
 
                                         return <MetricInfoBox
                                             name='AP'
-                                            sampleSize={sampleSizeComponent}
+                                            subtext={sampleSizeComponent}
                                             unit='%'
                                             value={valueFromFirstObject}
                                             difference={valueFromSecondObject - valueFromFirstObject}
@@ -293,7 +293,7 @@ const PerformanceDetails = ({filtersStore}) => {
                                     renderError={() => (
                                         <MetricInfoBox
                                             name='AP'
-                                            sampleSize={sampleSizeComponent}
+                                            subtext={sampleSizeComponent}
                                             unit='%'
                                             value={0.0}
                                             difference={0.0}
@@ -343,7 +343,7 @@ const PerformanceDetails = ({filtersStore}) => {
 
                                         return <MetricInfoBox
                                             name='AP'
-                                            sampleSize={sampleSizeComponent}
+                                            subtext={sampleSizeComponent}
                                             unit='%'
                                             value={valueFromFirstObject}
                                             difference={valueFromSecondObject - valueFromFirstObject}
@@ -352,7 +352,7 @@ const PerformanceDetails = ({filtersStore}) => {
                                     renderError={() => (
                                         <MetricInfoBox
                                             name='AP'
-                                            sampleSize={sampleSizeComponent}
+                                            subtext={sampleSizeComponent}
                                             unit='%'
                                             value={0.0}
                                             difference={0.0}
@@ -404,7 +404,7 @@ const PerformanceDetails = ({filtersStore}) => {
 
                                         return <MetricInfoBox
                                             name='AR'
-                                            sampleSize={sampleSizeComponent}
+                                            subtext={sampleSizeComponent}
                                             unit='%'
                                             value={valueFromFirstObject}
                                             difference={valueFromSecondObject - valueFromFirstObject}
@@ -413,7 +413,7 @@ const PerformanceDetails = ({filtersStore}) => {
                                     renderError={() => (
                                         <MetricInfoBox
                                             name='AR'
-                                            sampleSize={sampleSizeComponent}
+                                            subtext={sampleSizeComponent}
                                             unit='%'
                                             value={0.0}
                                             difference={0.0}
@@ -465,7 +465,7 @@ const PerformanceDetails = ({filtersStore}) => {
 
                                         return <MetricInfoBox
                                             name='AR'
-                                            sampleSize={sampleSizeComponent}
+                                            subtext={sampleSizeComponent}
                                             unit='%'
                                             value={valueFromFirstObject}
                                             difference={valueFromSecondObject - valueFromFirstObject}
@@ -474,7 +474,7 @@ const PerformanceDetails = ({filtersStore}) => {
                                     renderError={() => (
                                         <MetricInfoBox
                                             name='AR'
-                                            sampleSize={sampleSizeComponent}
+                                            subtext={sampleSizeComponent}
                                             unit='%'
                                             value={0.0}
                                             difference={0.0}
@@ -526,7 +526,7 @@ const PerformanceDetails = ({filtersStore}) => {
 
                                         return <MetricInfoBox
                                             name='AR'
-                                            sampleSize={sampleSizeComponent}
+                                            subtext={sampleSizeComponent}
                                             unit='%'
                                             value={valueFromFirstObject}
                                             difference={valueFromSecondObject - valueFromFirstObject}
@@ -535,7 +535,7 @@ const PerformanceDetails = ({filtersStore}) => {
                                     renderError={() => (
                                         <MetricInfoBox
                                             name='AR'
-                                            sampleSize={sampleSizeComponent}
+                                            subtext={sampleSizeComponent}
                                             unit='%'
                                             value={0.0}
                                             difference={0.0}
@@ -609,7 +609,7 @@ const PerformanceDetails = ({filtersStore}) => {
                                     <PerformanceBox
                                         data={data}
                                         performanceType='precision'
-                                        sampleSize={sampleSizeComponent}
+                                        subtext={sampleSizeComponent}
                                         title='Precision per class'
                                         diffData={diffData}
                                     />
@@ -627,7 +627,7 @@ const PerformanceDetails = ({filtersStore}) => {
                                     <PerformanceBox
                                         data={data}
                                         performanceType='recall'
-                                        sampleSize={sampleSizeComponent}
+                                        subtext={sampleSizeComponent}
                                         title='Recall per class'
                                         diffData={diffData}
                                     />

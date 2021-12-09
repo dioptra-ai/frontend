@@ -11,9 +11,7 @@ MetricsRouter.all('*', isAuthenticated);
 
 MetricsRouter.post('/:method?', async (req, res, next) => {
     try {
-        const metricsEnginePath = `${process.env.METRICS_ENGINE_URL}/${
-            req.params.method || 'compute'
-        }`;
+        const metricsEnginePath = `${process.env.METRICS_ENGINE_URL}/${req.params.method}`;
         const metricsResponse = await fetch(metricsEnginePath, {
             headers: {
                 'content-type': 'application/json;charset=UTF-8'

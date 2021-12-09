@@ -1,5 +1,6 @@
 /* eslint-disable max-lines */
 import baseJSONClient from 'clients/base-json-client';
+import metricsClient from 'clients/metrics';
 import AreaGraph from 'components/area-graph';
 import Async from 'components/async';
 import FilterInput from 'components/filter-input';
@@ -23,7 +24,9 @@ const ModelPerformanceMetrics = {
     F1_SCORE: {value: 'F1_SCORE', name: 'F1 Score'},
     PRECISION: {value: 'PRECISION', name: 'Precision'},
     RECALL: {value: 'RECALL', name: 'Recall'},
-    EXACT_MATCH: {value: 'EXACT_MATCH', name: 'Exact Match'}
+    EXACT_MATCH: {value: 'EXACT_MATCH', name: 'Exact Match'},
+    MEAN_AVERAGE_PRECISION: {value: 'MEAN_AVERAGE_PRECISION', name: 'mAP'},
+    MEAN_AVERAGE_RECALL: {value: 'MEAN_AVERAGE_RECALL', name: 'mAR'}
 };
 
 const PerformanceOverview = ({timeStore, filtersStore}) => {
@@ -33,13 +36,13 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
     const sqlFiltersWithModelTime = useAllSqlFilters({useReferenceRange: true});
     const model = useModel();
     const [iou] = useState(0.5);
-    // TODO: Uncomment when this is implemented
-    // ] : model.mlModelType === 'DOCUMENT_PROCESSING' ? [
-    // {value: 'MAP', name: 'mAP'},
-    // {value: 'MAR', name: 'mAR'}
     const selectableMetrics = model.mlModelType === 'Q_N_A' ? [
         {value: 'EXACT_MATCH', name: 'Exact Match'},
         {value: 'F1_SCORE', name: 'F1 Score'}
+    ] : model.mlModelType === 'DOCUMENT_PROCESSING' ? [
+        {value: 'MEAN_AVERAGE_PRECISION', name: 'mAP'},
+        {value: 'MEAN_AVERAGE_RECALL', name: 'mAR'},
+        {value: 'EXACT_MATCH', name: 'Exact Match'}
     ] : [
         {value: 'ACCURACY', name: 'Accuracy'},
         {value: 'F1_SCORE', name: 'F1 Score'},
@@ -83,6 +86,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
     const getQueryForMetric = (metricName, timeGranularity) => {
         return {
             [ModelPerformanceMetrics.ACCURACY.value]: () => {
+
                 return metricsClient('accuracy-metric', {
                     sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ?
                         `cast("iou" as FLOAT) > ${iou} AND ${allSqlFilters}` : allSqlFilters,
@@ -91,6 +95,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                 });
             },
             [ModelPerformanceMetrics.PRECISION.value]: () => {
+
                 return metricsClient('precision-metric', {
                     sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ?
                         `cast("iou" as FLOAT) > ${iou} AND ${allSqlFilters}` : allSqlFilters,
@@ -99,6 +104,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                 });
             },
             [ModelPerformanceMetrics.RECALL.value]: () => {
+
                 return metricsClient('recall-metric', {
                     sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ?
                         `cast("iou" as FLOAT) > ${iou} AND ${allSqlFilters}` : allSqlFilters,
@@ -107,6 +113,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                 });
             },
             [ModelPerformanceMetrics.F1_SCORE.value]: () => {
+
                 return metricsClient('f1-score-metric', {
                     sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ?
                         `cast("iou" as FLOAT) > ${iou} AND ${allSqlFilters}` : allSqlFilters,
@@ -115,10 +122,29 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                 });
             },
             [ModelPerformanceMetrics.EXACT_MATCH.value]: () => {
+
                 return metricsClient('exact-match', {
                     sql_filters: allSqlFilters,
                     time_granularity: timeGranularity,
                     model_type: model.mlModelType
+                });
+            },
+            [ModelPerformanceMetrics.MEAN_AVERAGE_PRECISION.value]: () => {
+
+                return metricsClient('compute', {
+                    metrics_type: 'map_mar',
+                    current_filters: allSqlFilters,
+                    time_granularity: timeGranularity,
+                    per_class: false
+                });
+            },
+            [ModelPerformanceMetrics.MEAN_AVERAGE_RECALL.value]: () => {
+
+                return metricsClient('compute', {
+                    metrics_type: 'map_mar',
+                    current_filters: allSqlFilters,
+                    time_granularity: timeGranularity,
+                    per_class: false
                 });
             }
         }[metricName];
@@ -180,7 +206,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 renderData={([{exact_match} = {}]) => (
                                     <MetricInfoBox
                                         name='EM'
-                                        sampleSize={sampleSizeComponent}
+                                        subtext={sampleSizeComponent}
                                         unit='%'
                                         value={exact_match}
                                     />
@@ -201,9 +227,61 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 renderData={([{f1_score} = {}]) => (
                                     <MetricInfoBox
                                         name='F1 Score'
-                                        sampleSize={sampleSizeComponent}
+                                        subtext={sampleSizeComponent}
                                         unit='%'
                                         value={f1_score}
+                                    />
+                                )}
+                            />
+                        </Col>
+                    </Row>
+                ) : model.mlModelType === 'DOCUMENT_PROCESSING' ? (
+                    <Row className='mb-3 align-items-stretch'>
+                        <Col className='d-flex' lg={3}>
+                            <Async
+                                fetchData={getQueryForMetric('MEAN_AVERAGE_PRECISION')}
+                                refetchOnChanged={[allSqlFilters]}
+                                renderData={({performance}) => (
+                                    <MetricInfoBox
+                                        name='mAP'
+                                        subtext={'[iou=0.5:0.95]'}
+                                        value={
+                                            performance
+                                                .find((p) => p['class_name'] === 'all').results
+                                                .find((r) => r['iou'] === '0.5:0.95')
+                                                ['mAP'].toFixed(1)
+                                        }
+                                    />
+                                )}
+                            />
+                        </Col>
+                        <Col className='d-flex' lg={3}>
+                            <Async
+                                fetchData={getQueryForMetric('MEAN_AVERAGE_RECALL')}
+                                refetchOnChanged={[allSqlFilters]}
+                                renderData={({performance}) => (
+                                    <MetricInfoBox
+                                        name='mAR'
+                                        subtext={'[iou=0.5:0.95]'}
+                                        value={
+                                            performance
+                                                .find((p) => p['class_name'] === 'all').results
+                                                .find((r) => r['iou'] === '0.5:0.95')
+                                                ['mAR'].toFixed(1)
+                                        }
+                                    />
+                                )}
+                            />
+                        </Col>
+                        <Col className='d-flex' lg={3}>
+                            <Async
+                                fetchData={getQueryForMetric('EXACT_MATCH')}
+                                refetchOnChanged={[allSqlFilters]}
+                                renderData={() => (
+                                    <MetricInfoBox
+                                        name='mAP'
+                                        subtext={'[iou=0.5]'}
+                                        value={0}
                                     />
                                 )}
                             />
@@ -217,7 +295,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 renderData={([[{accuracy}], [data]]) => (
                                     <MetricInfoBox
                                         name='Accuracy'
-                                        sampleSize={sampleSizeComponent}
+                                        subtext={sampleSizeComponent}
                                         unit='%'
                                         value={accuracy}
                                         difference={accuracy - data?.accuracy}
@@ -243,7 +321,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 renderData={([[{f1Score}], [data]]) => (
                                     <MetricInfoBox
                                         name='F1 Score'
-                                        sampleSize={sampleSizeComponent}
+                                        subtext={sampleSizeComponent}
                                         unit='%'
                                         value={100 * f1Score}
                                         difference={100 * (f1Score - data?.f1Score)}
@@ -269,7 +347,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 renderData={([[{recall}], [data]]) => (
                                     <MetricInfoBox
                                         name='Recall'
-                                        sampleSize={sampleSizeComponent}
+                                        subtext={sampleSizeComponent}
                                         unit='%'
                                         value={100 * recall}
                                         difference={100 * (recall - data?.recall)}
@@ -295,7 +373,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 renderData={([[{precision}], [data]]) => (
                                     <MetricInfoBox
                                         name='Precision'
-                                        sampleSize={sampleSizeComponent}
+                                        subtext={sampleSizeComponent}
                                         unit='%'
                                         value={100 * precision}
                                         difference={
@@ -322,36 +400,42 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                 <div className='border rounded p-3'>
                     <Async
                         defaultData={[]}
-                        renderData={(metric) => (
-                            <AreaGraph
-                                dots={metric}
-                                hasBorder={false}
-                                isTimeDependent
-                                margin={{right: 0, bottom: 30}}
-                                unit='%'
-                                xAxisName='Time'
-                                yAxisDomain={[0, 100]}
-                                title={
-                                    <Row>
-                                        <Col>{getName(selectedMetric)}</Col>
-                                        <Col lg={3}>
-                                            <Select
-                                                initialValue={selectedMetric}
-                                                onChange={setSelectedMetric}
-                                                options={selectableMetrics}
-                                            />
-                                        </Col>
-                                    </Row>
-                                }
-                            />
-                        )}
+                        renderData={(metric) => {
+                            if (selectedMetric === 'MEAN_AVERAGE_PRECISION' || selectedMetric === 'MEAN_AVERAGE_RECALL') {
+                                // TODO: fix this
+                                metric = metric.performance?.map((m) => m) || [];
+                            }
+
+                            return (
+                                <AreaGraph
+                                    dots={metric}
+                                    hasBorder={false}
+                                    isTimeDependent
+                                    margin={{right: 0, bottom: 30}}
+                                    unit='%'
+                                    xAxisName='Time'
+                                    yAxisDomain={[0, 100]}
+                                    title={
+                                        <Row>
+                                            <Col>{getName(selectedMetric)}</Col>
+                                            <Col lg={3}>
+                                                <Select
+                                                    initialValue={selectedMetric}
+                                                    onChange={setSelectedMetric}
+                                                    options={selectableMetrics}
+                                                />
+                                            </Col>
+                                        </Row>
+                                    }
+                                />
+                            );
+                        }}
                         refetchOnChanged={[
                             selectedMetric,
-                            timeGranularity,
-                            model,
+                            timeGranularityValue,
                             allSqlFilters
                         ]}
-                        fetchData={getQueryForMetric(selectedMetric, timeStore.getTimeGranularity())}
+                        fetchData={getQueryForMetric(selectedMetric, timeGranularityValue)}
                     />
                 </div>
             </div>
