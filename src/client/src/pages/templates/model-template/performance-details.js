@@ -16,13 +16,9 @@ import DifferenceLabel from 'components/difference-labels';
 import useModel from 'customHooks/use-model';
 import MetricInfoBox from 'components/metric-info-box';
 import BarGraph from 'components/bar-graph';
-<<<<<<< HEAD
 // import baseJsonClient from 'clients/base-json-client';
-=======
 import AreaGraph from 'components/area-graph';
 import Select from 'components/select';
-import baseJsonClient from 'clients/base-json-client';
->>>>>>> e2907220a8932172c3cf2d281b4c0fb73ca875db
 import metricsClient from '../../../clients/metrics';
 import Async from 'components/async';
 import QAPerfAnalysis from './qa-perf-analysis';
@@ -263,7 +259,7 @@ const PerformanceDetails = ({filtersStore}) => {
                                         () => metricsClient('compute', {
                                             metrics_type: 'map_mar',
                                             current_filters: allSqlFilters,
-                                            per_class: false,
+                                            per_class: false
                                         }),
                                         () => metricsClient('compute', {
                                             metrics_type: 'map_mar',
