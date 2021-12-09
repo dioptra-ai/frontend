@@ -169,27 +169,6 @@ const PerformanceDetails = ({filtersStore}) => {
                             <Col className='d-flex' lg={2}>
                                 <Async
                                     refetchOnChanged={[allSqlFilters]}
-                                    // fetchData={[
-                                    //     () => baseJsonClient('/api/metrics', {
-                                    //         method: 'post',
-                                    //         body: {
-                                    //             metrics_type: 'map_mar',
-                                    //             current_filters: allSqlFilters,
-                                    //             per_class: false,
-                                    //             memoized: true
-                                    //         }
-                                    //     }),
-                                    //     () => baseJsonClient('/api/metrics', {
-                                    //         method: 'post',
-                                    //         body: {
-                                    //             metrics_type: 'map_mar',
-                                    //             current_filters:
-                                    //                 sqlFiltersWithModelTime,
-                                    //             per_class: false,
-                                    //             memoized: true
-                                    //         }
-                                    //     })
-                                    // ]}
                                     fetchData={[
                                         () => metricsClient('compute', {
                                             metrics_type: 'map_mar',
@@ -203,12 +182,65 @@ const PerformanceDetails = ({filtersStore}) => {
                                         }, 'post')
                                     ]}
                                     renderData={(data) => { // Define method here to select the right metric
+                                        // console.log('data to render');
+                                        // console.log(data);
+
                                         let valueToDisplay = 0;
 
-                                        if (data['class_name'] === 'all') {
-                                            for (let i = 0; i < data['results'].length; i++) {
-                                                if (data[i]['iou'] === '0.5:0.95') {
-                                                    valueToDisplay = data[i]['mAP'];
+                                        if (data[0]['performance'][0]['class_name'] === 'all') {
+                                            const results = data[0]['performance'][0]['results'];
+
+                                            for (let i = 0; i < results.length; i++) {
+                                                if (results[i]['iou'] === '0.5:0.95') {
+                                                    valueToDisplay = results[i]['mAP'];
+                                                }
+                                            }
+                                        }
+
+
+                                        <MetricInfoBox
+                                            name='AP'
+                                            sampleSize={sampleSizeComponent}
+                                            unit='%'
+                                            value={valueToDisplay}
+                                            difference={valueToDisplay}
+                                        />;
+                                    }}
+                                    renderError={() => (
+                                        <MetricInfoBox
+                                            name='AP'
+                                            sampleSize={sampleSizeComponent}
+                                            unit='%'
+                                            value={0.0}
+                                            difference={0.0}
+                                        />
+                                    )}
+                                />
+                            </Col>
+                            <Col className='d-flex' lg={2}>
+                                <Async
+                                    refetchOnChanged={[allSqlFilters]}
+                                    fetchData={[
+                                        () => metricsClient('compute', {
+                                            metrics_type: 'map_mar',
+                                            current_filters: allSqlFilters,
+                                            per_class: false
+                                        }, 'post'),
+                                        () => metricsClient('compute', {
+                                            metrics_type: 'map_mar',
+                                            current_filters: sqlFiltersWithModelTime,
+                                            per_class: false
+                                        }, 'post')
+                                    ]}
+                                    renderData={(data) => {
+                                        let valueToDisplay = 0;
+
+                                        if (data[0]['performance'][0]['class_name'] === 'all') {
+                                            const results = data[0]['performance'][0]['results'];
+
+                                            for (let i = 0; i < results.length; i++) {
+                                                if (results[i]['iou'] === '0.5') {
+                                                    valueToDisplay = results[i]['mAP'];
                                                 }
                                             }
                                         }
@@ -235,25 +267,6 @@ const PerformanceDetails = ({filtersStore}) => {
                             <Col className='d-flex' lg={2}>
                                 <Async
                                     refetchOnChanged={[allSqlFilters]}
-                                    // fetchData={[
-                                    //     () => baseJsonClient('/api/metrics', {
-                                    //         method: 'post',
-                                    //         body: {
-                                    //             metrics_type: 'map_mar',
-                                    //             current_filters: allSqlFilters,
-                                    //             per_class: false
-                                    //         }
-                                    //     }),
-                                    //     () => baseJsonClient('/api/metrics', {
-                                    //         method: 'post',
-                                    //         body: {
-                                    //             metrics_type: 'map_mar',
-                                    //             current_filters:
-                                    //                 sqlFiltersWithModelTime,
-                                    //             per_class: false
-                                    //         }
-                                    //     })
-                                    // ]}
                                     fetchData={[
                                         () => metricsClient('compute', {
                                             metrics_type: 'map_mar',
@@ -269,74 +282,12 @@ const PerformanceDetails = ({filtersStore}) => {
                                     renderData={(data) => {
                                         let valueToDisplay = 0;
 
-                                        if (data['class_name'] === 'all') {
-                                            for (let i = 0; i < data['results'].length; i++) {
-                                                if (data[i]['iou'] === '0.5') {
-                                                    valueToDisplay = data[i]['mAP'];
-                                                }
-                                            }
-                                        }
+                                        if (data[0]['performance'][0]['class_name'] === 'all') {
+                                            const results = data[0]['performance'][0]['results'];
 
-                                        <MetricInfoBox
-                                            name='AP'
-                                            sampleSize={sampleSizeComponent}
-                                            unit='%'
-                                            value={valueToDisplay}
-                                            difference={valueToDisplay}
-                                        />;
-                                    }}
-                                    renderError={() => (
-                                        <MetricInfoBox
-                                            name='AP'
-                                            sampleSize={sampleSizeComponent}
-                                            unit='%'
-                                            value={0.0}
-                                            difference={0.0}
-                                        />
-                                    )}
-                                />
-                            </Col>
-                            <Col className='d-flex' lg={2}>
-                                <Async
-                                    refetchOnChanged={[allSqlFilters]}
-                                    // fetchData={[
-                                    //     () => baseJsonClient('/api/metrics', {
-                                    //         method: 'post',
-                                    //         body: {
-                                    //             metrics_type: 'map_mar',
-                                    //             current_filters: allSqlFilters,
-                                    //             per_class: false
-                                    //         }
-                                    //     }),
-                                    //     () => baseJsonClient('/api/metrics', {
-                                    //         method: 'post',
-                                    //         body: {
-                                    //             metrics_type: 'map_mar',
-                                    //             current_filters:
-                                    //                 sqlFiltersWithModelTime,
-                                    //             per_class: false
-                                    //         }
-                                    //     })
-                                    // ]}
-                                    fetchData={[
-                                        () => metricsClient('compute', {
-                                            metrics_type: 'map_mar',
-                                            current_filters: allSqlFilters,
-                                            per_class: false
-                                        }, 'post'),
-                                        () => metricsClient('compute', {
-                                            metrics_type: 'map_mar',
-                                            current_filters: sqlFiltersWithModelTime,
-                                            per_class: false
-                                        }, 'post')
-                                    ]}
-                                    renderData={(data) => {
-                                        let valueToDisplay = 0;
-
-                                        if (data['class_name'] === 'all') {
-                                            for (let i = 0; i < data['results'].length; i++) {
-                                                if (data[i]['iou'] === '0.75') {
-                                                    valueToDisplay = data[i]['mAP'];
+                                            for (let i = 0; i < results.length; i++) {
+                                                if (results[i]['iou'] === '0.75') {
+                                                    valueToDisplay = results[i]['mAP'];
                                                 }
                                             }
                                         }
@@ -380,12 +331,12 @@ const PerformanceDetails = ({filtersStore}) => {
                                         // Turn this into a function where we determine which piece of data to pickup
                                         let valueToDisplay = 0;
 
-                                        console.log('data to render');
-                                        console.log(data);
-                                        if (data['class_name'] === 'all') {
-                                            for (let i = 0; i < data['results'].length; i++) {
-                                                if (data[i]['iou'] === '0.5:0.95') {
-                                                    valueToDisplay = data[i]['mAR'];
+                                        if (data[0]['performance'][0]['class_name'] === 'all') {
+                                            const results = data[0]['performance'][0]['results'];
+
+                                            for (let i = 0; i < results.length; i++) {
+                                                if (results[i]['iou'] === '0.5:0.95') {
+                                                    valueToDisplay = results[i]['mAR'];
                                                 }
                                             }
                                         }
@@ -429,15 +380,16 @@ const PerformanceDetails = ({filtersStore}) => {
                                         // Turn this into a function where we determine which piece of data to pickup
                                         let valueToDisplay = 0;
 
-                                        console.log('data to render');
-                                        console.log(data);
-                                        if (data['class_name'] === 'all') {
-                                            for (let i = 0; i < data['results'].length; i++) {
-                                                if (data[i]['iou'] === '0.5') {
-                                                    valueToDisplay = data[i]['mAR'];
+                                        if (data[0]['performance'][0]['class_name'] === 'all') {
+                                            const results = data[0]['performance'][0]['results'];
+
+                                            for (let i = 0; i < results.length; i++) {
+                                                if (results[i]['iou'] === '0.5') {
+                                                    valueToDisplay = results[i]['mAR'];
                                                 }
                                             }
                                         }
+
                                         <MetricInfoBox
                                             name='AR'
                                             sampleSize={sampleSizeComponent}
@@ -477,15 +429,16 @@ const PerformanceDetails = ({filtersStore}) => {
                                         // Turn this into a function where we determine which piece of data to pickup
                                         let valueToDisplay = 0;
 
-                                        console.log('data to render');
-                                        console.log(data);
-                                        if (data['class_name'] === 'all') {
-                                            for (let i = 0; i < data['results'].length; i++) {
-                                                if (data[i]['iou'] === '0.75') {
-                                                    valueToDisplay = data[i]['mAR'];
+                                        if (data[0]['performance'][0]['class_name'] === 'all') {
+                                            const results = data[0]['performance'][0]['results'];
+
+                                            for (let i = 0; i < results.length; i++) {
+                                                if (results[i]['iou'] === '0.75') {
+                                                    valueToDisplay = results[i]['mAR'];
                                                 }
                                             }
                                         }
+
                                         <MetricInfoBox
                                             name='AR'
                                             sampleSize={sampleSizeComponent}
