@@ -27,7 +27,12 @@ const memoizedFetch = mem(jsonFetch, {
     maxAge: 1000 * 60 * 5 // 5 minutes
 });
 const baseJSONClient = (url, {method = 'get', body, headers = {'content-type': 'application/json'}, memoized = false} = {}) => {
+    console.log(`memoized?: ${memoized}`);
+    if (memoized === true) {
+        console.log(body);
+    }
     const fetch = memoized ? memoizedFetch : jsonFetch;
+
 
     return fetch(url, {
         method, headers,
