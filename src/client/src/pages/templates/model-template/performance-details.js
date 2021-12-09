@@ -181,10 +181,7 @@ const PerformanceDetails = ({filtersStore}) => {
                                             per_class: false
                                         }, 'post')
                                     ]}
-                                    renderData={(data) => { // Define method here to select the right metric
-                                        // console.log('data to render');
-                                        // console.log(data);
-
+                                    renderData={(data) => {
                                         let valueToDisplay = 0;
 
                                         if (data[0]['performance'][0]['class_name'] === 'all') {
