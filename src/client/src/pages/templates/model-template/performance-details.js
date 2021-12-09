@@ -16,11 +16,8 @@ import DifferenceLabel from 'components/difference-labels';
 import useModel from 'customHooks/use-model';
 import MetricInfoBox from 'components/metric-info-box';
 import BarGraph from 'components/bar-graph';
-import AreaGraph from 'components/area-graph';
-import Select from 'components/select';
 import baseJsonClient from 'clients/base-json-client';
 import Async from 'components/async';
-import {precisionRecallData} from './bounding-box-location-analysis-data';
 import QAPerfAnalysis from './qa-perf-analysis';
 
 const PerformanceBox = ({
@@ -140,12 +137,9 @@ ClassRow.propTypes = {
     value: PropTypes.any
 };
 
-const PerformanceDetails = ({filtersStore, timeStore}) => {
+const PerformanceDetails = ({filtersStore}) => {
     const allSqlFilters = useAllSqlFilters();
     const sqlFiltersWithModelTime = useAllSqlFilters({useReferenceRange: true});
-    const [classFilter, setClassFilter] = useState('all_classes');
-    const timeGranularity = timeStore.getTimeGranularity().toISOString();
-    const [iouFilter, setIouFilter] = useState(0.5);
 
     const {mlModelType} = useModel();
 
