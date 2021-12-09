@@ -17,8 +17,6 @@ import useModel from 'customHooks/use-model';
 import MetricInfoBox from 'components/metric-info-box';
 import BarGraph from 'components/bar-graph';
 // import baseJsonClient from 'clients/base-json-client';
-import AreaGraph from 'components/area-graph';
-import Select from 'components/select';
 import metricsClient from '../../../clients/metrics';
 import Async from 'components/async';
 import QAPerfAnalysis from './qa-perf-analysis';
@@ -177,7 +175,8 @@ const PerformanceDetails = ({filtersStore}) => {
                                     //         body: {
                                     //             metrics_type: 'map_mar',
                                     //             current_filters: allSqlFilters,
-                                    //             per_class: false
+                                    //             per_class: false,
+                                    //             memoized: true
                                     //         }
                                     //     }),
                                     //     () => baseJsonClient('/api/metrics', {
@@ -186,7 +185,8 @@ const PerformanceDetails = ({filtersStore}) => {
                                     //             metrics_type: 'map_mar',
                                     //             current_filters:
                                     //                 sqlFiltersWithModelTime,
-                                    //             per_class: false
+                                    //             per_class: false,
+                                    //             memoized: true
                                     //         }
                                     //     })
                                     // ]}
@@ -195,13 +195,12 @@ const PerformanceDetails = ({filtersStore}) => {
                                             metrics_type: 'map_mar',
                                             current_filters: allSqlFilters,
                                             per_class: false
-                                        }),
+                                        }, 'post'),
                                         () => metricsClient('compute', {
                                             metrics_type: 'map_mar',
                                             current_filters: sqlFiltersWithModelTime,
-                                            per_class: false,
-                                            method: 'post'
-                                        })
+                                            per_class: false
+                                        }, 'post')
                                     ]}
                                     renderData={(data) => { // Define method here to select the right metric
                                         let valueToDisplay = 0;
@@ -260,12 +259,12 @@ const PerformanceDetails = ({filtersStore}) => {
                                             metrics_type: 'map_mar',
                                             current_filters: allSqlFilters,
                                             per_class: false
-                                        }),
+                                        }, 'post'),
                                         () => metricsClient('compute', {
                                             metrics_type: 'map_mar',
                                             current_filters: sqlFiltersWithModelTime,
                                             per_class: false
-                                        })
+                                        }, 'post')
                                     ]}
                                     renderData={(data) => {
                                         let valueToDisplay = 0;
@@ -324,12 +323,12 @@ const PerformanceDetails = ({filtersStore}) => {
                                             metrics_type: 'map_mar',
                                             current_filters: allSqlFilters,
                                             per_class: false
-                                        }),
+                                        }, 'post'),
                                         () => metricsClient('compute', {
                                             metrics_type: 'map_mar',
                                             current_filters: sqlFiltersWithModelTime,
                                             per_class: false
-                                        })
+                                        }, 'post')
                                     ]}
                                     renderData={(data) => {
                                         let valueToDisplay = 0;
@@ -369,12 +368,12 @@ const PerformanceDetails = ({filtersStore}) => {
                                             metrics_type: 'map_mar',
                                             current_filters: allSqlFilters,
                                             per_class: false
-                                        }),
+                                        }, 'post'),
                                         () => metricsClient('compute', {
                                             metrics_type: 'map_mar',
                                             current_filters: sqlFiltersWithModelTime,
                                             per_class: false
-                                        })
+                                        }, 'post')
                                     ]}
                                     renderData={(data) => {
                                         // Parse 'data' for the exact value we need
@@ -418,12 +417,12 @@ const PerformanceDetails = ({filtersStore}) => {
                                             metrics_type: 'map_mar',
                                             current_filters: allSqlFilters,
                                             per_class: false
-                                        }),
+                                        }, 'post'),
                                         () => metricsClient('compute', {
                                             metrics_type: 'map_mar',
                                             current_filters: sqlFiltersWithModelTime,
                                             per_class: false
-                                        })
+                                        }, 'post')
                                     ]}
                                     renderData={(data) => {
                                         // Parse 'data' for the exact value we need
@@ -466,12 +465,12 @@ const PerformanceDetails = ({filtersStore}) => {
                                             metrics_type: 'map_mar',
                                             current_filters: allSqlFilters,
                                             per_class: false
-                                        }),
+                                        }, 'post'),
                                         () => metricsClient('compute', {
                                             metrics_type: 'map_mar',
                                             current_filters: sqlFiltersWithModelTime,
                                             per_class: false
-                                        })
+                                        }, 'post')
                                     ]}
                                     renderData={(data) => {
                                         // Parse 'data' for the exact value we need
