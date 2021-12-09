@@ -4,7 +4,8 @@ const metricsClient = (path, body) => {
 
     return baseJSONClient(`/api/metrics/${path}`, {
         method: 'POST',
-        body
+        body,
+        memoized: true
     });
 };
 

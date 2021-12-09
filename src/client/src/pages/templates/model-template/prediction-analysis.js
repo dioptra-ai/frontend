@@ -38,13 +38,13 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                 defaultFilters={filtersStore.filters}
                 onChange={(filters) => (filtersStore.filters = filters)}
             />
-            <div className='my-5'>
+            <div className='my-3'>
                 <h3 className='text-dark bold-text fs-3 mb-3'>
                     {mlModelType === 'DOCUMENT_PROCESSING' ?
                         'Class Offline / Online Skew' :
                         'Prediction Analysis'}
                 </h3>
-                <Row className='my-5'>
+                <Row className='my-3'>
                     <Col className='d-flex' lg={4}>
                         <TimeseriesQuery
                             defaultData={[]}
@@ -296,67 +296,11 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
 
             {mlModelType === 'DOCUMENT_PROCESSING' ? (
                 <>
-                    <div className='my-5'>
-                        <h3 className='text-dark bold-text fs-2 mb-3'>
-              Bounding Box Size Analysis
-                        </h3>
-                        <Row className='my-5 rounded border mx-1'>
-                            <Col lg={{span: 3, offset: 9}} className='my-3'>
-                                <Select
-                                    options={[
-                                        {name: 'All Classes', value: 'all_classes'},
-                                        {name: 'SSN', value: 'ssn'},
-                                        {name: 'First Name', value: 'first_name'},
-                                        {name: 'Last Name', value: 'last_name'},
-                                        {name: 'Zip Code', value: 'zip_code'}
-                                    ]}
-                                    initialValue={classFilter}
-                                    onChange={setClassFilter}
-                                />
-                            </Col>
-                            <Col className='d-flex' lg={4}>
-                                <TimeseriesQuery
-                                    defaultData={[]}
-                                    renderData={(data) => (
-                                        <BarGraph
-                                            bars={data.map(({prediction, my_percentage}) => ({
-                                                name: getName(prediction),
-                                                value: my_percentage,
-                                                fill: getHexColor(prediction)
-                                            }))}
-                                            title='Bounding Box Size Distribution'
-                                            unit='%'
-                                            className='border-0'
-                                        />
-                                    )}
-                                    sql={sql`SELECT 1 as "one"`}
-                                />
-                            </Col>
-                            <Col className='d-flex' lg={8}>
-                                <TimeseriesQuery
-                                    defaultData={[]}
-                                    renderData={(data) => (
-                                        <AreaGraph
-                                            dots={data}
-                                            title='Average'
-                                            unit='%'
-                                            xAxisDomain={timeStore.rangeMillisec}
-                                            xAxisName='Time'
-                                            yAxisName='Relative Coordinates (%)'
-                                            className='border-0'
-                                            hasBorder={false}
-                                        />
-                                    )}
-                                    sql={sql`SELECT 1 as "one"`}
-                                />
-                            </Col>
-                        </Row>
-                    </div>
-                    <div className='my-5'>
+                    <div className='my-3'>
                         <h3 className='text-dark bold-text fs-3 mb-3'>
               Bounding Box Location Analysis
                         </h3>
-                        <Row className='my-5 rounded border mx-1'>
+                        <Row className='my-3 rounded border mx-1'>
                             <Col className='d-flex align-items-center' lg={4}>
                                 <h4 className='text-dark bold-text fs-4 m-0'>Heat Map</h4>
                             </Col>
