@@ -195,12 +195,12 @@ const PerformanceDetails = ({filtersStore}) => {
                                             metrics_type: 'map_mar',
                                             current_filters: allSqlFilters,
                                             per_class: false
-                                        }, 'post'),
+                                        }),
                                         () => metricsClient('compute', {
                                             metrics_type: 'map_mar',
                                             current_filters: sqlFiltersWithModelTime,
                                             per_class: false
-                                        }, 'post')
+                                        })
                                     ]}
                                     renderData={(data) => {
                                         let valueFromFirstObject = 0;
@@ -254,12 +254,12 @@ const PerformanceDetails = ({filtersStore}) => {
                                             metrics_type: 'map_mar',
                                             current_filters: allSqlFilters,
                                             per_class: false
-                                        }, 'post'),
+                                        }),
                                         () => metricsClient('compute', {
                                             metrics_type: 'map_mar',
                                             current_filters: sqlFiltersWithModelTime,
                                             per_class: false
-                                        }, 'post')
+                                        })
                                     ]}
                                     renderData={(data) => {
                                         let valueFromFirstObject = 0;
@@ -313,12 +313,12 @@ const PerformanceDetails = ({filtersStore}) => {
                                             metrics_type: 'map_mar',
                                             current_filters: allSqlFilters,
                                             per_class: false
-                                        }, 'post'),
+                                        }),
                                         () => metricsClient('compute', {
                                             metrics_type: 'map_mar',
                                             current_filters: sqlFiltersWithModelTime,
                                             per_class: false
-                                        }, 'post')
+                                        })
                                     ]}
                                     renderData={(data) => {
                                         let valueFromFirstObject = 0;
@@ -372,12 +372,12 @@ const PerformanceDetails = ({filtersStore}) => {
                                             metrics_type: 'map_mar',
                                             current_filters: allSqlFilters,
                                             per_class: false
-                                        }, 'post'),
+                                        }),
                                         () => metricsClient('compute', {
                                             metrics_type: 'map_mar',
                                             current_filters: sqlFiltersWithModelTime,
                                             per_class: false
-                                        }, 'post')
+                                        })
                                     ]}
                                     renderData={(data) => {
                                         // Parse 'data' for the exact value we need
@@ -433,12 +433,12 @@ const PerformanceDetails = ({filtersStore}) => {
                                             metrics_type: 'map_mar',
                                             current_filters: allSqlFilters,
                                             per_class: false
-                                        }, 'post'),
+                                        }),
                                         () => metricsClient('compute', {
                                             metrics_type: 'map_mar',
                                             current_filters: sqlFiltersWithModelTime,
                                             per_class: false
-                                        }, 'post')
+                                        })
                                     ]}
                                     renderData={(data) => {
                                         // Parse 'data' for the exact value we need
@@ -494,12 +494,12 @@ const PerformanceDetails = ({filtersStore}) => {
                                             metrics_type: 'map_mar',
                                             current_filters: allSqlFilters,
                                             per_class: false
-                                        }, 'post'),
+                                        }),
                                         () => metricsClient('compute', {
                                             metrics_type: 'map_mar',
                                             current_filters: sqlFiltersWithModelTime,
                                             per_class: false
-                                        }, 'post')
+                                        })
                                     ]}
                                     renderData={(data) => {
                                         // Parse 'data' for the exact value we need

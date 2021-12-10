@@ -149,12 +149,12 @@ const ConfusionMatrix = () => {
                             sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ?
                                 `cast("iou" as FLOAT) > ${iou} AND ${allSqlFilters}` : allSqlFilters,
                             model_type: model.mlModelType
-                        }, 'post'),
+                        }),
                         () => metricsClient('confusion-matrix', {
                             sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ?
                                 `cast("iou" as FLOAT) > ${iou} AND ${sqlFiltersWithModelTime}` : sqlFiltersWithModelTime,
                             model_type: model.mlModelType
-                        }, 'post')
+                        })
                     ]}
                     refetchOnChanged={[iou, allSqlFilters, sqlFiltersWithModelTime]}
                 />

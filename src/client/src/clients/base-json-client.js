@@ -1,6 +1,6 @@
 import mem from 'mem';
 
-export const jsonFetch = async (...args) => {
+const jsonFetch = async (...args) => {
     const res = await window.fetch(...args);
 
     let responseBody = await res.text();
