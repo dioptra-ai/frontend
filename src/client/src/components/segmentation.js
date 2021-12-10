@@ -261,7 +261,7 @@ _DistributionCell.propTypes = {
 
 const DistributionCell = setupComponent(_DistributionCell);
 
-const mAPCell = ({timeStore}) => {
+const _mAPCell = ({timeStore}) => {
     const allSqlFilters = useAllSqlFilters();
     const timeGranularity = timeStore.getTimeGranularity().toISOString();
 
@@ -315,14 +315,15 @@ const mAPCell = ({timeStore}) => {
                     </ResponsiveContainer>
                 </div>
             )}
-            renderError={() => <p>Something went wrong!</p>}
         />
     );
 };
 
-mAPCell.propTypes = {
+_mAPCell.propTypes = {
     timeStore: PropTypes.object.isRequired
 };
+
+const mAPCell = setupComponent(_mAPCell);
 
 const Segmentation = ({timeStore, modelStore, segmentationStore}) => {
     const allSqlFilters = useAllSqlFilters();
