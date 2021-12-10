@@ -11,7 +11,6 @@ import {setupComponent} from 'helpers/component-helper';
 import {getHexColor} from 'helpers/color-helper';
 import BarGraph from 'components/bar-graph';
 import Async from 'components/async';
-import baseJsonClient from 'clients/base-json-client';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 import ClusterGraph from 'components/cluster-graph';
 import useModel from 'customHooks/use-model';
@@ -19,6 +18,7 @@ import useModal from 'customHooks/useModal';
 import Modal from 'components/modal';
 import BtnIcon from 'components/btn-icon';
 import {IconNames} from 'constants';
+import metricsClient from 'clients/metrics';
 
 const QAPerfAnalysis = () => {
     const allSqlFilters = useAllSqlFilters();
@@ -31,12 +31,9 @@ const QAPerfAnalysis = () => {
     return (
         <Async
             refetchOnChanged={[allSqlFilters]}
-            fetchData={() => baseJsonClient('/api/metrics/clusters', {
-                method: 'post',
-                body: {
-                    model_type: model.mlModelType,
-                    sql_filters: allSqlFilters
-                }
+            fetchData={() => metricsClient('clusters', {
+                model_type: model.mlModelType,
+                sql_filters: allSqlFilters
             })}
             renderData={(data = []) => {
                 const metricNames = data[0]?.metrics.map((m) => m.name) || [];

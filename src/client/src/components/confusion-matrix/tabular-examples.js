@@ -4,8 +4,9 @@ import {IconNames} from 'constants';
 import BtnIcon from 'components/btn-icon';
 import useModal from 'customHooks/useModal';
 import Table from 'components/table';
-import TimeseriesQuery, {sql} from 'components/timeseries-query';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
+import Async from 'components/async';
+import metricsClient from 'clients/metrics';
 
 const TabularExamples = ({onClose, groundtruth, prediction, previewColumns}) => {
     const [exampleInModal, setExampleInModal] = useModal(false);
@@ -23,18 +24,22 @@ const TabularExamples = ({onClose, groundtruth, prediction, previewColumns}) => 
                 />
             </div>
             <div className='overflow-auto'>
-                <TimeseriesQuery
+                <Async
                     defaultData={[]}
                     renderData={(data) => {
                         const allColumns = Object.keys(data[0]);
-                        const nonEmptyColumns = allColumns.filter((c) => {
-                            if (previewColumns) {
-                                return previewColumns.some((p) => c.match(p));
-                            } else return true;
-                        }).filter((column) => {
-
-                            return column !== '__time' && data.some((d) => d[column]);
-                        });
+                        const nonEmptyColumns = allColumns
+                            .filter((c) => {
+                                if (previewColumns) {
+                                    return previewColumns.some((p) => c.match(p));
+                                } else return true;
+                            })
+                            .filter((column) => {
+                                return (
+                                    column !== '__time' &&
+                                    data.some((d) => d[column])
+                                );
+                            });
 
                         return (
                             <Table
@@ -50,13 +55,11 @@ const TabularExamples = ({onClose, groundtruth, prediction, previewColumns}) => 
                             />
                         );
                     }}
-                    sql={sql`
-                        SELECT *
-                        FROM "dioptra-gt-combined-eventstream"
-                        WHERE groundtruth = '${groundtruth}' AND prediction = '${prediction}'
-                        AND ${allSqlFilters}
-                        LIMIT 10
-                    `}
+                    fetchData={() => metricsClient('query/all_tabular_examples', {
+                        groundtruth,
+                        prediction,
+                        sql_filters: allSqlFilters
+                    })}
                 />
             </div>
             {exampleInModal && (

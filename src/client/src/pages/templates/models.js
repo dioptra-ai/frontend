@@ -6,7 +6,6 @@ import Table from 'react-bootstrap/Table';
 import PropTypes from 'prop-types';
 import {Button} from 'react-bootstrap';
 import {Link} from 'react-router-dom';
-
 import GeneralSearchBar from './general-search-bar';
 import {setupComponent} from 'helpers/component-helper';
 import {formatDateTime} from 'helpers/date-helper';
@@ -17,7 +16,7 @@ import {Area, AreaChart, Line, XAxis} from 'recharts';
 import theme from 'styles/theme.module.scss';
 import ModalComponent from 'components/modal';
 import ModelForm from './model-form';
-import timeseriesClient from 'clients/timeseries';
+import metricsClient from 'clients/metrics';
 
 const NUMBER_OF_RECORDS_PER_PAGE = 10;
 const TRAFFIC_START_MOMENT = moment().subtract(1, 'day');
@@ -195,12 +194,7 @@ const Models = ({modelStore}) => {
 
     useEffect(() => {
         if (data.length) {
-            timeseriesClient({
-                query: `SELECT TIME_FLOOR(__time, 'PT1H') as "time", COUNT(*) as throughput, model_id
-                FROM "dioptra-gt-combined-eventstream"
-                WHERE __time >= TIME_PARSE('${TRAFFIC_START_MOMENT.toISOString()}')
-                GROUP BY 1, model_id`
-            })
+            metricsClient('query/get-formatted-data')
                 .then((trafficData) => {
                     setFormattedData(data.map((d) => {
                         d.traffic = trafficData.filter(({model_id}) => model_id === d.mlModelId);

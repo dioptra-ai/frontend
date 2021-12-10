@@ -11,7 +11,7 @@ import ModalComponent from 'components/modal';
 import ModelForm from 'pages/templates/model-form';
 import {setupComponent} from 'helpers/component-helper';
 import Select from './select';
-import baseJsonClient from 'clients/base-json-client';
+import metricsClient from 'clients/metrics';
 
 const ModelDescription = ({_id, filtersStore, modelStore, name, description, team, tier, lastDeployed, mlModelId, mlModelType, referencePeriod}) => {
     const [expand, setExpand] = useState(false);
@@ -21,11 +21,8 @@ const ModelDescription = ({_id, filtersStore, modelStore, name, description, tea
     const [allMlModelVersions, setAllMlModelVersions] = useState([]);
 
     useEffect(() => {
-        baseJsonClient('/api/metrics/query/all-ml-model-versions', {
-            method: 'post',
-            body: {
-                ml_model_id: mlModelId
-            }
+        metricsClient('query/all-ml-model-versions', {
+            ml_model_id: mlModelId
         })
             .then((data) => {
                 setAllMlModelVersions([

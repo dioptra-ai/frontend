@@ -4,33 +4,14 @@ import useModal from 'customHooks/useModal';
 import BtnIcon from 'components/btn-icon';
 import CustomCarousel from 'components/carousel';
 import Modal from 'components/modal';
-import TimeseriesQuery, {sql} from 'components/timeseries-query';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 import TabularExamples from './tabular-examples';
+import Async from 'components/async';
+import metricsClient from 'clients/metrics';
 
 const ImageExamples = ({onClose, groundtruth, prediction, iou, model}) => {
     const [exampleInModal, setExampleInModal] = useModal(false);
     const allSqlFilters = useAllSqlFilters();
-
-    const generateQuery = () => {
-        switch (model.mlModelType) {
-        case 'DOCUMENT_PROCESSING':
-            return `SELECT distinct "image_metadata.uri"
-                    FROM "dioptra-gt-combined-eventstream"
-                    WHERE "groundtruth.class_name" = '${groundtruth}'
-                        AND "prediction.class_name" = '${prediction}'
-                        AND cast("iou" as FLOAT) >= ${iou}
-                        AND ${allSqlFilters}
-                    LIMIT 20`;
-        default:
-            return `SELECT distinct "image_metadata.uri"
-                    FROM "dioptra-gt-combined-eventstream"
-                    WHERE groundtruth = '${groundtruth}' 
-                        AND prediction = '${prediction}'
-                        AND ${allSqlFilters}
-                    LIMIT 20`;
-        }
-    };
 
     return (
         <div className='bg-white-blue my-3 p-3'>
@@ -43,7 +24,7 @@ const ImageExamples = ({onClose, groundtruth, prediction, iou, model}) => {
                     size={15}
                 />
             </div>
-            <TimeseriesQuery
+            <Async
                 defaultData={[]}
                 renderData={(data) => data.every((img) => img['image_metadata.uri'].replace(/"/g, '').match(/^https?:\/\//)) ? (
                     <CustomCarousel
@@ -58,7 +39,21 @@ const ImageExamples = ({onClose, groundtruth, prediction, iou, model}) => {
                     />
                 )
                 }
-                sql={sql`${generateQuery()}`}
+                fetchData={() => metricsClient(`query/${model.mlModelType === 'DOCUMENT_PROCESSING' ?
+                    'select-image-uri-for-data-processing' : 'select-image-uri-for-default'}`,
+                model.mlModelType === 'DOCUMENT_PROCESSING' ?
+                    {
+                        groundtruth,
+                        prediction,
+                        iou,
+                        sql_filters: allSqlFilters
+                    } :
+                    {
+                        groundtruth,
+                        prediction,
+                        sql_filters: allSqlFilters
+                    })
+                }
             />
             {exampleInModal && (
                 <Modal isOpen={true} onClose={() => setExampleInModal(null)}>

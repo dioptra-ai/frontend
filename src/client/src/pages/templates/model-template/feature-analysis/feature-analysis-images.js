@@ -5,14 +5,13 @@ import Col from 'react-bootstrap/Col';
 import {setupComponent} from 'helpers/component-helper';
 import {getHexColor} from 'helpers/color-helper';
 import FilterInput from 'components/filter-input';
-import TimeseriesQuery, {sql} from 'components/timeseries-query';
 import MetricInfoBox from 'components/metric-info-box';
 import AreaGraph from 'components/area-graph';
 import BarGraph from 'components/bar-graph';
 import Async from 'components/async';
-import baseJsonClient from 'clients/base-json-client';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 import ScatterGraph from 'components/scatter-graph';
+import metricsClient from 'clients/metrics';
 
 const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
     const allSqlFilters = useAllSqlFilters();
@@ -31,15 +30,11 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                     <div>
                         <Async
                             refetchOnChanged={[allOfflineSqlFilters, allSqlFilters, timeGranularity]}
-                            fetchData={() => baseJsonClient('/api/metrics', {
-                                method: 'post',
-                                body:
-                                {
-                                    metrics_type: 'bi_non_cat_distance',
-                                    reference_filters: allOfflineSqlFilters,
-                                    current_filters: allSqlFilters,
-                                    time_granularity: timeGranularity
-                                }
+                            fetchData={() => metricsClient('', {
+                                metrics_type: 'bi_non_cat_distance',
+                                reference_filters: allOfflineSqlFilters,
+                                current_filters: allSqlFilters,
+                                time_granularity: timeGranularity
                             })}
                             renderData={(data) => (
                                 <AreaGraph
@@ -64,14 +59,10 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                 <Row>
                     <Col>
                         <Async refetchOnChanged={[allOfflineSqlFilters, allSqlFilters, timeGranularity]}
-                            fetchData={() => baseJsonClient('/api/metrics', {
-                                method: 'post',
-                                body:
-                                {
-                                    metrics_type: 'outlier_detection',
-                                    current_filters: allSqlFilters,
-                                    reference_filters: allOfflineSqlFilters
-                                }
+                            fetchData={() => metricsClient('', {
+                                metrics_type: 'outlier_detection',
+                                current_filters: allSqlFilters,
+                                reference_filters: allOfflineSqlFilters
                             })}
                             renderData={(data) => (
                                 <ScatterGraph
@@ -92,20 +83,16 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                 <h3 className='text-dark bold-text fs-3 mb-3'>Unique Images</h3>
                 <Row>
                     <Col className='d-flex' lg={2}>
-                        <TimeseriesQuery
+                        <Async
                             defaultData={[{unique: NaN}]}
                             renderData={([{unique}]) => (
                                 <MetricInfoBox name='% Unique' unit='%' value={unique} />
                             )}
-                            sql={sql`
-                                SELECT 100 * CAST(COUNT(distinct MV_TO_STRING("embeddings", '')) as double) / COUNT(*) as "unique"
-                                FROM "dioptra-gt-combined-eventstream"
-                                WHERE ${allSqlFilters}
-                            `}
+                            fetchData={() => metricsClient('query/unique-images', {sql_filters: allSqlFilters})}
                         />
                     </Col>
                     <Col className='d-flex' lg={5}>
-                        <TimeseriesQuery
+                        <Async
                             defaultData={[]}
                             renderData={(data) => (
                                 <AreaGraph
@@ -120,17 +107,11 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                                     yAxisName='Unique Images (%)'
                                 />
                             )}
-                            sql={sql`
-                                SELECT TIME_FLOOR(__time, '${timeGranularity}') as "__time",
-                                100 * CAST(COUNT(distinct MV_TO_STRING("embeddings", '')) as double) / COUNT(*) as "uniques"
-                                FROM "dioptra-gt-combined-eventstream"
-                                WHERE ${allSqlFilters}
-                                GROUP BY 1
-                            `}
+                            fetchData={() => metricsClient('query/unique-images-over-time', {time_granularity: timeGranularity, sql_filters: allSqlFilters})}
                         />
                     </Col>
                     <Col className='d-flex' lg={5}>
-                        <TimeseriesQuery
+                        <Async
                             defaultData={[]}
                             renderData={(data) => (
                                 <BarGraph
@@ -143,14 +124,7 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                                     yAxisName='Degrees'
                                 />
                             )}
-                            sql={sql`
-                            SELECT CAST("image_metadata.rotation" AS INTEGER) as "name",
-                              COUNT(*) AS "value"
-                                FROM "dioptra-gt-combined-eventstream"
-                                WHERE ${allSqlFilters}
-                                GROUP BY 1
-                                ORDER BY 1 ASC
-                            `}
+                            fetchData={() => metricsClient('query/rotation-angle', {sql_filters: allSqlFilters})}
                         />
                     </Col>
                 </Row>

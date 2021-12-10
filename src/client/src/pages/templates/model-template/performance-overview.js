@@ -5,7 +5,6 @@ import Async from 'components/async';
 import FilterInput from 'components/filter-input';
 import MetricInfoBox from 'components/metric-info-box';
 import Select from 'components/select';
-import TimeseriesQuery, {sql} from 'components/timeseries-query';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 import useModel from 'customHooks/use-model';
 import {setupComponent} from 'helpers/component-helper';
@@ -17,6 +16,7 @@ import {Tooltip as BootstrapTooltip, OverlayTrigger} from 'react-bootstrap';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import {FaExclamation} from 'react-icons/fa';
+import metricsClient from 'clients/metrics';
 
 const ModelPerformanceMetrics = {
     ACCURACY: {value: 'ACCURACY', name: 'Accuracy'},
@@ -63,13 +63,10 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
     }, []);
 
     const sampleSizeComponent = (
-        <TimeseriesQuery
+        <Async
             defaultData={[{sampleSize: 0}]}
             renderData={([{sampleSize}]) => sampleSize}
-            sql={sql`
-                SELECT COUNT(*) as sampleSize 
-                FROM "dioptra-gt-combined-eventstream"
-                WHERE ${allSqlFilters}`}
+            fetchData={() => metricsClient('query/sample-size', {sql_filters: allSqlFilters})}
         />
     );
     const timeGranularityValue = timeStore.getTimeGranularity();
@@ -83,217 +80,45 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
             '"groundtruth.class_name"' :
             '"groundtruth"';
 
-    const getSelectedSQLQuery = () => {
-
-        return {
-            [ModelPerformanceMetrics.ACCURACY.value]: sql`
-        SELECT TIME_FLOOR(__time, '${timeGranularity}') as x,
-          100 * CAST(sum(CASE WHEN ${predictionName}=${groundTruthName} THEN 1 ELSE 0 END) AS DOUBLE) / CAST(sum(1) AS DOUBLE) AS y
-        FROM "dioptra-gt-combined-eventstream"
-        WHERE ${allSqlFilters}
-        GROUP BY 1`,
-            [ModelPerformanceMetrics.PRECISION.value]: sql`
-        WITH true_positive as (
-          SELECT
-            TIME_FLOOR(__time, '${timeGranularity}') as "my_time",
-            ${groundTruthName} as label,
-            sum(CASE WHEN ${predictionName}=${groundTruthName} THEN 1 ELSE 0 END) as cnt_tp
-          FROM
-            "dioptra-gt-combined-eventstream"
-          WHERE ${allSqlFilters}
-          GROUP BY 1, 2
-          order by ${groundTruthName}
-        ),
-        true_sum as (
-          SELECT
-            TIME_FLOOR(__time, '${timeGranularity}') as "my_time",
-            ${predictionName} as label,
-            count(1) as cnt_ts
-          FROM
-            "dioptra-gt-combined-eventstream"
-          WHERE ${allSqlFilters}
-          GROUP BY 1, 2
-          order by ${predictionName}
-        ),
-        pred_sum as (
-          SELECT
-            TIME_FLOOR(__time, '${timeGranularity}') as "my_time",
-            ${groundTruthName} as label,
-            count(1) as cnt_ps
-          FROM
-            "dioptra-gt-combined-eventstream"
-          WHERE ${allSqlFilters}
-          GROUP BY 1, 2
-          ORDER BY ${groundTruthName}
-        )
-        SELECT
-          true_positive.my_time as x,
-          100 * AVG(cast(true_positive.cnt_tp as double) / pred_sum.cnt_ps) as y
-        FROM true_positive
-          JOIN pred_sum ON pred_sum.label = true_positive.label AND pred_sum.my_time = true_positive.my_time
-          JOIN true_sum ON true_sum.label = true_positive.label AND true_sum.my_time = true_positive.my_time
-        GROUP BY 1
-    `,
-            [ModelPerformanceMetrics.RECALL.value]: sql`
-        WITH true_positive as (
-          SELECT
-            TIME_FLOOR(__time, '${timeGranularity}') as "my_time",
-            ${groundTruthName} as label,
-            sum(CASE WHEN ${predictionName}=${groundTruthName} THEN 1 ELSE 0 END) as cnt_tp
-          FROM
-            "dioptra-gt-combined-eventstream"
-          WHERE ${allSqlFilters}
-          GROUP BY 1, 2
-          order by ${groundTruthName}
-        ),
-        true_sum as (
-          SELECT
-            TIME_FLOOR(__time, '${timeGranularity}') as "my_time",
-            ${predictionName} as label,
-            count(1) as cnt_ts
-          FROM
-            "dioptra-gt-combined-eventstream"
-          WHERE ${allSqlFilters}
-          GROUP BY 1, 2
-          order by ${predictionName}
-        ),
-        pred_sum as (
-          SELECT
-            TIME_FLOOR(__time, '${timeGranularity}') as "my_time",
-            ${groundTruthName} as label,
-            count(1) as cnt_ps
-          FROM
-            "dioptra-gt-combined-eventstream"
-          WHERE ${allSqlFilters}
-          GROUP BY 1, 2
-          ORDER BY ${groundTruthName}
-        )
-        SELECT
-          true_positive.my_time as x,
-          100 * AVG(cast(true_positive.cnt_tp as double) / true_sum.cnt_ts) as y
-        FROM true_positive
-          JOIN pred_sum ON pred_sum.label = true_positive.label AND pred_sum.my_time = true_positive.my_time
-          JOIN true_sum ON true_sum.label = true_positive.label AND true_sum.my_time = true_positive.my_time
-        GROUP BY 1
-    `,
-            [ModelPerformanceMetrics.F1_SCORE.value]: sql`
-        WITH true_positive as (
-          SELECT
-            TIME_FLOOR(__time, '${timeGranularity}') as "my_time",
-            ${groundTruthName} as label,
-            sum(CASE WHEN ${predictionName}=${groundTruthName} THEN 1 ELSE 0 END) as cnt_tp
-          FROM
-            "dioptra-gt-combined-eventstream"
-          WHERE ${allSqlFilters}
-          GROUP BY 1, 2
-          order by ${groundTruthName}
-        ),
-        true_sum as (
-          SELECT
-            TIME_FLOOR(__time, '${timeGranularity}') as "my_time",
-            ${predictionName} as label,
-            count(1) as cnt_ts
-          FROM
-            "dioptra-gt-combined-eventstream"
-          WHERE ${allSqlFilters}
-          GROUP BY 1, 2
-          order by ${predictionName}
-        ),
-        pred_sum as (
-          SELECT
-            TIME_FLOOR(__time, '${timeGranularity}') as "my_time",
-            ${groundTruthName} as label,
-            count(1) as cnt_ps
-          FROM
-            "dioptra-gt-combined-eventstream"
-          WHERE ${allSqlFilters}
-          GROUP BY 1, 2
-          ORDER BY ${groundTruthName}
-        )
-        SELECT
-          my_table.my_time as x, 
-          100 * 2 * ((my_table.my_precision * my_table.my_recall) / (my_table.my_precision + my_table.my_recall)) as y
-        FROM (
-          SELECT
-            true_positive.my_time as my_time,
-            AVG(cast(true_positive.cnt_tp as double) / true_sum.cnt_ts) as my_recall,
-            AVG(cast(true_positive.cnt_tp as double) / pred_sum.cnt_ps) as my_precision
-          FROM true_positive
-          JOIN pred_sum ON pred_sum.label = true_positive.label AND pred_sum.my_time = true_positive.my_time
-          JOIN true_sum ON true_sum.label = true_positive.label AND true_sum.my_time = true_positive.my_time
-          GROUP BY 1
-        ) as my_table
-    `, [ModelPerformanceMetrics.EXACT_MATCH.value]: sql`
-            SELECT
-                TIME_FLOOR(__time, '${timeGranularity}') as x,
-                100 * AVG(exact_match) AS y
-            FROM "dioptra-gt-combined-eventstream"
-            WHERE ${allSqlFilters}
-            GROUP BY 1
-    `
-        }[selectedMetric];
-    };
-
     const getQueryForMetric = (metricName, timeGranularity) => {
-
         return {
             [ModelPerformanceMetrics.ACCURACY.value]: () => {
-
-                return baseJSONClient('/api/metrics/accuracy-metric', {
-                    method: 'post',
-                    body: {
-                        sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ?
-                            `cast("iou" as FLOAT) > ${iou} AND ${allSqlFilters}` : allSqlFilters,
-                        time_granularity: timeGranularity,
-                        model_type: model.mlModelType
-                    }
+                return metricsClient('accuracy-metric', {
+                    sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ?
+                        `cast("iou" as FLOAT) > ${iou} AND ${allSqlFilters}` : allSqlFilters,
+                    time_granularity: timeGranularity,
+                    model_type: model.mlModelType
                 });
             },
             [ModelPerformanceMetrics.PRECISION.value]: () => {
-
-                return baseJSONClient('/api/metrics/precision-metric', {
-                    method: 'post',
-                    body: {
-                        sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ?
-                            `cast("iou" as FLOAT) > ${iou} AND ${allSqlFilters}` : allSqlFilters,
-                        time_granularity: timeGranularity,
-                        model_type: model.mlModelType
-                    }
+                return metricsClient('precision-metric', {
+                    sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ?
+                        `cast("iou" as FLOAT) > ${iou} AND ${allSqlFilters}` : allSqlFilters,
+                    time_granularity: timeGranularity,
+                    model_type: model.mlModelType
                 });
             },
             [ModelPerformanceMetrics.RECALL.value]: () => {
-
-                return baseJSONClient('/api/metrics/recall-metric', {
-                    method: 'post',
-                    body: {
-                        sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ?
-                            `cast("iou" as FLOAT) > ${iou} AND ${allSqlFilters}` : allSqlFilters,
-                        time_granularity: timeGranularity,
-                        model_type: model.mlModelType
-                    }
+                return metricsClient('recall-metric', {
+                    sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ?
+                        `cast("iou" as FLOAT) > ${iou} AND ${allSqlFilters}` : allSqlFilters,
+                    time_granularity: timeGranularity,
+                    model_type: model.mlModelType
                 });
             },
             [ModelPerformanceMetrics.F1_SCORE.value]: () => {
-
-                return baseJSONClient('/api/metrics/f1-score-metric', {
-                    method: 'post',
-                    body: {
-                        sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ?
-                            `cast("iou" as FLOAT) > ${iou} AND ${allSqlFilters}` : allSqlFilters,
-                        time_granularity: timeGranularity,
-                        model_type: model.mlModelType
-                    }
+                return metricsClient('f1-score-metric', {
+                    sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ?
+                        `cast("iou" as FLOAT) > ${iou} AND ${allSqlFilters}` : allSqlFilters,
+                    time_granularity: timeGranularity,
+                    model_type: model.mlModelType
                 });
             },
             [ModelPerformanceMetrics.EXACT_MATCH.value]: () => {
-
-                return baseJSONClient('/api/metrics/exact-match', {
-                    method: 'post',
-                    body: {
-                        sql_filters: allSqlFilters,
-                        time_granularity: timeGranularity,
-                        model_type: model.mlModelType
-                    }
+                return metricsClient('exact-match', {
+                    sql_filters: allSqlFilters,
+                    time_granularity: timeGranularity,
+                    model_type: model.mlModelType
                 });
             }
         }[metricName];
@@ -320,17 +145,14 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                     xAxisName='Time'
                                 />
                             )}
-                            fetchData={() => baseJSONClient('/api/metrics/throughput', {
-                                method: 'post',
-                                body: {
-                                    sql_filters: allSqlFilters,
-                                    granular_time_as_string: timeStore
-                                        .getTimeGranularity()
-                                        .toISOString(),
-                                    granular_time_as_seconds: timeStore
-                                        .getTimeGranularity()
-                                        .asSeconds()
-                                }
+                            fetchData={() => metricsClient('throughput', {
+                                sql_filters: allSqlFilters,
+                                granular_time_as_string: timeStore
+                                    .getTimeGranularity()
+                                    .toISOString(),
+                                granular_time_as_seconds: timeStore
+                                    .getTimeGranularity()
+                                    .asSeconds()
                             })
                             }
                             refetchOnChanged={[
@@ -346,7 +168,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                     <Row className='mb-3 align-items-stretch'>
                         <Col className='d-flex' lg={3}>
                             <Async
-                                fetchData={() => baseJSONClient('/api/metrics/exact-match', {
+                                fetchData={() => metricsClient('exact-match', {
                                     method: 'post',
                                     body: {
                                         sql_filters: allSqlFilters,
@@ -367,7 +189,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                         </Col>
                         <Col className='d-flex' lg={3}>
                             <Async
-                                fetchData={() => baseJSONClient('/api/metrics/f1-score-metric', {
+                                fetchData={() => metricsClient('f1-score-metric', {
                                     method: 'post',
                                     body: {
                                         sql_filters: allSqlFilters,
@@ -390,7 +212,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                 ) : (
                     <Row className='mb-3 align-items-stretch'>
                         <Col className='d-flex' lg={3}>
-                            <TimeseriesQuery
+                            <Async
                                 defaultData={[[{accuracy: 0}], [{accuracy: 0}]]}
                                 renderData={([[{accuracy}], [data]]) => (
                                     <MetricInfoBox
@@ -401,20 +223,22 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                         difference={accuracy - data?.accuracy}
                                     />
                                 )}
-                                sql={[
-                                    sql`
-                                        SELECT 100 * CAST(sum(CASE WHEN ${predictionName}=${groundTruthName} THEN 1 ELSE 0 END) AS DOUBLE) / sum(1) AS accuracy
-                                        FROM "dioptra-gt-combined-eventstream"
-                                        WHERE ${allSqlFilters}`,
-                                    sql`
-                                        SELECT 100 * CAST(sum(CASE WHEN ${predictionName}=${groundTruthName} THEN 1 ELSE 0 END) AS DOUBLE) / sum(1) AS accuracy
-                                        FROM "dioptra-gt-combined-eventstream"
-                                        WHERE ${sqlFiltersWithModelTime}`
+                                fetchData={[
+                                    () => metricsClient('query/accuracy', {
+                                        prediction_name: predictionName,
+                                        sql_filters: allSqlFilters,
+                                        ground_truth_name: groundTruthName
+                                    }),
+                                    () => metricsClient('query/accuracy', {
+                                        prediction_name: predictionName,
+                                        sql_filters: sqlFiltersWithModelTime,
+                                        ground_truth_name: groundTruthName
+                                    })
                                 ]}
                             />
                         </Col>
                         <Col className='d-flex' lg={3}>
-                            <TimeseriesQuery
+                            <Async
                                 defaultData={[[{f1Score: 0}], [{f1Score: 0}]]}
                                 renderData={([[{f1Score}], [data]]) => (
                                     <MetricInfoBox
@@ -425,90 +249,22 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                         difference={100 * (f1Score - data?.f1Score)}
                                     />
                                 )}
-                                sql={[
-                                    sql`
-                                            WITH true_positive as (
-                                              SELECT
-                                                ${groundTruthName} as label,
-                                                sum(CASE WHEN ${predictionName}=${groundTruthName} THEN 1 ELSE 0 END) as cnt_tp
-                                              FROM "dioptra-gt-combined-eventstream"
-                                              WHERE ${allSqlFilters}
-                                              GROUP BY ${groundTruthName}
-                                              ORDER by ${groundTruthName}
-                                            ),
-                                            true_sum as (
-                                              SELECT
-                                                ${predictionName} as label,
-                                                count(1) as cnt_ts
-                                              FROM "dioptra-gt-combined-eventstream"
-                                              WHERE ${allSqlFilters}
-                                              GROUP BY ${predictionName}
-                                              ORDER by ${predictionName}
-                                            ),
-                                            pred_sum as (
-                                              SELECT
-                                                ${groundTruthName} as label,
-                                                count(1) as cnt_ps
-                                              FROM "dioptra-gt-combined-eventstream"
-                                              WHERE ${allSqlFilters}
-                                              GROUP BY ${groundTruthName}
-                                              ORDER BY ${groundTruthName}
-                                            )
-                                            SELECT
-                                              2 * ((my_table.my_precision * my_table.my_recall) / (my_table.my_precision + my_table.my_recall)) as f1Score
-                                            FROM (
-                                              SELECT
-                                                AVG(cast(true_positive.cnt_tp as double) / true_sum.cnt_ts) as my_recall,
-                                                AVG(cast(true_positive.cnt_tp as double) / pred_sum.cnt_ps) as my_precision
-                                              FROM true_positive
-                                              JOIN pred_sum ON pred_sum.label = true_positive.label
-                                              JOIN true_sum ON true_sum.label = true_positive.label
-                                            ) as my_table
-                                        `,
-                                    sql`
-                                        WITH true_positive as (
-                                          SELECT
-                                            ${groundTruthName} as label,
-                                            sum(CASE WHEN ${predictionName}=${groundTruthName} THEN 1 ELSE 0 END) as cnt_tp
-                                          FROM "dioptra-gt-combined-eventstream"
-                                          WHERE ${sqlFiltersWithModelTime}
-                                          GROUP BY ${groundTruthName}
-                                          ORDER by ${groundTruthName}
-                                        ),
-                                        true_sum as (
-                                          SELECT
-                                            ${predictionName} as label,
-                                            count(1) as cnt_ts
-                                          FROM "dioptra-gt-combined-eventstream"
-                                          WHERE ${sqlFiltersWithModelTime}
-                                          GROUP BY ${predictionName}
-                                          ORDER by ${predictionName}
-                                        ),
-                                        pred_sum as (
-                                          SELECT
-                                            ${groundTruthName} as label,
-                                            count(1) as cnt_ps
-                                          FROM "dioptra-gt-combined-eventstream"
-                                          WHERE ${sqlFiltersWithModelTime}
-                                          GROUP BY ${groundTruthName}
-                                          ORDER BY ${groundTruthName}
-                                        )
-                                        SELECT
-                                          2 * ((my_table.my_precision * my_table.my_recall) / (my_table.my_precision + my_table.my_recall)) as f1Score
-                                        FROM (
-                                          SELECT
-                                            AVG(cast(true_positive.cnt_tp as double) / true_sum.cnt_ts) as my_recall,
-                                            AVG(cast(true_positive.cnt_tp as double) / pred_sum.cnt_ps) as my_precision
-                                          FROM true_positive
-                                          JOIN pred_sum ON pred_sum.label = true_positive.label
-                                          JOIN true_sum ON true_sum.label = true_positive.label
-                                        ) as my_table
-                                    `
+                                fetchData={[
+                                    () => metricsClient('query/f1-score', {
+                                        prediction_name: predictionName,
+                                        sql_filters: allSqlFilters,
+                                        ground_truth_name: groundTruthName
+                                    }),
+                                    () => metricsClient('query/f1-score', {
+                                        prediction_name: predictionName,
+                                        sql_filters: sqlFiltersWithModelTime,
+                                        ground_truth_name: groundTruthName
+                                    })
                                 ]}
                             />
                         </Col>
                         <Col className='d-flex' lg={3}>
-                            <TimeseriesQuery
+                            <Async
                                 defaultData={[[{recall: 0}], [{recall: 0}]]}
                                 renderData={([[{recall}], [data]]) => (
                                     <MetricInfoBox
@@ -519,88 +275,22 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                         difference={100 * (recall - data?.recall)}
                                     />
                                 )}
-                                sql={[
-                                    sql`
-                                        WITH true_positive as (
-                                          SELECT
-                                            ${groundTruthName} as label,
-                                            sum(CASE WHEN ${predictionName}=${groundTruthName} THEN 1 ELSE 0 END) as cnt_tp
-                                          FROM
-                                            "dioptra-gt-combined-eventstream"
-                                          WHERE ${allSqlFilters}
-                                          GROUP BY ${groundTruthName}
-                                          order by ${groundTruthName}
-                                        ),
-                                        true_sum as (
-                                          SELECT
-                                            ${predictionName} as label,
-                                            count(1) as cnt_ts
-                                          FROM
-                                            "dioptra-gt-combined-eventstream"
-                                          WHERE ${allSqlFilters}
-                                          GROUP BY ${predictionName}
-                                          order by ${predictionName}
-                                        ),
-                                        pred_sum as (
-                                          SELECT
-                                            ${groundTruthName} as label,
-                                            count(1) as cnt_ps
-                                          FROM
-                                            "dioptra-gt-combined-eventstream"
-                                          WHERE ${allSqlFilters}
-                                          GROUP BY ${groundTruthName}
-                                          ORDER BY ${groundTruthName}
-                                        )
-
-                                        SELECT 
-                                          AVG(cast(true_positive.cnt_tp as double) / true_sum.cnt_ts) as recall
-                                        FROM true_positive
-                                          JOIN pred_sum ON pred_sum.label = true_positive.label
-                                          JOIN true_sum ON true_sum.label = true_positive.label
-                                    `,
-                                    sql`
-                                    WITH true_positive as (
-                                      SELECT
-                                        ${groundTruthName} as label,
-                                        sum(CASE WHEN ${predictionName}=${groundTruthName} THEN 1 ELSE 0 END) as cnt_tp
-                                      FROM
-                                        "dioptra-gt-combined-eventstream"
-                                      WHERE ${sqlFiltersWithModelTime}
-                                      GROUP BY ${groundTruthName}
-                                      order by ${groundTruthName}
-                                    ),
-                                    true_sum as (
-                                      SELECT
-                                        ${predictionName} as label,
-                                        count(1) as cnt_ts
-                                      FROM
-                                        "dioptra-gt-combined-eventstream"
-                                      WHERE ${sqlFiltersWithModelTime}
-                                      GROUP BY ${predictionName}
-                                      order by ${predictionName}
-                                    ),
-                                    pred_sum as (
-                                      SELECT
-                                        ${groundTruthName} as label,
-                                        count(1) as cnt_ps
-                                      FROM
-                                        "dioptra-gt-combined-eventstream"
-                                      WHERE ${sqlFiltersWithModelTime}
-                                      GROUP BY ${groundTruthName}
-                                      ORDER BY ${groundTruthName}
-                                    )
-
-                                    SELECT 
-                                      AVG(cast(true_positive.cnt_tp as double) / true_sum.cnt_ts) as recall
-                                    FROM true_positive
-                                      JOIN pred_sum ON pred_sum.label = true_positive.label
-                                      JOIN true_sum ON true_sum.label = true_positive.label
-                                `
+                                fetchData={[
+                                    () => metricsClient('query/recall', {
+                                        prediction_name: predictionName,
+                                        sql_filters: allSqlFilters,
+                                        ground_truth_name: groundTruthName
+                                    }),
+                                    () => metricsClient('query/recall', {
+                                        prediction_name: predictionName,
+                                        sql_filters: allSqlFilters,
+                                        ground_truth_name: groundTruthName
+                                    })
                                 ]}
                             />
                         </Col>
                         <Col className='d-flex' lg={3}>
-                            <TimeseriesQuery
+                            <Async
                                 defaultData={[[{precision: 0}], [{precision: 0}]]}
                                 renderData={([[{precision}], [data]]) => (
                                     <MetricInfoBox
@@ -613,81 +303,17 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                         }
                                     />
                                 )}
-                                sql={[
-                                    sql`WITH true_positive as (
-                                      SELECT
-                                        ${groundTruthName} as label,
-                                        sum(CASE WHEN ${predictionName}=${groundTruthName} THEN 1 ELSE 0 END) as cnt_tp
-                                      FROM
-                                        "dioptra-gt-combined-eventstream"
-                                      WHERE ${allSqlFilters}
-                                      GROUP BY ${groundTruthName}
-                                      ORDER BY ${groundTruthName}
-                                    ),
-                                    true_sum as (
-                                      SELECT
-                                        ${predictionName} as label,
-                                        count(1) as cnt_ts
-                                      FROM
-                                        "dioptra-gt-combined-eventstream"
-                                      WHERE ${allSqlFilters}
-                                      GROUP BY ${predictionName}
-                                      ORDER BY ${predictionName}
-                                    ),
-                                    pred_sum as (
-                                      SELECT
-                                        ${groundTruthName} as label,
-                                        count(1) as cnt_ps
-                                      FROM
-                                        "dioptra-gt-combined-eventstream"
-                                      WHERE ${allSqlFilters}
-                                      GROUP BY ${groundTruthName}
-                                      ORDER BY ${groundTruthName}
-                                    )
-
-                                    SELECT 
-                                      AVG(cast(true_positive.cnt_tp as double) / pred_sum.cnt_ps) as "precision"
-                                    FROM true_positive
-                                      JOIN pred_sum ON pred_sum.label = true_positive.label
-                                      JOIN true_sum ON true_sum.label = true_positive.label
-                                    `,
-                                    sql`WITH true_positive as (
-                                      SELECT
-                                        ${groundTruthName} as label,
-                                        sum(CASE WHEN ${predictionName}=${groundTruthName} THEN 1 ELSE 0 END) as cnt_tp
-                                      FROM
-                                        "dioptra-gt-combined-eventstream"
-                                      WHERE ${sqlFiltersWithModelTime}
-                                      GROUP BY ${groundTruthName}
-                                      ORDER BY ${groundTruthName}
-                                    ),
-                                    true_sum as (
-                                      SELECT
-                                        ${predictionName} as label,
-                                        count(1) as cnt_ts
-                                      FROM
-                                        "dioptra-gt-combined-eventstream"
-                                      WHERE ${sqlFiltersWithModelTime}
-                                      GROUP BY ${predictionName}
-                                      ORDER BY ${predictionName}
-                                    ),
-                                    pred_sum as (
-                                      SELECT
-                                        ${groundTruthName} as label,
-                                        count(1) as cnt_ps
-                                      FROM
-                                        "dioptra-gt-combined-eventstream"
-                                      WHERE ${sqlFiltersWithModelTime}
-                                      GROUP BY ${groundTruthName}
-                                      ORDER BY ${groundTruthName}
-                                    )
-
-                                    SELECT 
-                                      AVG(cast(true_positive.cnt_tp as double) / pred_sum.cnt_ps) as "precision"
-                                    FROM true_positive
-                                      JOIN pred_sum ON pred_sum.label = true_positive.label
-                                      JOIN true_sum ON true_sum.label = true_positive.label
-                                    `
+                                fetchData={[
+                                    () => metricsClient('query/precision', {
+                                        prediction_name: predictionName,
+                                        sql_filters: allSqlFilters,
+                                        ground_truth_name: groundTruthName
+                                    }),
+                                    () => metricsClient('query/precision', {
+                                        prediction_name: predictionName,
+                                        sql_filters: sqlFiltersWithModelTime,
+                                        ground_truth_name: groundTruthName
+                                    })
                                 ]}
                             />
                         </Col>
@@ -766,22 +392,28 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                         timeStore.end,
                                         timeStore.aggregationPeriod
                                     ]}
-                                    fetchData={() => baseJSONClient(
-                                        `/api/metrics/integrations/correlation/redash/${selectedIndicator}`,
+                                    fetchData={() => metricsClient(
+                                        `integrations/correlation/redash/${selectedIndicator}`,
                                         {
-                                            method: 'post',
-                                            body: {
-                                                parameters: {
-                                                    time_start: timeStore.start,
-                                                    time_end: timeStore.end,
-                                                    time_granularity: moment
-                                                        .duration(
-                                                            timeGranularityValue
-                                                        )
-                                                        .asSeconds()
-                                                },
-                                                model_performance_query:
-                                                        getSelectedSQLQuery().query
+                                            parameters: {
+                                                time_start: timeStore.start,
+                                                time_end: timeStore.end,
+                                                time_granularity: moment
+                                                    .duration(
+                                                        timeGranularityValue
+                                                    )
+                                                    .asSeconds()
+                                            },
+                                            metric_name: selectedMetric,
+                                            payload: {
+                                                sql_filters:
+                                                        model.mlModelType ===
+                                                        'DOCUMENT_PROCESSING' ?
+                                                            `cast("iou" as FLOAT) > ${iou} AND ${allSqlFilters}` :
+                                                            allSqlFilters,
+                                                time_granularity:
+                                                        timeGranularity,
+                                                model_type: model.mlModelType
                                             }
                                         }
                                     )
@@ -862,24 +494,21 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                         timeStore.end,
                                         timeGranularityValue
                                     ]}
-                                    fetchData={() => baseJSONClient(
-                                        `/api/metrics/integrations/redash/${selectedIndicator}`,
+                                    fetchData={() => metricsClient(
+                                        `integrations/redash/${selectedIndicator}`,
                                         {
-                                            method: 'post',
-                                            body: {
-                                                parameters: {
-                                                    time_start: timeStore.start
-                                                        .utc()
-                                                        .format(),
-                                                    time_end: timeStore.end
-                                                        .utc()
-                                                        .format(),
-                                                    time_granularity: moment
-                                                        .duration(
-                                                            timeGranularityValue
-                                                        )
-                                                        .asSeconds()
-                                                }
+                                            parameters: {
+                                                time_start: timeStore.start
+                                                    .utc()
+                                                    .format(),
+                                                time_end: timeStore.end
+                                                    .utc()
+                                                    .format(),
+                                                time_granularity: moment
+                                                    .duration(
+                                                        timeGranularityValue
+                                                    )
+                                                    .asSeconds()
                                             }
                                         }
                                     )
