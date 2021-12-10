@@ -24,7 +24,7 @@ const ModelDescription = ({_id, filtersStore, modelStore, name, description, tea
         baseJsonClient('/api/metrics/query/all-ml-model-versions', {
             method: 'post',
             body: {
-                ml_model_id: mlModelId,
+                ml_model_id: mlModelId
             }
         })
             .then((data) => {

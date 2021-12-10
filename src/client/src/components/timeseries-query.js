@@ -2,13 +2,12 @@ import PropTypes from 'prop-types';
 import Async from 'components/async';
 import baseJSONClient from 'clients/base-json-client';
 
-function fetchForQuery(sqlQueryName, params) {
-    return () =>
-        baseJSONClient(`/api/metrics/query/${sqlQueryName}`, {
-            method: 'post',
-            body: params !== undefined ? params : {}
-        });
-}
+const fetchForQuery = (sqlQueryName, params) => {
+    return () => baseJSONClient(`/api/metrics/query/${sqlQueryName}`, {
+        method: 'post',
+        body: params !== undefined ? params : {}
+    });
+};
 
 const TimeseriesQuery = ({
     sqlQueryName,
@@ -19,7 +18,7 @@ const TimeseriesQuery = ({
     renderError,
     renderLoading
 }) => {
-    let fetchTimeseries;
+    let fetchTimeseries = null;
 
     if (Array.isArray(sqlQueryName)) {
         fetchTimeseries = sqlQueryName.map((qry, index) => {
@@ -37,9 +36,7 @@ const TimeseriesQuery = ({
                 if (data.length) {
                     if (Array.isArray(fetchTimeseries)) {
                         return renderData(
-                            data?.map((d, index) =>
-                                d.length ? d : defaultData[index]
-                            )
+                            data?.map((d, index) => d.length ? d : defaultData[index])
                         );
                     } else {
                         return renderData(data);

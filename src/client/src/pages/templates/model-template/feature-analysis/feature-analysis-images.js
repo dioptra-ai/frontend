@@ -5,7 +5,7 @@ import Col from 'react-bootstrap/Col';
 import {setupComponent} from 'helpers/component-helper';
 import {getHexColor} from 'helpers/color-helper';
 import FilterInput from 'components/filter-input';
-import TimeseriesQuery, {sql} from 'components/timeseries-query';
+import TimeseriesQuery from 'components/timeseries-query';
 import MetricInfoBox from 'components/metric-info-box';
 import AreaGraph from 'components/area-graph';
 import BarGraph from 'components/bar-graph';
@@ -97,11 +97,8 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                             renderData={([{unique}]) => (
                                 <MetricInfoBox name='% Unique' unit='%' value={unique} />
                             )}
-                            sql={sql`
-                                SELECT 100 * CAST(COUNT(distinct MV_TO_STRING("embeddings", '')) as double) / COUNT(*) as "unique"
-                                FROM "dioptra-gt-combined-eventstream"
-                                WHERE ${allSqlFilters}
-                            `}
+                            sqlQueryName='unique-images'
+                            params={{sql_filters: allSqlFilters}}
                         />
                     </Col>
                     <Col className='d-flex' lg={5}>
@@ -120,13 +117,8 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                                     yAxisName='Unique Images (%)'
                                 />
                             )}
-                            sql={sql`
-                                SELECT TIME_FLOOR(__time, '${timeGranularity}') as "__time",
-                                100 * CAST(COUNT(distinct MV_TO_STRING("embeddings", '')) as double) / COUNT(*) as "uniques"
-                                FROM "dioptra-gt-combined-eventstream"
-                                WHERE ${allSqlFilters}
-                                GROUP BY 1
-                            `}
+                            sqlQueryName='unique-images-over-time'
+                            params={{time_granularity: timeGranularity, sql_filters: allSqlFilters}}
                         />
                     </Col>
                     <Col className='d-flex' lg={5}>
@@ -143,14 +135,8 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                                     yAxisName='Degrees'
                                 />
                             )}
-                            sql={sql`
-                            SELECT CAST("image_metadata.rotation" AS INTEGER) as "name",
-                              COUNT(*) AS "value"
-                                FROM "dioptra-gt-combined-eventstream"
-                                WHERE ${allSqlFilters}
-                                GROUP BY 1
-                                ORDER BY 1 ASC
-                            `}
+                            sqlQueryName='rotation-angle'
+                            params={{sql_filters: allSqlFilters}}
                         />
                     </Col>
                 </Row>

@@ -438,16 +438,16 @@ const Segmentation = ({timeStore, modelStore, segmentationStore}) => {
                                     />
                                 )}
                                 resultFormat='array'
-                                sqlQueryName="fairness-bias-columns-counts"
+                                sqlQueryName='fairness-bias-columns-counts'
                                 params={{
-                                    counts: featuresAndTags.map(({ column }) => `COUNT("${column}")`).join(', '),
+                                    counts: featuresAndTags.map(({column}) => `COUNT("${column}")`).join(', '),
                                     sql_time_filter: timeStore.sqlTimeFilter,
                                     ml_model_id: mlModelId
                                 }}
                             />
                         ) : null
                         }
-                        sqlQueryName={mlModelType === 'TABULAR_CLASSIFIER' ? 'fairness-bias-columns-names-for-tags': 'fairness-bias-columns-names-for-features'}
+                        sqlQueryName={mlModelType === 'TABULAR_CLASSIFIER' ? 'fairness-bias-columns-names-for-tags' : 'fairness-bias-columns-names-for-features'}
                     />
                 )}
             </div>
