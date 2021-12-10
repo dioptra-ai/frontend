@@ -4,7 +4,7 @@ import {IconNames} from 'constants';
 import BtnIcon from 'components/btn-icon';
 import useModal from 'customHooks/useModal';
 import Table from 'components/table';
-import TimeseriesQuery, {sql} from 'components/timeseries-query';
+import TimeseriesQuery from 'components/timeseries-query';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 
 const TabularExamples = ({onClose, groundtruth, prediction, previewColumns}) => {
@@ -27,14 +27,18 @@ const TabularExamples = ({onClose, groundtruth, prediction, previewColumns}) => 
                     defaultData={[]}
                     renderData={(data) => {
                         const allColumns = Object.keys(data[0]);
-                        const nonEmptyColumns = allColumns.filter((c) => {
-                            if (previewColumns) {
-                                return previewColumns.some((p) => c.match(p));
-                            } else return true;
-                        }).filter((column) => {
-
-                            return column !== '__time' && data.some((d) => d[column]);
-                        });
+                        const nonEmptyColumns = allColumns
+                            .filter((c) => {
+                                if (previewColumns) {
+                                    return previewColumns.some((p) => c.match(p));
+                                } else return true;
+                            })
+                            .filter((column) => {
+                                return (
+                                    column !== '__time' &&
+                                    data.some((d) => d[column])
+                                );
+                            });
 
                         return (
                             <Table
@@ -50,13 +54,12 @@ const TabularExamples = ({onClose, groundtruth, prediction, previewColumns}) => 
                             />
                         );
                     }}
-                    sql={sql`
-                        SELECT *
-                        FROM "dioptra-gt-combined-eventstream"
-                        WHERE groundtruth = '${groundtruth}' AND prediction = '${prediction}'
-                        AND ${allSqlFilters}
-                        LIMIT 10
-                    `}
+                    sqlQueryName='all_tabular_examples'
+                    params={{
+                        groundtruth,
+                        prediction,
+                        sql_filters: allSqlFilters
+                    }}
                 />
             </div>
             {exampleInModal && (
