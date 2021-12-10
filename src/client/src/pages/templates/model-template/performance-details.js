@@ -203,7 +203,6 @@ const PerformanceDetails = ({filtersStore}) => {
                                         }, 'post')
                                     ]}
                                     renderData={(data) => {
-                                        console.log(data);
                                         let valueFromFirstObject = 0;
 
                                         if (data[0]['performance'][0]['class_name'] === 'all') {
