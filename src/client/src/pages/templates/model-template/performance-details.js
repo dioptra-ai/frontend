@@ -16,7 +16,6 @@ import DifferenceLabel from 'components/difference-labels';
 import useModel from 'customHooks/use-model';
 import MetricInfoBox from 'components/metric-info-box';
 import BarGraph from 'components/bar-graph';
-// import baseJsonClient from 'clients/base-json-client';
 import metricsClient from '../../../clients/metrics';
 import Async from 'components/async';
 import QAPerfAnalysis from './qa-perf-analysis';
@@ -144,10 +143,32 @@ const PerformanceDetails = ({filtersStore}) => {
 
     const {mlModelType} = useModel();
 
+    const SI_SYMBOL = ['', 'k', 'M', 'G', 'T', 'P', 'E'];
+
+    const abbreviateNumber = (number) => {
+
+        // what tier? (determines SI symbol)
+        const tier = Math.log10(Math.abs(number)) / 3 | 0; //eslint-disable-line no-bitwise
+
+        // if zero, we don't need a suffix
+        if (tier === 0) return number;
+
+        // get suffix and determine scale
+        const suffix = SI_SYMBOL[tier];
+
+        const scale = Math.pow(10, tier * 3);
+
+        // scale the number
+        const scaled = number / scale;
+
+        // format number and add suffix
+        return scaled.toFixed(1) + suffix;
+    };
+
     const sampleSizeComponent = (
         <TimeseriesQuery
             defaultData={[{sampleSize: 0}]}
-            renderData={([{sampleSize}]) => sampleSize}
+            renderData={([{sampleSize}]) => abbreviateNumber(sampleSize)}
             renderError={() => 0}
             sql={sql`
                 SELECT COUNT(*) as sampleSize 
@@ -182,6 +203,7 @@ const PerformanceDetails = ({filtersStore}) => {
                                         }, 'post')
                                     ]}
                                     renderData={(data) => {
+                                        console.log(data);
                                         let valueFromFirstObject = 0;
 
                                         if (data[0]['performance'][0]['class_name'] === 'all') {
