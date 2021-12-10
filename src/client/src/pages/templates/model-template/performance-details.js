@@ -9,7 +9,7 @@ import {getName} from 'helpers/name-helper';
 import {IconNames} from 'constants';
 import FontIcon from 'components/font-icon';
 import ConfusionMatrix from 'components/confusion-matrix';
-import TimeseriesQuery, {sql} from 'components/timeseries-query';
+import TimeseriesQuery from 'components/timeseries-query';
 import Segmentation from 'components/segmentation';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 import DifferenceLabel from 'components/difference-labels';
