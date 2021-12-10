@@ -182,25 +182,36 @@ const PerformanceDetails = ({filtersStore}) => {
                                         }, 'post')
                                     ]}
                                     renderData={(data) => {
-                                        let valueToDisplay = 0;
+                                        let valueFromFirstObject = 0;
 
                                         if (data[0]['performance'][0]['class_name'] === 'all') {
                                             const results = data[0]['performance'][0]['results'];
 
                                             for (let i = 0; i < results.length; i++) {
                                                 if (results[i]['iou'] === '0.5:0.95') {
-                                                    valueToDisplay = results[i]['mAP'];
+                                                    valueFromFirstObject = results[i]['mAP'] * 100;
                                                 }
                                             }
                                         }
 
+                                        let valueFromSecondObject = 0;
+
+                                        if (data[1]['performance'][0]['class_name'] === 'all') {
+                                            const results = data[1]['performance'][0]['results'];
+
+                                            for (let i = 0; i < results.length; i++) {
+                                                if (results[i]['iou'] === '0.5:0.95') {
+                                                    valueFromSecondObject = results[i]['mAP'] * 100;
+                                                }
+                                            }
+                                        }
 
                                         return <MetricInfoBox
                                             name='AP'
                                             sampleSize={sampleSizeComponent}
                                             unit='%'
-                                            value={valueToDisplay}
-                                            difference={valueToDisplay}
+                                            value={valueFromFirstObject}
+                                            difference={valueFromSecondObject - valueFromFirstObject}
                                         />;
                                     }}
                                     renderError={() => (
@@ -230,14 +241,26 @@ const PerformanceDetails = ({filtersStore}) => {
                                         }, 'post')
                                     ]}
                                     renderData={(data) => {
-                                        let valueToDisplay = 0;
+                                        let valueFromFirstObject = 0;
 
                                         if (data[0]['performance'][0]['class_name'] === 'all') {
                                             const results = data[0]['performance'][0]['results'];
 
                                             for (let i = 0; i < results.length; i++) {
                                                 if (results[i]['iou'] === '0.5') {
-                                                    valueToDisplay = results[i]['mAP'];
+                                                    valueFromFirstObject = results[i]['mAP'] * 100;
+                                                }
+                                            }
+                                        }
+
+                                        let valueFromSecondObject = 0;
+
+                                        if (data[1]['performance'][0]['class_name'] === 'all') {
+                                            const results = data[1]['performance'][0]['results'];
+
+                                            for (let i = 0; i < results.length; i++) {
+                                                if (results[i]['iou'] === '0.5') {
+                                                    valueFromSecondObject = results[i]['mAP'] * 100;
                                                 }
                                             }
                                         }
@@ -246,8 +269,8 @@ const PerformanceDetails = ({filtersStore}) => {
                                             name='AP'
                                             sampleSize={sampleSizeComponent}
                                             unit='%'
-                                            value={valueToDisplay}
-                                            difference={valueToDisplay}
+                                            value={valueFromFirstObject}
+                                            difference={valueFromSecondObject - valueFromFirstObject}
                                         />;
                                     }}
                                     renderError={() => (
@@ -277,14 +300,26 @@ const PerformanceDetails = ({filtersStore}) => {
                                         }, 'post')
                                     ]}
                                     renderData={(data) => {
-                                        let valueToDisplay = 0;
+                                        let valueFromFirstObject = 0;
 
                                         if (data[0]['performance'][0]['class_name'] === 'all') {
                                             const results = data[0]['performance'][0]['results'];
 
                                             for (let i = 0; i < results.length; i++) {
                                                 if (results[i]['iou'] === '0.75') {
-                                                    valueToDisplay = results[i]['mAP'];
+                                                    valueFromFirstObject = results[i]['mAP'] * 100;
+                                                }
+                                            }
+                                        }
+
+                                        let valueFromSecondObject = 0;
+
+                                        if (data[1]['performance'][0]['class_name'] === 'all') {
+                                            const results = data[1]['performance'][0]['results'];
+
+                                            for (let i = 0; i < results.length; i++) {
+                                                if (results[i]['iou'] === '0.75') {
+                                                    valueFromSecondObject = results[i]['mAP'] * 100;
                                                 }
                                             }
                                         }
@@ -293,8 +328,8 @@ const PerformanceDetails = ({filtersStore}) => {
                                             name='AP'
                                             sampleSize={sampleSizeComponent}
                                             unit='%'
-                                            value={valueToDisplay}
-                                            difference={valueToDisplay}
+                                            value={valueFromFirstObject}
+                                            difference={valueFromSecondObject - valueFromFirstObject}
                                         />;
                                     }}
                                     renderError={() => (
@@ -326,14 +361,26 @@ const PerformanceDetails = ({filtersStore}) => {
                                     renderData={(data) => {
                                         // Parse 'data' for the exact value we need
                                         // Turn this into a function where we determine which piece of data to pickup
-                                        let valueToDisplay = 0;
+                                        let valueFromFirstObject = 0;
 
                                         if (data[0]['performance'][0]['class_name'] === 'all') {
                                             const results = data[0]['performance'][0]['results'];
 
                                             for (let i = 0; i < results.length; i++) {
                                                 if (results[i]['iou'] === '0.5:0.95') {
-                                                    valueToDisplay = results[i]['mAR'];
+                                                    valueFromFirstObject = results[i]['mAR'] * 100;
+                                                }
+                                            }
+                                        }
+
+                                        let valueFromSecondObject = 0;
+
+                                        if (data[1]['performance'][0]['class_name'] === 'all') {
+                                            const results = data[1]['performance'][0]['results'];
+
+                                            for (let i = 0; i < results.length; i++) {
+                                                if (results[i]['iou'] === '0.5:0.95') {
+                                                    valueFromSecondObject = results[i]['mAR'] * 100;
                                                 }
                                             }
                                         }
@@ -342,8 +389,8 @@ const PerformanceDetails = ({filtersStore}) => {
                                             name='AR'
                                             sampleSize={sampleSizeComponent}
                                             unit='%'
-                                            value={valueToDisplay}
-                                            difference={valueToDisplay}
+                                            value={valueFromFirstObject}
+                                            difference={valueFromSecondObject - valueFromFirstObject}
                                         />;
                                     }}
                                     renderError={() => (
@@ -375,14 +422,26 @@ const PerformanceDetails = ({filtersStore}) => {
                                     renderData={(data) => {
                                         // Parse 'data' for the exact value we need
                                         // Turn this into a function where we determine which piece of data to pickup
-                                        let valueToDisplay = 0;
+                                        let valueFromFirstObject = 0;
 
                                         if (data[0]['performance'][0]['class_name'] === 'all') {
                                             const results = data[0]['performance'][0]['results'];
 
                                             for (let i = 0; i < results.length; i++) {
                                                 if (results[i]['iou'] === '0.5') {
-                                                    valueToDisplay = results[i]['mAR'];
+                                                    valueFromFirstObject = results[i]['mAR'] * 100;
+                                                }
+                                            }
+                                        }
+
+                                        let valueFromSecondObject = 0;
+
+                                        if (data[1]['performance'][0]['class_name'] === 'all') {
+                                            const results = data[1]['performance'][0]['results'];
+
+                                            for (let i = 0; i < results.length; i++) {
+                                                if (results[i]['iou'] === '0.5') {
+                                                    valueFromSecondObject = results[i]['mAR'] * 100;
                                                 }
                                             }
                                         }
@@ -391,8 +450,8 @@ const PerformanceDetails = ({filtersStore}) => {
                                             name='AR'
                                             sampleSize={sampleSizeComponent}
                                             unit='%'
-                                            value={valueToDisplay}
-                                            difference={valueToDisplay}
+                                            value={valueFromFirstObject}
+                                            difference={valueFromSecondObject - valueFromFirstObject}
                                         />;
                                     }}
                                     renderError={() => (
@@ -424,14 +483,26 @@ const PerformanceDetails = ({filtersStore}) => {
                                     renderData={(data) => {
                                         // Parse 'data' for the exact value we need
                                         // Turn this into a function where we determine which piece of data to pickup
-                                        let valueToDisplay = 0;
+                                        let valueFromFirstObject = 0;
 
                                         if (data[0]['performance'][0]['class_name'] === 'all') {
                                             const results = data[0]['performance'][0]['results'];
 
                                             for (let i = 0; i < results.length; i++) {
                                                 if (results[i]['iou'] === '0.75') {
-                                                    valueToDisplay = results[i]['mAR'];
+                                                    valueFromFirstObject = results[i]['mAR'] * 100;
+                                                }
+                                            }
+                                        }
+
+                                        let valueFromSecondObject = 0;
+
+                                        if (data[1]['performance'][0]['class_name'] === 'all') {
+                                            const results = data[1]['performance'][0]['results'];
+
+                                            for (let i = 0; i < results.length; i++) {
+                                                if (results[i]['iou'] === '0.75') {
+                                                    valueFromSecondObject = results[i]['mAR'] * 100;
                                                 }
                                             }
                                         }
@@ -440,8 +511,8 @@ const PerformanceDetails = ({filtersStore}) => {
                                             name='AR'
                                             sampleSize={sampleSizeComponent}
                                             unit='%'
-                                            value={valueToDisplay}
-                                            difference={valueToDisplay}
+                                            value={valueFromFirstObject}
+                                            difference={valueFromSecondObject - valueFromFirstObject}
                                         />;
                                     }}
                                     renderError={() => (
