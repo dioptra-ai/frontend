@@ -148,7 +148,7 @@ const PerformanceDetails = ({filtersStore}) => {
             defaultData={[{sampleSize: 0}]}
             renderData={([{sampleSize}]) => sampleSize}
             renderError={() => 0}
-            sqlQueryName="sample-size"
+            sqlQueryName='sample-size'
             params={{sql_filters: allSqlFilters}}
         />
     );
@@ -435,7 +435,7 @@ const PerformanceDetails = ({filtersStore}) => {
                                         ]}
                                     />
                                 )}
-                                sqlQueryName="select-one"
+                                sqlQueryName='select-one'
                             />
                         </div>
                         <div className='d-flex my-3' lg={12}>
@@ -455,7 +455,7 @@ const PerformanceDetails = ({filtersStore}) => {
                                         ]}
                                     />
                                 )}
-                                sqlQueryName="select-one"
+                                sqlQueryName='select-one'
                             />
                         </div>
                     </div>
@@ -505,7 +505,7 @@ const PerformanceDetails = ({filtersStore}) => {
                                         diffData={diffData}
                                     />
                                 )}
-                                sqlQueryName={["recall-per-class", "recall-per-class"]}
+                                sqlQueryName={['recall-per-class', 'recall-per-class']}
                                 params={[{sql_filters: allSqlFilters}, {sql_filters: sqlFiltersWithModelTime}]}
                             />
                         </Col>
