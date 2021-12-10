@@ -9,7 +9,6 @@ import {
     XAxis
 } from 'recharts';
 
-import timeseriesClient from 'clients/timeseries';
 import {useInView} from 'react-intersection-observer';
 import {setupComponent} from 'helpers/component-helper';
 import React, {useEffect, useState} from 'react';
@@ -129,20 +128,14 @@ const _AccuracyCell = ({timeStore, segmentationStore, row}) => {
 
     useEffect(() => {
         if (inView) {
-            timeseriesClient({
-                query: `WITH my_sample_table as (
-                    SELECT *
-                    FROM "dioptra-gt-combined-eventstream"
-                    WHERE ${allSqlFilters} AND ${groupByColumns
-    .map((c) => `"${c}"='${row.original[c]}'`)
-    .join(' AND ')})
-                    SELECT 
-                      TIME_FLOOR(__time, '${timeGranularity}') AS x,
-                      100 * cast(sum(CASE WHEN groundtruth=prediction THEN 1 ELSE 0 end) AS float) / count(*) AS y
-                    FROM my_sample_table
-                    GROUP BY 1, ${groupByColumns.map((c) => `"${c}"`).join(', ')}
-                `,
-                sqlOuterLimit: maxTimeseriesTicks
+            baseJsonClient('/api/metrics/query/accuracy-data', {
+                method: 'post',
+                body: {
+                    sql_filters: allSqlFilters,
+                    time_granularity: timeGranularity,
+                    columns: groupByColumns.map((c) => `"${c}"`).join(', '),
+                    original_columns: groupByColumns.map((c) => `"${c}"='${row.original[c]}'`).join(' AND ')
+                }
             }).then((data) => {
                 setAccuracyData(data);
             });
@@ -205,36 +198,14 @@ const _DistributionCell = ({row, segmentationStore}) => {
 
     useEffect(() => {
         if (inView) {
-            timeseriesClient({
-                query: `WITH distribution_sample_table as (
-                  SELECT *
-                  FROM "dioptra-gt-combined-eventstream"
-                  WHERE ${allSqlFilters} AND ${groupByColumns
-    .map((c) => `"${c}"='${row.original[c]}'`)
-    .join(' AND ')})
-                SELECT
-                  cast(my_sub_table.my_count as float) / my_sub_count_table.total_count as dist,
-                  my_sub_table.prediction as "value"
-                  FROM (
-                    SELECT
-                      count(1) AS my_count,
-                      prediction,
-                      ${sqlColumns}
-                    FROM distribution_sample_table
-                    GROUP BY prediction, ${sqlColumns}
-                  ) AS my_sub_table
-                  JOIN (
-                    SELECT
-                      count(*) as total_count,
-                      ${sqlColumns}
-                    FROM distribution_sample_table
-                    GROUP BY ${sqlColumns}
-                  ) AS my_sub_count_table
-                  ON ${groupByColumns
-        .map(
-            (column) => `my_sub_table."${column}" = my_sub_count_table."${column}"`
-        )
-        .join(' AND ')}`
+            baseJsonClient('/api/metrics/query/distribution-data', {
+                method: 'post',
+                body: {
+                    sql_columns: sqlColumns,
+                    sql_filters: allSqlFilters,
+                    columns: groupByColumns.map((column) => `my_sub_table."${column}" = my_sub_count_table."${column}"`).join(' AND '),
+                    original_columns: groupByColumns.map((c) => `"${c}"='${row.original[c]}'`).join(' AND ')
+                }
             }).then((data) => {
                 setDistributionData(data);
             });

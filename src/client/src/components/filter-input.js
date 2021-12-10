@@ -3,8 +3,7 @@ import OutsideClickHandler from 'react-outside-click-handler';
 import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
 import {useParams} from 'react-router-dom';
-
-import timeseriesClient from 'clients/timeseries';
+import baseJsonClient from 'clients/base-json-client';
 import {setupComponent} from 'helpers/component-helper';
 import FontIcon from './font-icon';
 
@@ -46,42 +45,39 @@ const FilterInput = ({
         const [key, value] = newFilter.split('=');
 
         if (key && newFilter.includes('=')) {
-            timeseriesClient({
-                query: `SELECT "${key}"
-                    FROM "dioptra-gt-combined-eventstream"
-                    WHERE "${key}" LIKE '${value}%' AND model_id='${mlModelId}'
-                    GROUP BY "${key}"
-                    LIMIT 10
-                `,
-                resultFormat: 'array'
+            baseJsonClient('/api/metrics/query/get-suggestions-with-key', {
+                method: 'post',
+                body: {
+                    key,
+                    value,
+                    ml_model_id: mlModelId
+                }
             })
                 .then((data) => {
                     setSuggestions([...data.flat()]);
                 })
                 .catch(() => setSuggestions([]));
         } else {
-            timeseriesClient({
-                query: `SELECT COLUMN_NAME as allKeyOptions
-                    FROM INFORMATION_SCHEMA.COLUMNS 
-                    WHERE TABLE_NAME = 'dioptra-gt-combined-eventstream' AND COLUMN_NAME LIKE '${key}%'
-                `
+            baseJsonClient('/api/metrics/query/get-suggestions-without-key', {
+                method: 'post',
+                body: {
+                    key
+                }
             }).then(async (data) => {
-                const [allKeyOptions] = await timeseriesClient({
-                    query: `SELECT ${data
-                        .map(({allKeyOptions: key}) => `COUNT("${key}")`)
-                        .join(', ')}
-                FROM "dioptra-gt-combined-eventstream"
-                WHERE model_id='${mlModelId}'
-                LIMIT 10
-                `,
-                    resultFormat: 'array'
-                });
+                await baseJsonClient('/api/metrics/query/feature-cardinality', {
+                    method: 'post',
+                    body: {
+                        keys_calc: data.map(({allKeyOptions: key}) => `COUNT("${key}")`).join(', '),
+                        ml_model_id: mlModelId
+                    }
+                })
+                    .then((allKeyOptions) => {
+                        const filteredKeys = data
+                            .filter((_, i) => allKeyOptions && allKeyOptions[i] > 0)
+                            .map(({allKeyOptions}) => allKeyOptions);
 
-                const filteredKeys = data
-                    .filter((_, i) => allKeyOptions && allKeyOptions[i] > 0)
-                    .map(({allKeyOptions}) => allKeyOptions);
-
-                setSuggestions([...filteredKeys]);
+                        setSuggestions([...filteredKeys]);
+                    }).catch(console.error);
             }).catch(() => setSuggestions([]));
         }
     };
