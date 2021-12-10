@@ -1,42 +1,32 @@
 import PropTypes from 'prop-types';
-import {InView} from 'react-intersection-observer';
 import Async from 'components/async';
+import baseJSONClient from 'clients/base-json-client';
 
-import timeseriesClient from 'clients/timeseries';
+function fetchForQuery(sqlQueryName, params) {
+    return () =>
+        baseJSONClient(`/api/metrics/query/${sqlQueryName}`, {
+            method: 'post',
+            body: params !== undefined ? params : {}
+        });
+}
 
 const TimeseriesQuery = ({
-    sql,
+    sqlQueryName,
+    params,
     children,
     renderData,
     defaultData,
     renderError,
-    renderLoading,
-    ...rest
+    renderLoading
 }) => {
-    let fetchTimeseries = null;
+    let fetchTimeseries;
 
-    if (Array.isArray(sql)) {
-        fetchTimeseries = sql.map((qry) => {
-            const {query, parameters} = qry;
-
-            if (!query || !parameters) {
-                throw new Error(
-                    'The "sql" prop must be a return value of the sql`...` tagged template from: import {sql} from \'components/timeseries-query\';'
-                );
-            }
-
-            return () => timeseriesClient({query, ...rest});
+    if (Array.isArray(sqlQueryName)) {
+        fetchTimeseries = sqlQueryName.map((qry, index) => {
+            return fetchForQuery(qry, params[index]);
         });
     } else {
-        const {query, parameters} = sql;
-
-        if (!query || !parameters) {
-            throw new Error(
-                'The "sql" prop must be a return value of the sql`...` tagged template from: import {sql} from \'components/timeseries-query\';'
-            );
-        }
-
-        fetchTimeseries = () => timeseriesClient({query: sql.query, ...rest});
+        fetchTimeseries = fetchForQuery(sqlQueryName, params);
     }
 
     return (
@@ -46,14 +36,15 @@ const TimeseriesQuery = ({
             renderData={(data) => {
                 if (data.length) {
                     if (Array.isArray(fetchTimeseries)) {
-
-                        return renderData(data?.map((d, index) => (d.length ? d : defaultData[index])));
+                        return renderData(
+                            data?.map((d, index) =>
+                                d.length ? d : defaultData[index]
+                            )
+                        );
                     } else {
-
                         return renderData(data);
                     }
                 } else {
-
                     return renderData(defaultData);
                 }
             }}
@@ -71,13 +62,8 @@ TimeseriesQuery.propTypes = {
     renderData: PropTypes.func,
     renderError: PropTypes.func,
     renderLoading: PropTypes.func,
-    sql: PropTypes.oneOfType([
-        PropTypes.array,
-        PropTypes.shape({
-            parameters: PropTypes.array.isRequired,
-            query: PropTypes.string.isRequired
-        }).isRequired
-    ])
+    sqlQueryName: PropTypes.oneOfType([PropTypes.array, PropTypes.string]),
+    params: PropTypes.oneOfType([PropTypes.array, PropTypes.object])
 };
 
 TimeseriesQuery.defaultProps = {
@@ -85,24 +71,3 @@ TimeseriesQuery.defaultProps = {
 };
 
 export default TimeseriesQuery;
-
-export const TimeseriesQueryInView = (props) => (
-    <InView>
-        {({inView, ref}) => inView ? (
-            <div ref={ref}>
-                <TimeseriesQuery {...props} />
-            </div>
-        ) : null
-        }
-    </InView>
-);
-
-export const sql = (strings, ...parameters) => {
-    const query =
-    parameters.map((p, i) => strings[i] + p).join('') + strings[strings.length - 1];
-
-    return {
-        query,
-        parameters
-    };
-};

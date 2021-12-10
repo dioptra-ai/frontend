@@ -22,7 +22,7 @@ import Modal from './modal';
 import useModal from '../customHooks/useModal';
 import {getHexColor} from 'helpers/color-helper';
 import theme from '../styles/theme.module.scss';
-import TimeseriesQuery, {sql} from 'components/timeseries-query';
+import TimeseriesQuery from 'components/timeseries-query';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 import {useParams} from 'react-router-dom';
 import Async from 'components/async';
@@ -415,23 +415,11 @@ const Segmentation = ({timeStore, modelStore, segmentationStore}) => {
                             data={data}
                         />
                     )}
-                    sql={
-                        groupByColumns.length ?
-                            sql`
-                        SELECT
-                          ${groupByColumns.map((c) => `"${c}"`).join(', ')},
-                          count(1) as sampleSize
-                        FROM "dioptra-gt-combined-eventstream"
-                        WHERE ${allSqlFilters}
-                        GROUP BY ${groupByColumns.map((c) => `"${c}"`).join(', ')}
-                        ORDER BY sampleSize DESC
-                        ` :
-                            sql`
-                    SELECT null 
-                    FROM "dioptra-gt-combined-eventstream" 
-                    where false
-                    `
-                    }
+                    sqlQueryName={groupByColumns.length ? 'fairness-bias-columns' : 'select-null'}
+                    params={groupByColumns.length ? {
+                        columns: groupByColumns.map((c) => `"${c}"`).join(', '),
+                        sql_filters: allSqlFilters
+                    } : {}}
                 />
                 {addColModal && (
                     <TimeseriesQuery
@@ -450,28 +438,16 @@ const Segmentation = ({timeStore, modelStore, segmentationStore}) => {
                                     />
                                 )}
                                 resultFormat='array'
-                                sql={sql`
-                                SELECT ${featuresAndTags
-                                .map(({column}) => `COUNT("${column}")`)
-                                .join(', ')}
-                                FROM "dioptra-gt-combined-eventstream"
-                                WHERE ${
-                            timeStore.sqlTimeFilter
-                            } AND model_id = '${mlModelId}'
-                                `}
+                                sqlQueryName="fairness-bias-columns-counts"
+                                params={{
+                                    counts: featuresAndTags.map(({ column }) => `COUNT("${column}")`).join(', '),
+                                    sql_time_filter: timeStore.sqlTimeFilter,
+                                    ml_model_id: mlModelId
+                                }}
                             />
                         ) : null
                         }
-                        sql={sql`
-                            SELECT COLUMN_NAME as "column"
-                            FROM INFORMATION_SCHEMA.COLUMNS 
-                            WHERE TABLE_NAME = 'dioptra-gt-combined-eventstream'
-                            AND (${
-                    mlModelType === 'TABULAR_CLASSIFIER' ?
-                        "COLUMN_NAME LIKE 'features.%' OR" :
-                        ''
-                    } COLUMN_NAME LIKE 'tags.%')
-                        `}
+                        sqlQueryName={mlModelType === 'TABULAR_CLASSIFIER' ? 'fairness-bias-columns-names-for-tags': 'fairness-bias-columns-names-for-features'}
                     />
                 )}
             </div>

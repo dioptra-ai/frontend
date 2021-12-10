@@ -10,9 +10,8 @@ import {Button} from 'react-bootstrap';
 import ModalComponent from 'components/modal';
 import ModelForm from 'pages/templates/model-form';
 import {setupComponent} from 'helpers/component-helper';
-import timeSeriesClient from 'clients/timeseries';
 import Select from './select';
-
+import baseJsonClient from 'clients/base-json-client';
 
 const ModelDescription = ({_id, filtersStore, modelStore, name, description, team, tier, lastDeployed, mlModelId, mlModelType, referencePeriod}) => {
     const [expand, setExpand] = useState(false);
@@ -22,13 +21,11 @@ const ModelDescription = ({_id, filtersStore, modelStore, name, description, tea
     const [allMlModelVersions, setAllMlModelVersions] = useState([]);
 
     useEffect(() => {
-
-        timeSeriesClient({
-            query: `SELECT
-            model_version as mlModelVersion
-            FROM "dioptra-gt-combined-eventstream"
-            WHERE model_id='${mlModelId}'
-            GROUP BY model_version`
+        baseJsonClient('/api/metrics/query/all-ml-model-versions', {
+            method: 'post',
+            body: {
+                ml_model_id: mlModelId,
+            }
         })
             .then((data) => {
                 setAllMlModelVersions([

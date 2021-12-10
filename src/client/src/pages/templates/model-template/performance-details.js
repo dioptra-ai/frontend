@@ -148,10 +148,8 @@ const PerformanceDetails = ({filtersStore}) => {
             defaultData={[{sampleSize: 0}]}
             renderData={([{sampleSize}]) => sampleSize}
             renderError={() => 0}
-            sql={sql`
-                SELECT COUNT(*) as sampleSize 
-                FROM "dioptra-gt-combined-eventstream"
-                WHERE ${allSqlFilters}`}
+            sqlQueryName="sample-size"
+            params={{sql_filters: allSqlFilters}}
         />
     );
 
@@ -437,7 +435,7 @@ const PerformanceDetails = ({filtersStore}) => {
                                         ]}
                                     />
                                 )}
-                                sql={sql`SELECT 1 as "one"`}
+                                sqlQueryName="select-one"
                             />
                         </div>
                         <div className='d-flex my-3' lg={12}>
@@ -457,7 +455,7 @@ const PerformanceDetails = ({filtersStore}) => {
                                         ]}
                                     />
                                 )}
-                                sql={sql`SELECT 1 as "one"`}
+                                sqlQueryName="select-one"
                             />
                         </div>
                     </div>
@@ -488,94 +486,11 @@ const PerformanceDetails = ({filtersStore}) => {
                                         diffData={diffData}
                                     />
                                 )}
-                                sql={[
-                                    sql`
-                            WITH
-                            true_positive as (
-                            select
-                                'true_positive' as key,
-                                groundtruth as label,
-                                sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) as cnt_tp
-                            from
-                                "dioptra-gt-combined-eventstream"
-                            WHERE ${allSqlFilters}
-                            group by groundtruth
-                            order by groundtruth
-                            ),
-                            true_sum as (
-                            select
-                                'true_sum' as key,
-                                prediction as label,
-                                count(1) as cnt_ts
-                            from
-                                "dioptra-gt-combined-eventstream"
-                            WHERE ${allSqlFilters}
-                            group by prediction
-                            order by prediction
-                            ),
-                            pred_sum as (
-                            select
-                                'pred_sum' as key,
-                                groundtruth as label,
-                                count(1) as cnt_ps
-                            from
-                                "dioptra-gt-combined-eventstream"
-                            WHERE ${allSqlFilters}
-                            group by groundtruth
-                            order by groundtruth
-                            )
-            
-                            SELECT
-                            pred_sum.label,
-                            cast(true_positive.cnt_tp as double) / pred_sum.cnt_ps as "precision"
-                            FROM true_positive
-                            JOIN pred_sum
-                            ON pred_sum.label = true_positive.label
-                        `,
-                                    sql`
-                        WITH
-                        true_positive as (
-                        select
-                            'true_positive' as key,
-                            groundtruth as label,
-                            sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) as cnt_tp
-                        from
-                            "dioptra-gt-combined-eventstream"
-                        WHERE ${sqlFiltersWithModelTime}
-                        group by groundtruth
-                        order by groundtruth
-                        ),
-                        true_sum as (
-                        select
-                            'true_sum' as key,
-                            prediction as label,
-                            count(1) as cnt_ts
-                        from
-                            "dioptra-gt-combined-eventstream"
-                        WHERE ${sqlFiltersWithModelTime}
-                        group by prediction
-                        order by prediction
-                        ),
-                        pred_sum as (
-                        select
-                            'pred_sum' as key,
-                            groundtruth as label,
-                            count(1) as cnt_ps
-                        from
-                            "dioptra-gt-combined-eventstream"
-                        WHERE ${sqlFiltersWithModelTime}
-                        group by groundtruth
-                        order by groundtruth
-                        )
-        
-                        SELECT
-                        pred_sum.label,
-                        cast(true_positive.cnt_tp as double) / pred_sum.cnt_ps as "precision"
-                        FROM true_positive
-                        JOIN pred_sum
-                        ON pred_sum.label = true_positive.label
-                    `
-                                ]}
+                                sqlQueryName={['precision_per_class', 'precision_per_class']}
+                                params={
+                                    ({sql_filters: allSqlFilters},
+                                    {sql_filters: sqlFiltersWithModelTime})
+                                }
                             />
                         </Col>
                         <Col lg={6}>
@@ -590,94 +505,8 @@ const PerformanceDetails = ({filtersStore}) => {
                                         diffData={diffData}
                                     />
                                 )}
-                                sql={[
-                                    sql`
-                            WITH
-                            true_positive as (
-                            select
-                                'true_positive' as key,
-                                groundtruth as label,
-                                sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) as cnt_tp
-                            from
-                                "dioptra-gt-combined-eventstream"
-                            WHERE ${allSqlFilters}
-                            group by groundtruth
-                            order by groundtruth
-                            ),
-                            true_sum as (
-                            select
-                                'true_sum' as key,
-                                prediction as label,
-                                count(1) as cnt_ts
-                            from
-                                "dioptra-gt-combined-eventstream"
-                            WHERE ${allSqlFilters}
-                            group by prediction
-                            order by prediction
-                            ),
-                            pred_sum as (
-                            select
-                                'pred_sum' as key,
-                                groundtruth as label,
-                                count(1) as cnt_ps
-                            from
-                                "dioptra-gt-combined-eventstream"
-                            WHERE ${allSqlFilters}
-                            group by groundtruth
-                            order by groundtruth
-                            )
-            
-                            SELECT
-                            true_sum.label,
-                            cast(true_positive.cnt_tp as double) / true_sum.cnt_ts as "recall"
-                            FROM true_positive
-                            JOIN true_sum
-                            ON true_sum.label = true_positive.label
-                        `,
-                                    sql`
-                        WITH
-                        true_positive as (
-                        select
-                            'true_positive' as key,
-                            groundtruth as label,
-                            sum(CASE WHEN prediction=groundtruth THEN 1 ELSE 0 END) as cnt_tp
-                        from
-                            "dioptra-gt-combined-eventstream"
-                        WHERE ${sqlFiltersWithModelTime}
-                        group by groundtruth
-                        order by groundtruth
-                        ),
-                        true_sum as (
-                        select
-                            'true_sum' as key,
-                            prediction as label,
-                            count(1) as cnt_ts
-                        from
-                            "dioptra-gt-combined-eventstream"
-                        WHERE ${sqlFiltersWithModelTime}
-                        group by prediction
-                        order by prediction
-                        ),
-                        pred_sum as (
-                        select
-                            'pred_sum' as key,
-                            groundtruth as label,
-                            count(1) as cnt_ps
-                        from
-                            "dioptra-gt-combined-eventstream"
-                        WHERE ${sqlFiltersWithModelTime}
-                        group by groundtruth
-                        order by groundtruth
-                        )
-        
-                        SELECT
-                        true_sum.label,
-                        cast(true_positive.cnt_tp as double) / true_sum.cnt_ts as "recall"
-                        FROM true_positive
-                        JOIN true_sum
-                        ON true_sum.label = true_positive.label
-                    `
-                                ]}
+                                sqlQueryName={["recall-per-class", "recall-per-class"]}
+                                params={[{sql_filters: allSqlFilters}, {sql_filters: sqlFiltersWithModelTime}]}
                             />
                         </Col>
                     </Row>
