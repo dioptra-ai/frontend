@@ -1,5 +1,4 @@
 import PropTypes from 'prop-types';
-import {Link} from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
 
 const Breadcrumb = ({links = []}) => {
@@ -8,13 +7,13 @@ const Breadcrumb = ({links = []}) => {
             <div className='breadcrumb m-0 px-3'>
                 {links.map(({name, path}, i) => (
                     <span className='link' key={i}>
-                        <Link
+                        <a
                             className='text-secondary bold-text fs-7'
                             onClick={typeof path === 'function' ? () => path() : null}
                             to={typeof path === 'function' ? null : path}
                         >
                             {name}
-                        </Link>
+                        </a>
                     </span>
                 ))}
             </div>

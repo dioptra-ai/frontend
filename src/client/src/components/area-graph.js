@@ -69,7 +69,9 @@ const AreaGraph = ({
         bottom: 35
     },
     unit,
-    timeStore
+    timeStore,
+    xDataKey = 'x',
+    yDataKey = 'y'
 }) => {
     const granularityMs = timeStore.getTimeGranularity().asMilliseconds();
     const domain = timeStore.rangeMillisec;
@@ -79,12 +81,12 @@ const AreaGraph = ({
 
     const filledData = useMemo(() => {
         const data = dots.map((d) => ({
-            y: d.y,
-            x: new Date(d.x).getTime()
+            [yDataKey]: d[yDataKey],
+            [xDataKey]: new Date(d[xDataKey]).getTime()
         }));
 
         const [domainStart, domainEnd] = domain;
-        const referencePoint = data.find((d) => domainStart < d.x && d.x < domainEnd);
+        const referencePoint = data.find((d) => domainStart < d[xDataKey] && d[xDataKey] < domainEnd);
 
         if (!referencePoint) {
 
@@ -92,7 +94,7 @@ const AreaGraph = ({
         } else {
             // We'll generate a completely synthetic set of ticks evenly spaced
             // aligned on the first datapoint we find inside the domain.
-            const referenceTick = referencePoint.x;
+            const referenceTick = referencePoint[xDataKey];
             const numTicksLeft = Math.floor((referenceTick - domainStart) / granularityMs);
             const numTicksRight = Math.floor((domainEnd - referenceTick) / granularityMs);
             const ticks = [];
@@ -109,7 +111,7 @@ const AreaGraph = ({
 
             const timeSeries = data.reduce((agg, d) => ({
                 ...agg,
-                [d.x]: d
+                [d[xDataKey]]: d
             }), {});
 
             // Now we populate our nice ticks list with the data that's available.
@@ -147,7 +149,7 @@ const AreaGraph = ({
             style={{userSelect: 'none'}}
         >
             <SpinnerWrapper>
-                {title && <p className='text-dark bold-text fs-4 px-3'>{title}</p>}
+                {title && <div className='text-dark bold-text fs-4 px-3'>{title}</div>}
                 <div
                     onMouseEnter={() => setShowBtn(true)}
                     onMouseLeave={() => setShowBtn(false)}
@@ -215,7 +217,7 @@ const AreaGraph = ({
                                 </linearGradient>
                             </defs>
                             <XAxis
-                                dataKey='x'
+                                dataKey={xDataKey}
                                 domain={domain}
                                 dy={5}
                                 interval='preserveStartEnd'
@@ -252,7 +254,7 @@ const AreaGraph = ({
                             <Tooltip content={CustomTooltip} />
                             <Area
                                 animationDuration={300}
-                                dataKey='y'
+                                dataKey={yDataKey}
                                 fill='url(#color)'
                                 stroke={color}
                                 strokeWidth={2}
@@ -290,16 +292,18 @@ AreaGraph.propTypes = {
     unit: PropTypes.string,
     xAxisName: PropTypes.string,
     yAxisDomain: PropTypes.array,
-    yAxisName: PropTypes.string
+    yAxisName: PropTypes.string,
+    xDataKey: PropTypes.string,
+    yDataKey: PropTypes.string
 };
 
 export default setupComponent(AreaGraph);
 
-export const SmallChart = setupComponent(({timeStore, data, unit}) => (
+export const SmallChart = setupComponent(({timeStore, data, unit, xDataKey = 'x', yDataKey = 'y'}) => (
     <ResponsiveContainer height='100%' width='100%'>
-        <AreaChart data={data.map(({x, y}) => ({
-            y,
-            x: new Date(x).getTime()
+        <AreaChart data={data.map((d) => ({
+            [yDataKey]: d[yDataKey],
+            [xDataKey]: new Date(d[xDataKey]).getTime()
         }))}>
             <defs>
                 <linearGradient id='color' x1='0' x2='0' y1='0' y2='1'>
@@ -313,14 +317,14 @@ export const SmallChart = setupComponent(({timeStore, data, unit}) => (
             </defs>
             <XAxis
                 axisLine={false}
-                dataKey='x'
+                dataKey={xDataKey}
                 domain={timeStore.rangeMillisec}
                 scale='time'
                 tick={false}
                 type='number'
             />
             <Area
-                dataKey='y'
+                dataKey={yDataKey}
                 fill='url(#color)'
                 stroke={theme.primary}
                 strokeWidth={2}

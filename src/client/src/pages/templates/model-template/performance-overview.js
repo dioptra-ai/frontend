@@ -17,7 +17,6 @@ import {Tooltip as BootstrapTooltip, OverlayTrigger} from 'react-bootstrap';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import {FaExclamation} from 'react-icons/fa';
-import metricsClient from 'clients/metrics';
 
 const ModelPerformanceMetrics = {
     ACCURACY: {value: 'ACCURACY', name: 'Accuracy'},
@@ -131,20 +130,18 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
             },
             [ModelPerformanceMetrics.MEAN_AVERAGE_PRECISION.value]: () => {
 
-                return metricsClient('compute', {
-                    metrics_type: 'map_mar',
-                    current_filters: allSqlFilters,
+                return metricsClient('map', {
+                    sql_filters: allSqlFilters,
                     time_granularity: timeGranularity,
-                    per_class: false
+                    model_type: model.mlModelType
                 });
             },
             [ModelPerformanceMetrics.MEAN_AVERAGE_RECALL.value]: () => {
 
-                return metricsClient('compute', {
-                    metrics_type: 'map_mar',
-                    current_filters: allSqlFilters,
+                return metricsClient('mar', {
+                    sql_filters: allSqlFilters,
                     time_granularity: timeGranularity,
-                    per_class: false
+                    model_type: model.mlModelType
                 });
             }
         }[metricName];
@@ -241,16 +238,11 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                             <Async
                                 fetchData={getQueryForMetric('MEAN_AVERAGE_PRECISION')}
                                 refetchOnChanged={[allSqlFilters]}
-                                renderData={({performance}) => (
+                                renderData={({value}) => (
                                     <MetricInfoBox
                                         name='mAP'
-                                        subtext={'[iou=0.5:0.95]'}
-                                        value={
-                                            performance
-                                                .find((p) => p['class_name'] === 'all').results
-                                                .find((r) => r['iou'] === '0.5:0.95')
-                                                ['mAP'].toFixed(1)
-                                        }
+                                        subtext='iou=0.5:0.95'
+                                        value={value}
                                     />
                                 )}
                             />
@@ -259,16 +251,11 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                             <Async
                                 fetchData={getQueryForMetric('MEAN_AVERAGE_RECALL')}
                                 refetchOnChanged={[allSqlFilters]}
-                                renderData={({performance}) => (
+                                renderData={({value}) => (
                                     <MetricInfoBox
                                         name='mAR'
-                                        subtext={'[iou=0.5:0.95]'}
-                                        value={
-                                            performance
-                                                .find((p) => p['class_name'] === 'all').results
-                                                .find((r) => r['iou'] === '0.5:0.95')
-                                                ['mAR'].toFixed(1)
-                                        }
+                                        subtext='iou=0.5:0.95'
+                                        value={value}
                                     />
                                 )}
                             />
@@ -277,11 +264,11 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                             <Async
                                 fetchData={getQueryForMetric('EXACT_MATCH')}
                                 refetchOnChanged={[allSqlFilters]}
-                                renderData={() => (
+                                renderData={({value}) => (
                                     <MetricInfoBox
-                                        name='mAP'
-                                        subtext={'[iou=0.5]'}
-                                        value={0}
+                                        name='Exact Match'
+                                        subtext='iou=0.5'
+                                        value={value}
                                     />
                                 )}
                             />
@@ -401,20 +388,30 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                     <Async
                         defaultData={[]}
                         renderData={(metric) => {
-                            if (selectedMetric === 'MEAN_AVERAGE_PRECISION' || selectedMetric === 'MEAN_AVERAGE_RECALL') {
-                                // TODO: fix this
-                                metric = metric.performance?.map((m) => m) || [];
+                            // TODO: fix this everywhere in metrics-engine.
+                            let xDataKey = 'x',
+                                yDataKey = 'y';
+
+                            if (
+                                selectedMetric === 'MEAN_AVERAGE_PRECISION' ||
+                                selectedMetric === 'MEAN_AVERAGE_RECALL' ||
+                                selectedMetric === 'EXACT_MATCH'
+                            ) {
+                                xDataKey = 'time';
+                                yDataKey = 'value';
                             }
 
                             return (
                                 <AreaGraph
-                                    dots={metric}
+                                    dots={metric.map((m) => ({...m, value: 100 * m.value}))}
                                     hasBorder={false}
                                     isTimeDependent
                                     margin={{right: 0, bottom: 30}}
                                     unit='%'
                                     xAxisName='Time'
                                     yAxisDomain={[0, 100]}
+                                    xDataKey={xDataKey}
+                                    yDataKey={yDataKey}
                                     title={
                                         <Row>
                                             <Col>{getName(selectedMetric)}</Col>
