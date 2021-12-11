@@ -9,7 +9,6 @@ import {
     XAxis
 } from 'recharts';
 
-import timeseriesClient from 'clients/timeseries';
 import {useInView} from 'react-intersection-observer';
 import {setupComponent} from 'helpers/component-helper';
 import React, {useEffect, useState} from 'react';
@@ -22,11 +21,10 @@ import Modal from './modal';
 import useModal from '../customHooks/useModal';
 import {getHexColor} from 'helpers/color-helper';
 import theme from '../styles/theme.module.scss';
-import TimeseriesQuery, {sql} from 'components/timeseries-query';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 import {useParams} from 'react-router-dom';
 import Async from 'components/async';
-import baseJsonClient from 'clients/base-json-client';
+import metricsClient from 'clients/metrics';
 
 const AddColumnModal = ({onCancel, onApply, allColumns, selected}) => {
     const featureColumns = allColumns.filter((c) => c.startsWith('features.'));
@@ -129,20 +127,11 @@ const _AccuracyCell = ({timeStore, segmentationStore, row}) => {
 
     useEffect(() => {
         if (inView) {
-            timeseriesClient({
-                query: `WITH my_sample_table as (
-                    SELECT *
-                    FROM "dioptra-gt-combined-eventstream"
-                    WHERE ${allSqlFilters} AND ${groupByColumns
-    .map((c) => `"${c}"='${row.original[c]}'`)
-    .join(' AND ')})
-                    SELECT 
-                      TIME_FLOOR(__time, '${timeGranularity}') AS x,
-                      100 * cast(sum(CASE WHEN groundtruth=prediction THEN 1 ELSE 0 end) AS float) / count(*) AS y
-                    FROM my_sample_table
-                    GROUP BY 1, ${groupByColumns.map((c) => `"${c}"`).join(', ')}
-                `,
-                sqlOuterLimit: maxTimeseriesTicks
+            metricsClient('query/accuracy-data', {
+                sql_filters: allSqlFilters,
+                time_granularity: timeGranularity,
+                columns: groupByColumns.map((c) => `"${c}"`).join(', '),
+                original_columns: groupByColumns.map((c) => `"${c}"='${row.original[c]}'`).join(' AND ')
             }).then((data) => {
                 setAccuracyData(data);
             });
@@ -205,36 +194,11 @@ const _DistributionCell = ({row, segmentationStore}) => {
 
     useEffect(() => {
         if (inView) {
-            timeseriesClient({
-                query: `WITH distribution_sample_table as (
-                  SELECT *
-                  FROM "dioptra-gt-combined-eventstream"
-                  WHERE ${allSqlFilters} AND ${groupByColumns
-    .map((c) => `"${c}"='${row.original[c]}'`)
-    .join(' AND ')})
-                SELECT
-                  cast(my_sub_table.my_count as float) / my_sub_count_table.total_count as dist,
-                  my_sub_table.prediction as "value"
-                  FROM (
-                    SELECT
-                      count(1) AS my_count,
-                      prediction,
-                      ${sqlColumns}
-                    FROM distribution_sample_table
-                    GROUP BY prediction, ${sqlColumns}
-                  ) AS my_sub_table
-                  JOIN (
-                    SELECT
-                      count(*) as total_count,
-                      ${sqlColumns}
-                    FROM distribution_sample_table
-                    GROUP BY ${sqlColumns}
-                  ) AS my_sub_count_table
-                  ON ${groupByColumns
-        .map(
-            (column) => `my_sub_table."${column}" = my_sub_count_table."${column}"`
-        )
-        .join(' AND ')}`
+            metricsClient('query/distribution-data', {
+                sql_columns: sqlColumns,
+                sql_filters: allSqlFilters,
+                columns: groupByColumns.map((column) => `my_sub_table."${column}" = my_sub_count_table."${column}"`).join(' AND '),
+                original_columns: groupByColumns.map((c) => `"${c}"='${row.original[c]}'`).join(' AND ')
             }).then((data) => {
                 setDistributionData(data);
             });
@@ -268,14 +232,11 @@ const mAPCell = ({timeStore}) => {
     return (
         <Async
             refetchOnChanged={[allSqlFilters, timeGranularity]}
-            fetchData={() => baseJsonClient('/api/metrics', {
-                method: 'post',
-                body: {
-                    metrics_type: 'map_mar_over_time',
-                    current_filters: allSqlFilters,
-                    time_granularity: timeGranularity,
-                    per_class: true
-                }
+            fetchData={() => metricsClient('', {
+                metrics_type: 'map_mar_over_time',
+                current_filters: allSqlFilters,
+                time_granularity: timeGranularity,
+                per_class: true
             })
             }
             renderData={(data) => (
@@ -355,7 +316,7 @@ const Segmentation = ({timeStore, modelStore, segmentationStore}) => {
             Columns
                     </Button>
                 </div>
-                <TimeseriesQuery
+                <Async
                     defaultData={[]}
                     renderData={(data) => (
                         <Table
@@ -415,29 +376,16 @@ const Segmentation = ({timeStore, modelStore, segmentationStore}) => {
                             data={data}
                         />
                     )}
-                    sql={
-                        groupByColumns.length ?
-                            sql`
-                        SELECT
-                          ${groupByColumns.map((c) => `"${c}"`).join(', ')},
-                          count(1) as sampleSize
-                        FROM "dioptra-gt-combined-eventstream"
-                        WHERE ${allSqlFilters}
-                        GROUP BY ${groupByColumns.map((c) => `"${c}"`).join(', ')}
-                        ORDER BY sampleSize DESC
-                        ` :
-                            sql`
-                    SELECT null 
-                    FROM "dioptra-gt-combined-eventstream" 
-                    where false
-                    `
-                    }
+                    fetchData={() => metricsClient(`query/${groupByColumns.length ? 'fairness-bias-columns' : 'select-null'}`, groupByColumns.length ? {
+                        columns: groupByColumns.map((c) => `"${c}"`).join(', '),
+                        sql_filters: allSqlFilters
+                    } : {})}
                 />
                 {addColModal && (
-                    <TimeseriesQuery
+                    <Async
                         defaultData={[]}
                         renderData={(featuresAndTags) => featuresAndTags.length ? (
-                            <TimeseriesQuery
+                            <Async
                                 defaultData={[]}
                                 renderData={([data]) => (
                                     <AddColumnModal
@@ -450,28 +398,15 @@ const Segmentation = ({timeStore, modelStore, segmentationStore}) => {
                                     />
                                 )}
                                 resultFormat='array'
-                                sql={sql`
-                                SELECT ${featuresAndTags
-                                .map(({column}) => `COUNT("${column}")`)
-                                .join(', ')}
-                                FROM "dioptra-gt-combined-eventstream"
-                                WHERE ${
-                            timeStore.sqlTimeFilter
-                            } AND model_id = '${mlModelId}'
-                                `}
+                                fetchData={() => metricsClient('query/fairness-bias-columns-counts', {
+                                    counts: featuresAndTags.map(({column}) => `COUNT("${column}")`).join(', '),
+                                    sql_time_filter: timeStore.sqlTimeFilter,
+                                    ml_model_id: mlModelId
+                                })}
                             />
                         ) : null
                         }
-                        sql={sql`
-                            SELECT COLUMN_NAME as "column"
-                            FROM INFORMATION_SCHEMA.COLUMNS 
-                            WHERE TABLE_NAME = 'dioptra-gt-combined-eventstream'
-                            AND (${
-                    mlModelType === 'TABULAR_CLASSIFIER' ?
-                        "COLUMN_NAME LIKE 'features.%' OR" :
-                        ''
-                    } COLUMN_NAME LIKE 'tags.%')
-                        `}
+                        fetchData={() => metricsClient(`query/${mlModelType === 'TABULAR_CLASSIFIER' ? 'fairness-bias-columns-names-for-tags' : 'fairness-bias-columns-names-for-features'}`)}
                     />
                 )}
             </div>

@@ -47,6 +47,26 @@ MetricsRouter.post('/:method?', async (req, res, next) => {
     }
 });
 
+MetricsRouter.post('/query/:queryName', async (req, res, next) => {
+    try {
+        const queryName = req.params.queryName;
+
+        await axios
+            .post(`${process.env.METRICS_ENGINE_URL}/queries/${queryName}`, {
+                ...req.body,
+                organization_id:
+                    OVERRIDE_DRUID_ORG_ID ||
+                    req.user.activeOrganizationMembership.organization._id
+            })
+            .then((response) => {
+                res.status(response.status);
+                res.json(response.data);
+            });
+    } catch (e) {
+        next(e);
+    }
+});
+
 MetricsRouter.get('/integrations/:sourceName', async (req, res, next) => {
     try {
         const sourceName = req.params.sourceName;
