@@ -30,7 +30,7 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                     <div>
                         <Async
                             refetchOnChanged={[allOfflineSqlFilters, allSqlFilters, timeGranularity]}
-                            fetchData={() => metricsClient('', {
+                            fetchData={() => metricsClient('compute', {
                                 metrics_type: 'bi_non_cat_distance',
                                 reference_filters: allOfflineSqlFilters,
                                 current_filters: allSqlFilters,
@@ -59,7 +59,7 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                 <Row>
                     <Col>
                         <Async refetchOnChanged={[allOfflineSqlFilters, allSqlFilters, timeGranularity]}
-                            fetchData={() => metricsClient('', {
+                            fetchData={() => metricsClient('compute', {
                                 metrics_type: 'outlier_detection',
                                 current_filters: allSqlFilters,
                                 reference_filters: allOfflineSqlFilters
