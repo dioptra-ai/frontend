@@ -313,8 +313,8 @@ const PerformanceDetails = ({filtersStore}) => {
                                     />
                                 )}
                                 fetchData={[
-                                    () => metricsClient('query/precision_per_class', {sql_filters: allSqlFilters}),
-                                    () => metricsClient('query/precision_per_class', {sql_filters: sqlFiltersWithModelTime})
+                                    () => metricsClient('query/precision-per-class', {sql_filters: allSqlFilters}),
+                                    () => metricsClient('query/precision-per-class', {sql_filters: sqlFiltersWithModelTime})
                                 ]}
                             />
                         </Col>

@@ -25,7 +25,6 @@ const ImageExamples = ({onClose, groundtruth, prediction, iou, model}) => {
                 />
             </div>
             <Async
-                defaultData={[]}
                 renderData={(data) => data.every((img) => img['image_metadata.uri'].replace(/"/g, '').match(/^https?:\/\//)) ? (
                     <CustomCarousel
                         items={data.map((x) => x['image_metadata.uri'].replace(/"/g, ''))}
@@ -39,6 +38,7 @@ const ImageExamples = ({onClose, groundtruth, prediction, iou, model}) => {
                     />
                 )
                 }
+                refetchOnChanged={[groundtruth, prediction, iou, allSqlFilters, model.mlModelType]}
                 fetchData={() => metricsClient(`query/${model.mlModelType === 'DOCUMENT_PROCESSING' ?
                     'select-image-uri-for-data-processing' : 'select-image-uri-for-default'}`,
                 model.mlModelType === 'DOCUMENT_PROCESSING' ?

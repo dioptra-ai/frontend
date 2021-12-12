@@ -68,14 +68,6 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
     const sampleSizeComponent = (<CountEvents sqlFilters={allSqlFilters}/>);
     const timeGranularityValue = timeStore.getTimeGranularity();
     const timeGranularity = timeGranularityValue.toISOString();
-    const predictionName =
-        model.mlModelType === 'DOCUMENT_PROCESSING' ?
-            '"prediction.class_name"' :
-            '"prediction"';
-    const groundTruthName =
-        model.mlModelType === 'DOCUMENT_PROCESSING' ?
-            '"groundtruth.class_name"' :
-            '"groundtruth"';
 
     const getQueryForMetric = (metricName, timeGranularity, sqlFilters = allSqlFilters) => {
 
