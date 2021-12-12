@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const Schema = mongoose.Schema;
 const organizationSchema = new Schema({
-    name: String
+    name: {type: String, required: true}
 }, {timestamps: true});
 
 organizationSchema.virtual('organizationMemberships', {

@@ -26,20 +26,14 @@ MetricsRouter.post('/:method?', async (req, res, next) => {
         });
 
         if (metricsResponse.status !== 200) {
-            let errorMessage = 'Internal Server Error';
+            const json = await metricsResponse.json();
 
-            try {
-                errorMessage = await metricsResponse
-                    .json()
-                    .then((json) => json.error.message);
-            } catch {
-                errorMessage = metricsResponse.statusText;
-            }
             res.status(metricsResponse.status);
-            res.send(errorMessage);
-        }
 
-        metricsResponse.body.pipe(res);
+            throw new Error(json.error.message);
+        } else {
+            metricsResponse.body.pipe(res);
+        }
     } catch (e) {
         next(e);
     }

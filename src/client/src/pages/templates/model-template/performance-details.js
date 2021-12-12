@@ -18,6 +18,7 @@ import BarGraph from 'components/bar-graph';
 import Async from 'components/async';
 import QAPerfAnalysis from './qa-perf-analysis';
 import metricsClient from 'clients/metrics';
+import CountEvents from 'components/count-events';
 
 const PerformanceBox = ({
     title = '',
@@ -139,39 +140,8 @@ ClassRow.propTypes = {
 const PerformanceDetails = ({filtersStore}) => {
     const allSqlFilters = useAllSqlFilters();
     const sqlFiltersWithModelTime = useAllSqlFilters({useReferenceRange: true});
-
     const {mlModelType} = useModel();
-
-    const SI_SYMBOL = ['', 'k', 'M', 'G', 'T', 'P', 'E'];
-
-    const abbreviateNumber = (number) => {
-
-        // what tier? (determines SI symbol)
-        const tier = Math.log10(Math.abs(number)) / 3 | 0; //eslint-disable-line no-bitwise
-
-        // if zero, we don't need a suffix
-        if (tier === 0) return number;
-
-        // get suffix and determine scale
-        const suffix = SI_SYMBOL[tier];
-
-        const scale = Math.pow(10, tier * 3);
-
-        // scale the number
-        const scaled = number / scale;
-
-        // format number and add suffix
-        return scaled.toFixed(1) + suffix;
-    };
-
-    const sampleSizeComponent = (
-        <Async
-            defaultData={[{sampleSize: 0}]}
-            renderData={([{sampleSize}]) => abbreviateNumber(sampleSize)}
-            renderError={() => 0}
-            fetchData={() => metricsClient('query/sample-size', {sql_filters: allSqlFilters})}
-        />
-    );
+    const sampleSizeComponent = <CountEvents sqlFilters={allSqlFilters}/>;
 
     return (
         <div className='pb-5'>
@@ -191,11 +161,11 @@ const PerformanceDetails = ({filtersStore}) => {
                                         iou_threshold: 0.5
                                     })}
                                     refetchOnChanged={[allSqlFilters]}
-                                    renderData={({value}) => (
+                                    renderData={([d]) => (
                                         <MetricInfoBox
                                             name='mAP'
                                             subtext={'iou=0.5'}
-                                            value={value}
+                                            value={d?.value}
                                         />
                                     )}
                                 />
@@ -208,11 +178,11 @@ const PerformanceDetails = ({filtersStore}) => {
                                         iou_threshold: 0.75
                                     })}
                                     refetchOnChanged={[allSqlFilters]}
-                                    renderData={({value}) => (
+                                    renderData={([d]) => (
                                         <MetricInfoBox
                                             name='mAP'
                                             subtext={'iou=0.75'}
-                                            value={value}
+                                            value={d?.value}
                                         />
                                     )}
                                 />
@@ -225,11 +195,11 @@ const PerformanceDetails = ({filtersStore}) => {
                                         iou_threshold: 0.95
                                     })}
                                     refetchOnChanged={[allSqlFilters]}
-                                    renderData={({value}) => (
+                                    renderData={([d]) => (
                                         <MetricInfoBox
                                             name='mAP'
                                             subtext={'iou=0.95'}
-                                            value={value}
+                                            value={d?.value}
                                         />
                                     )}
                                 />
@@ -242,11 +212,11 @@ const PerformanceDetails = ({filtersStore}) => {
                                         iou_threshold: 0.5
                                     })}
                                     refetchOnChanged={[allSqlFilters]}
-                                    renderData={({value}) => (
+                                    renderData={([d]) => (
                                         <MetricInfoBox
                                             name='mAR'
                                             subtext={'iou=0.5'}
-                                            value={value}
+                                            value={d?.value}
                                         />
                                     )}
                                 />
@@ -259,11 +229,11 @@ const PerformanceDetails = ({filtersStore}) => {
                                         iou_threshold: 0.75
                                     })}
                                     refetchOnChanged={[allSqlFilters]}
-                                    renderData={({value}) => (
+                                    renderData={([d]) => (
                                         <MetricInfoBox
                                             name='mAR'
                                             subtext={'iou=0.75'}
-                                            value={value}
+                                            value={d?.value}
                                         />
                                     )}
                                 />
@@ -276,11 +246,11 @@ const PerformanceDetails = ({filtersStore}) => {
                                         iou_threshold: 0.95
                                     })}
                                     refetchOnChanged={[allSqlFilters]}
-                                    renderData={({value}) => (
+                                    renderData={([d]) => (
                                         <MetricInfoBox
                                             name='mAR'
                                             subtext={'iou=0.95'}
-                                            value={value}
+                                            value={d?.value}
                                         />
                                     )}
                                 />
@@ -290,19 +260,12 @@ const PerformanceDetails = ({filtersStore}) => {
                     <div className='my-3'>
                         <div className='d-flex my-3' lg={12}>
                             <Async
-                                defaultData={[]}
                                 renderData={() => (
                                     <BarGraph
                                         bars={[]}
                                         title='Precision'
                                         unit='%'
                                         yAxisName='Precision'
-                                        xAxisName={[
-                                            'SSN',
-                                            'First Name',
-                                            'Last Name',
-                                            'Zip Code'
-                                        ]}
                                     />
                                 )}
                                 fetchData={() => Promise.resolve([])}
@@ -310,19 +273,12 @@ const PerformanceDetails = ({filtersStore}) => {
                         </div>
                         <div className='d-flex my-3' lg={12}>
                             <Async
-                                defaultData={[]}
                                 renderData={() => (
                                     <BarGraph
                                         bars={[]}
                                         title='Recall'
                                         unit='%'
                                         yAxisName='Recall'
-                                        xAxisName={[
-                                            'SSN',
-                                            'First Name',
-                                            'Last Name',
-                                            'Zip Code'
-                                        ]}
                                     />
                                 )}
                                 fetchData={() => Promise.resolve([])}

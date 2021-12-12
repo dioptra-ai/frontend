@@ -97,9 +97,11 @@ const ConfusionMatrix = () => {
     const [selectedCell, setSelectedCell] = useState(null);
     const model = useModel();
     const allSqlFilters = useAllSqlFilters({__REMOVE_ME__excludeOrgId: true});
-    const sqlFiltersWithModelTime = useAllSqlFilters({useReferenceRange: true, __REMOVE_ME__excludeOrgId: true});
+    const sqlFiltersWithModelTime = useAllSqlFilters({
+        useReferenceRange: true,
+        __REMOVE_ME__excludeOrgId: true
+    });
     const [iou, setIou] = useState('0.5');
-
     const getClasses = (data, key) => {
         const classes = [];
 
