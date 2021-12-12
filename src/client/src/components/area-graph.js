@@ -115,7 +115,9 @@ const AreaGraph = ({
             }), {});
 
             // Now we populate our nice ticks list with the data that's available.
-            return ticks.map((x) => timeSeries[x] || {x});
+            return ticks.map((tick) => timeSeries[tick] || {
+                [xDataKey]: tick
+            });
         }
     }, [JSON.stringify(dots), JSON.stringify(domain)]);
 
