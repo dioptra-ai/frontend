@@ -260,6 +260,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                     getQueryForMetric('ACCURACY'),
                                     getQueryForMetric('ACCURACY', null, sqlFiltersWithModelTime)
                                 ]}
+                                refetchOnChanged={[allSqlFilters, sqlFiltersWithModelTime, model.mlModelType]}
                             />
                         </Col>
                         <Col className='d-flex' lg={3}>
@@ -277,6 +278,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                     getQueryForMetric('F1_SCORE'),
                                     getQueryForMetric('F1_SCORE', null, sqlFiltersWithModelTime)
                                 ]}
+                                refetchOnChanged={[allSqlFilters, sqlFiltersWithModelTime, model.mlModelType]}
                             />
                         </Col>
                         <Col className='d-flex' lg={3}>
@@ -286,14 +288,15 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                         name='Recall'
                                         subtext={sampleSizeComponent}
                                         unit='%'
-                                        value={100 * data?.recall}
-                                        difference={100 * (data?.recall - benchmarkData?.recall)}
+                                        value={100 * data?.value}
+                                        difference={100 * (data?.value - benchmarkData?.value)}
                                     />
                                 )}
                                 fetchData={[
                                     getQueryForMetric('RECALL'),
                                     getQueryForMetric('RECALL', null, sqlFiltersWithModelTime)
                                 ]}
+                                refetchOnChanged={[allSqlFilters, sqlFiltersWithModelTime, model.mlModelType]}
                             />
                         </Col>
                         <Col className='d-flex' lg={3}>
@@ -303,9 +306,9 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                         name='Precision'
                                         subtext={sampleSizeComponent}
                                         unit='%'
-                                        value={100 * data?.precision}
+                                        value={100 * data?.value}
                                         difference={
-                                            100 * (data?.precision - benchmarkData?.precision)
+                                            100 * (data?.value - benchmarkData?.value)
                                         }
                                     />
                                 )}
@@ -313,6 +316,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                     getQueryForMetric('PRECISION'),
                                     getQueryForMetric('PRECISION', null, sqlFiltersWithModelTime)
                                 ]}
+                                refetchOnChanged={[allSqlFilters, sqlFiltersWithModelTime, model.mlModelType]}
                             />
                         </Col>
                     </Row>
