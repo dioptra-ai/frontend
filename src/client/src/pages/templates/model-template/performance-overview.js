@@ -75,8 +75,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
             [ModelPerformanceMetrics.ACCURACY.value]: () => {
 
                 return metricsClient('accuracy-metric', {
-                    sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ?
-                        `cast("iou" as FLOAT) > ${iou} AND ${sqlFilters}` : sqlFilters,
+                    sql_filters: sqlFilters,
                     time_granularity: timeGranularity,
                     model_type: model.mlModelType
                 });
@@ -84,8 +83,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
             [ModelPerformanceMetrics.PRECISION.value]: () => {
 
                 return metricsClient('precision-metric', {
-                    sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ?
-                        `cast("iou" as FLOAT) > ${iou} AND ${sqlFilters}` : sqlFilters,
+                    sql_filters: sqlFilters,
                     time_granularity: timeGranularity,
                     model_type: model.mlModelType
                 });
@@ -93,8 +91,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
             [ModelPerformanceMetrics.RECALL.value]: () => {
 
                 return metricsClient('recall-metric', {
-                    sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ?
-                        `cast("iou" as FLOAT) > ${iou} AND ${sqlFilters}` : sqlFilters,
+                    sql_filters: sqlFilters,
                     time_granularity: timeGranularity,
                     model_type: model.mlModelType
                 });
@@ -102,8 +99,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
             [ModelPerformanceMetrics.F1_SCORE.value]: () => {
 
                 return metricsClient('f1-score-metric', {
-                    sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ?
-                        `cast("iou" as FLOAT) > ${iou} AND ${sqlFilters}` : sqlFilters,
+                    sql_filters: sqlFilters,
                     time_granularity: timeGranularity,
                     model_type: model.mlModelType
                 });
@@ -214,7 +210,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 renderData={([d]) => (
                                     <MetricInfoBox
                                         name='mAP'
-                                        subtext='iou=0.5:0.95'
+                                        subtext='iou=0.5'
                                         value={d?.value}
                                     />
                                 )}
@@ -227,7 +223,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 renderData={([d]) => (
                                     <MetricInfoBox
                                         name='mAR'
-                                        subtext='iou=0.5:0.95'
+                                        subtext='iou=0.5'
                                         value={d?.value}
                                     />
                                 )}
