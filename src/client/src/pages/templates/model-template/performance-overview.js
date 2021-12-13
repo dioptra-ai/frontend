@@ -175,7 +175,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                         <Col className='d-flex' lg={3}>
                             <Async
                                 fetchData={getQueryForMetric('EXACT_MATCH')}
-                                refetchOnChanged={[timeGranularity, model, allSqlFilters]}
+                                refetchOnChanged={[model, allSqlFilters]}
                                 renderData={([d]) => (
                                     <MetricInfoBox
                                         name='EM'
@@ -189,7 +189,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                         <Col className='d-flex' lg={3}>
                             <Async
                                 fetchData={getQueryForMetric('F1_SCORE')}
-                                refetchOnChanged={[timeGranularity, model, allSqlFilters]}
+                                refetchOnChanged={[model, allSqlFilters]}
                                 renderData={([d]) => (
                                     <MetricInfoBox
                                         name='F1 Score'
