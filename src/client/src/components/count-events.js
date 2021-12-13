@@ -4,7 +4,6 @@ import Async from 'components/async';
 
 const CountEvents = ({sqlFilters}) => (
     <Async
-        defaultData={{}}
         renderData={([d]) => d?.value}
         fetchData={() => metricsClient('query/count-events', {sql_filters: sqlFilters})}
     />
