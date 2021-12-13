@@ -28,15 +28,19 @@ const inRange = (num, min, max) => num >= min && num <= max;
 
 const ScatterGraph = ({data}) => {
     const ref = useRef();
-    const firstOutlier = data.find(({outlier}) => outlier);
-    const firstNonOutlier = data.find(({outlier}) => !outlier);
+    const firstOutlier = useMemo(() => {
+        return data.find(({outlier}) => outlier);
+    }, [data]);
+    const firstNonOutlier = useMemo(() => {
+        return data.find(({outlier}) => !outlier);
+    }, [data]);
     const [selectedPoints, setSelectedPoints] = useState([
         firstOutlier || firstNonOutlier
     ]);
     const [exampleInModal, setExampleInModal] = useModal(false);
     const [shiftPressed, setShiftPressed] = useState(false);
-    const [refTopLeft, setRefTopLeft] = useThrottle(null, 25, true);
-    const [refBottomRight, setRefBottomRight] = useThrottle(null, 25, true);
+    const [refTopLeft, setRefTopLeft] = useThrottle(null, 10, true);
+    const [refBottomRight, setRefBottomRight] = useThrottle(null, 10, true);
     const [multiSelect, setMultiSelect] = useState(false);
 
     const samples = selectedPoints?.reduce(
@@ -157,7 +161,9 @@ const ScatterGraph = ({data}) => {
                             }}
                             onMouseUp={handleMouseUp}
                             onMouseMove={(e) => {
-                                if (multiSelect) setRefBottomRight({x: e?.xValue, y: e?.yValue});
+                                if (multiSelect) {
+                                    setRefBottomRight({x: e?.xValue, y: e?.yValue});
+                                }
                             }}
                         >
                             <CartesianGrid strokeDasharray='6 2' stroke={theme.light} />

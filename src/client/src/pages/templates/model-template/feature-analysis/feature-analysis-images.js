@@ -30,7 +30,7 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                     <div>
                         <Async
                             refetchOnChanged={[allOfflineSqlFilters, allSqlFilters, timeGranularity]}
-                            fetchData={() => metricsClient('', {
+                            fetchData={() => metricsClient('compute', {
                                 metrics_type: 'bi_non_cat_distance',
                                 reference_filters: allOfflineSqlFilters,
                                 current_filters: allSqlFilters,
@@ -59,7 +59,7 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                 <Row>
                     <Col>
                         <Async refetchOnChanged={[allOfflineSqlFilters, allSqlFilters, timeGranularity]}
-                            fetchData={() => metricsClient('', {
+                            fetchData={() => metricsClient('compute', {
                                 metrics_type: 'outlier_detection',
                                 current_filters: allSqlFilters,
                                 reference_filters: allOfflineSqlFilters
@@ -84,9 +84,8 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                 <Row>
                     <Col className='d-flex' lg={2}>
                         <Async
-                            defaultData={[{unique: NaN}]}
-                            renderData={([{unique}]) => (
-                                <MetricInfoBox name='% Unique' unit='%' value={unique} />
+                            renderData={([d]) => (
+                                <MetricInfoBox name='% Unique' unit='%' value={100 * d?.value} />
                             )}
                             fetchData={() => metricsClient('query/unique-images', {sql_filters: allSqlFilters})}
                         />
@@ -96,15 +95,15 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                             defaultData={[]}
                             renderData={(data) => (
                                 <AreaGraph
-                                    dots={data.map(({uniques, __time}) => ({
-                                        y: uniques,
-                                        x: new Date(__time).getTime()
-                                    }))}
+                                    dots={data.map(({time, value}) => ({time, value: 100 * value}))}
+                                    xDataKey='time'
+                                    yDataKey='value'
                                     isTimeDependent
                                     title='Unique Images Over Time'
                                     xAxisDomain={timeStore.rangeMillisec}
                                     xAxisName='Time'
-                                    yAxisName='Unique Images (%)'
+                                    yAxisName='Unique Images'
+                                    unit='%'
                                 />
                             )}
                             fetchData={() => metricsClient('query/unique-images-over-time', {time_granularity: timeGranularity, sql_filters: allSqlFilters})}

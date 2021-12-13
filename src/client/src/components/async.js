@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import {SpinnerWrapper} from 'components/spinner';
+
 export const AsyncContext = React.createContext();
 
 const Async = ({
@@ -15,6 +16,7 @@ const Async = ({
     const [data, setData] = useState();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [hasLoaded, setHasLoaded] = useState(false);
 
     useEffect(() => {
         setLoading(true);
@@ -31,6 +33,7 @@ const Async = ({
             })
             .finally(() => {
                 setLoading(false);
+                setHasLoaded(true);
             });
     }, refetchOnChanged);
 
@@ -48,14 +51,14 @@ const Async = ({
     } else if (data || defaultData) {
 
         content = renderData(data || defaultData);
-    } else {
+    } else if (loading || !hasLoaded) {
 
         content = (
             <div style={{width: '100%', height: '100%'}}>
                 <SpinnerWrapper/>
             </div>
         );
-    }
+    } else return null;
 
     return (
         <AsyncContext.Provider value={{data, loading, error}}>

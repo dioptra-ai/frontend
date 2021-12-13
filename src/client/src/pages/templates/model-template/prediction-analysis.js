@@ -46,7 +46,7 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                 <Row className='my-3'>
                     <Col className='d-flex' lg={4}>
                         <Async
-                            defaultData={[]}
+                            refetchOnChanged={[allSqlFilters, mlModelType]}
                             renderData={(data) => (
                                 <BarGraph
                                     bars={data.map(({prediction, my_percentage}) => ({
@@ -66,7 +66,7 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                     </Col>
                     <Col className='d-flex' lg={4}>
                         <Async
-                            defaultData={[]}
+                            refetchOnChanged={[allOfflineSqlFilters, mlModelType]}
                             renderData={(data) => (
                                 <BarGraph
                                     bars={data.map(({prediction, my_percentage}) => ({
@@ -85,7 +85,10 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                     </Col>
                     <Col className='d-flex' lg={4}>
                         <Async
-                            defaultData={[]}
+                            refetchOnChanged={[
+                                allOfflineSqlFilters, mlModelType,
+                                timeGranularity, allSqlFilters
+                            ]}
                             renderData={(data) => (
                                 <AreaGraph
                                     dots={data}
@@ -125,6 +128,7 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                             </Col>
                             <Col lg={{span: 3, offset: 1}} className='my-3'>
                                 <Async
+                                    refetchOnChanged={[allSqlFiltersWithoutOrgId]}
                                     fetchData={() => metricsClient('get-distinct', {
                                         field: 'prediction.class_name',
                                         sql_filters: allSqlFiltersWithoutOrgId
@@ -144,6 +148,7 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                             </Col>
                             <Col lg={4}>
                                 <Async
+                                    refetchOnChanged={[allSqlFiltersWithoutOrgId, classFilter.value]}
                                     fetchData={() => metricsClient('bbox-locations', {
                                         sql_filters: `${allSqlFiltersWithoutOrgId} AND 
                                             ${classFilter.value ? `"prediction.class_name"='${classFilter.value}'` : 'TRUE'}`
@@ -157,7 +162,6 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                                             selectedSamples={heatMapSamples}
                                         />
                                     )}
-                                    refetchOnChanged={[allSqlFiltersWithoutOrgId, classFilter.value]}
                                 />
                             </Col>
                             <Col lg={8} className='rounded p-3 pt-0'>

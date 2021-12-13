@@ -77,7 +77,7 @@ const AddColumnModal = ({onCancel, onApply, allColumns, selected}) => {
                 </div>
             )}
             {!tagColumns.length && !featureColumns.length ? (
-                <p className='text-secondary fs-6 mb-4 text-center'>No Columns Available</p>
+                <p className='text-secondary fs-6 mb-4 text-center'>No Columns Available in this Time Range</p>
             ) : null}
             <div className='border-top border-mercury py-3'>
                 <Button
@@ -376,10 +376,10 @@ const Segmentation = ({timeStore, modelStore, segmentationStore}) => {
                             data={data}
                         />
                     )}
-                    fetchData={() => metricsClient(`query/${groupByColumns.length ? 'fairness-bias-columns' : 'select-null'}`, groupByColumns.length ? {
-                        columns: groupByColumns.map((c) => `"${c}"`).join(', '),
+                    fetchData={() => groupByColumns.length ? metricsClient('query/fairness-bias-columns', {
+                        group_by: groupByColumns,
                         sql_filters: allSqlFilters
-                    } : {})}
+                    }) : Promise.resolve([])}
                 />
                 {addColModal && (
                     <Async
@@ -406,7 +406,10 @@ const Segmentation = ({timeStore, modelStore, segmentationStore}) => {
                             />
                         ) : null
                         }
-                        fetchData={() => metricsClient(`query/${mlModelType === 'TABULAR_CLASSIFIER' ? 'fairness-bias-columns-names-for-tags' : 'fairness-bias-columns-names-for-features'}`)}
+                        fetchData={mlModelType === 'TABULAR_CLASSIFIER' ?
+                            () => metricsClient('query/fairness-bias-columns-names-for-features') :
+                            () => metricsClient('query/fairness-bias-columns-names-for-tags')
+                        }
                     />
                 )}
             </div>

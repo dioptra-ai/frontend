@@ -18,7 +18,7 @@ OrganizationRouter.post('/rename', isAdmin, async (req, res, next) => {
             {new: true}
         );
 
-        res.send(result);
+        res.json(result);
     } catch (e) {
         next(e);
     }

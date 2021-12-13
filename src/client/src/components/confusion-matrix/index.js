@@ -28,10 +28,12 @@ const Table = ({
                 const {value = 0, difference = 0} = cell;
 
                 return (
-                    <DifferenceLabel
-                        value={`${(value * 100).toFixed(2)} %`}
-                        difference={(difference * 100).toFixed(2)}
-                    />
+                    <>
+                        <span>{`${(value * 100).toFixed(2)} %`}</span>
+                        <DifferenceLabel
+                            difference={(difference * 100).toFixed(2)}
+                        />
+                    </>
                 );
             },
             {displayName: 'Cell'}
@@ -95,9 +97,11 @@ const ConfusionMatrix = () => {
     const [selectedCell, setSelectedCell] = useState(null);
     const model = useModel();
     const allSqlFilters = useAllSqlFilters({__REMOVE_ME__excludeOrgId: true});
-    const sqlFiltersWithModelTime = useAllSqlFilters({useReferenceRange: true, __REMOVE_ME__excludeOrgId: true});
-    const [iou, setIou] = useState(0.5);
-
+    const sqlFiltersWithModelTime = useAllSqlFilters({
+        useReferenceRange: true,
+        __REMOVE_ME__excludeOrgId: true
+    });
+    const [iou, setIou] = useState('0.5');
     const getClasses = (data, key) => {
         const classes = [];
 
@@ -123,9 +127,9 @@ const ConfusionMatrix = () => {
                         <Col lg={{span: 3}}>
                             <Select
                                 options={[
-                                    {name: 'iou >= 0.5', value: 0.5},
-                                    {name: 'iou >= 0.75', value: 0.75},
-                                    {name: 'iou >= 0.95', value: 0.95}
+                                    {name: 'iou >= 0.5', value: '0.5'},
+                                    {name: 'iou >= 0.75', value: '0.75'},
+                                    {name: 'iou >= 0.95', value: '0.95'}
                                 ]}
                                 initialValue={iou}
                                 onChange={(val) => setIou(Number(val))}
@@ -165,7 +169,7 @@ const ConfusionMatrix = () => {
                   model={model}
                   onClose={() => setSelectedCell(null)}
                   prediction={selectedCell.prediction}
-                  iou={iou}
+                  iou={Number(iou)}
               />
           ) : model.mlModelType === 'TABULAR_CLASSIFIER' ? (
               <TabularExamples

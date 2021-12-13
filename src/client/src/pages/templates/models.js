@@ -194,14 +194,18 @@ const Models = ({modelStore}) => {
 
     useEffect(() => {
         if (data.length) {
-            metricsClient('query/get-formatted-data')
-                .then((trafficData) => {
-                    setFormattedData(data.map((d) => {
-                        d.traffic = trafficData.filter(({model_id}) => model_id === d.mlModelId);
+            metricsClient('throughput', {
+                sql_filters: '__time >= CURRENT_TIMESTAMP - INTERVAL \'1\' DAY',
+                granularity_iso: moment.duration(1, 'hour').toISOString(),
+                granularity_sec: moment.duration(1, 'hour').asSeconds(),
+                group_by: ['model_id']
+            }).then((trafficData) => {
+                setFormattedData(data.map((d) => {
+                    d.traffic = trafficData.filter(({model_id}) => model_id === d.mlModelId);
 
-                        return d;
-                    }));
-                })
+                    return d;
+                }));
+            })
                 .catch(() => setFormattedData([]));
         }
     }, [data.length, pageNumber]);

@@ -18,6 +18,7 @@ import BarGraph from 'components/bar-graph';
 import Async from 'components/async';
 import QAPerfAnalysis from './qa-perf-analysis';
 import metricsClient from 'clients/metrics';
+import CountEvents from 'components/count-events';
 
 const PerformanceBox = ({
     title = '',
@@ -139,39 +140,8 @@ ClassRow.propTypes = {
 const PerformanceDetails = ({filtersStore}) => {
     const allSqlFilters = useAllSqlFilters();
     const sqlFiltersWithModelTime = useAllSqlFilters({useReferenceRange: true});
-
     const {mlModelType} = useModel();
-
-    const SI_SYMBOL = ['', 'k', 'M', 'G', 'T', 'P', 'E'];
-
-    const abbreviateNumber = (number) => {
-
-        // what tier? (determines SI symbol)
-        const tier = Math.log10(Math.abs(number)) / 3 | 0; //eslint-disable-line no-bitwise
-
-        // if zero, we don't need a suffix
-        if (tier === 0) return number;
-
-        // get suffix and determine scale
-        const suffix = SI_SYMBOL[tier];
-
-        const scale = Math.pow(10, tier * 3);
-
-        // scale the number
-        const scaled = number / scale;
-
-        // format number and add suffix
-        return scaled.toFixed(1) + suffix;
-    };
-
-    const sampleSizeComponent = (
-        <Async
-            defaultData={[{sampleSize: 0}]}
-            renderData={([{sampleSize}]) => abbreviateNumber(sampleSize)}
-            renderError={() => 0}
-            fetchData={() => metricsClient('query/sample-size', {sql_filters: allSqlFilters})}
-        />
-    );
+    const sampleSizeComponent = <CountEvents sqlFilters={allSqlFilters}/>;
 
     return (
         <div className='pb-5'>
@@ -185,360 +155,102 @@ const PerformanceDetails = ({filtersStore}) => {
                         <Row className='mb-3 align-items-stretch'>
                             <Col className='d-flex' lg={2}>
                                 <Async
+                                    fetchData={() => metricsClient('map', {
+                                        sql_filters: allSqlFilters,
+                                        model_type: mlModelType,
+                                        iou_threshold: 0.5
+                                    })}
                                     refetchOnChanged={[allSqlFilters]}
-                                    fetchData={[
-                                        () => metricsClient('compute', {
-                                            metrics_type: 'map_mar',
-                                            current_filters: allSqlFilters,
-                                            per_class: false
-                                        }),
-                                        () => metricsClient('compute', {
-                                            metrics_type: 'map_mar',
-                                            current_filters: sqlFiltersWithModelTime,
-                                            per_class: false
-                                        })
-                                    ]}
-                                    renderData={(data) => {
-                                        let valueFromFirstObject = 0;
-
-                                        if (data[0]['performance'][0]['class_name'] === 'all') {
-                                            const results = data[0]['performance'][0]['results'];
-
-                                            for (let i = 0; i < results.length; i++) {
-                                                if (results[i]['iou'] === '0.5:0.95') {
-                                                    valueFromFirstObject = results[i]['mAP'] * 100;
-                                                }
-                                            }
-                                        }
-
-                                        let valueFromSecondObject = 0;
-
-                                        if (data[1]['performance'][0]['class_name'] === 'all') {
-                                            const results = data[1]['performance'][0]['results'];
-
-                                            for (let i = 0; i < results.length; i++) {
-                                                if (results[i]['iou'] === '0.5:0.95') {
-                                                    valueFromSecondObject = results[i]['mAP'] * 100;
-                                                }
-                                            }
-                                        }
-
-                                        return <MetricInfoBox
-                                            name='AP'
-                                            sampleSize={sampleSizeComponent}
-                                            unit='%'
-                                            value={valueFromFirstObject}
-                                            difference={valueFromSecondObject - valueFromFirstObject}
-                                        />;
-                                    }}
-                                    renderError={() => (
+                                    renderData={([d]) => (
                                         <MetricInfoBox
-                                            name='AP'
-                                            sampleSize={sampleSizeComponent}
-                                            unit='%'
-                                            value={0.0}
-                                            difference={0.0}
+                                            name='mAP'
+                                            subtext={'iou=0.5'}
+                                            value={d?.value}
                                         />
                                     )}
                                 />
                             </Col>
                             <Col className='d-flex' lg={2}>
                                 <Async
+                                    fetchData={() => metricsClient('map', {
+                                        sql_filters: allSqlFilters,
+                                        model_type: mlModelType,
+                                        iou_threshold: 0.75
+                                    })}
                                     refetchOnChanged={[allSqlFilters]}
-                                    fetchData={[
-                                        () => metricsClient('compute', {
-                                            metrics_type: 'map_mar',
-                                            current_filters: allSqlFilters,
-                                            per_class: false
-                                        }),
-                                        () => metricsClient('compute', {
-                                            metrics_type: 'map_mar',
-                                            current_filters: sqlFiltersWithModelTime,
-                                            per_class: false
-                                        })
-                                    ]}
-                                    renderData={(data) => {
-                                        let valueFromFirstObject = 0;
-
-                                        if (data[0]['performance'][0]['class_name'] === 'all') {
-                                            const results = data[0]['performance'][0]['results'];
-
-                                            for (let i = 0; i < results.length; i++) {
-                                                if (results[i]['iou'] === '0.5') {
-                                                    valueFromFirstObject = results[i]['mAP'] * 100;
-                                                }
-                                            }
-                                        }
-
-                                        let valueFromSecondObject = 0;
-
-                                        if (data[1]['performance'][0]['class_name'] === 'all') {
-                                            const results = data[1]['performance'][0]['results'];
-
-                                            for (let i = 0; i < results.length; i++) {
-                                                if (results[i]['iou'] === '0.5') {
-                                                    valueFromSecondObject = results[i]['mAP'] * 100;
-                                                }
-                                            }
-                                        }
-
-                                        return <MetricInfoBox
-                                            name='AP'
-                                            sampleSize={sampleSizeComponent}
-                                            unit='%'
-                                            value={valueFromFirstObject}
-                                            difference={valueFromSecondObject - valueFromFirstObject}
-                                        />;
-                                    }}
-                                    renderError={() => (
+                                    renderData={([d]) => (
                                         <MetricInfoBox
-                                            name='AP'
-                                            sampleSize={sampleSizeComponent}
-                                            unit='%'
-                                            value={0.0}
-                                            difference={0.0}
+                                            name='mAP'
+                                            subtext={'iou=0.75'}
+                                            value={d?.value}
                                         />
                                     )}
                                 />
                             </Col>
                             <Col className='d-flex' lg={2}>
                                 <Async
+                                    fetchData={() => metricsClient('map', {
+                                        sql_filters: allSqlFilters,
+                                        model_type: mlModelType,
+                                        iou_threshold: 0.95
+                                    })}
                                     refetchOnChanged={[allSqlFilters]}
-                                    fetchData={[
-                                        () => metricsClient('compute', {
-                                            metrics_type: 'map_mar',
-                                            current_filters: allSqlFilters,
-                                            per_class: false
-                                        }),
-                                        () => metricsClient('compute', {
-                                            metrics_type: 'map_mar',
-                                            current_filters: sqlFiltersWithModelTime,
-                                            per_class: false
-                                        })
-                                    ]}
-                                    renderData={(data) => {
-                                        let valueFromFirstObject = 0;
-
-                                        if (data[0]['performance'][0]['class_name'] === 'all') {
-                                            const results = data[0]['performance'][0]['results'];
-
-                                            for (let i = 0; i < results.length; i++) {
-                                                if (results[i]['iou'] === '0.75') {
-                                                    valueFromFirstObject = results[i]['mAP'] * 100;
-                                                }
-                                            }
-                                        }
-
-                                        let valueFromSecondObject = 0;
-
-                                        if (data[1]['performance'][0]['class_name'] === 'all') {
-                                            const results = data[1]['performance'][0]['results'];
-
-                                            for (let i = 0; i < results.length; i++) {
-                                                if (results[i]['iou'] === '0.75') {
-                                                    valueFromSecondObject = results[i]['mAP'] * 100;
-                                                }
-                                            }
-                                        }
-
-                                        return <MetricInfoBox
-                                            name='AP'
-                                            sampleSize={sampleSizeComponent}
-                                            unit='%'
-                                            value={valueFromFirstObject}
-                                            difference={valueFromSecondObject - valueFromFirstObject}
-                                        />;
-                                    }}
-                                    renderError={() => (
+                                    renderData={([d]) => (
                                         <MetricInfoBox
-                                            name='AP'
-                                            sampleSize={sampleSizeComponent}
-                                            unit='%'
-                                            value={0.0}
-                                            difference={0.0}
+                                            name='mAP'
+                                            subtext={'iou=0.95'}
+                                            value={d?.value}
                                         />
                                     )}
                                 />
                             </Col>
                             <Col className='d-flex' lg={2}>
                                 <Async
+                                    fetchData={() => metricsClient('mar', {
+                                        sql_filters: allSqlFilters,
+                                        model_type: mlModelType,
+                                        iou_threshold: 0.5
+                                    })}
                                     refetchOnChanged={[allSqlFilters]}
-                                    fetchData={[
-                                        () => metricsClient('compute', {
-                                            metrics_type: 'map_mar',
-                                            current_filters: allSqlFilters,
-                                            per_class: false
-                                        }),
-                                        () => metricsClient('compute', {
-                                            metrics_type: 'map_mar',
-                                            current_filters: sqlFiltersWithModelTime,
-                                            per_class: false
-                                        })
-                                    ]}
-                                    renderData={(data) => {
-                                        // Parse 'data' for the exact value we need
-                                        // Turn this into a function where we determine which piece of data to pickup
-                                        let valueFromFirstObject = 0;
-
-                                        if (data[0]['performance'][0]['class_name'] === 'all') {
-                                            const results = data[0]['performance'][0]['results'];
-
-                                            for (let i = 0; i < results.length; i++) {
-                                                if (results[i]['iou'] === '0.5:0.95') {
-                                                    valueFromFirstObject = results[i]['mAR'] * 100;
-                                                }
-                                            }
-                                        }
-
-                                        let valueFromSecondObject = 0;
-
-                                        if (data[1]['performance'][0]['class_name'] === 'all') {
-                                            const results = data[1]['performance'][0]['results'];
-
-                                            for (let i = 0; i < results.length; i++) {
-                                                if (results[i]['iou'] === '0.5:0.95') {
-                                                    valueFromSecondObject = results[i]['mAR'] * 100;
-                                                }
-                                            }
-                                        }
-
-                                        return <MetricInfoBox
-                                            name='AR'
-                                            sampleSize={sampleSizeComponent}
-                                            unit='%'
-                                            value={valueFromFirstObject}
-                                            difference={valueFromSecondObject - valueFromFirstObject}
-                                        />;
-                                    }}
-                                    renderError={() => (
+                                    renderData={([d]) => (
                                         <MetricInfoBox
-                                            name='AR'
-                                            sampleSize={sampleSizeComponent}
-                                            unit='%'
-                                            value={0.0}
-                                            difference={0.0}
+                                            name='mAR'
+                                            subtext={'iou=0.5'}
+                                            value={d?.value}
                                         />
                                     )}
                                 />
                             </Col>
                             <Col className='d-flex' lg={2}>
                                 <Async
+                                    fetchData={() => metricsClient('mar', {
+                                        sql_filters: allSqlFilters,
+                                        model_type: mlModelType,
+                                        iou_threshold: 0.75
+                                    })}
                                     refetchOnChanged={[allSqlFilters]}
-                                    fetchData={[
-                                        () => metricsClient('compute', {
-                                            metrics_type: 'map_mar',
-                                            current_filters: allSqlFilters,
-                                            per_class: false
-                                        }),
-                                        () => metricsClient('compute', {
-                                            metrics_type: 'map_mar',
-                                            current_filters: sqlFiltersWithModelTime,
-                                            per_class: false
-                                        })
-                                    ]}
-                                    renderData={(data) => {
-                                        // Parse 'data' for the exact value we need
-                                        // Turn this into a function where we determine which piece of data to pickup
-                                        let valueFromFirstObject = 0;
-
-                                        if (data[0]['performance'][0]['class_name'] === 'all') {
-                                            const results = data[0]['performance'][0]['results'];
-
-                                            for (let i = 0; i < results.length; i++) {
-                                                if (results[i]['iou'] === '0.5') {
-                                                    valueFromFirstObject = results[i]['mAR'] * 100;
-                                                }
-                                            }
-                                        }
-
-                                        let valueFromSecondObject = 0;
-
-                                        if (data[1]['performance'][0]['class_name'] === 'all') {
-                                            const results = data[1]['performance'][0]['results'];
-
-                                            for (let i = 0; i < results.length; i++) {
-                                                if (results[i]['iou'] === '0.5') {
-                                                    valueFromSecondObject = results[i]['mAR'] * 100;
-                                                }
-                                            }
-                                        }
-
-                                        return <MetricInfoBox
-                                            name='AR'
-                                            sampleSize={sampleSizeComponent}
-                                            unit='%'
-                                            value={valueFromFirstObject}
-                                            difference={valueFromSecondObject - valueFromFirstObject}
-                                        />;
-                                    }}
-                                    renderError={() => (
+                                    renderData={([d]) => (
                                         <MetricInfoBox
-                                            name='AR'
-                                            sampleSize={sampleSizeComponent}
-                                            unit='%'
-                                            value={0.0}
-                                            difference={0.0}
+                                            name='mAR'
+                                            subtext={'iou=0.75'}
+                                            value={d?.value}
                                         />
                                     )}
                                 />
                             </Col>
                             <Col className='d-flex' lg={2}>
                                 <Async
+                                    fetchData={() => metricsClient('mar', {
+                                        sql_filters: allSqlFilters,
+                                        model_type: mlModelType,
+                                        iou_threshold: 0.95
+                                    })}
                                     refetchOnChanged={[allSqlFilters]}
-                                    fetchData={[
-                                        () => metricsClient('compute', {
-                                            metrics_type: 'map_mar',
-                                            current_filters: allSqlFilters,
-                                            per_class: false
-                                        }),
-                                        () => metricsClient('compute', {
-                                            metrics_type: 'map_mar',
-                                            current_filters: sqlFiltersWithModelTime,
-                                            per_class: false
-                                        })
-                                    ]}
-                                    renderData={(data) => {
-                                        // Parse 'data' for the exact value we need
-                                        // Turn this into a function where we determine which piece of data to pickup
-                                        let valueFromFirstObject = 0;
-
-                                        if (data[0]['performance'][0]['class_name'] === 'all') {
-                                            const results = data[0]['performance'][0]['results'];
-
-                                            for (let i = 0; i < results.length; i++) {
-                                                if (results[i]['iou'] === '0.75') {
-                                                    valueFromFirstObject = results[i]['mAR'] * 100;
-                                                }
-                                            }
-                                        }
-
-                                        let valueFromSecondObject = 0;
-
-                                        if (data[1]['performance'][0]['class_name'] === 'all') {
-                                            const results = data[1]['performance'][0]['results'];
-
-                                            for (let i = 0; i < results.length; i++) {
-                                                if (results[i]['iou'] === '0.75') {
-                                                    valueFromSecondObject = results[i]['mAR'] * 100;
-                                                }
-                                            }
-                                        }
-
-                                        return <MetricInfoBox
-                                            name='AR'
-                                            sampleSize={sampleSizeComponent}
-                                            unit='%'
-                                            value={valueFromFirstObject}
-                                            difference={valueFromSecondObject - valueFromFirstObject}
-                                        />;
-                                    }}
-                                    renderError={() => (
+                                    renderData={([d]) => (
                                         <MetricInfoBox
-                                            name='AR'
-                                            sampleSize={sampleSizeComponent}
-                                            unit='%'
-                                            value={0.0}
-                                            difference={0.0}
+                                            name='mAR'
+                                            subtext={'iou=0.95'}
+                                            value={d?.value}
                                         />
                                     )}
                                 />
@@ -548,42 +260,28 @@ const PerformanceDetails = ({filtersStore}) => {
                     <div className='my-3'>
                         <div className='d-flex my-3' lg={12}>
                             <Async
-                                defaultData={[]}
                                 renderData={() => (
                                     <BarGraph
                                         bars={[]}
                                         title='Precision'
                                         unit='%'
                                         yAxisName='Precision'
-                                        xAxisName={[
-                                            'SSN',
-                                            'First Name',
-                                            'Last Name',
-                                            'Zip Code'
-                                        ]}
                                     />
                                 )}
-                                fetchData={() => metricsClient('query/select-one')}
+                                fetchData={() => Promise.resolve([])}
                             />
                         </div>
                         <div className='d-flex my-3' lg={12}>
                             <Async
-                                defaultData={[]}
                                 renderData={() => (
                                     <BarGraph
                                         bars={[]}
                                         title='Recall'
                                         unit='%'
                                         yAxisName='Recall'
-                                        xAxisName={[
-                                            'SSN',
-                                            'First Name',
-                                            'Last Name',
-                                            'Zip Code'
-                                        ]}
                                     />
                                 )}
-                                fetchData={() => metricsClient('query/select-one')}
+                                fetchData={() => Promise.resolve([])}
                             />
                         </div>
                     </div>
@@ -609,14 +307,14 @@ const PerformanceDetails = ({filtersStore}) => {
                                     <PerformanceBox
                                         data={data}
                                         performanceType='precision'
-                                        sampleSize={sampleSizeComponent}
+                                        subtext={sampleSizeComponent}
                                         title='Precision per class'
                                         diffData={diffData}
                                     />
                                 )}
                                 fetchData={[
-                                    () => metricsClient('query/precision_per_class', {sql_filters: allSqlFilters}),
-                                    () => metricsClient('query/precision_per_class', {sql_filters: sqlFiltersWithModelTime})
+                                    () => metricsClient('query/precision-per-class', {sql_filters: allSqlFilters}),
+                                    () => metricsClient('query/precision-per-class', {sql_filters: sqlFiltersWithModelTime})
                                 ]}
                             />
                         </Col>
@@ -627,7 +325,7 @@ const PerformanceDetails = ({filtersStore}) => {
                                     <PerformanceBox
                                         data={data}
                                         performanceType='recall'
-                                        sampleSize={sampleSizeComponent}
+                                        subtext={sampleSizeComponent}
                                         title='Recall per class'
                                         diffData={diffData}
                                     />

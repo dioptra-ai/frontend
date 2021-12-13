@@ -18,16 +18,12 @@ UserRouter.put('/', isAuthenticated, async (req, res, next) => {
             res.status(400);
             throw new Error('Username already taken.');
         } else {
-            const resp = await UserModel.findByIdAndUpdate(
-                authUser._id,
-                {
-                    username,
-                    password
-                },
-                {new: true}
-            );
+            authUser.username = username;
+            if (password) {
+                authUser.password = password;
+            }
 
-            res.json(resp);
+            res.json(await authUser.save());
         }
     } catch (e) {
         next(e);
