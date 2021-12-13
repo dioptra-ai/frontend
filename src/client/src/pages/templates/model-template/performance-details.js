@@ -269,15 +269,15 @@ const PerformanceDetails = ({filtersStore}) => {
                                     });
                                     const bars = classNames.map((name) => ({
                                         name,
-                                        iou05: iou05.find((i) => {
+                                        iou05: (iou05.find((i) => {
                                             return i['groundtruth.class_name'] === name;
-                                        })?.value * 100,
-                                        iou075: iou075.find((i) => {
+                                        })?.value * 100).toFixed(4),
+                                        iou075: (iou075.find((i) => {
                                             return i['groundtruth.class_name'] === name;
-                                        })?.value * 100,
-                                        iou09: iou09.find((i) => {
+                                        })?.value * 100).toFixed(4),
+                                        iou09: (iou09.find((i) => {
                                             return i['groundtruth.class_name'] === name;
-                                        })?.value * 100
+                                        })?.value * 100).toFixed(4)
                                     }));
 
                                     return (
@@ -326,15 +326,15 @@ const PerformanceDetails = ({filtersStore}) => {
                                     });
                                     const bars = classNames.map((name) => ({
                                         name,
-                                        iou05: iou05.find((i) => {
+                                        iou05: (iou05.find((i) => {
                                             return i['groundtruth.class_name'] === name;
-                                        })?.value * 100,
-                                        iou075: iou075.find((i) => {
+                                        })?.value * 100).toFixed(4),
+                                        iou075: (iou075.find((i) => {
                                             return i['groundtruth.class_name'] === name;
-                                        })?.value * 100,
-                                        iou09: iou09.find((i) => {
+                                        })?.value * 100).toFixed(4),
+                                        iou09: (iou09.find((i) => {
                                             return i['groundtruth.class_name'] === name;
-                                        })?.value * 100
+                                        })?.value * 100).toFixed(4)
                                     }));
 
                                     return (
