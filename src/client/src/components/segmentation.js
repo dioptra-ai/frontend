@@ -317,7 +317,6 @@ const Segmentation = ({timeStore, modelStore, segmentationStore}) => {
                     </Button>
                 </div>
                 <Async
-                    defaultData={[]}
                     renderData={(data) => (
                         <Table
                             columns={(mlModelType === 'DOCUMENT_PROCESSING' ?
@@ -343,7 +342,7 @@ const Segmentation = ({timeStore, modelStore, segmentationStore}) => {
                                         Cell: DistributionCell
                                     },
                                     {
-                                        accessor: 'sampleSize',
+                                        accessor: 'value',
                                         Header: 'Sample Size',
                                         Cell: Text
                                     }
@@ -356,7 +355,7 @@ const Segmentation = ({timeStore, modelStore, segmentationStore}) => {
                                         width: 200
                                     },
                                     {
-                                        accessor: 'sampleSize',
+                                        accessor: 'value',
                                         Header: 'Sample Size',
                                         Cell: Text
                                     },
@@ -376,6 +375,7 @@ const Segmentation = ({timeStore, modelStore, segmentationStore}) => {
                             data={data}
                         />
                     )}
+                    refetchOnChanged={[groupByColumns.join(','), allSqlFilters]}
                     fetchData={() => groupByColumns.length ? metricsClient('query/fairness-bias-columns', {
                         group_by: groupByColumns,
                         sql_filters: allSqlFilters
@@ -383,10 +383,8 @@ const Segmentation = ({timeStore, modelStore, segmentationStore}) => {
                 />
                 {addColModal && (
                     <Async
-                        defaultData={[]}
                         renderData={(featuresAndTags) => featuresAndTags.length ? (
                             <Async
-                                defaultData={[]}
                                 renderData={([data]) => (
                                     <AddColumnModal
                                         allColumns={featuresAndTags
