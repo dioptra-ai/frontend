@@ -301,7 +301,9 @@ AreaGraph.propTypes = {
 
 export default setupComponent(AreaGraph);
 
-export const SmallChart = setupComponent(({timeStore, data, unit, xDataKey = 'x', yDataKey = 'y'}) => (
+export const SmallChart = setupComponent(({
+    timeStore, data, unit, xDataKey = 'x', yDataKey = 'y', hasTooltip = false
+}) => (
     <ResponsiveContainer height='100%' width='100%'>
         <AreaChart data={data.map((d) => ({
             [yDataKey]: d[yDataKey],
@@ -332,7 +334,7 @@ export const SmallChart = setupComponent(({timeStore, data, unit, xDataKey = 'x'
                 strokeWidth={2}
                 unit={unit}
             />
-            <Tooltip content={CustomTooltip} allowEscapeViewBox={{x: true, y: true}}/>
+            {hasTooltip ? <Tooltip content={CustomTooltip} allowEscapeViewBox={{x: true, y: true}}/> : null}
         </AreaChart>
     </ResponsiveContainer>
 ));

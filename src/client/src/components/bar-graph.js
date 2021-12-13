@@ -22,6 +22,8 @@ const CustomTooltip = ({payload, label, unit}) => {
     } else return null;
 };
 
+export {CustomTooltip as Tooltip};
+
 CustomTooltip.propTypes = {
     label: PropTypes.any,
     payload: PropTypes.array,

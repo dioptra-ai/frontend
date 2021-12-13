@@ -6,9 +6,11 @@ import {
     BarChart,
     Cell,
     ResponsiveContainer,
+    Tooltip,
     XAxis
 } from 'recharts';
 
+import useModel from 'customHooks/use-model';
 import {useInView} from 'react-intersection-observer';
 import {setupComponent} from 'helpers/component-helper';
 import React, {useEffect, useState} from 'react';
@@ -25,6 +27,8 @@ import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 import {useParams} from 'react-router-dom';
 import Async from 'components/async';
 import metricsClient from 'clients/metrics';
+import {SmallChart} from 'components/area-graph';
+import {Tooltip as BarTooltip} from 'components/bar-graph';
 
 const AddColumnModal = ({onCancel, onApply, allColumns, selected}) => {
     const featureColumns = allColumns.filter((c) => c.startsWith('features.'));
@@ -188,6 +192,7 @@ const AccuracyCell = setupComponent(_AccuracyCell);
 const _DistributionCell = ({row, segmentationStore}) => {
     const groupByColumns = segmentationStore.segmentation;
     const {ref, inView} = useInView();
+    const {mlModelType} = useModel();
     const allSqlFilters = useAllSqlFilters();
     const [distributionData, setDistributionData] = useState([]);
     const sqlColumns = groupByColumns.map((c) => `"${c}"`).join(', ');
@@ -196,9 +201,9 @@ const _DistributionCell = ({row, segmentationStore}) => {
         if (inView) {
             metricsClient('query/distribution-data', {
                 sql_columns: sqlColumns,
-                sql_filters: allSqlFilters,
+                sql_filters: `${allSqlFilters} AND ${groupByColumns.map((c) => `"${c}"='${row.original[c]}'`).join(' AND ')}`,
                 columns: groupByColumns.map((column) => `my_sub_table."${column}" = my_sub_count_table."${column}"`).join(' AND '),
-                original_columns: groupByColumns.map((c) => `"${c}"='${row.original[c]}'`).join(' AND ')
+                model_type: mlModelType
             }).then((data) => {
                 setDistributionData(data);
             });
@@ -207,12 +212,14 @@ const _DistributionCell = ({row, segmentationStore}) => {
 
     return (
         <div ref={ref}>
-            <BarChart data={distributionData} height={70} width={150}>
-                <Bar background={false} dataKey='dist' minPointSize={2}>
+            <BarChart data={distributionData.map((d) => ({...d, value: 100 * d.value}))} height={150} width={150}>
+                <Tooltip content={<BarTooltip unit='%'/>}/>
+                <Bar background={false} dataKey='value' minPointSize={2}>
                     {distributionData.map((d, i) => (
-                        <Cell accentHeight='0px' fill={getHexColor(d.value, 0.65)} key={i} />
+                        <Cell accentHeight='0px' fill={getHexColor(d.name, 0.65)} key={i} />
                     ))}
                 </Bar>
+                <XAxis dataKey='name' tick={false}/>
             </BarChart>
         </div>
     );
@@ -225,65 +232,42 @@ _DistributionCell.propTypes = {
 
 const DistributionCell = setupComponent(_DistributionCell);
 
-const mAPCell = ({timeStore}) => {
+const _mAPmARCell = ({cell, timeStore}) => {
+    const cellValues = cell.row.original;
+    const cellId = cell.column.id;
+    const cellFields = Object.keys(cellValues).filter((f) => f !== 'value');
+    const {mlModelType} = useModel();
     const allSqlFilters = useAllSqlFilters();
     const timeGranularity = timeStore.getTimeGranularity().toISOString();
 
     return (
         <Async
             refetchOnChanged={[allSqlFilters, timeGranularity]}
-            fetchData={() => metricsClient('', {
-                metrics_type: 'map_mar_over_time',
-                current_filters: allSqlFilters,
-                time_granularity: timeGranularity,
-                per_class: true
-            })
-            }
+            fetchData={() => metricsClient(cellId, {
+                sql_filters: `${allSqlFilters} AND ${cellFields.map((f) => `"${f}"='${cellValues[f]}'`)}`,
+                model_type: mlModelType,
+                iou_threshold: 0.5,
+                time_granularity: timeStore.getTimeGranularity(5).toISOString()
+            })}
             renderData={(data) => (
                 <div style={{height: '150px', width: '300px'}}>
-                    <ResponsiveContainer height='100%' width='100%'>
-                        <AreaChart
-                            data={data.map(({x, y}) => ({
-                                y,
-                                x: new Date(x).getTime()
-                            }))}
-                        >
-                            <defs>
-                                <linearGradient id='color' x1='0' x2='0' y1='0' y2='1'>
-                                    <stop offset='10%' stopColor={theme.primary} stopOpacity={0.7} />
-                                    <stop offset='90%' stopColor='#FFFFFF' stopOpacity={0.1} />
-                                </linearGradient>
-                                <linearGradient id='warning' x1='0' x2='0' y1='0' y2='1'>
-                                    <stop offset='10%' stopColor={theme.warning} stopOpacity={0.9} />
-                                    <stop offset='90%' stopColor='#FFFFFF' stopOpacity={0.1} />
-                                </linearGradient>
-                            </defs>
-                            <XAxis
-                                axisLine={false}
-                                dataKey='x'
-                                domain={timeStore.rangeMillisec}
-                                scale='time'
-                                tick={false}
-                                type='number'
-                            />
-                            <Area
-                                dataKey='y'
-                                fill='url(#color)'
-                                stroke={theme.primary}
-                                strokeWidth={2}
-                            />
-                        </AreaChart>
-                    </ResponsiveContainer>
+                    <SmallChart
+                        data={data}
+                        xDataKey='time'
+                        yDataKey='value'
+                    />
                 </div>
             )}
-            renderError={() => <p>Something went wrong!</p>}
         />
     );
 };
 
-mAPCell.propTypes = {
+_mAPmARCell.propTypes = {
+    cell: PropTypes.object.isRequired,
     timeStore: PropTypes.object.isRequired
 };
+
+const mAPmARCell = setupComponent(_mAPmARCell);
 
 const Segmentation = ({timeStore, modelStore, segmentationStore}) => {
     const allSqlFilters = useAllSqlFilters();
@@ -322,19 +306,14 @@ const Segmentation = ({timeStore, modelStore, segmentationStore}) => {
                             columns={(mlModelType === 'DOCUMENT_PROCESSING' ?
                                 [
                                     {
-                                        id: 'mAP',
+                                        id: 'map',
                                         Header: 'mAP',
-                                        Cell: mAPCell
+                                        Cell: mAPmARCell
                                     },
                                     {
-                                        id: 'mAR',
+                                        id: 'mar',
                                         Header: 'mAR',
-                                        Cell: mAPCell
-                                    },
-                                    {
-                                        id: 'CER',
-                                        Header: 'CER',
-                                        Cell: mAPCell
+                                        Cell: mAPmARCell
                                     },
                                     {
                                         id: 'classes',

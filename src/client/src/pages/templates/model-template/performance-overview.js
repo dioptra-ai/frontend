@@ -121,7 +121,8 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                 return metricsClient('map', {
                     sql_filters: sqlFilters,
                     time_granularity: timeGranularity,
-                    model_type: model.mlModelType
+                    model_type: model.mlModelType,
+                    iou_threshold: iou
                 });
             },
             [ModelPerformanceMetrics.MEAN_AVERAGE_RECALL.value]: () => {
@@ -129,7 +130,8 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                 return metricsClient('mar', {
                     sql_filters: sqlFilters,
                     time_granularity: timeGranularity,
-                    model_type: model.mlModelType
+                    model_type: model.mlModelType,
+                    iou_threshold: iou
                 });
             }
         }[metricName];
