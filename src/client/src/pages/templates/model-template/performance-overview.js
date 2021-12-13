@@ -38,11 +38,13 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
     const [iou] = useState(0.5);
     const selectableMetrics = model.mlModelType === 'Q_N_A' ? [
         {value: 'EXACT_MATCH', name: 'Exact Match'},
-        {value: 'F1_SCORE', name: 'F1 Score'}
+        {value: 'F1_SCORE', name: 'F1 Score'},
+        {value: 'SEMANTIC_SIMILARITY', name: 'Semantic Similarity'}
     ] : model.mlModelType === 'DOCUMENT_PROCESSING' ? [
         {value: 'MEAN_AVERAGE_PRECISION', name: 'mAP'},
         {value: 'MEAN_AVERAGE_RECALL', name: 'mAR'},
-        {value: 'EXACT_MATCH', name: 'Exact Match'}
+        {value: 'EXACT_MATCH', name: 'Exact Match'},
+        {value: 'F1_SCORE', name: 'F1 Score'}
     ] : [
         {value: 'ACCURACY', name: 'Accuracy'},
         {value: 'F1_SCORE', name: 'F1 Score'},
@@ -238,6 +240,27 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                         name='Exact Match'
                                         subtext='iou=0.5'
                                         value={d?.value}
+                                    />
+                                )}
+                            />
+                        </Col>
+                        <Col className='d-flex' lg={3}>
+                            <Async
+                                fetchData={() => baseJSONClient('/api/metrics/f1-score-metric', {
+                                    method: 'post',
+                                    body: {
+                                        sql_filters: allSqlFilters,
+                                        model_type: model.mlModelType
+                                    }
+                                })
+                                }
+                                refetchOnChanged={[timeGranularity, model, allSqlFilters]}
+                                renderData={([{f1_score} = {}]) => (
+                                    <MetricInfoBox
+                                        name='Semantic Similarity'
+                                        sampleSize={sampleSizeComponent}
+                                        unit='%'
+                                        value={f1_score}
                                     />
                                 )}
                             />
