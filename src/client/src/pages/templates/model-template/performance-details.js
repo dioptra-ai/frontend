@@ -271,13 +271,13 @@ const PerformanceDetails = ({filtersStore}) => {
                                         name,
                                         iou05: iou05.find((i) => {
                                             return i['groundtruth.class_name'] === name;
-                                        })?.value,
+                                        })?.value * 100,
                                         iou075: iou075.find((i) => {
                                             return i['groundtruth.class_name'] === name;
-                                        })?.value,
+                                        })?.value * 100,
                                         iou09: iou09.find((i) => {
                                             return i['groundtruth.class_name'] === name;
-                                        })?.value
+                                        })?.value * 100
                                     }));
 
                                     return (
@@ -328,13 +328,13 @@ const PerformanceDetails = ({filtersStore}) => {
                                         name,
                                         iou05: iou05.find((i) => {
                                             return i['groundtruth.class_name'] === name;
-                                        })?.value,
+                                        })?.value * 100,
                                         iou075: iou075.find((i) => {
                                             return i['groundtruth.class_name'] === name;
-                                        })?.value,
+                                        })?.value * 100,
                                         iou09: iou09.find((i) => {
                                             return i['groundtruth.class_name'] === name;
-                                        })?.value
+                                        })?.value * 100
                                     }));
 
                                     return (
