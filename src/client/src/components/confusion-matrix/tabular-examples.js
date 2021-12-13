@@ -25,9 +25,8 @@ const TabularExamples = ({onClose, groundtruth, prediction, previewColumns}) => 
             </div>
             <div className='overflow-auto'>
                 <Async
-                    defaultData={[]}
                     renderData={(data) => {
-                        const allColumns = Object.keys(data[0]);
+                        const allColumns = Object.keys(data[0] || {});
                         const nonEmptyColumns = allColumns
                             .filter((c) => {
                                 if (previewColumns) {
@@ -60,6 +59,7 @@ const TabularExamples = ({onClose, groundtruth, prediction, previewColumns}) => 
                         prediction,
                         sql_filters: allSqlFilters
                     })}
+                    refetchOnChanged={[groundtruth, prediction, allSqlFilters]}
                 />
             </div>
             {exampleInModal && (
