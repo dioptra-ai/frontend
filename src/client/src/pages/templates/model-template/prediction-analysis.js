@@ -189,8 +189,8 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                                                     <div className='heat-map-box' style={{
                                                         height: bounding_box.h * 100,
                                                         width: bounding_box.w * (100 * width / height),
-                                                        top: bounding_box.y * 100,
-                                                        left: bounding_box.x * (100 * width / height)
+                                                        top: (bounding_box.y - bounding_box.h / 2) * 100,
+                                                        left: (bounding_box.x - bounding_box.w / 2) * (100 * width / height)
                                                     }}/>
                                                 </div>
                                             );
@@ -229,8 +229,8 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                                 <div className='heat-map-box' style={{
                                     height: exampleInModal.bounding_box.h * 600,
                                     width: exampleInModal.bounding_box.w * exampleInModal.width * 600 / exampleInModal.height,
-                                    top: exampleInModal.bounding_box.y * 600,
-                                    left: exampleInModal.bounding_box.x * exampleInModal.width * 600 / exampleInModal.height
+                                    top: (exampleInModal.bounding_box.y - exampleInModal.bounding_box.h / 2) * 600,
+                                    left: (exampleInModal.bounding_box.x - exampleInModal.bounding_box.w / 2) * exampleInModal.width * 600 / exampleInModal.height
                                 }}/>
                             </div>
                         </Modal> : null}
