@@ -29,7 +29,7 @@ CustomTooltip.propTypes = {
     payload: PropTypes.array,
     unit: PropTypes.string
 };
-const BarGraph = ({title, bars, unit, yAxisName, xAxisName, yAxisDomain, className = '', onClick}) => {
+const BarGraph = ({title, bars, unit, yAxisName, xAxisName, yAxisDomain, className = '', onClick, children}) => {
 
     return (
         <div className={`border rounded p-3 pe-5 w-100 ${className}`}>
@@ -58,9 +58,13 @@ const BarGraph = ({title, bars, unit, yAxisName, xAxisName, yAxisDomain, classNa
                                 tick={{fontSize: fontSizes.fs_7}}
                                 unit={unit}
                             />
-                            <Tooltip content={<CustomTooltip unit={unit}/>}/>
                             {bars.length > 4 && bars.length < 9 ? <Legend data={bars}/> : null}
-                            <Bar cursor={onClick ? 'pointer' : 'default'} onClick={onClick} dataKey='value' fill='#8884d8' maxBarSize={50} minPointSize={2}/>
+                            {children ||
+                                <>
+                                    <Tooltip content={<CustomTooltip unit={unit}/>}/>
+                                    <Bar cursor={onClick ? 'pointer' : 'default'} onClick={onClick} dataKey='value' fill='#8884d8' maxBarSize={50} minPointSize={2}/>
+                                </>
+                            }
                         </BarChart>
                     </ResponsiveContainer>
                 </div>
@@ -77,7 +81,8 @@ BarGraph.propTypes = {
     xAxisName: PropTypes.string,
     yAxisDomain: PropTypes.array,
     yAxisName: PropTypes.string,
-    onClick: PropTypes.func
+    onClick: PropTypes.func,
+    children: PropTypes.node
 };
 
 export default BarGraph;

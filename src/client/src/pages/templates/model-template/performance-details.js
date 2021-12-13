@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from 'react';
+import {Bar, Tooltip} from 'recharts';
 import FilterInput from 'components/filter-input';
 import {setupComponent} from 'helpers/component-helper';
 import PropTypes from 'prop-types';
@@ -19,6 +20,7 @@ import Async from 'components/async';
 import QAPerfAnalysis from './qa-perf-analysis';
 import metricsClient from 'clients/metrics';
 import CountEvents from 'components/count-events';
+import {getHexColor} from 'helpers/color-helper';
 
 const PerformanceBox = ({
     title = '',
@@ -260,15 +262,56 @@ const PerformanceDetails = ({filtersStore}) => {
                     <div className='my-3'>
                         <div className='d-flex my-3' lg={12}>
                             <Async
-                                renderData={() => (
-                                    <BarGraph
-                                        bars={[]}
-                                        title='Precision'
-                                        unit='%'
-                                        yAxisName='Precision'
-                                    />
-                                )}
-                                fetchData={() => Promise.resolve([])}
+                                renderData={([iou05, iou075, iou095]) => {
+                                    const classNames = iou05.map((d) => {
+
+                                        return d['groundtruth.class_name'];
+                                    });
+                                    const bars = classNames.map((name) => ({
+                                        name,
+                                        iou05: iou05.find((i) => {
+                                            return i['groundtruth.class_name'] === name;
+                                        })?.value,
+                                        iou075: iou075.find((i) => {
+                                            return i['groundtruth.class_name'] === name;
+                                        })?.value,
+                                        iou095: iou095.find((i) => {
+                                            return i['groundtruth.class_name'] === name;
+                                        })?.value
+                                    }));
+
+                                    return (
+                                        <BarGraph
+                                            bars={bars}
+                                            title='Precision'
+                                            unit='%'
+                                            yAxisName='Precision'
+                                        >
+                                            <Tooltip />
+                                            <Bar maxBarSize={40} dataKey='iou05' fill={getHexColor('iou05')}/>
+                                            <Bar maxBarSize={40} dataKey='iou075' fill={getHexColor('iou075')}/>
+                                            <Bar maxBarSize={40} dataKey='iou095' fill={getHexColor('iou095')}/>
+                                        </BarGraph>
+                                    );
+                                }}
+                                refetchOnChanged={[allSqlFilters]}
+                                fetchData={[
+                                    () => metricsClient('/precision-metric', {
+                                        sql_filters: `${allSqlFilters} AND iou >= 0.5`,
+                                        model_type: mlModelType,
+                                        group_by: ['groundtruth.class_name']
+                                    }),
+                                    () => metricsClient('/precision-metric', {
+                                        sql_filters: `${allSqlFilters} AND iou >= 0.75`,
+                                        model_type: mlModelType,
+                                        group_by: ['groundtruth.class_name']
+                                    }),
+                                    () => metricsClient('/precision-metric', {
+                                        sql_filters: `${allSqlFilters} AND iou >= 0.95`,
+                                        model_type: mlModelType,
+                                        group_by: ['groundtruth.class_name']
+                                    })
+                                ]}
                             />
                         </div>
                         <div className='d-flex my-3' lg={12}>
@@ -281,6 +324,7 @@ const PerformanceDetails = ({filtersStore}) => {
                                         yAxisName='Recall'
                                     />
                                 )}
+                                refetchOnChanged={[allSqlFilters]}
                                 fetchData={() => Promise.resolve([])}
                             />
                         </div>
