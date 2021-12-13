@@ -209,11 +209,11 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                             <Async
                                 fetchData={getQueryForMetric('MEAN_AVERAGE_PRECISION')}
                                 refetchOnChanged={[allSqlFilters]}
-                                renderData={([{value}]) => (
+                                renderData={([d]) => (
                                     <MetricInfoBox
                                         name='mAP'
                                         subtext='iou=0.5:0.95'
-                                        value={value}
+                                        value={d?.value}
                                     />
                                 )}
                             />
@@ -222,11 +222,11 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                             <Async
                                 fetchData={getQueryForMetric('MEAN_AVERAGE_RECALL')}
                                 refetchOnChanged={[allSqlFilters]}
-                                renderData={([{value}]) => (
+                                renderData={([d]) => (
                                     <MetricInfoBox
                                         name='mAR'
                                         subtext='iou=0.5:0.95'
-                                        value={value}
+                                        value={d?.value}
                                     />
                                 )}
                             />
@@ -235,11 +235,11 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                             <Async
                                 fetchData={getQueryForMetric('EXACT_MATCH')}
                                 refetchOnChanged={[allSqlFilters]}
-                                renderData={([{value}]) => (
+                                renderData={([d]) => (
                                     <MetricInfoBox
                                         name='Exact Match'
                                         subtext='iou=0.5'
-                                        value={value}
+                                        value={d?.value}
                                     />
                                 )}
                             />

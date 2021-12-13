@@ -84,9 +84,8 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                 <Row>
                     <Col className='d-flex' lg={2}>
                         <Async
-                            defaultData={{value: NaN}}
-                            renderData={({value}) => (
-                                <MetricInfoBox name='% Unique' unit='%' value={100 * value} />
+                            renderData={([d]) => (
+                                <MetricInfoBox name='% Unique' unit='%' value={100 * d?.value} />
                             )}
                             fetchData={() => metricsClient('query/unique-images', {sql_filters: allSqlFilters})}
                         />
