@@ -194,13 +194,13 @@ const PerformanceDetails = ({filtersStore}) => {
                                     fetchData={() => metricsClient('map', {
                                         sql_filters: allSqlFilters,
                                         model_type: mlModelType,
-                                        iou_threshold: 0.95
+                                        iou_threshold: 0.9
                                     })}
                                     refetchOnChanged={[allSqlFilters]}
                                     renderData={([d]) => (
                                         <MetricInfoBox
                                             name='mAP'
-                                            subtext={'iou=0.95'}
+                                            subtext={'iou=0.9'}
                                             value={d?.value}
                                         />
                                     )}
@@ -245,13 +245,13 @@ const PerformanceDetails = ({filtersStore}) => {
                                     fetchData={() => metricsClient('mar', {
                                         sql_filters: allSqlFilters,
                                         model_type: mlModelType,
-                                        iou_threshold: 0.95
+                                        iou_threshold: 0.9
                                     })}
                                     refetchOnChanged={[allSqlFilters]}
                                     renderData={([d]) => (
                                         <MetricInfoBox
                                             name='mAR'
-                                            subtext={'iou=0.95'}
+                                            subtext={'iou=0.9'}
                                             value={d?.value}
                                         />
                                     )}
@@ -262,7 +262,7 @@ const PerformanceDetails = ({filtersStore}) => {
                     <div className='my-3'>
                         <div className='d-flex my-3' lg={12}>
                             <Async
-                                renderData={([iou05, iou075, iou095]) => {
+                                renderData={([iou05, iou075, iou09]) => {
                                     const classNames = iou05.map((d) => {
 
                                         return d['groundtruth.class_name'];
@@ -275,7 +275,7 @@ const PerformanceDetails = ({filtersStore}) => {
                                         iou075: iou075.find((i) => {
                                             return i['groundtruth.class_name'] === name;
                                         })?.value,
-                                        iou095: iou095.find((i) => {
+                                        iou09: iou09.find((i) => {
                                             return i['groundtruth.class_name'] === name;
                                         })?.value
                                     }));
@@ -290,25 +290,28 @@ const PerformanceDetails = ({filtersStore}) => {
                                             <Tooltip />
                                             <Bar maxBarSize={40} dataKey='iou05' fill={getHexColor('iou05')}/>
                                             <Bar maxBarSize={40} dataKey='iou075' fill={getHexColor('iou075')}/>
-                                            <Bar maxBarSize={40} dataKey='iou095' fill={getHexColor('iou095')}/>
+                                            <Bar maxBarSize={40} dataKey='iou09' fill={getHexColor('iou09')}/>
                                         </BarGraph>
                                     );
                                 }}
                                 refetchOnChanged={[allSqlFilters]}
                                 fetchData={[
-                                    () => metricsClient('/precision-metric', {
-                                        sql_filters: `${allSqlFilters} AND iou >= 0.5`,
+                                    () => metricsClient('/map', {
+                                        sql_filters: allSqlFilters,
                                         model_type: mlModelType,
+                                        iou_threshold: 0.5,
                                         group_by: ['groundtruth.class_name']
                                     }),
-                                    () => metricsClient('/precision-metric', {
-                                        sql_filters: `${allSqlFilters} AND iou >= 0.75`,
+                                    () => metricsClient('/map', {
+                                        sql_filters: allSqlFilters,
                                         model_type: mlModelType,
+                                        iou_threshold: 0.75,
                                         group_by: ['groundtruth.class_name']
                                     }),
-                                    () => metricsClient('/precision-metric', {
-                                        sql_filters: `${allSqlFilters} AND iou >= 0.95`,
+                                    () => metricsClient('/map', {
+                                        sql_filters: allSqlFilters,
                                         model_type: mlModelType,
+                                        iou_threshold: 0.9,
                                         group_by: ['groundtruth.class_name']
                                     })
                                 ]}
@@ -316,7 +319,7 @@ const PerformanceDetails = ({filtersStore}) => {
                         </div>
                         <div className='d-flex my-3' lg={12}>
                             <Async
-                                renderData={([iou05, iou075, iou095]) => {
+                                renderData={([iou05, iou075, iou09]) => {
                                     const classNames = iou05.map((d) => {
 
                                         return d['groundtruth.class_name'];
@@ -329,7 +332,7 @@ const PerformanceDetails = ({filtersStore}) => {
                                         iou075: iou075.find((i) => {
                                             return i['groundtruth.class_name'] === name;
                                         })?.value,
-                                        iou095: iou095.find((i) => {
+                                        iou09: iou09.find((i) => {
                                             return i['groundtruth.class_name'] === name;
                                         })?.value
                                     }));
@@ -344,25 +347,28 @@ const PerformanceDetails = ({filtersStore}) => {
                                             <Tooltip />
                                             <Bar maxBarSize={40} dataKey='iou05' fill={getHexColor('iou05')}/>
                                             <Bar maxBarSize={40} dataKey='iou075' fill={getHexColor('iou075')}/>
-                                            <Bar maxBarSize={40} dataKey='iou095' fill={getHexColor('iou095')}/>
+                                            <Bar maxBarSize={40} dataKey='iou09' fill={getHexColor('iou09')}/>
                                         </BarGraph>
                                     );
                                 }}
                                 refetchOnChanged={[allSqlFilters]}
                                 fetchData={[
-                                    () => metricsClient('/recall-metric', {
-                                        sql_filters: `${allSqlFilters} AND iou >= 0.5`,
+                                    () => metricsClient('/mar', {
+                                        sql_filters: allSqlFilters,
                                         model_type: mlModelType,
+                                        iou_threshold: 0.5,
                                         group_by: ['groundtruth.class_name']
                                     }),
-                                    () => metricsClient('/recall-metric', {
-                                        sql_filters: `${allSqlFilters} AND iou >= 0.75`,
+                                    () => metricsClient('/mar', {
+                                        sql_filters: allSqlFilters,
                                         model_type: mlModelType,
+                                        iou_threshold: 0.75,
                                         group_by: ['groundtruth.class_name']
                                     }),
-                                    () => metricsClient('/recall-metric', {
-                                        sql_filters: `${allSqlFilters} AND iou >= 0.95`,
+                                    () => metricsClient('/mar', {
+                                        sql_filters: allSqlFilters,
                                         model_type: mlModelType,
+                                        iou_threshold: 0.9,
                                         group_by: ['groundtruth.class_name']
                                     })
                                 ]}
