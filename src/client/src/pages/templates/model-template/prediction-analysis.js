@@ -25,7 +25,7 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
     const allSqlFiltersWithoutOrgId = useAllSqlFilters({__REMOVE_ME__excludeOrgId: true});
     const allOfflineSqlFilters = useAllSqlFilters({useReferenceRange: true});
     const timeGranularity = timeStore.getTimeGranularity().toISOString();
-    const [classFilter, setClassFilter] = useState('all_classes');
+    const [classFilter, setClassFilter] = useState(null);
     const [heatMapSamples, setHeatMapSamples] = useState([]);
     const [exampleInModal, setExampleInModal] = useModal(null);
 
@@ -135,11 +135,11 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                                     })}
                                     renderData={(data) => (
                                         <Select
-                                            options={data.map((d) => {
+                                            options={[{name: '<all values>', value: ''}, ...data.map((d) => {
                                                 const c = d['prediction.class_name'];
 
                                                 return {name: c, value: c};
-                                            })}
+                                            })]}
                                             initialValue={classFilter}
                                             onChange={setClassFilter}
                                         />
@@ -148,10 +148,10 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                             </Col>
                             <Col lg={4}>
                                 <Async
-                                    refetchOnChanged={[allSqlFiltersWithoutOrgId, classFilter.value]}
+                                    refetchOnChanged={[allSqlFiltersWithoutOrgId, classFilter]}
                                     fetchData={() => metricsClient('bbox-locations', {
                                         sql_filters: `${allSqlFiltersWithoutOrgId} AND 
-                                            ${classFilter.value ? `"prediction.class_name"='${classFilter.value}'` : 'TRUE'}`
+                                            ${classFilter ? `"prediction.class_name"='${classFilter}'` : 'TRUE'}`
                                     })}
                                     renderData={({num_cells_h, num_cells_w, cells}) => (
                                         <HeatMap
