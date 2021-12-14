@@ -36,12 +36,16 @@ orbs:
   aws-eks: circleci/aws-eks@0.2
 
 workflows:
-  "Integration":
+  Integration:
     jobs:
       - node/test:
           name: lint
           version: 16.4.0 # This to be kept in sync with Dockerfile
           run-command: lint
+          filters:
+            branches:
+              only:
+                - dev
       # Skipping until we have tests worth the time.
       # - node/test:
       #     name: test
@@ -83,7 +87,7 @@ workflows:
             branches:
               only:
                 - dev
-  "Delivery":
+  Delivery:
     jobs:
       - node/test:
           name: lint
