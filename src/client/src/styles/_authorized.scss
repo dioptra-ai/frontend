@@ -3,6 +3,7 @@
   inset: 0;
   width: $menu-width;
   background-color: theme-color('light-blue');
+  z-index: 1;
 
   a {
     text-decoration: none !important;
