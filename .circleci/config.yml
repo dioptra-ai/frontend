@@ -25,9 +25,8 @@ jobs:
           helm-version: v3.6.0
           release-name: frontend
           update-repositories: false
-          recreate-pods: true
           values: <<parameters.helm-values>>
-          values-to-override: image=<<parameters.image-tag>>
+          values-to-override: tag=<<parameters.image-tag>>
 
 orbs:
   aws-ecr: circleci/aws-ecr@7.0.0
@@ -61,7 +60,7 @@ workflows:
           path: .
           region: AWS_REGION
           repo: frontend
-          tag: 0.1.1.<<pipeline.number>>,latest
+          tag: <<pipeline.git.revision>>,latest,<<pipeline.git.tag>>
           context:
             - aws-creds
           requires:
@@ -94,6 +93,7 @@ workflows:
           requires:
             - build-image
           filters:
+            tags:
+              only: /^v.*/
             branches:
-              only:
-                - main
+              ignore: /.*/
