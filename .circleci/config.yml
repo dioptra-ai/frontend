@@ -13,6 +13,7 @@ jobs:
         type: string
       image-tag:
         type: string
+        default: <<pipeline.git.revision>>
     executor: aws-eks/python
     steps:
       - aws-eks/update-kubeconfig-with-authenticator:
