@@ -68,13 +68,12 @@ workflows:
           filters:
             branches:
               only:
-                - main
                 - dev
       - helm-upgrade:
           name: upgrade-dev
           cluster-name: dioptra-dev-eks
           helm-values: ./helm/values.dev.yaml
-          image-tag: 0.1.1.<<pipeline.number>>
+          image-tag: <<pipeline.git.revision>>
           context:
             - aws-creds
           requires:
@@ -83,11 +82,45 @@ workflows:
             branches:
               only:
                 - dev
+  "Delivery":
+    jobs:
+      - node/test:
+          name: lint
+          version: 16.4.0 # This to be kept in sync with Dockerfile
+          run-command: lint
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
+      - aws-ecr/build-and-push-image:
+          name: build-image
+          account-url: AWS_ECR_ACCOUNT_URL
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          create-repo: true
+          dockerfile: Dockerfile
+          executor:
+            name: aws-ecr/default
+            use-docker-layer-caching: true
+          path: .
+          region: AWS_REGION
+          repo: frontend
+          tag: <<pipeline.git.revision>>,latest,<<pipeline.git.tag>>
+          context:
+            - aws-creds
+          requires:
+            - lint
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
       - helm-upgrade:
           name: upgrade-prod
           cluster-name: dioptra-prod-eks
           helm-values: ./helm/values.prod.yaml
-          image-tag: 0.1.1.<<pipeline.number>>
+          image-tag: <<pipeline.git.tag>>
           context:
             - aws-creds
           requires:
@@ -97,3 +130,4 @@ workflows:
               only: /^v.*/
             branches:
               ignore: /.*/
+
