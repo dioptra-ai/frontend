@@ -118,13 +118,13 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                 <Row className='my-3'>
                     <Col className='d-flex' lg={4}>
                         <Async
-                            refetchOnChanged={[allSqlFilters, mlModelType]}
+                            refetchOnChanged={[allSqlFilters, timeGranularity]}
                             renderData={(data) => (
                                 <BarGraph
-                                    bars={data.map(({percentage, box}) => ({
-                                        name: box,
-                                        value: percentage,
-                                        fill: getHexColor(percentage)
+                                    bars={data.map(({name, value}) => ({
+                                        name: name,
+                                        value: value,
+                                        fill: getHexColor(value)
                                     }))}
                                     title='Bounding Box Size Distribution'
                                     unit='%'
@@ -139,10 +139,7 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                     </Col>
                     <Col className='d-flex' lg={8}>
                         <Async
-                            refetchOnChanged={[
-                                allOfflineSqlFilters, mlModelType,
-                                timeGranularity, allSqlFilters
-                            ]}
+                            refetchOnChanged={[timeGranularity, allSqlFilters]}
                             renderData={(data) => (
                                 <AreaGraph
                                     dots={data}
@@ -150,6 +147,8 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                                     xAxisDomain={timeStore.rangeMillisec}
                                     xAxisName='Time'
                                     yAxisName='Relative Coordinates (%)'
+                                    xDataKey='time'
+                                    yDataKey='value'
                                 />
                             )}
                             fetchData={
