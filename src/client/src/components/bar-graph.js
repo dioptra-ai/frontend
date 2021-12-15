@@ -29,7 +29,7 @@ CustomTooltip.propTypes = {
     payload: PropTypes.array,
     unit: PropTypes.string
 };
-const BarGraph = ({title, bars, unit, yAxisName, xAxisName, yAxisDomain, className = '', onClick, children}) => {
+const BarGraph = ({title, bars, unit, yAxisName, xAxisName, yAxisDomain, className = '', onClick, children, ...rest}) => {
 
     return (
         <div className={`border rounded p-3 pe-5 w-100 ${className}`}>
@@ -37,7 +37,7 @@ const BarGraph = ({title, bars, unit, yAxisName, xAxisName, yAxisDomain, classNa
                 <p className='text-dark bold-text fs-4 px-3'>{title}</p>
                 <div style={{height: '300px'}}>
                     <ResponsiveContainer height='100%' width='100%'>
-                        <BarChart data={bars} height={250} width={730}>
+                        <BarChart data={bars} height={250} width={730} {...rest}>
                             <CartesianGrid strokeDasharray='3 3' />
                             <XAxis
                                 dataKey='name'

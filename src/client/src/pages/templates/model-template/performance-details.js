@@ -286,6 +286,8 @@ const PerformanceDetails = ({filtersStore}) => {
                                             title='Precision'
                                             unit='%'
                                             yAxisName='Precision'
+                                            barGap={1}
+                                            barCategoryGap={80}
                                         >
                                             <Tooltip />
                                             <Bar maxBarSize={40} dataKey='iou05' fill={getHexColor('iou05')}/>
@@ -343,6 +345,8 @@ const PerformanceDetails = ({filtersStore}) => {
                                             title='Recall'
                                             unit='%'
                                             yAxisName='Recall'
+                                            barGap={1}
+                                            barCategoryGap={80}
                                         >
                                             <Tooltip />
                                             <Bar maxBarSize={40} dataKey='iou05' fill={getHexColor('iou05')}/>
