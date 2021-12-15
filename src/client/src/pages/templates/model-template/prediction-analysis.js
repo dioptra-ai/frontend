@@ -122,8 +122,8 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                             renderData={(data) => (
                                 <BarGraph
                                     bars={data.map(({name, value}) => ({
-                                        name: name,
-                                        value: value,
+                                        name,
+                                        value,
                                         fill: getHexColor(value)
                                     }))}
                                     title='Bounding Box Size Distribution'
