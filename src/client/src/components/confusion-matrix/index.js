@@ -71,12 +71,14 @@ const Table = ({
 
     return (
         <>
-            <div className='position-relative' style={{marginLeft: '30px'}}>
+            <div className='position-relative pl-30' style={{
+                overflow: 'auto', width: '100%', maxHeight: '98vh', paddingLeft: 30
+            }}>
                 <p className='text-secondary m-0 mb-2 text-center bold-text'>Prediction</p>
                 <MatrixTable columns={columns} data={rows} onCellClick={onCellClick} />
                 <p
                     className='position-absolute text-secondary m-0 text-center bold-text'
-                    style={{transform: 'rotate(-90deg)', top: '50%', left: '-70px'}}
+                    style={{transform: 'rotate(-90deg)', top: '50%', left: -40}}
                 >
           Ground Truth
                 </p>

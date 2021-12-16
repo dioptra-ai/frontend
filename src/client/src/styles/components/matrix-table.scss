@@ -1,0 +1,23 @@
+.matrix-table {
+    thead {
+        th {
+            position: sticky !important;
+            top: 0;
+            z-index: 1;  
+            background: white;
+        }
+    }
+    tbody {
+        th {
+            position: sticky !important;
+            left: 0;
+            background: white;
+            z-index: 1;
+            &:first-child {
+                position: sticky !important;
+                left: 0;
+                z-index: 2;
+            }
+        }
+    }
+}
