@@ -255,12 +255,12 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 })
                                 }
                                 refetchOnChanged={[timeGranularity, model, allSqlFilters]}
-                                renderData={([{f1_score} = {}]) => (
+                                renderData={([{ss} = {}]) => (
                                     <MetricInfoBox
                                         name='Semantic Similarity'
                                         sampleSize={sampleSizeComponent}
                                         unit='%'
-                                        value={f1_score}
+                                        value={ss}
                                     />
                                 )}
                             />
