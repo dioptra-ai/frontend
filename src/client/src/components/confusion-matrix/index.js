@@ -70,20 +70,25 @@ const Table = ({
     });
 
     return (
-        <>
-            <div className='position-relative pl-30' style={{
-                overflow: 'auto', width: '100%', maxHeight: '98vh', paddingLeft: 30
-            }}>
-                <p className='text-secondary m-0 mb-2 text-center bold-text'>Prediction</p>
-                <MatrixTable columns={columns} data={rows} onCellClick={onCellClick} />
+        <div className='d-flex'>
+            <div className='position-relative' style={{width: 30}}>
                 <p
                     className='position-absolute text-secondary m-0 text-center bold-text'
-                    style={{transform: 'rotate(-90deg)', top: '50%', left: -40}}
+                    style={{transform: 'rotate(-90deg)', top: '50%', left: -85, width: 200}}
                 >
-          Ground Truth
+                    Ground Truth
                 </p>
             </div>
-        </>
+            <div className='position-relative' style={{
+                overflow: 'auto', width: '100%', maxHeight: '98vh'
+            }}>
+                <p
+                    className='text-secondary m-0 mb-2 text-center bold-text position-sticky'
+                    style={{left: 0}}
+                >Prediction</p>
+                <MatrixTable columns={columns} data={rows} onCellClick={onCellClick} />
+            </div>
+        </div>
     );
 };
 
