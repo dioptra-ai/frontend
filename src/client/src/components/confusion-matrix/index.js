@@ -26,13 +26,17 @@ const Table = ({
         Cell: Object.assign(
             ({value: cell = {}}) => {
                 const {value = 0, difference = 0} = cell;
+                const displayTruncatedValue = (value * 100).toFixed(2);
+                const truncatedValue = Number(displayTruncatedValue);
+                const displayValue = value ? (
+                    truncatedValue ? `${displayTruncatedValue} %` : `< ${displayTruncatedValue} %`
+                ) : '-';
+                const truncatedDifference = Number((difference * 100).toFixed(2));
 
                 return (
                     <>
-                        <span>{`${(value * 100).toFixed(2)} %`}</span>
-                        <DifferenceLabel
-                            difference={(difference * 100).toFixed(2)}
-                        />
+                        <span>{displayValue}</span>
+                        <DifferenceLabel difference={truncatedDifference}/>
                     </>
                 );
             },

@@ -8,13 +8,13 @@ const DifferenceLabel = ({difference, containerStyle = {}, diffStyles = {}}) => 
                 fontSize: '80%',
                 ...diffStyles
             }} title='vs. Benchmark'>
-                {difference ? `${difference > 0 ? '+' : ''}${difference}` : '-'}%
-                {difference && <IoTriangle
+                {difference ? `${difference > 0 ? '+' : ''}${difference}%` : ''}
+                {difference ? <IoTriangle
                     className={`metric-box-arrowIcon ${difference < 0 ? 'metric-box-arrowIcon-inverted' : ''}`}
-                />
-                }
+                /> : null}
             </span>
-        </div>);
+        </div>
+    );
 };
 
 DifferenceLabel.propTypes = {
