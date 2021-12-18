@@ -130,7 +130,7 @@ const QAPerfAnalysis = () => {
                             </Row>
                         </SpinnerWrapper>
                         {exampleInModal && (
-                            <Modal isOpen={true} onClose={() => setExampleInModal(null)} title='Example'>
+                            <Modal isOpen onClose={() => setExampleInModal(null)} title=''>
                                 <Table
                                     columns={Object.keys(exampleInModal).map((k) => ({
                                         Header: k,

@@ -24,7 +24,7 @@ const ModalComponent = ({onClose, isOpen = true, title, closeButton, children}) 
             }
         }}>
             <div className='d-flex flex-column'>
-                {title ? (
+                {title !== undefined ? (
                     <div className='d-flex align-items-center pt-2 pb-2 bg-white position-sticky top-0'>
                         <p className='text-dark m-0 bold-text flex-grow-1 fs-4'>{title}</p>
                         {closeButton ? closeButton : (
