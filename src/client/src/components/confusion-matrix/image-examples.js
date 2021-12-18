@@ -29,13 +29,13 @@ const ImageExamples = ({onClose, groundtruth, prediction, iou, model}) => {
                     }</button>
             )}
         >
-            <div className='my-3 p-3'>
+            <div className='p-3'>
                 {exampleInModal ? (
                     <img
                         alt='Example'
                         className='rounded modal-image'
+                        style={{maxWidth: '80vw', maxHeight: '75vh'}}
                         src={exampleInModal}
-                        width='100%'
                     />
                 ) : (
                     <Async

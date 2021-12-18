@@ -20,15 +20,12 @@ const OrganizationUpdateModal = ({
     handleSubmit
 }) => {
     return (
-        <ModalComponent isOpen={isOpen} onClose={() => handleClose(false)}>
+        <ModalComponent isOpen={isOpen} title='Update Organisation Name' onClose={() => handleClose(false)}>
             <Container
                 className='model fs-6 d-flex align-items-center justify-content-center'
                 fluid
             >
                 <div className='model-form d-flex flex-column align-items-center'>
-                    <p className='text-dark bold-text fs-3 mb-4'>
-                        Update Organisation Name
-                    </p>
                     {error ? (
                         <div className='bg-warning text-white p-3 mt-2'>{error}</div>
                     ) : null}
@@ -85,15 +82,12 @@ const OrganizationSwitchModel = ({
     const isActiveMembership = ({original}) => original?._id === currentMembership;
 
     return (
-        <ModalComponent isOpen={isOpen} onClose={() => handleClose(false)}>
+        <ModalComponent isOpen={isOpen} title='Change Your Organisation' onClose={() => handleClose(false)}>
             <Container
                 className='model fs-6 d-flex align-items-center justify-content-center switch-modal'
                 fluid
             >
                 <div className='model-form d-flex flex-column align-items-center'>
-                    <p className='text-dark bold-text fs-3 mb-4'>
-                        Change Your Organisation
-                    </p>
                     {error ? (
                         <div className='bg-warning text-white p-3 mt-2'>{error}</div>
                     ) : null}

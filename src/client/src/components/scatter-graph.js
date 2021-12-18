@@ -17,7 +17,6 @@ import useModal from 'customHooks/useModal';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import Modal from 'components/modal';
-import {IoCloseCircleOutline} from 'react-icons/io5';
 
 const LARGE_DOT_SIZE = 200;
 const MEDIUM_DOT_SIZE = 100;
@@ -280,18 +279,12 @@ const ScatterGraph = ({data}) => {
                 </Col>
             </Row>
             {exampleInModal && (
-                <Modal isOpen={true} onClose={() => setExampleInModal(null)}>
-                    <div className='d-flex align-items-center'>
-                        <p className='m-0 flex-grow-1'></p>
-                        <button className='text-dark border-0 bg-white fs-2' onClick={() => setExampleInModal(null)}>
-                            <IoCloseCircleOutline/>
-                        </button>
-                    </div>
+                <Modal isOpen={true} onClose={() => setExampleInModal(null)} title='Example'>
                     <img
                         alt='Example'
                         className='rounded modal-image'
                         src={exampleInModal}
-                        width='100%'
+                        style={{maxHeight: '80vh', maxWidth: '80vw'}}
                     />
                 </Modal>
             )}

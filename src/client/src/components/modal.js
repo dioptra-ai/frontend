@@ -16,9 +16,8 @@ const ModalComponent = ({onClose, isOpen = true, title, closeButton, children}) 
                 transform: 'translate(-50%, -50%)',
                 maxHeight: '90vh',
                 maxWidth: '90vw',
-                minWidth: '50vh',
-                minHeight: '50vw',
-                paddingTop: 0
+                minWidth: '20vw',
+                ...(title ? {paddingTop: 0} : null)
             },
             overlay: {
                 zIndex: 20
@@ -26,10 +25,10 @@ const ModalComponent = ({onClose, isOpen = true, title, closeButton, children}) 
         }}>
             <div className='d-flex flex-column'>
                 {title ? (
-                    <div className='d-flex align-items-center p-2 bg-white position-sticky top-0'>
-                        <p className='text-dark m-0 bold-text flex-grow-1'>{title}</p>
+                    <div className='d-flex align-items-center pt-2 pb-2 bg-white position-sticky top-0'>
+                        <p className='text-dark m-0 bold-text flex-grow-1 fs-4'>{title}</p>
                         {closeButton ? closeButton : (
-                            <button className='text-dark border-0 bg-white fs-2' onClick={onClose}>
+                            <button className='text-dark border-0 bg-white fs-2 p-0 ps-3' onClick={onClose}>
                                 <IoCloseCircleOutline/>
                             </button>
                         )}
