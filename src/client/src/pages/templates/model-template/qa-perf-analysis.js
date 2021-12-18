@@ -16,8 +16,6 @@ import ClusterGraph from 'components/cluster-graph';
 import useModel from 'customHooks/use-model';
 import useModal from 'customHooks/useModal';
 import Modal from 'components/modal';
-import BtnIcon from 'components/btn-icon';
-import {IconNames} from 'constants';
 import metricsClient from 'clients/metrics';
 
 const QAPerfAnalysis = () => {
@@ -132,16 +130,7 @@ const QAPerfAnalysis = () => {
                             </Row>
                         </SpinnerWrapper>
                         {exampleInModal && (
-                            <Modal isOpen={true} onClose={() => setExampleInModal(null)}>
-                                <div className='d-flex align-items-center pb-3'>
-                                    <p className='m-0 flex-grow-1'></p>
-                                    <BtnIcon
-                                        className='border-0'
-                                        icon={IconNames.CLOSE}
-                                        onClick={() => setExampleInModal(null)}
-                                        size={15}
-                                    />
-                                </div>
+                            <Modal isOpen={true} onClose={() => setExampleInModal(null)} title='Example'>
                                 <Table
                                     columns={Object.keys(exampleInModal).map((k) => ({
                                         Header: k,

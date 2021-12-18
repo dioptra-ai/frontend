@@ -65,15 +65,13 @@ const RowActions = ({row, data, fetchAgain, fetch}) => {
             <ModalComponent
                 isOpen={openEditModal}
                 onClose={() => setOpenEditModal(false)}
+                title={`Edit Member: ${user.username}`}
             >
                 <Container
                     className='model fs-6 d-flex align-items-center justify-content-center edit-modal'
                     fluid
                 >
                     <div className='model-form d-flex flex-column align-items-center'>
-                        <p className='text-dark bold-text fs-3 mb-4'>
-                            Edit Member: {user.username}
-                        </p>
                         {error && (
                             <div className='bg-warning text-white p-3 mt-2'>
                                 {error}

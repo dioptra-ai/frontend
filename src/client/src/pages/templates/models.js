@@ -263,7 +263,7 @@ const Models = ({modelStore}) => {
                     <Pagination onPageChange={setPageNumber} totalPages={totalPages} />
                 </div>
             )}
-            <ModalComponent isOpen={showModal} onClose={() => setShowModal(false)}>
+            <ModalComponent isOpen={showModal} onClose={() => setShowModal(false)} title='Create New Model'>
                 <ModelForm
                     errors={errors}
                     initialValue={{}}

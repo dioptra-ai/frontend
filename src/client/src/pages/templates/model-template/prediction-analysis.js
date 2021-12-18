@@ -16,9 +16,7 @@ import HeatMap from 'components/heatmap';
 import metricsClient from 'clients/metrics';
 import Async from 'components/async';
 import useModal from 'customHooks/useModal';
-import BtnIcon from 'components/btn-icon';
 import Modal from 'components/modal';
-import {IconNames} from 'constants';
 
 const PredictionAnalysis = ({timeStore, filtersStore}) => {
     const allSqlFilters = useAllSqlFilters();
@@ -256,16 +254,7 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                                 )}
                             </Col>
                         </Row>
-                        {exampleInModal ? <Modal onClose={() => setExampleInModal(null)}>
-                            <div className='d-flex align-items-center'>
-                                <p className='m-0 flex-grow-1'></p>
-                                <BtnIcon
-                                    className='border-0'
-                                    icon={IconNames.CLOSE}
-                                    onClick={() => setExampleInModal(null)}
-                                    size={15}
-                                />
-                            </div>
+                        {exampleInModal ? <Modal onClose={() => setExampleInModal(null)} title='Example'>
                             <div style={{position: 'relative'}}>
                                 <img
                                     alt='Example'

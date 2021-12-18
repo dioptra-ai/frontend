@@ -46,10 +46,7 @@ const AddColumnModal = ({onCancel, onApply, allColumns, selected}) => {
     };
 
     return (
-        <Modal isOpen onClose={onCancel}>
-            <p className='text-dark fw-bold fs-4 pb-3 mb-4 border-bottom border-mercury'>
-        Add or remove columns from the table
-            </p>
+        <Modal isOpen onClose={onCancel} title='Add or remove columns from the table'>
             {featureColumns.length > 0 && (
                 <div className='d-flex flex-column mb-4'>
                     <p className='text-dark fw-bold fs-6'>FEATURES</p>

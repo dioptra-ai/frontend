@@ -14,8 +14,6 @@ import {useThrottle} from '@react-hook/throttle';
 import theme from 'styles/theme.module.scss';
 import PropTypes from 'prop-types';
 import useModal from 'customHooks/useModal';
-import BtnIcon from 'components/btn-icon';
-import {IconNames} from 'constants';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import Modal from 'components/modal';
@@ -281,21 +279,12 @@ const ScatterGraph = ({data}) => {
                 </Col>
             </Row>
             {exampleInModal && (
-                <Modal isOpen={true} onClose={() => setExampleInModal(null)}>
-                    <div className='d-flex align-items-center'>
-                        <p className='m-0 flex-grow-1'></p>
-                        <BtnIcon
-                            className='border-0'
-                            icon={IconNames.CLOSE}
-                            onClick={() => setExampleInModal(null)}
-                            size={15}
-                        />
-                    </div>
+                <Modal isOpen={true} onClose={() => setExampleInModal(null)} title='Example'>
                     <img
                         alt='Example'
                         className='rounded modal-image'
                         src={exampleInModal}
-                        width='100%'
+                        style={{maxHeight: '80vh', maxWidth: '80vw'}}
                     />
                 </Modal>
             )}
