@@ -1,8 +1,9 @@
-import Carousel from 'react-multi-carousel';
-import 'react-multi-carousel/lib/styles.css';
 import PropTypes from 'prop-types';
 import BtnIcon from './btn-icon';
 import {IconNames} from '../constants';
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 
 const ButtonGroup = ({next, previous, ...rest}) => {
     const {carouselState: {currentSlide}} = rest;
@@ -32,44 +33,23 @@ ButtonGroup.propTypes = {
 };
 
 const CustomCarousel = ({items, onItemClick}) => {
-    const responsive = {
-        desktop: {
-            breakpoint: {max: 3000, min: 1024},
-            items: 8
-        },
-        tablet: {
-            breakpoint: {max: 1024, min: 464},
-            items: 4
-        },
-        mobile: {
-            breakpoint: {max: 464, min: 0},
-            items: 2
-        }
-    };
 
     return (
-        <div className='carousel-wrapper'>
-            <Carousel
-                arrows={false}
-                className='my-3'
-                containerClass='carousel-container'
-                customButtonGroup={<ButtonGroup/>}
-                renderButtonGroupOutside={true}
-                responsive={responsive}
-                transitionDuration={500}
-            >
+        <Container>
+            <Row>
                 {items.map((item, i) => (
-                    <div
-                        className='mx-2 rounded cursor-pointer'
+                    <Col
+                        className='mt-2 rounded cursor-pointer'
                         key={i}
                         onClick={() => onItemClick(item)}
+                        xs={4} md={2}
                     >
                         <img alt='Example' src={item} width='100%'/>
-                    </div>
+                    </Col>
 
                 ))}
-            </Carousel>
-        </div>
+            </Row>
+        </Container>
     );
 };
 

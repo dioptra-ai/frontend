@@ -14,11 +14,10 @@ import {useThrottle} from '@react-hook/throttle';
 import theme from 'styles/theme.module.scss';
 import PropTypes from 'prop-types';
 import useModal from 'customHooks/useModal';
-import BtnIcon from 'components/btn-icon';
-import {IconNames} from 'constants';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import Modal from 'components/modal';
+import {IoCloseCircleOutline} from 'react-icons/io5';
 
 const LARGE_DOT_SIZE = 200;
 const MEDIUM_DOT_SIZE = 100;
@@ -284,12 +283,9 @@ const ScatterGraph = ({data}) => {
                 <Modal isOpen={true} onClose={() => setExampleInModal(null)}>
                     <div className='d-flex align-items-center'>
                         <p className='m-0 flex-grow-1'></p>
-                        <BtnIcon
-                            className='border-0'
-                            icon={IconNames.CLOSE}
-                            onClick={() => setExampleInModal(null)}
-                            size={15}
-                        />
+                        <button className='text-dark border-0 bg-white fs-2' onClick={() => setExampleInModal(null)}>
+                            <IoCloseCircleOutline/>
+                        </button>
                     </div>
                     <img
                         alt='Example'
