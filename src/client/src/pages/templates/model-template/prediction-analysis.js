@@ -231,13 +231,13 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                                                         alt='Example'
                                                         className='rounded'
                                                         src={image_url}
-                                                        height={100}
+                                                        height={200}
                                                     />
                                                     <div className='heat-map-box' style={{
-                                                        height: bounding_box.h * 100,
-                                                        width: bounding_box.w * (100 * width / height),
-                                                        top: (bounding_box.y - bounding_box.h / 2) * 100,
-                                                        left: (bounding_box.x - bounding_box.w / 2) * (100 * width / height)
+                                                        height: bounding_box.h * 200,
+                                                        width: bounding_box.w * (200 * width / height),
+                                                        top: (bounding_box.y - bounding_box.h / 2) * 200,
+                                                        left: (bounding_box.x - bounding_box.w / 2) * (200 * width / height)
                                                     }}/>
                                                 </div>
                                             );
