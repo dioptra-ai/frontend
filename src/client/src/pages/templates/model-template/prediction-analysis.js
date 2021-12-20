@@ -109,60 +109,59 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                 </Row>
             </div>
 
-            <div className='my-3'>
-                <h3 className='text-dark bold-text fs-3 mb-3'>
-                    Bounding Box Size Analysis
-                </h3>
-                <Row className='my-3'>
-                    <Col className='d-flex' lg={4}>
-                        <Async
-                            refetchOnChanged={[allSqlFilters, timeGranularity]}
-                            renderData={(data) => (
-                                <BarGraph
-                                    bars={data.map(({name, value}) => ({
-                                        name,
-                                        value,
-                                        fill: getHexColor(value)
-                                    }))}
-                                    title='Bounding Box Size Distribution'
-                                    unit='%'
-                                    yAxisName='Percent'
-                                />
-                            )}
-                            fetchData={
-                                () => metricsClient('query/image-distribution',
-                                    {sql_filters: allSqlFilters, time_granularity: timeGranularity})
-                            }
-                        />
-                    </Col>
-                    <Col className='d-flex' lg={8}>
-                        <Async
-                            refetchOnChanged={[timeGranularity, allSqlFilters]}
-                            renderData={(data) => (
-                                <AreaGraph
-                                    dots={data}
-                                    title='Average'
-                                    xAxisDomain={timeStore.rangeMillisec}
-                                    xAxisName='Time'
-                                    yAxisName='Relative Coordinates (%)'
-                                    xDataKey='time'
-                                    yDataKey='value'
-                                />
-                            )}
-                            fetchData={
-                                () => metricsClient('query/image-distribution-average',
-                                    {sql_filters: allSqlFilters, time_granularity: timeGranularity})
-                            }
-                        />
-                    </Col>
-                </Row>
-            </div>
-
             {mlModelType === 'DOCUMENT_PROCESSING' ? (
                 <>
                     <div className='my-3'>
                         <h3 className='text-dark bold-text fs-3 mb-3'>
-              Bounding Box Location Analysis
+                            Bounding Box Size Analysis
+                        </h3>
+                        <Row className='my-3'>
+                            <Col className='d-flex' lg={4}>
+                                <Async
+                                    refetchOnChanged={[allSqlFilters, timeGranularity]}
+                                    renderData={(data) => (
+                                        <BarGraph
+                                            bars={data.map(({name, value}) => ({
+                                                name,
+                                                value,
+                                                fill: getHexColor(value)
+                                            }))}
+                                            title='Bounding Box Size Distribution'
+                                            unit='%'
+                                            yAxisName='Percent'
+                                        />
+                                    )}
+                                    fetchData={
+                                        () => metricsClient('query/image-distribution',
+                                            {sql_filters: allSqlFilters, time_granularity: timeGranularity})
+                                    }
+                                />
+                            </Col>
+                            <Col className='d-flex' lg={8}>
+                                <Async
+                                    refetchOnChanged={[timeGranularity, allSqlFilters]}
+                                    renderData={(data) => (
+                                        <AreaGraph
+                                            dots={data}
+                                            title='Average'
+                                            xAxisDomain={timeStore.rangeMillisec}
+                                            xAxisName='Time'
+                                            yAxisName='Relative Coordinates (%)'
+                                            xDataKey='time'
+                                            yDataKey='value'
+                                        />
+                                    )}
+                                    fetchData={
+                                        () => metricsClient('query/image-distribution-average',
+                                            {sql_filters: allSqlFilters, time_granularity: timeGranularity})
+                                    }
+                                />
+                            </Col>
+                        </Row>
+                    </div>
+                    <div className='my-3'>
+                        <h3 className='text-dark bold-text fs-3 mb-3'>
+                            Bounding Box Location Analysis
                         </h3>
                         <Row className='my-3 rounded border mx-1'>
                             <Col className='d-flex align-items-center' lg={4}>
@@ -170,7 +169,7 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                             </Col>
                             <Col className='d-flex align-items-center' lg={4}>
                                 <h4 className='text-dark bold-text fs-4 m-0'>
-                  Bounding Box Examples
+                                    Bounding Box Examples
                                 </h4>
                             </Col>
                             <Col lg={{span: 3, offset: 1}} className='my-3'>
