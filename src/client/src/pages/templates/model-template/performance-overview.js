@@ -26,7 +26,8 @@ const ModelPerformanceMetrics = {
     RECALL: {value: 'RECALL', name: 'Recall'},
     EXACT_MATCH: {value: 'EXACT_MATCH', name: 'Exact Match'},
     MEAN_AVERAGE_PRECISION: {value: 'MEAN_AVERAGE_PRECISION', name: 'mAP'},
-    MEAN_AVERAGE_RECALL: {value: 'MEAN_AVERAGE_RECALL', name: 'mAR'}
+    MEAN_AVERAGE_RECALL: {value: 'MEAN_AVERAGE_RECALL', name: 'mAR'},
+    SEMANTIC_SIMILARITY: {value: 'SEMANTIC_SIMILARITY', name: 'Semantic Similarity'}
 };
 
 const PerformanceOverview = ({timeStore, filtersStore}) => {
@@ -109,6 +110,14 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
             [ModelPerformanceMetrics.EXACT_MATCH.value]: () => {
 
                 return metricsClient('exact-match', {
+                    sql_filters: sqlFilters,
+                    time_granularity: timeGranularity,
+                    model_type: model.mlModelType
+                });
+            },
+            [ModelPerformanceMetrics.SEMANTIC_SIMILARITY.value]: () => {
+
+                return metricsClient('semantic-similarity', {
                     sql_filters: sqlFilters,
                     time_granularity: timeGranularity,
                     model_type: model.mlModelType
@@ -202,6 +211,20 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 )}
                             />
                         </Col>
+                        <Col className='d-flex' lg={3}>
+                            <Async
+                                fetchData={getQueryForMetric('SEMANTIC_SIMILARITY')}
+                                refetchOnChanged={[timeGranularity, model, allSqlFilters]}
+                                renderData={([d]) => (
+                                    <MetricInfoBox
+                                        name='Semantic Similarity'
+                                        sampleSize={sampleSizeComponent}
+                                        unit='%'
+                                        value={d?.value}
+                                    />
+                                )}
+                            />
+                        </Col>
                     </Row>
                 ) : model.mlModelType === 'DOCUMENT_PROCESSING' ? (
                     <Row className='mb-3 align-items-stretch'>
@@ -240,27 +263,6 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                         name='Exact Match'
                                         subtext='iou=0.5'
                                         value={d?.value}
-                                    />
-                                )}
-                            />
-                        </Col>
-                        <Col className='d-flex' lg={3}>
-                            <Async
-                                fetchData={() => baseJSONClient('/api/metrics/f1-score-metric', {
-                                    method: 'post',
-                                    body: {
-                                        sql_filters: allSqlFilters,
-                                        model_type: model.mlModelType
-                                    }
-                                })
-                                }
-                                refetchOnChanged={[timeGranularity, model, allSqlFilters]}
-                                renderData={([{ss} = {}]) => (
-                                    <MetricInfoBox
-                                        name='Semantic Similarity'
-                                        sampleSize={sampleSizeComponent}
-                                        unit='%'
-                                        value={ss}
                                     />
                                 )}
                             />
