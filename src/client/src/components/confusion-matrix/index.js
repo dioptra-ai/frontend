@@ -193,7 +193,7 @@ const ConfusionMatrix = () => {
                   groundtruth={selectedCell.groundtruth}
                   onClose={() => setSelectedCell(null)}
                   prediction={selectedCell.prediction}
-                  previewColumns={['confidence', 'groundtruth', 'prediction', 'tags', /^text$/]}
+                  previewColumns={['confidence', 'groundtruth', 'prediction', 'tags', /^text$/, 'features']}
               />
           ) : null)}
             </div>
