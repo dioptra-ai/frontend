@@ -21,7 +21,7 @@ const ModelDescription = ({_id, filtersStore, modelStore, name, description, tea
     const [allMlModelVersions, setAllMlModelVersions] = useState([]);
 
     useEffect(() => {
-        metricsClient('query/all-ml-model-versions', {
+        metricsClient('queries/all-ml-model-versions', {
             ml_model_id: mlModelId
         })
             .then((data) => {

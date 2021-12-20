@@ -53,7 +53,7 @@ const ImageExamples = ({onClose, groundtruth, prediction, iou, model}) => {
                         )
                         }
                         refetchOnChanged={[groundtruth, prediction, iou, allSqlFilters, model.mlModelType]}
-                        fetchData={() => metricsClient(`query/${model.mlModelType === 'DOCUMENT_PROCESSING' ?
+                        fetchData={() => metricsClient(`queries/${model.mlModelType === 'DOCUMENT_PROCESSING' ?
                             'select-image-uri-for-data-processing' : 'select-image-uri-for-default'}`,
                         model.mlModelType === 'DOCUMENT_PROCESSING' ?
                             {

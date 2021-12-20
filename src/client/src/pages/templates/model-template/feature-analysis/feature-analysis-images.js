@@ -87,7 +87,7 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                             renderData={([d]) => (
                                 <MetricInfoBox name='% Unique' unit='%' value={100 * d?.value} />
                             )}
-                            fetchData={() => metricsClient('query/unique-images', {sql_filters: allSqlFilters})}
+                            fetchData={() => metricsClient('queries/unique-images', {sql_filters: allSqlFilters})}
                         />
                     </Col>
                     <Col className='d-flex' lg={5}>
@@ -106,7 +106,7 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                                     unit='%'
                                 />
                             )}
-                            fetchData={() => metricsClient('query/unique-images-over-time', {time_granularity: timeGranularity, sql_filters: allSqlFilters})}
+                            fetchData={() => metricsClient('queries/unique-images-over-time', {time_granularity: timeGranularity, sql_filters: allSqlFilters})}
                         />
                     </Col>
                     <Col className='d-flex' lg={5}>
@@ -123,7 +123,7 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                                     yAxisName='Degrees'
                                 />
                             )}
-                            fetchData={() => metricsClient('query/rotation-angle', {sql_filters: allSqlFilters})}
+                            fetchData={() => metricsClient('queries/rotation-angle', {sql_filters: allSqlFilters})}
                         />
                     </Col>
                 </Row>

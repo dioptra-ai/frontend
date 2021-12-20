@@ -69,7 +69,7 @@ const TabularExamples = ({onClose, groundtruth, prediction, previewColumns}) => 
                             />
                         );
                     }}
-                    fetchData={() => metricsClient('query/all_tabular_examples', {
+                    fetchData={() => metricsClient('queries/all_tabular_examples', {
                         groundtruth,
                         prediction,
                         sql_filters: allSqlFilters

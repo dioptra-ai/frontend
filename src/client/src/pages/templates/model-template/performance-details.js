@@ -407,8 +407,8 @@ const PerformanceDetails = ({filtersStore}) => {
                                     />
                                 )}
                                 fetchData={[
-                                    () => metricsClient('query/precision-per-class', {sql_filters: allSqlFilters}),
-                                    () => metricsClient('query/precision-per-class', {sql_filters: sqlFiltersWithModelTime})
+                                    () => metricsClient('queries/precision-per-class', {sql_filters: allSqlFilters}),
+                                    () => metricsClient('queries/precision-per-class', {sql_filters: sqlFiltersWithModelTime})
                                 ]}
                             />
                         </Col>
@@ -425,8 +425,8 @@ const PerformanceDetails = ({filtersStore}) => {
                                     />
                                 )}
                                 fetchData={[
-                                    () => metricsClient('query/recall-per-class', {sql_filters: allSqlFilters}),
-                                    () => metricsClient('query/recall-per-class', {sql_filters: sqlFiltersWithModelTime})
+                                    () => metricsClient('queries/recall-per-class', {sql_filters: allSqlFilters}),
+                                    () => metricsClient('queries/recall-per-class', {sql_filters: sqlFiltersWithModelTime})
                                 ]}
                             />
                         </Col>

@@ -56,7 +56,7 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                                     unit='%'
                                 />
                             )}
-                            fetchData={() => metricsClient(`query/${(mlModelType === 'IMAGE_CLASSIFIER' ||
+                            fetchData={() => metricsClient(`queries/${(mlModelType === 'IMAGE_CLASSIFIER' ||
                             mlModelType === 'TEXT_CLASSIFIER') ?
                                 'online-class-distribution-1' :
                                 'online-class-distribution-2'}`, {sql_filters: allSqlFilters})}
@@ -76,7 +76,7 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                                     unit='%'
                                 />
                             )}
-                            fetchData={() => metricsClient(`query/${mlModelType === 'DOCUMENT_PROCESSING' ?
+                            fetchData={() => metricsClient(`queries/${mlModelType === 'DOCUMENT_PROCESSING' ?
                                 'offline-class-distribution-1' :
                                 'offline-class-distribution-2'}`, {offline_sql_filters: allOfflineSqlFilters})}
                         />
@@ -97,7 +97,7 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                                     yAxisName='Distance'
                                 />
                             )}
-                            fetchData={() => metricsClient(`query/${mlModelType === 'DOCUMENT_PROCESSING' ?
+                            fetchData={() => metricsClient(`queries/${mlModelType === 'DOCUMENT_PROCESSING' ?
                                 'offline-online-distribution-distance-1' :
                                 'offline-online-distribution-distance-2'}`, {
                                 offline_sql_filters: allOfflineSqlFilters,
@@ -132,7 +132,7 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                                         />
                                     )}
                                     fetchData={
-                                        () => metricsClient('query/image-distribution',
+                                        () => metricsClient('queries/image-distribution',
                                             {sql_filters: allSqlFilters, time_granularity: timeGranularity})
                                     }
                                 />
@@ -152,7 +152,7 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                                         />
                                     )}
                                     fetchData={
-                                        () => metricsClient('query/image-distribution-average',
+                                        () => metricsClient('queries/image-distribution-average',
                                             {sql_filters: allSqlFilters, time_granularity: timeGranularity})
                                     }
                                 />

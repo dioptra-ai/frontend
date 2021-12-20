@@ -33,7 +33,7 @@ services:
       - ./src:/app/src
       - ./index.mjs:/app/index.mjs
       - ./webpack.config.js:/app/webpack.config.js
-    entrypoint: /bin/sleep 36000
+    entrypoint: npm run dev
   metrics-engine:
     build:
       context: submodules/metrics-engine
