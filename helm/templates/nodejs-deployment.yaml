@@ -52,7 +52,7 @@ spec:
                   name: aws-key-frontend
                   key: aws_secret_access_key
                   optional: true
-          image: 641017132295.dkr.ecr.us-east-2.amazonaws.com/frontend:latest
+          image: "641017132295.dkr.ecr.us-east-2.amazonaws.com/frontend:{{ .Values.tag }}"
           name: dioptra-frontend
           ports:
             - containerPort: 4004

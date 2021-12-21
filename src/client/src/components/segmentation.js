@@ -46,10 +46,7 @@ const AddColumnModal = ({onCancel, onApply, allColumns, selected}) => {
     };
 
     return (
-        <Modal isOpen onClose={onCancel}>
-            <p className='text-dark fw-bold fs-4 pb-3 mb-4 border-bottom border-mercury'>
-        Add or remove columns from the table
-            </p>
+        <Modal isOpen onClose={onCancel} title='Add or remove columns from the table'>
             {featureColumns.length > 0 && (
                 <div className='d-flex flex-column mb-4'>
                     <p className='text-dark fw-bold fs-6'>FEATURES</p>
@@ -131,7 +128,7 @@ const _AccuracyCell = ({timeStore, segmentationStore, row}) => {
 
     useEffect(() => {
         if (inView) {
-            metricsClient('query/accuracy-data', {
+            metricsClient('queries/accuracy-data', {
                 sql_filters: allSqlFilters,
                 time_granularity: timeGranularity,
                 columns: groupByColumns.map((c) => `"${c}"`).join(', '),
@@ -199,7 +196,7 @@ const _DistributionCell = ({row, segmentationStore}) => {
 
     useEffect(() => {
         if (inView) {
-            metricsClient('query/distribution-data', {
+            metricsClient('queries/distribution-data', {
                 sql_columns: sqlColumns,
                 sql_filters: `${allSqlFilters} AND ${groupByColumns.map((c) => `"${c}"='${row.original[c]}'`).join(' AND ')}`,
                 columns: groupByColumns.map((column) => `my_sub_table."${column}" = my_sub_count_table."${column}"`).join(' AND '),
@@ -355,7 +352,7 @@ const Segmentation = ({timeStore, modelStore, segmentationStore}) => {
                         />
                     )}
                     refetchOnChanged={[groupByColumns.join(','), allSqlFilters]}
-                    fetchData={() => groupByColumns.length ? metricsClient('query/fairness-bias-columns', {
+                    fetchData={() => groupByColumns.length ? metricsClient('queries/fairness-bias-columns', {
                         group_by: groupByColumns,
                         sql_filters: allSqlFilters
                     }) : Promise.resolve([])}
@@ -375,7 +372,7 @@ const Segmentation = ({timeStore, modelStore, segmentationStore}) => {
                                     />
                                 )}
                                 resultFormat='array'
-                                fetchData={() => metricsClient('query/fairness-bias-columns-counts', {
+                                fetchData={() => metricsClient('queries/fairness-bias-columns-counts', {
                                     counts: featuresAndTags.map(({column}) => `COUNT("${column}")`).join(', '),
                                     sql_time_filter: timeStore.sqlTimeFilter,
                                     ml_model_id: mlModelId
@@ -384,8 +381,8 @@ const Segmentation = ({timeStore, modelStore, segmentationStore}) => {
                         ) : null
                         }
                         fetchData={mlModelType === 'TABULAR_CLASSIFIER' ?
-                            () => metricsClient('query/fairness-bias-columns-names-for-features') :
-                            () => metricsClient('query/fairness-bias-columns-names-for-tags')
+                            () => metricsClient('queries/fairness-bias-columns-names-for-features') :
+                            () => metricsClient('queries/fairness-bias-columns-names-for-tags')
                         }
                     />
                 )}

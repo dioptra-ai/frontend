@@ -45,7 +45,7 @@ const FilterInput = ({
         const [key, value] = newFilter.split('=');
 
         if (key && newFilter.includes('=')) {
-            metricsClient('query/get-suggestions-with-key', {
+            metricsClient('queries/get-suggestions-with-key', {
                 key,
                 value,
                 ml_model_id: mlModelId
@@ -55,10 +55,10 @@ const FilterInput = ({
                 })
                 .catch(() => setSuggestions([]));
         } else {
-            metricsClient('query/get-suggestions-without-key', {
+            metricsClient('queries/get-suggestions-without-key', {
                 key
             }).then(async (data) => {
-                await metricsClient('query/all-key-options', {
+                await metricsClient('queries/all-key-options', {
                     keys_calc: data.map(({allKeyOptions: key}) => `COUNT("${key}")`).join(', '),
                     ml_model_id: mlModelId
                 })

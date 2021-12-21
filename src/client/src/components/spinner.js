@@ -16,7 +16,6 @@ const Spinner = ({size = 150}) => (
                     alignItems: 'center',
                     justifyContent: 'center',
                     zIndex: 10
-
                 }}>
                     <BarLoader
                         loading
@@ -35,7 +34,7 @@ Spinner.propTypes = {
 export default Spinner;
 
 export const SpinnerWrapper = ({children}) => (
-    <div style={{position: 'relative', width: '100%'}}>
+    <div style={{position: 'relative', width: '100%', height: '100%'}}>
         <Spinner/>
         {children}
     </div>

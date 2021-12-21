@@ -78,7 +78,7 @@ const FeatureIntegrityRow = ({name, timeStore}) => {
 
     useEffect(() => {
         if (inView && !featureType) {
-            metricsClient('query/feature-type', {
+            metricsClient('queries/feature-type', {
                 sql_filters: allSqlFilters,
                 name
             })
@@ -96,7 +96,7 @@ const FeatureIntegrityRow = ({name, timeStore}) => {
     useEffect(() => {
 
         if (inView && !featureCardinality) {
-            metricsClient('query/feature-cardinality', {
+            metricsClient('queries/feature-cardinality', {
                 sql_filters: allSqlFilters,
                 name
             })
@@ -111,7 +111,7 @@ const FeatureIntegrityRow = ({name, timeStore}) => {
         if (inView && featureCardinality) {
 
             if (featureType === 'String' || featureCardinality < 20) {
-                metricsClient('query/feature-online-distribution-2', {
+                metricsClient('queries/feature-online-distribution-2', {
                     sql_filters: allSqlFilters,
                     name
                 })
@@ -119,7 +119,7 @@ const FeatureIntegrityRow = ({name, timeStore}) => {
                         setFeatureOnlineDistribution(values);
                     }).catch(console.error);
             } else if (featureType === 'Number') {
-                metricsClient('query/feature-online-distribution-1', {
+                metricsClient('queries/feature-online-distribution-1', {
                     sql_filters: allSqlFilters,
                     name
                 })
@@ -162,7 +162,7 @@ const FeatureIntegrityRow = ({name, timeStore}) => {
                                 <SmallChart data={data} unit='%' />
                             </div>
                         )}
-                        fetchData={() => metricsClient(`query/${featureType === 'String' || featureCardinality < 4 ?
+                        fetchData={() => metricsClient(`queries/${featureType === 'String' || featureCardinality < 4 ?
                             'feature-integrity-1' :
                             'feature-integrity-2'}`, {
                             name,
@@ -204,7 +204,7 @@ const FeatureIntegrityTable = ({errorStore, filtersStore}) => {
     const allSqlFilters = useAllSqlFilters();
 
     useEffect(() => {
-        metricsClient('query/all-features-names')
+        metricsClient('queries/all-features-names')
             .then((res) => {
                 setAllFeatureNames(res.map((row) => row['COLUMN_NAME']));
             })
@@ -216,7 +216,7 @@ const FeatureIntegrityTable = ({errorStore, filtersStore}) => {
         if (allFeatureNames) {
             const allFeatureNames = allFeatureNames.map(() => 'COUNT("{f}")').join(', ');
 
-            metricsClient('query/non-null-feature-names', {
+            metricsClient('queries/non-null-feature-names', {
                 sql_filters: allSqlFilters,
                 all_feature_names: allFeatureNames
             })

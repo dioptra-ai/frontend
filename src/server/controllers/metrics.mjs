@@ -9,56 +9,6 @@ const MetricsRouter = express.Router();
 
 MetricsRouter.all('*', isAuthenticated);
 
-MetricsRouter.post('/:method?', async (req, res, next) => {
-    try {
-        const metricsEnginePath = `${process.env.METRICS_ENGINE_URL}/${req.params.method}`;
-        const metricsResponse = await fetch(metricsEnginePath, {
-            headers: {
-                'content-type': 'application/json;charset=UTF-8'
-            },
-            body: JSON.stringify({
-                ...req.body,
-                organization_id:
-                    OVERRIDE_DRUID_ORG_ID ||
-                    req.user.activeOrganizationMembership.organization._id
-            }),
-            method: 'post'
-        });
-
-        if (metricsResponse.status !== 200) {
-            const json = await metricsResponse.json();
-
-            res.status(metricsResponse.status);
-
-            throw new Error(json.error.message);
-        } else {
-            metricsResponse.body.pipe(res);
-        }
-    } catch (e) {
-        next(e);
-    }
-});
-
-MetricsRouter.post('/query/:queryName', async (req, res, next) => {
-    try {
-        const queryName = req.params.queryName;
-
-        await axios
-            .post(`${process.env.METRICS_ENGINE_URL}/queries/${queryName}`, {
-                ...req.body,
-                organization_id:
-                    OVERRIDE_DRUID_ORG_ID ||
-                    req.user.activeOrganizationMembership.organization._id
-            })
-            .then((response) => {
-                res.status(response.status);
-                res.json(response.data);
-            });
-    } catch (e) {
-        next(e);
-    }
-});
-
 MetricsRouter.get('/integrations/:sourceName', async (req, res, next) => {
     try {
         const sourceName = req.params.sourceName;
@@ -123,4 +73,33 @@ MetricsRouter.post(
     }
 );
 
+MetricsRouter.post('*', async (req, res, next) => {
+    try {
+        const metricsEnginePath = `${process.env.METRICS_ENGINE_URL}${req.url}`;
+        const metricsResponse = await fetch(metricsEnginePath, {
+            headers: {
+                'content-type': 'application/json;charset=UTF-8'
+            },
+            body: JSON.stringify({
+                ...req.body,
+                organization_id:
+                    OVERRIDE_DRUID_ORG_ID ||
+                    req.user.activeOrganizationMembership.organization._id
+            }),
+            method: 'post'
+        });
+
+        if (metricsResponse.status !== 200) {
+            const json = await metricsResponse.json();
+
+            res.status(metricsResponse.status);
+
+            throw new Error(json.error.message);
+        } else {
+            metricsResponse.body.pipe(res);
+        }
+    } catch (e) {
+        next(e);
+    }
+});
 export default MetricsRouter;

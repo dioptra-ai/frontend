@@ -26,13 +26,17 @@ const Table = ({
         Cell: Object.assign(
             ({value: cell = {}}) => {
                 const {value = 0, difference = 0} = cell;
+                const displayTruncatedValue = (value * 100).toFixed(2);
+                const truncatedValue = Number(displayTruncatedValue);
+                const displayValue = value ? (
+                    truncatedValue ? `${displayTruncatedValue} %` : `< ${displayTruncatedValue} %`
+                ) : '-';
+                const truncatedDifference = Number((difference * 100).toFixed(2));
 
                 return (
                     <>
-                        <span>{`${(value * 100).toFixed(2)} %`}</span>
-                        <DifferenceLabel
-                            difference={(difference * 100).toFixed(2)}
-                        />
+                        <span>{displayValue}</span>
+                        <DifferenceLabel difference={truncatedDifference}/>
                     </>
                 );
             },
@@ -70,18 +74,25 @@ const Table = ({
     });
 
     return (
-        <>
-            <div className='position-relative' style={{marginLeft: '30px'}}>
-                <p className='text-secondary m-0 mb-2 text-center bold-text'>Prediction</p>
-                <MatrixTable columns={columns} data={rows} onCellClick={onCellClick} />
+        <div className='d-flex'>
+            <div className='position-relative' style={{width: 30}}>
                 <p
                     className='position-absolute text-secondary m-0 text-center bold-text'
-                    style={{transform: 'rotate(-90deg)', top: '50%', left: '-70px'}}
+                    style={{transform: 'rotate(-90deg)', top: '50%', left: -85, width: 200}}
                 >
-          Ground Truth
+                    Ground Truth
                 </p>
             </div>
-        </>
+            <div className='position-relative' style={{
+                overflow: 'auto', width: '100%', maxHeight: '98vh'
+            }}>
+                <p
+                    className='text-secondary m-0 mb-2 text-center bold-text position-sticky'
+                    style={{left: 0}}
+                >Prediction</p>
+                <MatrixTable columns={columns} data={rows} onCellClick={onCellClick} />
+            </div>
+        </div>
     );
 };
 
@@ -182,7 +193,7 @@ const ConfusionMatrix = () => {
                   groundtruth={selectedCell.groundtruth}
                   onClose={() => setSelectedCell(null)}
                   prediction={selectedCell.prediction}
-                  previewColumns={['confidence', 'groundtruth', 'prediction', 'tags', /^text$/]}
+                  previewColumns={['confidence', 'groundtruth', 'prediction', 'tags', /^text$/, 'features']}
               />
           ) : null)}
             </div>

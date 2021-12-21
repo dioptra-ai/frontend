@@ -36,9 +36,6 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
             fluid
         >
             <div className='model-form d-flex flex-column align-items-center'>
-                <p className='text-dark bold-text fs-3 mb-4'>
-                    {Object.keys(initialValue).length ? 'Update' : 'Create New'} Model
-                </p>
                 {errors?.length ? errors.map((e, i) => (
                     <div key={i} className='bg-warning text-white p-3 mt-2'>{e}</div>
                 )) : null}

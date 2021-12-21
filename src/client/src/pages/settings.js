@@ -54,7 +54,7 @@ const Settings = () => {
                 <p className='text-dark bold-text fs-3'>Integrations</p>
                 <p className='text-dark bold-text fs-4 m-0'>Redash</p>
                 <caption>
-                    In your query please use the next parameters to filter the data:
+                    In your Redash backend query please use the following parameters to filter the data:
                     <ul>
                         <li>"time_start": UTC_TIME</li>
                         <li>"time_end": UTC_TIME</li>

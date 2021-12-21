@@ -16,16 +16,14 @@ import HeatMap from 'components/heatmap';
 import metricsClient from 'clients/metrics';
 import Async from 'components/async';
 import useModal from 'customHooks/useModal';
-import BtnIcon from 'components/btn-icon';
 import Modal from 'components/modal';
-import {IconNames} from 'constants';
 
 const PredictionAnalysis = ({timeStore, filtersStore}) => {
     const allSqlFilters = useAllSqlFilters();
     const allSqlFiltersWithoutOrgId = useAllSqlFilters({__REMOVE_ME__excludeOrgId: true});
     const allOfflineSqlFilters = useAllSqlFilters({useReferenceRange: true});
     const timeGranularity = timeStore.getTimeGranularity().toISOString();
-    const [classFilter, setClassFilter] = useState('all_classes');
+    const [classFilter, setClassFilter] = useState(null);
     const [heatMapSamples, setHeatMapSamples] = useState([]);
     const [exampleInModal, setExampleInModal] = useModal(null);
 
@@ -58,7 +56,7 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                                     unit='%'
                                 />
                             )}
-                            fetchData={() => metricsClient(`query/${(mlModelType === 'IMAGE_CLASSIFIER' ||
+                            fetchData={() => metricsClient(`queries/${(mlModelType === 'IMAGE_CLASSIFIER' ||
                             mlModelType === 'TEXT_CLASSIFIER') ?
                                 'online-class-distribution-1' :
                                 'online-class-distribution-2'}`, {sql_filters: allSqlFilters})}
@@ -78,7 +76,7 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                                     unit='%'
                                 />
                             )}
-                            fetchData={() => metricsClient(`query/${mlModelType === 'DOCUMENT_PROCESSING' ?
+                            fetchData={() => metricsClient(`queries/${mlModelType === 'DOCUMENT_PROCESSING' ?
                                 'offline-class-distribution-1' :
                                 'offline-class-distribution-2'}`, {offline_sql_filters: allOfflineSqlFilters})}
                         />
@@ -99,7 +97,7 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                                     yAxisName='Distance'
                                 />
                             )}
-                            fetchData={() => metricsClient(`query/${mlModelType === 'DOCUMENT_PROCESSING' ?
+                            fetchData={() => metricsClient(`queries/${mlModelType === 'DOCUMENT_PROCESSING' ?
                                 'offline-online-distribution-distance-1' :
                                 'offline-online-distribution-distance-2'}`, {
                                 offline_sql_filters: allOfflineSqlFilters,
@@ -115,7 +113,55 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                 <>
                     <div className='my-3'>
                         <h3 className='text-dark bold-text fs-3 mb-3'>
-              Bounding Box Location Analysis
+                            Bounding Box Size Analysis
+                        </h3>
+                        <Row className='my-3'>
+                            <Col className='d-flex' lg={4}>
+                                <Async
+                                    refetchOnChanged={[allSqlFilters, timeGranularity]}
+                                    renderData={(data) => (
+                                        <BarGraph
+                                            bars={data.map(({name, value}) => ({
+                                                name,
+                                                value,
+                                                fill: getHexColor(value)
+                                            }))}
+                                            title='Bounding Box Size Distribution'
+                                            unit='%'
+                                            yAxisName='Percent'
+                                        />
+                                    )}
+                                    fetchData={
+                                        () => metricsClient('queries/image-distribution',
+                                            {sql_filters: allSqlFilters, time_granularity: timeGranularity})
+                                    }
+                                />
+                            </Col>
+                            <Col className='d-flex' lg={8}>
+                                <Async
+                                    refetchOnChanged={[timeGranularity, allSqlFilters]}
+                                    renderData={(data) => (
+                                        <AreaGraph
+                                            dots={data}
+                                            title='Average'
+                                            xAxisDomain={timeStore.rangeMillisec}
+                                            xAxisName='Time'
+                                            yAxisName='Relative Coordinates (%)'
+                                            xDataKey='time'
+                                            yDataKey='value'
+                                        />
+                                    )}
+                                    fetchData={
+                                        () => metricsClient('queries/image-distribution-average',
+                                            {sql_filters: allSqlFilters, time_granularity: timeGranularity})
+                                    }
+                                />
+                            </Col>
+                        </Row>
+                    </div>
+                    <div className='my-3'>
+                        <h3 className='text-dark bold-text fs-3 mb-3'>
+                            Bounding Box Location Analysis
                         </h3>
                         <Row className='my-3 rounded border mx-1'>
                             <Col className='d-flex align-items-center' lg={4}>
@@ -123,7 +169,7 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                             </Col>
                             <Col className='d-flex align-items-center' lg={4}>
                                 <h4 className='text-dark bold-text fs-4 m-0'>
-                  Bounding Box Examples
+                                    Bounding Box Examples
                                 </h4>
                             </Col>
                             <Col lg={{span: 3, offset: 1}} className='my-3'>
@@ -135,11 +181,11 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                                     })}
                                     renderData={(data) => (
                                         <Select
-                                            options={data.map((d) => {
+                                            options={[{name: '<all values>', value: ''}, ...data.map((d) => {
                                                 const c = d['prediction.class_name'];
 
                                                 return {name: c, value: c};
-                                            })}
+                                            })]}
                                             initialValue={classFilter}
                                             onChange={setClassFilter}
                                         />
@@ -148,10 +194,10 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                             </Col>
                             <Col lg={4}>
                                 <Async
-                                    refetchOnChanged={[allSqlFiltersWithoutOrgId, classFilter.value]}
+                                    refetchOnChanged={[allSqlFiltersWithoutOrgId, classFilter]}
                                     fetchData={() => metricsClient('bbox-locations', {
                                         sql_filters: `${allSqlFiltersWithoutOrgId} AND 
-                                            ${classFilter.value ? `"prediction.class_name"='${classFilter.value}'` : 'TRUE'}`
+                                            ${classFilter ? `"prediction.class_name"='${classFilter}'` : 'TRUE'}`
                                     })}
                                     renderData={({num_cells_h, num_cells_w, cells}) => (
                                         <HeatMap
@@ -184,13 +230,13 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                                                         alt='Example'
                                                         className='rounded'
                                                         src={image_url}
-                                                        height={100}
+                                                        height={200}
                                                     />
                                                     <div className='heat-map-box' style={{
-                                                        height: bounding_box.h * 100,
-                                                        width: bounding_box.w * (100 * width / height),
-                                                        top: (bounding_box.y - bounding_box.h / 2) * 100,
-                                                        left: (bounding_box.x - bounding_box.w / 2) * (100 * width / height)
+                                                        height: bounding_box.h * 200,
+                                                        width: bounding_box.w * (200 * width / height),
+                                                        top: (bounding_box.y - bounding_box.h / 2) * 200,
+                                                        left: (bounding_box.x - bounding_box.w / 2) * (200 * width / height)
                                                     }}/>
                                                 </div>
                                             );
@@ -207,16 +253,7 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                                 )}
                             </Col>
                         </Row>
-                        {exampleInModal ? <Modal onClose={() => setExampleInModal(null)}>
-                            <div className='d-flex align-items-center'>
-                                <p className='m-0 flex-grow-1'></p>
-                                <BtnIcon
-                                    className='border-0'
-                                    icon={IconNames.CLOSE}
-                                    onClick={() => setExampleInModal(null)}
-                                    size={15}
-                                />
-                            </div>
+                        {exampleInModal ? <Modal onClose={() => setExampleInModal(null)} title='Example'>
                             <div style={{position: 'relative'}}>
                                 <img
                                     alt='Example'

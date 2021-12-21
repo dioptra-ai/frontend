@@ -1,80 +1,77 @@
 import PropTypes from 'prop-types';
-import {IconNames} from 'constants';
-import useModal from 'customHooks/useModal';
-import BtnIcon from 'components/btn-icon';
+import {useState} from 'react';
 import CustomCarousel from 'components/carousel';
 import Modal from 'components/modal';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 import TabularExamples from './tabular-examples';
 import Async from 'components/async';
 import metricsClient from 'clients/metrics';
+import {IoArrowBackCircleOutline, IoCloseCircleOutline} from 'react-icons/io5';
 
 const ImageExamples = ({onClose, groundtruth, prediction, iou, model}) => {
-    const [exampleInModal, setExampleInModal] = useModal(false);
+    const [exampleInModal, setExampleInModal] = useState(false);
     const allSqlFilters = useAllSqlFilters();
 
     return (
-        <div className='bg-white-blue my-3 p-3'>
-            <div className='d-flex align-items-center mb-5'>
-                <p className='text-dark m-0 bold-text flex-grow-1'>Examples</p>
-                <BtnIcon
-                    className='text-dark border-0'
-                    icon={IconNames.CLOSE}
-                    onClick={onClose}
-                    size={15}
-                />
-            </div>
-            <Async
-                renderData={(data) => data.every((img) => img['image_metadata.uri'].replace(/"/g, '').match(/^https?:\/\//)) ? (
-                    <CustomCarousel
-                        items={data.map((x) => x['image_metadata.uri'].replace(/"/g, ''))}
-                        onItemClick={setExampleInModal}
-                    />
-                ) : (
-                    <TabularExamples
-                        groundtruth={groundtruth}
-                        onClose={onClose}
-                        prediction={prediction}
-                    />
-                )
-                }
-                refetchOnChanged={[groundtruth, prediction, iou, allSqlFilters, model.mlModelType]}
-                fetchData={() => metricsClient(`query/${model.mlModelType === 'DOCUMENT_PROCESSING' ?
-                    'select-image-uri-for-data-processing' : 'select-image-uri-for-default'}`,
-                model.mlModelType === 'DOCUMENT_PROCESSING' ?
-                    {
-                        groundtruth,
-                        prediction,
-                        iou,
-                        sql_filters: allSqlFilters
-                    } :
-                    {
-                        groundtruth,
-                        prediction,
-                        sql_filters: allSqlFilters
-                    })
-                }
-            />
-            {exampleInModal && (
-                <Modal isOpen={true} onClose={() => setExampleInModal(null)}>
-                    <div className='d-flex align-items-center'>
-                        <p className='m-0 flex-grow-1'></p>
-                        <BtnIcon
-                            className='border-0'
-                            icon={IconNames.CLOSE}
-                            onClick={() => setExampleInModal(null)}
-                            size={15}
-                        />
-                    </div>
+        <Modal isOpen onClose={onClose} title='Examples'
+            closeButton={(
+                <button
+                    className='text-dark border-0 bg-white fs-2'
+                    onClick={() => {
+                        if (exampleInModal) {
+                            setExampleInModal(null);
+                        } else {
+                            onClose();
+                        }
+                    }}
+                >{
+                        exampleInModal ? <IoArrowBackCircleOutline/> : <IoCloseCircleOutline/>
+                    }</button>
+            )}
+        >
+            <div className='p-3'>
+                {exampleInModal ? (
                     <img
                         alt='Example'
                         className='rounded modal-image'
+                        style={{maxWidth: '80vw', maxHeight: '75vh'}}
                         src={exampleInModal}
-                        width='100%'
                     />
-                </Modal>
-            )}
-        </div>
+                ) : (
+                    <Async
+                        renderData={(data) => data.every((img) => img['image_metadata.uri'].replace(/"/g, '').match(/^https?:\/\//)) ? (
+                            <CustomCarousel
+                                items={data.map((x) => x['image_metadata.uri'].replace(/"/g, ''))}
+                                onItemClick={setExampleInModal}
+                            />
+                        ) : (
+                            <TabularExamples
+                                groundtruth={groundtruth}
+                                onClose={onClose}
+                                prediction={prediction}
+                            />
+                        )
+                        }
+                        refetchOnChanged={[groundtruth, prediction, iou, allSqlFilters, model.mlModelType]}
+                        fetchData={() => metricsClient(`queries/${model.mlModelType === 'DOCUMENT_PROCESSING' ?
+                            'select-image-uri-for-data-processing' : 'select-image-uri-for-default'}`,
+                        model.mlModelType === 'DOCUMENT_PROCESSING' ?
+                            {
+                                groundtruth,
+                                prediction,
+                                iou,
+                                sql_filters: allSqlFilters
+                            } :
+                            {
+                                groundtruth,
+                                prediction,
+                                sql_filters: allSqlFilters
+                            })
+                        }
+                    />)
+                }
+            </div>
+        </Modal>
     );
 };
 

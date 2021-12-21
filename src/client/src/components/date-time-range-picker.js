@@ -2,14 +2,12 @@ import React, {useState} from 'react';
 import PropTypes from 'prop-types';
 import DateRangePicker from 'react-bootstrap-daterangepicker';
 import moment from 'moment';
+import {IoCalendarOutline, IoChevronDownSharp, IoChevronUpSharp} from 'react-icons/io5';
 
 import {formatDateTimeRange, last} from 'helpers/date-helper';
-import FontIcon from './font-icon';
-import {IconNames} from 'constants';
 
 const GET_RANGE_DURATION = {
     'Last 5 minutes': () => moment.duration(5, 'minutes').valueOf(),
-    'Last 15 minutes': () => moment.duration(15, 'minutes').valueOf(),
     'Last 1 hours': () => moment.duration(1, 'hours').valueOf(),
     'Last 3 hours': () => moment.duration(3, 'hours').valueOf(),
     'Last 6 hours': () => moment.duration(6, 'hours').valueOf(),
@@ -17,21 +15,19 @@ const GET_RANGE_DURATION = {
     'Last 2 days': () => moment.duration(2, 'days').valueOf(),
     'Last 7 days': () => moment.duration(7, 'days').valueOf(),
     'Last 30 days': () => moment.duration(30, 'days').valueOf(),
-    'Last 60 days': () => moment.duration(60, 'days').valueOf()
+    'Last 90 days': () => moment.duration(90, 'days').valueOf()
 };
 
 const initialSettings = {
     ranges: {
         'Last 5 minutes': last(5, 'minutes'),
-        'Last 15 minutes': last(15, 'minutes'),
         'Last 1 hours': last(1, 'hours'),
-        'Last 3 hours': last(3, 'hours'),
         'Last 6 hours': last(6, 'hours'),
         'Last 24 hours': last(24, 'hours'),
         'Last 2 days': last(2, 'days'),
         'Last 7 days': last(7, 'days'),
         'Last 30 days': last(30, 'days'),
-        'Last 60 days': last(60, 'days')
+        'Last 90 days': last(90, 'days')
     },
     opens: 'left',
     timePicker: true,
@@ -56,7 +52,10 @@ const DateTimeRangePicker = ({onChange, start, end, classNames, datePickerSettin
     };
 
     return (
-        <div style={{width}}>
+        <div style={{
+            width,
+            minWidth: 300
+        }} className='cursor-pointer'>
             <DateRangePicker
                 initialSettings={{
                     startDate: start,
@@ -72,10 +71,15 @@ const DateTimeRangePicker = ({onChange, start, end, classNames, datePickerSettin
                 onShow={() => setIsCalendarVisible(true)}>
 
                 <div className={`d-flex border border-secondary py-1 px-3 align-items-center rounded-3 ${classNames}`}>
-                    <FontIcon className='text-secondary' icon={IconNames.DATE} size={25}/>
-                    <span className='text-secondary py-2 px-4 fs-5'>
-                        {formatDateTimeRange(start, end)}</span>
-                    <FontIcon className='text-secondary' icon={isCalendarVisible ? IconNames.ARROW_UP : IconNames.ARROW_DOWN} size={10}/>
+                    <IoCalendarOutline className='text-secondary fs-4 flex-shrink-0'/>
+                    <span className='text-secondary py-2 px-4 fs-5'>{
+                        formatDateTimeRange(start, end)
+                    }</span>
+                    {isCalendarVisible ? (
+                        <IoChevronUpSharp className='fs-4 flex-shrink-0'/>
+                    ) : (
+                        <IoChevronDownSharp className='fs-4 flex-shrink-0'/>
+                    )}
                 </div>
             </DateRangePicker>
         </div>

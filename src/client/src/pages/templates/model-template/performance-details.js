@@ -24,7 +24,7 @@ import {getHexColor} from 'helpers/color-helper';
 
 const PerformanceBox = ({
     title = '',
-    sampleSize,
+    subtext,
     data,
     referenceData,
     performanceType
@@ -47,8 +47,8 @@ const PerformanceBox = ({
     return (
         <div className='border rounded p-3 pb-0'>
             <span className='text-dark bold-text fs-5'>{title}</span>
-            {sampleSize && (
-                <span className='text-primary mx-1'>(n={sampleSize})</span>
+            {subtext && (
+                <span className='text-primary mx-1'>(n={subtext})</span>
             )}
             <div className='d-flex py-3 text-secondary bold-text border-bottom'>
                 <span className='w-100'>Label</span>
@@ -111,7 +111,7 @@ PerformanceBox.propTypes = {
     data: PropTypes.array,
     referenceData: PropTypes.array,
     performanceType: PropTypes.string,
-    sampleSize: PropTypes.any,
+    subtext: PropTypes.node,
     title: PropTypes.string
 };
 
@@ -124,7 +124,6 @@ const ClassRow = ({name = '', value, difference = 0}) => {
                 <DifferenceLabel
                     value={value}
                     difference={difference.toFixed(2)}
-                    baseClasses='mx-2'
                     diffStyles={{position: 'static'}}
                 />
             </div>
@@ -269,15 +268,15 @@ const PerformanceDetails = ({filtersStore}) => {
                                     });
                                     const bars = classNames.map((name) => ({
                                         name,
-                                        iou05: iou05.find((i) => {
+                                        iou05: (iou05.find((i) => {
                                             return i['groundtruth.class_name'] === name;
-                                        })?.value,
-                                        iou075: iou075.find((i) => {
+                                        })?.value * 100).toFixed(4),
+                                        iou075: (iou075.find((i) => {
                                             return i['groundtruth.class_name'] === name;
-                                        })?.value,
-                                        iou09: iou09.find((i) => {
+                                        })?.value * 100).toFixed(4),
+                                        iou09: (iou09.find((i) => {
                                             return i['groundtruth.class_name'] === name;
-                                        })?.value
+                                        })?.value * 100).toFixed(4)
                                     }));
 
                                     return (
@@ -286,6 +285,8 @@ const PerformanceDetails = ({filtersStore}) => {
                                             title='Precision'
                                             unit='%'
                                             yAxisName='Precision'
+                                            barGap={1}
+                                            barCategoryGap={80}
                                         >
                                             <Tooltip />
                                             <Bar maxBarSize={40} dataKey='iou05' fill={getHexColor('iou05')}/>
@@ -326,15 +327,15 @@ const PerformanceDetails = ({filtersStore}) => {
                                     });
                                     const bars = classNames.map((name) => ({
                                         name,
-                                        iou05: iou05.find((i) => {
+                                        iou05: (iou05.find((i) => {
                                             return i['groundtruth.class_name'] === name;
-                                        })?.value,
-                                        iou075: iou075.find((i) => {
+                                        })?.value * 100).toFixed(4),
+                                        iou075: (iou075.find((i) => {
                                             return i['groundtruth.class_name'] === name;
-                                        })?.value,
-                                        iou09: iou09.find((i) => {
+                                        })?.value * 100).toFixed(4),
+                                        iou09: (iou09.find((i) => {
                                             return i['groundtruth.class_name'] === name;
-                                        })?.value
+                                        })?.value * 100).toFixed(4)
                                     }));
 
                                     return (
@@ -343,6 +344,8 @@ const PerformanceDetails = ({filtersStore}) => {
                                             title='Recall'
                                             unit='%'
                                             yAxisName='Recall'
+                                            barGap={1}
+                                            barCategoryGap={80}
                                         >
                                             <Tooltip />
                                             <Bar maxBarSize={40} dataKey='iou05' fill={getHexColor('iou05')}/>
@@ -393,36 +396,36 @@ const PerformanceDetails = ({filtersStore}) => {
                         <Col lg={6}>
                             <Async
                                 defaultData={[[], []]}
-                                renderData={([data, diffData]) => (
+                                renderData={([data, referenceData]) => (
                                     <PerformanceBox
                                         data={data}
                                         performanceType='precision'
                                         subtext={sampleSizeComponent}
                                         title='Precision per class'
-                                        diffData={diffData}
+                                        referenceData={referenceData}
                                     />
                                 )}
                                 fetchData={[
-                                    () => metricsClient('query/precision-per-class', {sql_filters: allSqlFilters}),
-                                    () => metricsClient('query/precision-per-class', {sql_filters: sqlFiltersWithModelTime})
+                                    () => metricsClient('queries/precision-per-class', {sql_filters: allSqlFilters}),
+                                    () => metricsClient('queries/precision-per-class', {sql_filters: sqlFiltersWithModelTime})
                                 ]}
                             />
                         </Col>
                         <Col lg={6}>
                             <Async
                                 defaultData={[[], []]}
-                                renderData={([data, diffData]) => (
+                                renderData={([data, referenceData]) => (
                                     <PerformanceBox
                                         data={data}
                                         performanceType='recall'
                                         subtext={sampleSizeComponent}
                                         title='Recall per class'
-                                        diffData={diffData}
+                                        referenceData={referenceData}
                                     />
                                 )}
                                 fetchData={[
-                                    () => metricsClient('query/recall-per-class', {sql_filters: allSqlFilters}),
-                                    () => metricsClient('query/recall-per-class', {sql_filters: sqlFiltersWithModelTime})
+                                    () => metricsClient('queries/recall-per-class', {sql_filters: allSqlFilters}),
+                                    () => metricsClient('queries/recall-per-class', {sql_filters: sqlFiltersWithModelTime})
                                 ]}
                             />
                         </Col>
