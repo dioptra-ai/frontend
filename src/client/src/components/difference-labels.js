@@ -1,17 +1,22 @@
-import {IoTriangle} from 'react-icons/io5';
+import {IoCaretDownSharp, IoCaretUpSharp} from 'react-icons/io5';
 import PropTypes from 'prop-types';
 
 const DifferenceLabel = ({difference, containerStyle = {}, diffStyles = {}}) => {
     return (
-        <div style={containerStyle}>
+        <div style={containerStyle} className='mx-2'>
             <span className='text-secondary metric-box-diffText' style={{
                 fontSize: '80%',
+                whiteSpace: 'nowrap',
                 ...diffStyles
             }} title='vs. Benchmark'>
                 {difference ? `${difference > 0 ? '+' : ''}${difference}%` : ''}
-                {difference ? <IoTriangle
-                    className={`metric-box-arrowIcon ${difference < 0 ? 'metric-box-arrowIcon-inverted' : ''}`}
-                /> : null}
+                {Number(difference) ? (
+                    Number(difference) > 0 ? (
+                        <IoCaretUpSharp className='fs-6/'/>
+                    ) : (
+                        <IoCaretDownSharp className='fs-6/'/>
+                    )
+                ) : ' ='}
             </span>
         </div>
     );

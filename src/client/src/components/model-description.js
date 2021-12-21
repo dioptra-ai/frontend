@@ -3,8 +3,6 @@ import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import PropTypes from 'prop-types';
-import FontIcon from './font-icon';
-import {IconNames} from 'constants';
 import {formatDateTime} from 'helpers/date-helper';
 import {Button} from 'react-bootstrap';
 import ModalComponent from 'components/modal';
@@ -12,6 +10,7 @@ import ModelForm from 'pages/templates/model-form';
 import {setupComponent} from 'helpers/component-helper';
 import Select from './select';
 import metricsClient from 'clients/metrics';
+import {IoChevronDownCircleOutline, IoChevronUpCircleOutline} from 'react-icons/io5';
 
 const ModelDescription = ({_id, filtersStore, modelStore, name, description, team, tier, lastDeployed, mlModelId, mlModelType, referencePeriod}) => {
     const [expand, setExpand] = useState(false);
@@ -65,11 +64,11 @@ const ModelDescription = ({_id, filtersStore, modelStore, name, description, tea
                 <Col className='d-flex align-items-center'>
                     <h1 className='text-dark fs-1 m-0 bold-text'>{name}</h1>
                     <button className='btn-expand bg-transparent' onClick={() => setExpand(!expand)}>
-                        <FontIcon
-                            className='text-dark'
-                            icon={expand ? IconNames.ARROW_UP : IconNames.ARROW_DOWN}
-                            size={9}
-                        />
+                        {expand ? (
+                            <IoChevronUpCircleOutline className='fs-1'/>
+                        ) : (
+                            <IoChevronDownCircleOutline className='fs-1'/>
+                        )}
                     </button>
                 </Col>
                 <Col className='d-flex justify-content-end' sm={5}>

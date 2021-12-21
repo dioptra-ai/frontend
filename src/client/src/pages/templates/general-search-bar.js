@@ -1,9 +1,8 @@
 import React, {useEffect, useState} from 'react';
-import {IconNames} from 'constants';
 import {Button} from 'react-bootstrap';
 import PropTypes from 'prop-types';
+import {IoRefreshSharp, IoSearchOutline} from 'react-icons/io5';
 
-import FontIcon from 'components/font-icon';
 import DateTimeRangePicker from 'components/date-time-range-picker';
 import TextInput from 'components/text-input';
 import {setupComponent} from 'helpers/component-helper';
@@ -74,7 +73,7 @@ const GeneralSearchBar = ({shouldShowOnlySearchInput, timeStore}) => {
 
     return (
         <div className='py-3 px-4 d-flex align-items-center border-bottom'>
-            <FontIcon className='text-secondary' icon={IconNames.SEARCH} size={25} />
+            <IoSearchOutline className='fs-3 flex-shrink-0'/>
             <div className='flex-grow-1 mx-3 general-search-bar'>
                 <TextInput
                     className='form-control border-0 py-2 search-input font-weight-bold'
@@ -83,7 +82,7 @@ const GeneralSearchBar = ({shouldShowOnlySearchInput, timeStore}) => {
                     onChange={setSearchString}
                     onKeyDown={handleKeyDown}
                 />
-                <ul className='results bg-white text-dark'>
+                <ul className='results bg-white text-dark rounded' style={{minWidth: 500}}>
                     {results.map(({_id, ...rest}, index) => (
                         <li
                             className={selectedResultIndex === index ? 'active' : ''}
@@ -115,11 +114,8 @@ const GeneralSearchBar = ({shouldShowOnlySearchInput, timeStore}) => {
                         onClick={() => timeStore.refreshTimeRange()}
                         variant='primary'
                     >
-                        <FontIcon
-                            className='text-white m-2'
-                            icon={IconNames.REFRESH}
-                            size={15}
-                        />
+                        <IoRefreshSharp className='fs-4'/>
+                        &nbsp;
                         <span className='fs-6 bold-text'>REFRESH</span>
                     </Button>
                 </>
