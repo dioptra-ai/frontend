@@ -26,7 +26,8 @@ const ModelPerformanceMetrics = {
     RECALL: {value: 'RECALL', name: 'Recall'},
     EXACT_MATCH: {value: 'EXACT_MATCH', name: 'Exact Match'},
     MEAN_AVERAGE_PRECISION: {value: 'MEAN_AVERAGE_PRECISION', name: 'mAP'},
-    MEAN_AVERAGE_RECALL: {value: 'MEAN_AVERAGE_RECALL', name: 'mAR'}
+    MEAN_AVERAGE_RECALL: {value: 'MEAN_AVERAGE_RECALL', name: 'mAR'},
+    SEMANTIC_SIMILARITY: {value: 'SEMANTIC_SIMILARITY', name: 'Semantic Similarity'}
 };
 
 const PerformanceOverview = ({timeStore, filtersStore}) => {
@@ -38,11 +39,13 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
     const [iou] = useState(0.5);
     const selectableMetrics = model.mlModelType === 'Q_N_A' ? [
         {value: 'EXACT_MATCH', name: 'Exact Match'},
-        {value: 'F1_SCORE', name: 'F1 Score'}
+        {value: 'F1_SCORE', name: 'F1 Score'},
+        {value: 'SEMANTIC_SIMILARITY', name: 'Semantic Similarity'}
     ] : model.mlModelType === 'DOCUMENT_PROCESSING' ? [
         {value: 'MEAN_AVERAGE_PRECISION', name: 'mAP'},
         {value: 'MEAN_AVERAGE_RECALL', name: 'mAR'},
-        {value: 'EXACT_MATCH', name: 'Exact Match'}
+        {value: 'EXACT_MATCH', name: 'Exact Match'},
+        {value: 'F1_SCORE', name: 'F1 Score'}
     ] : [
         {value: 'ACCURACY', name: 'Accuracy'},
         {value: 'F1_SCORE', name: 'F1 Score'},
@@ -107,6 +110,14 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
             [ModelPerformanceMetrics.EXACT_MATCH.value]: () => {
 
                 return metricsClient('exact-match', {
+                    sql_filters: sqlFilters,
+                    time_granularity: timeGranularity,
+                    model_type: model.mlModelType
+                });
+            },
+            [ModelPerformanceMetrics.SEMANTIC_SIMILARITY.value]: () => {
+
+                return metricsClient('semantic-similarity', {
                     sql_filters: sqlFilters,
                     time_granularity: timeGranularity,
                     model_type: model.mlModelType
@@ -181,7 +192,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                         name='EM'
                                         subtext={sampleSizeComponent}
                                         unit='%'
-                                        value={d?.value}
+                                        value={100 * d?.value}
                                     />
                                 )}
                             />
@@ -195,7 +206,21 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                         name='F1 Score'
                                         subtext={sampleSizeComponent}
                                         unit='%'
-                                        value={d?.value}
+                                        value={100 * d?.value}
+                                    />
+                                )}
+                            />
+                        </Col>
+                        <Col className='d-flex' lg={3}>
+                            <Async
+                                fetchData={getQueryForMetric('SEMANTIC_SIMILARITY')}
+                                refetchOnChanged={[timeGranularity, model, allSqlFilters]}
+                                renderData={([d]) => (
+                                    <MetricInfoBox
+                                        name='Semantic Similarity'
+                                        sampleSize={sampleSizeComponent}
+                                        unit='%'
+                                        value={100 * d?.value}
                                     />
                                 )}
                             />
