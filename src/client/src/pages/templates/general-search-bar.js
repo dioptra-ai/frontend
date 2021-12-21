@@ -73,7 +73,7 @@ const GeneralSearchBar = ({shouldShowOnlySearchInput, timeStore}) => {
 
     return (
         <div className='py-3 px-4 d-flex align-items-center border-bottom'>
-            <IoSearchOutline className='fs-3 flex-shrink-0'/>
+            <IoSearchOutline className='fs-3'/>
             <div className='flex-grow-1 mx-3 general-search-bar'>
                 <TextInput
                     className='form-control border-0 py-2 search-input font-weight-bold'
@@ -82,7 +82,7 @@ const GeneralSearchBar = ({shouldShowOnlySearchInput, timeStore}) => {
                     onChange={setSearchString}
                     onKeyDown={handleKeyDown}
                 />
-                <ul className='results bg-white text-dark rounded' style={{minWidth: 500}}>
+                <ul className='results bg-white text-dark'>
                     {results.map(({_id, ...rest}, index) => (
                         <li
                             className={selectedResultIndex === index ? 'active' : ''}

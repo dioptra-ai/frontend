@@ -5,7 +5,9 @@ import PropTypes from 'prop-types';
 import {useParams} from 'react-router-dom';
 import {setupComponent} from 'helpers/component-helper';
 import FontIcon from './font-icon';
+import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 import metricsClient from 'clients/metrics';
+import CountEvents from 'components/count-events';
 
 const Filter = ({filter, onDelete, applied = false}) => (
     <span className={`filter fs-6 ${applied ? 'applied' : ''} mt-2`}>
@@ -36,6 +38,7 @@ const FilterInput = ({
     const [suggestions, setSuggestions] = useState([]);
     const [suggestionIndex, setSuggestionIndex] = useState(-1);
     const [showSuggestions, setShowSuggestions] = useState(false);
+    const allSqlFilters = useAllSqlFilters();
 
     const {_id} = useParams();
 
@@ -228,24 +231,29 @@ const FilterInput = ({
                     )}
                 </div>
             </OutsideClickHandler>
-            {appliedFilters.length !== 0 && (
-                <div>
-                    {appliedFilters.map((filter, index) => (
-                        <Filter
-                            applied={true}
-                            filter={filter}
-                            key={index}
-                            onDelete={handleRemoveApplied}
-                        />
-                    ))}
-                    <span
-                        className='text-dark clear'
-                        onClick={() => handleAppliedFiltersChange([])}
-                    >
-            CLEAR ALL
-                    </span>
-                </div>
-            )}
+            <div className='d-flex justify-content-between position-relative'>
+                {appliedFilters.length !== 0 ? (
+                    <div>
+                        {appliedFilters.map((filter, index) => (
+                            <Filter
+                                applied={true}
+                                filter={filter}
+                                key={index}
+                                onDelete={handleRemoveApplied}
+                            />
+                        ))}
+                        <span
+                            className='text-dark clear'
+                            onClick={() => handleAppliedFiltersChange([])}
+                        >
+                            CLEAR ALL
+                        </span>
+                    </div>
+                ) : <div/>}
+                <span className='text-primary m-1 position-absolute r-0 fs-7' style={{right: 0}}>
+                    Events: <CountEvents sqlFilters={allSqlFilters}/>
+                </span>
+            </div>
         </div>
     );
 };
