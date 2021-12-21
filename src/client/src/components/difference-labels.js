@@ -9,12 +9,17 @@ const DifferenceLabel = ({difference, containerStyle = {}, diffStyles = {}}) => 
                 whiteSpace: 'nowrap',
                 ...diffStyles
             }} title='vs. Benchmark'>
-                {difference ? `${difference > 0 ? '+' : ''}${difference}%` : ''}
                 {Number(difference) ? (
                     Number(difference) > 0 ? (
-                        <IoCaretUpSharp className='fs-6/'/>
+                        <>
+                            {`+${difference}%`}
+                            <IoCaretUpSharp className='fs-6/'/>
+                        </>
                     ) : (
-                        <IoCaretDownSharp className='fs-6/'/>
+                        <>
+                            {`${difference}%`}
+                            <IoCaretDownSharp className='fs-6/'/>
+                        </>
                     )
                 ) : ' ='}
             </span>
