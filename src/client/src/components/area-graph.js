@@ -12,7 +12,7 @@ import {
     XAxis,
     YAxis
 } from 'recharts';
-import {HiOutlineZoomOut} from 'react-icons/hi';
+import {VscZoomOut} from 'react-icons/vsc';
 import {SpinnerWrapper} from 'components/spinner';
 
 import theme from 'styles/theme.module.scss';
@@ -151,7 +151,7 @@ const AreaGraph = ({
             style={{userSelect: 'none'}}
         >
             <SpinnerWrapper>
-                {title && <div className='text-dark bold-text fs-4 px-3'>{title}</div>}
+                {title && <div className='text-dark bold-text fs-4 px-3 pb-2'>{title}</div>}
                 <div
                     onMouseEnter={() => setShowBtn(true)}
                     onMouseLeave={() => setShowBtn(false)}
@@ -164,7 +164,7 @@ const AreaGraph = ({
                     }}
                 >
                     {showBtn && (
-                        <HiOutlineZoomOut
+                        <VscZoomOut
                             className='cursor-pointer'
                             onClick={zoomOut}
                             style={{
