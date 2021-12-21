@@ -192,7 +192,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                         name='EM'
                                         subtext={sampleSizeComponent}
                                         unit='%'
-                                        value={d?.value}
+                                        value={100 * d?.value}
                                     />
                                 )}
                             />
@@ -206,7 +206,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                         name='F1 Score'
                                         subtext={sampleSizeComponent}
                                         unit='%'
-                                        value={d?.value}
+                                        value={100 * d?.value}
                                     />
                                 )}
                             />
@@ -220,7 +220,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                         name='Semantic Similarity'
                                         sampleSize={sampleSizeComponent}
                                         unit='%'
-                                        value={d?.value}
+                                        value={100 * d?.value}
                                     />
                                 )}
                             />
