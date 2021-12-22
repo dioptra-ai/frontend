@@ -163,6 +163,9 @@ const MembersTable = ({isAdmin, orgID}) => {
                                     value={newMemberForm.username}
                                     required
                                 />
+                                <Form.Label className='mt-3 mb-0 w-100'>
+                                    Member Password
+                                </Form.Label>
                                 <Form.Control
                                     className='bg-light w-100'
                                     name='password'
