@@ -24,6 +24,7 @@ const MembersTable = ({isAdmin, orgID}) => {
     const [openMemberModal, setOpenMemberModal] = useState(false);
     const [newMemberForm, setNewMemberForm] = useState({
         username: '',
+        password: '',
         type: ''
     });
     const [error, setError] = useState(null);
@@ -38,6 +39,7 @@ const MembersTable = ({isAdmin, orgID}) => {
     useEffect(() => {
         setNewMemberForm({
             username: '',
+            password: '',
             type: ''
         });
         setError(null);
@@ -90,6 +92,10 @@ const MembersTable = ({isAdmin, orgID}) => {
                             {
                                 accessor: 'user.username',
                                 Header: 'User'
+                            },
+                            {
+                                accessor: 'user.password',
+                                Header: 'Password'
                             },
                             {
                                 accessor: 'type',
@@ -156,6 +162,18 @@ const MembersTable = ({isAdmin, orgID}) => {
                                     value={newMemberForm.username}
                                     required
                                 />
+                                <Form.Control
+                                    className='bg-light w-100'
+                                    name='password'
+                                    onChange={handleChange}
+                                    placeholder='Enter User Password'
+                                    type='password'
+                                    value={newMemberForm.password}
+                                    required
+                                />
+                                <Form.Label className='mt-3 mb-0 w-100'>
+                                    Go to https://dev.dioptra.ai/login to login with credentials you have set
+                                </Form.Label>
                             </InputGroup>
                             <InputGroup className='mt-1 flex-column px-1'>
                                 <Form.Label className='mt-3 mb-0 w-100'>

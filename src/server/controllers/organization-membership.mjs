@@ -31,7 +31,7 @@ OrganizationMembershipRouter.post(
     '/:organizationID/members',
     isAdmin,
     async (req, res, next) => {
-        const {username, type} = req.body;
+        const {username, password, type} = req.body;
         const {organizationID} = req.params;
 
         try {
@@ -88,7 +88,7 @@ OrganizationMembershipRouter.post(
                 const newMember = await UserModel.createAsMemberOf(
                     {
                         username,
-                        password: 'password'
+                        password
                     },
                     organisationDetails
                 );
