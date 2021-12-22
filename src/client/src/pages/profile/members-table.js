@@ -9,6 +9,7 @@ import ModalComponent from 'components/modal';
 import Table from 'components/table';
 import Async from 'components/async';
 import RowActions from './row-actions';
+import {Link} from 'react-router-dom';
 
 import moment from 'moment';
 
@@ -172,7 +173,8 @@ const MembersTable = ({isAdmin, orgID}) => {
                                     required
                                 />
                                 <Form.Label className='mt-3 mb-0 w-100'>
-                                    Go to https://dev.dioptra.ai/login to login with credentials you have set
+                                    Share the link - <Link to={`${window.location.origin}/login`}>{window.location.origin}/login </Link>
+                                    with the new user to login with credentials that have been set
                                 </Form.Label>
                             </InputGroup>
                             <InputGroup className='mt-1 flex-column px-1'>
