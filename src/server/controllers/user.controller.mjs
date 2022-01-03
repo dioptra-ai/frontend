@@ -39,10 +39,6 @@ UserRouter.post('/',
             const UserModel = mongoose.model('User');
             const {username, password} = req.body;
 
-            console.log('****************');
-            console.log(username);
-            console.log(password);
-            console.log('****************');
             if (await UserModel.exists({username})) {
                 res.status(400);
                 throw new Error('Username already taken.');
