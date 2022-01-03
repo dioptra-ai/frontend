@@ -142,6 +142,8 @@ const PerformanceDetails = ({filtersStore}) => {
     const allSqlFilters = useAllSqlFilters();
     const sqlFiltersWithModelTime = useAllSqlFilters({useReferenceRange: true});
     const {mlModelType} = useModel();
+
+    console.log(mlModelType);
     const sampleSizeComponent = <CountEvents sqlFilters={allSqlFilters}/>;
 
     return (
@@ -387,6 +389,77 @@ const PerformanceDetails = ({filtersStore}) => {
                         </Col>
                     </Row>
                 </div>
+            ) : mlModelType === 'TEXT_CLASSIFIER' ? (
+                <div>
+                    <div className='my-5'>
+                        <h3 className='text-dark bold-text fs-3 mb-3'>
+                            Performance per class
+                        </h3>
+                        <Row>
+                            <Col lg={6}>
+                                <Async
+                                    defaultData={[[], []]}
+                                    renderData={([data, referenceData]) => (
+                                        <PerformanceBox
+                                            data={data}
+                                            performanceType='precision'
+                                            subtext={sampleSizeComponent}
+                                            title='Precision per class'
+                                            referenceData={referenceData}
+                                        />
+                                    )}
+                                    fetchData={[
+                                        () => metricsClient('queries/precision-per-class', {sql_filters: allSqlFilters}),
+                                        () => metricsClient('queries/precision-per-class', {sql_filters: sqlFiltersWithModelTime})
+                                    ]}
+                                />
+                            </Col>
+                            <Col lg={6}>
+                                <Async
+                                    defaultData={[[], []]}
+                                    renderData={([data, referenceData]) => (
+                                        <PerformanceBox
+                                            data={data}
+                                            performanceType='recall'
+                                            subtext={sampleSizeComponent}
+                                            title='Recall per class'
+                                            referenceData={referenceData}
+                                        />
+                                    )}
+                                    fetchData={[
+                                        () => metricsClient('queries/recall-per-class', {sql_filters: allSqlFilters}),
+                                        () => metricsClient('queries/recall-per-class', {sql_filters: sqlFiltersWithModelTime})
+                                    ]}
+                                />
+                            </Col>
+                        </Row>
+                    </div>
+                    <div>
+                        <h3 className='text-dark bold-text fs-3 mb-3'>
+                                Groundtruth distribution
+                        </h3>
+                        <Row>
+                            <Col lg={6}>
+                                <Async
+                                    refetchOnChanged={[allSqlFilters]}
+                                    renderData={(data) => (
+                                        <BarGraph
+                                            bars={data.map(({groundtruth, my_percentage}) => ({
+                                                name: getName(groundtruth),
+                                                value: my_percentage,
+                                                fill: getHexColor(groundtruth)
+                                            }))}
+                                            title='Groundtruth Distribution'
+                                            unit='%'
+                                        />
+                                    )}
+                                    fetchData={() => metricsClient('queries/groundtruth-distribution', {
+                                        sql_filters: allSqlFilters})}
+                                />
+                            </Col>
+                        </Row>
+                    </div>
+                </div>
             ) : (
                 <div className='my-5'>
                     <h3 className='text-dark bold-text fs-3 mb-3'>
@@ -432,6 +505,7 @@ const PerformanceDetails = ({filtersStore}) => {
                     </Row>
                 </div>
             )}
+            {/* {mlModelType === 'TEXT_CLASSIFIER' ? <some component /> : null} */}
             {mlModelType !== 'Q_N_A' ? <ConfusionMatrix /> : null}
             {mlModelType !== 'Q_N_A' ? <Segmentation /> : null}
         </div>
