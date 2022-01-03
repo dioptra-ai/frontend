@@ -4,7 +4,7 @@ import Async from 'components/async';
 
 const CountEvents = ({sqlFilters}) => (
     <Async
-        renderData={([d]) => d?.value}
+        renderData={([d]) => Number(d?.value).toLocaleString()}
         fetchData={() => metricsClient('queries/count-events', {sql_filters: sqlFilters})}
     />
 );
