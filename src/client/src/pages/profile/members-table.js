@@ -9,6 +9,7 @@ import ModalComponent from 'components/modal';
 import Table from 'components/table';
 import Async from 'components/async';
 import RowActions from './row-actions';
+import {Link} from 'react-router-dom';
 
 import moment from 'moment';
 
@@ -24,6 +25,7 @@ const MembersTable = ({isAdmin, orgID}) => {
     const [openMemberModal, setOpenMemberModal] = useState(false);
     const [newMemberForm, setNewMemberForm] = useState({
         username: '',
+        password: '',
         type: ''
     });
     const [error, setError] = useState(null);
@@ -38,6 +40,7 @@ const MembersTable = ({isAdmin, orgID}) => {
     useEffect(() => {
         setNewMemberForm({
             username: '',
+            password: '',
             type: ''
         });
         setError(null);
@@ -90,6 +93,10 @@ const MembersTable = ({isAdmin, orgID}) => {
                             {
                                 accessor: 'user.username',
                                 Header: 'User'
+                            },
+                            {
+                                accessor: 'user.password',
+                                Header: 'Password'
                             },
                             {
                                 accessor: 'type',
@@ -156,6 +163,22 @@ const MembersTable = ({isAdmin, orgID}) => {
                                     value={newMemberForm.username}
                                     required
                                 />
+                                <Form.Label className='mt-3 mb-0 w-100'>
+                                    Member Password
+                                </Form.Label>
+                                <Form.Control
+                                    className='bg-light w-100'
+                                    name='password'
+                                    onChange={handleChange}
+                                    placeholder='Enter User Password'
+                                    type='password'
+                                    value={newMemberForm.password}
+                                    required
+                                />
+                                <Form.Label className='mt-3 mb-0 w-100'>
+                                    Share the link - <Link to={`${window.location.origin}/login`}>{window.location.origin}/login </Link>
+                                    with the new user to login with credentials that have been set
+                                </Form.Label>
                             </InputGroup>
                             <InputGroup className='mt-1 flex-column px-1'>
                                 <Form.Label className='mt-3 mb-0 w-100'>
