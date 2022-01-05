@@ -12,6 +12,7 @@ import Select from 'components/select';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import metricsClient from 'clients/metrics';
+import CountEvents from 'components/count-events';
 
 const Table = ({
     data,
@@ -112,6 +113,7 @@ const ConfusionMatrix = () => {
         useReferenceRange: true,
         __REMOVE_ME__excludeOrgId: true
     });
+    const sampleSizeComponent = (<CountEvents sqlFilters={allSqlFilters}/>); // Use this component to get # of events
     const [iou, setIou] = useState('0.5');
     const getClasses = (data, key) => {
         const classes = [];
@@ -131,7 +133,7 @@ const ConfusionMatrix = () => {
                 <Row>
                     <Col>
                         <p className='text-dark fw-bold fs-4 flex-grow-1'>
-                            Confusion Matrix
+                            Confusion Matrix n={sampleSizeComponent}
                         </p>
                     </Col>
                     {model.mlModelType === 'DOCUMENT_PROCESSING' ? (
