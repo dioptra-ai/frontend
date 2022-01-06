@@ -37,9 +37,9 @@ const Model = ({modelStore}) => {
             {name: 'Prediction Analysis', to: `/${mlModelId}/prediction-analysis`}
         );
 
-        if (model?.mlModelType !== 'TEXT_CLASSIFIER') {
-            tabs.push({name: 'Feature Analysis', to: `/${mlModelId}/feature-analysis`});
-        }
+        // if (model?.mlModelType !== 'TEXT_CLASSIFIER') {
+        tabs.push({name: 'Feature Analysis', to: `/${mlModelId}/feature-analysis`});
+        // }
     }
 
     tabs.push({name: 'Incidents & Alerts', to: `/${mlModelId}/incidents-&-alerts`});

@@ -14,6 +14,10 @@ const FeatureAnalysis = () => {
     case 'TABULAR_CLASSIFIER':
 
         return <FeatureIntegrityTable/>;
+        // case 'TEXT_CLASSIFIER':
+        //     console.log('is text classifier');
+
+    //     return <FeatureIntegrityTable/>;
     default:
 
         throw new Error(`Unknown model type: ${model.mlModelType}`);
