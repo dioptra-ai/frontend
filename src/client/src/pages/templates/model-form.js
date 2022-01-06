@@ -62,6 +62,7 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                             placeholder='Enter Model ID'
                             type='text'
                             value={formData.mlModelId}
+                            disabled={Boolean(Object.keys(initialValue).length)}
                             required
                         />
                     </InputGroup>
