@@ -117,7 +117,7 @@ const ModelDescription = ({_id, filtersStore, modelStore, name, description, tea
                     </Col>
                 </Row>
             </div>
-            <ModalComponent isOpen={showModal} onClose={() => setShowModal(false)}>
+            <ModalComponent isOpen={showModal} onClose={() => setShowModal(false)} title='Edit Existing Model'>
                 <ModelForm
                     errors={errors}
                     initialValue={{name, description, mlModelId, mlModelType, referencePeriod}}
