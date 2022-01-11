@@ -33,3 +33,11 @@
 b {
     font-family: 'Inter Extra Bold';
 }
+
+.click-down {
+    cursor: pointer;
+    position: relative;
+    &:active {
+        top: 0.1rem;
+    }
+}
