@@ -1,19 +1,30 @@
 import PropTypes from 'prop-types';
 import {IoFilterCircleOutline} from 'react-icons/io5';
+import {Tooltip as BootstrapTooltip, OverlayTrigger} from 'react-bootstrap';
 
 import {setupComponent} from 'helpers/component-helper';
 
 const AddFilters = ({filtersStore, filters}) => (
-    <button
-        className='text-dark border-0 bg-white fs-2'
-        title='Filter down'
-        onClick={() => {
-
-            filtersStore.addFilters(filters);
-        }}
+    <OverlayTrigger
+        overlay={
+            <BootstrapTooltip>
+                Filter the current view with the following filters:
+                <br/>
+                {filters.map((f) => `${f.key}: ${f.value}`).join(', ')}
+            </BootstrapTooltip>
+        }
     >
-        <IoFilterCircleOutline/>
-    </button>
+        <button
+            className='text-dark border-0 bg-white fs-2'
+            title='Filter down'
+            onClick={() => {
+
+                filtersStore.addFilters(filters);
+            }}
+        >
+            <IoFilterCircleOutline/>
+        </button>
+    </OverlayTrigger>
 );
 
 AddFilters.propTypes = {
