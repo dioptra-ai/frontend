@@ -66,12 +66,13 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                             })}
                             renderData={(data) => (
                                 <ScatterGraph
-                                    data={data?.outlier_analysis?.map(({image_url, dimensions, outlier, novelty}) => ({
-                                        samples: [image_url],
+                                    data={data?.outlier_analysis?.map(({image_url, dimensions, outlier, novelty, request_id}) => ({
+                                        sample: image_url,
                                         PCA1: dimensions[0],
                                         PCA2: dimensions[1],
                                         outlier,
-                                        novelty
+                                        novelty,
+                                        request_id
                                     }))}
                                 />
                             )}
