@@ -18,7 +18,6 @@ const FeatureAnalysis = () => {
 
         return <FeatureIntegrityTable/>;
     default:
-        console.log('throwing unknown model type error');
         throw new Error(`Unknown model type: ${model.mlModelType}`);
     }
 };
