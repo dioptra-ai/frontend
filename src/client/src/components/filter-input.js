@@ -8,7 +8,10 @@ import FontIcon from './font-icon';
 import metricsClient from 'clients/metrics';
 
 const Filter = ({filter, onDelete, applied = false}) => (
-    <span className={`filter fs-6 ${applied ? 'applied' : ''} mt-2`}>
+    <span
+        className={`filter fs-6 ${applied ? 'applied' : ''}`}
+        style={{whiteSpace: 'nowrap'}}
+    >
         {filter}{' '}
         <button onClick={onDelete}>
             <FontIcon className='text-dark' icon='Close' size={10} />
@@ -24,58 +27,57 @@ Filter.propTypes = {
 
 const FilterInput = ({
     inputPlaceholder = 'filter1=foo filter2=bar',
-    defaultFilters = [],
     onChange,
-    modelStore
+    modelStore,
+    filtersStore
 }) => {
     const [newFilter, setNewFilter] = useState('');
     const [filters, setFilters] = useState([]);
-    const [appliedFilters, setAppliedFilters] = useState(
-        defaultFilters.map(({key, value}) => `${key}=${value}`)
-    );
     const [suggestions, setSuggestions] = useState([]);
     const [suggestionIndex, setSuggestionIndex] = useState(-1);
     const [showSuggestions, setShowSuggestions] = useState(false);
+
+    const appliedFilters = filtersStore.filters.map(({key, value}) => `${key}=${value}`);
 
     const {_id} = useParams();
 
     const {mlModelId} = modelStore.getModelById(_id);
 
-    const getSuggestions = () => {
+    const getSuggestions = async () => {
         const [key, value] = newFilter.split('=');
 
         if (key && newFilter.includes('=')) {
-            metricsClient('queries/get-suggestions-with-key', {
+            const allSuggestions = await metricsClient('queries/get-suggestions-with-key', {
                 key,
                 value,
                 ml_model_id: mlModelId
-            })
-                .then((data) => {
-                    setSuggestions([...data.flat()]);
-                })
-                .catch(() => setSuggestions([]));
-        } else {
-            metricsClient('queries/get-suggestions-without-key', {
-                key
-            }).then(async (data) => {
-                await metricsClient('queries/all-key-options', {
-                    keys_calc: data.map(({allKeyOptions: key}) => `COUNT("${key}")`).join(', '),
-                    ml_model_id: mlModelId
-                })
-                    .then((allKeyOptions) => {
-                        const filteredKeys = data
-                            .filter(() => allKeyOptions)
-                            .map(({allKeyOptions}) => allKeyOptions);
+            });
+            const allSuggestionValues = allSuggestions.map(({value}) => value);
 
-                        setSuggestions([...filteredKeys]);
-                    }).catch(console.error);
-            }).catch(() => setSuggestions([]));
+            setSuggestions(allSuggestionValues);
+        } else {
+            const allSuggestions = await metricsClient('queries/get-suggestions-without-key', {
+                key
+            });
+            const allSuggestionValues = allSuggestions.map(({value}) => value);
+            const non0Options = await metricsClient('queries/all-key-options', {
+                keys_calc: allSuggestionValues.map((value) => `COUNT("${value}") as "${value}"`).join(', '),
+                ml_model_id: mlModelId
+            });
+            const filteredKeys = allSuggestionValues.filter((v) => non0Options[v]);
+
+            setSuggestions([...filteredKeys]);
         }
     };
 
     useEffect(() => {
         if (showSuggestions) {
-            getSuggestions();
+            try {
+                getSuggestions();
+            } catch (e) {
+                setSuggestions([]);
+                console.error(e);
+            }
         }
     }, [newFilter, showSuggestions]);
 
@@ -141,9 +143,7 @@ const FilterInput = ({
         }
     };
 
-    const handleRemoveFilter = (e) => {
-        const filter = e.target.parentNode.textContent.trim();
-        const index = filters.indexOf(filter);
+    const handleRemoveFilter = (index) => {
         const updatedFilters = [...filters];
 
         updatedFilters.splice(index, 1);
@@ -168,16 +168,13 @@ const FilterInput = ({
         }
     };
 
-    const handleAppliedFiltersChange = (appliedFilters) => {
-        setAppliedFilters(appliedFilters);
+    const handleAppliedFiltersChange = (newFilters) => {
         onChange(
-            appliedFilters.map((f) => f.split('=')).map(([key, value]) => ({key, value}))
+            newFilters.map((f) => f.split('=')).map(([key, value]) => ({key, value}))
         );
     };
 
-    const handleRemoveApplied = (e) => {
-        const filter = e.target.parentNode.textContent.trim();
-        const index = appliedFilters.indexOf(filter);
+    const handleRemoveApplied = (index) => {
         const updatedApplied = [...appliedFilters];
 
         updatedApplied.splice(index, 1);
@@ -191,7 +188,7 @@ const FilterInput = ({
             }}>
                 <div className='filter-input'>
                     {filters.map((filter, index) => (
-                        <Filter filter={filter} key={index} onDelete={handleRemoveFilter} />
+                        <Filter filter={filter} key={index} onDelete={() => handleRemoveFilter(index)} />
                     ))}
                     <input
                         onChange={handleInputChange}
@@ -228,24 +225,27 @@ const FilterInput = ({
                     )}
                 </div>
             </OutsideClickHandler>
-            <div className='d-flex justify-content-between position-relative'>
+            <div
+                className='d-flex flex-wrap position-relative mt-1'
+                style={{columnGap: '0.25rem', rowGap: '0.25rem'}}
+            >
                 {appliedFilters.length !== 0 ? (
-                    <div>
+                    <>
                         {appliedFilters.map((filter, index) => (
                             <Filter
                                 applied={true}
                                 filter={filter}
                                 key={index}
-                                onDelete={handleRemoveApplied}
+                                onDelete={() => handleRemoveApplied(index)}
                             />
                         ))}
                         <span
-                            className='text-dark clear'
+                            className='text-dark clear mx-2 d-flex align-items-center'
                             onClick={() => handleAppliedFiltersChange([])}
                         >
                             CLEAR ALL
                         </span>
-                    </div>
+                    </>
                 ) : <div/>}
             </div>
         </div>
@@ -253,9 +253,9 @@ const FilterInput = ({
 };
 
 FilterInput.propTypes = {
-    defaultFilters: PropTypes.array,
     inputPlaceholder: PropTypes.string,
     modelStore: PropTypes.object.isRequired,
+    filtersStore: PropTypes.object.isRequired,
     onChange: PropTypes.func.isRequired
 };
 

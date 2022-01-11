@@ -12,10 +12,6 @@
     ```bash
     docker-compose up -d --build
     ```
-1. Run the dev server inside the application container. Use Ctrl-C to stop the application.
-    ```bash
-    docker exec -ti dioptra-frontend npm run dev
-    ```
 1. Navigate to `http://localhost:4004` in your browser
 1. Make a change in a file under `src/` and save. The server should restart or the client-side bundle be rebuilt as necessary.
-2. Reload your browser, your code should now be executed. Congrats!
+1. Reload your browser, your code should now be executed. Congrats!
