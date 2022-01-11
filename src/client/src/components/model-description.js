@@ -11,6 +11,7 @@ import {setupComponent} from 'helpers/component-helper';
 import Select from './select';
 import metricsClient from 'clients/metrics';
 import {IoChevronDownCircleOutline, IoChevronUpCircleOutline} from 'react-icons/io5';
+import {AiFillEdit, AiFillSave} from 'react-icons/ai';
 
 const ModelDescription = ({_id, filtersStore, modelStore, name, description, team, tier, lastDeployed, mlModelId, mlModelType, referencePeriod}) => {
     const [expand, setExpand] = useState(false);
@@ -18,6 +19,8 @@ const ModelDescription = ({_id, filtersStore, modelStore, name, description, tea
     const [errors, setErrors] = useState([]);
     const mlModelVersion = filtersStore.modelVersion;
     const [allMlModelVersions, setAllMlModelVersions] = useState([]);
+    const [editingDesc, setEditingDesc] = useState(false);
+    const [editingName, setEditingName] = useState(false);
 
     useEffect(() => {
         metricsClient('queries/all-ml-model-versions', {
@@ -63,6 +66,13 @@ const ModelDescription = ({_id, filtersStore, modelStore, name, description, tea
             <Row className='align-items-center mb-3 px-3'>
                 <Col className='d-flex align-items-center'>
                     <h1 className='text-dark fs-1 m-0 bold-text'>{name}</h1>
+                    <button className='btn-expand bg-transparent' onClick={() => setEditingName(!editingName)}>
+                        {editingName ? (
+                            <AiFillSave className='fs-1'/>
+                        ) : (
+                            <AiFillEdit className='fs-1'/>
+                        )}
+                    </button>
                     <button className='btn-expand bg-transparent' onClick={() => setExpand(!expand)}>
                         {expand ? (
                             <IoChevronUpCircleOutline className='fs-1'/>
@@ -85,6 +95,13 @@ const ModelDescription = ({_id, filtersStore, modelStore, name, description, tea
                 <Row className='mt-3 py-3'>
                     <Col className='details-col' lg={4}>
                         <p className='bold-text fs-4'>Description</p>
+                        <button className='btn-expand bg-transparent' onClick={() => setEditingDesc(!editingDesc)}>
+                            {editingDesc ? (
+                                <AiFillSave className='fs-1'/>
+                            ) : (
+                                <AiFillEdit className='fs-1'/>
+                            )}
+                        </button>
                         <p className='description fs-6'>{description}</p>
                     </Col>
                     <Col className='details-col p-3 justify-content-start' lg={2}>
