@@ -32,8 +32,18 @@ class FiltersStore {
         return this.f;
     }
 
-    set filters(f) {
-        this.f = f;
+    set filters(newFilters) {
+        // Dedupe {key: value}.
+        const dedupedFilters = newFilters.reduce((agg, newF) => ({
+            ...agg,
+            [JSON.stringify(newF)]: newF
+        }), {});
+
+        this.f = Object.values(dedupedFilters);
+    }
+
+    addFilters(...args) {
+        this.filters = this.filters.concat(...args);
     }
 
     get modelVersion() {

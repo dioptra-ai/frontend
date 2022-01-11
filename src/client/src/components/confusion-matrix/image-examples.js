@@ -6,6 +6,7 @@ import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 import TabularExamples from './tabular-examples';
 import Async from 'components/async';
 import metricsClient from 'clients/metrics';
+import AddFilters from 'components/add-filters';
 import {IoArrowBackCircleOutline, IoCloseCircleOutline} from 'react-icons/io5';
 
 const ImageExamples = ({onClose, groundtruth, prediction, iou, model}) => {
@@ -15,18 +16,25 @@ const ImageExamples = ({onClose, groundtruth, prediction, iou, model}) => {
     return (
         <Modal isOpen onClose={onClose} title='Examples'
             closeButton={(
-                <button
-                    className='text-dark border-0 bg-white fs-2'
-                    onClick={() => {
-                        if (exampleInModal) {
-                            setExampleInModal(null);
-                        } else {
-                            onClose();
-                        }
-                    }}
-                >{
-                        exampleInModal ? <IoArrowBackCircleOutline/> : <IoCloseCircleOutline/>
-                    }</button>
+                <>
+                    <AddFilters filters={[{
+                        key: 'groundtruth', value: groundtruth
+                    }, {
+                        key: 'prediction', value: prediction
+                    }]}/>
+                    <button
+                        className='text-dark border-0 bg-white fs-2'
+                        onClick={() => {
+                            if (exampleInModal) {
+                                setExampleInModal(null);
+                            } else {
+                                onClose();
+                            }
+                        }}
+                    >{
+                            exampleInModal ? <IoArrowBackCircleOutline/> : <IoCloseCircleOutline/>
+                        }</button>
+                </>
             )}
         >
             <div className='p-3'>
