@@ -1,5 +1,7 @@
 .breadcrumb {
   .link {
+    display: flex;
+    align-items: center;
     button {
       outline: none;
       border: none;
@@ -10,7 +12,6 @@
       padding: 0 5px;
     }
     &:last-child {
-      opacity: 0.5;
       &::after {
         content: '';
       }

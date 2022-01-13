@@ -1,12 +1,12 @@
 import React, {useEffect} from 'react';
 import PropTypes from 'prop-types';
-import {Route, Switch, useHistory, useParams} from 'react-router-dom';
+import {Route, Switch, useHistory, useParams, useRouteMatch} from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
+import url from 'url';
 
 import GeneralSearchBar from '../general-search-bar';
 import AddAlertPage from 'pages/add-alert';
 import ModelDescription from 'components/model-description';
-import Breadcrumb from 'components/breadcrumb';
 import Tabs from 'components/tabs';
 import {setupComponent} from 'helpers/component-helper';
 import PerformanceOverview from './performance-overview';
@@ -16,31 +16,33 @@ import FeatureAnalysis from './feature-analysis';
 import IncidentsAndAlerts from './incidents-and-alerts.js';
 import useModel from 'customHooks/use-model';
 import StickyParamsRouter from 'components/sticky-params-router';
+import Select from 'components/select';
 
 const Model = ({modelStore}) => {
-    const mlModelId = useParams()._id;
+    const modelId = useParams()._id;
     const model = useModel();
-
     const history = useHistory();
+    const routeMatch = useRouteMatch('/models/:_id/:tabPath');
 
     useEffect(() => {
-        modelStore.fetchModel(mlModelId);
-    }, [mlModelId]);
+        // All models needed for the breadcrumb selector
+        modelStore.fetchModels();
+    }, [modelId]);
 
     const tabs = [
-        {name: 'Performance Overview', to: `/${mlModelId}/performance-overview`},
-        {name: 'Performance Analysis', to: `/${mlModelId}/performance-details`}
+        {name: 'Performance Overview', to: `/${modelId}/performance-overview`},
+        {name: 'Performance Analysis', to: `/${modelId}/performance-details`}
     ];
 
     if (model?.mlModelType !== 'Q_N_A') {
         tabs.push(
-            {name: 'Prediction Analysis', to: `/${mlModelId}/prediction-analysis`}
+            {name: 'Prediction Analysis', to: `/${modelId}/prediction-analysis`}
         );
 
-        tabs.push({name: 'Feature Analysis', to: `/${mlModelId}/feature-analysis`});
+        tabs.push({name: 'Feature Analysis', to: `/${modelId}/feature-analysis`});
     }
 
-    tabs.push({name: 'Incidents & Alerts', to: `/${mlModelId}/incidents-&-alerts`});
+    tabs.push({name: 'Incidents & Alerts', to: `/${modelId}/incidents-&-alerts`});
 
     return model ? (
         <StickyParamsRouter
@@ -58,10 +60,41 @@ const Model = ({modelStore}) => {
                 <Route path={'/:id/add-alert'} component={AddAlertPage} exact/>
                 <Route>
                     <GeneralSearchBar/>
-                    <Breadcrumb links={[
-                        {name: 'Models', path: () => history.push('/')},
-                        {name: model.name, path: `/${mlModelId}/performance-overview`}
-                    ]}/>
+                    <Container className='bg-white-blue text-secondary py-2' fluid>
+                        <div className='breadcrumb m-0 px-3'>
+                            <span className='link'>
+                                <a
+                                    className='text-secondary bold-text fs-6'
+                                    onClick={() => history.push('/')}
+                                >
+                                    Models
+                                </a>
+                            </span>
+                            <span className='link'>
+                                <div
+                                    className='text-secondary bold-text fs-6'
+                                >
+                                    <Select
+                                        padding={0}
+                                        borderColor='transparent'
+                                        onChange={(value) => {
+                                            const destination = url.format({
+                                                pathname: `/models/${value}/${routeMatch.params.tabPath}`,
+                                                search: window.location.search
+                                            });
+
+                                            window.location.assign(destination);
+                                        }}
+                                        options={modelStore.models.map((m) => ({
+                                            name: m.name,
+                                            value: m._id
+                                        }))}
+                                        initialValue={modelId}
+                                    />
+                                </div>
+                            </span>
+                        </div>
+                    </Container>
                     <ModelDescription {...model}/>
                     <Container fluid>
                         <Tabs tabs={tabs} />
