@@ -57,7 +57,7 @@ const Model = ({modelStore}) => {
             })}
         >
             <Switch>
-                <Route path={'/:id/add-alert'} component={AddAlertPage} exact/>
+                <Route path={'/:_id/add-alert'} component={AddAlertPage} exact/>
                 <Route>
                     <GeneralSearchBar/>
                     <Breadcrumb links={[

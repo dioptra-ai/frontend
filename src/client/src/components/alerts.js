@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Button from 'react-bootstrap/Button';
 import FontIcon from './font-icon';
 import {IconNames} from '../constants';
@@ -7,21 +7,9 @@ import Pagination from './pagination';
 import {Link, useParams} from 'react-router-dom';
 import useModal from '../customHooks/useModal';
 import Modal from './modal';
+import baseJSONClient from 'clients/base-json-client';
 
-const alerts = [
-    {id: 0, name: 'Alert logic available here', notify: 'PagerDuty'},
-    {id: 1, name: 'Alert logic available here', notify: 'PagerDuty'},
-    {id: 2, name: 'Alert logic available here', notify: 'Email'},
-    {id: 3, name: 'Alert logic available here', notify: 'Slack'},
-    {id: 4, name: 'Alert logic available here', notify: ''},
-    {id: 5, name: 'Alert logic available here', notify: 'Slack'},
-    {id: 6, name: 'Alert logic available here', notify: 'Email'},
-    {id: 7, name: 'Alert logic available here', notify: ''},
-    {id: 8, name: 'Alert logic available here', notify: 'PagerDuty'},
-    {id: 9, name: 'Alert logic available here', notify: 'Slack'}
-];
-
-const Alert = ({name, notifyBy, onDelete, onEdit}) => {
+const Alert = ({name, onDelete, onEdit}) => {
     return (
         <div className='table-row py-4 text-dark'>
             <div className='col bold-text'>
@@ -30,7 +18,6 @@ const Alert = ({name, notifyBy, onDelete, onEdit}) => {
                     <span className='fs-6'>{name}</span>
                 </label>
             </div>
-            <div className='col fs-6'>{notifyBy ? notifyBy : '-'}</div>
             <div className='col actions-cell'>
                 <FontIcon
                     className='text-dark mx-2'
@@ -51,14 +38,20 @@ const Alert = ({name, notifyBy, onDelete, onEdit}) => {
 
 Alert.propTypes = {
     name: PropTypes.string,
-    notifyBy: PropTypes.string,
     onDelete: PropTypes.func,
     onEdit: PropTypes.func
 };
 const Alerts = () => {
+    const [alerts, setAlerts] = useState([]);
     const [selectedAlert, setSelectedAlert] = useState(null);
     const [deleteAlertModal, setDeleteAlertModal] = useModal(false);
     const {_id} = useParams();
+
+    useEffect(() => {
+        baseJSONClient('/api/alerts/list').then((response) => {
+            setAlerts(response.alerts);
+        });
+    }, []);
 
     const closeModal = () => {
         setDeleteAlertModal(false);
@@ -97,14 +90,12 @@ const Alerts = () => {
                                 <span className='fs-6'>Alert Name</span>
                             </label>
                         </div>
-                        <div className='col fs-6'>Notifications via</div>
                         <div className='actions-cell fs-6 col'>Action</div>
                     </div>
                     {alerts.map((alert) => (
                         <Alert
-                            key={alert.id}
+                            key={alert._id}
                             name={alert.name}
-                            notifyBy={alert.notify}
                             onDelete={() => {
                                 setSelectedAlert(alert);
                                 setDeleteAlertModal(true);

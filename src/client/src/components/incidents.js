@@ -1,31 +1,10 @@
 import React from 'react';
 import Button from 'react-bootstrap/Button';
 import Pagination from './pagination';
-import Expandable from './expandable';
 import FontIcon from './font-icon';
 import PropTypes from 'prop-types';
 import {IconNames} from '../constants';
-
-const incidents = [
-    {id: 0, name: 'Incident was caused by accuracy metric hitting the x% threshold', resolved: false, details: [{
-        name: 'Feature Merchant Category Code is not within range', resolved: false
-    },
-    {
-        name: 'Feature Transaction Amount online distribution doesn’t match its offline equivalent', resolved: false
-    }]},
-    {id: 1, name: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit', resolved: true, details: [{
-        name: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit', resolved: true
-    }]},
-    {id: 2, name: 'Lorem ipsum dolor sit amet, consectetur unc congue volutpat sodales', resolved: true, details: [{
-        name: 'Lorem ipsum dolor sit amet, consectetur unc congue volutpat sodales', resolved: true
-    }]},
-    {id: 3, name: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit unc congue volutpat felis eget sodales congue volutpat felis eget sodales', resolved: true, details: [{
-        name: 'Lorem ipsum dolor sit amet, consectetur unc congue volutpat sodales', resolved: true
-    }]},
-    {id: 4, name: 'Lorem ipsum dolor sit amet, unc congue volutpat felis eget sodales', resolved: true, details: [{
-        name: 'Lorem ipsum dolor sit amet, consectetur unc congue volutpat sodales', resolved: true
-    }]}
-];
+import baseJSONClient from 'clients/base-json-client';
 
 const IncidentRow = ({
     name = ' ',
@@ -62,6 +41,13 @@ IncidentRow.propTypes = {
 };
 
 const Incidents = () => {
+    const [incidents, setIncidents] = React.useState([]);
+
+    React.useEffect(() => {
+        baseJSONClient('/api/alerts/events/list').then((response) => {
+            setIncidents(response.alert_events);
+        });
+    }, []);
 
     const handlePageChange = () => {
         // get incidents for incoming page
@@ -84,19 +70,12 @@ const Incidents = () => {
                         </label>
                     </div>
                 </div>
-                {incidents.map((incident, i) => (
-                    <Expandable content={ <IncidentRow
-                        name={incident.name}
+                {incidents && incidents.map((incident, i) => (
+                    <IncidentRow
+                        key={i}
+                        name={incident.message}
                         resolved={incident.resolved}
-                    />} expandedContent={incident.details && incident.details.map((d, i) => (
-                        <IncidentRow
-                            isMainRow={false}
-                            key={i}
-                            name={d.name}
-                            resolved={d.resolved}
-                        />
-                    ))} key={i}/>
-
+                    />
                 ))}
 
             </div>
