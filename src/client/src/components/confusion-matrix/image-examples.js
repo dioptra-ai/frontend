@@ -6,8 +6,8 @@ import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 import TabularExamples from './tabular-examples';
 import Async from 'components/async';
 import metricsClient from 'clients/metrics';
-import AddFilters from 'components/add-filters';
 import {IoArrowBackCircleOutline, IoCloseCircleOutline} from 'react-icons/io5';
+import AddFilters from 'components/add-filters';
 import {Filter} from 'state/stores/filters-store';
 
 const ImageExamples = ({onClose, groundtruth, prediction, iou, model}) => {

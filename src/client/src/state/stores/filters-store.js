@@ -96,12 +96,20 @@ export class Filter {
 
             if (this.value) {
 
-                if (this.value.length > 1) {
+                if (this.value.length > 0) {
+                    const firstValue = this.value[0].toString();
+                    const firstDisplayValue = `${firstValue.substring(0, 10)}${firstValue.length > 10 ? '...' : ''}`;
 
-                    return `${this.key} in [<${this.value.length} values>]`;
+                    if (this.value.length > 1) {
+
+                        return `${this.key} in [${firstDisplayValue}, ...]`;
+                    } else {
+
+                        return `${this.key} in [${firstDisplayValue}]`;
+                    }
                 } else {
 
-                    return `${this.key} in [${this.value.map((v) => `'${v}'`).join(', ')}]`;
+                    return `${this.key} in []`;
                 }
             } else {
 
