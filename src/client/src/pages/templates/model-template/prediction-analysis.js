@@ -17,6 +17,8 @@ import metricsClient from 'clients/metrics';
 import Async from 'components/async';
 import useModal from 'customHooks/useModal';
 import Modal from 'components/modal';
+import AddFilters from 'components/add-filters';
+import {Filter} from 'state/stores/filters-store';
 
 const PredictionAnalysis = ({timeStore, filtersStore}) => {
     const allSqlFilters = useAllSqlFilters();
@@ -211,6 +213,11 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                                 />
                             </Col>
                             <Col lg={8} className='rounded p-3 pt-0'>
+                                <AddFilters disabled={!heatMapSamples?.length} filters={[new Filter({
+                                    key: 'request_id',
+                                    op: 'in',
+                                    value: heatMapSamples.map((s) => s.bounding_box.request_id)
+                                })]}/>
                                 {heatMapSamples.length ? (
                                     <div
                                         className={

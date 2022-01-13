@@ -41,3 +41,8 @@ b {
         top: 0.1rem;
     }
 }
+
+.disabled {
+    pointer-events: none;
+    opacity: 0.5;
+}
