@@ -74,7 +74,13 @@ export class Filter {
 
             if (this.value) {
 
-                return `${this.key} in [${this.value.map((v) => `'${v}'`).join(', ')}]`;
+                if (this.value.length > 1) {
+
+                    return `${this.key} in [<${this.value.length} values>]`;
+                } else {
+
+                    return `${this.key} in [${this.value.map((v) => `'${v}'`).join(', ')}]`;
+                }
             } else {
 
                 return `${this.key} in `;

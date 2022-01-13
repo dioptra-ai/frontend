@@ -17,28 +17,21 @@ const ImageExamples = ({onClose, groundtruth, prediction, iou, model}) => {
     return (
         <Modal isOpen onClose={onClose} title='Examples'
             closeButton={(
-                <>
-                    <AddFilters filters={[new Filter({
-                        key: 'groundtruth', op: '=', value: groundtruth
-                    }), new Filter({
-                        key: 'prediction', op: '=', value: prediction
-                    })]}/>
-                    <button
-                        className='text-dark border-0 bg-white fs-2'
-                        onClick={() => {
-                            if (exampleInModal) {
-                                setExampleInModal(null);
-                            } else {
-                                onClose();
-                            }
-                        }}
-                    >{
-                            exampleInModal ? <IoArrowBackCircleOutline/> : <IoCloseCircleOutline/>
-                        }</button>
-                </>
+                <button
+                    className='text-dark border-0 bg-white fs-2'
+                    onClick={() => {
+                        if (exampleInModal) {
+                            setExampleInModal(null);
+                        } else {
+                            onClose();
+                        }
+                    }}
+                >{
+                        exampleInModal ? <IoArrowBackCircleOutline/> : <IoCloseCircleOutline/>
+                    }</button>
             )}
         >
-            <div className='p-3'>
+            <div className='d-flex flex-column align-items-end'>
                 {exampleInModal ? (
                     <img
                         alt='Example'
@@ -48,22 +41,44 @@ const ImageExamples = ({onClose, groundtruth, prediction, iou, model}) => {
                     />
                 ) : (
                     <Async
-                        renderData={(data) => data.every((img) => img['image_metadata.uri'].replace(/"/g, '').match(/^https?:\/\//)) ? (
-                            <CustomCarousel
-                                items={data.map((x) => x['image_metadata.uri'].replace(/"/g, ''))}
-                                onItemClick={setExampleInModal}
-                            />
-                        ) : (
-                            <TabularExamples
-                                groundtruth={groundtruth}
-                                onClose={onClose}
-                                prediction={prediction}
-                            />
-                        )
-                        }
+                        renderData={(data) => {
+
+                            if (data.every((d) => d['image_metadata.uri'].replace(/"/g, '').match(/^https?:\/\//))) {
+
+                                return (
+                                    <>
+                                        <AddFilters filters={[new Filter({
+                                            key: 'request_id',
+                                            op: 'in',
+                                            value: data.map((d) => d['request_id'])
+                                        })]}/>
+                                        <CustomCarousel
+                                            items={data.map((x) => x['image_metadata.uri'].replace(/"/g, ''))}
+                                            onItemClick={setExampleInModal}
+                                        />
+                                    </>
+                                );
+                            } else {
+
+                                return (
+                                    <>
+                                        <AddFilters filters={[new Filter({
+                                            key: 'request_id',
+                                            op: 'in',
+                                            value: data.map((d) => d['request_id'])
+                                        })]}/>
+                                        <TabularExamples
+                                            groundtruth={groundtruth}
+                                            onClose={onClose}
+                                            prediction={prediction}
+                                        />
+                                    </>
+                                );
+                            }
+                        }}
                         refetchOnChanged={[groundtruth, prediction, iou, allSqlFilters, model.mlModelType]}
                         fetchData={() => metricsClient(`queries/${model.mlModelType === 'DOCUMENT_PROCESSING' ?
-                            'select-image-uri-for-data-processing' : 'select-image-uri-for-default'}`,
+                            'select-samples-for-document-processing' : 'select-samples-for-default'}`,
                         model.mlModelType === 'DOCUMENT_PROCESSING' ?
                             {
                                 groundtruth,
