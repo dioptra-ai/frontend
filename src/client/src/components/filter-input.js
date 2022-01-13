@@ -20,13 +20,15 @@ const RenderedFilter = ({filter, onDelete, applied = false}) => {
                 </Tooltip>
             )}>
             <div
-                className={`filter fs-6 ${applied ? 'applied' : ''} text-truncate `}
+                className={`d-flex filter fs-6 ${applied ? 'applied' : ''}`}
                 style={{
-                    whiteSpace: 'nowrap',
-                    maxWidth: 200
+                    whiteSpace: 'nowrap'
                 }}
             >
-                {filter.toString()}{' '}
+                <div className='text-truncate mr-1' style={{
+                    maxWidth: 200,
+                    overflow: 'hidden'
+                }}>{filter.toString()}</div>
                 <button onClick={onDelete}>
                     <FontIcon className='text-dark' icon='Close' size={10} />
                 </button>

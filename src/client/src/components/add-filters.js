@@ -5,34 +5,30 @@ import {OverlayTrigger, Tooltip} from 'react-bootstrap';
 import {setupComponent} from 'helpers/component-helper';
 import {Filter} from 'state/stores/filters-store';
 
-const AddFilters = ({filtersStore, filters}) => (
-    <OverlayTrigger
-        overlay={
-            <Tooltip>
-                Filter the current view with
-                {
-                    filters.length > 5 ? ` ${filters.length} more filters.` : (
-                        <>
-                            <br/>
-                            {filters.map((f) => `${f.key}: ${f.value}`).join(', ')}
-                        </>
-                    )
-                }
-            </Tooltip>
-        }
-    >
-        <button
-            className='text-dark border-0 bg-transparent click-down fs-2'
-            title='Filter down'
-            onClick={() => {
+const AddFilters = ({filtersStore, filters}) => {
+    const displayFilter = filters.map((f) => f.toString()).join(', ');
 
-                filtersStore.addFilters(filters);
-            }}
+    return (
+        <OverlayTrigger
+            overlay={
+                <Tooltip>
+                    Filter the current view with {displayFilter.substring(0, 50)}{displayFilter.length > 50 ? '...' : ''}
+                </Tooltip>
+            }
         >
-            <IoFilterCircleOutline/>
-        </button>
-    </OverlayTrigger>
-);
+            <button
+                className='text-dark border-0 bg-transparent click-down fs-2'
+                title='Filter down'
+                onClick={() => {
+
+                    filtersStore.addFilters(filters);
+                }}
+            >
+                <IoFilterCircleOutline/>
+            </button>
+        </OverlayTrigger>
+    );
+};
 
 AddFilters.propTypes = {
     filtersStore: PropTypes.object.isRequired,
