@@ -23,7 +23,6 @@ const AddFilters = ({filtersStore, filters, disabled}) => {
 
                     filtersStore.addFilters(filters);
                 }}
-                disabled={disabled}
             >
                 <IoFilterCircleOutline/>
             </button>
