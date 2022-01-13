@@ -5,7 +5,7 @@ import {OverlayTrigger, Tooltip} from 'react-bootstrap';
 import {setupComponent} from 'helpers/component-helper';
 import {Filter} from 'state/stores/filters-store';
 
-const AddFilters = ({filtersStore, filters}) => {
+const AddFilters = ({filtersStore, filters, disabled}) => {
     const displayFilter = filters.map((f) => f.toString()).join(', ');
 
     return (
@@ -17,7 +17,7 @@ const AddFilters = ({filtersStore, filters}) => {
             }
         >
             <button
-                className='text-dark border-0 bg-transparent click-down fs-2'
+                className={`${disabled ? 'disabled' : ''} text-dark border-0 bg-transparent click-down fs-2`}
                 title='Filter down'
                 onClick={() => {
 
@@ -32,7 +32,8 @@ const AddFilters = ({filtersStore, filters}) => {
 
 AddFilters.propTypes = {
     filtersStore: PropTypes.object.isRequired,
-    filters: PropTypes.arrayOf(PropTypes.instanceOf(Filter)).isRequired
+    filters: PropTypes.arrayOf(PropTypes.instanceOf(Filter)).isRequired,
+    disabled: PropTypes.bool
 };
 
 export default setupComponent(AddFilters);

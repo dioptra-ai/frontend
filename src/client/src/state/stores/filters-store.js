@@ -14,6 +14,28 @@ export class Filter {
         this.value = value;
     }
 
+    get value() {
+
+        return this.v;
+    }
+
+    set value(v) {
+        if (this.op === 'in') {
+            this.v = Array.from(new Set(v));
+        } else {
+            this.v = v;
+        }
+    }
+
+    toJSON() {
+
+        return {
+            key: this.key,
+            op: this.op,
+            value: this.value // this calls the getter - otherwise JSON.stringify uses this.v
+        };
+    }
+
     static parse(str) {
         const match = (/([a-zA-Z1-9]+)(\s*(=)\s*|\s+(in)\s+)?([a-zA-Z1-9]+)?/gim).exec(str.trim());
 
