@@ -58,7 +58,8 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                 <h3 className='text-dark bold-text fs-3 mb-3'>Feature Space Outliers</h3>
                 <Row>
                     <Col>
-                        <Async refetchOnChanged={[allOfflineSqlFilters, allSqlFilters, timeGranularity]}
+                        <Async
+                            refetchOnChanged={[allOfflineSqlFilters, allSqlFilters, timeGranularity]}
                             fetchData={() => metricsClient('compute', {
                                 metrics_type: 'outlier_detection',
                                 current_filters: allSqlFilters,

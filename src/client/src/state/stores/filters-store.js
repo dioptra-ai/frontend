@@ -7,9 +7,91 @@ import {
     authStore
 } from './auth-store';
 
+export class Filter {
+    constructor({key, op, value} = {}) {
+        this.key = key;
+        this.op = op;
+        this.value = value;
+    }
+
+    static parse(str) {
+        const match = (/([a-zA-Z1-9]+)(\s*(=)\s*|\s+(in)\s+)?([a-zA-Z1-9]+)?/gim).exec(str.trim());
+
+        if (match) {
+            const [, key, , opEQ, opIN, valueStr] = match;
+
+            let op = null;
+
+            let value = null;
+
+            if (opEQ) {
+                op = opEQ;
+                value = valueStr;
+            } else if (opIN) {
+                op = opIN.toLowerCase();
+
+                if (valueStr) {
+                    value = valueStr.split(/\s*,\s*/);
+                }
+            }
+
+            return new Filter({key, op, value});
+        } else return new Filter();
+    }
+
+    toSQLString() {
+
+        switch (this.op) {
+
+        case '=':
+
+            return `"${this.key}"='${this.value}'`;
+        case 'in':
+
+            return `"${this.key}" in (${this.value.map((v) => `'${v}'`).join(',')})`;
+        default:
+            throw new Error(`Unknown filter operator: "${this.op}"`);
+        }
+    }
+
+    toString() {
+        switch (this.op) {
+
+        case undefined:
+        case null:
+
+            return this.key || '';
+        case '=':
+
+            if (this.value) {
+
+                return `${this.key}=${this.value}`;
+            } else {
+
+                return `${this.key}=`;
+            }
+        case 'in':
+
+            if (this.value) {
+
+                return `${this.key} in [${this.value.map((v) => `'${v}'`).join(', ')}]`;
+            } else {
+
+                return `${this.key} in `;
+            }
+        default:
+            throw new Error(`Unknown filter operator: "${this.op}"`);
+        }
+    }
+
+    get isComplete() {
+
+        return !this.key && !this.op && !this.value;
+    }
+}
 
 class FiltersStore {
-    // [{key, op==EQ, value}]
+    // [{key, op, value}]
     f = [];
 
     mlModelVersion = ''
@@ -19,7 +101,9 @@ class FiltersStore {
         const mlModelVersion = new URL(window.location).searchParams.get('mlModelVersion');
 
         if (filters) {
-            this.f = JSON.parse(filters);
+            const parsedFilters = JSON.parse(filters);
+
+            this.f = parsedFilters ? parsedFilters.map((f) => new Filter(f)) : [];
             this.mlModelVersion = mlModelVersion;
         } else if (initialValue) {
             this.f = JSON.parse(initialValue).f;
@@ -54,29 +138,34 @@ class FiltersStore {
         this.mlModelVersion = v;
     }
 
-    get sqlFilters() {
-        const keyValues = this.f.reduce((agg, {
-            key,
-            value
-        }) => {
+    concatSQLFilters() {
+        const filtersByKey = this.f.reduce((agg, filter) => {
+            const {key} = filter;
+
             if (!agg[key]) {
                 agg[key] = [];
             }
 
-            agg[key].push(value);
+            agg[key].push(filter);
 
             return agg;
         }, {});
 
-        const filters = Object.keys(keyValues).map((key) => {
-            const values = keyValues[key];
+        const allFilters = Object.keys(filtersByKey).map((key) => {
+            const keyFilters = filtersByKey[key];
 
-            return `(${values.map((v) => `"${key}"='${v}'`).join(' OR ')})`;
+            return `(${keyFilters.map((filter) => filter.toSQLString()).join(' OR ')})`;
         });
 
         if (this.mlModelVersion && this.mlModelVersion !== 'null') {
-            filters.push(`"model_version"='${this.mlModelVersion}'`);
+            allFilters.push(`"model_version"='${this.mlModelVersion}'`);
         }
+
+        return allFilters;
+    }
+
+    get sqlFilters() {
+        const filters = this.concatSQLFilters();
 
         filters.push(`organization_id='${_WEBPACK_DEF_OVERRIDE_ORG_ID_ || authStore.userData.activeOrganizationMembership.organization._id}'`);
 
@@ -84,28 +173,7 @@ class FiltersStore {
     }
 
     get __RENAME_ME__sqlFilters() {
-        const keyValues = this.f.reduce((agg, {
-            key,
-            value
-        }) => {
-            if (!agg[key]) {
-                agg[key] = [];
-            }
-
-            agg[key].push(value);
-
-            return agg;
-        }, {});
-
-        const filters = Object.keys(keyValues).map((key) => {
-            const values = keyValues[key];
-
-            return `(${values.map((v) => `"${key}"='${v}'`).join(' OR ')})`;
-        });
-
-        if (this.mlModelVersion && this.mlModelVersion !== 'null') {
-            filters.push(`"model_version"='${this.mlModelVersion}'`);
-        }
+        const filters = this.concatSQLFilters();
 
         return filters.join(' AND ') || ' TRUE ';
 

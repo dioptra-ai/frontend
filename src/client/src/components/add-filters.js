@@ -1,13 +1,14 @@
 import PropTypes from 'prop-types';
 import {IoFilterCircleOutline} from 'react-icons/io5';
-import {Tooltip as BootstrapTooltip, OverlayTrigger} from 'react-bootstrap';
+import {OverlayTrigger, Tooltip} from 'react-bootstrap';
 
 import {setupComponent} from 'helpers/component-helper';
+import {Filter} from 'state/stores/filters-store';
 
 const AddFilters = ({filtersStore, filters}) => (
     <OverlayTrigger
         overlay={
-            <BootstrapTooltip>
+            <Tooltip>
                 Filter the current view with
                 {
                     filters.length > 5 ? ` ${filters.length} more filters.` : (
@@ -17,7 +18,7 @@ const AddFilters = ({filtersStore, filters}) => (
                         </>
                     )
                 }
-            </BootstrapTooltip>
+            </Tooltip>
         }
     >
         <button
@@ -35,7 +36,7 @@ const AddFilters = ({filtersStore, filters}) => (
 
 AddFilters.propTypes = {
     filtersStore: PropTypes.object.isRequired,
-    filters: PropTypes.arrayOf(PropTypes.object).isRequired
+    filters: PropTypes.arrayOf(PropTypes.instanceOf(Filter)).isRequired
 };
 
 export default setupComponent(AddFilters);

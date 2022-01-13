@@ -8,6 +8,7 @@ import Async from 'components/async';
 import metricsClient from 'clients/metrics';
 import AddFilters from 'components/add-filters';
 import {IoArrowBackCircleOutline, IoCloseCircleOutline} from 'react-icons/io5';
+import {Filter} from 'state/stores/filters-store';
 
 const ImageExamples = ({onClose, groundtruth, prediction, iou, model}) => {
     const [exampleInModal, setExampleInModal] = useState(false);
@@ -17,11 +18,11 @@ const ImageExamples = ({onClose, groundtruth, prediction, iou, model}) => {
         <Modal isOpen onClose={onClose} title='Examples'
             closeButton={(
                 <>
-                    <AddFilters filters={[{
-                        key: 'groundtruth', value: groundtruth
-                    }, {
-                        key: 'prediction', value: prediction
-                    }]}/>
+                    <AddFilters filters={[new Filter({
+                        key: 'groundtruth', op: '=', value: groundtruth
+                    }), new Filter({
+                        key: 'prediction', op: '=', value: prediction
+                    })]}/>
                     <button
                         className='text-dark border-0 bg-white fs-2'
                         onClick={() => {

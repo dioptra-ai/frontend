@@ -18,6 +18,7 @@ import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import Modal from 'components/modal';
 import AddFilters from 'components/add-filters';
+import {Filter} from 'state/stores/filters-store';
 
 const LARGE_DOT_SIZE = 200;
 const MEDIUM_DOT_SIZE = 100;
@@ -260,10 +261,11 @@ const ScatterGraph = ({data}) => {
                 <Col lg={8} className='rounded p-3 bg-white-blue'>
                     <div className='text-dark m-0 bold-text'>
                         Examples
-                        <AddFilters filters={sampleRequestIds.map((r) => ({
+                        <AddFilters filters={[new Filter({
                             key: 'request_id',
-                            value: r
-                        }))}/>
+                            op: 'in',
+                            value: sampleRequestIds
+                        })]}/>
                     </div>
                     <div className={`d-flex p-2 overflow-auto flex-grow-0 ${samples.length ? 'justify-content-left' : 'justify-content-center align-items-center'} scatterGraph-examples`}>
                         {samples.length ? samples.map((sample, i) => (
