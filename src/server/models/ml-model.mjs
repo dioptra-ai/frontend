@@ -36,10 +36,26 @@ const mlModelSchema = new mongoose.Schema({
         ],
         required: true
     },
+    benchmarkSet: Boolean,
     referencePeriod: {
         start: Date,
         end: Date
-    }
+    },
+    // benchmarkPeriodDataset: {
+    //     referencePeriod: {
+    //         start: Date,
+    //         end: Date
+    //     },
+    benchmarkModel: String,
+    // const mlModel = useModel()
+    // use populate to replace the mlModelId with the actual model
+    // @see: https://mongoosejs.com/docs/populate.html
+    // mlModel.benchmarkPeriodDataset.model.mlModelId
+    // mlModel.benchmarkPeriodDataset.model.mlModelVersion
+    // mlModel.benchmarkPeriodDataset.model.organization
+    //
+    benchmarkMlModelVersion: String
+    // }
 }, {timestamps: true});
 
 const MlModel = mongoose.model('MlModel', mlModelSchema);

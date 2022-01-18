@@ -1,7 +1,10 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Button, Container, Form, InputGroup} from 'react-bootstrap';
 import moment from 'moment';
 import PropTypes from 'prop-types';
+import baseJsonClient from 'clients/base-json-client';
+import metricsClient from 'clients/metrics';
+import Select from '../../components/select';
 import DateTimeRangePicker from 'components/date-time-range-picker';
 import {setupComponent} from 'helpers/component-helper';
 
@@ -11,19 +14,57 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
         mlModelId: '',
         description: '',
         mlModelType: '',
+        benchmarkSet: false,
         referencePeriod: {
             start: moment(0),
             end: moment()
         },
+        benchmarkModel: '',
+        benchmarkMlModelVersion: '',
         ...initialValue
     });
+    const [allMlModelVersions, setAllMlModelVersions] = useState([]);
+    const [allModelNames, setAllModelNames] = useState([]);
+    const [showTimeframe, setShowTimeframe] = useState(false);
+
+
+    useEffect(() => {
+        baseJsonClient('/api/ml-model') // Only needs to be called on load.  Called once.
+            .then((res) => {
+                console.log('res: ');
+                console.log(res);
+                setAllModelNames([
+                    ...res.map((model) => ({name: model.mlModelId, value: model.mlModelId}))
+                ]);
+            });
+    }, []);
+
+    const clearBenchmarkData = () => {
+        setFormData({
+            ...formData,
+            referencePeriod: {
+                start: moment(0),
+                end: moment()
+            },
+            benchmarkSet: false,
+            benchmarkMlModelVersion: '',
+            benchmarkModel: ''
+            // benchmarkPeriodDataset: {mlModelVersion: '', mlModelId: ''}
+        });
+        // Can we force a re-render here?
+    };
 
     const handleChange = (event) => setFormData({...formData, [event.target.name]: event.target.value});
 
-    const onDateChange = ({start, end}) => setFormData({
-        ...formData,
-        referencePeriod: {start: start.toISOString(), end: end.toISOString()}
-    });
+    const onDateChange = ({start, end}) => {
+        console.log('date change');
+        console.log(start.toISOString());
+        console.log(end.toISOString());
+        setFormData({ // This is not getting set correctly
+            ...formData,
+            referencePeriod: {start: start.toISOString(), end: end.toISOString()}
+        });
+    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -40,19 +81,6 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                     <div key={i} className='bg-warning text-white p-3 mt-2'>{e}</div>
                 )) : null}
                 <Form autoComplete='off' className='w-100' onSubmit={handleSubmit}>
-                    <InputGroup className='mt-3 text-center'>
-                        <Form.Label>Benchmark Date Range</Form.Label>
-                        <DateTimeRangePicker
-                            classNames='justify-content-around bg-light'
-                            datePickerSettings={{
-                                opens: 'center'
-                            }}
-                            end={moment(formData?.referencePeriod?.end)}
-                            onChange={onDateChange}
-                            start={moment(formData?.referencePeriod?.start)}
-                            width='100%'
-                        />
-                    </InputGroup>
                     <Form.Label className='mt-3 mb-0'>Model ID</Form.Label>
                     <InputGroup className='mt-1'>
                         <Form.Control
@@ -110,8 +138,94 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                             <option value='TEXT_CLASSIFIER'>Text Classifier</option>
                         </Form.Control>
                     </InputGroup>
+                    <Form.Label className='bold-text fs-5 mt-3 mb-0'>Select benchmark type</Form.Label>
+                    <InputGroup className='mt-1'>
+                        <label className='border border-1 px-4 py-3 rounded-3 me-3'>
+                            <input
+                                type='radio'
+                                value='offlineDataset'
+                                name='rad'
+                                disabled
+                            />
+                            Dataset
+                        </label>
+                        <label className='border border-1 px-4 py-3 rounded-3 me-3'>
+                            <input
+                                type='radio'
+                                value='referenceTimeframe'
+                                name='rad'
+                                onChange={() => setShowTimeframe(true)}
+                            />
+                            Timeframe
+                        </label>
+                    </InputGroup>
+                    <div style={{display: (showTimeframe ? 'block' : 'none')}}>
+                        <InputGroup className='mt-3 text-center'>
+                            <Form.Label>Benchmark Date Range</Form.Label>
+                            <DateTimeRangePicker
+                                classNames='justify-content-around bg-light'
+                                datePickerSettings={{
+                                    opens: 'center'
+                                }}
+                                end={moment(formData?.referencePeriod?.end)}
+                                onChange={onDateChange}
+                                start={moment(formData?.referencePeriod?.start)}
+                                width='100%'
+                            />
+                        </InputGroup>
+                        <InputGroup className='mt-1 position-relative'>
+                            <p className='bold-text fs-5'>Benchmark Model Name</p>
+                            {
+                                <Select
+                                    initialValue={formData.benchmarkModel}
+                                    options={allModelNames}
+                                    onChange={(n) => {
+                                        console.log(`model selected: ${n}`);
+                                        setFormData({ // Currently not setting this for some reason
+                                            ...formData,
+                                            benchmarkModel: n
+                                        });
+
+                                        metricsClient('model-versions-for-model', { // Only needs to be called when the chosen ml-model changes
+                                            model_id: n
+                                        })
+                                            .then((data) => {
+                                                setAllMlModelVersions([
+                                                    ...data.map((v) => ({name: v.model_version, value: v.model_version}))
+                                                ]);
+                                            })
+                                            .catch(() => setAllMlModelVersions([]));
+
+                                    }}
+                                />
+                            }
+                        </InputGroup>
+                        <InputGroup className='mt-1 position-relative'>
+                            <p className='bold-text fs-5'>Version</p>
+                            {
+                                <Select
+                                    initialValue={FormData.benchmarkMlModelVersion}
+                                    options={allMlModelVersions}
+                                    onChange={(v) => {
+                                        setFormData({
+                                            ...formData,
+                                            // benchmarkPeriodDataset: {mlModelVersion: v}
+                                            benchmarkMlModelVersion: v
+                                        });
+                                    }}
+                                />
+                            }
+                        </InputGroup>
+                    </div>
                     <Button
                         className='w-100 text-white btn-submit mt-5'
+                        onClick={() => clearBenchmarkData()}
+                        variant='primary'
+                    >
+                        Clear Benchmark
+                    </Button>
+                    <Button
+                        className='w-100 text-white btn-submit mt-1'
                         variant='primary' type='submit'
                     >
                         {Object.keys(initialValue).length ? 'Update Model' : 'Create Model'}

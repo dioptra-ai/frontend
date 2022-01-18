@@ -7,12 +7,13 @@ import {formatDateTime} from 'helpers/date-helper';
 import {Button} from 'react-bootstrap';
 import ModalComponent from 'components/modal';
 import ModelForm from 'pages/templates/model-form';
+// import BenchmarkForm from 'pages/templates/benchmark-form';
 import {setupComponent} from 'helpers/component-helper';
 import Select from './select';
 import metricsClient from 'clients/metrics';
 import {IoChevronDownCircleOutline, IoChevronUpCircleOutline} from 'react-icons/io5';
 
-const ModelDescription = ({_id, filtersStore, modelStore, name, description, team, tier, lastDeployed, mlModelId, mlModelType, referencePeriod}) => {
+const ModelDescription = ({_id, filtersStore, modelStore, name, description, team, tier, lastDeployed, mlModelId, mlModelType, referencePeriod, benchmarkModel, benchmarkMlModelVersion, benchmarkSet}) => {
     const [expand, setExpand] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [errors, setErrors] = useState([]);
@@ -32,6 +33,14 @@ const ModelDescription = ({_id, filtersStore, modelStore, name, description, tea
     }, [mlModelId]);
 
     const handleSubmit = (data) => {
+        // data.benchmarkPeriodDataset.mlModelId = data.mlModelId; // Until it gets set right we'll use the same dataset id
+        // data.benchmarkPeriodDataset.referencePeriod = data.referencePeriod;
+        console.log(data);
+        if (data.benchmarkMlModelVersion && data.benchmarkModel) {
+            console.log('benchmark has been set/changed');
+            data.benchmarkSet = true;
+        }
+
         if (errors) {
             setErrors([]);
         }
@@ -79,6 +88,13 @@ const ModelDescription = ({_id, filtersStore, modelStore, name, description, tea
                     >
                         EDIT MODEL
                     </Button>
+                    {/* <Button
+                        className='py-3 fs-6 bold-text px-5 text-white ms-3'
+                        onClick={() => setShowBenchmarkModal(true)}
+                        variant='primary'
+                    >
+                        SET BENCHMARK
+                    </Button> */}
                 </Col>
             </Row>
             <div className={`model-details ${expand ? 'show' : ''} text-dark mx-3`}>
@@ -120,10 +136,17 @@ const ModelDescription = ({_id, filtersStore, modelStore, name, description, tea
             <ModalComponent isOpen={showModal} onClose={() => setShowModal(false)}>
                 <ModelForm
                     errors={errors}
-                    initialValue={{name, description, mlModelId, mlModelType, referencePeriod}}
+                    initialValue={{name, description, mlModelId, mlModelType, referencePeriod, benchmarkModel, benchmarkMlModelVersion, benchmarkSet}}
                     onSubmit={handleSubmit}
                 />
             </ModalComponent>
+            {/* <ModalComponent isOpen={showBenchmarkModal} onClose={() => setShowBenchmarkModal(false)}>
+                <BenchmarkForm
+                    errors={errors}
+                    initialValue={{mlModelName, mlModelVersion, referencePeriod}} // use these params to flip button name?
+                    onSubmit={handleSubmit}
+                />
+            </ModalComponent> */}
         </Container>
     );
 };
@@ -139,7 +162,13 @@ ModelDescription.propTypes = {
     _id: PropTypes.string.isRequired,
     mlModelId: PropTypes.string.isRequired,
     mlModelType: PropTypes.string.isRequired,
-    referencePeriod: PropTypes.object
+    mlModelName: PropTypes.string,
+    mlModelVersion: PropTypes.string,
+    referencePeriod: PropTypes.object,
+    // benchmarkPeriodDataset: PropTypes.object,
+    benchmarkMlModelVersion: PropTypes.string,
+    benchmarkModel: PropTypes.string,
+    benchmarkSet: PropTypes.bool
 };
 
 export default setupComponent(ModelDescription);

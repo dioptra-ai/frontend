@@ -1,65 +1,37 @@
 import React, {useEffect, useState} from 'react';
 import {Button, Container, Form, InputGroup} from 'react-bootstrap';
-import stores from 'state/stores';
 import moment from 'moment';
 import PropTypes from 'prop-types';
-// import {useParams} from 'react-router-dom';
 import DateTimeRangePicker from 'components/date-time-range-picker';
 import {setupComponent} from 'helpers/component-helper';
 import baseJsonClient from 'clients/base-json-client';
 import metricsClient from 'clients/metrics';
 import Select from '../../components/select';
 
-
 const BenchmarkForm = ({initialValue, onSubmit, errors}) => {
-    const [formData, setFormData] = useState({
-        mlModelId: '',
+    const [formData, setFormData] = useState({ // Need to populate formData to update the database when submitting
         mlModelVersion: '',
+        mlModelName: '',
         referencePeriod: {
             start: moment(0),
             end: moment()
         },
         ...initialValue
     });
-    // const {filtersStore, timeStore, modelStore} = stores;
-    const {modelStore} = stores;
-    // const {_id} = useParams()._id;
-    // console.log('params id:');
-    // console.log(useParams()._id);
-
-    const {mlModelId} = modelStore.getModelById('61dcd51194607d3a5b7d78e4'); // Should use _id - need to see why useParams() isn't working
 
     const [allMlModelVersions, setAllMlModelVersions] = useState([]);
     const [allModelNames, setAllModelNames] = useState([]);
 
     useEffect(() => {
-        baseJsonClient('/api/ml-model') // Only needs to be called on load
+        baseJsonClient('/api/ml-model') // Only needs to be called on load.  Called once.
             .then((res) => {
+                console.log('res: ');
+                console.log(res);
                 setAllModelNames([
                     ...res.map((model) => ({name: model.mlModelId, value: model.mlModelId}))
                 ]);
             });
-
-        metricsClient('model-versions-for-model', {
-            model_id: mlModelId
-        })
-            .then((data) => {
-                console.log('data: ');
-                console.log(`data: ${data}`);
-                setAllMlModelVersions([
-                    ...data.map((v) => ({name: v.model_version, value: v.model_version}))
-                ]);
-            })
-            .catch(() => setAllMlModelVersions([]));
-    }, [mlModelId]);
-
-    const handleChange = (event) => {
-        console.log('event: ');
-        console.log(event);
-        setFormData({...formData, [event.target.name]: event.target.value});
-    };
-
-    // const handleNameChange = (event) => setFormData({...formData, [event.target.name]: event.target.value});
+    }, []);
 
     const onDateChange = ({start, end}) => setFormData({
         ...formData,
@@ -110,8 +82,18 @@ const BenchmarkForm = ({initialValue, onSubmit, errors}) => {
                                 options={allModelNames}
                                 onChange={(n) => {
                                     console.log(`model selected: ${n}`);
-                                    setFormData({...formData, mlModelId: n});
-                                    console.log(`form data post-change: ${formData.mlModelVersion}`);
+                                    setFormData({...formData, mlModelName: n});
+
+                                    metricsClient('model-versions-for-model', { // Only needs to be called when the chosen ml-model changes
+                                        model_id: n
+                                    })
+                                        .then((data) => {
+                                            setAllMlModelVersions([
+                                                ...data.map((v) => ({name: v.model_version, value: v.model_version}))
+                                            ]);
+                                        })
+                                        .catch(() => setAllMlModelVersions([]));
+
                                 }}
                             />
                         }
@@ -122,7 +104,9 @@ const BenchmarkForm = ({initialValue, onSubmit, errors}) => {
                             <Select
                                 initialValue='pick'
                                 options={allMlModelVersions}
-                                onChange={handleChange}
+                                onChange={(v) => {
+                                    setFormData({...formData, mlModelVersion: v});
+                                }}
                             />
                         }
                     </InputGroup>
@@ -157,7 +141,8 @@ BenchmarkForm.propTypes = {
     initialValue: PropTypes.object,
     onSubmit: PropTypes.func,
     mlModelVersion: PropTypes.string,
-    mlModelId: PropTypes.string
+    mlModelName: PropTypes.string,
+    referencePeriod: PropTypes.object
 };
 
 export default setupComponent(BenchmarkForm);

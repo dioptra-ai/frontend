@@ -7,15 +7,12 @@ import DateTimeRangePicker from 'components/date-time-range-picker';
 import TextInput from 'components/text-input';
 import {setupComponent} from 'helpers/component-helper';
 import baseJsonClient from 'clients/base-json-client';
-import ModalComponent from 'components/modal';
-import BenchmarkForm from 'pages/templates/benchmark-form';
 
 
 const GeneralSearchBar = ({shouldShowOnlySearchInput, timeStore}) => {
     const [searchString, setSearchString] = useState('');
     const [results, setResults] = useState([]);
     const [selectedResultIndex, setSelectedResultIndex] = useState(-1);
-    const [showBenchmarkModal, setShowBenchmarkModal] = useState(false);
 
     useEffect(() => {
         if (searchString.length > 1) {
@@ -112,20 +109,6 @@ const GeneralSearchBar = ({shouldShowOnlySearchInput, timeStore}) => {
                         }}
                         start={timeStore.start}
                     />
-                    <Button
-                        className='text-white d-flex align-items-center justify-content-between px-4 py-2 ms-3'
-                        onClick={() => setShowBenchmarkModal(true)}
-                        variant='primary'
-                    >
-                        SET BENCHMARKS
-                    </Button>
-                    <ModalComponent isOpen={showBenchmarkModal} onClose={() => setShowBenchmarkModal(false)}>
-                        <BenchmarkForm
-                            // errors={errors}
-                            initialValue={{name}}
-                            // onSubmit={handleSubmit}
-                        />
-                    </ModalComponent>
                     <Button
                         className='text-white d-flex align-items-center justify-content-between px-4 py-2 ms-3'
                         disabled={!timeStore.lastMs}
