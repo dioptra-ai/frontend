@@ -10,7 +10,8 @@ import ModelForm from 'pages/templates/model-form';
 import {setupComponent} from 'helpers/component-helper';
 import Select from './select';
 import metricsClient from 'clients/metrics';
-import {IoChevronDownCircleOutline, IoChevronUpCircleOutline} from 'react-icons/io5';
+import {BsChevronDown, BsChevronUp} from 'react-icons/bs';
+import {AiOutlineEdit} from 'react-icons/ai';
 
 const ModelDescription = ({_id, filtersStore, modelStore, name, description, team, tier, lastDeployed, mlModelId, mlModelType, referencePeriod}) => {
     const [expand, setExpand] = useState(false);
@@ -63,22 +64,19 @@ const ModelDescription = ({_id, filtersStore, modelStore, name, description, tea
             <Row className='align-items-center mb-3 px-3'>
                 <Col className='d-flex align-items-center'>
                     <h1 className='text-dark fs-1 m-0 bold-text'>{name}</h1>
-                    <button className='btn-expand bg-transparent' onClick={() => setExpand(!expand)}>
+                    <button className='btn-expand bg-transparent text-dark' onClick={() => setExpand(!expand)}>
                         {expand ? (
-                            <IoChevronUpCircleOutline className='fs-1'/>
+                            <BsChevronUp className='fs-2'/>
                         ) : (
-                            <IoChevronDownCircleOutline className='fs-1'/>
+                            <BsChevronDown className='fs-2'/>
                         )}
                     </button>
-                </Col>
-                <Col className='d-flex justify-content-end' sm={5}>
-                    <Button
-                        className='py-3 fs-6 bold-text px-5 text-white ms-3'
+                    <button
+                        className='btn-expand bg-transparent text-dark'
                         onClick={() => setShowModal(true)}
-                        variant='primary'
                     >
-                        EDIT MODEL
-                    </Button>
+                        <AiOutlineEdit className='fs-2'/>
+                    </button>
                 </Col>
             </Row>
             <div className={`model-details ${expand ? 'show' : ''} text-dark mx-3`}>
@@ -117,7 +115,7 @@ const ModelDescription = ({_id, filtersStore, modelStore, name, description, tea
                     </Col>
                 </Row>
             </div>
-            <ModalComponent isOpen={showModal} onClose={() => setShowModal(false)} title='Edit Existing Model'>
+            <ModalComponent isOpen={showModal} onClose={() => setShowModal(false)} title='Edit  Model'>
                 <ModelForm
                     errors={errors}
                     initialValue={{name, description, mlModelId, mlModelType, referencePeriod}}

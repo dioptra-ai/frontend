@@ -13,7 +13,8 @@ import PerformanceOverview from './performance-overview';
 import PerformanceDetails from './performance-details';
 import PredictionAnalysis from './prediction-analysis';
 import FeatureAnalysis from './feature-analysis';
-import IncidentsAndAlerts from './incidents-and-alerts.js';
+import IncidentsAndAlerts from './incidents-and-alerts';
+import TrafficReplay from './traffic-replay';
 import useModel from 'customHooks/use-model';
 import StickyParamsRouter from 'components/sticky-params-router';
 import Select from 'components/select';
@@ -42,6 +43,7 @@ const Model = ({modelStore}) => {
         tabs.push({name: 'Feature Analysis', to: `/${modelId}/feature-analysis`});
     }
 
+    tabs.push({name: 'Traffic Replay', to: `/${modelId}/traffic-replay`});
     tabs.push({name: 'Incidents & Alerts', to: `/${modelId}/incidents-&-alerts`});
 
     return model ? (
@@ -130,6 +132,13 @@ const Model = ({modelStore}) => {
                             render={() => (
                                 <div className='px-3'>
                                     <IncidentsAndAlerts/>
+                                </div>
+                            )}
+                        />
+                        <Route exact path='/:_id/traffic-replay'
+                            render={() => (
+                                <div className='px-3'>
+                                    <TrafficReplay/>
                                 </div>
                             )}
                         />
