@@ -4,7 +4,6 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import PropTypes from 'prop-types';
 import {formatDateTime} from 'helpers/date-helper';
-import {Button} from 'react-bootstrap';
 import ModalComponent from 'components/modal';
 import ModelForm from 'pages/templates/model-form';
 import {setupComponent} from 'helpers/component-helper';

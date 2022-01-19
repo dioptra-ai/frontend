@@ -16,8 +16,7 @@ const Select = ({
     onChange = noop,
     options,
     initialValue,
-    isTextBold,
-    required
+    isTextBold
 }) => {
     const [value, setValue] = useState(initialValue || options[0]?.value);
     const handleSelect = useCallback((newValue) => {
@@ -61,8 +60,7 @@ Select.propTypes = {
         value: PropTypes.any.isRequired
     })),
     textColor: PropTypes.string,
-    padding: PropTypes.number,
-    required: PropTypes.bool
+    padding: PropTypes.number
 };
 
 export default Select;

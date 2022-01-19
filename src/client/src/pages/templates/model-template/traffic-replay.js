@@ -1,18 +1,13 @@
+import PropTypes from 'prop-types';
 import {useState} from 'react';
 import Form from 'react-bootstrap/Form';
-import InputGroup from 'react-bootstrap/InputGroup';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
-import moment from 'moment';
 
 import FilterInput from 'components/filter-input';
 import baseJSONClient from 'clients/base-json-client';
-import metricsClient from 'clients/metrics';
 import {setupComponent} from 'helpers/component-helper';
-import Select from 'components/select';
-import DateTimeRangePicker from 'components/date-time-range-picker';
-import Async from 'components/async';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 import useModel from 'customHooks/use-model';
 import CountEvents from 'components/count-events';
@@ -71,6 +66,11 @@ const TrafficReplay = ({filtersStore, timeStore}) => {
             </div>
         </>
     );
+};
+
+TrafficReplay.propTypes = {
+    filtersStore: PropTypes.object.isRequired,
+    timeStore: PropTypes.object.isRequired
 };
 
 export default setupComponent(TrafficReplay);
