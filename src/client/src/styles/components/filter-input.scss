@@ -18,9 +18,7 @@
         }
     }
     .btn {
-        height: 45px;
         border-radius: 2px;
-        padding: 15px 35px;
     }
     .suggestions {
         position: absolute;
@@ -53,7 +51,7 @@
     color: theme-color('dark');
     border: 1px solid theme-color('mercury');
     &.applied {
-        padding: 13px;
+        padding: 6px;
     }
     button {
         margin-left: 5px;

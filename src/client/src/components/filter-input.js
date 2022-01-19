@@ -78,11 +78,13 @@ const FilterInput = ({
                 key
             });
             const allSuggestionValues = allSuggestions.map(({value}) => value);
-            const non0Options = await metricsClient('queries/all-key-options', {
-                keys_calc: allSuggestionValues.map((value) => `COUNT("${value}") as "${value}"`).join(', '),
+            const non1Options = await metricsClient('queries/all-key-options', {
+                // COUNT DISTINCT required here otherwise COUNT() returns weird results for model_id
+                keys_calc: allSuggestionValues.map((value) => `COUNT(DISTINCT "${value}") as "${value}"`).join(', '),
                 ml_model_id: mlModelId
             });
-            const filteredKeys = allSuggestionValues.filter((v) => non0Options[v]);
+            // COUNT DISTINCT counts 1 for NULL
+            const filteredKeys = allSuggestionValues.filter((v) => non1Options[v] > 1);
 
             setSuggestions([...filteredKeys]);
         }

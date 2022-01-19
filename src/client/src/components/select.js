@@ -16,7 +16,8 @@ const Select = ({
     onChange = noop,
     options,
     initialValue,
-    isTextBold
+    isTextBold,
+    required
 }) => {
     const [value, setValue] = useState(initialValue || options[0]?.value);
     const handleSelect = useCallback((newValue) => {
@@ -28,9 +29,9 @@ const Select = ({
     return (
         <Dropdown className='w-100'>
             <DropdownToggle bsPrefix='p-0' className={`w-100 text-start p-${padding} rounded-3 text-${textColor} border-1 border-${borderColor} d-flex align-items-center`} variant={backgroundColor}>
-                <span
+                <div
                     className={`pe-4 fs-6 w-100 fw-${isTextBold ? 'bold' : 'normal'}`}
-                >{activeOption && activeOption.length ? activeOption[0].name : ''}</span>
+                >{activeOption && activeOption.length ? activeOption[0].name : <>&nbsp;</>}</div>
                 <FontIcon
                     className='text-dark bold-text'
                     icon={IconNames.ARROW_DOWN}
@@ -60,7 +61,8 @@ Select.propTypes = {
         value: PropTypes.any.isRequired
     })),
     textColor: PropTypes.string,
-    padding: PropTypes.number
+    padding: PropTypes.number,
+    required: PropTypes.bool
 };
 
 export default Select;

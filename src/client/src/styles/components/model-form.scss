@@ -4,7 +4,6 @@
     max-height: 90vh;
     width: 100%;
     max-width: 500px;
-    overflow: auto;
     .btn-submit {
       border-radius: 5px;
       height: 55px;
@@ -15,19 +14,6 @@
       position: relative;
       .form-control, .custom-select {
         min-height: 55px;
-        border: 1px solid transparent;
-        border-radius: 5px !important;
-
-        &:focus {
-          border: 1px solid theme-color('dark');
-          box-shadow: none;
-        }
-        &.error {
-          border: 1px solid theme-color('warning');
-        }
-        &::placeholder {
-          color: theme-color('secondary');
-        }
       }
 
       .error-icon {
