@@ -37,7 +37,7 @@ export class Filter {
     }
 
     static parse(str) {
-        const match = (/([a-zA-Z1-9]+)(\s*(=)\s*|\s+(in)\s+)?([a-zA-Z1-9]+)?/gim).exec(str.trim());
+        const match = (/([^\s=]+)(\s*(=)\s*|\s+(in)\s+)?([^\s=]+)?/gim).exec(str.trim());
 
         if (match) {
             const [, key, , opEQ, opIN, valueStr] = match;
