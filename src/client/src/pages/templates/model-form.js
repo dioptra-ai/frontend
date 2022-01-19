@@ -8,6 +8,7 @@ import Select from '../../components/select';
 import DateTimeRangePicker from 'components/date-time-range-picker';
 import {setupComponent} from 'helpers/component-helper';
 
+
 const ModelForm = ({initialValue, onSubmit, errors}) => {
     const [formData, setFormData] = useState({
         name: '',
@@ -21,11 +22,15 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
         },
         benchmarkModel: '',
         benchmarkMlModelVersion: '',
+        benchmarkType: '',
         ...initialValue
     });
     const [allMlModelVersions, setAllMlModelVersions] = useState([]);
     const [allModelNames, setAllModelNames] = useState([]);
     const [showTimeframe, setShowTimeframe] = useState(false);
+    const [showDataset, setShowDataset] = useState(false);
+    const [benchmarkModelName, setBenchmarkModelName] = useState('');
+    const [benchmarkType, setBenchmarkType] = useState('');
 
 
     useEffect(() => {
@@ -40,6 +45,8 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
     }, []);
 
     const clearBenchmarkData = () => {
+        setBenchmarkModelName('');
+        setBenchmarkType('');
         setFormData({
             ...formData,
             referencePeriod: {
@@ -48,8 +55,8 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
             },
             benchmarkSet: false,
             benchmarkMlModelVersion: '',
-            benchmarkModel: ''
-            // benchmarkPeriodDataset: {mlModelVersion: '', mlModelId: ''}
+            benchmarkModel: '',
+            benchmarkType: ''
         });
         // Can we force a re-render here?
     };
@@ -60,7 +67,7 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
         console.log('date change');
         console.log(start.toISOString());
         console.log(end.toISOString());
-        setFormData({ // This is not getting set correctly
+        setFormData({
             ...formData,
             referencePeriod: {start: start.toISOString(), end: end.toISOString()}
         });
@@ -68,6 +75,8 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        formData.benchmarkModel = benchmarkModelName;
+        formData.benchmarkType = benchmarkType;
         onSubmit(formData);
     };
 
@@ -145,6 +154,11 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                                 type='radio'
                                 value='offlineDataset'
                                 name='rad'
+                                onChange={() => {
+                                    setShowTimeframe(false);
+                                    setShowDataset(true);
+                                    setBenchmarkType('dataset');
+                                }}
                                 disabled
                             />
                             Dataset
@@ -154,7 +168,11 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                                 type='radio'
                                 value='referenceTimeframe'
                                 name='rad'
-                                onChange={() => setShowTimeframe(true)}
+                                onChange={() => {
+                                    setShowTimeframe(true);
+                                    setShowDataset(false);
+                                    setBenchmarkType('timeframe');
+                                }}
                             />
                             Timeframe
                         </label>
@@ -181,10 +199,7 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                                     options={allModelNames}
                                     onChange={(n) => {
                                         console.log(`model selected: ${n}`);
-                                        setFormData({ // Currently not setting this for some reason
-                                            ...formData,
-                                            benchmarkModel: n
-                                        });
+                                        setBenchmarkModelName(n);
 
                                         metricsClient('model-versions-for-model', { // Only needs to be called when the chosen ml-model changes
                                             model_id: n
@@ -209,12 +224,57 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                                     onChange={(v) => {
                                         setFormData({
                                             ...formData,
-                                            // benchmarkPeriodDataset: {mlModelVersion: v}
                                             benchmarkMlModelVersion: v
                                         });
                                     }}
                                 />
                             }
+                        </InputGroup>
+                    </div>
+                    <div style={{display: (showDataset ? 'block' : 'none')}}>
+                        <InputGroup className='mt-1 position-relative'>
+                            <p className='bold-text fs-5'>Benchmark Model</p>
+                            {
+                                <Select
+                                    initialValue={formData.benchmarkModel}
+                                    options={allModelNames}
+                                    onChange={(n) => {
+                                        console.log(`offline model selected: ${n}`);
+                                        setBenchmarkModelName(n);
+
+                                        metricsClient('model-versions-for-model', { // Only needs to be called when the chosen ml-model changes
+                                            model_id: n
+                                        })
+                                            .then((data) => {
+                                                setAllMlModelVersions([
+                                                    ...data.map((v) => ({name: v.model_version, value: v.model_version}))
+                                                ]);
+                                            })
+                                            .catch(() => setAllMlModelVersions([]));
+
+                                    }}
+                                />
+                            }
+                        </InputGroup>
+                        <InputGroup className='mt-1 position-relative'>
+                            <p className='bold-text fs-5'>Version</p>
+                            {
+                                <Select
+                                    initialValue={FormData.benchmarkMlModelVersion}
+                                    options={allMlModelVersions}
+                                    onChange={(v) => {
+                                        setFormData({
+                                            ...formData,
+                                            benchmarkMlModelVersion: v
+                                        });
+                                    }}
+                                />
+                            }
+                        </InputGroup>
+                        <InputGroup className='mt-1 position-relative'>
+                            <p className='bold-text fs-5'>Dataset</p>
+                            {/* {} */}
+                            {/* Need to query metrics engine for a dataset_id field */}
                         </InputGroup>
                     </div>
                     <Button
