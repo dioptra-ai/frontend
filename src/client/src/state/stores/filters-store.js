@@ -8,56 +8,67 @@ import {
 } from './auth-store';
 
 export class Filter {
-    constructor({key, op, value} = {}) {
-        this.key = key;
+    constructor({left, op, right} = {}) {
+        this.left = left;
         this.op = op;
-        this.value = value;
+        this.right = right;
     }
 
-    get value() {
+    get right() {
 
-        return this.v;
+        return this.r;
     }
 
-    set value(v) {
+    set right(r) {
         if (this.op === 'in') {
-            this.v = Array.from(new Set(v));
+            this.r = Array.from(new Set(r));
         } else {
-            this.v = v;
+            this.r = r;
         }
     }
 
     toJSON() {
 
         return {
-            key: this.key,
+            left: this.left,
             op: this.op,
-            value: this.value // this calls the getter - otherwise JSON.stringify uses this.v
+            right: this.right // this calls the getter - otherwise JSON.stringify uses this.r
         };
     }
 
     static parse(str) {
-        const match = (/([^\s=]+)(\s*(=)\s*|\s+(in)\s+)?([^\s=]+)?/gim).exec(str.trim());
+        const match = (/([^\s]+)(\s+((=|in|.+)\s*)?)?([^\s]+)?/gim).exec(str);
 
         if (match) {
-            const [, key, , opEQ, opIN, valueStr] = match;
+            const [, left, opStart,, validOp, rightStr] = match;
+
+            console.log(JSON.stringify(str), {left, opStart, validOp, rightStr});
 
             let op = null;
 
-            let value = null;
+            let right = '';
 
-            if (opEQ) {
-                op = opEQ;
-                value = valueStr;
-            } else if (opIN) {
-                op = opIN.toLowerCase();
+            if (validOp) {
+                op = validOp.toLowerCase();
 
-                if (valueStr) {
-                    value = valueStr.split(/\s*,\s*/);
+                switch (op) {
+                case undefined:
+                case null:
+                case '=':
+                    break;
+                case 'in':
+                    if (rightStr) {
+                        right = rightStr.split(/\s*,\s*/);
+                    }
+                    break;
+                default:
+                    throw new Error(`Unknown filter operator: "${op}"`);
                 }
+            } else if (opStart) {
+                op = opStart;
             }
 
-            return new Filter({key, op, value});
+            return new Filter({left, op, right});
         } else return new Filter();
     }
 
@@ -67,10 +78,10 @@ export class Filter {
 
         case '=':
 
-            return `"${this.key}"='${this.value}'`;
+            return `"${this.left}"='${this.right}'`;
         case 'in':
 
-            return `"${this.key}" in (${this.value.map((v) => `'${v}'`).join(',')})`;
+            return `"${this.left}" in (${this.right.map((v) => `'${v}'`).join(',')})`;
         default:
             throw new Error(`Unknown filter operator: "${this.op}"`);
         }
@@ -82,52 +93,57 @@ export class Filter {
         case undefined:
         case null:
 
-            return this.key || '';
+            return this.left || '';
         case '=':
 
-            if (this.value) {
+            if (this.right) {
 
-                return `${this.key}=${this.value}`;
+                return `${this.left} = ${this.right}`;
             } else {
 
-                return `${this.key}=`;
+                return `${this.left} = `;
             }
         case 'in':
 
-            if (this.value) {
+            if (this.right) {
 
-                if (this.value.length > 0) {
-                    const firstValue = this.value[0].toString();
+                if (this.right.length > 0) {
+                    const firstValue = this.right[0].toString();
                     const firstDisplayValue = `${firstValue.substring(0, 10)}${firstValue.length > 10 ? '...' : ''}`;
 
-                    if (this.value.length > 1) {
+                    if (this.right.length > 1) {
 
-                        return `${this.key} in [${firstDisplayValue}, ...]`;
+                        return `${this.left} in [${firstDisplayValue}, ...]`;
                     } else {
 
-                        return `${this.key} in [${firstDisplayValue}]`;
+                        return `${this.left} in [${firstDisplayValue}]`;
                     }
                 } else {
 
-                    return `${this.key} in []`;
+                    return `${this.left} in []`;
                 }
             } else {
 
-                return `${this.key} in `;
+                return `${this.left} in `;
             }
         default:
-            throw new Error(`Unknown filter operator: "${this.op}"`);
+            return this.left + this.op;
         }
+    }
+
+    get isOpValid() {
+
+        return ['=', 'in'].includes(this.op);
     }
 
     get isComplete() {
 
-        return !this.key && !this.op && !this.value;
+        return this.left && this.isOpValid && this.right;
     }
 }
 
 class FiltersStore {
-    // [{key, op, value}]
+    // [{left, op, right}]
     f = [];
 
     mlModelVersion = ''
@@ -153,7 +169,7 @@ class FiltersStore {
     }
 
     set filters(newFilters) {
-        // Dedupe {key: value}.
+        // Dedupe {left: right}.
         const dedupedFilters = newFilters.reduce((agg, newF) => ({
             ...agg,
             [JSON.stringify(newF)]: newF
@@ -176,19 +192,19 @@ class FiltersStore {
 
     concatSQLFilters() {
         const filtersByKey = this.f.reduce((agg, filter) => {
-            const {key} = filter;
+            const {left} = filter;
 
-            if (!agg[key]) {
-                agg[key] = [];
+            if (!agg[left]) {
+                agg[left] = [];
             }
 
-            agg[key].push(filter);
+            agg[left].push(filter);
 
             return agg;
         }, {});
 
-        const allFilters = Object.keys(filtersByKey).map((key) => {
-            const keyFilters = filtersByKey[key];
+        const allFilters = Object.keys(filtersByKey).map((left) => {
+            const keyFilters = filtersByKey[left];
 
             return `(${keyFilters.map((filter) => filter.toSQLString()).join(' OR ')})`;
         });

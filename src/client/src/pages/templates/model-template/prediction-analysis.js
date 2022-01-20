@@ -215,9 +215,9 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                             <Col lg={8} className='rounded p-3 pt-0 position-relative'>
                                 <div className='position-absolute' style={{right: '1rem'/* p-3 = 1rem*/}}>
                                     <AddFilters disabled={!heatMapSamples?.length} filters={[new Filter({
-                                        key: 'request_id',
+                                        left: 'request_id',
                                         op: 'in',
-                                        value: heatMapSamples.map((s) => s.bounding_box.request_id)
+                                        right: heatMapSamples.map((s) => s.bounding_box.request_id)
                                     })]}/>
                                 </div>
                                 {heatMapSamples.length ? (

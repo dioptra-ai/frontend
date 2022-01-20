@@ -116,9 +116,9 @@ const QAPerfAnalysis = () => {
                                         <div className='text-dark bold-text d-flex align-items-center justify-content-between'>
                                             <span>Examples</span>
                                             <AddFilters disabled={!samples?.length} filters={[new Filter({
-                                                key: 'request_id',
+                                                left: 'request_id',
                                                 op: 'in',
-                                                value: samples.map((s) => s.request_id)
+                                                right: samples.map((s) => s.request_id)
                                             })]}/>
                                         </div>
                                         <div className={`d-flex p-2 overflow-auto flex-grow-0 ${samples.length ? 'justify-content-left' : 'justify-content-center align-items-center'} scatterGraph-examples`}>
