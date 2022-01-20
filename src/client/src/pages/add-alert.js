@@ -392,7 +392,7 @@ const AddAlertPage = ({timeStore}) => {
                 evaluation_period: evaluationPeriod,
                 conditions
             });
-            // goToPreviousRoute();
+            goToPreviousRoute();
         });
     };
 

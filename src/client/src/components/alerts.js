@@ -41,33 +41,45 @@ Alert.propTypes = {
     onDelete: PropTypes.func,
     onEdit: PropTypes.func
 };
-const Alerts = () => {
-    const [alerts, setAlerts] = useState([]);
+
+Alerts.propTypes = {
+    alerts: PropTypes.array,
+    refreshCallback: PropTypes.func,
+};
+
+const Alerts = ({alerts, refreshCallback}) => {
     const [selectedAlert, setSelectedAlert] = useState(null);
     const [deleteAlertModal, setDeleteAlertModal] = useModal(false);
     const {_id} = useParams();
 
     useEffect(() => {
-        baseJSONClient('/api/alerts/list').then((response) => {
-            setAlerts(response.alerts);
-        });
-    }, []);
+        if (deleteAlertModal === false) {
+            refreshCallback();
+        }
+    }, [deleteAlertModal]);
+
+    useEffect(() => {}, []);
 
     const closeModal = () => {
         setDeleteAlertModal(false);
     };
 
     const handleAlertDelete = () => {
-    // delete alert
-        setDeleteAlertModal(false);
+        baseJSONClient(`/api/alerts/delete/${selectedAlert._id}`, {
+            method: 'delete'
+        }).then((response) => {
+            if (response.status === 200) {
+                setDeleteAlertModal(false);
+            }
+        });
     };
 
     const handleAlertEdit = () => {
-    // edit alert
+        // edit alert
     };
 
     const handlePageChange = () => {
-    // get alerts for incoming page
+        // get alerts for incoming page
     };
 
     return (
@@ -76,9 +88,12 @@ const Alerts = () => {
                 <div className='header mb-3'>
                     <p className='bold-text fs-3 text-dark'>Alerts</p>
                     <Link to={`/${_id}/add-alert`}>
-                        <Button className='text-white bold-text fs-6' variant='primary'>
+                        <Button
+                            className='text-white bold-text fs-6'
+                            variant='primary'
+                        >
                             <FontIcon className='text-white' icon='Plus' size={10} />
-              ADD ALERT
+                            ADD ALERT
                         </Button>
                     </Link>
                 </div>
@@ -86,7 +101,6 @@ const Alerts = () => {
                     <div className='table-row py-4 text-secondary bold-text'>
                         <div className='col'>
                             <label className='checkbox'>
-                                <input type='checkbox' />
                                 <span className='fs-6'>Alert Name</span>
                             </label>
                         </div>
@@ -104,11 +118,14 @@ const Alerts = () => {
                         />
                     ))}
                 </div>
-                <Pagination onPageChange={(page) => handlePageChange(page)} totalPages={8} />
+                <Pagination
+                    onPageChange={(page) => handlePageChange(page)}
+                    totalPages={8}
+                />
             </div>
             <Modal isOpen={deleteAlertModal} onClose={closeModal}>
                 <p className='text-dark bold-text fs-4 my-5 px-3 text-center'>
-          Are you sure you want do delete {selectedAlert?.name} alert?
+                    Are you sure you want do delete {selectedAlert?.name} alert?
                 </p>
                 <div className='d-flex justify-content-center border-top pt-4'>
                     <Button
@@ -116,14 +133,14 @@ const Alerts = () => {
                         onClick={handleAlertDelete}
                         variant='primary'
                     >
-            DELETE
+                        DELETE
                     </Button>
                     <Button
                         className='text-secondary mx-2 py-2 px-5 bold-text fs-6'
                         onClick={() => setDeleteAlertModal(false)}
                         variant='light'
                     >
-            CANCEL
+                        CANCEL
                     </Button>
                 </div>
             </Modal>
