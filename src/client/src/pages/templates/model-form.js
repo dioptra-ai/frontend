@@ -22,15 +22,15 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
         },
         benchmarkModel: '',
         benchmarkMlModelVersion: '',
-        benchmarkType: '',
+        benchmarkType: 'timeframe',
         ...initialValue
     });
     const [allMlModelVersions, setAllMlModelVersions] = useState([]);
     const [allModelNames, setAllModelNames] = useState([]);
     const [showTimeframe, setShowTimeframe] = useState(false);
     const [showDataset, setShowDataset] = useState(false);
-    const [benchmarkModelName, setBenchmarkModelName] = useState('');
-    const [benchmarkType, setBenchmarkType] = useState('');
+    const [benchmarkModel, setbenchmarkModel] = useState(initialValue.benchmarkModel);
+    const [benchmarkType, setBenchmarkType] = useState(initialValue.benchmarkType);
 
 
     useEffect(() => {
@@ -45,7 +45,7 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
     }, []);
 
     const clearBenchmarkData = () => {
-        setBenchmarkModelName('');
+        setbenchmarkModel('');
         setBenchmarkType('');
         setFormData({
             ...formData,
@@ -75,10 +75,17 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        formData.benchmarkModel = benchmarkModelName;
+        console.log('*****benchmark model name and type:');
+        console.log(benchmarkModel);
+        console.log(benchmarkType);
+        console.log('**********');
+        formData.benchmarkModel = benchmarkModel;
         formData.benchmarkType = benchmarkType;
         onSubmit(formData);
     };
+
+    console.log('fffffff');
+    console.log(formData);
 
     return (
         <Container
@@ -199,7 +206,7 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                                     options={allModelNames}
                                     onChange={(n) => {
                                         console.log(`model selected: ${n}`);
-                                        setBenchmarkModelName(n);
+                                        setbenchmarkModel(n);
 
                                         metricsClient('model-versions-for-model', { // Only needs to be called when the chosen ml-model changes
                                             model_id: n
@@ -240,7 +247,7 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                                     options={allModelNames}
                                     onChange={(n) => {
                                         console.log(`offline model selected: ${n}`);
-                                        setBenchmarkModelName(n);
+                                        setbenchmarkModel(n);
 
                                         metricsClient('model-versions-for-model', { // Only needs to be called when the chosen ml-model changes
                                             model_id: n
@@ -274,7 +281,7 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                         <InputGroup className='mt-1 position-relative'>
                             <p className='bold-text fs-5'>Dataset</p>
                             {/* {} */}
-                            {/* Need to query metrics engine for a dataset_id field */}
+                            {/* Need to query metrics engine for a dataset_id field(field doesnt exist yet) */}
                         </InputGroup>
                     </div>
                     <Button
