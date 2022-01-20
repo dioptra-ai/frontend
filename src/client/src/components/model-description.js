@@ -87,13 +87,6 @@ const ModelDescription = ({_id, filtersStore, modelStore, name, description, tea
                     >
                         EDIT MODEL
                     </Button>
-                    {/* <Button
-                        className='py-3 fs-6 bold-text px-5 text-white ms-3'
-                        onClick={() => setShowBenchmarkModal(true)}
-                        variant='primary'
-                    >
-                        SET BENCHMARK
-                    </Button> */}
                 </Col>
             </Row>
             <div className={`model-details ${expand ? 'show' : ''} text-dark mx-3`}>
@@ -139,13 +132,6 @@ const ModelDescription = ({_id, filtersStore, modelStore, name, description, tea
                     onSubmit={handleSubmit}
                 />
             </ModalComponent>
-            {/* <ModalComponent isOpen={showBenchmarkModal} onClose={() => setShowBenchmarkModal(false)}>
-                <BenchmarkForm
-                    errors={errors}
-                    initialValue={{mlModelName, mlModelVersion, referencePeriod}} // use these params to flip button name?
-                    onSubmit={handleSubmit}
-                />
-            </ModalComponent> */}
         </Container>
     );
 };

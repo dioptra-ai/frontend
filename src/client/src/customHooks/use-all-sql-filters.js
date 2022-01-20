@@ -13,23 +13,6 @@ const useAllSqlFilters = ({useReferenceRange = false, __REMOVE_ME__excludeOrgId}
             filtersStore.sqlFilters
     ];
 
-    // console.log(benchmarkSet);
-    // console.log(benchmarkModel);
-    // console.log(benchmarkMlModelVersion);
-    // console.log(benchmarkType);
-    // console.log(referencePeriod);
-
-    // if (mlModelId) {
-    //     allFilters.push(`model_id='${mlModelId}'`);
-
-    //     if (useReferenceRange) {
-    //         allFilters.push(modelStore.getSqlReferencePeriodFilter(activeModelId));
-    //     } else {
-    //         allFilters.push(timeStore.sqlTimeFilter);
-    //     }
-    // } else {
-    //     allFilters.push(timeStore.sqlTimeFilter);
-    // }
     if (useReferenceRange) {
         if (benchmarkSet) {
             if (benchmarkModel) {

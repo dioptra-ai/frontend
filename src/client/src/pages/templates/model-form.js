@@ -70,17 +70,10 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
         console.log(start.toISOString());
         console.log(end.toISOString());
         setReferencePeriod({start: start.toISOString(), end: end.toISOString()});
-        // setFormData({
-        //     ...formData,
-        //     referencePeriod: {start: start.toISOString(), end: end.toISOString()}
-        // });
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        // console.log(benchmarkModel);
-        // console.log(formData.benchmarkMlModelVersion);
-        // console.log(benchmarkType);
         if ((benchmarkModel && formData.benchmarkMlModelVersion) || (!benchmarkModel && !formData.benchmarkMlModelVersion)) {
             formData.benchmarkModel = benchmarkModel;
             formData.benchmarkType = benchmarkType;
@@ -90,9 +83,6 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
             console.log('Clear benchmarks or fill out all benchmark fields');
         }
     };
-
-    // console.log('fffffff');
-    // console.log(formData);
 
     return (
         <Container
