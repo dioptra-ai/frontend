@@ -18,7 +18,6 @@ const AddFilters = ({filtersStore, filters, disabled}) => {
         >
             <button
                 className={`${disabled ? 'disabled' : ''} text-dark border-0 bg-transparent click-down fs-2`}
-                title='Filter down'
                 onClick={() => {
 
                     filtersStore.addFilters(filters);

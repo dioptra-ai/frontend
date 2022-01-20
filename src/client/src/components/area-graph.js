@@ -1,3 +1,4 @@
+import {Tooltip as BootstrapTooltip, OverlayTrigger} from 'react-bootstrap';
 import {useMemo} from 'react';
 import {useThrottle} from '@react-hook/throttle';
 import PropTypes from 'prop-types';
@@ -164,18 +165,23 @@ const AreaGraph = ({
                     }}
                 >
                     {showBtn && (
-                        <VscZoomOut
-                            className='cursor-pointer'
-                            onClick={zoomOut}
-                            style={{
-                                fontSize: 30,
-                                position: 'absolute',
-                                right: 40,
-                                zIndex: 1,
-                                top: 20
-                            }}
-                            title='Zoom out'
-                        />
+                        <OverlayTrigger overlay={
+                            <BootstrapTooltip>
+                                Zoom out
+                            </BootstrapTooltip>
+                        }>
+                            <VscZoomOut
+                                className='cursor-pointer'
+                                onClick={zoomOut}
+                                style={{
+                                    fontSize: 30,
+                                    position: 'absolute',
+                                    right: 40,
+                                    zIndex: 1,
+                                    top: 20
+                                }}
+                            />
+                        </OverlayTrigger>
                     )}
                     <ResponsiveContainer height='100%' width='100%'>
                         <AreaChart
