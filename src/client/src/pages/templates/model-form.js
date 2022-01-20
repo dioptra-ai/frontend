@@ -29,8 +29,9 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
     const [allModelNames, setAllModelNames] = useState([]);
     const [showTimeframe, setShowTimeframe] = useState(false);
     const [showDataset, setShowDataset] = useState(false);
-    const [benchmarkModel, setbenchmarkModel] = useState(initialValue.benchmarkModel);
-    const [benchmarkType, setBenchmarkType] = useState(initialValue.benchmarkType);
+    const [benchmarkModel, setbenchmarkModel] = initialValue.benchmarkModel ? useState(initialValue.benchmarkModel) : useState('');
+    const [benchmarkType, setBenchmarkType] = initialValue.benchmarkType ? useState(initialValue.benchmarkType) : useState('');
+    const [referencePeriod, setReferencePeriod] = initialValue.referencePeriod ? useState(initialValue.referencePeriod) : useState({start: moment(0), end: moment()});
 
 
     useEffect(() => {
@@ -47,16 +48,17 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
     const clearBenchmarkData = () => {
         setbenchmarkModel('');
         setBenchmarkType('');
+        setReferencePeriod({start: moment(0), end: moment()});
         setFormData({
             ...formData,
-            referencePeriod: {
-                start: moment(0),
-                end: moment()
-            },
+            // referencePeriod: {
+            //     start: moment(0),
+            //     end: moment()
+            // },
             benchmarkSet: false,
-            benchmarkMlModelVersion: '',
-            benchmarkModel: '',
-            benchmarkType: ''
+            benchmarkMlModelVersion: ''
+            // benchmarkModel: '',
+            // benchmarkType: ''
         });
         // Can we force a re-render here?
     };
@@ -67,25 +69,30 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
         console.log('date change');
         console.log(start.toISOString());
         console.log(end.toISOString());
-        setFormData({
-            ...formData,
-            referencePeriod: {start: start.toISOString(), end: end.toISOString()}
-        });
+        setReferencePeriod({start: start.toISOString(), end: end.toISOString()});
+        // setFormData({
+        //     ...formData,
+        //     referencePeriod: {start: start.toISOString(), end: end.toISOString()}
+        // });
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log('*****benchmark model name and type:');
-        console.log(benchmarkModel);
-        console.log(benchmarkType);
-        console.log('**********');
-        formData.benchmarkModel = benchmarkModel;
-        formData.benchmarkType = benchmarkType;
-        onSubmit(formData);
+        // console.log(benchmarkModel);
+        // console.log(formData.benchmarkMlModelVersion);
+        // console.log(benchmarkType);
+        if ((benchmarkModel && formData.benchmarkMlModelVersion) || (!benchmarkModel && !formData.benchmarkMlModelVersion)) {
+            formData.benchmarkModel = benchmarkModel;
+            formData.benchmarkType = benchmarkType;
+            formData.referencePeriod = referencePeriod;
+            onSubmit(formData);
+        } else {
+            console.log('Clear benchmarks or fill out all benchmark fields');
+        }
     };
 
-    console.log('fffffff');
-    console.log(formData);
+    // console.log('fffffff');
+    // console.log(formData);
 
     return (
         <Container
@@ -159,6 +166,19 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                         <label className='border border-1 px-4 py-3 rounded-3 me-3'>
                             <input
                                 type='radio'
+                                value='referenceTimeframe'
+                                name='rad'
+                                onChange={() => {
+                                    setShowTimeframe(false);
+                                    setShowDataset(false);
+                                    setBenchmarkType('');
+                                }}
+                            />
+                            None
+                        </label>
+                        <label className='border border-1 px-4 py-3 rounded-3 me-3'>
+                            <input
+                                type='radio'
                                 value='offlineDataset'
                                 name='rad'
                                 onChange={() => {
@@ -166,7 +186,6 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                                     setShowDataset(true);
                                     setBenchmarkType('dataset');
                                 }}
-                                disabled
                             />
                             Dataset
                         </label>
@@ -192,9 +211,11 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                                 datePickerSettings={{
                                     opens: 'center'
                                 }}
-                                end={moment(formData?.referencePeriod?.end)}
+                                // end={moment(formData?.referencePeriod?.end)}
+                                end={moment(referencePeriod?.end)}
                                 onChange={onDateChange}
-                                start={moment(formData?.referencePeriod?.start)}
+                                // start={moment(formData?.referencePeriod?.start)}
+                                start={moment(referencePeriod?.start)}
                                 width='100%'
                             />
                         </InputGroup>
