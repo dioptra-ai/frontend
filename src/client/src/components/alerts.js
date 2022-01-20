@@ -44,7 +44,7 @@ Alert.propTypes = {
 
 Alerts.propTypes = {
     alerts: PropTypes.array,
-    refreshCallback: PropTypes.func,
+    refreshCallback: PropTypes.func
 };
 
 const Alerts = ({alerts, refreshCallback}) => {

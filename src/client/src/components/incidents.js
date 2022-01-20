@@ -66,7 +66,7 @@ IncidentRow.propTypes = {
 
 Incidents.propTypes = {
     incidents: PropTypes.array,
-    refreshCallback: PropTypes.func,
+    refreshCallback: PropTypes.func
 };
 
 const Incidents = ({incidents, refreshCallback}) => {
