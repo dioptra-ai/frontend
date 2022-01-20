@@ -36,6 +36,8 @@ spec:
               value: http://metrics-engine:4006
             - name: DRUID_DB_URL
               value: "http://dioptra-druid-router:8888/druid/v2/sql/"
+            - name: TASK_ENGINE_URL
+              value: "http://task-engine:8001"
             - name: PORT
               value: "4004"
             - name: AWS_API_GATEWAY_PLAN_ID
