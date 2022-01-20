@@ -128,10 +128,6 @@ const ConditionRow = ({
 }) => {
     const handleLogicalChange = (newValue) => handleRowDataChange({logicalOperator: newValue});
     const handleMetricChange = (newValue) => handleRowDataChange({metric: newValue});
-    // const handleModelTypeChange = (newValue) =>
-    //     handleRowDataChange({modelType: newValue});
-    // const handleSqlFiltersChange = (newValue) =>
-    //     handleRowDataChange({sqlFilters: newValue});
     const handleComparatorChange = (newValue) => handleRowDataChange({comparator: newValue});
     const handleValueToCompareChange = (newValue) => handleRowDataChange({valueToCompare: newValue});
 
@@ -153,7 +149,6 @@ const ConditionRow = ({
                     )}
                 </Col>
                 <Col className='d-flex' xl={2}>
-                    {/* <LabelBox text='OF'/> */}
                     <Select
                         initialValue={rowState.metric}
                         onChange={handleMetricChange}
@@ -190,13 +185,6 @@ const ConditionRow = ({
                     )}
                 </Col>
             </Row>
-            {/* {isLast ? (
-                <Row className="my-3">
-                    <Col xl={1}>
-                        <AddButton onClick={handleAddRow} />
-                    </Col>
-                </Row>
-            ) : null} */}
         </span>
     );
 };
