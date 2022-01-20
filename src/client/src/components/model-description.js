@@ -58,6 +58,7 @@ const ModelDescription = ({_id, filtersStore, modelStore, name, description, tea
                 }
                 modelStore.setModelById(_id, modelData);
                 setShowModal(false);
+                window.location.reload(true);
             })
             .catch((e) => {
 

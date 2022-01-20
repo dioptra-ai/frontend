@@ -3,7 +3,7 @@ import {Button} from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import {IoRefreshSharp, IoSearchOutline} from 'react-icons/io5';
 
-import DateTimeRangePicker from 'components/date-time-range-picker';
+// import DateTimeRangePicker from 'components/date-time-range-picker';
 import TextInput from 'components/text-input';
 import {setupComponent} from 'helpers/component-helper';
 import baseJsonClient from 'clients/base-json-client';
@@ -98,7 +98,7 @@ const GeneralSearchBar = ({shouldShowOnlySearchInput, timeStore}) => {
             </div>
             {shouldShowOnlySearchInput ? null : (
                 <>
-                    <DateTimeRangePicker
+                    {/* <DateTimeRangePicker
                         end={timeStore.end}
                         onChange={({start, end, lastMs}) => {
                             if (lastMs) {
@@ -108,7 +108,7 @@ const GeneralSearchBar = ({shouldShowOnlySearchInput, timeStore}) => {
                             }
                         }}
                         start={timeStore.start}
-                    />
+                    /> */}
                     <Button
                         className='text-white d-flex align-items-center justify-content-between px-4 py-2 ms-3'
                         disabled={!timeStore.lastMs}
