@@ -409,6 +409,7 @@ const PerformanceDetails = ({filtersStore}) => {
                                     () => metricsClient('queries/precision-per-class', {sql_filters: allSqlFilters}),
                                     () => metricsClient('queries/precision-per-class', {sql_filters: sqlFiltersWithModelTime})
                                 ]}
+                                refetchOnChanged={[allSqlFilters, sqlFiltersWithModelTime]}
                             />
                         </Col>
                         <Col lg={6}>
@@ -427,6 +428,7 @@ const PerformanceDetails = ({filtersStore}) => {
                                     () => metricsClient('queries/recall-per-class', {sql_filters: allSqlFilters}),
                                     () => metricsClient('queries/recall-per-class', {sql_filters: sqlFiltersWithModelTime})
                                 ]}
+                                refetchOnChanged={[allSqlFilters, sqlFiltersWithModelTime]}
                             />
                         </Col>
                     </Row>

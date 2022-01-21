@@ -34,7 +34,7 @@ const BarGraph = ({title, bars, unit, yAxisName, xAxisName, yAxisDomain, classNa
     return (
         <div className={`border rounded p-3 pe-5 w-100 ${className}`}>
             <SpinnerWrapper>
-                <p className='text-dark bold-text fs-4 px-3'>{title}</p>
+                <div className='text-dark bold-text fs-4 px-3 mb-3'>{title}</div>
                 <div style={{height: '300px'}}>
                     <ResponsiveContainer height='100%' width='100%'>
                         <BarChart data={bars} height={250} width={730} {...rest}>

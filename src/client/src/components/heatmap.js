@@ -122,7 +122,6 @@ const HeatMap = ({data, numCellsH, numCellsW, setHeatMapSamples, selectedSamples
                                     ''
                             }`}
                             style={{
-                                cursor: value ? 'pointer' : 'not-allowed',
                                 background: value === 0 ? 'transparent' :
                                     value <= 50 ?
                                         `rgba(31, 169, 200, ${1 - (value / 50)})` :
