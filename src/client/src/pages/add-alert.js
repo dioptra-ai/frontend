@@ -11,6 +11,7 @@ import {AlertErrorHandlingStatuses} from 'enums/alert-error-handling-states';
 import {AlertTypes} from 'enums/alert-types';
 import {Comparators} from 'enums/comparators';
 import {LogicalOperators} from 'enums/logical-operators';
+import {Metrics} from 'enums/metrics';
 import {NotificationTypes} from 'enums/notification-types';
 import PropTypes from 'prop-types';
 import React, {useCallback, useState} from 'react';
@@ -152,12 +153,7 @@ const ConditionRow = ({
                     <Select
                         initialValue={rowState.metric}
                         onChange={handleMetricChange}
-                        options={[
-                            {
-                                name: 'F1 Score',
-                                value: 'F1_SCORE'
-                            }
-                        ]}
+                        options={Object.values(Metrics)}
                     />
                 </Col>
                 <Col xl={1}>
@@ -331,7 +327,7 @@ const AddAlertPage = ({timeStore}) => {
 
     const conditionInitialValue = {
         logicalOperator: LogicalOperators.AND.value,
-        // name: AlertConditions.PERCENT_DIFF_ABS.value,
+        metric: Metrics['F1_Score'].value,
         comparator: Comparators.IS_ABOVE_OR_EQUAL.value
     };
     const recipientInitialValue = {type: NotificationTypes.EMAIL.value};
@@ -375,7 +371,7 @@ const AddAlertPage = ({timeStore}) => {
             notifications: {message, recipients, tags}
         };
 
-        baseJSONClient('/api/alerts/add', {
+        baseJSONClient('/api/tasks/alerts/add', {
             method: 'POST',
             body: {
                 name: alertName,
@@ -385,13 +381,7 @@ const AddAlertPage = ({timeStore}) => {
                 modelType: modell.mlModelType,
                 sqlFilters: allSqlFilters
             }
-        }).then((response) => {
-            console.log({
-                name: alertName,
-                type: alertType,
-                evaluation_period: evaluationPeriod,
-                conditions
-            });
+        }).then(() => {
             goToPreviousRoute();
         });
     };
