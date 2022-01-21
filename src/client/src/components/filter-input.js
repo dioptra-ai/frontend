@@ -6,106 +6,117 @@ import {useParams} from 'react-router-dom';
 import {setupComponent} from 'helpers/component-helper';
 import FontIcon from './font-icon';
 import metricsClient from 'clients/metrics';
+import {Filter} from 'state/stores/filters-store';
+import {OverlayTrigger, Tooltip} from 'react-bootstrap';
 
-const Filter = ({filter, onDelete, applied = false}) => (
-    <span className={`filter fs-6 ${applied ? 'applied' : ''} mt-2`}>
-        {filter}{' '}
-        <button onClick={onDelete}>
-            <FontIcon className='text-dark' icon='Close' size={10} />
-        </button>
-    </span>
-);
+const RenderedFilter = ({filter, onDelete, applied = false}) => {
 
-Filter.propTypes = {
+    return (
+        <OverlayTrigger
+            placement='bottom'
+            overlay={(
+                <Tooltip id={filter.toString()}>
+                    {filter.toString()}
+                </Tooltip>
+            )}>
+            <div
+                className={`d-flex filter fs-6 ${applied ? 'applied' : ''}`}
+                style={{
+                    whiteSpace: 'nowrap'
+                }}
+            >
+                <div className='text-truncate mr-1' style={{
+                    maxWidth: 200,
+                    overflow: 'hidden'
+                }}>{filter.toString()}</div>
+                <button onClick={onDelete}>
+                    <FontIcon className='text-dark' icon='Close' size={10} />
+                </button>
+            </div>
+        </OverlayTrigger>
+    );
+};
+
+RenderedFilter.propTypes = {
     applied: PropTypes.bool,
-    filter: PropTypes.string,
+    filter: PropTypes.instanceOf(Filter),
     onDelete: PropTypes.func
 };
 
 const FilterInput = ({
     inputPlaceholder = 'filter1=foo filter2=bar',
-    defaultFilters = [],
     onChange,
-    modelStore
+    modelStore,
+    filtersStore
 }) => {
-    const [newFilter, setNewFilter] = useState('');
+    const [newFilter, setNewFilter] = useState(new Filter());
     const [filters, setFilters] = useState([]);
-    const [appliedFilters, setAppliedFilters] = useState(
-        defaultFilters.map(({key, value}) => `${key}=${value}`)
-    );
     const [suggestions, setSuggestions] = useState([]);
     const [suggestionIndex, setSuggestionIndex] = useState(-1);
     const [showSuggestions, setShowSuggestions] = useState(false);
+
+    const appliedFilters = filtersStore.filters;
 
     const {_id} = useParams();
 
     const {mlModelId} = modelStore.getModelById(_id);
 
-    const getSuggestions = () => {
-        const [key, value] = newFilter.split('=');
+    const getSuggestions = async () => {
+        const {key, op, value} = newFilter;
 
-        if (key && newFilter.includes('=')) {
-            metricsClient('queries/get-suggestions-with-key', {
+        if (key && op) {
+            const allSuggestions = await metricsClient('queries/get-suggestions-with-key', {
                 key,
                 value,
                 ml_model_id: mlModelId
-            })
-                .then((data) => {
-                    setSuggestions([...data.flat()]);
-                })
-                .catch(() => setSuggestions([]));
-        } else {
-            metricsClient('queries/get-suggestions-without-key', {
-                key
-            }).then(async (data) => {
-                await metricsClient('queries/all-key-options', {
-                    keys_calc: data.map(({allKeyOptions: key}) => `COUNT("${key}")`).join(', '),
-                    ml_model_id: mlModelId
-                })
-                    .then((allKeyOptions) => {
-                        const filteredKeys = data
-                            .filter(() => allKeyOptions)
-                            .map(({allKeyOptions}) => allKeyOptions);
+            });
+            const allSuggestionValues = allSuggestions.map(({value}) => value);
 
-                        setSuggestions([...filteredKeys]);
-                    }).catch(console.error);
-            }).catch(() => setSuggestions([]));
+            setSuggestions(allSuggestionValues);
+        } else {
+            const allSuggestions = await metricsClient('queries/get-suggestions-without-key', {
+                key
+            });
+            const allSuggestionValues = allSuggestions.map(({value}) => value);
+            const non1Options = await metricsClient('queries/all-key-options', {
+                // COUNT DISTINCT required here otherwise COUNT() returns weird results for model_id
+                keys_calc: allSuggestionValues.map((value) => `COUNT(DISTINCT "${value}") as "${value}"`).join(', '),
+                ml_model_id: mlModelId
+            });
+            // COUNT DISTINCT counts 1 for NULL
+            const filteredKeys = allSuggestionValues.filter((v) => non1Options[v] > 1);
+
+            setSuggestions([...filteredKeys]);
         }
     };
 
     useEffect(() => {
         if (showSuggestions) {
-            getSuggestions();
+            try {
+                getSuggestions();
+            } catch (e) {
+                setSuggestions([]);
+                console.error(e);
+            }
         }
     }, [newFilter, showSuggestions]);
 
-    const handleInputChange = (e) => {
-        setNewFilter(e.target.value.trim());
-    };
-
-    const handleEnterOrTab = (e, key) => {
+    const handleEndCharacterKey = (e) => {
         if (e.keyCode === 9) {
             e.preventDefault();
         }
         //on enter while suggestion is selected
-        if (e.target.value.includes('=')) {
-            const currentFilter = `${key}=${suggestions[suggestionIndex]}`;
+        const parsedFilter = Filter.parse(e.target.value);
 
-            setNewFilter(currentFilter);
-            if (filters.indexOf(currentFilter) === -1 && appliedFilters.indexOf(currentFilter) === -1) {
-                const updatedFilters = [...filters];
-
-                updatedFilters.push(currentFilter);
-                setFilters(updatedFilters);
-            }
-            setNewFilter('');
+        if (parsedFilter.isComplete) {
+            setFilters([...filters, parsedFilter]);
+            setNewFilter(new Filter());
         } else {
-            setNewFilter(`${suggestions[suggestionIndex]}=`);
+            setNewFilter(parsedFilter);
         }
     };
 
     const handleKeyDown = (e) => {
-        const [key, value] = e.target.value.split('=');
 
         if (e.keyCode === 38 && suggestionIndex > 0) {
             //on arrow up
@@ -118,70 +129,45 @@ const FilterInput = ({
             setSuggestions([]);
             setSuggestionIndex(-1);
         } else if ((e.keyCode === 13 || e.keyCode === 9) && suggestionIndex !== -1) {
-            handleEnterOrTab(e, key);
+            // on enter to select the suggestion
+            handleSuggestionSelected(suggestions[suggestionIndex]);
             setSuggestionIndex(-1);
-        } else if (e.keyCode === 32 && newFilter !== '') { //on space
-            if (key && value) {
-                if (filters.indexOf(newFilter) === -1 && appliedFilters.indexOf(newFilter) === -1) {
-                    const updatedFilters = [...filters];
-
-                    updatedFilters.push(newFilter);
-                    setFilters(updatedFilters);
-                }
-                setNewFilter('');
-            } else {
-                setNewFilter(`${key}=`);
-            }
+        } else if (e.keyCode === 32) {
+            //on space
+            handleEndCharacterKey(e);
         } else if (e.keyCode === 13 && !e.target.value && filters.length) {
-            handleAppliedFiltersChange([...appliedFilters, ...filters]);
+            // on enter to apply all
+            onChange([...appliedFilters, ...filters]);
             setFilters([]);
-            setNewFilter('');
+            setNewFilter(new Filter());
             setSuggestionIndex(-1);
             setShowSuggestions(false);
         }
     };
 
-    const handleRemoveFilter = (e) => {
-        const filter = e.target.parentNode.textContent.trim();
-        const index = filters.indexOf(filter);
+    const handleRemoveFilter = (index) => {
         const updatedFilters = [...filters];
 
         updatedFilters.splice(index, 1);
         setFilters(updatedFilters);
-        setNewFilter('');
+        setNewFilter(new Filter());
     };
 
-    const handleSuggestionClick = (suggestion) => {
-        if (newFilter.includes('=')) {
-            const [key] = newFilter.split('=');
-            const currentFilter = `${key}=${suggestion}`;
-
-            if (filters.indexOf(currentFilter) === -1 && appliedFilters.indexOf(currentFilter) === -1) {
-                const updatedFilters = [...filters];
-
-                updatedFilters.push(currentFilter);
-                setFilters(updatedFilters);
-            }
-            setNewFilter('');
+    const handleSuggestionSelected = (suggestion) => {
+        if (newFilter.key && newFilter.op) {
+            newFilter.value = suggestion;
+            setFilters([...filters, newFilter]);
+            setNewFilter(new Filter());
         } else {
-            setNewFilter(`${suggestion}=`);
+            setNewFilter(new Filter({key: suggestion, op: '='}));
         }
     };
 
-    const handleAppliedFiltersChange = (appliedFilters) => {
-        setAppliedFilters(appliedFilters);
-        onChange(
-            appliedFilters.map((f) => f.split('=')).map(([key, value]) => ({key, value}))
-        );
-    };
-
-    const handleRemoveApplied = (e) => {
-        const filter = e.target.parentNode.textContent.trim();
-        const index = appliedFilters.indexOf(filter);
+    const handleRemoveApplied = (index) => {
         const updatedApplied = [...appliedFilters];
 
         updatedApplied.splice(index, 1);
-        handleAppliedFiltersChange(updatedApplied);
+        onChange(updatedApplied);
     };
 
     return (
@@ -191,20 +177,22 @@ const FilterInput = ({
             }}>
                 <div className='filter-input'>
                     {filters.map((filter, index) => (
-                        <Filter filter={filter} key={index} onDelete={handleRemoveFilter} />
+                        <RenderedFilter filter={filter} key={index} onDelete={() => handleRemoveFilter(index)} />
                     ))}
                     <input
-                        onChange={handleInputChange}
+                        onChange={(e) => {
+                            setNewFilter(Filter.parse(e.target.value));
+                        }}
                         onKeyDown={handleKeyDown}
                         placeholder={filters.length === 0 ? inputPlaceholder : ''}
                         type='text'
-                        value={newFilter}
+                        value={newFilter.toString()}
                         onFocus={() => setShowSuggestions(true)}
                     />
                     <Button
                         className='bg-dark text-white border-0 bold-text fs-7'
                         onClick={() => {
-                            handleAppliedFiltersChange([...appliedFilters, ...filters]);
+                            onChange([...appliedFilters, ...filters]);
                             setFilters([]);
                             setNewFilter('');
                             setSuggestionIndex(-1);
@@ -219,7 +207,7 @@ const FilterInput = ({
                                 <li
                                     className={suggestionIndex === index ? 'active' : ''}
                                     key={index}
-                                    onClick={() => handleSuggestionClick(suggestion)}
+                                    onClick={() => handleSuggestionSelected(suggestion)}
                                 >
                                     {suggestion}
                                 </li>
@@ -228,24 +216,27 @@ const FilterInput = ({
                     )}
                 </div>
             </OutsideClickHandler>
-            <div className='d-flex justify-content-between position-relative'>
+            <div
+                className='d-flex flex-wrap position-relative mt-1'
+                style={{columnGap: '0.25rem', rowGap: '0.25rem'}}
+            >
                 {appliedFilters.length !== 0 ? (
-                    <div>
+                    <>
                         {appliedFilters.map((filter, index) => (
-                            <Filter
-                                applied={true}
+                            <RenderedFilter
+                                applied
                                 filter={filter}
                                 key={index}
-                                onDelete={handleRemoveApplied}
+                                onDelete={() => handleRemoveApplied(index)}
                             />
                         ))}
                         <span
-                            className='text-dark clear'
-                            onClick={() => handleAppliedFiltersChange([])}
+                            className='text-dark clear mx-2 d-flex align-items-center'
+                            onClick={() => onChange([])}
                         >
                             CLEAR ALL
                         </span>
-                    </div>
+                    </>
                 ) : <div/>}
             </div>
         </div>
@@ -253,9 +244,9 @@ const FilterInput = ({
 };
 
 FilterInput.propTypes = {
-    defaultFilters: PropTypes.array,
     inputPlaceholder: PropTypes.string,
     modelStore: PropTypes.object.isRequired,
+    filtersStore: PropTypes.object.isRequired,
     onChange: PropTypes.func.isRequired
 };
 

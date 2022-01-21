@@ -99,7 +99,6 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                     <Form.Label className='mt-3 mb-0'>Model ID</Form.Label>
                     <InputGroup className='mt-1'>
                         <Form.Control
-                            className={'bg-light'}
                             name='mlModelId'
                             onChange={handleChange}
                             placeholder='Enter Model ID'
@@ -112,7 +111,6 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                     <Form.Label className='mt-3 mb-0'>Name</Form.Label>
                     <InputGroup className='mt-1'>
                         <Form.Control
-                            className={'bg-light'}
                             name='name'
                             onChange={handleChange}
                             placeholder='Enter Model Name'
@@ -124,7 +122,7 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                     <Form.Label className='mt-3 mb-0'>Description</Form.Label>
                     <InputGroup className='mt-1'>
                         <textarea
-                            className={'form-control bg-light textarea'}
+                            className={'form-control textarea'}
                             name='description'
                             onChange={handleChange}
                             placeholder='Enter Model Description'
@@ -138,7 +136,7 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                     <InputGroup className='mt-1 position-relative'>
                         <Form.Control
                             as='select'
-                            className={'form-select bg-light'}
+                            className={'form-select'}
                             name='mlModelType'
                             value={formData.mlModelType}
                             onChange={handleChange}

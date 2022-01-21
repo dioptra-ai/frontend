@@ -12,6 +12,7 @@ const Select = ({
     textColor = 'dark',
     backgroundColor = 'white',
     borderColor = 'light',
+    padding = '3',
     onChange = noop,
     options,
     initialValue,
@@ -26,10 +27,10 @@ const Select = ({
 
     return (
         <Dropdown className='w-100'>
-            <DropdownToggle bsPrefix='p-0' className={`w-100 text-start p-3 rounded-3 text-${textColor} border-1 border-${borderColor} d-flex align-items-center`} variant={backgroundColor}>
-                <span
+            <DropdownToggle bsPrefix='p-0' className={`w-100 text-start p-${padding} rounded-3 text-${textColor} border-1 border-${borderColor} d-flex align-items-center`} variant={backgroundColor}>
+                <div
                     className={`pe-4 fs-6 w-100 fw-${isTextBold ? 'bold' : 'normal'}`}
-                >{activeOption && activeOption.length ? activeOption[0].name : ''}</span>
+                >{activeOption && activeOption.length ? activeOption[0].name : <>&nbsp;</>}</div>
                 <FontIcon
                     className='text-dark bold-text'
                     icon={IconNames.ARROW_DOWN}
@@ -58,7 +59,8 @@ Select.propTypes = {
         name: PropTypes.any.isRequired,
         value: PropTypes.any.isRequired
     })),
-    textColor: PropTypes.string
+    textColor: PropTypes.string,
+    padding: PropTypes.number
 };
 
 export default Select;
