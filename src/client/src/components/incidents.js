@@ -132,10 +132,10 @@ const Incidents = ({incidents, refreshCallback}) => {
                     <Button
                         style={{width: 40}}
                         className='text-white bold-text'
-                        variant='secondary'
+                        variant='light'
                         onClick={() => refreshCallback(false)}
                     >
-                        <FontIcon className='text-white' icon='Refresh' size={14} />
+                        <FontIcon className='text-black' icon='Refresh' size={14} />
                     </Button>
                     <Button
                         className='text-white bold-text fs-6'
