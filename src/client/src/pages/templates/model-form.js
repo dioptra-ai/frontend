@@ -27,11 +27,13 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
     });
     const [allMlModelVersions, setAllMlModelVersions] = useState([]);
     const [allModelNames, setAllModelNames] = useState([]);
+    const [allDatasetIds, setAllDatasetIds] = useState([]);
     const [showTimeframe, setShowTimeframe] = useState(false);
     const [showDataset, setShowDataset] = useState(false);
     const [benchmarkModel, setbenchmarkModel] = initialValue.benchmarkModel ? useState(initialValue.benchmarkModel) : useState('');
     const [benchmarkType, setBenchmarkType] = initialValue.benchmarkType ? useState(initialValue.benchmarkType) : useState('');
     const [referencePeriod, setReferencePeriod] = initialValue.referencePeriod ? useState(initialValue.referencePeriod) : useState({start: moment(0), end: moment()});
+    const [datasetId, setDatasetId] = initialValue.datasetId ? useState(initialValue.datasetId) : useState('');
 
 
     useEffect(() => {
@@ -176,6 +178,7 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                                     setShowDataset(true);
                                     setBenchmarkType('dataset');
                                 }}
+                                disabled
                             />
                             Dataset
                         </label>
@@ -285,14 +288,32 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                                             ...formData,
                                             benchmarkMlModelVersion: v
                                         });
+                                        metricsClient('dataset-ids', { // Only needs to be called when the chosen ml-model changes
+                                            model_id: benchmarkModel,
+                                            model_version: v
+                                        })
+                                            .then((data) => {
+                                                setAllDatasetIds([
+                                                    ...data.map((v) => ({name: v.dataset_id, value: v.dataset_id}))
+                                                ]);
+                                            })
+                                            .catch(() => setAllDatasetIds([]));
+
                                     }}
                                 />
                             }
                         </InputGroup>
                         <InputGroup className='mt-1 position-relative'>
                             <p className='bold-text fs-5'>Dataset</p>
-                            {/* {} */}
-                            {/* Need to query metrics engine for a dataset_id field(field doesnt exist yet) */}
+                            {
+                                <Select
+                                    initialValue={datasetId}
+                                    options={allDatasetIds}
+                                    onChange={(id) => {
+                                        setDatasetId(id);
+                                    }}
+                                />
+                            }
                         </InputGroup>
                     </div>
                     <Button

@@ -49,7 +49,8 @@ const mlModelSchema = new mongoose.Schema({
             'timeframe',
             'dataset'
         ]
-    }
+    },
+    offlineBenchmarkDatasetId: String
 }, {timestamps: true});
 
 const MlModel = mongoose.model('MlModel', mlModelSchema);
