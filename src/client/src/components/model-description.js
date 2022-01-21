@@ -32,12 +32,7 @@ const ModelDescription = ({_id, filtersStore, modelStore, name, description, tea
     }, [mlModelId]);
 
     const handleSubmit = (data) => {
-        if (data.benchmarkMlModelVersion && data.benchmarkModel) {
-            data.benchmarkSet = true;
-        } else {
-            data.benchmarkSet = false;
-        }
-        console.log(data);
+        data.benchmarkSet = Boolean(data.benchmarkMlModelVersion && data.benchmarkModel);
 
         if (errors) {
             setErrors([]);

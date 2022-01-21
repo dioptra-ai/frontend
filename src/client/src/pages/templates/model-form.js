@@ -37,7 +37,7 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
 
 
     useEffect(() => {
-        baseJsonClient('/api/ml-model') // Only needs to be called on load.  Called once.
+        baseJsonClient('/api/ml-model')
             .then((res) => {
                 console.log('res: ');
                 console.log(res);
