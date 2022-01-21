@@ -37,7 +37,7 @@ const useAllSqlFilters = ({useReferenceRange = false, __REMOVE_ME__excludeOrgId}
             allFilters.push(timeStore.sqlTimeFilter);
 
         }
-    } else { // is an offline dataset
+    } else if (benchmarkType === 'dataset') { // is an offline dataset
         if (useReferenceRange) { // Querying for the benchmarked dataset_id
             if (benchmarkSet) {
                 if (benchmarkModel) {
@@ -60,6 +60,9 @@ const useAllSqlFilters = ({useReferenceRange = false, __REMOVE_ME__excludeOrgId}
             allFilters.push(timeStore.sqlTimeFilter);
 
         }
+    } else { // Is neither timeframe nor dataset benchmark.  Shouldn't happen.
+        allFilters.push(`model_id='${mlModelId}'`);
+        allFilters.push(timeStore.sqlTimeFilter);
     }
 
     return allFilters.join(' AND ');

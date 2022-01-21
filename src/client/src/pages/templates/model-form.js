@@ -51,16 +51,9 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
         setReferencePeriod({start: moment(0), end: moment()});
         setFormData({
             ...formData,
-            // referencePeriod: {
-            //     start: moment(0),
-            //     end: moment()
-            // },
             benchmarkSet: false,
             benchmarkMlModelVersion: ''
-            // benchmarkModel: '',
-            // benchmarkType: ''
         });
-        // Can we force a re-render here?
     };
 
     const handleChange = (event) => setFormData({...formData, [event.target.name]: event.target.value});
@@ -195,10 +188,8 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                                 datePickerSettings={{
                                     opens: 'center'
                                 }}
-                                // end={moment(formData?.referencePeriod?.end)}
                                 end={moment(referencePeriod?.end)}
                                 onChange={onDateChange}
-                                // start={moment(formData?.referencePeriod?.start)}
                                 start={moment(referencePeriod?.start)}
                                 width='100%'
                             />
