@@ -409,6 +409,7 @@ const PerformanceDetails = ({filtersStore}) => {
                                     () => metricsClient('queries/precision-per-class', {sql_filters: allSqlFilters}),
                                     () => metricsClient('queries/precision-per-class', {sql_filters: sqlFiltersWithModelTime})
                                 ]}
+                                refetchOnChanged={[allSqlFilters, sqlFiltersWithModelTime]}
                             />
                         </Col>
                         <Col lg={6}>
@@ -427,11 +428,41 @@ const PerformanceDetails = ({filtersStore}) => {
                                     () => metricsClient('queries/recall-per-class', {sql_filters: allSqlFilters}),
                                     () => metricsClient('queries/recall-per-class', {sql_filters: sqlFiltersWithModelTime})
                                 ]}
+                                refetchOnChanged={[allSqlFilters, sqlFiltersWithModelTime]}
                             />
                         </Col>
                     </Row>
                 </div>
             )}
+            {mlModelType === 'TEXT_CLASSIFIER' ? (
+                <div>
+                    <h3 className='text-dark bold-text fs-3 mb-3'>
+                            Groundtruth distribution
+                    </h3>
+                    <Row>
+                        <Col lg={6}>
+                            <Async
+                                refetchOnChanged={[allSqlFilters]}
+                                renderData={(data) => (
+                                    <BarGraph
+                                        bars={data.map(({groundtruth, my_percentage}) => ({
+                                            name: getName(groundtruth),
+                                            value: my_percentage,
+                                            fill: getHexColor(groundtruth)
+                                        }))}
+                                        title='Groundtruth Distribution'
+                                        unit='%'
+                                    />
+                                )}
+                                fetchData={() => metricsClient('gt-distribution', {
+                                    sql_filters: allSqlFilters,
+                                    model_type: mlModelType
+                                })}
+                            />
+                        </Col>
+                    </Row>
+                </div>
+            ) : null}
             {mlModelType !== 'Q_N_A' ? <ConfusionMatrix /> : null}
             {mlModelType !== 'Q_N_A' ? <Segmentation /> : null}
         </div>

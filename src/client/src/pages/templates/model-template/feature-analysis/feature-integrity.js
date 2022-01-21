@@ -214,11 +214,11 @@ const FeatureIntegrityTable = ({errorStore, filtersStore}) => {
     useEffect(() => {
 
         if (allFeatureNames) {
-            const allFeatureNames = allFeatureNames.map(() => 'COUNT("{f}")').join(', ');
+            const featureNames = allFeatureNames.map((f) => `COUNT("${f}")`).join(', ');
 
             metricsClient('queries/non-null-feature-names', {
                 sql_filters: allSqlFilters,
-                all_feature_names: allFeatureNames
+                all_feature_names: featureNames
             })
                 .then(([nonNullCounts]) => {
                     setNonNullFeatureNames(allFeatureNames.filter((_, i) => nonNullCounts && nonNullCounts[i] !== 0));

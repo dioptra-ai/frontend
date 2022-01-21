@@ -72,7 +72,7 @@ const GeneralSearchBar = ({shouldShowOnlySearchInput, timeStore}) => {
     };
 
     return (
-        <div className='py-3 px-4 d-flex align-items-center border-bottom'>
+        <div className='py-2 px-3 d-flex align-items-center border-bottom'>
             <IoSearchOutline className='fs-3'/>
             <div className='flex-grow-1 mx-3 general-search-bar'>
                 <TextInput
@@ -109,14 +109,12 @@ const GeneralSearchBar = ({shouldShowOnlySearchInput, timeStore}) => {
                         start={timeStore.start}
                     />
                     <Button
-                        className='text-white d-flex align-items-center justify-content-between px-4 py-2 ms-3'
+                        className='text-white d-flex align-items-center justify-content-between px-2 py-2 ms-1 btn-secondary'
                         disabled={!timeStore.lastMs}
                         onClick={() => timeStore.refreshTimeRange()}
                         variant='primary'
                     >
                         <IoRefreshSharp className='fs-4'/>
-                        &nbsp;
-                        <span className='fs-6 bold-text'>REFRESH</span>
                     </Button>
                 </>
             )}

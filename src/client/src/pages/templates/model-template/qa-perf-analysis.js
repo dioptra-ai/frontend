@@ -17,6 +17,8 @@ import useModel from 'customHooks/use-model';
 import useModal from 'customHooks/useModal';
 import Modal from 'components/modal';
 import metricsClient from 'clients/metrics';
+import AddFilters from 'components/add-filters';
+import {Filter} from 'state/stores/filters-store';
 
 const QAPerfAnalysis = () => {
     const allSqlFilters = useAllSqlFilters();
@@ -111,7 +113,14 @@ const QAPerfAnalysis = () => {
                                 </Col>
                                 <Col lg={4} className='px-3'>
                                     <div className='bg-white-blue rounded p-3'>
-                                        <p className='text-dark m-0 bold-text'>Examples</p>
+                                        <div className='text-dark bold-text d-flex align-items-center justify-content-between'>
+                                            <span>Examples</span>
+                                            <AddFilters disabled={!samples?.length} filters={[new Filter({
+                                                key: 'request_id',
+                                                op: 'in',
+                                                value: samples.map((s) => s.request_id)
+                                            })]}/>
+                                        </div>
                                         <div className={`d-flex p-2 overflow-auto flex-grow-0 ${samples.length ? 'justify-content-left' : 'justify-content-center align-items-center'} scatterGraph-examples`}>
                                             {samples.length ? samples.map((sample, i) => (
                                                 <div

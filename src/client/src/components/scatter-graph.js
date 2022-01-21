@@ -17,6 +17,8 @@ import useModal from 'customHooks/useModal';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import Modal from 'components/modal';
+import AddFilters from 'components/add-filters';
+import {Filter} from 'state/stores/filters-store';
 
 const LARGE_DOT_SIZE = 200;
 const MEDIUM_DOT_SIZE = 100;
@@ -41,10 +43,10 @@ const ScatterGraph = ({data}) => {
     const [refBottomRight, setRefBottomRight] = useThrottle(null, 10, true);
     const [multiSelect, setMultiSelect] = useState(false);
 
-    const samples = selectedPoints?.reduce(
-        (combinedSamples, {samples}) => [...combinedSamples, samples],
-        []
-    );
+    const samples = selectedPoints?.map(({sample}) => sample);
+    const sampleRequestIds = selectedPoints?.map(({request_id}) => request_id);
+
+    console.log(selectedPoints);
 
     const handleKeyDown = ({keyCode}) => {
         if (keyCode === 16) setShiftPressed(true);
@@ -257,7 +259,14 @@ const ScatterGraph = ({data}) => {
                 </Col>
 
                 <Col lg={8} className='rounded p-3 bg-white-blue'>
-                    <p className='text-dark m-0 bold-text'>Examples</p>
+                    <div className='text-dark m-0 bold-text'>
+                        Examples
+                        <AddFilters filters={[new Filter({
+                            key: 'request_id',
+                            op: 'in',
+                            value: sampleRequestIds
+                        })]}/>
+                    </div>
                     <div className={`d-flex p-2 overflow-auto flex-grow-0 ${samples.length ? 'justify-content-left' : 'justify-content-center align-items-center'} scatterGraph-examples`}>
                         {samples.length ? samples.map((sample, i) => (
                             <div

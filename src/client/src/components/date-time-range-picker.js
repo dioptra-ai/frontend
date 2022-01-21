@@ -37,7 +37,7 @@ const initialSettings = {
     applyButtonClasses: 'btn-primary px-4 py-2 text-white m-2',
     cancelButtonClasses: 'btn-light px-4 py-2 text-secondary m-2'
 };
-const DateTimeRangePicker = ({onChange, start, end, classNames, datePickerSettings, width}) => {
+const DateTimeRangePicker = ({onChange, start, end, className, datePickerSettings, width}) => {
     const [isCalendarVisible, setIsCalendarVisible] = useState(false);
     const handleChange = ({startDate, endDate, chosenLabel}) => {
         if (chosenLabel) {
@@ -70,16 +70,18 @@ const DateTimeRangePicker = ({onChange, start, end, classNames, datePickerSettin
                 onHide={() => setIsCalendarVisible(false)}
                 onShow={() => setIsCalendarVisible(true)}>
 
-                <div className={`d-flex border border-secondary py-1 px-3 align-items-center rounded-3 ${classNames}`}>
+                <div className={`d-flex border py-0 px-3 align-items-center justify-content-between rounded-3 ${className}`}>
                     <IoCalendarOutline className='text-secondary fs-4 flex-shrink-0'/>
-                    <span className='text-secondary py-2 px-4 fs-5'>{
-                        formatDateTimeRange(start, end)
-                    }</span>
-                    {isCalendarVisible ? (
-                        <IoChevronUpSharp className='fs-4 flex-shrink-0'/>
-                    ) : (
-                        <IoChevronDownSharp className='fs-4 flex-shrink-0'/>
-                    )}
+                    <div className='d-flex align-items-center'>
+                        <div className='text-secondary py-2 px-4 fs-6'>{
+                            formatDateTimeRange(start, end)
+                        }</div>
+                        {isCalendarVisible ? (
+                            <IoChevronUpSharp className='fs-4 flex-shrink-0'/>
+                        ) : (
+                            <IoChevronDownSharp className='fs-4 flex-shrink-0'/>
+                        )}
+                    </div>
                 </div>
             </DateRangePicker>
         </div>
@@ -87,13 +89,13 @@ const DateTimeRangePicker = ({onChange, start, end, classNames, datePickerSettin
 };
 
 DateTimeRangePicker.defaultProps = {
-    classNames: '',
+    className: '',
     datePickerSettings: {},
     width: 'auto'
 };
 
 DateTimeRangePicker.propTypes = {
-    classNames: PropTypes.string,
+    className: PropTypes.string,
     datePickerSettings: PropTypes.object,
     end: PropTypes.object,
     onChange: PropTypes.func.isRequired,
