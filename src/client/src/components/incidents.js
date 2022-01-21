@@ -86,7 +86,7 @@ const Incidents = ({incidents, refreshCallback}) => {
         } else {
             setAllEventsSelected(false);
         }
-    }, [selectedEventIds]);
+    }, [selectedEventIds, incidents]);
 
     const handlePageChange = () => {
         // get incidents for incoming page
