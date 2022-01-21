@@ -1,3 +1,0 @@
-[submodule "submodules/metrics-engine"]
-	path = submodules/metrics-engine
-	url = git@github.com:dioptra-ai/metrics-engine.git
