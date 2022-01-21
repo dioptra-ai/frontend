@@ -39,8 +39,6 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
     useEffect(() => {
         baseJsonClient('/api/ml-model')
             .then((res) => {
-                console.log('res: ');
-                console.log(res);
                 setAllModelNames([
                     ...res.map((model) => ({name: model.mlModelId, value: model.mlModelId}))
                 ]);
@@ -67,12 +65,7 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
 
     const handleChange = (event) => setFormData({...formData, [event.target.name]: event.target.value});
 
-    const onDateChange = ({start, end}) => {
-        console.log('date change');
-        console.log(start.toISOString());
-        console.log(end.toISOString());
-        setReferencePeriod({start: start.toISOString(), end: end.toISOString()});
-    };
+    const onDateChange = ({start, end}) => setReferencePeriod({start: start.toISOString(), end: end.toISOString()});
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -219,7 +212,6 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                                     initialValue={formData.benchmarkModel}
                                     options={allModelNames}
                                     onChange={(n) => {
-                                        console.log(`model selected: ${n}`);
                                         setbenchmarkModel(n);
 
                                         metricsClient('model-versions-for-model', { // Only needs to be called when the chosen ml-model changes
@@ -260,7 +252,6 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                                     initialValue={formData.benchmarkModel}
                                     options={allModelNames}
                                     onChange={(n) => {
-                                        console.log(`offline model selected: ${n}`);
                                         setbenchmarkModel(n);
 
                                         metricsClient('model-versions-for-model', { // Only needs to be called when the chosen ml-model changes
