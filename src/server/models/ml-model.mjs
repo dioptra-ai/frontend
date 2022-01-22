@@ -36,7 +36,6 @@ const mlModelSchema = new mongoose.Schema({
         ],
         required: true
     },
-    isBenchmarkSet: Boolean,
     referencePeriod: {
         start: Date,
         end: Date

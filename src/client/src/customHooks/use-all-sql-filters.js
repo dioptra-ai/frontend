@@ -7,11 +7,12 @@ const {filtersStore, timeStore, modelStore} = stores;
 const useAllSqlFilters = ({useReferenceRange = false, __REMOVE_ME__excludeOrgId} = {}) => {
     const params = useParams();
     const activeModelId = params._id;
-    const {mlModelId, isBenchmarkSet, benchmarkType, benchmarkModel, benchmarkMlModelVersion, referencePeriod, offlineBenchmarkDatasetId} = modelStore.getModelById(activeModelId);
+    const {mlModelId, benchmarkType, benchmarkModel, benchmarkMlModelVersion, referencePeriod, offlineBenchmarkDatasetId} = modelStore.getModelById(activeModelId);
     const allFilters = [
         __REMOVE_ME__excludeOrgId ? filtersStore.__RENAME_ME__sqlFilters :
             filtersStore.sqlFilters
     ];
+    const isBenchmarkSet = Boolean(benchmarkModel && benchmarkType && referencePeriod);
 
     if (benchmarkType === 'timeframe') {
         if (useReferenceRange) {

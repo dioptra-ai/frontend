@@ -15,7 +15,6 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
         mlModelId: '',
         description: '',
         mlModelType: '',
-        isBenchmarkSet: false,
         referencePeriod: {
             start: moment(0),
             end: moment()
@@ -39,7 +38,6 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
     useEffect(() => {
         baseJsonClient('/api/ml-model')
             .then((res) => {
-                console.log(res);
                 setAllModelNames([
                     ...res.map((model) => ({name: model.mlModelId, value: model.mlModelId}))
                 ]);
@@ -52,7 +50,6 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
         setReferencePeriod({start: moment(0), end: moment()});
         setFormData({
             ...formData,
-            isBenchmarkSet: false,
             benchmarkMlModelVersion: ''
         });
     };
@@ -63,6 +60,11 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        if (benchmarkType === 'none') { // Clears the currently set benchmarks on submit
+            formData.benchmarkModel = '';
+            formData.benchmarkType = 'none';
+            onSubmit(formData);
+        }
         if ((benchmarkModel && formData.benchmarkMlModelVersion) || (!benchmarkModel && !formData.benchmarkMlModelVersion)) {
             formData.benchmarkModel = benchmarkModel;
             formData.benchmarkType = benchmarkType;

@@ -12,7 +12,7 @@ import metricsClient from 'clients/metrics';
 import {BsChevronDown, BsChevronUp} from 'react-icons/bs';
 import {AiOutlineEdit} from 'react-icons/ai';
 
-const ModelDescription = ({_id, filtersStore, modelStore, name, description, team, tier, lastDeployed, mlModelId, mlModelType, referencePeriod, isBenchmarkSet, benchmarkMlModelVersion, benchmarkModel, benchmarkType}) => {
+const ModelDescription = ({_id, filtersStore, modelStore, name, description, team, tier, lastDeployed, mlModelId, mlModelType, referencePeriod, benchmarkMlModelVersion, benchmarkModel, benchmarkType}) => {
     const [expand, setExpand] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [errors, setErrors] = useState([]);
@@ -32,7 +32,6 @@ const ModelDescription = ({_id, filtersStore, modelStore, name, description, tea
     }, [mlModelId]);
 
     const handleSubmit = (data) => {
-        data.isBenchmarkSet = Boolean(data.benchmarkMlModelVersion && data.benchmarkModel);
 
         if (errors) {
             setErrors([]);
@@ -119,7 +118,7 @@ const ModelDescription = ({_id, filtersStore, modelStore, name, description, tea
             <ModalComponent isOpen={showModal} onClose={() => setShowModal(false)} title='Edit  Model'>
                 <ModelForm
                     errors={errors}
-                    initialValue={{name, description, mlModelId, mlModelType, referencePeriod, isBenchmarkSet, benchmarkModel, benchmarkMlModelVersion, benchmarkType}}
+                    initialValue={{name, description, mlModelId, mlModelType, referencePeriod, benchmarkModel, benchmarkMlModelVersion, benchmarkType}}
                     onSubmit={handleSubmit}
                 />
             </ModalComponent>
@@ -143,7 +142,6 @@ ModelDescription.propTypes = {
     referencePeriod: PropTypes.object,
     benchmarkMlModelVersion: PropTypes.string,
     benchmarkModel: PropTypes.string,
-    isBenchmarkSet: PropTypes.bool,
     benchmarkType: PropTypes.string
 };
 
