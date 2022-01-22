@@ -7,7 +7,7 @@ const {filtersStore, timeStore, modelStore} = stores;
 const useAllSqlFilters = ({useReferenceRange = false, __REMOVE_ME__excludeOrgId} = {}) => {
     const params = useParams();
     const activeModelId = params._id;
-    const {mlModelId, benchmarkSet, benchmarkType, benchmarkModel, benchmarkMlModelVersion, referencePeriod, offlineBenchmarkDatasetId} = modelStore.getModelById(activeModelId);
+    const {mlModelId, isBenchmarkSet, benchmarkType, benchmarkModel, benchmarkMlModelVersion, referencePeriod, offlineBenchmarkDatasetId} = modelStore.getModelById(activeModelId);
     const allFilters = [
         __REMOVE_ME__excludeOrgId ? filtersStore.__RENAME_ME__sqlFilters :
             filtersStore.sqlFilters
@@ -15,7 +15,7 @@ const useAllSqlFilters = ({useReferenceRange = false, __REMOVE_ME__excludeOrgId}
 
     if (benchmarkType === 'timeframe') {
         if (useReferenceRange) {
-            if (benchmarkSet) {
+            if (isBenchmarkSet) {
                 if (benchmarkModel) {
                     allFilters.push(`model_id='${benchmarkModel}'`);
 
@@ -39,7 +39,7 @@ const useAllSqlFilters = ({useReferenceRange = false, __REMOVE_ME__excludeOrgId}
         }
     } else if (benchmarkType === 'dataset') { // is an offline dataset
         if (useReferenceRange) { // Querying for the benchmarked dataset_id
-            if (benchmarkSet) {
+            if (isBenchmarkSet) {
                 if (benchmarkModel) {
                     allFilters.push(`model_id='${benchmarkModel}'`);
 

@@ -15,14 +15,14 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
         mlModelId: '',
         description: '',
         mlModelType: '',
-        benchmarkSet: false,
+        isBenchmarkSet: false,
         referencePeriod: {
             start: moment(0),
             end: moment()
         },
         benchmarkModel: '',
         benchmarkMlModelVersion: '',
-        benchmarkType: 'timeframe',
+        benchmarkType: 'none',
         ...initialValue
     });
     const [allMlModelVersions, setAllMlModelVersions] = useState([]);
@@ -31,7 +31,7 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
     const [showTimeframe, setShowTimeframe] = useState(false);
     const [showDataset, setShowDataset] = useState(false);
     const [benchmarkModel, setbenchmarkModel] = initialValue.benchmarkModel ? useState(initialValue.benchmarkModel) : useState('');
-    const [benchmarkType, setBenchmarkType] = initialValue.benchmarkType ? useState(initialValue.benchmarkType) : useState('');
+    const [benchmarkType, setBenchmarkType] = initialValue.benchmarkType ? useState(initialValue.benchmarkType) : useState('none');
     const [referencePeriod, setReferencePeriod] = initialValue.referencePeriod ? useState(initialValue.referencePeriod) : useState({start: moment(0), end: moment()});
     const [datasetId, setDatasetId] = initialValue.datasetId ? useState(initialValue.datasetId) : useState('');
 
@@ -39,6 +39,7 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
     useEffect(() => {
         baseJsonClient('/api/ml-model')
             .then((res) => {
+                console.log(res);
                 setAllModelNames([
                     ...res.map((model) => ({name: model.mlModelId, value: model.mlModelId}))
                 ]);
@@ -47,11 +48,11 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
 
     const clearBenchmarkData = () => {
         setbenchmarkModel('');
-        setBenchmarkType('');
+        setBenchmarkType('none');
         setReferencePeriod({start: moment(0), end: moment()});
         setFormData({
             ...formData,
-            benchmarkSet: false,
+            isBenchmarkSet: false,
             benchmarkMlModelVersion: ''
         });
     };
@@ -147,7 +148,7 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                                 onChange={() => {
                                     setShowTimeframe(false);
                                     setShowDataset(false);
-                                    setBenchmarkType('');
+                                    setBenchmarkType('none');
                                 }}
                             />
                             None
@@ -180,6 +181,9 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                             Timeframe
                         </label>
                     </InputGroup>
+                    <InputGroup className='mt-1'>
+                        <Form.Label className='bold-text fs-5 mt-3 mb-0'>Existing benchmark: {initialValue.benchmarkType}</Form.Label>
+                    </InputGroup>
                     <div style={{display: (showTimeframe ? 'block' : 'none')}}>
                         <InputGroup className='mt-3 text-center'>
                             <Form.Label>Benchmark Date Range</Form.Label>
@@ -198,7 +202,7 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                             <p className='bold-text fs-5'>Benchmark Model Name</p>
                             {
                                 <Select
-                                    initialValue={formData.benchmarkModel}
+                                    initialValue={benchmarkModel}
                                     options={allModelNames}
                                     onChange={(n) => {
                                         setbenchmarkModel(n);
@@ -221,7 +225,7 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                             <p className='bold-text fs-5'>Version</p>
                             {
                                 <Select
-                                    initialValue={FormData.benchmarkMlModelVersion}
+                                    initialValue={formData.benchmarkMlModelVersion}
                                     options={allMlModelVersions}
                                     onChange={(v) => {
                                         setFormData({

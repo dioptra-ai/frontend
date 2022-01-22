@@ -36,7 +36,7 @@ const mlModelSchema = new mongoose.Schema({
         ],
         required: true
     },
-    benchmarkSet: Boolean,
+    isBenchmarkSet: Boolean,
     referencePeriod: {
         start: Date,
         end: Date
@@ -47,7 +47,8 @@ const mlModelSchema = new mongoose.Schema({
         type: String,
         enum: [
             'timeframe',
-            'dataset'
+            'dataset',
+            'none'
         ]
     },
     offlineBenchmarkDatasetId: String
