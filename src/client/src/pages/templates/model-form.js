@@ -66,14 +66,17 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
             formData.benchmarkType = 'none';
             formData.benchmarkMlModelVersion = '';
             onSubmit(formData);
-        }
-        if ((benchmarkModel && formData.benchmarkMlModelVersion) || (!benchmarkModel && !formData.benchmarkMlModelVersion)) {
-            formData.benchmarkModel = benchmarkModel;
-            formData.benchmarkType = benchmarkType;
-            formData.referencePeriod = referencePeriod;
-            onSubmit(formData);
+        } else if (benchmarkType === 'timeframe') {
+            if ((benchmarkModel && formData.benchmarkMlModelVersion) || (!benchmarkModel && !formData.benchmarkMlModelVersion)) {
+                formData.benchmarkModel = benchmarkModel;
+                formData.benchmarkType = benchmarkType;
+                formData.referencePeriod = referencePeriod;
+                onSubmit(formData);
+            } else {
+                alert('Clear benchmarks or fill out all benchmark fields');
+            }
         } else {
-            alert('Clear benchmarks or fill out all benchmark fields');
+            throw new Error('Not a valid benchmark type');
         }
     };
 
@@ -193,7 +196,7 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                     </InputGroup>
                     <div style={{display: (showTimeframe ? 'block' : 'none')}}>
                         <InputGroup className='mt-3 text-center'>
-                            <Form.Label>Benchmark Date Range</Form.Label>
+                            <Form.Label className='bold-text fs-5'>Benchmark Date Range</Form.Label>
                             <DateTimeRangePicker
                                 classNames='justify-content-around bg-light'
                                 datePickerSettings={{
@@ -311,6 +314,7 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                         className='w-50 text-white btn-submit mt-1'
                         onClick={() => clearBenchmarkData()}
                         variant='primary'
+                        disabled={benchmarkType === 'none'}
                     >
                         Clear Benchmark
                     </Button>
