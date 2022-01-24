@@ -14,8 +14,8 @@ const useAllSqlFilters = ({useReferenceRange = false, __REMOVE_ME__excludeOrgId}
     ];
     const isBenchmarkSet = Boolean(benchmarkModel && benchmarkType && referencePeriod);
 
-    if (benchmarkType === 'timeframe') {
-        if (useReferenceRange) {
+    if (useReferenceRange) {
+        if (benchmarkType === 'timeframe') {
             if (isBenchmarkSet) {
                 if (benchmarkModel) {
                     allFilters.push(`model_id='${benchmarkModel}'`);
@@ -31,15 +31,7 @@ const useAllSqlFilters = ({useReferenceRange = false, __REMOVE_ME__excludeOrgId}
             } else {
                 allFilters.push(timeStore.sqlTimeFilter);
             }
-        } else { // Not a benchmark query
-            if (mlModelId) {
-                allFilters.push(`model_id='${mlModelId}'`);
-            }
-            allFilters.push(timeStore.sqlTimeFilter);
-
-        }
-    } else if (benchmarkType === 'dataset') { // is an offline dataset
-        if (useReferenceRange) { // Querying for the benchmarked dataset_id
+        } else if (benchmarkType === 'dataset') { // is an offline dataset
             if (isBenchmarkSet) {
                 if (benchmarkModel) {
                     allFilters.push(`model_id='${benchmarkModel}'`);
@@ -54,15 +46,14 @@ const useAllSqlFilters = ({useReferenceRange = false, __REMOVE_ME__excludeOrgId}
                     }
                 }
             }
-        } else { // Not a benchmark query
-            if (mlModelId) {
-                allFilters.push(`model_id='${mlModelId}'`);
-            }
+        } else {
+            allFilters.push(`model_id='${mlModelId}'`);
             allFilters.push(timeStore.sqlTimeFilter);
-
         }
-    } else { // Is neither timeframe nor dataset benchmark.  Shouldn't happen.
-        allFilters.push(`model_id='${mlModelId}'`);
+    } else {
+        if (mlModelId) {
+            allFilters.push(`model_id='${mlModelId}'`);
+        }
         allFilters.push(timeStore.sqlTimeFilter);
     }
 

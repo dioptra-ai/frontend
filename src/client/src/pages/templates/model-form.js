@@ -38,6 +38,7 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
     useEffect(() => {
         baseJsonClient('/api/ml-model')
             .then((res) => {
+                console.log(res);
                 setAllModelNames([
                     ...res.map((model) => ({name: model.mlModelId, value: model.mlModelId}))
                 ]);
@@ -63,6 +64,7 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
         if (benchmarkType === 'none') { // Clears the currently set benchmarks on submit
             formData.benchmarkModel = '';
             formData.benchmarkType = 'none';
+            formData.benchmarkMlModelVersion = '';
             onSubmit(formData);
         }
         if ((benchmarkModel && formData.benchmarkMlModelVersion) || (!benchmarkModel && !formData.benchmarkMlModelVersion)) {
@@ -71,7 +73,7 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
             formData.referencePeriod = referencePeriod;
             onSubmit(formData);
         } else {
-            console.log('Clear benchmarks or fill out all benchmark fields');
+            alert('Clear benchmarks or fill out all benchmark fields');
         }
     };
 
@@ -153,6 +155,7 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                                     setBenchmarkType('none');
                                 }}
                             />
+                            &nbsp;
                             None
                         </label>
                         <label className='border border-1 px-4 py-3 rounded-3 me-3'>
@@ -167,6 +170,7 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                                 }}
                                 disabled
                             />
+                            &nbsp;
                             Dataset
                         </label>
                         <label className='border border-1 px-4 py-3 rounded-3 me-3'>
@@ -180,6 +184,7 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                                     setBenchmarkType('timeframe');
                                 }}
                             />
+                            &nbsp;
                             Timeframe
                         </label>
                     </InputGroup>
@@ -303,14 +308,14 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
                         </InputGroup>
                     </div>
                     <Button
-                        className='w-100 text-white btn-submit mt-5'
+                        className='w-50 text-white btn-submit mt-1'
                         onClick={() => clearBenchmarkData()}
                         variant='primary'
                     >
                         Clear Benchmark
                     </Button>
                     <Button
-                        className='w-100 text-white btn-submit mt-1'
+                        className='w-100 text-white btn-submit mt-5'
                         variant='primary' type='submit'
                     >
                         {Object.keys(initialValue).length ? 'Update Model' : 'Create Model'}
