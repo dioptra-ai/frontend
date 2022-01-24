@@ -8,10 +8,43 @@ import {
 } from './auth-store';
 
 export class Filter {
-    constructor({left, op, right} = {}) {
+    constructor({left, op, right, fromString} = {}) {
+        this.fromString = fromString;
         this.left = left;
         this.op = op;
         this.right = right;
+
+        if (fromString) {
+            const match = (/([^\s]+)\s+(([^\s]+)(\s+([^\s]+))?)?/gim).exec(fromString);
+
+            if (match) {
+                let [, left, , op, , right] = match;
+
+                if (op) {
+                    op = op.toLowerCase();
+
+                    switch (op) {
+                    case undefined:
+                    case null:
+                    case '=':
+                        break;
+                    case 'in':
+                        if (right) {
+                            right = right.split(/\s*,\s*/);
+                        }
+                        break;
+                    default:
+                        break;
+                    }
+                }
+
+                this.left = left;
+                this.op = op;
+                this.right = right;
+            }
+        } else {
+            this.fromString = [left, op, right].join(' ');
+        }
     }
 
     get right() {
@@ -36,109 +69,76 @@ export class Filter {
         };
     }
 
-    static parse(str) {
-        const match = (/([^\s]+)(\s+((=|in|.+)\s*)?)?([^\s]+)?/gim).exec(str);
+    get isLeftValid() {
 
-        if (match) {
-            const [, left, opStart,, validOp, rightStr] = match;
-
-            console.log(JSON.stringify(str), {left, opStart, validOp, rightStr});
-
-            let op = null;
-
-            let right = '';
-
-            if (validOp) {
-                op = validOp.toLowerCase();
-
-                switch (op) {
-                case undefined:
-                case null:
-                case '=':
-                    break;
-                case 'in':
-                    if (rightStr) {
-                        right = rightStr.split(/\s*,\s*/);
-                    }
-                    break;
-                default:
-                    throw new Error(`Unknown filter operator: "${op}"`);
-                }
-            } else if (opStart) {
-                op = opStart;
-            }
-
-            return new Filter({left, op, right});
-        } else return new Filter();
-    }
-
-    toSQLString() {
-
-        switch (this.op) {
-
-        case '=':
-
-            return `"${this.left}"='${this.right}'`;
-        case 'in':
-
-            return `"${this.left}" in (${this.right.map((v) => `'${v}'`).join(',')})`;
-        default:
-            throw new Error(`Unknown filter operator: "${this.op}"`);
-        }
-    }
-
-    toString() {
-        switch (this.op) {
-
-        case undefined:
-        case null:
-
-            return this.left || '';
-        case '=':
-
-            if (this.right) {
-
-                return `${this.left} = ${this.right}`;
-            } else {
-
-                return `${this.left} = `;
-            }
-        case 'in':
-
-            if (this.right) {
-
-                if (this.right.length > 0) {
-                    const firstValue = this.right[0].toString();
-                    const firstDisplayValue = `${firstValue.substring(0, 10)}${firstValue.length > 10 ? '...' : ''}`;
-
-                    if (this.right.length > 1) {
-
-                        return `${this.left} in [${firstDisplayValue}, ...]`;
-                    } else {
-
-                        return `${this.left} in [${firstDisplayValue}]`;
-                    }
-                } else {
-
-                    return `${this.left} in []`;
-                }
-            } else {
-
-                return `${this.left} in `;
-            }
-        default:
-            return this.left + this.op;
-        }
+        return Boolean(this.left);
     }
 
     get isOpValid() {
 
-        return ['=', 'in'].includes(this.op);
+        return this.op && (['=', 'in'].includes(this.op));
     }
 
-    get isComplete() {
+    get isRightValid() {
 
-        return this.left && this.isOpValid && this.right;
+        return Boolean(this.right);
+    }
+
+    get isValid() {
+
+        return this.isLeftValid && this.isOpValid && this.isRightValid;
+    }
+
+    toSQLString() {
+
+        if (this.isValid) {
+
+            switch (this.op) {
+
+            case '=':
+
+                return `"${this.left}"='${this.right}'`;
+            case 'in':
+
+                return `"${this.left}" in (${this.right.map((v) => `'${v}'`).join(',')})`;
+            default:
+                throw new Error(`Unknown filter operator: "${this.op}"`);
+            }
+        } else {
+            throw new Error(`Invalid filter: ${this.fromString}`);
+        }
+    }
+
+    toString() {
+
+        if (this.isValid) {
+            let {left, op, right} = this;
+
+            switch (op) {
+
+            case 'in':
+
+                if (right.length > 0) {
+                    const firstValue = right[0].toString();
+                    const firstDisplayValue = `${firstValue.substring(0, 10)}${firstValue.length > 10 ? '...' : ''}`;
+
+                    if (right.length > 1) {
+
+                        right = `[${firstDisplayValue}, ...]`;
+                    } else {
+
+                        right = `[${firstDisplayValue}]`;
+                    }
+                }
+            default:
+                break;
+            }
+
+            return `${left} ${op} ${right}`;
+        } else {
+
+            return this.fromString || '';
+        }
     }
 }
 

@@ -44,7 +44,7 @@ RenderedFilter.propTypes = {
 };
 
 const FilterInput = ({
-    inputPlaceholder = 'filter1=foo filter2=bar',
+    inputPlaceholder = 'foo = bar',
     onChange,
     modelStore,
     filtersStore
@@ -62,22 +62,12 @@ const FilterInput = ({
     const {mlModelId} = modelStore.getModelById(_id);
 
     const getSuggestions = async () => {
-        const {left: key, isOpValid, right: value} = newFilter;
+        const {left: key, op, right: value, fromString} = newFilter;
 
         try {
-            if (key && isOpValid) {
-                const allSuggestions = await metricsClient('queries/get-suggestions-with-key', {
-                    key,
-                    value,
-                    ml_model_id: mlModelId
-                });
-
-                const allSuggestionValues = allSuggestions.map(({value}) => value);
-
-                setSuggestions(allSuggestionValues);
-            } else {
+            if (!newFilter.isLeftValid) {
                 const allSuggestions = await metricsClient('queries/get-suggestions-without-key', {
-                    key
+                    key: fromString
                 });
                 const allSuggestionValues = allSuggestions.map(({value}) => value);
                 const non1Options = await metricsClient('queries/all-key-options', {
@@ -89,6 +79,17 @@ const FilterInput = ({
                 const filteredKeys = allSuggestionValues.filter((v) => non1Options[v] > 1);
 
                 setSuggestions([...filteredKeys]);
+            } else if (!newFilter.isOpValid) {
+                setSuggestions([' = ', ' in ', ' < ', ' > ']);
+            } else {
+                const allSuggestions = await metricsClient('queries/get-suggestions-with-key', {
+                    key,
+                    value,
+                    ml_model_id: mlModelId
+                });
+                const allSuggestionValues = allSuggestions.map(({value}) => value);
+
+                setSuggestions(allSuggestionValues);
             }
         } catch (e) {
             setSuggestions([]);
@@ -104,43 +105,26 @@ const FilterInput = ({
                 console.error(e);
             }
         }
-    }, [newFilter, showSuggestions]);
-
-    const handleEndCharacterKey = (e) => {
-        if (e.keyCode === 9) {
-            e.preventDefault();
-        }
-        //on enter while suggestion is selected
-        const parsedFilter = Filter.parse(e.target.value);
-
-        if (parsedFilter.isComplete) {
-            setFilters([...filters, parsedFilter]);
-            setNewFilter(new Filter());
-        } else {
-            setNewFilter(parsedFilter);
-        }
-    };
+    }, [newFilter.toString(), showSuggestions]);
 
     const handleKeyDown = (e) => {
+        const {keyCode, target: {value}} = e;
 
-        if (e.keyCode === 38 && suggestionIndex > 0) {
+        if (keyCode === 38 && suggestionIndex > 0) {
             //on arrow up
             setSuggestionIndex(suggestionIndex - 1);
-        } else if (e.keyCode === 40 && suggestionIndex < suggestions.length - 1) {
+        } else if (keyCode === 40 && suggestionIndex < suggestions.length - 1) {
             //on arrow down
             setSuggestionIndex(suggestionIndex + 1);
         } else if (e.key === 'Escape') {
             //escape
             setSuggestions([]);
             setSuggestionIndex(-1);
-        } else if ((e.keyCode === 13 || e.keyCode === 9) && suggestionIndex !== -1) {
-            // on enter to select the suggestion
+        } else if ((keyCode === 13 || keyCode === 9) && suggestionIndex !== -1) {
+            // on enter or tab to select the suggestion
             handleSuggestionSelected(suggestions[suggestionIndex]);
             setSuggestionIndex(-1);
-        } else if (e.keyCode === 32) {
-            //on space
-            handleEndCharacterKey(e);
-        } else if (e.keyCode === 13 && !e.target.value && filters.length) {
+        } else if (keyCode === 13 && !value && filters.length) {
             // on enter to apply all
             onChange([...appliedFilters, ...filters]);
             setFilters([]);
@@ -159,12 +143,18 @@ const FilterInput = ({
     };
 
     const handleSuggestionSelected = (suggestion) => {
-        if (newFilter.left && newFilter.isOpValid) {
+
+        if (!newFilter.isLeftValid) {
+
+            setNewFilter(new Filter({left: suggestion}));
+        } else if (!newFilter.isOpValid) {
+
+            setNewFilter(new Filter({left: newFilter.left, op: suggestion}));
+        } else {
+
             newFilter.right = suggestion;
             setFilters([...filters, newFilter]);
             setNewFilter(new Filter());
-        } else {
-            setNewFilter(new Filter({left: suggestion, op: '='}));
         }
     };
 
@@ -186,7 +176,8 @@ const FilterInput = ({
                     ))}
                     <input
                         onChange={(e) => {
-                            setNewFilter(Filter.parse(e.target.value));
+
+                            setNewFilter(new Filter({fromString: e.target.value}));
                         }}
                         onKeyDown={handleKeyDown}
                         placeholder={filters.length === 0 ? inputPlaceholder : ''}

@@ -35,10 +35,12 @@ module.exports = {
                 use: {
                     loader: 'babel-loader',
                     options: {
-                        presets: ['@babel/preset-env', ['@babel/preset-react', {
+                        presets: [['@babel/preset-env', {
+                            // Avoids a shitshow debugging transpiled async/await
+                            targets: 'last 2 years'
+                        }], ['@babel/preset-react', {
                             runtime: 'automatic'
-                        }]],
-                        plugins: ['@babel/plugin-transform-runtime']
+                        }]]
                     }
                 }
             },
