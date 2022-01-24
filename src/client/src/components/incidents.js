@@ -24,9 +24,9 @@ const IncidentRow = ({
             } incident-row`}
         >
             {!resolved && (
-                <label className="checkbox">
+                <label className='checkbox'>
                     <input
-                        type="checkbox"
+                        type='checkbox'
                         checked={checked}
                         onChange={(event) => {
                             selectCallback(id, event.target.checked);
@@ -48,12 +48,12 @@ const IncidentRow = ({
                 {name}
             </span>
             <Button
-                className="text-white btn-incident p-0 fs-6"
+                className='text-white btn-incident p-0 fs-6'
                 variant={resolved ? 'success' : 'warning'}
             >
                 {resolved ? 'Resolved' : 'Open'}
             </Button>
-            {!isMainRow && <div className="mx-2" />}
+            {!isMainRow && <div className='mx-2' />}
         </div>
     );
 };
@@ -102,11 +102,11 @@ const Incidents = ({incidents, refreshCallback, loading}) => {
 
     const handleSelectAllEvents = (checked) => {
         setSelectedEventIds(
-            checked
-                ? incidents.data
-                      .filter((incident) => incident.state === 'open')
-                      .map((incident) => incident.alert_id)
-                : []
+            checked ?
+                incidents.data
+                    .filter((incident) => incident.state === 'open')
+                    .map((incident) => incident.alert_id) :
+                []
         );
     };
 
@@ -123,21 +123,21 @@ const Incidents = ({incidents, refreshCallback, loading}) => {
     };
 
     return (
-        <div className="incidents">
-            <div className="header mb-3">
-                <p className="bold-text fs-3 text-dark">Incidents</p>
-                <div className="d-flex gap-2">
+        <div className='incidents'>
+            <div className='header mb-3'>
+                <p className='bold-text fs-3 text-dark'>Incidents</p>
+                <div className='d-flex gap-2'>
                     <Button
                         style={{width: 40}}
-                        className="text-white bold-text"
-                        variant="light"
+                        className='text-white bold-text'
+                        variant='light'
                         onClick={() => refreshCallback(page)}
                     >
-                        <FontIcon className="text-black" icon="Refresh" size={14} />
+                        <FontIcon className='text-black' icon='Refresh' size={14} />
                     </Button>
                     <Button
-                        className="text-white bold-text fs-6"
-                        variant="primary"
+                        className='text-white bold-text fs-6'
+                        variant='primary'
                         onClick={() => setResolveIncidentModal(true)}
                         disabled={selectedEventIds.length === 0}
                     >
@@ -145,18 +145,17 @@ const Incidents = ({incidents, refreshCallback, loading}) => {
                     </Button>
                 </div>
             </div>
-            <div className="border rounded px-3">
-                <div className="table-row py-4 text-secondary bold-text">
-                    <div className="flex-grow-1">
-                        <label className="checkbox">
+            <div className='border rounded px-3'>
+                <div className='table-row py-4 text-secondary bold-text'>
+                    <div className='flex-grow-1'>
+                        <label className='checkbox'>
                             <input
-                                type="checkbox"
+                                type='checkbox'
                                 checked={allEventsSelected}
-                                onChange={(event) =>
-                                    handleSelectAllEvents(event.target.checked)
+                                onChange={(event) => handleSelectAllEvents(event.target.checked)
                                 }
                             />
-                            <span className="fs-6">Incidents Name</span>
+                            <span className='fs-6'>Incidents Name</span>
                         </label>
                     </div>
                 </div>
@@ -194,21 +193,21 @@ const Incidents = ({incidents, refreshCallback, loading}) => {
                 isOpen={resolveIncidentModal}
                 onClose={() => setResolveIncidentModal(false)}
             >
-                <p className="text-dark bold-text fs-4 my-5 px-3 text-center">
+                <p className='text-dark bold-text fs-4 my-5 px-3 text-center'>
                     Are you sure you want to resolve selected incidents?
                 </p>
-                <div className="d-flex justify-content-center border-top pt-4">
+                <div className='d-flex justify-content-center border-top pt-4'>
                     <Button
-                        className="text-white mx-2 py-2 px-5 bold-text fs-6"
+                        className='text-white mx-2 py-2 px-5 bold-text fs-6'
                         onClick={() => handleResolveEvents()}
-                        variant="primary"
+                        variant='primary'
                     >
                         RESOLVE
                     </Button>
                     <Button
-                        className="text-secondary mx-2 py-2 px-5 bold-text fs-6"
+                        className='text-secondary mx-2 py-2 px-5 bold-text fs-6'
                         onClick={() => setResolveIncidentModal(false)}
-                        variant="light"
+                        variant='light'
                     >
                         CANCEL
                     </Button>
@@ -221,7 +220,6 @@ const Incidents = ({incidents, refreshCallback, loading}) => {
 Incidents.propTypes = {
     incidents: PropTypes.array,
     refreshCallback: PropTypes.func,
-    onDeleteRefreshCallback: PropTypes.func,
     loading: PropTypes.bool
 };
 

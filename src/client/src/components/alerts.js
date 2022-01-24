@@ -155,6 +155,7 @@ const Alerts = ({alerts, refreshCallback, onDeleteRefreshCallback, loading}) => 
 Alerts.propTypes = {
     alerts: PropTypes.object,
     refreshCallback: PropTypes.func,
+    onDeleteRefreshCallback: PropTypes.func,
     loading: PropTypes.bool
 };
 
