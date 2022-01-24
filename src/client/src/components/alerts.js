@@ -8,15 +8,13 @@ import {Link, useParams} from 'react-router-dom';
 import useModal from '../customHooks/useModal';
 import Modal from './modal';
 import baseJSONClient from 'clients/base-json-client';
+import BarLoader from 'react-spinners/BarLoader';
 
 const Alert = ({name, onDelete, onEdit}) => {
     return (
         <div className='table-row py-4 text-dark'>
             <div className='col bold-text'>
-                <label className='checkbox'>
-                    <input type='checkbox' />
-                    <span className='fs-6'>{name}</span>
-                </label>
+                <span className='fs-6'>{name}</span>
             </div>
             <div className='col actions-cell'>
                 <FontIcon
@@ -42,14 +40,15 @@ Alert.propTypes = {
     onEdit: PropTypes.func
 };
 
-const Alerts = ({alerts, refreshCallback}) => {
+const Alerts = ({alerts, refreshCallback, onDeleteRefreshCallback, loading}) => {
     const [selectedAlert, setSelectedAlert] = useState(null);
-    const [deleteAlertModal, setDeleteAlertModal] = useModal(false);
+    const [deleteAlertModal, setDeleteAlertModal] = useModal(null);
     const {_id} = useParams();
+    const [page, setPage] = useState(1);
 
     useEffect(() => {
-        if (deleteAlertModal === false) {
-            refreshCallback();
+        if (deleteAlertModal !== null && deleteAlertModal === false) {
+            refreshCallback(page);
         }
     }, [deleteAlertModal]);
 
@@ -63,17 +62,13 @@ const Alerts = ({alerts, refreshCallback}) => {
         baseJSONClient(`/api/tasks/alerts/delete/${selectedAlert._id}`, {
             method: 'delete'
         }).then(() => {
-            refreshCallback();
+            onDeleteRefreshCallback(page);
             setDeleteAlertModal(false);
         });
     };
 
     const handleAlertEdit = () => {
         // edit alert
-    };
-
-    const handlePageChange = () => {
-        // get alerts for incoming page
     };
 
     return (
@@ -100,31 +95,46 @@ const Alerts = ({alerts, refreshCallback}) => {
                         </div>
                         <div className='actions-cell fs-6 col'>Action</div>
                     </div>
-                    {alerts.map((alert) => (
-                        <Alert
-                            key={alert._id}
-                            name={alert.name}
-                            onDelete={() => {
-                                setSelectedAlert(alert);
-                                setDeleteAlertModal(true);
-                            }}
-                            onEdit={handleAlertEdit}
-                        />
-                    ))}
+                    <div
+                        style={{
+                            position: 'relative',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            zIndex: 10
+                        }}
+                    >
+                        <BarLoader loading={loading} size={150} />
+                    </div>
+                    {alerts.data &&
+                        alerts.data.map((alert) => (
+                            <Alert
+                                key={alert._id}
+                                name={alert.name}
+                                onDelete={() => {
+                                    setSelectedAlert(alert);
+                                    setDeleteAlertModal(true);
+                                }}
+                                onEdit={handleAlertEdit}
+                            />
+                        ))}
                 </div>
                 <Pagination
-                    onPageChange={(page) => handlePageChange(page)}
-                    totalPages={8}
+                    onPageChange={(page) => {
+                        setPage(page);
+                        refreshCallback(page);
+                    }}
+                    totalPages={alerts.total_pages}
+                    overrideSelectedPage={page}
                 />
             </div>
-            <Modal isOpen={deleteAlertModal} onClose={closeModal}>
+            <Modal isOpen={deleteAlertModal} onClose={() => closeModal()}>
                 <p className='text-dark bold-text fs-4 my-5 px-3 text-center'>
                     Are you sure you want do delete {selectedAlert?.name} alert?
                 </p>
                 <div className='d-flex justify-content-center border-top pt-4'>
                     <Button
                         className='text-white mx-2 py-2 px-5 bold-text fs-6'
-                        onClick={handleAlertDelete}
+                        onClick={() => handleAlertDelete()}
                         variant='primary'
                     >
                         DELETE
@@ -143,8 +153,9 @@ const Alerts = ({alerts, refreshCallback}) => {
 };
 
 Alerts.propTypes = {
-    alerts: PropTypes.array,
-    refreshCallback: PropTypes.func
+    alerts: PropTypes.object,
+    refreshCallback: PropTypes.func,
+    loading: PropTypes.bool
 };
 
 export default Alerts;

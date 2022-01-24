@@ -1,35 +1,52 @@
 import baseJSONClient from 'clients/base-json-client';
 import Alerts from 'components/alerts';
 import Incidents from 'components/incidents';
+import {setupComponent} from 'helpers/component-helper';
 import React from 'react';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
-import {setupComponent} from 'helpers/component-helper';
 
 const IncidentsAndAlerts = () => {
     const [alerts, setAlerts] = React.useState([]);
+    const [alertsLoading, setAlertsLoading] = React.useState(false);
     const [incidents, setIncidents] = React.useState([]);
+    const [incidentsLoading, setIncidentsLoading] = React.useState(false);
 
-    const refresh = (alerts = true, incidents = true) => {
-        if (alerts) {
-            baseJSONClient('/api/tasks/alerts/list').then((response) => {
-                setAlerts(response.alerts);
-            });
-        }
-        if (incidents) {
-            baseJSONClient('/api/tasks/alerts/events/list').then((response) => {
-                setIncidents(response.alert_events);
-            });
-        }
+    const fetchAlerts = (page = 1) => {
+        setAlertsLoading(true);
+        baseJSONClient(`/api/tasks/alerts/list/${page}`).then((response) => {
+            setAlerts(response.alerts);
+            setAlertsLoading(false);
+        });
+    };
+
+    const fetchIncidents = (page = 1) => {
+        setIncidentsLoading(true);
+        baseJSONClient(`/api/tasks/alerts/events/list/${page}`).then((response) => {
+            setIncidents(response.alert_events);
+            setIncidentsLoading(false);
+        });
     };
 
     return (
         <Row className='my-3'>
             <Col lg={6}>
-                <Incidents incidents={incidents} refreshCallback={refresh} />
+                <Incidents
+                    incidents={incidents}
+                    refreshCallback={fetchIncidents}
+                    loading={incidentsLoading}
+                />
             </Col>
             <Col lg={6}>
-                <Alerts alerts={alerts} refreshCallback={refresh} />
+                <Alerts
+                    alerts={alerts}
+                    refreshCallback={fetchAlerts}
+                    onDeleteRefreshCallback={() => {
+                        fetchIncidents();
+                        fetchAlerts();
+                    }}
+                    loading={alertsLoading}
+                />
             </Col>
         </Row>
     );

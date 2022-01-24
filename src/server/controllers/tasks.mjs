@@ -1,7 +1,7 @@
 import axios from 'axios';
 import express from 'express';
 import fetch from 'node-fetch';
-import { isAuthenticated } from '../middleware/authentication.mjs';
+import {isAuthenticated} from '../middleware/authentication.mjs';
 
 const {OVERRIDE_DRUID_ORG_ID, ALERTS_SERVICE_URL} = process.env;
 
@@ -9,13 +9,16 @@ const TasksRouter = express.Router();
 
 TasksRouter.all('*', isAuthenticated);
 
-TasksRouter.get('/alerts/list', async (req, res, next) => {
+TasksRouter.get('/alerts/list/:page', async (req, res, next) => {
     try {
         const {activeOrganizationMembership} = req.user;
         const organizationId = String(activeOrganizationMembership.organization._id);
+        const {page} = req.params;
 
         await axios
-            .get(`${ALERTS_SERVICE_URL}/alerts?organization_id=${organizationId}`)
+            .get(
+                `${ALERTS_SERVICE_URL}/alerts?organization_id=${organizationId}&page=${page}`
+            )
             .then((response) => {
                 res.status(response.status);
                 res.json(response.data);
@@ -64,14 +67,15 @@ TasksRouter.delete('/alerts/delete/:alertId', async (req, res, next) => {
     }
 });
 
-TasksRouter.get('/alerts/events/list', async (req, res, next) => {
+TasksRouter.get('/alerts/events/list/:page', async (req, res, next) => {
     try {
         const {activeOrganizationMembership} = req.user;
         const organizationId = String(activeOrganizationMembership.organization._id);
+        const {page} = req.params;
 
         await axios
             .get(
-                `${ALERTS_SERVICE_URL}/alert/events?organization_id=${organizationId}`
+                `${ALERTS_SERVICE_URL}/alert/events?organization_id=${organizationId}&page=${page}`
             )
             .then((response) => {
                 res.status(response.status);
