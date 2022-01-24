@@ -84,6 +84,7 @@ const FilterInput = ({
                     keys_calc: allSuggestionValues.map((value) => `COUNT(DISTINCT "${value}") FILTER(WHERE "${value}" IS NOT NULL) as "${value}"`).join(', '),
                     ml_model_id: mlModelId
                 });
+                const filteredKeys = allSuggestionValues.filter((v) => non1Options[v] > 0);
 
                 setSuggestions([...filteredKeys]);
             }
