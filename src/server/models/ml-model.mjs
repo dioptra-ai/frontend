@@ -39,7 +39,18 @@ const mlModelSchema = new mongoose.Schema({
     referencePeriod: {
         start: Date,
         end: Date
-    }
+    },
+    benchmarkModel: String,
+    benchmarkMlModelVersion: String,
+    benchmarkType: {
+        type: String,
+        enum: [
+            'timeframe',
+            'dataset',
+            'none'
+        ]
+    },
+    offlineBenchmarkDatasetId: String
 }, {timestamps: true});
 
 const MlModel = mongoose.model('MlModel', mlModelSchema);
