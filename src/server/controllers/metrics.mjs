@@ -1,3 +1,4 @@
+import url from 'url';
 import axios from 'axios';
 import express from 'express';
 import fetch from 'node-fetch';
@@ -73,6 +74,32 @@ MetricsRouter.post(
     }
 );
 
+MetricsRouter.get('*', async (req, res, next) => {
+    try {
+        const originalUrl = url.parse(req.url);
+        const originalQS = new url.URLSearchParams(originalUrl.query);
+
+        originalQS.set('organization_id', OVERRIDE_DRUID_ORG_ID || req.user.activeOrganizationMembership.organization._id);
+
+        const newurl = {...originalUrl, search: originalQS.toString()};
+        const metricsEnginePath = `${process.env.METRICS_ENGINE_URL}${url.format(newurl)}`;
+        const metricsResponse = await fetch(metricsEnginePath);
+
+        if (metricsResponse.status !== 200) {
+            const json = await metricsResponse.json();
+
+            res.status(metricsResponse.status);
+
+            throw new Error(json.error.message);
+        } else {
+            metricsResponse.body.pipe(res);
+        }
+
+    } catch (e) {
+        next(e);
+    }
+});
+
 MetricsRouter.post('*', async (req, res, next) => {
     try {
         const metricsEnginePath = `${process.env.METRICS_ENGINE_URL}${req.url}`;
@@ -83,8 +110,7 @@ MetricsRouter.post('*', async (req, res, next) => {
             body: JSON.stringify({
                 ...req.body,
                 organization_id:
-                    OVERRIDE_DRUID_ORG_ID ||
-                    req.user.activeOrganizationMembership.organization._id
+                    OVERRIDE_DRUID_ORG_ID || req.user.activeOrganizationMembership.organization._id
             }),
             method: 'post'
         });

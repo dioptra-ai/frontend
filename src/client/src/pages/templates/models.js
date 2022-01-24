@@ -229,7 +229,7 @@ const Models = ({modelStore}) => {
                             </Button>
                         </span>
                     </div>
-                    <div className='mt-5'>
+                    <div>
                         <Table className='models-table'>
                             <thead className='align-middle text-secondary'>
                                 <tr className='border-0 border-bottom border-mercury'>

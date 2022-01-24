@@ -4,7 +4,7 @@ const metricsClient = (path, body, method = 'post', headers = {'content-type': '
 
     return baseJSONClient(`/api/metrics/${path}`, { //baseJSONClient uses memoization logic when memoization=true
         method, headers,
-        body,
+        body: method.toLowerCase() === 'get' ? null : body,
         memoized: true
     });
 

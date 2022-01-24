@@ -31,7 +31,7 @@ const baseJSONClient = (url, {method = 'get', body, headers = {'content-type': '
 
     return fetch(url, {
         method, headers,
-        body: JSON.stringify(body)
+        body: body ? JSON.stringify(body) : undefined
     });
 };
 
