@@ -14,7 +14,7 @@ const IncidentsAndAlerts = () => {
 
     const fetchAlerts = (page = 1) => {
         setAlertsLoading(true);
-        baseJSONClient(`/api/tasks/alerts/list/${page}`).then((response) => {
+        baseJSONClient(`/api/tasks/alerts?page=${page}`).then((response) => {
             setAlerts(response.alerts);
             setAlertsLoading(false);
         });
@@ -22,7 +22,7 @@ const IncidentsAndAlerts = () => {
 
     const fetchIncidents = (page = 1) => {
         setIncidentsLoading(true);
-        baseJSONClient(`/api/tasks/alerts/events/list/${page}`).then((response) => {
+        baseJSONClient(`/api/tasks/alert/events?page=${page}`).then((response) => {
             setIncidents(response.alert_events);
             setIncidentsLoading(false);
         });

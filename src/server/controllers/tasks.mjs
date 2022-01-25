@@ -9,93 +9,16 @@ const TasksRouter = express.Router();
 
 TasksRouter.all('*', isAuthenticated);
 
-TasksRouter.get('/alerts/list/:page', async (req, res, next) => {
+TasksRouter.get('*', async (req, res, next) => {
     try {
         const {activeOrganizationMembership} = req.user;
         const organizationId = String(activeOrganizationMembership.organization._id);
-        const {page} = req.params;
 
         await axios
             .get(
-                `${ALERTS_SERVICE_URL}/alerts?organization_id=${organizationId}&page=${page}`
-            )
-            .then((response) => {
-                res.status(response.status);
-                res.json(response.data);
-            });
-    } catch (e) {
-        next(e);
-    }
-});
-
-TasksRouter.post('/alerts/add', async (req, res, next) => {
-    try {
-        const {activeOrganizationMembership} = req.user;
-        const organizationId = String(activeOrganizationMembership.organization._id);
-        const payload = req.body;
-
-        await axios
-            .post(
-                `${ALERTS_SERVICE_URL}/alert?organization_id=${organizationId}`,
-                payload
-            )
-            .then((response) => {
-                res.status(response.status);
-                res.json(response.data);
-            });
-    } catch (e) {
-        next(e);
-    }
-});
-
-TasksRouter.delete('/alerts/delete/:alertId', async (req, res, next) => {
-    try {
-        const {activeOrganizationMembership} = req.user;
-        const organizationId = String(activeOrganizationMembership.organization._id);
-        const {alertId} = req.params;
-
-        await axios
-            .delete(
-                `${ALERTS_SERVICE_URL}/alert?alert_id=${alertId}&organization_id=${organizationId}`
-            )
-            .then((response) => {
-                res.status(response.status);
-                res.json(response.data);
-            });
-    } catch (e) {
-        next(e);
-    }
-});
-
-TasksRouter.get('/alerts/events/list/:page', async (req, res, next) => {
-    try {
-        const {activeOrganizationMembership} = req.user;
-        const organizationId = String(activeOrganizationMembership.organization._id);
-        const {page} = req.params;
-
-        await axios
-            .get(
-                `${ALERTS_SERVICE_URL}/alert/events?organization_id=${organizationId}&page=${page}`
-            )
-            .then((response) => {
-                res.status(response.status);
-                res.json(response.data);
-            });
-    } catch (e) {
-        next(e);
-    }
-});
-
-TasksRouter.post('/alerts/event/resolve', async (req, res, next) => {
-    try {
-        const {activeOrganizationMembership} = req.user;
-        const organizationId = String(activeOrganizationMembership.organization._id);
-        const payload = req.body;
-
-        await axios
-            .post(
-                `${ALERTS_SERVICE_URL}/alert/event/resolve?organization_id=${organizationId}`,
-                payload
+                `${ALERTS_SERVICE_URL}${req.url}${
+                    req.url.includes('?') ? '&' : '?'
+                }organization_id=${organizationId}`
             )
             .then((response) => {
                 res.status(response.status);
@@ -108,16 +31,16 @@ TasksRouter.post('/alerts/event/resolve', async (req, res, next) => {
 
 TasksRouter.post('*', async (req, res, next) => {
     try {
-        const taskEnginePath = `${process.env.TASK_ENGINE_URL}${req.url}`;
+        const {activeOrganizationMembership} = req.user;
+        const organizationId = String(activeOrganizationMembership.organization._id);
+        const taskEnginePath = `${process.env.TASK_ENGINE_URL}${req.url}?organization_id=${organizationId}`;
         const taskEngineResponse = await fetch(taskEnginePath, {
             headers: {
                 'content-type': 'application/json;charset=UTF-8'
             },
             body: JSON.stringify({
                 ...req.body,
-                organization_id:
-                    OVERRIDE_DRUID_ORG_ID ||
-                    req.user.activeOrganizationMembership.organization._id
+                organization_id: OVERRIDE_DRUID_ORG_ID || organizationId
             }),
             method: 'post'
         });
@@ -131,6 +54,26 @@ TasksRouter.post('*', async (req, res, next) => {
         } else {
             taskEngineResponse.body.pipe(res);
         }
+    } catch (e) {
+        next(e);
+    }
+});
+
+TasksRouter.delete('*', async (req, res, next) => {
+    try {
+        const {activeOrganizationMembership} = req.user;
+        const organizationId = String(activeOrganizationMembership.organization._id);
+
+        await axios
+            .delete(
+                `${ALERTS_SERVICE_URL}${req.url}${
+                    req.url.includes('?') ? '&' : '?'
+                }organization_id=${organizationId}`
+            )
+            .then((response) => {
+                res.status(response.status);
+                res.json(response.data);
+            });
     } catch (e) {
         next(e);
     }

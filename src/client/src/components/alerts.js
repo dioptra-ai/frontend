@@ -1,30 +1,32 @@
-import React, {useEffect, useState} from 'react';
-import Button from 'react-bootstrap/Button';
-import FontIcon from './font-icon';
-import {IconNames} from '../constants';
-import PropTypes from 'prop-types';
-import Pagination from './pagination';
-import {Link, useParams} from 'react-router-dom';
-import useModal from '../customHooks/useModal';
-import Modal from './modal';
 import baseJSONClient from 'clients/base-json-client';
+import PropTypes from 'prop-types';
+import React, { useState } from 'react';
+import Button from 'react-bootstrap/Button';
+import { Link, useParams } from 'react-router-dom';
 import BarLoader from 'react-spinners/BarLoader';
+import { IconNames } from '../constants';
+import useModal from '../customHooks/useModal';
+import FontIcon from './font-icon';
+import Modal from './modal';
+import Pagination from './pagination';
 
 const Alert = ({name, onDelete, onEdit}) => {
     return (
-        <div className='table-row py-4 text-dark'>
-            <div className='col bold-text'>
-                <span className='fs-6'>{name}</span>
+        <div className="table-row py-4 text-dark">
+            <div className="col bold-text">
+                <span className="fs-6">{name}</span>
             </div>
-            <div className='col actions-cell'>
+            <div className="col actions-cell">
+                {false && (
+                    <FontIcon
+                        className="text-dark mx-2"
+                        icon={IconNames.EDIT}
+                        onClick={onEdit}
+                        size={20}
+                    />
+                )}
                 <FontIcon
-                    className='text-dark mx-2'
-                    icon={IconNames.EDIT}
-                    onClick={onEdit}
-                    size={20}
-                />
-                <FontIcon
-                    className='text-dark mx-2'
+                    className="text-dark mx-2"
                     icon={IconNames.BIN}
                     onClick={onDelete}
                     size={20}
@@ -46,20 +48,12 @@ const Alerts = ({alerts, refreshCallback, onDeleteRefreshCallback, loading}) => 
     const {_id} = useParams();
     const [page, setPage] = useState(1);
 
-    useEffect(() => {
-        if (deleteAlertModal !== null && deleteAlertModal === false) {
-            refreshCallback(page);
-        }
-    }, [deleteAlertModal]);
-
-    useEffect(() => {}, []);
-
     const closeModal = () => {
         setDeleteAlertModal(false);
     };
 
     const handleAlertDelete = () => {
-        baseJSONClient(`/api/tasks/alerts/delete/${selectedAlert._id}`, {
+        baseJSONClient(`/api/tasks/alert?id=${selectedAlert._id}`, {
             method: 'delete'
         }).then(() => {
             onDeleteRefreshCallback(page);
@@ -73,27 +67,27 @@ const Alerts = ({alerts, refreshCallback, onDeleteRefreshCallback, loading}) => 
 
     return (
         <>
-            <div className='alerts'>
-                <div className='header mb-3'>
-                    <p className='bold-text fs-3 text-dark'>Alerts</p>
+            <div className="alerts">
+                <div className="header mb-3">
+                    <p className="bold-text fs-3 text-dark">Alerts</p>
                     <Link to={`/${_id}/add-alert`}>
                         <Button
-                            className='text-white bold-text fs-6'
-                            variant='primary'
+                            className="text-white bold-text fs-6"
+                            variant="primary"
                         >
-                            <FontIcon className='text-white' icon='Plus' size={10} />
+                            <FontIcon className="text-white" icon="Plus" size={10} />
                             ADD ALERT
                         </Button>
                     </Link>
                 </div>
-                <div className='border rounded px-3'>
-                    <div className='table-row py-4 text-secondary bold-text'>
-                        <div className='col'>
-                            <label className='checkbox'>
-                                <span className='fs-6'>Alert Name</span>
+                <div className="border rounded px-3">
+                    <div className="table-row py-4 text-secondary bold-text">
+                        <div className="col">
+                            <label className="checkbox">
+                                <span className="fs-6">Alert Name</span>
                             </label>
                         </div>
-                        <div className='actions-cell fs-6 col'>Action</div>
+                        <div className="actions-cell fs-6 col">Action</div>
                     </div>
                     <div
                         style={{
@@ -105,18 +99,17 @@ const Alerts = ({alerts, refreshCallback, onDeleteRefreshCallback, loading}) => 
                     >
                         <BarLoader loading={loading} size={150} />
                     </div>
-                    {alerts.data &&
-                        alerts.data.map((alert) => (
-                            <Alert
-                                key={alert._id}
-                                name={alert.name}
-                                onDelete={() => {
-                                    setSelectedAlert(alert);
-                                    setDeleteAlertModal(true);
-                                }}
-                                onEdit={handleAlertEdit}
-                            />
-                        ))}
+                    {alerts.data?.map((alert) => (
+                        <Alert
+                            key={alert._id}
+                            name={alert.name}
+                            onDelete={() => {
+                                setSelectedAlert(alert);
+                                setDeleteAlertModal(true);
+                            }}
+                            onEdit={handleAlertEdit}
+                        />
+                    ))}
                 </div>
                 <Pagination
                     onPageChange={(page) => {
@@ -128,21 +121,21 @@ const Alerts = ({alerts, refreshCallback, onDeleteRefreshCallback, loading}) => 
                 />
             </div>
             <Modal isOpen={deleteAlertModal} onClose={() => closeModal()}>
-                <p className='text-dark bold-text fs-4 my-5 px-3 text-center'>
+                <p className="text-dark bold-text fs-4 my-5 px-3 text-center">
                     Are you sure you want do delete {selectedAlert?.name} alert?
                 </p>
-                <div className='d-flex justify-content-center border-top pt-4'>
+                <div className="d-flex justify-content-center border-top pt-4">
                     <Button
-                        className='text-white mx-2 py-2 px-5 bold-text fs-6'
+                        className="text-white mx-2 py-2 px-5 bold-text fs-6"
                         onClick={() => handleAlertDelete()}
-                        variant='primary'
+                        variant="primary"
                     >
                         DELETE
                     </Button>
                     <Button
-                        className='text-secondary mx-2 py-2 px-5 bold-text fs-6'
+                        className="text-secondary mx-2 py-2 px-5 bold-text fs-6"
                         onClick={() => setDeleteAlertModal(false)}
-                        variant='light'
+                        variant="light"
                     >
                         CANCEL
                     </Button>

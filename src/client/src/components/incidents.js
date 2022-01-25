@@ -2,6 +2,7 @@ import baseJSONClient from 'clients/base-json-client';
 import PropTypes from 'prop-types';
 import React, {useEffect, useState} from 'react';
 import Button from 'react-bootstrap/Button';
+import {IoRefreshSharp} from 'react-icons/io5';
 import BarLoader from 'react-spinners/BarLoader';
 import {IconNames} from '../constants';
 import useModal from '../customHooks/useModal';
@@ -111,7 +112,7 @@ const Incidents = ({incidents, refreshCallback, loading}) => {
     };
 
     const handleResolveEvents = () => {
-        baseJSONClient('/api/tasks/alerts/event/resolve', {
+        baseJSONClient('/api/tasks/alert/event/resolve', {
             method: 'post',
             body: {alert_ids: selectedEventIds}
         }).then(() => {
@@ -129,11 +130,11 @@ const Incidents = ({incidents, refreshCallback, loading}) => {
                 <div className='d-flex gap-2'>
                     <Button
                         style={{width: 40}}
-                        className='text-white bold-text'
-                        variant='light'
+                        className='text-white d-flex align-items-center justify-content-between ms-1 btn-secondary'
+                        variant='primary'
                         onClick={() => refreshCallback(page)}
                     >
-                        <FontIcon className='text-black' icon='Refresh' size={14} />
+                        <IoRefreshSharp className='fs-5' />
                     </Button>
                     <Button
                         className='text-white bold-text fs-6'
@@ -169,17 +170,16 @@ const Incidents = ({incidents, refreshCallback, loading}) => {
                 >
                     <BarLoader loading={loading} size={150} />
                 </div>
-                {incidents.data &&
-                    incidents.data.map((incident, i) => (
-                        <IncidentRow
-                            selectCallback={handleSelectEvent}
-                            checked={selectedEventIds.includes(incident.alert_id)}
-                            id={incident.alert_id}
-                            key={i}
-                            name={incident.message}
-                            resolved={incident.state === 'resolved'}
-                        />
-                    ))}
+                {incidents.data?.map((incident, i) => (
+                    <IncidentRow
+                        selectCallback={handleSelectEvent}
+                        checked={selectedEventIds.includes(incident.alert_id)}
+                        id={incident.alert_id}
+                        key={i}
+                        name={incident.message}
+                        resolved={incident.state === 'resolved'}
+                    />
+                ))}
             </div>
             <Pagination
                 onPageChange={(page) => {

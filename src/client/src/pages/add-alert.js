@@ -371,7 +371,7 @@ const AddAlertPage = ({timeStore}) => {
             notifications: {message, recipients, tags}
         };
 
-        baseJSONClient('/api/tasks/alerts/add', {
+        baseJSONClient('/api/tasks/alert', {
             method: 'POST',
             body: {
                 name: alertName,
