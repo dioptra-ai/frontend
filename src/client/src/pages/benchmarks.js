@@ -16,8 +16,12 @@ import FeatureAnalysis from './templates/model-template/feature-analysis';
 const Benchmarks = ({filtersStore, modelStore}) => {
     const mlModelIdFilter = filtersStore.filters.find((f) => f.left === 'model_id');
     const mlModelVersionFilter = filtersStore.filters.find((f) => f.left === 'model_version');
+    const datasetIdFilter = filtersStore.filters.find((f) => f.left === 'dataset_id');
+    const benchmarkIdFilter = filtersStore.filters.find((f) => f.left === 'benchmark_id');
     const mlModelId = mlModelIdFilter?.right;
     const mlModelVersion = mlModelVersionFilter?.right;
+    const datasetId = datasetIdFilter?.right;
+    const benchmarkId = benchmarkIdFilter?.right;
     const model = modelStore.models.find((model) => model.mlModelId === mlModelId);
 
     useSyncStoresToUrl(({filtersStore, segmentationStore}) => ({
@@ -40,7 +44,7 @@ const Benchmarks = ({filtersStore, modelStore}) => {
     }
 
     const tabs = [
-        {name: 'Performance Analysis', to: '/benchmarks/performance'}
+        {name: 'Performance Overview', to: '/benchmarks/performance'}
     ];
 
     if (model?.mlModelType !== 'Q_N_A') {
@@ -55,11 +59,15 @@ const Benchmarks = ({filtersStore, modelStore}) => {
         <Menu>
             <GeneralSearchBar shouldShowOnlySearchInput/>
             <Container className='bg-white-blue text-secondary py-2' fluid>
-
-                <Row className='align-items-center my-3 px-3'>
+                <Row className='align-items-center mt-3 px-3'>
                     <Col className='d-flex align-items-center'>
-                        <h1 className='text-dark fs-1 m-0 bold-text'>{model.name}</h1>
-                        <h3 className='text-secondary ms-3'>{mlModelVersion}</h3>
+                        <h1 className='text-dark fs-2 m-0 bold-text'>{datasetId}</h1>
+                    </Col>
+                </Row>
+                <Row className='align-items-center mb-3 px-3'>
+                    <Col className='d-flex align-items-center'>
+                        <h1 className='text-dark fs-3 m-0 bold-text'>{model.name}</h1>
+                        <h3 className='text-secondary ms-3 fs-3'>{mlModelVersion}</h3>
                     </Col>
                 </Row>
             </Container>

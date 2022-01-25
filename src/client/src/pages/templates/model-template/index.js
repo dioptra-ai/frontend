@@ -39,12 +39,12 @@ const Model = ({modelStore}) => {
     useTimeStore(true);
 
     const tabs = [
-        {name: 'Performance Overview', to: `/${modelId}/performance-overview`}
+        {name: 'Performance Overview', to: `/models/${modelId}/performance-overview`}
     ];
 
     if (model?.mlModelType !== 'UNSUPERVISED_OBJECT_DETECTION') {
         tabs.push(
-            {name: 'Performance Analysis', to: `/${modelId}/performance-details`}
+            {name: 'Performance Analysis', to: `/models/${modelId}/performance-details`}
         );
     }
 

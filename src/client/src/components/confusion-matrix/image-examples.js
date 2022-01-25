@@ -77,9 +77,9 @@ const ImageExamples = ({onClose, groundtruth, prediction, iou, model}) => {
                             }
                         }}
                         refetchOnChanged={[groundtruth, prediction, iou, allSqlFilters, model.mlModelType]}
-                        fetchData={() => metricsClient(`queries/${model.mlModelType === 'DOCUMENT_PROCESSING' ?
+                        fetchData={() => metricsClient(`queries/${model.mlModelType === 'DOCUMENT_PROCESSING' || model.mlModelType === 'UNSUPERVISED_OBJECT_DETECTION' ?
                             'select-samples-for-document-processing' : 'select-samples-for-default'}`,
-                        model.mlModelType === 'DOCUMENT_PROCESSING' ?
+                        model.mlModelType === 'DOCUMENT_PROCESSING' || model.mlModelType === 'UNSUPERVISED_OBJECT_DETECTION' ?
                             {
                                 groundtruth,
                                 prediction,
