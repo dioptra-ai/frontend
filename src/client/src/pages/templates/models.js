@@ -161,10 +161,6 @@ const Models = ({modelStore}) => {
         (pageNumber) * NUMBER_OF_RECORDS_PER_PAGE
     );
 
-    useEffect(() => {
-        modelStore.fetchModels();
-    }, []);
-
     const handleSubmit = (data) => {
         if (errors) {
             setErrors([]);
@@ -229,7 +225,7 @@ const Models = ({modelStore}) => {
                             </Button>
                         </span>
                     </div>
-                    <div className='mt-5'>
+                    <div>
                         <Table className='models-table'>
                             <thead className='align-middle text-secondary'>
                                 <tr className='border-0 border-bottom border-mercury'>

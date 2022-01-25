@@ -40,7 +40,7 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
             <div className='my-3'>
                 <h3 className='text-dark bold-text fs-3 mb-3'>
                     {mlModelType === 'DOCUMENT_PROCESSING' ?
-                        'Class Offline / Online Skew' :
+                        'Class Distributions' :
                         'Prediction Analysis'}
                 </h3>
                 <Row className='my-3'>
@@ -64,103 +64,61 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                                 'online-class-distribution-2'}`, {sql_filters: allSqlFilters})}
                         />
                     </Col>
-                    <Col className='d-flex' lg={4}>
-                        <Async
-                            refetchOnChanged={[allOfflineSqlFilters, mlModelType]}
-                            renderData={(data) => (
-                                <BarGraph
-                                    bars={data.map(({prediction, my_percentage}) => ({
-                                        name: getName(prediction),
-                                        value: my_percentage,
-                                        fill: getHexColor(prediction)
-                                    }))}
-                                    title='Offline Class Distribution'
-                                    unit='%'
-                                />
-                            )}
-                            fetchData={() => metricsClient(`queries/${mlModelType === 'DOCUMENT_PROCESSING' ?
-                                'offline-class-distribution-1' :
-                                'offline-class-distribution-2'}`, {offline_sql_filters: allOfflineSqlFilters})}
-                        />
-                    </Col>
-                    <Col className='d-flex' lg={4}>
-                        <Async
-                            refetchOnChanged={[
-                                allOfflineSqlFilters, mlModelType,
-                                timeGranularity, allSqlFilters
-                            ]}
-                            renderData={(data) => (
-                                <AreaGraph
-                                    dots={data}
-                                    title='Offline / Online Distribution Distance'
-                                    unit='%'
-                                    xAxisDomain={timeStore.rangeMillisec}
-                                    xAxisName='Time'
-                                    yAxisName='Distance'
-                                />
-                            )}
-                            fetchData={() => metricsClient(`queries/${mlModelType === 'DOCUMENT_PROCESSING' ?
-                                'offline-online-distribution-distance-1' :
-                                'offline-online-distribution-distance-2'}`, {
-                                offline_sql_filters: allOfflineSqlFilters,
-                                time_granularity: timeGranularity,
-                                sql_filters: allSqlFilters
-                            })}
-                        />
-                    </Col>
+                    {
+                        timeStore.enabled ? (
+                            <>
+                                <Col className='d-flex' lg={4}>
+                                    <Async
+                                        refetchOnChanged={[allOfflineSqlFilters, mlModelType]}
+                                        renderData={(data) => (
+                                            <BarGraph
+                                                bars={data.map(({prediction, my_percentage}) => ({
+                                                    name: getName(prediction),
+                                                    value: my_percentage,
+                                                    fill: getHexColor(prediction)
+                                                }))}
+                                                title='Offline Class Distribution'
+                                                unit='%'
+                                            />
+                                        )}
+                                        fetchData={() => metricsClient(`queries/${mlModelType === 'DOCUMENT_PROCESSING' ?
+                                            'offline-class-distribution-1' :
+                                            'offline-class-distribution-2'}`, {offline_sql_filters: allOfflineSqlFilters})}
+                                    />
+                                </Col>
+                                <Col className='d-flex' lg={4}>
+                                    <Async
+                                        refetchOnChanged={[
+                                            allOfflineSqlFilters, mlModelType,
+                                            timeGranularity, allSqlFilters
+                                        ]}
+                                        renderData={(data) => (
+                                            <AreaGraph
+                                                dots={data}
+                                                title='Offline / Online Distribution Distance'
+                                                unit='%'
+                                                xAxisDomain={timeStore.rangeMillisec}
+                                                xAxisName='Time'
+                                                yAxisName='Distance'
+                                            />
+                                        )}
+                                        fetchData={() => metricsClient(`queries/${mlModelType === 'DOCUMENT_PROCESSING' ?
+                                            'offline-online-distribution-distance-1' :
+                                            'offline-online-distribution-distance-2'}`, {
+                                            offline_sql_filters: allOfflineSqlFilters,
+                                            time_granularity: timeGranularity,
+                                            sql_filters: allSqlFilters
+                                        })}
+                                    />
+                                </Col>
+                            </>
+                        ) : null
+                    }
                 </Row>
             </div>
 
-            {mlModelType === 'DOCUMENT_PROCESSING' ? (
+            {mlModelType === 'DOCUMENT_PROCESSING' || mlModelType === 'UNSUPERVISED_OBJECT_DETECTION' ? (
                 <>
-                    <div className='my-3'>
-                        <h3 className='text-dark bold-text fs-3 mb-3'>
-                            Bounding Box Size Analysis
-                        </h3>
-                        <Row className='my-3'>
-                            <Col className='d-flex' lg={4}>
-                                <Async
-                                    refetchOnChanged={[allSqlFilters, timeGranularity]}
-                                    renderData={(data) => (
-                                        <BarGraph
-                                            bars={data.map(({name, value}) => ({
-                                                name,
-                                                value,
-                                                fill: getHexColor(value)
-                                            }))}
-                                            title='Bounding Box Size Distribution'
-                                            unit='%'
-                                            yAxisName='Percent'
-                                        />
-                                    )}
-                                    fetchData={
-                                        () => metricsClient('queries/image-distribution',
-                                            {sql_filters: allSqlFilters, time_granularity: timeGranularity})
-                                    }
-                                />
-                            </Col>
-                            <Col className='d-flex' lg={8}>
-                                <Async
-                                    refetchOnChanged={[timeGranularity, allSqlFilters]}
-                                    renderData={(data) => (
-                                        <AreaGraph
-                                            dots={data}
-                                            title='Average'
-                                            xAxisDomain={timeStore.rangeMillisec}
-                                            xAxisName='Time'
-                                            yAxisName='Relative Coordinates (%)'
-                                            xDataKey='time'
-                                            yDataKey='value'
-                                        />
-                                    )}
-                                    fetchData={
-                                        () => metricsClient('queries/image-distribution-average',
-                                            {sql_filters: allSqlFilters, time_granularity: timeGranularity})
-                                    }
-                                />
-                            </Col>
-                        </Row>
-                    </div>
                     <div className='my-3'>
                         <h3 className='text-dark bold-text fs-3 mb-3'>
                             Bounding Box Location Analysis
@@ -215,9 +173,9 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                             <Col lg={8} className='rounded p-3 pt-0 position-relative'>
                                 <div className='position-absolute' style={{right: '1rem'/* p-3 = 1rem*/}}>
                                     <AddFilters disabled={!heatMapSamples?.length} filters={[new Filter({
-                                        key: 'request_id',
+                                        left: 'request_id',
                                         op: 'in',
-                                        value: heatMapSamples.map((s) => s.bounding_box.request_id)
+                                        right: heatMapSamples.map((s) => s.bounding_box.request_id)
                                     })]}/>
                                 </div>
                                 {heatMapSamples.length ? (

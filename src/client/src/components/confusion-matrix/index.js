@@ -177,7 +177,7 @@ const ConfusionMatrix = () => {
                     refetchOnChanged={[iou, allSqlFilters, sqlFiltersWithModelTime]}
                 />
                 {selectedCell &&
-          (model.mlModelType === 'IMAGE_CLASSIFIER' || model.mlModelType === 'DOCUMENT_PROCESSING' ? (
+          (model.mlModelType === 'IMAGE_CLASSIFIER' || model.mlModelType === 'DOCUMENT_PROCESSING' || model.mlModelType === 'UNSUPERVISED_OBJECT_DETECTION' ? (
               <ImageExamples
                   groundtruth={selectedCell.groundtruth}
                   model={model}

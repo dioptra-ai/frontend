@@ -262,9 +262,9 @@ const ScatterGraph = ({data}) => {
                     <div className='text-dark m-0 bold-text'>
                         Examples
                         <AddFilters filters={[new Filter({
-                            key: 'request_id',
+                            left: 'request_id',
                             op: 'in',
-                            value: sampleRequestIds
+                            right: sampleRequestIds
                         })]}/>
                     </div>
                     <div className={`d-flex p-2 overflow-auto flex-grow-0 ${samples.length ? 'justify-content-left' : 'justify-content-center align-items-center'} scatterGraph-examples`}>

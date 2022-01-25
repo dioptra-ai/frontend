@@ -24,7 +24,6 @@ import useModal from '../customHooks/useModal';
 import {getHexColor} from 'helpers/color-helper';
 import theme from '../styles/theme.module.scss';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
-import {useParams} from 'react-router-dom';
 import Async from 'components/async';
 import metricsClient from 'clients/metrics';
 import {SmallChart} from 'components/area-graph';
@@ -266,12 +265,11 @@ _mAPmARCell.propTypes = {
 
 const mAPmARCell = setupComponent(_mAPmARCell);
 
-const Segmentation = ({timeStore, modelStore, segmentationStore}) => {
+const Segmentation = ({timeStore, segmentationStore}) => {
     const allSqlFilters = useAllSqlFilters();
     const [addColModal, setAddColModal] = useModal(false);
-    const {_id} = useParams();
     const groupByColumns = segmentationStore.segmentation;
-    const {mlModelType, mlModelId} = modelStore.getModelById(_id);
+    const {mlModelType, mlModelId} = useModel();
     const handleApply = (cols) => {
         segmentationStore.segmentation = cols;
         setAddColModal(false);
@@ -392,7 +390,6 @@ const Segmentation = ({timeStore, modelStore, segmentationStore}) => {
 };
 
 Segmentation.propTypes = {
-    modelStore: PropTypes.object.isRequired,
     segmentationStore: PropTypes.object.isRequired,
     timeStore: PropTypes.object.isRequired
 };

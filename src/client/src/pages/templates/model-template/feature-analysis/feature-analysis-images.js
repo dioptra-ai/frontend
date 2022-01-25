@@ -3,11 +3,9 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
 import {setupComponent} from 'helpers/component-helper';
-import {getHexColor} from 'helpers/color-helper';
 import FilterInput from 'components/filter-input';
 import MetricInfoBox from 'components/metric-info-box';
 import AreaGraph from 'components/area-graph';
-import BarGraph from 'components/bar-graph';
 import Async from 'components/async';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 import ScatterGraph from 'components/scatter-graph';
@@ -109,23 +107,6 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                                 />
                             )}
                             fetchData={() => metricsClient('queries/unique-images-over-time', {time_granularity: timeGranularity, sql_filters: allSqlFilters})}
-                        />
-                    </Col>
-                    <Col className='d-flex' lg={5}>
-                        <Async
-                            defaultData={[]}
-                            renderData={(data) => (
-                                <BarGraph
-                                    bars={data.map(({name, value}) => ({
-                                        name,
-                                        value,
-                                        fill: getHexColor(value)
-                                    }))}
-                                    title='Rotation Angle'
-                                    yAxisName='Degrees'
-                                />
-                            )}
-                            fetchData={() => metricsClient('queries/rotation-angle', {sql_filters: allSqlFilters})}
                         />
                     </Col>
                 </Row>

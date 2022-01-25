@@ -25,6 +25,8 @@ class TimeStore {
 
     _lastMs = null;
 
+    _enabled = true;
+
     get start() {
         return this._start;
     }
@@ -35,6 +37,10 @@ class TimeStore {
 
     get lastMs() {
         return this._lastMs;
+    }
+
+    get enabled() {
+        return this._enabled;
     }
 
     constructor(initialValue) {
@@ -73,6 +79,10 @@ class TimeStore {
         }
     }
 
+    setEnabled(enabled) {
+        this._enabled = enabled;
+    }
+
     setTimeRange({start, end}) {
         this._lastMs = null;
         this._start = moment(start);
@@ -99,7 +109,13 @@ class TimeStore {
     }
 
     get sqlTimeFilter() {
-        return `"__time" >= TIME_PARSE('${this._start.toISOString()}') AND "__time" < TIME_PARSE('${this._end.toISOString()}')`;
+        if (this._enabled) {
+
+            return `"__time" >= TIME_PARSE('${this._start.toISOString()}') AND "__time" < TIME_PARSE('${this._end.toISOString()}')`;
+        } else {
+
+            return 'TRUE';
+        }
     }
 
     getTimeGranularity(maxTicks = SQL_OUTER_LIMIT) {

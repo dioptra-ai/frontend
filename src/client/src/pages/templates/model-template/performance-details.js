@@ -138,11 +138,13 @@ ClassRow.propTypes = {
     value: PropTypes.any
 };
 
-const PerformanceDetails = ({filtersStore}) => {
+const PerformanceDetails = ({filtersStore, timeStore}) => {
     const allSqlFilters = useAllSqlFilters();
     const sqlFiltersWithModelTime = useAllSqlFilters({useReferenceRange: true});
     const {mlModelType} = useModel();
     const sampleSizeComponent = <CountEvents sqlFilters={allSqlFilters}/>;
+    const timeGranularityValue = timeStore.getTimeGranularity();
+    const timeGranularity = timeGranularityValue.toISOString();
 
     return (
         <div className='pb-5'>
@@ -150,6 +152,58 @@ const PerformanceDetails = ({filtersStore}) => {
                 defaultFilters={filtersStore.filters}
                 onChange={(filters) => (filtersStore.filters = filters)}
             />
+            {
+                mlModelType === 'UNSUPERVISED_OBJECT_DETECTION' ? (
+
+                    <div className='my-3'>
+                        <Row className='mb-3 align-items-stretch'>
+                            <Col className='d-flex' lg={3}>
+                                <MetricInfoBox
+                                    name='Datapoints'
+                                >
+                                    {sampleSizeComponent}
+                                </MetricInfoBox>
+                            </Col>
+                            <Col className='d-flex' lg={3}>
+                                <Async
+                                    fetchData={() => metricsClient('map', {
+                                        sql_filters: allSqlFilters,
+                                        time_granularity: timeGranularity,
+                                        model_type: mlModelType,
+                                        iou_threshold: 0.5
+                                    })}
+                                    refetchOnChanged={[allSqlFilters]}
+                                    renderData={([d]) => (
+                                        <MetricInfoBox
+                                            name='mAP'
+                                            subtext='iou=0.5'
+                                            value={d?.value}
+                                        />
+                                    )}
+                                />
+                            </Col>
+                            <Col className='d-flex' lg={3}>
+                                <Async
+                                    fetchData={() => metricsClient('mar', {
+                                        sql_filters: allSqlFilters,
+                                        time_granularity: timeGranularity,
+                                        model_type: mlModelType,
+                                        iou_threshold: 0.5
+                                    })}
+                                    refetchOnChanged={[allSqlFilters]}
+                                    renderData={([d]) => (
+                                        <MetricInfoBox
+                                            name='mAR'
+                                            subtext='iou=0.5'
+                                            value={d?.value}
+                                        />
+                                    )}
+                                />
+                            </Col>
+                        </Row>
+                    </div>
+                ) : null
+            }
             {mlModelType === 'DOCUMENT_PROCESSING' ? (
                 <>
                     <div className='my-3'>

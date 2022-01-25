@@ -48,9 +48,9 @@ const ImageExamples = ({onClose, groundtruth, prediction, iou, model}) => {
                                 return (
                                     <>
                                         <AddFilters filters={[new Filter({
-                                            key: 'request_id',
+                                            left: 'request_id',
                                             op: 'in',
-                                            value: data.map((d) => d['request_id'])
+                                            right: data.map((d) => d['request_id'])
                                         })]}/>
                                         <CustomCarousel
                                             items={data.map((x) => x['image_metadata.uri'].replace(/"/g, ''))}
@@ -63,9 +63,9 @@ const ImageExamples = ({onClose, groundtruth, prediction, iou, model}) => {
                                 return (
                                     <>
                                         <AddFilters filters={[new Filter({
-                                            key: 'request_id',
+                                            left: 'request_id',
                                             op: 'in',
-                                            value: data.map((d) => d['request_id'])
+                                            right: data.map((d) => d['request_id'])
                                         })]}/>
                                         <TabularExamples
                                             groundtruth={groundtruth}
@@ -77,9 +77,9 @@ const ImageExamples = ({onClose, groundtruth, prediction, iou, model}) => {
                             }
                         }}
                         refetchOnChanged={[groundtruth, prediction, iou, allSqlFilters, model.mlModelType]}
-                        fetchData={() => metricsClient(`queries/${model.mlModelType === 'DOCUMENT_PROCESSING' ?
+                        fetchData={() => metricsClient(`queries/${model.mlModelType === 'DOCUMENT_PROCESSING' || model.mlModelType === 'UNSUPERVISED_OBJECT_DETECTION' ?
                             'select-samples-for-document-processing' : 'select-samples-for-default'}`,
-                        model.mlModelType === 'DOCUMENT_PROCESSING' ?
+                        model.mlModelType === 'DOCUMENT_PROCESSING' || model.mlModelType === 'UNSUPERVISED_OBJECT_DETECTION' ?
                             {
                                 groundtruth,
                                 prediction,
