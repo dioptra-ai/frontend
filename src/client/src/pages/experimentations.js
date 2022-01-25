@@ -23,6 +23,7 @@ const Experimentations = ({filtersStore, modelStore}) => {
                         <Table className='models-table'>
                             <thead className='align-middle text-secondary'>
                                 <tr className='border-0 border-bottom border-mercury'>
+                                    <th>Benchmark ID</th>
                                     <th>Dataset ID</th>
                                     <th>Model</th>
                                     <th>Model Version</th>
@@ -30,7 +31,7 @@ const Experimentations = ({filtersStore, modelStore}) => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {benchmarks.map(({model_id, model_version, started_at}, i) => (
+                                {benchmarks.map(({benchmark_id, dataset_id, model_id, model_version, started_at}, i) => (
                                     <tr className='cursor-pointer' onClick={() => {
                                         filtersStore.filters = [{
                                             left: 'model_id',
@@ -40,11 +41,20 @@ const Experimentations = ({filtersStore, modelStore}) => {
                                             left: 'model_version',
                                             op: '=',
                                             right: model_version
+                                        }, {
+                                            left: 'dataset_id',
+                                            op: '=',
+                                            right: dataset_id
+                                        }, {
+                                            left: 'benchmark_id',
+                                            op: '=',
+                                            right: benchmark_id
                                         }];
 
                                         history.push('/benchmarks/performance');
                                     }} key={i}>
-                                        <td></td>
+                                        <td>{benchmark_id}</td>
+                                        <td>{dataset_id}</td>
                                         <td>{modelStore.models.find((m) => m.mlModelId === model_id)?.name || '<unknown>'}</td>
                                         <td>{model_version}</td>
                                         <td>{new Date(started_at).toLocaleString()}</td>
