@@ -11,6 +11,7 @@ import Benchmarks from './pages/benchmarks';
 import AppContext from 'context/app-context';
 
 const App = () => {
+
     return (
         <>
             <Switch>

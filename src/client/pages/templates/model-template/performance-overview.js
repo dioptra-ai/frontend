@@ -34,8 +34,13 @@ const ModelPerformanceMetrics = {
 const PerformanceOverview = ({timeStore, filtersStore}) => {
     const [modelPerformanceIndicators, setModelPerformanceIndicators] = useState([]);
     const [selectedIndicator, setSelectedIndicator] = useState(null);
-    const allSqlFilters = useAllSqlFilters();
-    const sqlFiltersWithModelTime = useAllSqlFilters({useReferenceRange: true});
+    const allSqlFilters = useAllSqlFilters({
+        __REMOVE_ME__excludeOrgId: true
+    });
+    const sqlFiltersWithModelTime = useAllSqlFilters({
+        useReferenceRange: true,
+        __REMOVE_ME__excludeOrgId: true
+    });
     const model = useModel();
     const [iou] = useState(0.5);
     const selectableMetrics = model.mlModelType === 'Q_N_A' ? [

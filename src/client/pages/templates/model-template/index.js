@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import PropTypes from 'prop-types';
 import {Route, Switch, useHistory, useParams, useRouteMatch} from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
@@ -20,11 +20,16 @@ import useSyncStoresToUrl from 'customHooks/use-sync-stores-to-url';
 import Select from 'components/select';
 import Menu from 'components/menu';
 
-const Model = ({modelStore}) => {
+const Model = ({modelStore, filtersStore}) => {
     const modelId = useParams()._id;
     const model = useModel();
     const history = useHistory();
     const routeMatch = useRouteMatch('/models/:_id/:tabPath');
+
+    // Remove all filters when navigating away.
+    useEffect(() => () => {
+        filtersStore.filters = [];
+    }, []);
 
     useSyncStoresToUrl(({timeStore, filtersStore, segmentationStore}) => ({
         startTime: timeStore.start?.toISOString() || '',
@@ -150,7 +155,8 @@ const Model = ({modelStore}) => {
 };
 
 Model.propTypes = {
-    modelStore: PropTypes.object
+    modelStore: PropTypes.object.isRequired,
+    filtersStore: PropTypes.object.isRequired
 };
 
 export default setupComponent(Model);

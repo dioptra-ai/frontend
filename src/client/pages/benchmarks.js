@@ -1,3 +1,4 @@
+import {useEffect} from 'react';
 import PropTypes from 'prop-types';
 import {Redirect, Route} from 'react-router-dom';
 import Row from 'react-bootstrap/Row';
@@ -21,6 +22,11 @@ const Benchmarks = ({filtersStore, modelStore}) => {
     const mlModelVersion = mlModelVersionFilter?.right;
     const datasetId = datasetIdFilter?.right;
     const model = modelStore.models.find((model) => model.mlModelId === mlModelId);
+
+    // Remove all filters when navigating away.
+    useEffect(() => () => {
+        filtersStore.filters = [];
+    }, []);
 
     useSyncStoresToUrl(({filtersStore, segmentationStore}) => ({
         filters: JSON.stringify(filtersStore.filters),
