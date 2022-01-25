@@ -33,7 +33,7 @@ TasksRouter.post('*', async (req, res, next) => {
     try {
         const {activeOrganizationMembership} = req.user;
         const organizationId = String(activeOrganizationMembership.organization._id);
-        const taskEnginePath = `${process.env.TASK_ENGINE_URL}${req.url}?organization_id=${organizationId}`;
+        const taskEnginePath = `${ALERTS_SERVICE_URL}${req.url}?organization_id=${organizationId}`;
         const taskEngineResponse = await fetch(taskEnginePath, {
             headers: {
                 'content-type': 'application/json;charset=UTF-8'

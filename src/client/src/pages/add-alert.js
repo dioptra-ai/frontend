@@ -341,6 +341,7 @@ const AddAlertPage = ({timeStore}) => {
     ]);
     const [evaluationPeriod, setEvaluationPeriod] = useState('');
     const [conditionsPeriod, setConditionsPeriod] = useState('');
+    const [addAlertInProgress, setAddAlertInProgress] = useState(false);
     const [alertType, setAlertType] = useState(AlertTypes.THRESHOLD.value);
     const [autoResolve, setAutoResolvePeriod] = useState(
         AlertAutoResolvePeriods.NEVER.value
@@ -357,20 +358,7 @@ const AddAlertPage = ({timeStore}) => {
     }, []);
 
     const handleCreate = () => {
-        const newAlert = {
-            alertName,
-            alertType,
-            evaluationPeriod,
-            conditions,
-            conditionsPeriod,
-            autoResolve,
-            noDateAndErrorHandling: {
-                stateForNoDateOrNullValues,
-                stateExecutionErrorOrTimeout
-            },
-            notifications: {message, recipients, tags}
-        };
-
+        setAddAlertInProgress(true)
         baseJSONClient('/api/tasks/alert', {
             method: 'POST',
             body: {
@@ -382,6 +370,7 @@ const AddAlertPage = ({timeStore}) => {
                 sqlFilters: allSqlFilters
             }
         }).then(() => {
+            setAddAlertInProgress(false)
             goToPreviousRoute();
         });
     };
@@ -489,6 +478,7 @@ const AddAlertPage = ({timeStore}) => {
                             !alertType ||
                             !evaluationPeriod ||
                             !conditions
+                            || addAlertInProgress
                         }
                         className='w-100 p-3 text-white'
                         onClick={handleCreate}
