@@ -204,8 +204,8 @@ const PerformanceDetails = ({filtersStore, timeStore}) => {
                     </div>
                 ) : null
             }
-            {mlModelType === 'DOCUMENT_PROCESSING' ? (
-                <>
+            {
+                mlModelType === 'DOCUMENT_PROCESSING' ? (
                     <div className='my-3'>
                         <Row className='mb-3 align-items-stretch'>
                             <Col className='d-flex' lg={2}>
@@ -312,6 +312,9 @@ const PerformanceDetails = ({filtersStore, timeStore}) => {
                             </Col>
                         </Row>
                     </div>
+                ) : null}
+            {
+                mlModelType === 'DOCUMENT_PROCESSING' || mlModelType === 'UNSUPERVISED_OBJECT_DETECTION' ? (
                     <div className='my-3'>
                         <div className='d-flex my-3' lg={12}>
                             <Async
@@ -432,62 +435,61 @@ const PerformanceDetails = ({filtersStore, timeStore}) => {
                             />
                         </div>
                     </div>
-                </>
-            ) : mlModelType === 'Q_N_A' ? (
-                <div>
-                    <Row>
-                        <Col>
-                            <QAPerfAnalysis/>
-                        </Col>
-                    </Row>
-                </div>
-            ) : (
-                <div className='my-5'>
-                    <h3 className='text-dark bold-text fs-3 mb-3'>
+                ) : mlModelType === 'Q_N_A' ? (
+                    <div>
+                        <Row>
+                            <Col>
+                                <QAPerfAnalysis/>
+                            </Col>
+                        </Row>
+                    </div>
+                ) : (
+                    <div className='my-5'>
+                        <h3 className='text-dark bold-text fs-3 mb-3'>
                         Performance per class
-                    </h3>
-                    <Row>
-                        <Col lg={6}>
-                            <Async
-                                defaultData={[[], []]}
-                                renderData={([data, referenceData]) => (
-                                    <PerformanceBox
-                                        data={data}
-                                        performanceType='precision'
-                                        subtext={sampleSizeComponent}
-                                        title='Precision per class'
-                                        referenceData={referenceData}
-                                    />
-                                )}
-                                fetchData={[
-                                    () => metricsClient('queries/precision-per-class', {sql_filters: allSqlFilters}),
-                                    () => metricsClient('queries/precision-per-class', {sql_filters: sqlFiltersWithModelTime})
-                                ]}
-                                refetchOnChanged={[allSqlFilters, sqlFiltersWithModelTime]}
-                            />
-                        </Col>
-                        <Col lg={6}>
-                            <Async
-                                defaultData={[[], []]}
-                                renderData={([data, referenceData]) => (
-                                    <PerformanceBox
-                                        data={data}
-                                        performanceType='recall'
-                                        subtext={sampleSizeComponent}
-                                        title='Recall per class'
-                                        referenceData={referenceData}
-                                    />
-                                )}
-                                fetchData={[
-                                    () => metricsClient('queries/recall-per-class', {sql_filters: allSqlFilters}),
-                                    () => metricsClient('queries/recall-per-class', {sql_filters: sqlFiltersWithModelTime})
-                                ]}
-                                refetchOnChanged={[allSqlFilters, sqlFiltersWithModelTime]}
-                            />
-                        </Col>
-                    </Row>
-                </div>
-            )}
+                        </h3>
+                        <Row>
+                            <Col lg={6}>
+                                <Async
+                                    defaultData={[[], []]}
+                                    renderData={([data, referenceData]) => (
+                                        <PerformanceBox
+                                            data={data}
+                                            performanceType='precision'
+                                            subtext={sampleSizeComponent}
+                                            title='Precision per class'
+                                            referenceData={referenceData}
+                                        />
+                                    )}
+                                    fetchData={[
+                                        () => metricsClient('queries/precision-per-class', {sql_filters: allSqlFilters}),
+                                        () => metricsClient('queries/precision-per-class', {sql_filters: sqlFiltersWithModelTime})
+                                    ]}
+                                    refetchOnChanged={[allSqlFilters, sqlFiltersWithModelTime]}
+                                />
+                            </Col>
+                            <Col lg={6}>
+                                <Async
+                                    defaultData={[[], []]}
+                                    renderData={([data, referenceData]) => (
+                                        <PerformanceBox
+                                            data={data}
+                                            performanceType='recall'
+                                            subtext={sampleSizeComponent}
+                                            title='Recall per class'
+                                            referenceData={referenceData}
+                                        />
+                                    )}
+                                    fetchData={[
+                                        () => metricsClient('queries/recall-per-class', {sql_filters: allSqlFilters}),
+                                        () => metricsClient('queries/recall-per-class', {sql_filters: sqlFiltersWithModelTime})
+                                    ]}
+                                    refetchOnChanged={[allSqlFilters, sqlFiltersWithModelTime]}
+                                />
+                            </Col>
+                        </Row>
+                    </div>
+                )}
             {mlModelType === 'TEXT_CLASSIFIER' ? (
                 <div>
                     <h3 className='text-dark bold-text fs-3 mb-3'>
