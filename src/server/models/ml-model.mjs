@@ -33,7 +33,8 @@ const mlModelSchema = new mongoose.Schema({
             'DOCUMENT_PROCESSING',
             'Q_N_A',
             'TEXT_CLASSIFIER',
-            'UNSUPERVISED_OBJECT_DETECTION'
+            'UNSUPERVISED_OBJECT_DETECTION',
+            'SPEECH_TO_TEXT'
         ],
         required: true
     },
