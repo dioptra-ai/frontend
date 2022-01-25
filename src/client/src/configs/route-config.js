@@ -2,7 +2,6 @@ import Login from 'pages/login';
 import Home from 'pages/home';
 import Profile from 'pages/profile';
 import Models from 'pages/templates/models';
-import Model from 'pages/templates/model-template';
 import Experimentations from 'pages/experimentations';
 import Alerts from 'pages/alerts';
 import Settings from 'pages/settings';

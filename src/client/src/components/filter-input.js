@@ -3,7 +3,6 @@ import React, {useEffect, useState} from 'react';
 import OutsideClickHandler from 'react-outside-click-handler';
 import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
-import {useParams} from 'react-router-dom';
 import {setupComponent} from 'helpers/component-helper';
 import FontIcon from './font-icon';
 import metricsClient from 'clients/metrics';
@@ -47,7 +46,6 @@ RenderedFilter.propTypes = {
 const FilterInput = ({
     inputPlaceholder = 'filter1=foo filter2=bar',
     onChange,
-    modelStore,
     filtersStore
 }) => {
     const [newFilter, setNewFilter] = useState(new Filter());
@@ -248,7 +246,6 @@ const FilterInput = ({
 
 FilterInput.propTypes = {
     inputPlaceholder: PropTypes.string,
-    modelStore: PropTypes.object.isRequired,
     filtersStore: PropTypes.object.isRequired,
     onChange: PropTypes.func.isRequired
 };

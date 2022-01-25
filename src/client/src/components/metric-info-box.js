@@ -27,7 +27,8 @@ MetricInfoBox.propTypes = {
     subtext: PropTypes.any,
     unit: PropTypes.string,
     value: PropTypes.number,
-    difference: PropTypes.number
+    difference: PropTypes.number,
+    children: PropTypes.node
 };
 
 export default MetricInfoBox;

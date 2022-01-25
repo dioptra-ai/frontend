@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import {Route, Switch, useHistory, useParams, useRouteMatch} from 'react-router-dom';
 import Container from 'react-bootstrap/Container';

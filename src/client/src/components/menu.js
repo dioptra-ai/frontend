@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React from 'react';
 import LogoSymbol from './logo-symbol';
 import MenuItem from './menu-item';
@@ -45,6 +46,10 @@ const Menu = ({children}) => {
             <div className='px-0 bg-white authorized-content'>{children}</div>
         </>
     );
+};
+
+Menu.propTypes = {
+    children: PropTypes.node
 };
 
 export default Menu;

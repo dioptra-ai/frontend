@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import Table from 'react-bootstrap/Table';
 import {useHistory} from 'react-router-dom';
 
@@ -67,6 +68,11 @@ const Experimentations = ({filtersStore, modelStore}) => {
             </div>
         </>
     );
+};
+
+Experimentations.propTypes = {
+    filtersStore: PropTypes.object.isRequired,
+    modelStore: PropTypes.object.isRequired
 };
 
 export default setupComponent(Experimentations);
