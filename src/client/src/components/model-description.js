@@ -12,7 +12,7 @@ import metricsClient from 'clients/metrics';
 import {BsChevronDown, BsChevronUp} from 'react-icons/bs';
 import {AiOutlineEdit} from 'react-icons/ai';
 
-const ModelDescription = ({_id, filtersStore, modelStore, name, description, team, tier, lastDeployed, mlModelId, mlModelType, referencePeriod, benchmarkMlModelVersion, benchmarkModel, benchmarkType}) => {
+const ModelDescription = ({_id, filtersStore, modelStore, name, description, team, tier, lastDeployed, mlModelId, mlModelType, referencePeriod}) => {
     const [expand, setExpand] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [errors, setErrors] = useState([]);
@@ -32,7 +32,6 @@ const ModelDescription = ({_id, filtersStore, modelStore, name, description, tea
     }, [mlModelId]);
 
     const handleSubmit = (data) => {
-
         if (errors) {
             setErrors([]);
         }
@@ -118,7 +117,7 @@ const ModelDescription = ({_id, filtersStore, modelStore, name, description, tea
             <ModalComponent isOpen={showModal} onClose={() => setShowModal(false)} title='Edit  Model'>
                 <ModelForm
                     errors={errors}
-                    initialValue={{name, description, mlModelId, mlModelType, referencePeriod, benchmarkModel, benchmarkMlModelVersion, benchmarkType}}
+                    initialValue={{name, description, mlModelId, mlModelType, referencePeriod}}
                     onSubmit={handleSubmit}
                 />
             </ModalComponent>
@@ -137,12 +136,7 @@ ModelDescription.propTypes = {
     _id: PropTypes.string.isRequired,
     mlModelId: PropTypes.string.isRequired,
     mlModelType: PropTypes.string.isRequired,
-    mlModelName: PropTypes.string,
-    mlModelVersion: PropTypes.string,
-    referencePeriod: PropTypes.object,
-    benchmarkMlModelVersion: PropTypes.string,
-    benchmarkModel: PropTypes.string,
-    benchmarkType: PropTypes.string
+    referencePeriod: PropTypes.object
 };
 
 export default setupComponent(ModelDescription);
