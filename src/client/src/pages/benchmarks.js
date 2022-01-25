@@ -44,11 +44,7 @@ const Benchmarks = ({filtersStore, modelStore}) => {
     }
 
     const tabs = [
-<<<<<<< HEAD
         {name: 'Performance Overview', to: '/benchmarks/performance'}
-=======
-        {name: 'Performance Analysis', to: '/benchmarks/performance'}
->>>>>>> 9183d81 (quick checkpoint)
     ];
 
     if (model?.mlModelType !== 'Q_N_A') {
@@ -63,7 +59,6 @@ const Benchmarks = ({filtersStore, modelStore}) => {
         <Menu>
             <GeneralSearchBar shouldShowOnlySearchInput/>
             <Container className='bg-white-blue text-secondary py-2' fluid>
-<<<<<<< HEAD
                 <Row className='align-items-center mt-3 px-3'>
                     <Col className='d-flex align-items-center'>
                         <h1 className='text-dark fs-2 m-0 bold-text'>{datasetId}</h1>
@@ -73,13 +68,6 @@ const Benchmarks = ({filtersStore, modelStore}) => {
                     <Col className='d-flex align-items-center'>
                         <h1 className='text-dark fs-3 m-0 bold-text'>{model.name}</h1>
                         <h3 className='text-secondary ms-3 fs-3'>{mlModelVersion}</h3>
-=======
-
-                <Row className='align-items-center my-3 px-3'>
-                    <Col className='d-flex align-items-center'>
-                        <h1 className='text-dark fs-1 m-0 bold-text'>{model.name}</h1>
-                        <h3 className='text-secondary ms-3'>{mlModelVersion}</h3>
->>>>>>> 9183d81 (quick checkpoint)
                     </Col>
                 </Row>
             </Container>
