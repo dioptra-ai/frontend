@@ -1,4 +1,5 @@
 /* eslint-disable max-lines */
+import React, {useContext, useEffect, useState} from 'react';
 import {
     Area,
     AreaChart,
@@ -13,7 +14,6 @@ import {
 import useModel from 'customHooks/use-model';
 import {useInView} from 'react-intersection-observer';
 import {setupComponent} from 'helpers/component-helper';
-import React, {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import Button from 'react-bootstrap/Button';
 import FontIcon from './font-icon';
@@ -28,6 +28,7 @@ import Async from 'components/async';
 import metricsClient from 'clients/metrics';
 import {SmallChart} from 'components/area-graph';
 import {Tooltip as BarTooltip} from 'components/bar-graph';
+import appContext from 'context/app-context';
 
 const AddColumnModal = ({onCancel, onApply, allColumns, selected}) => {
     const featureColumns = allColumns.filter((c) => c.startsWith('features.'));
@@ -235,9 +236,9 @@ const _mAPmARCell = ({cell, timeStore}) => {
     const {mlModelType} = useModel();
     const allSqlFilters = useAllSqlFilters();
     const timeGranularity = timeStore.getTimeGranularity().toISOString();
+    const {isTimeEnabled} = useContext(appContext);
 
-
-    if (timeStore.enabled) {
+    if (isTimeEnabled) {
         return (
             <Async
                 refetchOnChanged={[allSqlFilters, timeGranularity]}
@@ -258,24 +259,23 @@ const _mAPmARCell = ({cell, timeStore}) => {
                 )}
             />
         );
+    } else {
+
+        return (
+            <Async
+                refetchOnChanged={[allSqlFilters, timeGranularity]}
+                fetchData={() => metricsClient(cellId, {
+                    sql_filters: `${allSqlFilters} AND ${cellFields.map((f) => `"${f}"='${cellValues[f]}'`)}`,
+                    model_type: mlModelType,
+                    iou_threshold: 0.5
+                })}
+
+                renderData={(data) => (
+                    <span> {data[0]?.value.toFixed(2)} </span>
+                )}
+            />
+        );
     }
-
-    return (
-        <Async
-            refetchOnChanged={[allSqlFilters, timeGranularity]}
-            fetchData={() => metricsClient(cellId, {
-                sql_filters: `${allSqlFilters} AND ${cellFields.map((f) => `"${f}"='${cellValues[f]}'`)}`,
-                model_type: mlModelType,
-                iou_threshold: 0.5
-            })}
-
-            renderData={(data) => (
-                <span> {data[0]?.value.toFixed(2)} </span>
-            )}
-        />
-    );
-
-
 };
 
 _mAPmARCell.propTypes = {
