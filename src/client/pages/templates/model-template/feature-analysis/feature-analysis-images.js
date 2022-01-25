@@ -10,11 +10,12 @@ import Async from 'components/async';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 import ScatterGraph from 'components/scatter-graph';
 import metricsClient from 'clients/metrics';
+import useTimeGranularity from 'customHooks/use-time-granularity';
 
 const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
     const allSqlFilters = useAllSqlFilters();
     const allOfflineSqlFilters = useAllSqlFilters({useReferenceRange: true});
-    const timeGranularity = timeStore.getTimeGranularity().toISOString();
+    const timeGranularity = useTimeGranularity()?.toISOString();
 
     return (
         <div>

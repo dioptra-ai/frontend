@@ -15,7 +15,7 @@ import {
 } from 'recharts';
 import {VscZoomOut} from 'react-icons/vsc';
 import {SpinnerWrapper} from 'components/spinner';
-
+import useTimeGranularity from 'customHooks/use-time-granularity';
 import theme from 'styles/theme.module.scss';
 import {formatDateTime} from 'helpers/date-helper';
 import {setupComponent} from 'helpers/component-helper';
@@ -74,7 +74,7 @@ const AreaGraph = ({
     xDataKey = 'x',
     yDataKey = 'y'
 }) => {
-    const granularityMs = timeStore.getTimeGranularity().asMilliseconds();
+    const granularityMs = useTimeGranularity().asMilliseconds();
     const domain = timeStore.rangeMillisec;
     const [showBtn, setShowBtn] = useThrottle(false);
     const [refAreaLeft, setRefAreaLeft] = useThrottle(null, 25, true);

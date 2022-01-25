@@ -18,6 +18,7 @@ import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import {FaExclamation} from 'react-icons/fa';
 import CountEvents from 'components/count-events';
+import useTimeGranularity from 'customHooks/use-time-granularity';
 
 const ModelPerformanceMetrics = {
     ACCURACY: {value: 'ACCURACY', name: 'Accuracy'},
@@ -77,8 +78,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
     }, []);
 
     const sampleSizeComponent = (<CountEvents sqlFilters={allSqlFilters}/>);
-    const timeGranularityValue = timeStore.getTimeGranularity();
-    const timeGranularity = timeGranularityValue.toISOString();
+    const timeGranularity = useTimeGranularity()?.toISOString();
 
     const getQueryForMetric = (metricName, timeGranularity, sqlFilters = allSqlFilters) => {
 
@@ -412,10 +412,10 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                         }}
                         refetchOnChanged={[
                             selectedMetric,
-                            timeGranularityValue,
+                            timeGranularity,
                             allSqlFilters
                         ]}
-                        fetchData={getQueryForMetric(selectedMetric, timeGranularityValue)}
+                        fetchData={getQueryForMetric(selectedMetric, timeGranularity)}
                     />
                 </div>
             </div>
@@ -464,9 +464,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                                     time_start: timeStore.start,
                                                     time_end: timeStore.end,
                                                     time_granularity: moment
-                                                        .duration(
-                                                            timeGranularityValue
-                                                        )
+                                                        .duration(timeGranularity)
                                                         .asSeconds()
                                                 },
                                                 metric_name: selectedMetric,
@@ -557,7 +555,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                             selectedIndicator,
                                             timeStore.start,
                                             timeStore.end,
-                                            timeGranularityValue
+                                            timeGranularity
                                         ]}
                                         fetchData={() => metricsClient(
                                             `integrations/redash/${selectedIndicator}`,
@@ -571,7 +569,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                                         .format(),
                                                     time_granularity: moment
                                                         .duration(
-                                                            timeGranularityValue
+                                                            timeGranularity
                                                         )
                                                         .asSeconds()
                                                 }

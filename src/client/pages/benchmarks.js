@@ -49,12 +49,14 @@ const Benchmarks = ({filtersStore, modelStore}) => {
         {name: 'Performance Overview', to: '/benchmarks/performance'}
     ];
 
-    if (model?.mlModelType !== 'Q_N_A') {
-        tabs.push(
-            {name: 'Prediction Analysis', to: '/benchmarks/predictions'}
-        );
-
+    switch (model?.mlModelType) {
+    case 'SPEECH_TO_TEXT':
         tabs.push({name: 'Feature Analysis', to: '/benchmarks/features'});
+        break;
+    default:
+        tabs.push({name: 'Prediction Analysis', to: '/benchmarks/predictions'});
+        tabs.push({name: 'Feature Analysis', to: '/benchmarks/features'});
+        break;
     }
 
     return (

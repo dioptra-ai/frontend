@@ -14,6 +14,7 @@ import {setupComponent} from 'helpers/component-helper';
 import FilterInput from 'components/filter-input';
 import metricsClient from 'clients/metrics';
 import Async from 'components/async';
+import useTimeGranularity from 'customHooks/use-time-granularity';
 
 const FeatureIntegrityTableColumnNames = {
     FEATURE_NAME: 'Feature Name',
@@ -64,7 +65,7 @@ OnlineDistributionBarChart.propTypes = {
     distribution: PropTypes.array
 };
 
-const FeatureIntegrityRow = ({name, timeStore}) => {
+const FeatureIntegrityRow = ({name}) => {
     const incidentCount = 4;
     const tdClasses = 'py-5 align-middle';
     const [featureType, setFeatureType] = useState(null);
@@ -74,7 +75,7 @@ const FeatureIntegrityRow = ({name, timeStore}) => {
     const allSqlFilters = useAllSqlFilters();
     const allOfflineSqlFilters = useAllSqlFilters({useReferenceRange: true});
     const maxTimeseriesTicks = 20;
-    const timeGranularity = timeStore.getTimeGranularity(maxTimeseriesTicks).toISOString();
+    const timeGranularity = useTimeGranularity(maxTimeseriesTicks)?.toISOString();
 
     useEffect(() => {
         if (inView && !featureType) {
@@ -192,8 +193,7 @@ const FeatureIntegrityRow = ({name, timeStore}) => {
 };
 
 FeatureIntegrityRow.propTypes = {
-    name: PropTypes.string,
-    timeStore: PropTypes.object
+    name: PropTypes.string
 };
 
 const ObserverFeatureIntegrityRow = setupComponent(FeatureIntegrityRow);

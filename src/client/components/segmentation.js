@@ -235,10 +235,11 @@ const _mAPmARCell = ({cell, timeStore}) => {
     const cellFields = Object.keys(cellValues).filter((f) => f !== 'value');
     const {mlModelType} = useModel();
     const allSqlFilters = useAllSqlFilters();
-    const timeGranularity = timeStore.getTimeGranularity().toISOString();
     const {isTimeEnabled} = useContext(appContext);
 
     if (isTimeEnabled) {
+        const timeGranularity = timeStore.getTimeGranularity(5).toISOString();
+
         return (
             <Async
                 refetchOnChanged={[allSqlFilters, timeGranularity]}
@@ -246,7 +247,7 @@ const _mAPmARCell = ({cell, timeStore}) => {
                     sql_filters: `${allSqlFilters} AND ${cellFields.map((f) => `"${f}"='${cellValues[f]}'`)}`,
                     model_type: mlModelType,
                     iou_threshold: 0.5,
-                    time_granularity: timeStore.getTimeGranularity(5).toISOString()
+                    time_granularity: timeGranularity
                 })}
                 renderData={(data) => (
                     <div style={{height: '150px', width: '300px'}}>
@@ -263,7 +264,7 @@ const _mAPmARCell = ({cell, timeStore}) => {
 
         return (
             <Async
-                refetchOnChanged={[allSqlFilters, timeGranularity]}
+                refetchOnChanged={[allSqlFilters]}
                 fetchData={() => metricsClient(cellId, {
                     sql_filters: `${allSqlFilters} AND ${cellFields.map((f) => `"${f}"='${cellValues[f]}'`)}`,
                     model_type: mlModelType,

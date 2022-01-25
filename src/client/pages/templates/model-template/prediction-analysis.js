@@ -20,12 +20,13 @@ import Modal from 'components/modal';
 import AddFilters from 'components/add-filters';
 import {Filter} from 'state/stores/filters-store';
 import appContext from 'context/app-context';
+import useTimeGranularity from 'customHooks/use-time-granularity';
 
 const PredictionAnalysis = ({timeStore, filtersStore}) => {
     const allSqlFilters = useAllSqlFilters();
     const allSqlFiltersWithoutOrgId = useAllSqlFilters({__REMOVE_ME__excludeOrgId: true});
     const allOfflineSqlFilters = useAllSqlFilters({useReferenceRange: true});
-    const timeGranularity = timeStore.getTimeGranularity().toISOString();
+    const timeGranularity = useTimeGranularity()?.toISOString();
     const [classFilter, setClassFilter] = useState(null);
     const [heatMapSamples, setHeatMapSamples] = useState([]);
     const [exampleInModal, setExampleInModal] = useModal(null);

@@ -21,6 +21,7 @@ import QAPerfAnalysis from './qa-perf-analysis';
 import metricsClient from 'clients/metrics';
 import CountEvents from 'components/count-events';
 import {getHexColor} from 'helpers/color-helper';
+import useTimeGranularity from 'customHooks/use-time-granularity';
 
 const PerformanceBox = ({
     title = '',
@@ -138,13 +139,12 @@ ClassRow.propTypes = {
     value: PropTypes.any
 };
 
-const PerformanceDetails = ({filtersStore, timeStore}) => {
+const PerformanceDetails = ({filtersStore}) => {
     const allSqlFilters = useAllSqlFilters();
     const sqlFiltersWithModelTime = useAllSqlFilters({useReferenceRange: true});
     const {mlModelType} = useModel();
     const sampleSizeComponent = <CountEvents sqlFilters={allSqlFilters}/>;
-    const timeGranularityValue = timeStore.getTimeGranularity();
-    const timeGranularity = timeGranularityValue.toISOString();
+    const timeGranularity = useTimeGranularity()?.toISOString();
 
     return (
         <div className='pb-5'>
@@ -195,6 +195,54 @@ const PerformanceDetails = ({filtersStore, timeStore}) => {
                                         <MetricInfoBox
                                             name='mAR'
                                             subtext='iou=0.5'
+                                            value={d?.value}
+                                        />
+                                    )}
+                                />
+                            </Col>
+                        </Row>
+                    </div>
+                ) : null
+            }
+            {
+                mlModelType === 'SPEECH_TO_TEXT' ? (
+
+                    <div className='my-3'>
+                        <Row className='mb-3 align-items-stretch'>
+                            <Col className='d-flex' lg={3}>
+                                <MetricInfoBox
+                                    name='Datapoints'
+                                >
+                                    {sampleSizeComponent}
+                                </MetricInfoBox>
+                            </Col>
+                            <Col className='d-flex' lg={3}>
+                                <Async
+                                    fetchData={() => metricsClient('exact-match', {
+                                        sql_filters: allSqlFilters,
+                                        time_granularity: timeGranularity,
+                                        model_type: mlModelType
+                                    })}
+                                    refetchOnChanged={[allSqlFilters]}
+                                    renderData={([d]) => (
+                                        <MetricInfoBox
+                                            name='EM'
+                                            value={d?.value}
+                                        />
+                                    )}
+                                />
+                            </Col>
+                            <Col className='d-flex' lg={3}>
+                                <Async
+                                    fetchData={() => metricsClient('f1-score-metric', {
+                                        sql_filters: allSqlFilters,
+                                        time_granularity: timeGranularity,
+                                        model_type: mlModelType
+                                    })}
+                                    refetchOnChanged={[allSqlFilters]}
+                                    renderData={([d]) => (
+                                        <MetricInfoBox
+                                            name='WER'
                                             value={d?.value}
                                         />
                                     )}
@@ -526,8 +574,7 @@ const PerformanceDetails = ({filtersStore, timeStore}) => {
 };
 
 PerformanceDetails.propTypes = {
-    filtersStore: PropTypes.object.isRequired,
-    timeStore: PropTypes.object.isRequired
+    filtersStore: PropTypes.object.isRequired
 };
 
 export default setupComponent(PerformanceDetails);
