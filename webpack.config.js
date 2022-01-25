@@ -11,7 +11,7 @@ module.exports = {
     },
     target: 'web',
     devtool: 'source-map',
-    entry: './src/client/src/index.js',
+    entry: './src/client/index.js',
     output: {
         path: path.resolve(__dirname, 'build'),
         publicPath: '/',
@@ -19,7 +19,7 @@ module.exports = {
     },
     resolve: {
         modules: [
-            path.join(__dirname, 'src', 'client', 'src'),
+            path.join(__dirname, 'src', 'client'),
             path.join(__dirname, 'src', 'server'),
             'node_modules'
         ],
