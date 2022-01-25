@@ -137,19 +137,20 @@ const ConfusionMatrix = () => {
                             <span className='text-primary mx-1'>(n={sampleSizeComponent})</span>
                         </p>
                     </Col>
-                    {model.mlModelType === 'DOCUMENT_PROCESSING' ? (
-                        <Col lg={{span: 3}}>
-                            <Select
-                                options={[
-                                    {name: 'iou >= 0.5', value: '0.5'},
-                                    {name: 'iou >= 0.75', value: '0.75'},
-                                    {name: 'iou >= 0.95', value: '0.95'}
-                                ]}
-                                initialValue={iou}
-                                onChange={(val) => setIou(Number(val))}
-                            />
-                        </Col>
-                    ) : null}
+                    {model.mlModelType === 'DOCUMENT_PROCESSING' ||
+                        model.mlModelType === 'UNSUPERVISED_OBJECT_DETECTION' ? (
+                            <Col lg={{span: 3}}>
+                                <Select
+                                    options={[
+                                        {name: 'iou >= 0.5', value: '0.5'},
+                                        {name: 'iou >= 0.75', value: '0.75'},
+                                        {name: 'iou >= 0.95', value: '0.95'}
+                                    ]}
+                                    initialValue={iou}
+                                    onChange={(val) => setIou(Number(val))}
+                                />
+                            </Col>
+                        ) : null}
                 </Row>
                 <Async
                     renderData={([data, rangeData]) => (
@@ -164,12 +165,14 @@ const ConfusionMatrix = () => {
                     )}
                     fetchData={[
                         () => metricsClient('confusion-matrix', {
-                            sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ?
+                            sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ||
+                                    model.mlModelType === 'UNSUPERVISED_OBJECT_DETECTION' ?
                                 `cast("iou" as FLOAT) > ${iou} AND ${allSqlFilters}` : allSqlFilters,
                             model_type: model.mlModelType
                         }),
                         () => metricsClient('confusion-matrix', {
-                            sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ?
+                            sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ||
+                                    model.mlModelType === 'UNSUPERVISED_OBJECT_DETECTION' ?
                                 `cast("iou" as FLOAT) > ${iou} AND ${sqlFiltersWithModelTime}` : sqlFiltersWithModelTime,
                             model_type: model.mlModelType
                         })
