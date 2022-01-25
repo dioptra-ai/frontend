@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useContext, useState} from 'react';
 import PropTypes from 'prop-types';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -19,6 +19,7 @@ import useModal from 'customHooks/useModal';
 import Modal from 'components/modal';
 import AddFilters from 'components/add-filters';
 import {Filter} from 'state/stores/filters-store';
+import appContext from 'context/app-context';
 
 const PredictionAnalysis = ({timeStore, filtersStore}) => {
     const allSqlFilters = useAllSqlFilters();
@@ -28,6 +29,7 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
     const [classFilter, setClassFilter] = useState(null);
     const [heatMapSamples, setHeatMapSamples] = useState([]);
     const [exampleInModal, setExampleInModal] = useModal(null);
+    const {isTimeEnabled} = useContext(appContext);
 
     const {mlModelType} = useModel();
 
@@ -65,7 +67,7 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                         />
                     </Col>
                     {
-                        timeStore.enabled ? (
+                        isTimeEnabled ? (
                             <>
                                 <Col className='d-flex' lg={4}>
                                     <Async

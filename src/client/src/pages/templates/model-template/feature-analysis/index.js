@@ -1,21 +1,25 @@
-import {setupComponent} from 'helpers/component-helper';
+import {useContext} from 'react';
 import useModel from 'customHooks/use-model';
 import FeatureIntegrityTable from './feature-integrity';
 import FeatureAnalysisImages from './feature-analysis-images';
 import QAPerfAnalysis from 'pages/templates/model-template/qa-perf-analysis';
+import appContext from 'context/app-context';
 
-const FeatureAnalysis = (timeStore) => {
+const FeatureAnalysis = () => {
     const model = useModel();
+    const {isTimeEnabled} = useContext(appContext);
 
     switch (model.mlModelType) {
     case 'IMAGE_CLASSIFIER':
     case 'DOCUMENT_PROCESSING':
     case 'UNSUPERVISED_OBJECT_DETECTION':
-        if (timeStore.enabled) {
-            return <FeatureAnalysisImages/>;
-        }
+        if (isTimeEnabled) {
 
-        return <QAPerfAnalysis/>;
+            return <FeatureAnalysisImages/>;
+        } else {
+
+            return <QAPerfAnalysis/>;
+        }
 
     case 'TABULAR_CLASSIFIER':
 
@@ -28,4 +32,4 @@ const FeatureAnalysis = (timeStore) => {
     }
 };
 
-export default setupComponent(FeatureAnalysis);
+export default FeatureAnalysis;
