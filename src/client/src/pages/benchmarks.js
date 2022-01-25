@@ -6,7 +6,6 @@ import Col from 'react-bootstrap/Col';
 import {setupComponent} from 'helpers/component-helper';
 import GeneralSearchBar from './templates/general-search-bar';
 import useSyncStoresToUrl from 'customHooks/use-sync-stores-to-url';
-import useTimeStore from 'customHooks/use-time-store';
 import Container from 'react-bootstrap/Container';
 import Tabs from 'components/tabs';
 import Menu from 'components/menu';
@@ -27,8 +26,6 @@ const Benchmarks = ({filtersStore, modelStore}) => {
         filters: JSON.stringify(filtersStore.filters),
         segmentation: JSON.stringify(segmentationStore.segmentation)
     }));
-
-    useTimeStore(false);
 
     if (!mlModelIdFilter || !mlModelVersionFilter) {
 

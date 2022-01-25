@@ -17,7 +17,6 @@ import IncidentsAndAlerts from './incidents-and-alerts';
 import TrafficReplay from './traffic-replay';
 import useModel from 'customHooks/use-model';
 import useSyncStoresToUrl from 'customHooks/use-sync-stores-to-url';
-import useTimeStore from 'customHooks/use-time-store';
 import Select from 'components/select';
 import Menu from 'components/menu';
 
@@ -35,8 +34,6 @@ const Model = ({modelStore}) => {
         mlModelVersion: filtersStore.mlModelVersion,
         segmentation: JSON.stringify(segmentationStore.segmentation)
     }));
-
-    useTimeStore(true);
 
     const tabs = [
         {name: 'Performance Overview', to: `/models/${modelId}/performance-overview`}

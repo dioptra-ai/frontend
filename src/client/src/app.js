@@ -8,6 +8,7 @@ import Logout from 'pages/logout';
 import Register from 'pages/register';
 import AuthRoute from 'components/auth-route';
 import Benchmarks from './pages/benchmarks';
+import AppContext from 'context/app-context';
 
 const App = () => {
     return (
@@ -25,9 +26,19 @@ const App = () => {
                         path={path}
                     />
                 ))}
-                <AuthRoute path='/models/:_id' renderLoggedIn={() => <Model/>}/>
+                <AuthRoute path='/models/:_id' renderLoggedIn={() => (
+                    <AppContext.Provider value={{
+                        isTimeEnabled: true
+                    }}>
+                        <Model/>
+                    </AppContext.Provider>
+                )}/>
                 <AuthRoute path='/benchmarks' renderLoggedIn={() => (
-                    <Benchmarks/>
+                    <AppContext.Provider value={{
+                        isTimeEnabled: false
+                    }}>
+                        <Benchmarks/>
+                    </AppContext.Provider>
                 )}/>
                 <AuthRoute path='/'/>
             </Switch>
