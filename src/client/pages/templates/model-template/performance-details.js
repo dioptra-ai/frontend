@@ -491,6 +491,8 @@ const PerformanceDetails = ({filtersStore}) => {
                             </Col>
                         </Row>
                     </div>
+                ) : mlModelType === 'SPEECH_TO_TEXT' ? (
+                    null
                 ) : (
                     <div className='my-5'>
                         <h3 className='text-dark bold-text fs-3 mb-3'>
@@ -567,8 +569,8 @@ const PerformanceDetails = ({filtersStore}) => {
                     </Row>
                 </div>
             ) : null}
-            {mlModelType !== 'Q_N_A' ? <ConfusionMatrix /> : null}
-            {mlModelType !== 'Q_N_A' ? <Segmentation /> : null}
+            {(mlModelType !== 'Q_N_A' && mlModelType !== 'SPEECH_TO_TEXT') ? <ConfusionMatrix /> : null}
+            {(mlModelType !== 'Q_N_A') ? <Segmentation /> : null}
         </div>
     );
 };
