@@ -27,7 +27,8 @@ const ModelPerformanceMetrics = {
     EXACT_MATCH: {value: 'EXACT_MATCH', name: 'Exact Match'},
     MEAN_AVERAGE_PRECISION: {value: 'MEAN_AVERAGE_PRECISION', name: 'mAP'},
     MEAN_AVERAGE_RECALL: {value: 'MEAN_AVERAGE_RECALL', name: 'mAR'},
-    SEMANTIC_SIMILARITY: {value: 'SEMANTIC_SIMILARITY', name: 'Semantic Similarity'}
+    SEMANTIC_SIMILARITY: {value: 'SEMANTIC_SIMILARITY', name: 'Semantic Similarity'},
+    CONFIDENCE: {value: 'CONFIDENCE', name: 'Confidence'}
 };
 
 const PerformanceOverview = ({timeStore, filtersStore}) => {
@@ -46,6 +47,8 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
         {value: 'MEAN_AVERAGE_RECALL', name: 'mAR'},
         {value: 'EXACT_MATCH', name: 'Exact Match'},
         {value: 'F1_SCORE', name: 'F1 Score'}
+    ] : model.mlModelType === 'UNSUPERVISED_OBJECT_DETECTION' ? [
+        {value: 'CONFIDENCE', name: 'Confidence'}
     ] : [
         {value: 'ACCURACY', name: 'Accuracy'},
         {value: 'F1_SCORE', name: 'F1 Score'},
@@ -139,6 +142,14 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                     time_granularity: timeGranularity,
                     model_type: model.mlModelType,
                     iou_threshold: iou
+                });
+            },
+            [ModelPerformanceMetrics.CONFIDENCE.value]: () => {
+
+                return metricsClient('confidence', {
+                    sql_filters: sqlFilters,
+                    time_granularity: timeGranularity,
+                    model_type: model.mlModelType
                 });
             }
         }[metricName];
@@ -268,6 +279,23 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                             />
                         </Col>
                     </Row>
+                ) : model.mlModelType === 'UNSUPERVISED_OBJECT_DETECTION' ? (
+                    <Row className='mb-3 align-items-stretch'>
+                        <Col className='d-flex' lg={3}>
+                            <Async
+                                fetchData={getQueryForMetric('CONFIDENCE')}
+                                refetchOnChanged={[model, allSqlFilters]}
+                                renderData={([d]) => (
+                                    <MetricInfoBox
+                                        name='Confidence'
+                                        subtext={sampleSizeComponent}
+                                        unit='%'
+                                        value={100 * d?.value}
+                                    />
+                                )}
+                            />
+                        </Col>
+                    </Row>
                 ) : (
                     <Row className='mb-3 align-items-stretch'>
                         <Col className='d-flex' lg={3}>
@@ -387,196 +415,198 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                 </div>
             </div>
             <div className='my-3'>
-                <div className='border rounded p-3'>
-                    <h3 className='text-dark bold-text fs-4'>
-                        Key Performance Indicators
-                    </h3>
-                    <div className='d-flex justify-content-end my-3'>
-                        <div style={{width: '200px'}}>
-                            {modelPerformanceIndicators.length ? (
-                                <Select
-                                    initialValue={
-                                        selectedIndicator ||
-                                        String(modelPerformanceIndicators[0].value)
-                                    }
-                                    onChange={setSelectedIndicator}
-                                    options={modelPerformanceIndicators}
-                                />
-                            ) : null}
+                {model.mlModelType !== 'UNSUPERVISED_OBJECT_DETECTION' ? (
+                    <div className='border rounded p-3'>
+                        <h3 className='text-dark bold-text fs-4'>
+                            Key Performance Indicators
+                        </h3>
+                        <div className='d-flex justify-content-end my-3'>
+                            <div style={{width: '200px'}}>
+                                {modelPerformanceIndicators.length ? (
+                                    <Select
+                                        initialValue={
+                                            selectedIndicator ||
+                                            String(modelPerformanceIndicators[0].value)
+                                        }
+                                        onChange={setSelectedIndicator}
+                                        options={modelPerformanceIndicators}
+                                    />
+                                ) : null}
+                            </div>
                         </div>
-                    </div>
-                    <Row className='m-0'>
-                        <Col
-                            className='border rounded d-flex flex-column align-items-center justify-content-center my-3 p-3'
-                            lg={4}
-                            style={{height: '295px'}}
-                        >
-                            <p className='text-dark bold-text fs-6'>
-                                Correlation to KPIs
-                            </p>
-                            {selectedIndicator ? (
-                                <Async
-                                    refetchOnChanged={[
-                                        selectedMetric,
-                                        selectedIndicator,
-                                        timeStore.start,
-                                        timeStore.end,
-                                        timeStore.aggregationPeriod
-                                    ]}
-                                    fetchData={() => metricsClient(
-                                        `integrations/correlation/redash/${selectedIndicator}`,
-                                        {
-                                            parameters: {
-                                                time_start: timeStore.start,
-                                                time_end: timeStore.end,
-                                                time_granularity: moment
-                                                    .duration(
-                                                        timeGranularityValue
-                                                    )
-                                                    .asSeconds()
-                                            },
-                                            metric_name: selectedMetric,
-                                            payload: {
-                                                sql_filters:
-                                                        model.mlModelType ===
-                                                        'DOCUMENT_PROCESSING' ?
-                                                            `cast("iou" as FLOAT) > ${iou} AND ${allSqlFilters}` :
-                                                            allSqlFilters,
-                                                time_granularity:
-                                                        timeGranularity,
-                                                model_type: model.mlModelType
+                        <Row className='m-0'>
+                            <Col
+                                className='border rounded d-flex flex-column align-items-center justify-content-center my-3 p-3'
+                                lg={4}
+                                style={{height: '295px'}}
+                            >
+                                <p className='text-dark bold-text fs-6'>
+                                    Correlation to KPIs
+                                </p>
+                                {selectedIndicator ? (
+                                    <Async
+                                        refetchOnChanged={[
+                                            selectedMetric,
+                                            selectedIndicator,
+                                            timeStore.start,
+                                            timeStore.end,
+                                            timeStore.aggregationPeriod
+                                        ]}
+                                        fetchData={() => metricsClient(
+                                            `integrations/correlation/redash/${selectedIndicator}`,
+                                            {
+                                                parameters: {
+                                                    time_start: timeStore.start,
+                                                    time_end: timeStore.end,
+                                                    time_granularity: moment
+                                                        .duration(
+                                                            timeGranularityValue
+                                                        )
+                                                        .asSeconds()
+                                                },
+                                                metric_name: selectedMetric,
+                                                payload: {
+                                                    sql_filters:
+                                                            model.mlModelType ===
+                                                            'DOCUMENT_PROCESSING' ?
+                                                                `cast("iou" as FLOAT) > ${iou} AND ${allSqlFilters}` :
+                                                                allSqlFilters,
+                                                    time_granularity:
+                                                            timeGranularity,
+                                                    model_type: model.mlModelType
+                                                }
                                             }
+                                        )
                                         }
-                                    )
-                                    }
-                                    renderData={(correlationResponse) => correlationResponse.correlation && (
-                                        <span className='text-dark bold-text fs-1 d-flex justify-content-between gap-2'>
-                                            <span>
-                                                {correlationResponse.correlation.value.toFixed(
-                                                    2
-                                                )}
-                                                {correlationResponse.correlation
-                                                    .p_value !== null &&
-                                                        correlationResponse
-                                                            .correlation.p_value <=
-                                                            0.05 && <span> * </span>}
-                                                {correlationResponse.correlation
-                                                    .p_value !== null &&
-                                                        correlationResponse
-                                                            .correlation.p_value <=
-                                                            0.01 && <span> * </span>}
+                                        renderData={(correlationResponse) => correlationResponse.correlation && (
+                                            <span className='text-dark bold-text fs-1 d-flex justify-content-between gap-2'>
+                                                <span>
+                                                    {correlationResponse.correlation.value.toFixed(
+                                                        2
+                                                    )}
+                                                    {correlationResponse.correlation
+                                                        .p_value !== null &&
+                                                            correlationResponse
+                                                                .correlation.p_value <=
+                                                                0.05 && <span> * </span>}
+                                                    {correlationResponse.correlation
+                                                        .p_value !== null &&
+                                                            correlationResponse
+                                                                .correlation.p_value <=
+                                                                0.01 && <span> * </span>}
 
-                                                {(correlationResponse.correlation
-                                                    .p_value === null ||
-                                                        correlationResponse
-                                                            .correlation.p_value >
-                                                            0.05) && (
-                                                    <OverlayTrigger
-                                                        placement='bottom'
-                                                        overlay={
-                                                            <BootstrapTooltip>
-                                                                    P Value of
-                                                                    correlation
-                                                                    coefficient is
-                                                                    above 0.05 (P
-                                                                    value:{' '}
-                                                                {correlationResponse
-                                                                    .correlation
-                                                                    .p_value !==
-                                                                    null ?
-                                                                    correlationResponse.correlation.p_value.toFixed(
-                                                                        2
-                                                                    ) :
-                                                                    'unavailable'})
-                                                            </BootstrapTooltip>
-                                                        }
-                                                    >
-                                                        <FaExclamation
-                                                            className='cursor-pointer blinking'
-                                                            style={{
-                                                                position:
-                                                                        'relative',
-                                                                top: -10,
-                                                                left: 6,
-                                                                width: 20,
-                                                                height: 20
-                                                            }}
-                                                        />
-                                                    </OverlayTrigger>
-                                                )}
+                                                    {(correlationResponse.correlation
+                                                        .p_value === null ||
+                                                            correlationResponse
+                                                                .correlation.p_value >
+                                                                0.05) && (
+                                                        <OverlayTrigger
+                                                            placement='bottom'
+                                                            overlay={
+                                                                <BootstrapTooltip>
+                                                                        P Value of
+                                                                        correlation
+                                                                        coefficient is
+                                                                        above 0.05 (P
+                                                                        value:{' '}
+                                                                    {correlationResponse
+                                                                        .correlation
+                                                                        .p_value !==
+                                                                        null ?
+                                                                        correlationResponse.correlation.p_value.toFixed(
+                                                                            2
+                                                                        ) :
+                                                                        'unavailable'})
+                                                                </BootstrapTooltip>
+                                                            }
+                                                        >
+                                                            <FaExclamation
+                                                                className='cursor-pointer blinking'
+                                                                style={{
+                                                                    position:
+                                                                            'relative',
+                                                                    top: -10,
+                                                                    left: 6,
+                                                                    width: 20,
+                                                                    height: 20
+                                                                }}
+                                                            />
+                                                        </OverlayTrigger>
+                                                    )}
+                                                </span>
                                             </span>
-                                        </span>
-                                    )
-                                    }
-                                    renderError={() => (
-                                        <span className='text-dark bold-text fs-1'>
-                                            0
-                                        </span>
-                                    )}
-                                />
-                            ) : null}
-                        </Col>
-                        <Col className='p-0 d-flex' lg={8}>
-                            {selectedIndicator ? (
-                                <Async
-                                    refetchOnChanged={[
-                                        selectedIndicator,
-                                        timeStore.start,
-                                        timeStore.end,
-                                        timeGranularityValue
-                                    ]}
-                                    fetchData={() => metricsClient(
-                                        `integrations/redash/${selectedIndicator}`,
-                                        {
-                                            parameters: {
-                                                time_start: timeStore.start
-                                                    .utc()
-                                                    .format(),
-                                                time_end: timeStore.end
-                                                    .utc()
-                                                    .format(),
-                                                time_granularity: moment
-                                                    .duration(
-                                                        timeGranularityValue
-                                                    )
-                                                    .asSeconds()
-                                            }
+                                        )
                                         }
-                                    )
-                                    }
-                                    renderData={({results = []}) => {
-                                        const dots = results.map(
-                                            ({metric, time}) => ({
-                                                x: new Date(time).getTime(),
-                                                y: metric * 100
-                                            })
-                                        );
+                                        renderError={() => (
+                                            <span className='text-dark bold-text fs-1'>
+                                                0
+                                            </span>
+                                        )}
+                                    />
+                                ) : null}
+                            </Col>
+                            <Col className='p-0 d-flex' lg={8}>
+                                {selectedIndicator ? (
+                                    <Async
+                                        refetchOnChanged={[
+                                            selectedIndicator,
+                                            timeStore.start,
+                                            timeStore.end,
+                                            timeGranularityValue
+                                        ]}
+                                        fetchData={() => metricsClient(
+                                            `integrations/redash/${selectedIndicator}`,
+                                            {
+                                                parameters: {
+                                                    time_start: timeStore.start
+                                                        .utc()
+                                                        .format(),
+                                                    time_end: timeStore.end
+                                                        .utc()
+                                                        .format(),
+                                                    time_granularity: moment
+                                                        .duration(
+                                                            timeGranularityValue
+                                                        )
+                                                        .asSeconds()
+                                                }
+                                            }
+                                        )
+                                        }
+                                        renderData={({results = []}) => {
+                                            const dots = results.map(
+                                                ({metric, time}) => ({
+                                                    x: new Date(time).getTime(),
+                                                    y: metric * 100
+                                                })
+                                            );
 
-                                        return (
-                                            <AreaGraph
-                                                dots={dots}
-                                                hasBorder={false}
-                                                isTimeDependent
-                                                margin={{
-                                                    right: 0,
-                                                    bottom: 30,
-                                                    left: 5
-                                                }}
-                                                xAxisName='Time'
-                                                yAxisDomain={[0, 100]}
-                                                yAxisName={getName(
-                                                    modelPerformanceIndicators.find(
-                                                        ({value}) => value === selectedIndicator
-                                                    )?.name
-                                                )}
-                                            />
-                                        );
-                                    }}
-                                />
-                            ) : null}
-                        </Col>
-                    </Row>
-                </div>
+                                            return (
+                                                <AreaGraph
+                                                    dots={dots}
+                                                    hasBorder={false}
+                                                    isTimeDependent
+                                                    margin={{
+                                                        right: 0,
+                                                        bottom: 30,
+                                                        left: 5
+                                                    }}
+                                                    xAxisName='Time'
+                                                    yAxisDomain={[0, 100]}
+                                                    yAxisName={getName(
+                                                        modelPerformanceIndicators.find(
+                                                            ({value}) => value === selectedIndicator
+                                                        )?.name
+                                                    )}
+                                                />
+                                            );
+                                        }}
+                                    />
+                                ) : null}
+                            </Col>
+                        </Row>
+                    </div>
+                ) : null}
             </div>
         </>
     );

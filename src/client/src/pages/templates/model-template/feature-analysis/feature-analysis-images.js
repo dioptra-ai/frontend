@@ -111,23 +111,6 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                             fetchData={() => metricsClient('queries/unique-images-over-time', {time_granularity: timeGranularity, sql_filters: allSqlFilters})}
                         />
                     </Col>
-                    <Col className='d-flex' lg={5}>
-                        <Async
-                            defaultData={[]}
-                            renderData={(data) => (
-                                <BarGraph
-                                    bars={data.map(({name, value}) => ({
-                                        name,
-                                        value,
-                                        fill: getHexColor(value)
-                                    }))}
-                                    title='Rotation Angle'
-                                    yAxisName='Degrees'
-                                />
-                            )}
-                            fetchData={() => metricsClient('queries/rotation-angle', {sql_filters: allSqlFilters})}
-                        />
-                    </Col>
                 </Row>
             </div>
         </div>
