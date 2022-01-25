@@ -62,7 +62,7 @@ const Model = ({modelStore}) => {
     return model ? (
         <Menu>
             <Switch>
-                <Route path='/models/:_id/add-alert' component={AddAlertPage} exact/>
+                <Route path={'/:_id/add-alert'} component={AddAlertPage} exact/>
                 <Route>
                     <GeneralSearchBar/>
                     <Container className='bg-white-blue text-secondary py-2' fluid>

@@ -157,8 +157,8 @@ const Models = ({modelStore}) => {
         modelStore.models.length / NUMBER_OF_RECORDS_PER_PAGE
     );
     const data = modelStore.models.slice(
-        pageNumber * NUMBER_OF_RECORDS_PER_PAGE,
-        (pageNumber + 1) * NUMBER_OF_RECORDS_PER_PAGE
+        pageNumber - Number(NUMBER_OF_RECORDS_PER_PAGE),
+        (pageNumber) * NUMBER_OF_RECORDS_PER_PAGE
     );
 
     const handleSubmit = (data) => {

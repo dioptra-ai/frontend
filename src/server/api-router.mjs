@@ -17,10 +17,10 @@ ApiRouter.use('/auth', AuthRouter);
 ApiRouter.use('/ml-model', MlModelRouter);
 ApiRouter.use('/timeseries', Timeseries);
 ApiRouter.use('/metrics', Metrics);
+ApiRouter.use('/tasks', TasksRouter);
 ApiRouter.use('/api-key', ApiKey);
 ApiRouter.use('/organization', OrganizationRouter);
 ApiRouter.use('/organization-membership', OrganizationMembershipRouter);
 ApiRouter.use('/integration', IntegrationRouter);
-ApiRouter.use('/tasks', TasksRouter);
 
 export default ApiRouter;

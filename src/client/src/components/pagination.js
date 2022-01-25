@@ -2,9 +2,9 @@ import React, {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import Button from 'react-bootstrap/Button';
 
-const Pagination = ({totalPages, onPageChange}) => {
+const Pagination = ({totalPages, onPageChange, overrideSelectedPage = 1}) => {
     const pages = Array.from({length: totalPages}, (_, i) => 1 + i);
-    const [selectedPage, setSelectedPage] = useState(0);
+    const [selectedPage, setSelectedPage] = useState(overrideSelectedPage);
     const [page, setPage] = useState('');
 
     useEffect(() => {
@@ -16,7 +16,7 @@ const Pagination = ({totalPages, onPageChange}) => {
             <div className='pages'>
                 <button
                     className='px-0'
-                    disabled={selectedPage <= 0}
+                    disabled={selectedPage === 1}
                     onClick={() => setSelectedPage(selectedPage - 1)}
                 >
                 Previous
@@ -58,7 +58,8 @@ const Pagination = ({totalPages, onPageChange}) => {
 Pagination.propTypes = {
     onPageChange: PropTypes.func,
     selectedPage: PropTypes.number,
-    totalPages: PropTypes.number
+    totalPages: PropTypes.number,
+    overrideSelectedPage: PropTypes.number
 };
 
 export default Pagination;
