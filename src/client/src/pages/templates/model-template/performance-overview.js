@@ -415,7 +415,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                 </div>
             </div>
             <div className='my-3'>
-                {model.mlModelType === 'UNSUPERVISED_OBJECT_DETECTION' ? (
+                {model.mlModelType !== 'UNSUPERVISED_OBJECT_DETECTION' ? (
                     <div className='border rounded p-3'>
                         <h3 className='text-dark bold-text fs-4'>
                             Key Performance Indicators

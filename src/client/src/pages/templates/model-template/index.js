@@ -31,9 +31,14 @@ const Model = ({modelStore}) => {
     }, [modelId]);
 
     const tabs = [
-        {name: 'Performance Overview', to: `/${modelId}/performance-overview`},
-        {name: 'Performance Analysis', to: `/${modelId}/performance-details`}
+        {name: 'Performance Overview', to: `/${modelId}/performance-overview`}
     ];
+
+    if (model?.mlModelType !== 'UNSUPERVISED_OBJECT_DETECTION') {
+        tabs.push(
+            {name: 'Performance Analysis', to: `/${modelId}/performance-details`}
+        );
+    }
 
     if (model?.mlModelType !== 'Q_N_A') {
         tabs.push(

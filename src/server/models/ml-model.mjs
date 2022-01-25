@@ -32,7 +32,8 @@ const mlModelSchema = new mongoose.Schema({
             'TABULAR_CLASSIFIER',
             'DOCUMENT_PROCESSING',
             'Q_N_A',
-            'TEXT_CLASSIFIER'
+            'TEXT_CLASSIFIER',
+            'UNSUPERVISED_OBJECT_DETECTION'
         ],
         required: true
     },
