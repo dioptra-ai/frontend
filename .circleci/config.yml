@@ -42,16 +42,6 @@ workflows:
           name: lint
           version: 16.4.0 # This to be kept in sync with Dockerfile
           run-command: lint
-          filters:
-            branches:
-              only:
-                - dev
-      # Skipping until we have tests worth the time.
-      # - node/test:
-      #     name: test
-      #     version: 16.4.0 # This to be kept in sync with Dockerfile
-      #     requires:
-      #       - lint
       - aws-ecr/build-and-push-image:
           name: build-image
           account-url: AWS_ECR_ACCOUNT_URL
