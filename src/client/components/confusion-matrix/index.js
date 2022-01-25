@@ -176,29 +176,33 @@ const ConfusionMatrix = () => {
                     ]}
                     refetchOnChanged={[iou, allSqlFilters, sqlFiltersWithModelTime]}
                 />
-                {selectedCell &&
-          (model.mlModelType === 'IMAGE_CLASSIFIER' || model.mlModelType === 'DOCUMENT_PROCESSING' || model.mlModelType === 'UNSUPERVISED_OBJECT_DETECTION' ? (
-              <ImageExamples
-                  groundtruth={selectedCell.groundtruth}
-                  model={model}
-                  onClose={() => setSelectedCell(null)}
-                  prediction={selectedCell.prediction}
-                  iou={Number(iou)}
-              />
-          ) : model.mlModelType === 'TABULAR_CLASSIFIER' ? (
-              <TabularExamples
-                  groundtruth={selectedCell.groundtruth}
-                  onClose={() => setSelectedCell(null)}
-                  prediction={selectedCell.prediction}
-              />
-          ) : model.mlModelType === 'TEXT_CLASSIFIER' ? (
-              <TabularExamples
-                  groundtruth={selectedCell.groundtruth}
-                  onClose={() => setSelectedCell(null)}
-                  prediction={selectedCell.prediction}
-                  previewColumns={['confidence', 'groundtruth', 'prediction', 'tags', /^text$/, 'features']}
-              />
-          ) : null)}
+                {selectedCell ? (
+                    (model.mlModelType === 'IMAGE_CLASSIFIER' ||
+                        model.mlModelType === 'DOCUMENT_PROCESSING' ||
+                        model.mlModelType === 'UNSUPERVISED_OBJECT_DETECTION'
+                    ) ? (
+                            <ImageExamples
+                                groundtruth={selectedCell.groundtruth}
+                                model={model}
+                                onClose={() => setSelectedCell(null)}
+                                prediction={selectedCell.prediction}
+                                iou={Number(iou)}
+                            />
+                        ) : model.mlModelType === 'TABULAR_CLASSIFIER' ? (
+                            <TabularExamples
+                                groundtruth={selectedCell.groundtruth}
+                                onClose={() => setSelectedCell(null)}
+                                prediction={selectedCell.prediction}
+                            />
+                        ) : model.mlModelType === 'TEXT_CLASSIFIER' ? (
+                            <TabularExamples
+                                groundtruth={selectedCell.groundtruth}
+                                onClose={() => setSelectedCell(null)}
+                                prediction={selectedCell.prediction}
+                                previewColumns={['confidence', 'groundtruth', 'prediction', 'tags', /^text$/, 'features']}
+                            />
+                        ) : null
+                ) : null}
             </div>
         </div>
     );

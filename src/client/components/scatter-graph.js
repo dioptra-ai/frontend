@@ -46,8 +46,6 @@ const ScatterGraph = ({data}) => {
     const samples = selectedPoints?.map(({sample}) => sample);
     const sampleRequestIds = selectedPoints?.map(({request_id}) => request_id);
 
-    console.log(selectedPoints);
-
     const handleKeyDown = ({keyCode}) => {
         if (keyCode === 16) setShiftPressed(true);
     };

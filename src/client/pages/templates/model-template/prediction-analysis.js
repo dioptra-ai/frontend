@@ -40,11 +40,6 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                 onChange={(filters) => (filtersStore.filters = filters)}
             />
             <div className='my-3'>
-                <h3 className='text-dark bold-text fs-3 mb-3'>
-                    {mlModelType === 'DOCUMENT_PROCESSING' ?
-                        'Class Distributions' :
-                        'Prediction Analysis'}
-                </h3>
                 <Row className='my-3'>
                     <Col className='d-flex' lg={4}>
                         <Async
@@ -83,9 +78,10 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                                                 unit='%'
                                             />
                                         )}
-                                        fetchData={() => metricsClient(`queries/${mlModelType === 'DOCUMENT_PROCESSING' ?
-                                            'offline-class-distribution-1' :
-                                            'offline-class-distribution-2'}`, {offline_sql_filters: allOfflineSqlFilters})}
+                                        fetchData={() => metricsClient(`queries/${
+                                            mlModelType === 'DOCUMENT_PROCESSING' || mlModelType === 'UNSUPERVISED_OBJECT_DETECTION' ?
+                                                'offline-class-distribution-1' :
+                                                'offline-class-distribution-2'}`, {offline_sql_filters: allOfflineSqlFilters})}
                                     />
                                 </Col>
                                 <Col className='d-flex' lg={4}>
@@ -104,9 +100,10 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                                                 yAxisName='Distance'
                                             />
                                         )}
-                                        fetchData={() => metricsClient(`queries/${mlModelType === 'DOCUMENT_PROCESSING' ?
-                                            'offline-online-distribution-distance-1' :
-                                            'offline-online-distribution-distance-2'}`, {
+                                        fetchData={() => metricsClient(`queries/${
+                                            mlModelType === 'DOCUMENT_PROCESSING' || mlModelType === 'UNSUPERVISED_OBJECT_DETECTION' ?
+                                                'offline-online-distribution-distance-1' :
+                                                'offline-online-distribution-distance-2'}`, {
                                             offline_sql_filters: allOfflineSqlFilters,
                                             time_granularity: timeGranularity,
                                             sql_filters: allSqlFilters
@@ -122,12 +119,9 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
             {mlModelType === 'DOCUMENT_PROCESSING' || mlModelType === 'UNSUPERVISED_OBJECT_DETECTION' ? (
                 <>
                     <div className='my-3'>
-                        <h3 className='text-dark bold-text fs-3 mb-3'>
-                            Bounding Box Location Analysis
-                        </h3>
                         <Row className='my-3 rounded border mx-1'>
                             <Col className='d-flex align-items-center' lg={4}>
-                                <h4 className='text-dark bold-text fs-4 m-0'>Heat Map</h4>
+                                <h4 className='text-dark bold-text fs-4 m-0'>Bounding Box Location Analysis</h4>
                             </Col>
                             <Col className='d-flex align-items-center' lg={4}>
                                 <h4 className='text-dark bold-text fs-4 m-0'>
