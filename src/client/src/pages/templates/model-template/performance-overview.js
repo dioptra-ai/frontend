@@ -374,6 +374,7 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                             </Col>
                                         </Row>
                                     }
+                                    metric={selectedMetric}
                                 />
                             );
                         }}

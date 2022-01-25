@@ -1,4 +1,4 @@
-import {useMemo} from 'react';
+import {useEffect, useMemo, useState} from 'react';
 import {useThrottle} from '@react-hook/throttle';
 import PropTypes from 'prop-types';
 import moment from 'moment';
@@ -7,13 +7,18 @@ import {
     AreaChart,
     CartesianGrid,
     ReferenceArea,
+    ReferenceLine,
     ResponsiveContainer,
     Tooltip,
     XAxis,
     YAxis
 } from 'recharts';
 import {VscZoomOut} from 'react-icons/vsc';
+import useModel from 'customHooks/use-model';
 import {SpinnerWrapper} from 'components/spinner';
+import metricsClient from 'clients/metrics';
+import useAllSqlFilters from 'customHooks/use-all-sql-filters';
+import baseJSONClient from 'clients/base-json-client';
 
 import theme from 'styles/theme.module.scss';
 import {formatDateTime} from 'helpers/date-helper';
@@ -71,14 +76,57 @@ const AreaGraph = ({
     unit,
     timeStore,
     xDataKey = 'x',
-    yDataKey = 'y'
+    yDataKey = 'y',
+    metric
 }) => {
     const granularityMs = timeStore.getTimeGranularity().asMilliseconds();
     const domain = timeStore.rangeMillisec;
     const [showBtn, setShowBtn] = useThrottle(false);
     const [refAreaLeft, setRefAreaLeft] = useThrottle(null, 25, true);
     const [refAreaRight, setRefAreaRight] = useThrottle(null, 25, true);
+    const [benchmarkLineVal, setBenchmarkLineVal] = useState(0);
+    const mlModel = useModel();
+    const sqlFiltersTime = useAllSqlFilters({useReferenceRange: true});
+    const queryMap = (selected) => {
+        if (selected === 'ACCURACY') return 'accuracy-metric';
+        else if (selected === 'F1_SCORE') return 'f1-score-metric';
+        else if (selected === 'PRECISION') return 'precision-metric';
+        else if (selected === 'RECALL') return 'recall-metric';
+        else return 'accuracy-metric'; // default for now
+    };
 
+    useEffect(() => {
+        if (mlModel) {
+            const {benchmarkType, benchmarkModel, benchmarkMlModelVersion} = mlModel;
+            const isBenchmarkSet = Boolean(benchmarkModel && benchmarkMlModelVersion && (benchmarkType !== 'none'));
+
+            const modelsObj = {};
+
+            if (benchmarkModel) {
+                baseJSONClient('/api/ml-model')
+                    .then((res) => { // Res is an array of model objects from the DB
+                        res.forEach((model) => {
+                            modelsObj[model.mlModelId] = model;
+                        });
+                    }).then(() => {
+                        if (isBenchmarkSet && benchmarkType === 'timeframe') {
+                            metricsClient(queryMap(metric), {
+                                sql_filters: sqlFiltersTime,
+                                time_granularity: null,
+                                model_type: modelsObj[benchmarkModel]['mlModelType']
+                            }).then((data) => {
+                                if (data && data[0]) {
+                                    setBenchmarkLineVal(data[0].value * 100);
+                                }
+                            }).catch((e) => {
+                                console.log(e);
+                            });
+                        }
+                    });
+            }
+        }
+    }, [metric]);
+    console.log(`benchmarkLineVal: ${benchmarkLineVal}`);
     const filledData = useMemo(() => {
         const data = dots.map((d) => ({
             [yDataKey]: d[yDataKey],
@@ -254,6 +302,13 @@ const AreaGraph = ({
                                 unit={unit}
                             />
                             <Tooltip content={CustomTooltip} />
+                            <ReferenceLine
+                                yAxisId='1'
+                                // y={unit === '%' ? benchmarkLineVal * 100 : benchmarkLineVal}
+                                y={benchmarkLineVal}
+                                label='bm'
+                                stroke='red'
+                                strokeDasharray='3 3'/>
                             <Area
                                 animationDuration={300}
                                 dataKey={yDataKey}
@@ -296,7 +351,8 @@ AreaGraph.propTypes = {
     yAxisDomain: PropTypes.array,
     yAxisName: PropTypes.string,
     xDataKey: PropTypes.string,
-    yDataKey: PropTypes.string
+    yDataKey: PropTypes.string,
+    metric: PropTypes.string
 };
 
 export default setupComponent(AreaGraph);
