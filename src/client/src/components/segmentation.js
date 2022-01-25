@@ -236,26 +236,46 @@ const _mAPmARCell = ({cell, timeStore}) => {
     const allSqlFilters = useAllSqlFilters();
     const timeGranularity = timeStore.getTimeGranularity().toISOString();
 
+
+    if (timeStore.enabled) {
+        return (
+            <Async
+                refetchOnChanged={[allSqlFilters, timeGranularity]}
+                fetchData={() => metricsClient(cellId, {
+                    sql_filters: `${allSqlFilters} AND ${cellFields.map((f) => `"${f}"='${cellValues[f]}'`)}`,
+                    model_type: mlModelType,
+                    iou_threshold: 0.5,
+                    time_granularity: timeStore.getTimeGranularity(5).toISOString()
+                })}
+                renderData={(data) => (
+                    <div style={{height: '150px', width: '300px'}}>
+                        <SmallChart
+                            data={data}
+                            xDataKey='time'
+                            yDataKey='value'
+                        />
+                    </div>
+                )}
+            />
+        );
+    }
+
     return (
         <Async
             refetchOnChanged={[allSqlFilters, timeGranularity]}
             fetchData={() => metricsClient(cellId, {
                 sql_filters: `${allSqlFilters} AND ${cellFields.map((f) => `"${f}"='${cellValues[f]}'`)}`,
                 model_type: mlModelType,
-                iou_threshold: 0.5,
-                time_granularity: timeStore.getTimeGranularity(5).toISOString()
+                iou_threshold: 0.5
             })}
+
             renderData={(data) => (
-                <div style={{height: '150px', width: '300px'}}>
-                    <SmallChart
-                        data={data}
-                        xDataKey='time'
-                        yDataKey='value'
-                    />
-                </div>
+                <span> {data[0]?.value.toFixed(2)} </span>
             )}
         />
     );
+
+
 };
 
 _mAPmARCell.propTypes = {
