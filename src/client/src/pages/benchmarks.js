@@ -1,4 +1,5 @@
-import {Redirect, Route, Switch, useHistory, useParams, useRouteMatch} from 'react-router-dom';
+import PropTypes from 'prop-types';
+import {Redirect, Route} from 'react-router-dom';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
@@ -17,11 +18,9 @@ const Benchmarks = ({filtersStore, modelStore}) => {
     const mlModelIdFilter = filtersStore.filters.find((f) => f.left === 'model_id');
     const mlModelVersionFilter = filtersStore.filters.find((f) => f.left === 'model_version');
     const datasetIdFilter = filtersStore.filters.find((f) => f.left === 'dataset_id');
-    const benchmarkIdFilter = filtersStore.filters.find((f) => f.left === 'benchmark_id');
     const mlModelId = mlModelIdFilter?.right;
     const mlModelVersion = mlModelVersionFilter?.right;
     const datasetId = datasetIdFilter?.right;
-    const benchmarkId = benchmarkIdFilter?.right;
     const model = modelStore.models.find((model) => model.mlModelId === mlModelId);
 
     useSyncStoresToUrl(({filtersStore, segmentationStore}) => ({
@@ -81,6 +80,11 @@ const Benchmarks = ({filtersStore, modelStore}) => {
             </Container>
         </Menu>
     );
+};
+
+Benchmarks.propTypes = {
+    filtersStore: PropTypes.object.isRequired,
+    modelStore: PropTypes.object.isRequired
 };
 
 export default setupComponent(Benchmarks);

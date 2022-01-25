@@ -1,6 +1,5 @@
 import React from 'react';
 import {Route, Switch} from 'react-router-dom';
-import AuthorizedTemplate from './pages/templates/authorized-template';
 import {AuthorizedRouteConfigs} from './configs/route-config';
 import Model from 'pages/templates/model-template';
 import Menu from 'components/menu';
