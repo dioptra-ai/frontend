@@ -1,11 +1,14 @@
 import Table from 'react-bootstrap/Table';
+import {useHistory} from 'react-router-dom';
 
 import Async from 'components/async';
 import GeneralSearchBar from './templates/general-search-bar';
 import metricsClient from 'clients/metrics';
+import {setupComponent} from 'helpers/component-helper';
 
 
-const Experimentations = () => {
+const Experimentations = ({filtersStore, modelStore}) => {
+    const history = useHistory();
 
     return (
         <>
@@ -21,16 +24,28 @@ const Experimentations = () => {
                             <thead className='align-middle text-secondary'>
                                 <tr className='border-0 border-bottom border-mercury'>
                                     <th>Dataset ID</th>
-                                    <th>Model ID</th>
+                                    <th>Model</th>
                                     <th>Model Version</th>
                                     <th>Started At</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {benchmarks.map(({model_id, model_version, started_at}, i) => (
-                                    <tr key={i}>
+                                    <tr className='cursor-pointer' onClick={() => {
+                                        filtersStore.filters = [{
+                                            left: 'model_id',
+                                            op: '=',
+                                            right: model_id
+                                        }, {
+                                            left: 'model_version',
+                                            op: '=',
+                                            right: model_version
+                                        }];
+
+                                        history.push('/benchmarks/performance');
+                                    }} key={i}>
                                         <td></td>
-                                        <td>{model_id}</td>
+                                        <td>{modelStore.models.find((m) => m.mlModelId === model_id)?.name || '<unknown>'}</td>
                                         <td>{model_version}</td>
                                         <td>{new Date(started_at).toLocaleString()}</td>
                                     </tr>
@@ -44,4 +59,4 @@ const Experimentations = () => {
     );
 };
 
-export default Experimentations;
+export default setupComponent(Experimentations);

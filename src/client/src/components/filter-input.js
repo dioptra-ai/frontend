@@ -1,3 +1,4 @@
+import {OverlayTrigger, Tooltip} from 'react-bootstrap';
 import React, {useEffect, useState} from 'react';
 import OutsideClickHandler from 'react-outside-click-handler';
 import Button from 'react-bootstrap/Button';
@@ -7,7 +8,7 @@ import {setupComponent} from 'helpers/component-helper';
 import FontIcon from './font-icon';
 import metricsClient from 'clients/metrics';
 import {Filter} from 'state/stores/filters-store';
-import {OverlayTrigger, Tooltip} from 'react-bootstrap';
+import useModel from 'customHooks/use-model';
 
 const RenderedFilter = ({filter, onDelete, applied = false}) => {
 
@@ -57,9 +58,7 @@ const FilterInput = ({
 
     const appliedFilters = filtersStore.filters;
 
-    const {_id} = useParams();
-
-    const {mlModelId} = modelStore.getModelById(_id);
+    const {mlModelId} = useModel();
 
     const getSuggestions = async () => {
         const {left: key, isOpValid, right: value} = newFilter;
@@ -85,7 +84,6 @@ const FilterInput = ({
                     keys_calc: allSuggestionValues.map((value) => `COUNT(DISTINCT "${value}") FILTER(WHERE "${value}" IS NOT NULL) as "${value}"`).join(', '),
                     ml_model_id: mlModelId
                 });
-                // COUNT DISTINCT counts 1 for NULL
                 const filteredKeys = allSuggestionValues.filter((v) => non1Options[v] > 0);
 
                 setSuggestions([...filteredKeys]);

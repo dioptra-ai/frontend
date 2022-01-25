@@ -5,7 +5,7 @@ import {BottomMenuItemsConfig, TopMenuItemsConfig} from '../configs/menu-config'
 import {Link, useLocation} from 'react-router-dom';
 import {getMatchingRouteConfig} from '../configs/route-config';
 
-const Menu = () => {
+const Menu = ({children}) => {
     const location = useLocation();
 
     const renderItems = (configs) => {
@@ -32,15 +32,18 @@ const Menu = () => {
     };
 
     return (
-        <div className='menu py-3 d-flex flex-column'>
-            <div className='d-flex justify-content-center'>
-                <LogoSymbol height={38} width={41}/>
+        <>
+            <div className='menu py-3 d-flex flex-column'>
+                <div className='d-flex justify-content-center'>
+                    <LogoSymbol height={38} width={41}/>
+                </div>
+                <div className='d-flex flex-column justify-content-between flex-grow-1 my-2'>
+                    <div>{renderItems(TopMenuItemsConfig)}</div>
+                    <div>{renderItems(BottomMenuItemsConfig)}</div>
+                </div>
             </div>
-            <div className='d-flex flex-column justify-content-between flex-grow-1 my-2'>
-                <div>{renderItems(TopMenuItemsConfig)}</div>
-                <div>{renderItems(BottomMenuItemsConfig)}</div>
-            </div>
-        </div>
+            <div className='px-0 bg-white authorized-content'>{children}</div>
+        </>
     );
 };
 

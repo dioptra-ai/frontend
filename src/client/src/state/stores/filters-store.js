@@ -158,7 +158,7 @@ class FiltersStore {
             this.f = parsedFilters ? parsedFilters.map((f) => new Filter(f)) : [];
             this.mlModelVersion = mlModelVersion;
         } else if (initialValue) {
-            this.f = JSON.parse(initialValue).f;
+            this.f = JSON.parse(initialValue).f.map((_f) => new Filter(_f));
             this.mlModelVersion = mlModelVersion;
         }
         makeAutoObservable(this);
@@ -172,7 +172,7 @@ class FiltersStore {
         // Dedupe {left: right}.
         const dedupedFilters = newFilters.reduce((agg, newF) => ({
             ...agg,
-            [JSON.stringify(newF)]: newF
+            [JSON.stringify(newF)]: new Filter(newF)
         }), {});
 
         this.f = Object.values(dedupedFilters);

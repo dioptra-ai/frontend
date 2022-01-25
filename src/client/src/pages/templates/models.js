@@ -161,10 +161,6 @@ const Models = ({modelStore}) => {
         (pageNumber + 1) * NUMBER_OF_RECORDS_PER_PAGE
     );
 
-    useEffect(() => {
-        modelStore.fetchModels();
-    }, []);
-
     const handleSubmit = (data) => {
         if (errors) {
             setErrors([]);

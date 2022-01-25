@@ -269,9 +269,8 @@ const mAPmARCell = setupComponent(_mAPmARCell);
 const Segmentation = ({timeStore, modelStore, segmentationStore}) => {
     const allSqlFilters = useAllSqlFilters();
     const [addColModal, setAddColModal] = useModal(false);
-    const {_id} = useParams();
     const groupByColumns = segmentationStore.segmentation;
-    const {mlModelType, mlModelId} = modelStore.getModelById(_id);
+    const {mlModelType, mlModelId} = useModel();
     const handleApply = (cols) => {
         segmentationStore.segmentation = cols;
         setAddColModal(false);
