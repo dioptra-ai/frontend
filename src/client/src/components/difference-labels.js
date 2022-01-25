@@ -1,28 +1,32 @@
 import {IoCaretDownSharp, IoCaretUpSharp} from 'react-icons/io5';
 import PropTypes from 'prop-types';
+import {OverlayTrigger, Tooltip} from 'react-bootstrap';
 
 const DifferenceLabel = ({difference, containerStyle = {}, diffStyles = {}}) => {
+
     return (
         <div style={containerStyle} className='mx-2'>
-            <span className='text-secondary metric-box-diffText' style={{
-                fontSize: '80%',
-                whiteSpace: 'nowrap',
-                ...diffStyles
-            }} title='vs. Benchmark'>
-                {Number(difference) ? (
-                    Number(difference) > 0 ? (
-                        <>
-                            {`+${difference}%`}
-                            <IoCaretUpSharp className='fs-6/'/>
-                        </>
-                    ) : (
-                        <>
-                            {`${difference}%`}
-                            <IoCaretDownSharp className='fs-6/'/>
-                        </>
-                    )
-                ) : ' ='}
-            </span>
+            <OverlayTrigger overlay={<Tooltip>Comparison to benchmark</Tooltip>}>
+                <span className='text-secondary metric-box-diffText' style={{
+                    fontSize: '80%',
+                    whiteSpace: 'nowrap',
+                    ...diffStyles
+                }}>
+                    {Number(difference) ? (
+                        Number(difference) > 0 ? (
+                            <>
+                                {`+${difference}%`}
+                                <IoCaretUpSharp className='fs-6/'/>
+                            </>
+                        ) : (
+                            <>
+                                {`${difference}%`}
+                                <IoCaretDownSharp className='fs-6/'/>
+                            </>
+                        )
+                    ) : ' ='}
+                </span>
+            </OverlayTrigger>
         </div>
     );
 };

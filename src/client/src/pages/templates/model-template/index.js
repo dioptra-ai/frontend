@@ -16,8 +16,10 @@ import FeatureAnalysis from './feature-analysis';
 import IncidentsAndAlerts from './incidents-and-alerts';
 import TrafficReplay from './traffic-replay';
 import useModel from 'customHooks/use-model';
-import StickyParamsRouter from 'components/sticky-params-router';
+import useSyncStoresToUrl from 'customHooks/use-sync-stores-to-url';
+import useTimeStore from 'customHooks/use-time-store';
 import Select from 'components/select';
+import Menu from 'components/menu';
 
 const Model = ({modelStore}) => {
     const modelId = useParams()._id;
@@ -25,46 +27,42 @@ const Model = ({modelStore}) => {
     const history = useHistory();
     const routeMatch = useRouteMatch('/models/:_id/:tabPath');
 
-    useEffect(() => {
-        // All models needed for the breadcrumb selector
-        modelStore.fetchModels();
-    }, [modelId]);
+    useSyncStoresToUrl(({timeStore, filtersStore, segmentationStore}) => ({
+        startTime: timeStore.start?.toISOString() || '',
+        endTime: timeStore.end?.toISOString() || '',
+        lastMs: timeStore.lastMs || '',
+        filters: JSON.stringify(filtersStore.filters),
+        mlModelVersion: filtersStore.mlModelVersion,
+        segmentation: JSON.stringify(segmentationStore.segmentation)
+    }));
+
+    useTimeStore(true);
 
     const tabs = [
-        {name: 'Performance Overview', to: `/${modelId}/performance-overview`}
+        {name: 'Performance Overview', to: `/models/${modelId}/performance-overview`}
     ];
 
     if (model?.mlModelType !== 'UNSUPERVISED_OBJECT_DETECTION') {
         tabs.push(
-            {name: 'Performance Analysis', to: `/${modelId}/performance-details`}
+            {name: 'Performance Analysis', to: `/models/${modelId}/performance-details`}
         );
     }
 
     if (model?.mlModelType !== 'Q_N_A') {
         tabs.push(
-            {name: 'Prediction Analysis', to: `/${modelId}/prediction-analysis`}
+            {name: 'Prediction Analysis', to: `/models/${modelId}/prediction-analysis`}
         );
 
-        tabs.push({name: 'Feature Analysis', to: `/${modelId}/feature-analysis`});
+        tabs.push({name: 'Feature Analysis', to: `/models/${modelId}/feature-analysis`});
     }
 
-    tabs.push({name: 'Traffic Replay', to: `/${modelId}/traffic-replay`});
-    tabs.push({name: 'Incidents & Alerts', to: `/${modelId}/incidents-&-alerts`});
+    tabs.push({name: 'Traffic Replay', to: `/models/${modelId}/traffic-replay`});
+    tabs.push({name: 'Incidents & Alerts', to: `/models/${modelId}/incidents-&-alerts`});
 
     return model ? (
-        <StickyParamsRouter
-            basename='/models'
-            getParamsFromStores={({timeStore, filtersStore, segmentationStore}) => ({
-                startTime: timeStore.start?.toISOString() || '',
-                endTime: timeStore.end?.toISOString() || '',
-                lastMs: timeStore.lastMs || '',
-                filters: JSON.stringify(filtersStore.filters),
-                mlModelVersion: filtersStore.mlModelVersion,
-                segmentation: JSON.stringify(segmentationStore.segmentation)
-            })}
-        >
+        <Menu>
             <Switch>
-                <Route path={'/:id/add-alert'} component={AddAlertPage} exact/>
+                <Route path='/models/:_id/add-alert' component={AddAlertPage} exact/>
                 <Route>
                     <GeneralSearchBar/>
                     <Container className='bg-white-blue text-secondary py-2' fluid>
@@ -105,42 +103,42 @@ const Model = ({modelStore}) => {
                     <ModelDescription {...model}/>
                     <Container fluid>
                         <Tabs tabs={tabs} />
-                        <Route exact path='/:_id/performance-overview'
+                        <Route exact path='/models/:_id/performance-overview'
                             render={() => (
                                 <div className='px-3'>
                                     <PerformanceOverview/>
                                 </div>
                             )}
                         />
-                        <Route exact path='/:_id/performance-details'
+                        <Route exact path='/models/:_id/performance-details'
                             render={() => (
                                 <div className='px-3'>
                                     <PerformanceDetails/>
                                 </div>
                             )}
                         />
-                        <Route exact path='/:_id/prediction-analysis'
+                        <Route exact path='/models/:_id/prediction-analysis'
                             render={() => (
                                 <div className='px-3'>
                                     <PredictionAnalysis/>
                                 </div>
                             )}
                         />
-                        <Route exact path='/:_id/feature-analysis'
+                        <Route exact path='/models/:_id/feature-analysis'
                             render={() => (
                                 <div className='px-3'>
                                     <FeatureAnalysis/>
                                 </div>
                             )}
                         />
-                        <Route exact path='/:_id/incidents-&-alerts'
+                        <Route exact path='/models/:_id/incidents-&-alerts'
                             render={() => (
                                 <div className='px-3'>
                                     <IncidentsAndAlerts/>
                                 </div>
                             )}
                         />
-                        <Route exact path='/:_id/traffic-replay'
+                        <Route exact path='/models/:_id/traffic-replay'
                             render={() => (
                                 <div className='px-3'>
                                     <TrafficReplay/>
@@ -150,7 +148,7 @@ const Model = ({modelStore}) => {
                     </Container>
                 </Route>
             </Switch>
-        </StickyParamsRouter>
+        </Menu>
     ) : 'Loading...';
 };
 

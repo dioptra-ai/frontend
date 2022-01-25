@@ -1,3 +1,4 @@
+import {OverlayTrigger, Tooltip} from 'react-bootstrap';
 import React, {useEffect, useState} from 'react';
 import OutsideClickHandler from 'react-outside-click-handler';
 import Button from 'react-bootstrap/Button';
@@ -7,7 +8,7 @@ import {setupComponent} from 'helpers/component-helper';
 import FontIcon from './font-icon';
 import metricsClient from 'clients/metrics';
 import {Filter} from 'state/stores/filters-store';
-import {OverlayTrigger, Tooltip} from 'react-bootstrap';
+import useModel from 'customHooks/use-model';
 
 const RenderedFilter = ({filter, onDelete, applied = false}) => {
 
@@ -57,36 +58,38 @@ const FilterInput = ({
 
     const appliedFilters = filtersStore.filters;
 
-    const {_id} = useParams();
-
-    const {mlModelId} = modelStore.getModelById(_id);
+    const {mlModelId} = useModel();
 
     const getSuggestions = async () => {
-        const {key, op, value} = newFilter;
+        const {left: key, isOpValid, right: value} = newFilter;
 
-        if (key && op) {
-            const allSuggestions = await metricsClient('queries/get-suggestions-with-key', {
-                key,
-                value,
-                ml_model_id: mlModelId
-            });
-            const allSuggestionValues = allSuggestions.map(({value}) => value);
+        try {
+            if (key && isOpValid) {
+                const allSuggestions = await metricsClient('queries/get-suggestions-with-key', {
+                    key,
+                    value,
+                    ml_model_id: mlModelId
+                });
 
-            setSuggestions(allSuggestionValues);
-        } else {
-            const allSuggestions = await metricsClient('queries/get-suggestions-without-key', {
-                key
-            });
-            const allSuggestionValues = allSuggestions.map(({value}) => value);
-            const non1Options = await metricsClient('queries/all-key-options', {
-                // COUNT DISTINCT required here otherwise COUNT() returns weird results for model_id
-                keys_calc: allSuggestionValues.map((value) => `COUNT(DISTINCT "${value}") as "${value}"`).join(', '),
-                ml_model_id: mlModelId
-            });
-            // COUNT DISTINCT counts 1 for NULL
-            const filteredKeys = allSuggestionValues.filter((v) => non1Options[v] > 1);
+                const allSuggestionValues = allSuggestions.map(({value}) => value);
 
-            setSuggestions([...filteredKeys]);
+                setSuggestions(allSuggestionValues);
+            } else {
+                const allSuggestions = await metricsClient('queries/get-suggestions-without-key', {
+                    key
+                });
+                const allSuggestionValues = allSuggestions.map(({value}) => value);
+                const non1Options = await metricsClient('queries/all-key-options', {
+                    // COUNT DISTINCT required here otherwise COUNT() returns weird results for model_id
+                    keys_calc: allSuggestionValues.map((value) => `COUNT(DISTINCT "${value}") FILTER(WHERE "${value}" IS NOT NULL) as "${value}"`).join(', '),
+                    ml_model_id: mlModelId
+                });
+                const filteredKeys = allSuggestionValues.filter((v) => non1Options[v] > 0);
+
+                setSuggestions([...filteredKeys]);
+            }
+        } catch (e) {
+            setSuggestions([]);
         }
     };
 
@@ -154,12 +157,12 @@ const FilterInput = ({
     };
 
     const handleSuggestionSelected = (suggestion) => {
-        if (newFilter.key && newFilter.op) {
-            newFilter.value = suggestion;
+        if (newFilter.left && newFilter.isOpValid) {
+            newFilter.right = suggestion;
             setFilters([...filters, newFilter]);
             setNewFilter(new Filter());
         } else {
-            setNewFilter(new Filter({key: suggestion, op: '='}));
+            setNewFilter(new Filter({left: suggestion, op: '='}));
         }
     };
 

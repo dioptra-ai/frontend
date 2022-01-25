@@ -35,7 +35,6 @@ class ModelStore {
         const {referencePeriod} = this.modelsById[_id];
 
         return referencePeriod ? `"__time" >= TIME_PARSE('${referencePeriod.start}') AND "__time" < TIME_PARSE('${referencePeriod.end}')` : 'TRUE';
-
     }
 
     fetchModels() {
@@ -80,3 +79,5 @@ class ModelStore {
 
 export const modelStore = new ModelStore();
 export {ModelStore};
+
+modelStore.fetchModels();
