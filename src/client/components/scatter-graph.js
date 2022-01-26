@@ -26,7 +26,7 @@ const SMALL_DOT_SIZE = 60;
 
 const inRange = (num, min, max) => num >= min && num <= max;
 
-const ScatterGraph = ({data}) => {
+const ScatterGraph = ({data, obsolete = false}) => {
     const ref = useRef();
     const firstOutlier = useMemo(() => {
         return data.find(({outlier}) => outlier);
@@ -225,9 +225,9 @@ const ScatterGraph = ({data}) => {
                                 isAnimationActive={false}
                                 cursor='pointer'
                                 onClick={handlePointSelect}
-                                name='Novelty'
+                                name={obsolete ? 'Obsolete' : 'Novelty'}
                                 data={novelty}
-                                fill={theme.success}
+                                fill={obsolete ? theme.dark : theme.success}
                                 xAxisId='PCA1'
                                 yAxisId='PCA2'
                             />

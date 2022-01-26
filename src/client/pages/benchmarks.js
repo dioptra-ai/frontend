@@ -13,6 +13,7 @@ import Menu from 'components/menu';
 import PerformanceDetails from './templates/model-template/performance-details';
 import PredictionAnalysis from './templates/model-template/prediction-analysis';
 import FeatureAnalysis from './templates/model-template/feature-analysis';
+import DriftAnalysis from './templates/model-template/drift-analysis';
 
 const Benchmarks = ({filtersStore, modelStore}) => {
     const mlModelIdFilter = filtersStore.filters.find((f) => f.left === 'model_id');
@@ -53,6 +54,11 @@ const Benchmarks = ({filtersStore, modelStore}) => {
     case 'SPEECH_TO_TEXT':
         tabs.push({name: 'Feature Analysis', to: '/benchmarks/features'});
         break;
+    case 'UNSUPERVISED_OBJECT_DETECTION':
+        tabs.push({name: 'Prediction Analysis', to: '/benchmarks/predictions'});
+        tabs.push({name: 'Feature Analysis', to: '/benchmarks/features'});
+        tabs.push({name: 'Drift Analysis', to: '/benchmarks/drift-analysis'});
+        break;
     default:
         tabs.push({name: 'Prediction Analysis', to: '/benchmarks/predictions'});
         tabs.push({name: 'Feature Analysis', to: '/benchmarks/features'});
@@ -81,6 +87,7 @@ const Benchmarks = ({filtersStore, modelStore}) => {
                     <Route exact path='/benchmarks/performance' component={PerformanceDetails}/>
                     <Route exact path='/benchmarks/predictions' component={PredictionAnalysis}/>
                     <Route exact path='/benchmarks/features' component={FeatureAnalysis}/>
+                    <Route exact path='/benchmarks/drift-analysis' component={DriftAnalysis}/>
                 </div>
             </Container>
         </Menu>
