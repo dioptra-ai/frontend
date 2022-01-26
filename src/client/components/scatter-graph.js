@@ -300,7 +300,8 @@ const ScatterGraph = ({data, obsolete = false}) => {
 };
 
 ScatterGraph.propTypes = {
-    data: PropTypes.array.isRequired
+    data: PropTypes.array.isRequired,
+    obsolete: PropTypes.bool
 };
 
 export default ScatterGraph;

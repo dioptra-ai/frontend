@@ -9,7 +9,7 @@ import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 import ScatterGraph from 'components/scatter-graph';
 import metricsClient from 'clients/metrics';
 
-const DriftAnalysis = ({filtersStore, timeStore}) => {
+const DriftAnalysis = ({filtersStore}) => {
 
     // This is uggly. Should find a better way to do it
 
