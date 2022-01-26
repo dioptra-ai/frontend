@@ -229,7 +229,7 @@ _DistributionCell.propTypes = {
 
 const DistributionCell = setupComponent(_DistributionCell);
 
-const _mAPmARCell = ({cell, timeStore}) => {
+const _metricCell = ({cell, timeStore}) => {
     const cellValues = cell.row.original;
     const cellId = cell.column.id;
     const cellFields = Object.keys(cellValues).filter((f) => f !== 'value');
@@ -279,12 +279,12 @@ const _mAPmARCell = ({cell, timeStore}) => {
     }
 };
 
-_mAPmARCell.propTypes = {
+_metricCell.propTypes = {
     cell: PropTypes.object.isRequired,
     timeStore: PropTypes.object.isRequired
 };
 
-const mAPmARCell = setupComponent(_mAPmARCell);
+const metricCell = setupComponent(_metricCell);
 
 const Segmentation = ({timeStore, segmentationStore}) => {
     const allSqlFilters = useAllSqlFilters();
@@ -324,12 +324,12 @@ const Segmentation = ({timeStore, segmentationStore}) => {
                                     {
                                         id: 'map',
                                         Header: 'mAP',
-                                        Cell: mAPmARCell
+                                        Cell: metricCell
                                     },
                                     {
                                         id: 'mar',
                                         Header: 'mAR',
-                                        Cell: mAPmARCell
+                                        Cell: metricCell
                                     },
                                     {
                                         id: 'classes',
@@ -341,25 +341,41 @@ const Segmentation = ({timeStore, segmentationStore}) => {
                                         Header: 'Sample Size',
                                         Cell: Text
                                     }
-                                ] :
-                                [
+                                ] : mlModelType === 'SPEECH_TO_TEXT' ? [
                                     {
-                                        id: 'accuracy',
-                                        Header: 'Accuracy Trend',
-                                        Cell: AccuracyCell,
-                                        width: 200
+                                        id: 'exact-match',
+                                        Header: 'EM',
+                                        Cell: metricCell
+                                    },
+                                    {
+                                        id: 'f1-score-metric', // Should be changed to real WER
+                                        Header: 'WER',
+                                        Cell: metricCell
                                     },
                                     {
                                         accessor: 'value',
                                         Header: 'Sample Size',
                                         Cell: Text
-                                    },
-                                    {
-                                        id: 'prediction',
-                                        Header: 'Online Predictions',
-                                        Cell: DistributionCell
                                     }
-                                ]
+                                ] :
+                                    [
+                                        {
+                                            id: 'accuracy',
+                                            Header: 'Accuracy Trend',
+                                            Cell: AccuracyCell,
+                                            width: 200
+                                        },
+                                        {
+                                            accessor: 'value',
+                                            Header: 'Sample Size',
+                                            Cell: Text
+                                        },
+                                        {
+                                            id: 'prediction',
+                                            Header: 'Online Predictions',
+                                            Cell: DistributionCell
+                                        }
+                                    ]
                             ).concat(
                                 groupByColumns.map((column) => ({
                                     accessor: (c) => c[column],
