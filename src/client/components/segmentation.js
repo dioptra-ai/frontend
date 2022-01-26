@@ -78,7 +78,7 @@ const AddColumnModal = ({onCancel, onApply, allColumns, selected}) => {
                 </div>
             )}
             {!tagColumns.length && !featureColumns.length ? (
-                <p className='text-secondary fs-6 mb-4 text-center'>No Columns Available in this Time Range</p>
+                <p className='text-secondary fs-6 mb-4 text-center'>No Columns Available</p>
             ) : null}
             <div className='border-top border-mercury py-3'>
                 <Button
@@ -315,6 +315,7 @@ const Segmentation = ({timeStore, segmentationStore}) => {
     const [addColModal, setAddColModal] = useModal(false);
     const groupByColumns = segmentationStore.segmentation;
     const {mlModelType, mlModelId} = useModel();
+    const {isTimeEnabled} = useContext(appContext);
     const handleApply = (cols) => {
         segmentationStore.segmentation = cols;
         setAddColModal(false);
@@ -433,7 +434,7 @@ const Segmentation = ({timeStore, segmentationStore}) => {
                                 resultFormat='array'
                                 fetchData={() => metricsClient('queries/fairness-bias-columns-counts', {
                                     counts: featuresAndTags.map(({column}) => `COUNT("${column}")`).join(', '),
-                                    sql_time_filter: timeStore.sqlTimeFilter,
+                                    sql_time_filter: isTimeEnabled ? timeStore.sqlTimeFilter : 'TRUE',
                                     ml_model_id: mlModelId
                                 })}
                             />
