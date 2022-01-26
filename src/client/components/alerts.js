@@ -70,7 +70,7 @@ const Alerts = ({alerts, refreshCallback, onDeleteRefreshCallback, loading}) => 
             <div className='alerts'>
                 <div className='header mb-3'>
                     <p className='bold-text fs-3 text-dark'>Alerts</p>
-                    <Link to={`/${_id}/add-alert`}>
+                    <Link to={`/models/${_id}/add-alert`}>
                         <Button
                             className='text-white bold-text fs-6'
                             variant='primary'
