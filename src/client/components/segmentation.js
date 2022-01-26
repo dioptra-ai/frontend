@@ -236,45 +236,69 @@ const _metricCell = ({cell, timeStore}) => {
     const {mlModelType} = useModel();
     const allSqlFilters = useAllSqlFilters();
     const {isTimeEnabled} = useContext(appContext);
+    const {ref, inView} = useInView();
 
     if (isTimeEnabled) {
         const timeGranularity = timeStore.getTimeGranularity(5).toISOString();
 
         return (
-            <Async
-                refetchOnChanged={[allSqlFilters, timeGranularity]}
-                fetchData={() => metricsClient(cellId, {
-                    sql_filters: `${allSqlFilters} AND ${cellFields.map((f) => `"${f}"='${cellValues[f]}'`)}`,
-                    model_type: mlModelType,
-                    iou_threshold: 0.5,
-                    time_granularity: timeGranularity
-                })}
-                renderData={(data) => (
-                    <div style={{height: '150px', width: '300px'}}>
-                        <SmallChart
-                            data={data}
-                            xDataKey='time'
-                            yDataKey='value'
-                        />
-                    </div>
-                )}
-            />
+            <>
+                <div ref={ref}/>
+                <Async
+                    refetchOnChanged={[allSqlFilters, timeGranularity, inView]}
+                    fetchData={() => {
+
+                        if (inView) {
+                            return metricsClient(cellId, {
+                                sql_filters: `${allSqlFilters} AND ${cellFields.map((f) => `"${f}"='${cellValues[f]}'`).join(' AND ')}`,
+                                model_type: mlModelType,
+                                iou_threshold: 0.5,
+                                time_granularity: timeGranularity
+                            });
+                        } else {
+
+                            return Promise.resolve([]);
+                        }
+                    }}
+                    renderData={(data) => (
+                        <div style={{height: '150px', width: '300px'}}>
+                            <SmallChart
+                                data={data}
+                                xDataKey='time'
+                                yDataKey='value'
+                            />
+                        </div>
+                    )}
+                />
+            </>
         );
     } else {
 
         return (
-            <Async
-                refetchOnChanged={[allSqlFilters]}
-                fetchData={() => metricsClient(cellId, {
-                    sql_filters: `${allSqlFilters} AND ${cellFields.map((f) => `"${f}"='${cellValues[f]}'`)}`,
-                    model_type: mlModelType,
-                    iou_threshold: 0.5
-                })}
+            <>
+                <div ref={ref}/>
+                <Async
+                    refetchOnChanged={[allSqlFilters, inView]}
+                    fetchData={() => {
 
-                renderData={(data) => (
-                    <span> {data[0]?.value.toFixed(2)} </span>
-                )}
-            />
+                        if (inView) {
+
+                            return metricsClient(cellId, {
+                                sql_filters: `${allSqlFilters} AND ${cellFields.map((f) => `"${f}"='${cellValues[f]}'`).join(' AND ')}`,
+                                model_type: mlModelType,
+                                iou_threshold: 0.5
+                            });
+                        } else {
+
+                            return Promise.resolve([]);
+                        }
+                    }}
+
+                    renderData={(data) => (
+                        <span> {data[0]?.value.toFixed(2)} </span>
+                    )}
+                />
+            </>
         );
     }
 };
