@@ -234,7 +234,7 @@ const PerformanceDetails = ({filtersStore}) => {
                             </Col>
                             <Col className='d-flex' lg={3}>
                                 <Async
-                                    fetchData={() => metricsClient('f1-score-metric', {
+                                    fetchData={() => metricsClient('word-error-rate', {
                                         sql_filters: allSqlFilters,
                                         time_granularity: timeGranularity,
                                         model_type: mlModelType

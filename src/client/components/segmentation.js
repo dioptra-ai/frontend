@@ -348,7 +348,7 @@ const Segmentation = ({timeStore, segmentationStore}) => {
                                         Cell: metricCell
                                     },
                                     {
-                                        id: 'f1-score-metric', // Should be changed to real WER
+                                        id: 'word-error-rate', // Should be changed to real WER
                                         Header: 'WER',
                                         Cell: metricCell
                                     },
