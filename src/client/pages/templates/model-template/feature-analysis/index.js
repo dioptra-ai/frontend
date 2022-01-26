@@ -13,6 +13,7 @@ const FeatureAnalysis = () => {
     case 'IMAGE_CLASSIFIER':
     case 'DOCUMENT_PROCESSING':
     case 'UNSUPERVISED_OBJECT_DETECTION':
+    case 'SPEECH_TO_TEXT':
         if (isTimeEnabled) {
 
             return <FeatureAnalysisImages/>;
