@@ -5,8 +5,11 @@ import {setupComponent} from 'helpers/component-helper';
 import React from 'react';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
+import useModel from 'customHooks/use-model';
 
 const IncidentsAndAlerts = () => {
+    const model = useModel();
+
     const [alerts, setAlerts] = React.useState([]);
     const [alertsLoading, setAlertsLoading] = React.useState(false);
     const [incidents, setIncidents] = React.useState([]);
@@ -14,7 +17,9 @@ const IncidentsAndAlerts = () => {
 
     const fetchAlerts = (page = 1) => {
         setAlertsLoading(true);
-        baseJSONClient(`/api/tasks/alerts?page=${page}`).then((response) => {
+        baseJSONClient(
+            `/api/tasks/alerts?page=${page}&model=${model.mlModelType}`
+        ).then((response) => {
             setAlerts(response.alerts);
             setAlertsLoading(false);
         });
@@ -22,7 +27,9 @@ const IncidentsAndAlerts = () => {
 
     const fetchIncidents = (page = 1) => {
         setIncidentsLoading(true);
-        baseJSONClient(`/api/tasks/alert/events?page=${page}`).then((response) => {
+        baseJSONClient(
+            `/api/tasks/alert/events?page=${page}&model=${model.mlModelType}`
+        ).then((response) => {
             setIncidents(response.alert_events);
             setIncidentsLoading(false);
         });
