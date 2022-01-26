@@ -295,7 +295,7 @@ const _metricCell = ({cell, timeStore}) => {
                     }}
 
                     renderData={(data) => (
-                        <span> {data[0]?.value.toFixed(2)} </span>
+                        <span> {!isNaN(data[0]?.value) ? data[0]?.value.toFixed(2) : '-' } </span>
                     )}
                 />
             </>

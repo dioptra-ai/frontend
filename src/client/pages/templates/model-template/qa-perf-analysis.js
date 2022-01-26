@@ -57,8 +57,14 @@ const QAPerfAnalysis = () => {
                 });
                 const samples = (selectedPoints || sortedClusters[selectedClusterIndex]?.elements || []).map((p) => p.sample).flat().slice(0, 10);
                 const handleClusterClick = (i) => {
-                    setSelectedClusterIndex(i);
-                    setSelectedPoints(sortedClusters[i].elements);
+                    if (selectedClusterIndex !== i) {
+                        setSelectedClusterIndex(i);
+                        setSelectedPoints(sortedClusters[i].elements);
+                    } else {
+                        setSelectedClusterIndex(null);
+                        setSelectedPoints(null);
+                    }
+
                 };
 
                 return (
@@ -101,7 +107,7 @@ const QAPerfAnalysis = () => {
                                                 name={cluster.name}
                                                 data={cluster.elements.map((e) => ({
                                                     samples: [e.sample],
-                                                    size: selectedClusterIndex === index ? 300 : 200,
+                                                    size: selectedClusterIndex === index ? 200 : 100,
                                                     ...e
                                                 }))}
                                                 fill={getHexColor(cluster.name)}
