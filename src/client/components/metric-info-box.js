@@ -12,7 +12,7 @@ const MetricInfoBox = ({value, name, subtext, unit = '', difference, children}) 
             </div>
             <span className='text-dark metric-box-font-60'>
                 {
-                    children || `${!isNaN(value) ? Number(value).toFixed(1) : '-'}${unit}`
+                    children || `${!isNaN(value) ? Number(value).toFixed(2) : '-'}${unit}`
                 }
             </span>
             {difference !== undefined ? (
