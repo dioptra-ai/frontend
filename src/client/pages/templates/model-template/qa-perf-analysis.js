@@ -55,7 +55,7 @@ const QAPerfAnalysis = () => {
                         fill: getHexColor(cluster.name)
                     };
                 });
-                const samples = (selectedPoints || sortedClusters[selectedClusterIndex]?.elements || []).map((p) => p.sample).flat().slice(0, 10);
+                const samples = (selectedPoints || sortedClusters[selectedClusterIndex]?.elements || []).map((p) => p.sample).flat();
                 const handleClusterClick = (i) => {
                     if (selectedClusterIndex !== i) {
                         setSelectedClusterIndex(i);
