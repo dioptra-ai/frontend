@@ -18,7 +18,7 @@ const IncidentsAndAlerts = () => {
     const fetchAlerts = (page = 1) => {
         setAlertsLoading(true);
         baseJSONClient(
-            `/api/tasks/alerts?page=${page}&model=${model.mlModelType}`
+            `/api/tasks/alerts?page=${page}&model_type=${model.mlModelType}`
         ).then((response) => {
             setAlerts(response.alerts);
             setAlertsLoading(false);
@@ -28,7 +28,7 @@ const IncidentsAndAlerts = () => {
     const fetchIncidents = (page = 1) => {
         setIncidentsLoading(true);
         baseJSONClient(
-            `/api/tasks/alert/events?page=${page}&model=${model.mlModelType}`
+            `/api/tasks/alert/events?page=${page}&model_type=${model.mlModelType}`
         ).then((response) => {
             setIncidents(response.alert_events);
             setIncidentsLoading(false);
