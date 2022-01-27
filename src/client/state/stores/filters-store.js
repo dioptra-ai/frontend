@@ -42,8 +42,6 @@ export class Filter {
         if (match) {
             const [, left, opStart,, validOp, rightStr] = match;
 
-            console.log(JSON.stringify(str), {left, opStart, validOp, rightStr});
-
             let op = null;
 
             let right = '';
@@ -74,7 +72,7 @@ export class Filter {
 
     toSQLString() {
 
-        switch (this.op.toLowerCase()) {
+        switch (this.op?.toLowerCase()) {
 
         case '=':
 
@@ -135,7 +133,7 @@ export class Filter {
 
     get isOpValid() {
 
-        return ['=', 'in', 'not in'].includes(this.op.toLowerCase());
+        return ['=', 'in', 'not in'].includes(this.op?.toLowerCase());
     }
 
     get isComplete() {
