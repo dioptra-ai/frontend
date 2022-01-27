@@ -13,7 +13,6 @@ const DriftAnalysis = ({filtersStore}) => {
     const allSqlFilters = useAllSqlFilters();
 
     // This is ugly. Should find a better way to do it
-    const dateNow = new Date().toISOString();
     const d = new Date();
 
     d.setDate(d.getDate() - 1);

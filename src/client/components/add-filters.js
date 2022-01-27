@@ -34,7 +34,9 @@ const AddFilters = ({filtersStore, filters, disabled, solidIcon, tooltipText}) =
 AddFilters.propTypes = {
     filtersStore: PropTypes.object.isRequired,
     filters: PropTypes.arrayOf(PropTypes.instanceOf(Filter)).isRequired,
-    disabled: PropTypes.bool
+    disabled: PropTypes.bool,
+    solidIcon: PropTypes.bool,
+    tooltipText: PropTypes.node
 };
 
 export default setupComponent(AddFilters);
