@@ -139,7 +139,7 @@ ClassRow.propTypes = {
     value: PropTypes.any
 };
 
-const PerformanceDetails = ({filtersStore}) => {
+const PerformanceDetails = ({filtersStore, benchmarkFilters}) => {
     const allSqlFilters = useAllSqlFilters();
     const sqlFiltersWithModelTime = useAllSqlFilters({useReferenceRange: true});
     const {mlModelType} = useModel();
@@ -154,7 +154,7 @@ const PerformanceDetails = ({filtersStore}) => {
     d.setSeconds(0);
     d.setMilliseconds(0);
 
-    const allReferenceFilters = `${allSqlFilters
+    const liveModelFilters = `${allSqlFilters
         .replace(/\("dataset_id"=[^)]+\)/, '')
         .replace(/\("model_version"=[^)]+\)/, '')
         .replace(/\("benchmark_id"=[^)]+\)/, '')
@@ -185,7 +185,7 @@ const PerformanceDetails = ({filtersStore}) => {
                                         fetchData={() => metricsClient('compute', {
                                             metrics_type: 'outlier_detection',
                                             current_filters: allSqlFilters,
-                                            reference_filters: allReferenceFilters
+                                            reference_filters: liveModelFilters
                                         })}
                                         refetchOnChanged={[allSqlFilters]}
                                         renderData={(data) => {
@@ -203,38 +203,72 @@ const PerformanceDetails = ({filtersStore}) => {
                                 </Col>
                                 <Col className='d-flex' lg={3}>
                                     <Async
-                                        fetchData={() => metricsClient('map', {
-                                            sql_filters: allSqlFilters,
-                                            time_granularity: timeGranularity,
-                                            model_type: mlModelType,
-                                            iou_threshold: 0.5
-                                        })}
-                                        refetchOnChanged={[allSqlFilters]}
-                                        renderData={([d]) => (
-                                            <MetricInfoBox
-                                                name='mAP'
-                                                subtext='iou=0.5'
-                                                value={d?.value}
-                                            />
-                                        )}
+                                        fetchData={[
+                                            () => metricsClient('map', {
+                                                sql_filters: allSqlFilters,
+                                                model_type: mlModelType,
+                                                iou_threshold: 0.5
+                                            }),
+                                            () => benchmarkFilters ? metricsClient('map', {
+                                                sql_filters: benchmarkFilters,
+                                                model_type: mlModelType,
+                                                iou_threshold: 0.5
+                                            }) : null
+                                        ]}
+                                        refetchOnChanged={[allSqlFilters, benchmarkFilters]}
+                                        renderData={([d, b]) => {
+                                            const value = d?.[0]?.value;
+                                            const benchmarkValue = b?.[0]?.value;
+
+                                            return (
+                                                <MetricInfoBox
+                                                    name='mAP'
+                                                    subtext='iou=0.5'
+                                                >
+                                                    {Number(value).toFixed(2)}
+                                                    {benchmarkValue ? (
+                                                        <span className='fs-1 text-secondary'>
+                                                            {` | ${Number(benchmarkValue).toFixed(2)}`}
+                                                        </span>) : null
+                                                    }
+                                                </MetricInfoBox>
+                                            );
+                                        }}
                                     />
                                 </Col>
                                 <Col className='d-flex' lg={3}>
                                     <Async
-                                        fetchData={() => metricsClient('mar', {
-                                            sql_filters: allSqlFilters,
-                                            time_granularity: timeGranularity,
-                                            model_type: mlModelType,
-                                            iou_threshold: 0.5
-                                        })}
-                                        refetchOnChanged={[allSqlFilters]}
-                                        renderData={([d]) => (
-                                            <MetricInfoBox
-                                                name='mAR'
-                                                subtext='iou=0.5'
-                                                value={d?.value}
-                                            />
-                                        )}
+                                        fetchData={[
+                                            () => metricsClient('mar', {
+                                                sql_filters: allSqlFilters,
+                                                model_type: mlModelType,
+                                                iou_threshold: 0.5
+                                            }),
+                                            () => benchmarkFilters ? metricsClient('mar', {
+                                                sql_filters: benchmarkFilters,
+                                                model_type: mlModelType,
+                                                iou_threshold: 0.5
+                                            }) : null
+                                        ]}
+                                        refetchOnChanged={[allSqlFilters, benchmarkFilters]}
+                                        renderData={([d, b]) => {
+                                            const value = d?.[0]?.value;
+                                            const benchmarkValue = b?.[0]?.value;
+
+                                            return (
+                                                <MetricInfoBox
+                                                    name='mAR'
+                                                    subtext='iou=0.5'
+                                                >
+                                                    {Number(value).toFixed(2)}
+                                                    {benchmarkValue ? (
+                                                        <span className='fs-1 text-secondary'>
+                                                            {` | ${Number(benchmarkValue).toFixed(2)}`}
+                                                        </span>) : null
+                                                    }
+                                                </MetricInfoBox>
+                                            );
+                                        }}
                                     />
                                 </Col>
                             </>
@@ -601,7 +635,8 @@ const PerformanceDetails = ({filtersStore}) => {
 };
 
 PerformanceDetails.propTypes = {
-    filtersStore: PropTypes.object.isRequired
+    filtersStore: PropTypes.object.isRequired,
+    benchmarkFilters: PropTypes.string
 };
 
 export default setupComponent(PerformanceDetails);
