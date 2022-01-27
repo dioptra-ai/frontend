@@ -450,6 +450,7 @@ const PerformanceDetails = ({filtersStore, benchmarkFilters}) => {
                                             title='Precision'
                                             unit='%'
                                             yAxisName='Precision'
+                                            yAxisDomain={[0, 100]}
                                             barGap={1}
                                             barCategoryGap={80}
                                         >
@@ -509,6 +510,7 @@ const PerformanceDetails = ({filtersStore, benchmarkFilters}) => {
                                             title='Recall'
                                             unit='%'
                                             yAxisName='Recall'
+                                            yAxisDomain={[0, 100]}
                                             barGap={1}
                                             barCategoryGap={80}
                                         >
