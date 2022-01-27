@@ -30,10 +30,11 @@ import {SmallChart} from 'components/area-graph';
 import {Tooltip as BarTooltip} from 'components/bar-graph';
 import appContext from 'context/app-context';
 
-const AddColumnModal = ({onCancel, onApply, allColumns, selected}) => {
+const AddColumnModal = ({onCancel, onApply, allColumns, initiallyselected}) => {
     const featureColumns = allColumns.filter((c) => c.startsWith('features.'));
     const tagColumns = allColumns.filter((c) => c.startsWith('tags.'));
-    const [selectedColumns, setSelectedColumns] = useState(selected);
+    const allColumnsSet = new Set(allColumns);
+    const [selectedColumns, setSelectedColumns] = useState(initiallyselected.filter((s) => allColumnsSet.has(s)));
 
     const handleChange = (e, col) => {
         if (e.target.checked) {
@@ -104,7 +105,7 @@ AddColumnModal.propTypes = {
     allColumns: PropTypes.array,
     onApply: PropTypes.func,
     onCancel: PropTypes.func,
-    selected: PropTypes.array
+    initiallyselected: PropTypes.array
 };
 
 const Text = ({value}) => {
@@ -428,7 +429,7 @@ const Segmentation = ({timeStore, segmentationStore}) => {
                                             .map((d) => d.column)}
                                         onApply={handleApply}
                                         onCancel={() => setAddColModal(false)}
-                                        selected={groupByColumns}
+                                        initiallyselected={groupByColumns}
                                     />
                                 )}
                                 resultFormat='array'
