@@ -25,7 +25,7 @@ const DriftAnalysis = ({filtersStore}) => {
         .replace(/\("model_version"=[^)]+\)/, '')
         .replace(/\("benchmark_id"=[^)]+\)/, '')
         .replaceAll(/AND(\s+AND)+/g, 'AND')
-    } AND __time >= '${d.toISOString()}'`;
+    } AND __time >= '${d.toISOString()}' AND "dataset_id" IS NULL AND "benchmark_id" IS NULL`;
 
     return (
         <div>
