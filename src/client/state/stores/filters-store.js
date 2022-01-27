@@ -74,14 +74,15 @@ export class Filter {
 
     toSQLString() {
 
-        switch (this.op) {
+        switch (this.op.toLowerCase()) {
 
         case '=':
 
             return `"${this.left}"='${this.right}'`;
         case 'in':
+        case 'not in':
 
-            return `"${this.left}" in (${this.right.map((v) => `'${v}'`).join(',')})`;
+            return `"${this.left}" ${this.op} (${this.right.map((v) => `'${v}'`).join(',')})`;
         default:
             throw new Error(`Unknown filter operator: "${this.op}"`);
         }
@@ -104,6 +105,7 @@ export class Filter {
                 return `${this.left} = `;
             }
         case 'in':
+        case 'not in':
 
             if (this.right) {
 
@@ -113,27 +115,27 @@ export class Filter {
 
                     if (this.right.length > 1) {
 
-                        return `${this.left} in [${firstDisplayValue}, ...]`;
+                        return `${this.left} ${this.op} [${firstDisplayValue}, ...]`;
                     } else {
 
-                        return `${this.left} in [${firstDisplayValue}]`;
+                        return `${this.left} ${this.op} [${firstDisplayValue}]`;
                     }
                 } else {
 
-                    return `${this.left} in []`;
+                    return `${this.left} ${this.op} []`;
                 }
             } else {
 
-                return `${this.left} in `;
+                return `${this.left} ${this.op} `;
             }
         default:
-            return this.left + this.op;
+            return `${this.left} ${this.op}`;
         }
     }
 
     get isOpValid() {
 
-        return ['=', 'in'].includes(this.op);
+        return ['=', 'in', 'not in'].includes(this.op.toLowerCase());
     }
 
     get isComplete() {

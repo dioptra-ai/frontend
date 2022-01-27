@@ -146,16 +146,20 @@ const PerformanceDetails = ({filtersStore}) => {
     const sampleSizeComponent = <CountEvents sqlFilters={allSqlFilters}/>;
     const timeGranularity = useTimeGranularity()?.toISOString();
 
+    // This is ugly. Should find a better way to do it
+    const dateNow = new Date().toISOString();
     const d = new Date();
 
     d.setDate(d.getDate() - 1);
+    d.setMinutes(0);
+    d.setSeconds(0);
+    d.setMilliseconds(0);
 
-    const allReferenceFilters = `${useAllSqlFilters()
+    const allReferenceFilters = `${allSqlFilters
         .replace(/\("dataset_id"=[^)]+\)/, '')
         .replace(/\("model_version"=[^)]+\)/, '')
         .replace(/\("benchmark_id"=[^)]+\)/, '')
-        .replace(/AND[ ]+AND/g, 'AND')
-        .replace(/AND[ ]+AND/g, 'AND')
+        .replace(/AND(\s+AND)+/g, 'AND')
     } AND __time >= '${d.toISOString()}'`;
 
     return (

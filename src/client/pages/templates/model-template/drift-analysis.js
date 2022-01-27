@@ -10,24 +10,23 @@ import ScatterGraph from 'components/scatter-graph';
 import metricsClient from 'clients/metrics';
 
 const DriftAnalysis = ({filtersStore}) => {
+    const allSqlFilters = useAllSqlFilters();
 
-    // This is uggly. Should find a better way to do it
-
+    // This is ugly. Should find a better way to do it
     const dateNow = new Date().toISOString();
-
     const d = new Date();
 
     d.setDate(d.getDate() - 1);
-    const dateLast24h = d.toISOString();
-    const allSqlFilters = useAllSqlFilters();
+    d.setMinutes(0);
+    d.setSeconds(0);
+    d.setMilliseconds(0);
 
-    const allReferenceFilters = `${useAllSqlFilters()
+    const allReferenceFilters = `${allSqlFilters
         .replace(/\("dataset_id"=[^)]+\)/, '')
         .replace(/\("model_version"=[^)]+\)/, '')
         .replace(/\("benchmark_id"=[^)]+\)/, '')
-        .replace(/AND[ ]+AND/g, 'AND')
-        .replace(/AND[ ]+AND/g, 'AND')
-    } AND __time >= '${dateLast24h}' AND __time < '${dateNow}'`;
+        .replaceAll(/AND(\s+AND)+/g, 'AND')
+    } AND __time >= '${d.toISOString()}'`;
 
     return (
         <div>
@@ -55,7 +54,7 @@ const DriftAnalysis = ({filtersStore}) => {
                                         novelty,
                                         request_id
                                     }))}
-                                    obsolete={true}
+                                    noveltyIsObsolete
                                 />
                             )}
                         />

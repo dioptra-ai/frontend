@@ -26,7 +26,7 @@ const SMALL_DOT_SIZE = 60;
 
 const inRange = (num, min, max) => num >= min && num <= max;
 
-const ScatterGraph = ({data, obsolete = false}) => {
+const ScatterGraph = ({data, noveltyIsObsolete}) => {
     const ref = useRef();
     const firstOutlier = useMemo(() => {
         return data.find(({outlier}) => outlier);
@@ -225,9 +225,9 @@ const ScatterGraph = ({data, obsolete = false}) => {
                                 isAnimationActive={false}
                                 cursor='pointer'
                                 onClick={handlePointSelect}
-                                name={obsolete ? 'Obsolete' : 'Novelty'}
+                                name={noveltyIsObsolete ? 'Obsolete' : 'Novelty'}
                                 data={novelty}
-                                fill={obsolete ? theme.dark : theme.success}
+                                fill={noveltyIsObsolete ? theme.dark : theme.success}
                                 xAxisId='PCA1'
                                 yAxisId='PCA2'
                             />
@@ -259,11 +259,23 @@ const ScatterGraph = ({data, obsolete = false}) => {
                 <Col lg={8} className='rounded p-3 bg-white-blue'>
                     <div className='text-dark m-0 bold-text'>
                         Examples
-                        <AddFilters filters={[new Filter({
-                            left: 'request_id',
-                            op: 'in',
-                            right: sampleRequestIds
-                        })]}/>
+                        <AddFilters
+                            filters={[new Filter({
+                                left: 'request_id',
+                                op: 'in',
+                                right: sampleRequestIds
+                            })]}
+                            tooltipText='Filter-in these examples'
+                        />
+                        <AddFilters
+                            filters={[new Filter({
+                                left: 'request_id',
+                                op: 'not in',
+                                right: sampleRequestIds
+                            })]}
+                            tooltipText='Filter-out these examples'
+                            solidIcon
+                        />
                     </div>
                     <div className={`d-flex p-2 overflow-auto flex-grow-0 ${samples.length ? 'justify-content-left' : 'justify-content-center align-items-center'} scatterGraph-examples`}>
                         {samples.length ? samples.map((sample, i) => (
@@ -301,7 +313,7 @@ const ScatterGraph = ({data, obsolete = false}) => {
 
 ScatterGraph.propTypes = {
     data: PropTypes.array.isRequired,
-    obsolete: PropTypes.bool
+    noveltyIsObsolete: PropTypes.bool
 };
 
 export default ScatterGraph;
