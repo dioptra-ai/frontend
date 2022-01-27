@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Bar, Tooltip} from 'recharts';
+import {Bar, Tooltip as ChartTooltip} from 'recharts';
 import FilterInput from 'components/filter-input';
 import {setupComponent} from 'helpers/component-helper';
 import PropTypes from 'prop-types';
@@ -196,6 +196,7 @@ const PerformanceDetails = ({filtersStore, benchmarkFilters}) => {
                                                     name='Obsolete'
                                                     value={100 * noveltyNum / data?.outlier_analysis.length}
                                                     unit='%'
+                                                    info='As of the last 24h of the model and version.'
                                                 />
                                             );
                                         }}
@@ -452,7 +453,7 @@ const PerformanceDetails = ({filtersStore, benchmarkFilters}) => {
                                             barGap={1}
                                             barCategoryGap={80}
                                         >
-                                            <Tooltip />
+                                            <ChartTooltip />
                                             <Bar maxBarSize={40} dataKey='iou05' fill={getHexColor('iou05')}/>
                                             <Bar maxBarSize={40} dataKey='iou075' fill={getHexColor('iou075')}/>
                                             <Bar maxBarSize={40} dataKey='iou09' fill={getHexColor('iou09')}/>
@@ -511,7 +512,7 @@ const PerformanceDetails = ({filtersStore, benchmarkFilters}) => {
                                             barGap={1}
                                             barCategoryGap={80}
                                         >
-                                            <Tooltip />
+                                            <ChartTooltip />
                                             <Bar maxBarSize={40} dataKey='iou05' fill={getHexColor('iou05')}/>
                                             <Bar maxBarSize={40} dataKey='iou075' fill={getHexColor('iou075')}/>
                                             <Bar maxBarSize={40} dataKey='iou09' fill={getHexColor('iou09')}/>
