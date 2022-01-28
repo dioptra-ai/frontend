@@ -159,7 +159,7 @@ const PerformanceDetails = ({filtersStore, benchmarkFilters}) => {
         .replace(/\("model_version"=[^)]+\)/, '')
         .replace(/\("benchmark_id"=[^)]+\)/, '')
         .replace(/AND(\s+AND)+/g, 'AND')
-    } AND __time >= '${d.toISOString()} AND "dataset_id" IS NULL AND "benchmark_id" IS NULL`;
+    } AND __time >= '${d.toISOString()}' AND "dataset_id" IS NULL AND "benchmark_id" IS NULL`;
 
     return (
         <div className='pb-5'>

@@ -94,8 +94,6 @@
     "build:frontend": "webpack --mode=production",
     "lint": "eslint ./src --cache --fix --ext .js --ext .mjs",
     "prepare": "husky install",
-    "test": "jest",
-    "tdd": "jest --watch",
     "dev": "npm-run-all -p dev-server dev-client dev-lint"
   },
   "eslintConfig": {
