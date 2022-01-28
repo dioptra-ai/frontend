@@ -18,7 +18,7 @@ const IncidentsAndAlerts = () => {
     const fetchAlerts = (page = 1) => {
         setAlertsLoading(true);
         baseJSONClient(
-            `/api/tasks/alerts?page=${page}&model_type=${model.mlModelType}`
+            `/api/tasks/alerts?page=${page}&model_type=${model.mlModelType}&per_page=4`
         ).then((response) => {
             setAlerts(response.alerts);
             setAlertsLoading(false);
@@ -28,7 +28,7 @@ const IncidentsAndAlerts = () => {
     const fetchIncidents = (page = 1) => {
         setIncidentsLoading(true);
         baseJSONClient(
-            `/api/tasks/alert/events?page=${page}&model_type=${model.mlModelType}`
+            `/api/tasks/alert/events?page=${page}&model_type=${model.mlModelType}&per_page=6`
         ).then((response) => {
             setIncidents(response.alert_events);
             setIncidentsLoading(false);
@@ -36,7 +36,7 @@ const IncidentsAndAlerts = () => {
     };
 
     return (
-        <Row className='my-3'>
+        <Row className="my-3">
             <Col lg={6}>
                 <Incidents
                     incidents={incidents}
