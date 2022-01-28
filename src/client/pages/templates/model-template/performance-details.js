@@ -205,102 +205,7 @@ const PerformanceDetails = ({filtersStore, benchmarkFilters}) => {
                         </div>
                     ) : null}
                     {
-                        mlModelType === 'UNSUPERVISED_OBJECT_DETECTION' ? (
-                            <>
-                                <Col className='d-flex' lg={3}>
-                                    <Async
-                                        fetchData={() => metricsClient('compute', {
-                                            metrics_type: 'outlier_detection',
-                                            current_filters: allSqlFilters,
-                                            reference_filters: liveModelFilters
-                                        })}
-                                        refetchOnChanged={[allSqlFilters]}
-                                        renderData={(data) => {
-                                            const noveltyNum = data?.outlier_analysis?.filter((d) => d.novelty).length;
-
-                                            return (
-                                                <MetricInfoBox
-                                                    name='Obsolete'
-                                                    value={100 * noveltyNum / data?.outlier_analysis.length}
-                                                    unit='%'
-                                                    info='As of the last 24h of the model and version.'
-                                                />
-                                            );
-                                        }}
-                                    />
-                                </Col>
-                                <Col className='d-flex' lg={3}>
-                                    <Async
-                                        fetchData={[
-                                            () => metricsClient('map', {
-                                                sql_filters: allSqlFilters,
-                                                model_type: mlModelType,
-                                                iou_threshold: 0.5
-                                            }),
-                                            () => benchmarkFilters ? metricsClient('map', {
-                                                sql_filters: benchmarkFilters,
-                                                model_type: mlModelType,
-                                                iou_threshold: 0.5
-                                            }) : null
-                                        ]}
-                                        refetchOnChanged={[allSqlFilters, benchmarkFilters]}
-                                        renderData={([d, b]) => {
-                                            const value = d?.[0]?.value;
-                                            const benchmarkValue = b?.[0]?.value;
-
-                                            return (
-                                                <MetricInfoBox
-                                                    name='mAP'
-                                                    subtext='iou=0.5'
-                                                >
-                                                    {Number(value).toFixed(2)}
-                                                    {benchmarkValue ? (
-                                                        <span className='fs-1 text-secondary'>
-                                                            {` | ${Number(benchmarkValue).toFixed(2)}`}
-                                                        </span>) : null
-                                                    }
-                                                </MetricInfoBox>
-                                            );
-                                        }}
-                                    />
-                                </Col>
-                                <Col className='d-flex' lg={3}>
-                                    <Async
-                                        fetchData={[
-                                            () => metricsClient('mar', {
-                                                sql_filters: allSqlFilters,
-                                                model_type: mlModelType,
-                                                iou_threshold: 0.5
-                                            }),
-                                            () => benchmarkFilters ? metricsClient('mar', {
-                                                sql_filters: benchmarkFilters,
-                                                model_type: mlModelType,
-                                                iou_threshold: 0.5
-                                            }) : null
-                                        ]}
-                                        refetchOnChanged={[allSqlFilters, benchmarkFilters]}
-                                        renderData={([d, b]) => {
-                                            const value = d?.[0]?.value;
-                                            const benchmarkValue = b?.[0]?.value;
-
-                                            return (
-                                                <MetricInfoBox
-                                                    name='mAR'
-                                                    subtext='iou=0.5'
-                                                >
-                                                    {Number(value).toFixed(2)}
-                                                    {benchmarkValue ? (
-                                                        <span className='fs-1 text-secondary'>
-                                                            {` | ${Number(benchmarkValue).toFixed(2)}`}
-                                                        </span>) : null
-                                                    }
-                                                </MetricInfoBox>
-                                            );
-                                        }}
-                                    />
-                                </Col>
-                            </>
-                        ) : mlModelType === 'SPEECH_TO_TEXT' ? (
+                        mlModelType === 'SPEECH_TO_TEXT' ? (
                             <>
                                 <Col className='d-flex' lg={3}>
                                     <Async
@@ -449,7 +354,7 @@ const PerformanceDetails = ({filtersStore, benchmarkFilters}) => {
                     </div>
                 ) : null}
             {
-                mlModelType === 'DOCUMENT_PROCESSING' || mlModelType === 'UNSUPERVISED_OBJECT_DETECTION' ? (
+                mlModelType === 'DOCUMENT_PROCESSING' ? (
                     <div className='my-3'>
                         <div className='d-flex my-3' lg={12}>
                             <Async

@@ -1,8 +1,8 @@
 import Login from 'pages/login';
 import Home from 'pages/home';
 import Profile from 'pages/profile';
-import Models from 'pages/templates/models';
-import Experimentations from 'pages/experimentations';
+import Models from 'pages/models-list';
+import BenchmarksList from 'pages/benchmarks-list';
 import Alerts from 'pages/alerts';
 import Settings from 'pages/settings';
 
@@ -14,7 +14,7 @@ export const Paths = (args = {}) => {
         LOGIN: '/login',
         MODELS: '/models',
         MODEL: `/models/${modelId}`,
-        EXPERIMENTATIONS: '/benchmarks',
+        EXPERIMENTATIONS: '/benchmark',
         ALERTS: '/alerts',
         SETTINGS: '/settings',
         PROFILE: '/profile'
@@ -27,7 +27,7 @@ export const UnauthorizedRouteConfigs = [
 export const AuthorizedRouteConfigs = [
     {path: Paths().HOME, isExact: true, component: Home},
     {path: Paths().MODELS, isExact: true, component: Models},
-    {path: Paths().EXPERIMENTATIONS, isExact: true, component: Experimentations},
+    {path: Paths().EXPERIMENTATIONS, isExact: true, component: BenchmarksList},
     {path: Paths().ALERTS, isExact: false, component: Alerts},
     {path: Paths().SETTINGS, isExact: false, component: Settings},
     {path: Paths().PROFILE, isExact: false, component: Profile}

@@ -6,7 +6,7 @@ import Table from 'react-bootstrap/Table';
 import PropTypes from 'prop-types';
 import {Button} from 'react-bootstrap';
 import {Link} from 'react-router-dom';
-import GeneralSearchBar from './general-search-bar';
+import GeneralSearchBar from 'pages/templates/general-search-bar';
 import {setupComponent} from 'helpers/component-helper';
 import {formatDateTime} from 'helpers/date-helper';
 import Pagination from 'components/pagination';
@@ -15,7 +15,7 @@ import {IconNames} from 'constants';
 import {Area, AreaChart, Line, XAxis} from 'recharts';
 import theme from 'styles/theme.module.scss';
 import ModalComponent from 'components/modal';
-import ModelForm from './model-form';
+import ModelForm from 'pages/templates/model-form';
 import metricsClient from 'clients/metrics';
 
 const NUMBER_OF_RECORDS_PER_PAGE = 10;

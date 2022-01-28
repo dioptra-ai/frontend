@@ -5,7 +5,7 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
 import {setupComponent} from 'helpers/component-helper';
-import GeneralSearchBar from './templates/general-search-bar';
+import GeneralSearchBar from 'pages/templates/general-search-bar';
 import useSyncStoresToUrl from 'customHooks/use-sync-stores-to-url';
 import Container from 'react-bootstrap/Container';
 import Tabs from 'components/tabs';
@@ -13,10 +13,10 @@ import Menu from 'components/menu';
 import Async from 'components/async';
 import metricsClient from 'clients/metrics';
 import Select from 'components/select';
-import PerformanceDetails from './templates/model-template/performance-details';
-import PredictionAnalysis from './templates/model-template/prediction-analysis';
-import FeatureAnalysis from './templates/model-template/feature-analysis';
-import DriftAnalysis from './templates/model-template/drift-analysis';
+import Performance from './performance';
+import PredictionAnalysis from 'pages/templates/model-template/prediction-analysis';
+import FeatureAnalysis from 'pages/templates/model-template/feature-analysis';
+import DriftAnalysis from 'pages/templates/model-template/drift-analysis';
 
 const Benchmarks = ({filtersStore, modelStore}) => {
     const [benchmarkFilters, setBenchmarkFilters] = useState();
@@ -41,7 +41,7 @@ const Benchmarks = ({filtersStore, modelStore}) => {
     if (!mlModelIdFilter || !mlModelVersionFilter) {
 
         return <Redirect to={{
-            pathname: '/benchmarks',
+            pathname: '/benchmark',
             search: '?'
         }}/>;
     }
@@ -51,21 +51,21 @@ const Benchmarks = ({filtersStore, modelStore}) => {
     }
 
     const tabs = [
-        {name: 'Performance Overview', to: '/benchmarks/performance'}
+        {name: 'Performance Overview', to: '/benchmark/performance'}
     ];
 
     switch (model?.mlModelType) {
     case 'SPEECH_TO_TEXT':
-        tabs.push({name: 'Feature Analysis', to: '/benchmarks/features'});
+        tabs.push({name: 'Feature Analysis', to: '/benchmark/features'});
         break;
     case 'UNSUPERVISED_OBJECT_DETECTION':
-        tabs.push({name: 'Prediction Analysis', to: '/benchmarks/predictions'});
-        tabs.push({name: 'Feature Analysis', to: '/benchmarks/features'});
-        tabs.push({name: 'Drift Analysis', to: '/benchmarks/drift-analysis'});
+        tabs.push({name: 'Prediction Analysis', to: '/benchmark/predictions'});
+        tabs.push({name: 'Feature Analysis', to: '/benchmark/features'});
+        tabs.push({name: 'Drift Analysis', to: '/benchmark/drift-analysis'});
         break;
     default:
-        tabs.push({name: 'Prediction Analysis', to: '/benchmarks/predictions'});
-        tabs.push({name: 'Feature Analysis', to: '/benchmarks/features'});
+        tabs.push({name: 'Prediction Analysis', to: '/benchmark/predictions'});
+        tabs.push({name: 'Feature Analysis', to: '/benchmark/features'});
         break;
     }
 
@@ -117,15 +117,15 @@ const Benchmarks = ({filtersStore, modelStore}) => {
             <Container fluid>
                 <Tabs tabs={tabs} />
                 <div className='px-3'>
-                    <Route exact path='/benchmarks/performance' render={() => {
+                    <Route exact path='/benchmark/performance' render={() => {
 
                         return (
-                            <PerformanceDetails benchmarkFilters={benchmarkFilters}/>
+                            <Performance benchmarkFilters={benchmarkFilters}/>
                         );
                     }}/>
-                    <Route exact path='/benchmarks/predictions' component={PredictionAnalysis}/>
-                    <Route exact path='/benchmarks/features' component={FeatureAnalysis}/>
-                    <Route exact path='/benchmarks/drift-analysis' component={DriftAnalysis}/>
+                    <Route exact path='/benchmark/predictions' component={PredictionAnalysis}/>
+                    <Route exact path='/benchmark/features' component={FeatureAnalysis}/>
+                    <Route exact path='/benchmark/drift-analysis' component={DriftAnalysis}/>
                 </div>
             </Container>
         </Menu>

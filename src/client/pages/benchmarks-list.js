@@ -3,12 +3,12 @@ import Table from 'react-bootstrap/Table';
 import {useHistory} from 'react-router-dom';
 
 import Async from 'components/async';
-import GeneralSearchBar from './templates/general-search-bar';
+import GeneralSearchBar from 'pages/templates/general-search-bar';
 import metricsClient from 'clients/metrics';
 import {setupComponent} from 'helpers/component-helper';
 
 
-const Experimentations = ({filtersStore, modelStore}) => {
+const BenchmarksList = ({filtersStore, modelStore}) => {
     const history = useHistory();
 
     return (
@@ -52,7 +52,7 @@ const Experimentations = ({filtersStore, modelStore}) => {
                                             right: benchmark_id
                                         }];
 
-                                        history.push('/benchmarks/performance');
+                                        history.push('/benchmark/performance');
                                     }} key={i}>
                                         <td>{benchmark_id}</td>
                                         <td>{dataset_id}</td>
@@ -70,9 +70,9 @@ const Experimentations = ({filtersStore, modelStore}) => {
     );
 };
 
-Experimentations.propTypes = {
+BenchmarksList.propTypes = {
     filtersStore: PropTypes.object.isRequired,
     modelStore: PropTypes.object.isRequired
 };
 
-export default setupComponent(Experimentations);
+export default setupComponent(BenchmarksList);

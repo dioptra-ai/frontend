@@ -4,7 +4,7 @@ import {Route, Switch, useHistory, useParams, useRouteMatch} from 'react-router-
 import Container from 'react-bootstrap/Container';
 import url from 'url';
 
-import GeneralSearchBar from '../general-search-bar';
+import GeneralSearchBar from 'pages/templates/general-search-bar';
 import AddAlertPage from 'pages/add-alert';
 import ModelDescription from 'components/model-description';
 import Tabs from 'components/tabs';
