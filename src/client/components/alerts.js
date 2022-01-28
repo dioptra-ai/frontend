@@ -122,7 +122,7 @@ const Alerts = ({alerts, refreshCallback, onDeleteRefreshCallback, loading}) => 
             </div>
             <Modal isOpen={deleteAlertModal} onClose={() => closeModal()}>
                 <p className='text-dark bold-text fs-4 my-5 px-3 text-center'>
-                    Are you sure you want do delete {selectedAlert?.name} alert?
+                    Are you sure you want do delete alert "{selectedAlert?.name}"?
                 </p>
                 <div className='d-flex justify-content-center border-top pt-4'>
                     <Button
