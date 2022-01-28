@@ -3,7 +3,7 @@ import express from 'express';
 import fetch from 'node-fetch';
 import {isAuthenticated} from '../middleware/authentication.mjs';
 
-const {OVERRIDE_DRUID_ORG_ID, ALERTS_SERVICE_URL} = process.env;
+const {OVERRIDE_DRUID_ORG_ID, TASK_ENGINE_URL} = process.env;
 
 const TasksRouter = express.Router();
 
@@ -16,7 +16,7 @@ TasksRouter.get('*', async (req, res, next) => {
 
         await axios
             .get(
-                `${ALERTS_SERVICE_URL}${req.url}${
+                `${TASK_ENGINE_URL}${req.url}${
                     req.url.includes('?') ? '&' : '?'
                 }organization_id=${organizationId}`
             )
@@ -33,7 +33,7 @@ TasksRouter.post('*', async (req, res, next) => {
     try {
         const {activeOrganizationMembership} = req.user;
         const organizationId = String(activeOrganizationMembership.organization._id);
-        const taskEnginePath = `${ALERTS_SERVICE_URL}${req.url}?organization_id=${organizationId}`;
+        const taskEnginePath = `${TASK_ENGINE_URL}${req.url}?organization_id=${organizationId}`;
         const taskEngineResponse = await fetch(taskEnginePath, {
             headers: {
                 'content-type': 'application/json;charset=UTF-8'
@@ -66,7 +66,7 @@ TasksRouter.delete('*', async (req, res, next) => {
 
         await axios
             .delete(
-                `${ALERTS_SERVICE_URL}${req.url}${
+                `${TASK_ENGINE_URL}${req.url}${
                     req.url.includes('?') ? '&' : '?'
                 }organization_id=${organizationId}`
             )
