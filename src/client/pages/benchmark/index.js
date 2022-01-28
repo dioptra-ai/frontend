@@ -24,9 +24,11 @@ const Benchmarks = ({filtersStore, modelStore}) => {
     const mlModelIdFilter = filtersStore.filters.find((f) => f.left === 'model_id');
     const mlModelVersionFilter = filtersStore.filters.find((f) => f.left === 'model_version');
     const datasetIdFilter = filtersStore.filters.find((f) => f.left === 'dataset_id');
+    const benchmarkIdFilter = filtersStore.filters.find((f) => f.left === 'benchmark_id');
     const mlModelId = mlModelIdFilter?.right;
     const mlModelVersion = mlModelVersionFilter?.right;
     const datasetId = datasetIdFilter?.right;
+    const benchmarkId = benchmarkIdFilter?.right;
     const model = modelStore.models.find((model) => model.mlModelId === mlModelId);
 
     useSyncStoresToUrl(({filtersStore, segmentationStore}) => ({
@@ -83,13 +85,12 @@ const Benchmarks = ({filtersStore, modelStore}) => {
                 </Row>
                 <Row className='align-items-start mb-3 px-3'>
                     <Col className='d-flex align-items-center'>
-                        <h1 className='text-dark fs-3 m-0 bold-text'>{model.name}</h1>
-                        <h3 className='text-dark ms-3 fs-3'>{mlModelVersion}</h3>
+                        <h1 className='text-dark fs-3 m-0 bold-text'>{model.name} {mlModelVersion}</h1>
                     </Col>
                     <Col>
                         <Async
                             fetchData={() => metricsClient(`benchmarks?sql_filters=${encodeURI(
-                                `dataset_id='${datasetId}'`
+                                `dataset_id='${datasetId}' AND benchmark_id<>'${benchmarkId}'`
                             )}`, null, 'get')}
                             renderData={(benchmarks) => (
                                 <Select
@@ -103,7 +104,7 @@ const Benchmarks = ({filtersStore, modelStore}) => {
                                             return {
                                                 name: (
                                                     <span className='text-dark fs-4'>
-                                                        {model?.name} {b.model_version} [{new Date(b.started_at).toLocaleString()}]
+                                                        {model?.name} {b.model_version} @ {new Date(b.started_at).toLocaleString()}
                                                     </span>
                                                 ),
                                                 value: `model_id='${b.model_id}' AND model_version='${b.model_version}' AND dataset_id='${b.dataset_id}' AND benchmark_id='${b.benchmark_id}'`
