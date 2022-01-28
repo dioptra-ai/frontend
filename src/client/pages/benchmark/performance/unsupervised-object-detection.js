@@ -14,7 +14,7 @@ import metricsClient from 'clients/metrics';
 import CountEvents from 'components/count-events';
 import {getHexColor} from 'helpers/color-helper';
 
-const PerformanceDetails = ({filtersStore, benchmarkFilters}) => {
+const UnsupervisedObjectDetection = ({filtersStore, benchmarkFilters}) => {
     const allSqlFilters = useAllSqlFilters();
     const {mlModelType} = useModel();
     const sampleSizeComponent = <CountEvents sqlFilters={allSqlFilters}/>;
@@ -270,9 +270,9 @@ const PerformanceDetails = ({filtersStore, benchmarkFilters}) => {
     );
 };
 
-PerformanceDetails.propTypes = {
+UnsupervisedObjectDetection.propTypes = {
     filtersStore: PropTypes.object.isRequired,
     benchmarkFilters: PropTypes.string
 };
 
-export default setupComponent(PerformanceDetails);
+export default setupComponent(UnsupervisedObjectDetection);

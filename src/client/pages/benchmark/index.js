@@ -14,7 +14,7 @@ import Async from 'components/async';
 import metricsClient from 'clients/metrics';
 import Select from 'components/select';
 import Performance from './performance';
-import PredictionAnalysis from 'pages/templates/model-template/prediction-analysis';
+import Predictions from './predictions';
 import FeatureAnalysis from 'pages/templates/model-template/feature-analysis';
 import DriftAnalysis from 'pages/templates/model-template/drift-analysis';
 
@@ -123,7 +123,7 @@ const Benchmarks = ({filtersStore, modelStore}) => {
                             <Performance benchmarkFilters={benchmarkFilters}/>
                         );
                     }}/>
-                    <Route exact path='/benchmark/predictions' component={PredictionAnalysis}/>
+                    <Route exact path='/benchmark/predictions' component={Predictions}/>
                     <Route exact path='/benchmark/features' component={FeatureAnalysis}/>
                     <Route exact path='/benchmark/drift-analysis' component={DriftAnalysis}/>
                 </div>
