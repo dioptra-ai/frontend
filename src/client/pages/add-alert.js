@@ -1,7 +1,7 @@
 /* eslint-disable */
 import baseJSONClient from 'clients/base-json-client';
 import FontIcon from 'components/font-icon';
-import RadioButtons from 'components/radio-buttons';
+// import RadioButtons from 'components/radio-buttons';
 import Select from 'components/select';
 import TextInput from 'components/text-input';
 import {IconNames} from 'constants';
@@ -22,6 +22,7 @@ import {noop} from '../constants';
 import {setupComponent} from '../helpers/component-helper';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 import { getMetricsForModel } from '../enums/metrics';
+import { IsoDurations } from '../enums/iso-durations';
 
 const inputStyling = 'form-control py-3 bg-white-blue mt-0';
 const BinButton = ({onClick = noop, className}) => (
@@ -157,7 +158,7 @@ const ConditionRow = ({
                         options={Object.values(getMetricsForModel(model.mlModelType))}
                     />
                 </Col>
-                <Col xl={1}>
+                <Col xl={rowState.comparator === "HAS_NO_VALUE" ? 2 : 1}>
                     <Select
                         backgroundColor='white'
                         initialValue={rowState.comparator}
@@ -167,7 +168,7 @@ const ConditionRow = ({
                         textColor='primary'
                     />
                 </Col>
-                <Col className='d-flex' xl={2}>
+                <Col className='d-flex' xl={1}>
                     {rowState.comparator !== 'HAS_NO_VALUE' && (
                         <TextInput
                             className='form-control py-3 mt-0 bg-white-blue'
@@ -415,16 +416,23 @@ const AddAlertPage = ({timeStore}) => {
                         }
                     </div>
                     <div className='flex-grow-1 ms-3'>
-                        <TextInput
+                    <Select
+                        backgroundColor='white'
+                        initialValue={IsoDurations.PT5M.value}
+                        isTextBold
+                        onChange={setEvaluationPeriod}
+                        options={Object.values(IsoDurations)}
+                        textColor='primary'
+                    />
+                        {/* <TextInput
                             className={inputStyling}
-                            onChange={setEvaluationPeriod}
                             placeholder='Enter ISO Duration (example: PT30S)'
-                        />{' '}
+                        />{' '} */}
                     </div>
                 </Col>
             </Row>
             <div className='border-bottom border-bottom-2'></div>
-            <FormSection name='Alert Type'>
+            {/* <FormSection name='Alert Type'>
                 <Col className='mt-4' xl={12}>
                     <RadioButtons
                         initialValue={alertType}
@@ -432,7 +440,7 @@ const AddAlertPage = ({timeStore}) => {
                         onChange={setAlertType}
                     />
                 </Col>
-            </FormSection>
+            </FormSection> */}
             <FormSection name='Conditions'>
                 <Col className='mt-2' xl={12}>
                     <DynamicArray
