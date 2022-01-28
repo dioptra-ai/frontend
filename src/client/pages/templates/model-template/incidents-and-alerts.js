@@ -36,7 +36,7 @@ const IncidentsAndAlerts = () => {
     };
 
     return (
-        <Row className="my-3">
+        <Row className='my-3'>
             <Col lg={6}>
                 <Incidents
                     incidents={incidents}
