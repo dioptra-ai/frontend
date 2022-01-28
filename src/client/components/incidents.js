@@ -227,7 +227,7 @@ const Incidents = ({incidents, refreshCallback, loading}) => {
 };
 
 Incidents.propTypes = {
-    incidents: PropTypes.array,
+    incidents: PropTypes.object,
     refreshCallback: PropTypes.func,
     loading: PropTypes.bool
 };

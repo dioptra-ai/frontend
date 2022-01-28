@@ -11,7 +11,6 @@ import {AlertErrorHandlingStatuses} from 'enums/alert-error-handling-states';
 import {AlertTypes} from 'enums/alert-types';
 import {Comparators} from 'enums/comparators';
 import {LogicalOperators} from 'enums/logical-operators';
-import {Metrics} from 'enums/metrics';
 import {NotificationTypes} from 'enums/notification-types';
 import PropTypes from 'prop-types';
 import React, {useCallback, useState} from 'react';
@@ -22,6 +21,7 @@ import DynamicArray from '../components/generic/dynamic-array';
 import {noop} from '../constants';
 import {setupComponent} from '../helpers/component-helper';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
+import { getMetricsForModel } from '../enums/metrics';
 
 const inputStyling = 'form-control py-3 bg-white-blue mt-0';
 const BinButton = ({onClick = noop, className}) => (
@@ -125,12 +125,13 @@ const ConditionRow = ({
     isFirst,
     isLast,
     idx,
-    rowState
+    rowState,
 }) => {
     const handleLogicalChange = (newValue) => handleRowDataChange({logicalOperator: newValue});
     const handleMetricChange = (newValue) => handleRowDataChange({metric: newValue});
     const handleComparatorChange = (newValue) => handleRowDataChange({comparator: newValue});
     const handleValueToCompareChange = (newValue) => handleRowDataChange({valueToCompare: newValue});
+    const model = useModel();
 
     return (
         <span key={idx}>
@@ -153,7 +154,7 @@ const ConditionRow = ({
                     <Select
                         initialValue={rowState.metric}
                         onChange={handleMetricChange}
-                        options={Object.values(Metrics)}
+                        options={Object.values(getMetricsForModel(model.mlModelType))}
                     />
                 </Col>
                 <Col xl={1}>
@@ -322,12 +323,12 @@ TagRow.propTypes = {
 };
 
 const AddAlertPage = ({timeStore}) => {
-    const modell = useModel();
+    const model = useModel();
     const allSqlFilters = useAllSqlFilters();
 
     const conditionInitialValue = {
         logicalOperator: LogicalOperators.AND.value,
-        metric: Metrics['F1_Score'].value,
+        metric: Object.values(getMetricsForModel(model.mlModelType))[0].value,
         comparator: Comparators.IS_ABOVE_OR_EQUAL.value
     };
     const recipientInitialValue = {type: NotificationTypes.EMAIL.value};
@@ -366,7 +367,7 @@ const AddAlertPage = ({timeStore}) => {
                 type: alertType,
                 evaluation_period: evaluationPeriod,
                 conditions,
-                modelType: modell.mlModelType,
+                modelType: model.mlModelType,
                 sqlFilters: allSqlFilters
             }
         }).then(() => {
