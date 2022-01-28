@@ -139,7 +139,7 @@ ClassRow.propTypes = {
     value: PropTypes.any
 };
 
-const PerformanceDetails = ({filtersStore, benchmarkFilters}) => {
+const PerformanceDetails = ({filtersStore}) => {
     const allSqlFilters = useAllSqlFilters();
     const sqlFiltersWithModelTime = useAllSqlFilters({useReferenceRange: true});
     const {mlModelType} = useModel();
@@ -153,13 +153,6 @@ const PerformanceDetails = ({filtersStore, benchmarkFilters}) => {
     d.setMinutes(0);
     d.setSeconds(0);
     d.setMilliseconds(0);
-
-    const liveModelFilters = `${allSqlFilters
-        .replace(/\("dataset_id"=[^)]+\)/, '')
-        .replace(/\("model_version"=[^)]+\)/, '')
-        .replace(/\("benchmark_id"=[^)]+\)/, '')
-        .replace(/AND(\s+AND)+/g, 'AND')
-    } AND __time >= '${d.toISOString()}' AND "dataset_id" IS NULL AND "benchmark_id" IS NULL`;
 
     return (
         <div className='pb-5'>

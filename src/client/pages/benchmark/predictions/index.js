@@ -11,6 +11,8 @@ const Predictions = () => {
     case 'TEXT_CLASSIFIER':
     case 'UNSUPERVISED_OBJECT_DETECTION':
     case 'SPEECH_TO_TEXT':
+    default:
+        return null;
     }
 };
 
