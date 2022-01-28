@@ -105,14 +105,11 @@ Table.propTypes = {
     predictionClasses: PropTypes.array
 };
 
-const ConfusionMatrix = () => {
+const ConfusionMatrix = ({sqlFilters, referenceSqlFilters}) => {
     const [selectedCell, setSelectedCell] = useState(null);
     const model = useModel();
-    const allSqlFilters = useAllSqlFilters({__REMOVE_ME__excludeOrgId: true});
-    const sqlFiltersWithModelTime = useAllSqlFilters({
-        useReferenceRange: true,
-        __REMOVE_ME__excludeOrgId: true
-    });
+    const allSqlFilters = sqlFilters;
+    const sqlFiltersWithModelTime = referenceSqlFilters;
     const sampleSizeComponent = (<CountEvents sqlFilters={allSqlFilters}/>); // Use this component to get # of events
     const [iou, setIou] = useState('0.5');
     const getClasses = (data, key) => {
