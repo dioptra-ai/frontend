@@ -17,7 +17,7 @@ import useModel from 'customHooks/use-model';
 import MetricInfoBox from 'components/metric-info-box';
 import BarGraph from 'components/bar-graph';
 import Async from 'components/async';
-import QAPerfAnalysis from './qa-perf-analysis';
+import PerformanceClustersAnalysis from './performance-clusters-analysis';
 import metricsClient from 'clients/metrics';
 import CountEvents from 'components/count-events';
 import {getHexColor} from 'helpers/color-helper';
@@ -474,7 +474,7 @@ const PerformanceDetails = ({filtersStore}) => {
                     <div>
                         <Row>
                             <Col>
-                                <QAPerfAnalysis/>
+                                <PerformanceClustersAnalysis/>
                             </Col>
                         </Row>
                     </div>

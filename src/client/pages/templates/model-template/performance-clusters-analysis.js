@@ -20,7 +20,7 @@ import metricsClient from 'clients/metrics';
 import AddFilters from 'components/add-filters';
 import {Filter} from 'state/stores/filters-store';
 
-const QAPerfAnalysis = () => {
+const PerformanceClustersAnalysis = () => {
     const allSqlFilters = useAllSqlFilters();
     const model = useModel();
     const [userSelectedMetricName, setUserSelectedMetricName] = useState(null);
@@ -162,8 +162,8 @@ const QAPerfAnalysis = () => {
     );
 };
 
-QAPerfAnalysis.propTypes = {
+PerformanceClustersAnalysis.propTypes = {
     filtersStore: PropTypes.object.isRequired
 };
 
-export default setupComponent(QAPerfAnalysis);
+export default setupComponent(PerformanceClustersAnalysis);

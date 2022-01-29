@@ -117,7 +117,7 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
                 </Row>
             </div>
 
-            {mlModelType === 'DOCUMENT_PROCESSING' || mlModelType === 'UNSUPERVISED_OBJECT_DETECTION' ? (
+            {mlModelType === 'DOCUMENT_PROCESSING' ? (
                 <>
                     <div className='my-3'>
                         <Row className='my-3 rounded border mx-1'>
