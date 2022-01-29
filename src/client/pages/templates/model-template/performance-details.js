@@ -17,7 +17,7 @@ import useModel from 'customHooks/use-model';
 import MetricInfoBox from 'components/metric-info-box';
 import BarGraph from 'components/bar-graph';
 import Async from 'components/async';
-import PerformanceClustersAnalysis from './performance-clusters-analysis';
+import PerformanceClustersAnalysis from 'pages/templates/model-template/performance-clusters-analysis';
 import metricsClient from 'clients/metrics';
 import CountEvents from 'components/count-events';
 import {getHexColor} from 'helpers/color-helper';

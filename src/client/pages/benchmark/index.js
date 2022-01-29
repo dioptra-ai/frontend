@@ -44,9 +44,7 @@ const Benchmarks = ({filtersStore, modelStore}) => {
             pathname: '/benchmark',
             search: '?'
         }}/>;
-    }
-
-    if (!model) {
+    } else if (!model) {
         return `No model with id ${mlModelId}`;
     }
 

@@ -1,5 +1,6 @@
 import useModel from 'customHooks/use-model';
 import UnsupervisedObjectDetection from './unsupervised-object-detection';
+import SpeechToText from './speech-to-text';
 // TODO: remove this when all types are coded up
 import PerformanceDetails from 'pages/templates/model-template/performance-details';
 
@@ -15,7 +16,9 @@ const Performance = (props) => {
     case 'UNSUPERVISED_OBJECT_DETECTION':
 
         return <UnsupervisedObjectDetection {...props}/>;
-    // case 'SPEECH_TO_TEXT':
+    case 'SPEECH_TO_TEXT':
+
+        return <SpeechToText {...props}/>;
     default:
 
         return <PerformanceDetails {...props}/>;
