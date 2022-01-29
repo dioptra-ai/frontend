@@ -16,7 +16,7 @@ import Select from 'components/select';
 import Performance from './performance';
 import Predictions from './predictions';
 import Features from './features';
-import DriftAnalysis from 'pages/templates/model-template/drift-analysis';
+import Drift from './drift';
 
 const Benchmarks = ({filtersStore, modelStore}) => {
     const [benchmarkFilters, setBenchmarkFilters] = useState();
@@ -125,7 +125,7 @@ const Benchmarks = ({filtersStore, modelStore}) => {
                     }}/>
                     <Route exact path='/benchmark/predictions' component={Predictions}/>
                     <Route exact path='/benchmark/features' component={Features}/>
-                    <Route exact path='/benchmark/drift-analysis' component={DriftAnalysis}/>
+                    <Route exact path='/benchmark/drift-analysis' component={Drift}/>
                 </div>
             </Container>
         </Menu>
