@@ -108,15 +108,6 @@ AddColumnModal.propTypes = {
     initiallyselected: PropTypes.array
 };
 
-const Text = ({value}) => {
-    return <span>{value}</span>;
-};
-
-Text.propTypes = {
-    value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-    difference: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
-};
-
 const _AccuracyCell = ({timeStore, segmentationStore, row}) => {
     const groupByColumns = segmentationStore.segmentation;
     const {ref, inView} = useInView();
@@ -296,7 +287,7 @@ const _metricCell = ({cell, timeStore}) => {
                     }}
 
                     renderData={(data) => (
-                        <span> {!isNaN(data[0]?.value) ? data[0]?.value.toFixed(2) : '-' } </span>
+                        !isNaN(data[0]?.value) ? data[0]?.value.toFixed(2) : '-'
                     )}
                 />
             </>
@@ -364,8 +355,7 @@ const Segmentation = ({timeStore, segmentationStore}) => {
                                     },
                                     {
                                         accessor: 'value',
-                                        Header: 'Sample Size',
-                                        Cell: Text
+                                        Header: 'Sample Size'
                                     }
                                 ] : mlModelType === 'SPEECH_TO_TEXT' ? [
                                     {
@@ -380,8 +370,7 @@ const Segmentation = ({timeStore, segmentationStore}) => {
                                     },
                                     {
                                         accessor: 'value',
-                                        Header: 'Sample Size',
-                                        Cell: Text
+                                        Header: 'Sample Size'
                                     }
                                 ] :
                                     [
@@ -393,8 +382,7 @@ const Segmentation = ({timeStore, segmentationStore}) => {
                                         },
                                         {
                                             accessor: 'value',
-                                            Header: 'Sample Size',
-                                            Cell: Text
+                                            Header: 'Sample Size'
                                         },
                                         {
                                             id: 'prediction',
@@ -405,8 +393,7 @@ const Segmentation = ({timeStore, segmentationStore}) => {
                             ).concat(
                                 groupByColumns.map((column) => ({
                                     accessor: (c) => c[column],
-                                    Header: column,
-                                    Cell: Text
+                                    Header: column
                                 }))
                             )}
                             data={data}

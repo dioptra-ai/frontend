@@ -27,56 +27,52 @@ const SpeechToText = ({filtersStore}) => {
     d.setMilliseconds(0);
 
     return (
-        <div className='pb-5'>
+        <div className='pb-3'>
             <FilterInput
                 defaultFilters={filtersStore.filters}
                 onChange={(filters) => (filtersStore.filters = filters)}
             />
-
-            <div className='my-3'>
-                <Row className='mb-3 align-items-stretch'>
-                    <Col className='d-flex' lg={3}>
-                        <MetricInfoBox
-                            name='Datapoints'
-                        >
-                            {sampleSizeComponent}
-                        </MetricInfoBox>
-                    </Col>
-                    <Col className='d-flex' lg={3}>
-                        <Async
-                            fetchData={() => metricsClient('exact-match', {
-                                sql_filters: allSqlFilters,
-                                time_granularity: timeGranularity,
-                                model_type: mlModelType
-                            })}
-                            refetchOnChanged={[allSqlFilters]}
-                            renderData={([d]) => (
-                                <MetricInfoBox
-                                    name='EM'
-                                    value={d?.value}
-                                />
-                            )}
-                        />
-                    </Col>
-                    <Col className='d-flex' lg={3}>
-                        <Async
-                            fetchData={() => metricsClient('word-error-rate', {
-                                sql_filters: allSqlFilters,
-                                time_granularity: timeGranularity,
-                                model_type: mlModelType
-                            })}
-                            refetchOnChanged={[allSqlFilters]}
-                            renderData={([d]) => (
-                                <MetricInfoBox
-                                    name='WER'
-                                    value={d?.value}
-                                />
-                            )}
-                        />
-                    </Col>
-                    }
-                </Row>
-            </div>
+            <Row className='my-3 align-items-stretch'>
+                <Col className='d-flex' lg={3}>
+                    <MetricInfoBox
+                        name='Datapoints'
+                    >
+                        {sampleSizeComponent}
+                    </MetricInfoBox>
+                </Col>
+                <Col className='d-flex' lg={3}>
+                    <Async
+                        fetchData={() => metricsClient('exact-match', {
+                            sql_filters: allSqlFilters,
+                            time_granularity: timeGranularity,
+                            model_type: mlModelType
+                        })}
+                        refetchOnChanged={[allSqlFilters]}
+                        renderData={([d]) => (
+                            <MetricInfoBox
+                                name='EM'
+                                value={d?.value}
+                            />
+                        )}
+                    />
+                </Col>
+                <Col className='d-flex' lg={3}>
+                    <Async
+                        fetchData={() => metricsClient('word-error-rate', {
+                            sql_filters: allSqlFilters,
+                            time_granularity: timeGranularity,
+                            model_type: mlModelType
+                        })}
+                        refetchOnChanged={[allSqlFilters]}
+                        renderData={([d]) => (
+                            <MetricInfoBox
+                                name='WER'
+                                value={d?.value}
+                            />
+                        )}
+                    />
+                </Col>
+            </Row>
             <Segmentation />
         </div>
     );
