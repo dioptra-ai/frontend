@@ -9,6 +9,13 @@ import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 import ScatterGraph from 'components/scatter-graph';
 import metricsClient from 'clients/metrics';
 
+/////////////////////////////////////////////////////////////////////////
+///
+/// If this ever starts to branch out by model types, implement the same
+/// switch pattern as in the other folders.
+///
+/////////////////////////////////////////////////////////////////////////
+
 const DriftAnalysis = ({filtersStore}) => {
     const allSqlFilters = useAllSqlFilters();
 
