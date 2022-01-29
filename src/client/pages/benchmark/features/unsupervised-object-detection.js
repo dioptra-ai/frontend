@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 
 import {setupComponent} from 'helpers/component-helper';
 import FilterInput from 'components/filter-input';
-import PerformanceClustersAnalysis from 'pages/modules/performance-clusters-analysis';
+import PerformanceClustersAnalysis from 'pages/common/performance-clusters-analysis';
 
 const UnsupervisedObjectDetection = ({filtersStore}) => {
 

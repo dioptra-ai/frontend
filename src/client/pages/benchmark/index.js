@@ -1,11 +1,11 @@
-import {useEffect, useState} from 'react';
+import {useState} from 'react';
 import PropTypes from 'prop-types';
 import {Redirect, Route} from 'react-router-dom';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
 import {setupComponent} from 'helpers/component-helper';
-import GeneralSearchBar from 'pages/templates/general-search-bar';
+import GeneralSearchBar from 'pages/common/general-search-bar';
 import useSyncStoresToUrl from 'customHooks/use-sync-stores-to-url';
 import Container from 'react-bootstrap/Container';
 import Tabs from 'components/tabs';
@@ -27,10 +27,6 @@ const Benchmarks = ({filtersStore, modelStore}) => {
     const mlModelVersion = mlModelVersionFilter?.right;
     const datasetId = datasetIdFilter?.right;
     const model = modelStore.models.find((model) => model.mlModelId === mlModelId);
-
-    useEffect(() => {
-        filtersStore.filters = [];
-    }, []);
 
     useSyncStoresToUrl(({filtersStore, segmentationStore}) => ({
         filters: JSON.stringify(filtersStore.filters),

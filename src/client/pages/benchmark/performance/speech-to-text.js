@@ -3,7 +3,7 @@ import {setupComponent} from 'helpers/component-helper';
 import PropTypes from 'prop-types';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import Segmentation from 'components/segmentation';
+import Segmentation from 'pages/common/segmentation';
 import useAllSqlFilters from 'customHooks/use-all-sql-filters';
 import useModel from 'customHooks/use-model';
 import MetricInfoBox from 'components/metric-info-box';

@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import DateTimeRangePicker from 'components/date-time-range-picker';
 import {setupComponent} from 'helpers/component-helper';
 
-const ModelForm = ({initialValue, onSubmit, errors}) => {
+const EditModel = ({initialValue, onSubmit, errors}) => {
     const [formData, setFormData] = useState({
         name: '',
         mlModelId: '',
@@ -121,10 +121,10 @@ const ModelForm = ({initialValue, onSubmit, errors}) => {
     );
 };
 
-ModelForm.propTypes = {
+EditModel.propTypes = {
     errors: PropTypes.array,
     initialValue: PropTypes.object,
     onSubmit: PropTypes.func
 };
 
-export default setupComponent(ModelForm);
+export default setupComponent(EditModel);

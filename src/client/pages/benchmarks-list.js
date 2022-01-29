@@ -3,7 +3,7 @@ import Table from 'react-bootstrap/Table';
 import {useHistory} from 'react-router-dom';
 
 import Async from 'components/async';
-import GeneralSearchBar from 'pages/templates/general-search-bar';
+import GeneralSearchBar from 'pages/common/general-search-bar';
 import metricsClient from 'clients/metrics';
 import {setupComponent} from 'helpers/component-helper';
 

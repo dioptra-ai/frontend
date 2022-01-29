@@ -1,7 +1,7 @@
 import React from 'react';
 import {Route, Switch} from 'react-router-dom';
 import {AuthorizedRouteConfigs} from './configs/route-config';
-import Model from 'pages/templates/model-template';
+import Model from 'pages/model';
 import Menu from 'components/menu';
 import Login from 'pages/login';
 import Logout from 'pages/logout';

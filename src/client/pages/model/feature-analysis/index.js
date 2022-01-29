@@ -3,7 +3,7 @@ import {useContext} from 'react';
 import useModel from 'customHooks/use-model';
 import FeatureIntegrityTable from './feature-integrity';
 import FeatureAnalysisImages from './feature-analysis-images';
-import PerformanceClustersAnalysis from 'pages/modules/performance-clusters-analysis';
+import PerformanceClustersAnalysis from 'pages/common/performance-clusters-analysis';
 import appContext from 'context/app-context';
 import FilterInput from 'components/filter-input';
 import {setupComponent} from 'helpers/component-helper';
