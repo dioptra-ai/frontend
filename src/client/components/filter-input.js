@@ -72,7 +72,7 @@ const FilterInput = ({
                 const allSuggestionValues = allSuggestions.map(({value}) => value);
 
                 setSuggestions(allSuggestionValues);
-            } else {
+            } else if (key) {
                 const allSuggestions = await metricsClient('queries/get-suggestions-without-key', {
                     key
                 });

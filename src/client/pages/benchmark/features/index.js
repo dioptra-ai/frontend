@@ -1,8 +1,6 @@
 import useModel from 'customHooks/use-model';
 import UnsupervisedObjectDetection from './unsupervised-object-detection';
 import SpeechToText from './speech-to-text';
-// TODO: remove this when all types are coded up
-import FeatureAnalysis from 'pages/templates/model-template/feature-analysis';
 
 const Features = (props) => {
     const model = useModel();
@@ -21,7 +19,7 @@ const Features = (props) => {
         return <SpeechToText {...props}/>;
     default:
 
-        return <FeatureAnalysis {...props}/>;
+        return null;
     }
 };
 

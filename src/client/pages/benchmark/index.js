@@ -28,8 +28,7 @@ const Benchmarks = ({filtersStore, modelStore}) => {
     const datasetId = datasetIdFilter?.right;
     const model = modelStore.models.find((model) => model.mlModelId === mlModelId);
 
-    // Remove all filters when navigating away.
-    useEffect(() => () => {
+    useEffect(() => {
         filtersStore.filters = [];
     }, []);
 

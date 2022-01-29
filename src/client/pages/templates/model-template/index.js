@@ -26,8 +26,7 @@ const Model = ({modelStore, filtersStore}) => {
     const history = useHistory();
     const routeMatch = useRouteMatch('/models/:_id/:tabPath');
 
-    // Remove all filters when navigating away.
-    useEffect(() => () => {
+    useEffect(() => {
         filtersStore.filters = [];
     }, []);
 

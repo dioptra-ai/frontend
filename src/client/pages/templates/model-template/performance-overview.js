@@ -388,7 +388,6 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                 <AreaGraph
                                     dots={metric.map((m) => ({...m, value: 100 * m.value}))}
                                     hasBorder={false}
-                                    isTimeDependent
                                     margin={{right: 0, bottom: 30}}
                                     unit='%'
                                     xAxisName='Time'
@@ -588,7 +587,6 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                                                 <AreaGraph
                                                     dots={dots}
                                                     hasBorder={false}
-                                                    isTimeDependent
                                                     margin={{
                                                         right: 0,
                                                         bottom: 30,

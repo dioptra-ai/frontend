@@ -40,7 +40,6 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                                         y: distance * 100,
                                         x: new Date(time).getTime()
                                     }))}
-                                    isTimeDependent
                                     title='Embedding Distance'
                                     xAxisDomain={timeStore.rangeMillisec}
                                     xAxisName='Time'
@@ -97,7 +96,6 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                                     dots={data.map(({time, value}) => ({time, value: 100 * value}))}
                                     xDataKey='time'
                                     yDataKey='value'
-                                    isTimeDependent
                                     title='Unique Images Over Time'
                                     xAxisDomain={timeStore.rangeMillisec}
                                     xAxisName='Time'

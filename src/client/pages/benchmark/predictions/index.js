@@ -1,5 +1,4 @@
 import UnsupervisedObjectDetection from './unsupervised-object-detection';
-import PredictionAnalysis from 'pages/templates/model-template/prediction-analysis';
 import useModel from 'customHooks/use-model';
 
 const Predictions = (props) => {
@@ -16,7 +15,7 @@ const Predictions = (props) => {
         return <UnsupervisedObjectDetection {...props}/>;
     // case 'SPEECH_TO_TEXT':
     default:
-        return <PredictionAnalysis {...props}/>;
+        return null;
     }
 };
 
