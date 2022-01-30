@@ -45,22 +45,11 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
     });
     const model = useModel();
     const [iou] = useState(0.5);
-    const selectableMetrics = model.mlModelType === 'Q_N_A' ? [
-        {value: 'EXACT_MATCH', name: 'Exact Match'},
-        {value: 'F1_SCORE', name: 'F1 Score'},
-        {value: 'SEMANTIC_SIMILARITY', name: 'Semantic Similarity'}
-    ] : model.mlModelType === 'DOCUMENT_PROCESSING' ? [
+    const selectableMetrics = [
         {value: 'MEAN_AVERAGE_PRECISION', name: 'mAP'},
         {value: 'MEAN_AVERAGE_RECALL', name: 'mAR'},
         {value: 'EXACT_MATCH', name: 'Exact Match'},
         {value: 'F1_SCORE', name: 'F1 Score'}
-    ] : model.mlModelType === 'UNSUPERVISED_OBJECT_DETECTION' ? [
-        {value: 'CONFIDENCE', name: 'Confidence'}
-    ] : [
-        {value: 'ACCURACY', name: 'Accuracy'},
-        {value: 'F1_SCORE', name: 'F1 Score'},
-        {value: 'PRECISION', name: 'Precision'},
-        {value: 'RECALL', name: 'Recall'}
     ];
     const [selectedMetric, setSelectedMetric] = useState(selectableMetrics[0].value);
 
@@ -84,30 +73,6 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
     const getQueryForMetric = (metricName, timeGranularity, sqlFilters = allSqlFilters) => {
 
         return {
-            [ModelPerformanceMetrics.ACCURACY.value]: () => {
-
-                return metricsClient('accuracy-metric', {
-                    sql_filters: sqlFilters,
-                    time_granularity: timeGranularity,
-                    model_type: model.mlModelType
-                });
-            },
-            [ModelPerformanceMetrics.PRECISION.value]: () => {
-
-                return metricsClient('precision-metric', {
-                    sql_filters: sqlFilters,
-                    time_granularity: timeGranularity,
-                    model_type: model.mlModelType
-                });
-            },
-            [ModelPerformanceMetrics.RECALL.value]: () => {
-
-                return metricsClient('recall-metric', {
-                    sql_filters: sqlFilters,
-                    time_granularity: timeGranularity,
-                    model_type: model.mlModelType
-                });
-            },
             [ModelPerformanceMetrics.F1_SCORE.value]: () => {
 
                 return metricsClient('f1-score-metric', {
@@ -119,14 +84,6 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
             [ModelPerformanceMetrics.EXACT_MATCH.value]: () => {
 
                 return metricsClient('exact-match', {
-                    sql_filters: sqlFilters,
-                    time_granularity: timeGranularity,
-                    model_type: model.mlModelType
-                });
-            },
-            [ModelPerformanceMetrics.SEMANTIC_SIMILARITY.value]: () => {
-
-                return metricsClient('semantic-similarity', {
                     sql_filters: sqlFilters,
                     time_granularity: timeGranularity,
                     model_type: model.mlModelType
@@ -148,14 +105,6 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                     time_granularity: timeGranularity,
                     model_type: model.mlModelType,
                     iou_threshold: iou
-                });
-            },
-            [ModelPerformanceMetrics.CONFIDENCE.value]: () => {
-
-                return metricsClient('confidence', {
-                    sql_filters: sqlFilters,
-                    time_granularity: timeGranularity,
-                    model_type: model.mlModelType
                 });
             }
         }[metricName];
@@ -198,188 +147,48 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                 </Row>
             </div>
             <div className='my-3'>
-                {model.mlModelType === 'Q_N_A' ? (
-                    <Row className='mb-3 align-items-stretch'>
-                        <Col className='d-flex' lg={3}>
-                            <Async
-                                fetchData={getQueryForMetric('EXACT_MATCH')}
-                                refetchOnChanged={[model, allSqlFilters]}
-                                renderData={([d]) => (
-                                    <MetricInfoBox
-                                        name='EM'
-                                        subtext={sampleSizeComponent}
-                                        unit='%'
-                                        value={100 * d?.value}
-                                    />
-                                )}
-                            />
-                        </Col>
-                        <Col className='d-flex' lg={3}>
-                            <Async
-                                fetchData={getQueryForMetric('F1_SCORE')}
-                                refetchOnChanged={[model, allSqlFilters]}
-                                renderData={([d]) => (
-                                    <MetricInfoBox
-                                        name='F1 Score'
-                                        subtext={sampleSizeComponent}
-                                        unit='%'
-                                        value={100 * d?.value}
-                                    />
-                                )}
-                            />
-                        </Col>
-                        <Col className='d-flex' lg={3}>
-                            <Async
-                                fetchData={getQueryForMetric('SEMANTIC_SIMILARITY')}
-                                refetchOnChanged={[timeGranularity, model, allSqlFilters]}
-                                renderData={([d]) => (
-                                    <MetricInfoBox
-                                        name='Semantic Similarity'
-                                        sampleSize={sampleSizeComponent}
-                                        unit='%'
-                                        value={100 * d?.value}
-                                    />
-                                )}
-                            />
-                        </Col>
-                    </Row>
-                ) : model.mlModelType === 'DOCUMENT_PROCESSING' ? (
-                    <Row className='mb-3 align-items-stretch'>
-                        <Col className='d-flex' lg={3}>
-                            <Async
-                                fetchData={getQueryForMetric('MEAN_AVERAGE_PRECISION')}
-                                refetchOnChanged={[allSqlFilters]}
-                                renderData={([d]) => (
-                                    <MetricInfoBox
-                                        name='mAP'
-                                        subtext='iou=0.5'
-                                        value={d?.value}
-                                    />
-                                )}
-                            />
-                        </Col>
-                        <Col className='d-flex' lg={3}>
-                            <Async
-                                fetchData={getQueryForMetric('MEAN_AVERAGE_RECALL')}
-                                refetchOnChanged={[allSqlFilters]}
-                                renderData={([d]) => (
-                                    <MetricInfoBox
-                                        name='mAR'
-                                        subtext='iou=0.5'
-                                        value={d?.value}
-                                    />
-                                )}
-                            />
-                        </Col>
-                        <Col className='d-flex' lg={3}>
-                            <Async
-                                fetchData={getQueryForMetric('EXACT_MATCH')}
-                                refetchOnChanged={[allSqlFilters]}
-                                renderData={([d]) => (
-                                    <MetricInfoBox
-                                        name='Exact Match'
-                                        subtext='iou=0.5'
-                                        value={d?.value}
-                                    />
-                                )}
-                            />
-                        </Col>
-                    </Row>
-                ) : model.mlModelType === 'UNSUPERVISED_OBJECT_DETECTION' ? (
-                    <Row className='mb-3 align-items-stretch'>
-                        <Col className='d-flex' lg={3}>
-                            <Async
-                                fetchData={getQueryForMetric('CONFIDENCE')}
-                                refetchOnChanged={[model, allSqlFilters]}
-                                renderData={([d]) => (
-                                    <MetricInfoBox
-                                        name='Confidence'
-                                        subtext={sampleSizeComponent}
-                                        unit='%'
-                                        value={100 * d?.value}
-                                    />
-                                )}
-                            />
-                        </Col>
-                    </Row>
-                ) : (
-                    <Row className='mb-3 align-items-stretch'>
-                        <Col className='d-flex' lg={3}>
-                            <Async
-                                renderData={([[data], [benchmarkData]]) => (
-                                    <MetricInfoBox
-                                        name='Accuracy'
-                                        subtext={sampleSizeComponent}
-                                        unit='%'
-                                        value={100 * data?.value}
-                                        difference={100 * (data?.value - benchmarkData?.value)}
-                                    />
-                                )}
-                                fetchData={[
-                                    getQueryForMetric('ACCURACY'),
-                                    getQueryForMetric('ACCURACY', null, sqlFiltersWithModelTime)
-                                ]}
-                                refetchOnChanged={[allSqlFilters, sqlFiltersWithModelTime, model.mlModelType]}
-                            />
-                        </Col>
-                        <Col className='d-flex' lg={3}>
-                            <Async
-                                renderData={([[data], [benchmarkData]]) => (
-                                    <MetricInfoBox
-                                        name='F1 Score'
-                                        subtext={sampleSizeComponent}
-                                        unit='%'
-                                        value={100 * data?.value}
-                                        difference={100 * (data?.value - benchmarkData?.value)}
-                                    />
-                                )}
-                                fetchData={[
-                                    getQueryForMetric('F1_SCORE'),
-                                    getQueryForMetric('F1_SCORE', null, sqlFiltersWithModelTime)
-                                ]}
-                                refetchOnChanged={[allSqlFilters, sqlFiltersWithModelTime, model.mlModelType]}
-                            />
-                        </Col>
-                        <Col className='d-flex' lg={3}>
-                            <Async
-                                renderData={([[data], [benchmarkData]]) => (
-                                    <MetricInfoBox
-                                        name='Recall'
-                                        subtext={sampleSizeComponent}
-                                        unit='%'
-                                        value={100 * data?.value}
-                                        difference={100 * (data?.value - benchmarkData?.value)}
-                                    />
-                                )}
-                                fetchData={[
-                                    getQueryForMetric('RECALL'),
-                                    getQueryForMetric('RECALL', null, sqlFiltersWithModelTime)
-                                ]}
-                                refetchOnChanged={[allSqlFilters, sqlFiltersWithModelTime, model.mlModelType]}
-                            />
-                        </Col>
-                        <Col className='d-flex' lg={3}>
-                            <Async
-                                renderData={([[data], [benchmarkData]]) => (
-                                    <MetricInfoBox
-                                        name='Precision'
-                                        subtext={sampleSizeComponent}
-                                        unit='%'
-                                        value={100 * data?.value}
-                                        difference={
-                                            100 * (data?.value - benchmarkData?.value)
-                                        }
-                                    />
-                                )}
-                                fetchData={[
-                                    getQueryForMetric('PRECISION'),
-                                    getQueryForMetric('PRECISION', null, sqlFiltersWithModelTime)
-                                ]}
-                                refetchOnChanged={[allSqlFilters, sqlFiltersWithModelTime, model.mlModelType]}
-                            />
-                        </Col>
-                    </Row>
-                )}
+
+                <Row className='mb-3 align-items-stretch'>
+                    <Col className='d-flex' lg={3}>
+                        <Async
+                            fetchData={getQueryForMetric('MEAN_AVERAGE_PRECISION')}
+                            refetchOnChanged={[allSqlFilters]}
+                            renderData={([d]) => (
+                                <MetricInfoBox
+                                    name='mAP'
+                                    subtext='iou=0.5'
+                                    value={d?.value}
+                                />
+                            )}
+                        />
+                    </Col>
+                    <Col className='d-flex' lg={3}>
+                        <Async
+                            fetchData={getQueryForMetric('MEAN_AVERAGE_RECALL')}
+                            refetchOnChanged={[allSqlFilters]}
+                            renderData={([d]) => (
+                                <MetricInfoBox
+                                    name='mAR'
+                                    subtext='iou=0.5'
+                                    value={d?.value}
+                                />
+                            )}
+                        />
+                    </Col>
+                    <Col className='d-flex' lg={3}>
+                        <Async
+                            fetchData={getQueryForMetric('EXACT_MATCH')}
+                            refetchOnChanged={[allSqlFilters]}
+                            renderData={([d]) => (
+                                <MetricInfoBox
+                                    name='Exact Match'
+                                    subtext='iou=0.5'
+                                    value={d?.value}
+                                />
+                            )}
+                        />
+                    </Col>
+                </Row>
                 <CorrelationToKPIs/>
             </div>
         </>
