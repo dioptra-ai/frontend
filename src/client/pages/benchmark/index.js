@@ -6,7 +6,7 @@ import Col from 'react-bootstrap/Col';
 
 import {setupComponent} from 'helpers/component-helper';
 import GeneralSearchBar from 'pages/common/general-search-bar';
-import useSyncStoresToUrl from 'customHooks/use-sync-stores-to-url';
+import useSyncStoresToUrl from 'hooks/use-sync-stores-to-url';
 import Container from 'react-bootstrap/Container';
 import Tabs from 'components/tabs';
 import Menu from 'components/menu';

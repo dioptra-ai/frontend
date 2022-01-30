@@ -4,13 +4,13 @@ import PropTypes from 'prop-types';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Segmentation from 'pages/common/segmentation';
-import useAllSqlFilters from 'customHooks/use-all-sql-filters';
-import useModel from 'customHooks/use-model';
+import useAllSqlFilters from 'hooks/use-all-sql-filters';
+import useModel from 'hooks/use-model';
 import MetricInfoBox from 'components/metric-info-box';
 import Async from 'components/async';
 import metricsClient from 'clients/metrics';
 import CountEvents from 'components/count-events';
-import useTimeGranularity from 'customHooks/use-time-granularity';
+import useTimeGranularity from 'hooks/use-time-granularity';
 
 const SpeechToText = ({filtersStore}) => {
     const allSqlFilters = useAllSqlFilters();

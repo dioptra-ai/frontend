@@ -6,8 +6,8 @@ import Async from 'components/async';
 import FilterInput from 'components/filter-input';
 import MetricInfoBox from 'components/metric-info-box';
 import Select from 'components/select';
-import useAllSqlFilters from 'customHooks/use-all-sql-filters';
-import useModel from 'customHooks/use-model';
+import useAllSqlFilters from 'hooks/use-all-sql-filters';
+import useModel from 'hooks/use-model';
 import {setupComponent} from 'helpers/component-helper';
 import {getName} from 'helpers/name-helper';
 import moment from 'moment';
@@ -18,7 +18,7 @@ import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import {FaExclamation} from 'react-icons/fa';
 import CountEvents from 'components/count-events';
-import useTimeGranularity from 'customHooks/use-time-granularity';
+import useTimeGranularity from 'hooks/use-time-granularity';
 
 const ModelPerformanceMetrics = {
     ACCURACY: {value: 'ACCURACY', name: 'Accuracy'},

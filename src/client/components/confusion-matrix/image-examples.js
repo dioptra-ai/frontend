@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import {useState} from 'react';
 import CustomCarousel from 'components/carousel';
 import Modal from 'components/modal';
-import useAllSqlFilters from 'customHooks/use-all-sql-filters';
+import useAllSqlFilters from 'hooks/use-all-sql-filters';
 import TabularExamples from './tabular-examples';
 import Async from 'components/async';
 import metricsClient from 'clients/metrics';

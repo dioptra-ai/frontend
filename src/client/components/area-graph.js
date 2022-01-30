@@ -15,7 +15,7 @@ import {
 } from 'recharts';
 import {VscZoomOut} from 'react-icons/vsc';
 import {SpinnerWrapper} from 'components/spinner';
-import useTimeGranularity from 'customHooks/use-time-granularity';
+import useTimeGranularity from 'hooks/use-time-granularity';
 import theme from 'styles/theme.module.scss';
 import {formatDateTime} from 'helpers/date-helper';
 import {setupComponent} from 'helpers/component-helper';

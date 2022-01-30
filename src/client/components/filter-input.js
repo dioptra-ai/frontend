@@ -7,7 +7,7 @@ import {setupComponent} from 'helpers/component-helper';
 import FontIcon from './font-icon';
 import metricsClient from 'clients/metrics';
 import {Filter} from 'state/stores/filters-store';
-import useModel from 'customHooks/use-model';
+import useModel from 'hooks/use-model';
 
 const RenderedFilter = ({filter, onDelete, applied = false}) => {
 

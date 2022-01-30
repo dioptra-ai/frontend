@@ -5,7 +5,7 @@ import React, {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import {Table} from 'react-bootstrap';
 import {useInView} from 'react-intersection-observer';
-import useAllSqlFilters from 'customHooks/use-all-sql-filters';
+import useAllSqlFilters from 'hooks/use-all-sql-filters';
 import {CustomTooltip, SmallChart} from 'components/area-graph';
 import {IconNames} from 'constants';
 import {getHexColor} from 'helpers/color-helper';
@@ -14,7 +14,7 @@ import {setupComponent} from 'helpers/component-helper';
 import FilterInput from 'components/filter-input';
 import metricsClient from 'clients/metrics';
 import Async from 'components/async';
-import useTimeGranularity from 'customHooks/use-time-granularity';
+import useTimeGranularity from 'hooks/use-time-granularity';
 
 const FeatureIntegrityTableColumnNames = {
     FEATURE_NAME: 'Feature Name',

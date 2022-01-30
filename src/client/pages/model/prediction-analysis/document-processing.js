@@ -10,17 +10,17 @@ import Select from 'components/select';
 import {setupComponent} from 'helpers/component-helper';
 import {getHexColor} from 'helpers/color-helper';
 import {getName} from 'helpers/name-helper';
-import useAllSqlFilters from 'customHooks/use-all-sql-filters';
-import useModel from 'customHooks/use-model';
+import useAllSqlFilters from 'hooks/use-all-sql-filters';
+import useModel from 'hooks/use-model';
 import HeatMap from 'components/heatmap';
 import metricsClient from 'clients/metrics';
 import Async from 'components/async';
-import useModal from 'customHooks/useModal';
+import useModal from 'hooks/useModal';
 import Modal from 'components/modal';
 import AddFilters from 'components/add-filters';
 import {Filter} from 'state/stores/filters-store';
 import appContext from 'context/app-context';
-import useTimeGranularity from 'customHooks/use-time-granularity';
+import useTimeGranularity from 'hooks/use-time-granularity';
 
 const PredictionAnalysis = ({timeStore, filtersStore}) => {
     const allSqlFilters = useAllSqlFilters();

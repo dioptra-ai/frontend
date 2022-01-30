@@ -1,5 +1,5 @@
 import UnsupervisedObjectDetection from './unsupervised-object-detection';
-import useModel from 'customHooks/use-model';
+import useModel from 'hooks/use-model';
 
 const Predictions = (props) => {
     const model = useModel();

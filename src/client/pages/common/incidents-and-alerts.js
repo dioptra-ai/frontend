@@ -5,7 +5,7 @@ import {setupComponent} from 'helpers/component-helper';
 import React from 'react';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
-import useModel from 'customHooks/use-model';
+import useModel from 'hooks/use-model';
 
 const IncidentsAndAlerts = () => {
     const model = useModel();

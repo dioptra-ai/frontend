@@ -13,17 +13,17 @@ import {
     XAxis
 } from 'recharts';
 
-import useModel from 'customHooks/use-model';
+import useModel from 'hooks/use-model';
 import {setupComponent} from 'helpers/component-helper';
 import Button from 'react-bootstrap/Button';
 import FontIcon from 'components/font-icon';
 import {IconNames} from 'constants';
 import Table from 'components/table';
 import Modal from 'components/modal';
-import useModal from 'customHooks/useModal';
+import useModal from 'hooks/useModal';
 import {getHexColor} from 'helpers/color-helper';
 import theme from 'styles/theme.module.scss';
-import useAllSqlFilters from 'customHooks/use-all-sql-filters';
+import useAllSqlFilters from 'hooks/use-all-sql-filters';
 import Async from 'components/async';
 import metricsClient from 'clients/metrics';
 import {SmallChart} from 'components/area-graph';

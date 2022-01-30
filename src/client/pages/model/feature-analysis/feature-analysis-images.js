@@ -7,10 +7,10 @@ import FilterInput from 'components/filter-input';
 import MetricInfoBox from 'components/metric-info-box';
 import AreaGraph from 'components/area-graph';
 import Async from 'components/async';
-import useAllSqlFilters from 'customHooks/use-all-sql-filters';
+import useAllSqlFilters from 'hooks/use-all-sql-filters';
 import ScatterGraph from 'components/scatter-graph';
 import metricsClient from 'clients/metrics';
-import useTimeGranularity from 'customHooks/use-time-granularity';
+import useTimeGranularity from 'hooks/use-time-granularity';
 
 const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
     const allSqlFilters = useAllSqlFilters();

@@ -11,9 +11,9 @@ import {IconNames} from 'constants';
 import FontIcon from 'components/font-icon';
 import ConfusionMatrix from 'components/confusion-matrix';
 import Segmentation from 'pages/common/segmentation';
-import useAllSqlFilters from 'customHooks/use-all-sql-filters';
+import useAllSqlFilters from 'hooks/use-all-sql-filters';
 import DifferenceLabel from 'components/difference-labels';
-import useModel from 'customHooks/use-model';
+import useModel from 'hooks/use-model';
 import MetricInfoBox from 'components/metric-info-box';
 import BarGraph from 'components/bar-graph';
 import Async from 'components/async';
@@ -21,7 +21,7 @@ import PerformanceClustersAnalysis from 'pages/common/performance-clusters-analy
 import metricsClient from 'clients/metrics';
 import CountEvents from 'components/count-events';
 import {getHexColor} from 'helpers/color-helper';
-import useTimeGranularity from 'customHooks/use-time-granularity';
+import useTimeGranularity from 'hooks/use-time-granularity';
 
 const PerformanceBox = ({
     title = '',
@@ -170,33 +170,6 @@ const PerformanceDetails = ({filtersStore}) => {
                             {sampleSizeComponent}
                         </MetricInfoBox>
                     </Col>
-
-                    {mlModelType === 'TEXT_CLASSIFIER' ? (
-                        <div className='my-3'>
-                            <Row>
-                                <Col>
-                                    <Async
-                                        refetchOnChanged={[allSqlFilters]}
-                                        renderData={(data) => (
-                                            <BarGraph
-                                                bars={data.map(({groundtruth, my_percentage}) => ({
-                                                    name: getName(groundtruth),
-                                                    value: my_percentage,
-                                                    fill: getHexColor(groundtruth)
-                                                }))}
-                                                title='Groundtruth Distribution'
-                                                unit='%'
-                                            />
-                                        )}
-                                        fetchData={() => metricsClient('gt-distribution', {
-                                            sql_filters: allSqlFilters,
-                                            model_type: mlModelType
-                                        })}
-                                    />
-                                </Col>
-                            </Row>
-                        </div>
-                    ) : null}
                     {
                         mlModelType === 'SPEECH_TO_TEXT' ? (
                             <>
@@ -481,7 +454,10 @@ const PerformanceDetails = ({filtersStore}) => {
                 ) : mlModelType === 'SPEECH_TO_TEXT' ? (
                     null
                 ) : (
-                    <div className='my-3'>
+                    <div className='my-5'>
+                        <h3 className='text-dark bold-text fs-3 mb-3'>
+                        Performance per class
+                        </h3>
                         <Row>
                             <Col lg={6}>
                                 <Async
@@ -524,6 +500,35 @@ const PerformanceDetails = ({filtersStore}) => {
                         </Row>
                     </div>
                 )}
+            {mlModelType === 'TEXT_CLASSIFIER' ? (
+                <div>
+                    <h3 className='text-dark bold-text fs-3 mb-3'>
+                            Groundtruth distribution
+                    </h3>
+                    <Row>
+                        <Col lg={6}>
+                            <Async
+                                refetchOnChanged={[allSqlFilters]}
+                                renderData={(data) => (
+                                    <BarGraph
+                                        bars={data.map(({groundtruth, my_percentage}) => ({
+                                            name: getName(groundtruth),
+                                            value: my_percentage,
+                                            fill: getHexColor(groundtruth)
+                                        }))}
+                                        title='Groundtruth Distribution'
+                                        unit='%'
+                                    />
+                                )}
+                                fetchData={() => metricsClient('gt-distribution', {
+                                    sql_filters: allSqlFilters,
+                                    model_type: mlModelType
+                                })}
+                            />
+                        </Col>
+                    </Row>
+                </div>
+            ) : null}
             {(mlModelType !== 'Q_N_A' && mlModelType !== 'SPEECH_TO_TEXT') ? <ConfusionMatrix /> : null}
             {(mlModelType !== 'Q_N_A') ? <Segmentation /> : null}
         </div>

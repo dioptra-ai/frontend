@@ -13,8 +13,8 @@ import PredictionAnalysis from './prediction-analysis';
 import FeatureAnalysis from './feature-analysis';
 import IncidentsAndAlerts from 'pages/common/incidents-and-alerts';
 import TrafficReplay from 'pages/common/traffic-replay';
-import useModel from 'customHooks/use-model';
-import useSyncStoresToUrl from 'customHooks/use-sync-stores-to-url';
+import useModel from 'hooks/use-model';
+import useSyncStoresToUrl from 'hooks/use-sync-stores-to-url';
 import Menu from 'components/menu';
 
 const Model = () => {

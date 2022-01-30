@@ -8,8 +8,8 @@ import Button from 'react-bootstrap/Button';
 import FilterInput from 'components/filter-input';
 import baseJSONClient from 'clients/base-json-client';
 import {setupComponent} from 'helpers/component-helper';
-import useAllSqlFilters from 'customHooks/use-all-sql-filters';
-import useModel from 'customHooks/use-model';
+import useAllSqlFilters from 'hooks/use-all-sql-filters';
+import useModel from 'hooks/use-model';
 import CountEvents from 'components/count-events';
 
 const TrafficReplay = ({filtersStore, timeStore}) => {

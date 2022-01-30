@@ -5,7 +5,7 @@ import Col from 'react-bootstrap/Col';
 import {setupComponent} from 'helpers/component-helper';
 import FilterInput from 'components/filter-input';
 import Async from 'components/async';
-import useAllSqlFilters from 'customHooks/use-all-sql-filters';
+import useAllSqlFilters from 'hooks/use-all-sql-filters';
 import ScatterGraph from 'components/scatter-graph';
 import metricsClient from 'clients/metrics';
 

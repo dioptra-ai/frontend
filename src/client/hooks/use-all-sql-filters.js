@@ -1,7 +1,7 @@
 import {useContext} from 'react';
 
 import stores from 'state/stores';
-import useModel from 'customHooks/use-model';
+import useModel from 'hooks/use-model';
 import appContext from 'context/app-context';
 
 const {filtersStore, timeStore, modelStore} = stores;

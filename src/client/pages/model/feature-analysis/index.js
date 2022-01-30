@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import {useContext} from 'react';
-import useModel from 'customHooks/use-model';
+import useModel from 'hooks/use-model';
 import FeatureIntegrityTable from './feature-integrity';
 import FeatureAnalysisImages from './feature-analysis-images';
 import PerformanceClustersAnalysis from 'pages/common/performance-clusters-analysis';

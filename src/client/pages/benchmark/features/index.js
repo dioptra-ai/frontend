@@ -1,4 +1,4 @@
-import useModel from 'customHooks/use-model';
+import useModel from 'hooks/use-model';
 import UnsupervisedObjectDetection from './unsupervised-object-detection';
 import SpeechToText from './speech-to-text';
 
