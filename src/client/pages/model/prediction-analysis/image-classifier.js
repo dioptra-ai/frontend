@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
-import FilterInput from 'pages/common/filter-input';
 import BarGraph from 'components/bar-graph';
 import AreaGraph from 'components/area-graph';
 import Select from 'components/select';
@@ -22,7 +21,7 @@ import {Filter} from 'state/stores/filters-store';
 import appContext from 'context/app-context';
 import useTimeGranularity from 'hooks/use-time-granularity';
 
-const PredictionAnalysis = ({timeStore, filtersStore}) => {
+const PredictionAnalysis = ({timeStore}) => {
     const allSqlFilters = useAllSqlFilters();
     const allSqlFiltersWithoutOrgId = useAllSqlFilters({__REMOVE_ME__excludeOrgId: true});
     const allOfflineSqlFilters = useAllSqlFilters({useReferenceRange: true});
@@ -36,10 +35,6 @@ const PredictionAnalysis = ({timeStore, filtersStore}) => {
 
     return (
         <>
-            <FilterInput
-                defaultFilters={filtersStore.filters}
-                onChange={(filters) => (filtersStore.filters = filters)}
-            />
             <div className='my-3'>
                 <Row className='my-3'>
                     <Col className='d-flex' lg={4}>
