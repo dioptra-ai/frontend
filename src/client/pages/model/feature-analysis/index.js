@@ -1,14 +1,11 @@
-import PropTypes from 'prop-types';
 import {useContext} from 'react';
 import useModel from 'hooks/use-model';
 import FeatureIntegrityTable from './feature-integrity';
 import FeatureAnalysisImages from './feature-analysis-images';
 import PerformanceClustersAnalysis from 'pages/common/performance-clusters-analysis';
 import appContext from 'context/app-context';
-import FilterInput from 'pages/common/filter-input';
-import {setupComponent} from 'helpers/component-helper';
 
-const FeatureAnalysis = ({filtersStore}) => {
+const FeatureAnalysis = () => {
     const model = useModel();
     const {isTimeEnabled} = useContext(appContext);
 
@@ -22,15 +19,7 @@ const FeatureAnalysis = ({filtersStore}) => {
             return <FeatureAnalysisImages/>;
         } else {
 
-            return (
-                <>
-                    <FilterInput
-                        defaultFilters={filtersStore.filters}
-                        onChange={(filters) => (filtersStore.filters = filters)}
-                    />
-                    <PerformanceClustersAnalysis/>
-                </>
-            );
+            return <PerformanceClustersAnalysis/>;
         }
 
     case 'TABULAR_CLASSIFIER':
@@ -44,8 +33,4 @@ const FeatureAnalysis = ({filtersStore}) => {
     }
 };
 
-FeatureAnalysis.propTypes = {
-    filtersStore: PropTypes.object.isRequired
-};
-
-export default setupComponent(FeatureAnalysis);
+export default FeatureAnalysis;

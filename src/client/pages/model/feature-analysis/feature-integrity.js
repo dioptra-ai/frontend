@@ -1,5 +1,3 @@
-/* eslint-disable max-lines */
-
 import {Bar, BarChart, Cell, Tooltip} from 'recharts';
 import React, {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
@@ -11,7 +9,6 @@ import {IconNames} from 'constants';
 import {getHexColor} from 'helpers/color-helper';
 import FontIcon from 'components/font-icon';
 import {setupComponent} from 'helpers/component-helper';
-import FilterInput from 'pages/common/filter-input';
 import metricsClient from 'clients/metrics';
 import Async from 'components/async';
 import useTimeGranularity from 'hooks/use-time-granularity';
@@ -198,7 +195,7 @@ FeatureIntegrityRow.propTypes = {
 
 const ObserverFeatureIntegrityRow = setupComponent(FeatureIntegrityRow);
 
-const FeatureIntegrityTable = ({errorStore, filtersStore}) => {
+const FeatureIntegrityTable = ({errorStore}) => {
     const [allFeatureNames, setAllFeatureNames] = useState(null);
     const [nonNullFeatureNames, setNonNullFeatureNames] = useState([]);
     const allSqlFilters = useAllSqlFilters();
@@ -228,30 +225,24 @@ const FeatureIntegrityTable = ({errorStore, filtersStore}) => {
     }, [allFeatureNames, allSqlFilters]);
 
     return (
-        <>
-            <FilterInput
-                defaultFilters={filtersStore.filters}
-                onChange={(filters) => (filtersStore.filters = filters)}
-            />
-            <div className='border border-1 px-3 pb-3 pt-2 rounded'>
-                <Table>
-                    <thead className='fs-6'>
-                        <tr className='border-0 border-bottom border-mercury'>
-                            {FeatureIntegrityTableColumnConfigs.map((c, idx) => (<th className={`align-middle border-0 text-secondary pb-3 ${idx === 0 ? 'w-25' : ''} ${idx === 1 ? 'text-center' : ''}`} colSpan={idx > 0 ? 1 : 2} key={c.name}>{c.name}</th>))}
-                        </tr>
-                    </thead>
-                    <tbody className='fs-6'>
-                        {nonNullFeatureNames.map((f) => <ObserverFeatureIntegrityRow key={f} name={f}/>)}
-                    </tbody>
-                </Table>
-            </div>
-        </>
+
+        <div className='border border-1 px-3 pb-3 pt-2 rounded'>
+            <Table>
+                <thead className='fs-6'>
+                    <tr className='border-0 border-bottom border-mercury'>
+                        {FeatureIntegrityTableColumnConfigs.map((c, idx) => (<th className={`align-middle border-0 text-secondary pb-3 ${idx === 0 ? 'w-25' : ''} ${idx === 1 ? 'text-center' : ''}`} colSpan={idx > 0 ? 1 : 2} key={c.name}>{c.name}</th>))}
+                    </tr>
+                </thead>
+                <tbody className='fs-6'>
+                    {nonNullFeatureNames.map((f) => <ObserverFeatureIntegrityRow key={f} name={f}/>)}
+                </tbody>
+            </Table>
+        </div>
     );
 };
 
 FeatureIntegrityTable.propTypes = {
-    errorStore: PropTypes.object.isRequired,
-    filtersStore: PropTypes.object.isRequired
+    errorStore: PropTypes.object.isRequired
 };
 
 export default setupComponent(FeatureIntegrityTable);

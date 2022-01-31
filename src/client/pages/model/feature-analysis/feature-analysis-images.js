@@ -3,7 +3,6 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
 import {setupComponent} from 'helpers/component-helper';
-import FilterInput from 'pages/common/filter-input';
 import MetricInfoBox from 'components/metric-info-box';
 import AreaGraph from 'components/area-graph';
 import Async from 'components/async';
@@ -12,17 +11,13 @@ import ScatterGraph from 'components/scatter-graph';
 import metricsClient from 'clients/metrics';
 import useTimeGranularity from 'hooks/use-time-granularity';
 
-const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
+const FeatureAnalysisImages = ({timeStore}) => {
     const allSqlFilters = useAllSqlFilters();
     const allOfflineSqlFilters = useAllSqlFilters({useReferenceRange: true});
     const timeGranularity = useTimeGranularity()?.toISOString();
 
     return (
-        <div>
-            <FilterInput
-                defaultFilters={filtersStore.filters}
-                onChange={(filters) => (filtersStore.filters = filters)}
-            />
+        <>
             <div className='my-3'>
                 <Row>
                     <div>
@@ -108,12 +103,11 @@ const FeatureAnalysisImages = ({filtersStore, timeStore}) => {
                     </Col>
                 </Row>
             </div>
-        </div>
+        </>
     );
 };
 
 FeatureAnalysisImages.propTypes = {
-    filtersStore: PropTypes.object.isRequired,
     timeStore: PropTypes.object.isRequired
 };
 
