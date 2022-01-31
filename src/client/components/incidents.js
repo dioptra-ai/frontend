@@ -26,17 +26,19 @@ const IncidentRow = ({
                 !isMainRow ? 'mx-4' : ''
             } incident-row`}
         >
-            <label className='checkbox' style={resolved ? {marginLeft: 25} : {}}>
-                {!resolved && (
+            {!resolved && (
+                <label className='checkbox'>
                     <input
+                        style={{cursor: "pointer"}}
                         type='checkbox'
                         checked={checked}
                         onChange={(event) => {
                             selectCallback(id, event.target.checked);
                         }}
                     />
-                )}
-            </label>
+                    <span> </span>
+                </label>
+            )}
             <FontIcon
                 className={`text-${resolved ? 'success' : 'warning'} mx-1`}
                 icon={resolved ? IconNames.CHECK : IconNames.WARNING}
