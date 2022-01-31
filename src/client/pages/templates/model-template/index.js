@@ -55,7 +55,9 @@ const Model = ({modelStore, filtersStore}) => {
             {name: 'Prediction Analysis', to: `/models/${modelId}/prediction-analysis`}
         );
 
-        tabs.push({name: 'Feature Analysis', to: `/models/${modelId}/feature-analysis`});
+        if (model?.mlModelType !== 'TEXT_CLASSIFIER') {
+            tabs.push({name: 'Feature Analysis', to: `/models/${modelId}/feature-analysis`});
+        }
     }
 
     tabs.push({name: 'Traffic Replay', to: `/models/${modelId}/traffic-replay`});

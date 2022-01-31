@@ -177,6 +177,33 @@ const PerformanceDetails = ({filtersStore, benchmarkFilters}) => {
                             {sampleSizeComponent}
                         </MetricInfoBox>
                     </Col>
+
+                    {mlModelType === 'TEXT_CLASSIFIER' ? (
+                        <div className='my-3'>
+                            <Row>
+                                <Col>
+                                    <Async
+                                        refetchOnChanged={[allSqlFilters]}
+                                        renderData={(data) => (
+                                            <BarGraph
+                                                bars={data.map(({groundtruth, my_percentage}) => ({
+                                                    name: getName(groundtruth),
+                                                    value: my_percentage,
+                                                    fill: getHexColor(groundtruth)
+                                                }))}
+                                                title='Groundtruth Distribution'
+                                                unit='%'
+                                            />
+                                        )}
+                                        fetchData={() => metricsClient('gt-distribution', {
+                                            sql_filters: allSqlFilters,
+                                            model_type: mlModelType
+                                        })}
+                                    />
+                                </Col>
+                            </Row>
+                        </div>
+                    ) : null}
                     {
                         mlModelType === 'UNSUPERVISED_OBJECT_DETECTION' ? (
                             <>
@@ -556,10 +583,7 @@ const PerformanceDetails = ({filtersStore, benchmarkFilters}) => {
                 ) : mlModelType === 'SPEECH_TO_TEXT' ? (
                     null
                 ) : (
-                    <div className='my-5'>
-                        <h3 className='text-dark bold-text fs-3 mb-3'>
-                        Performance per class
-                        </h3>
+                    <div className='my-3'>
                         <Row>
                             <Col lg={6}>
                                 <Async
@@ -602,35 +626,6 @@ const PerformanceDetails = ({filtersStore, benchmarkFilters}) => {
                         </Row>
                     </div>
                 )}
-            {mlModelType === 'TEXT_CLASSIFIER' ? (
-                <div>
-                    <h3 className='text-dark bold-text fs-3 mb-3'>
-                            Groundtruth distribution
-                    </h3>
-                    <Row>
-                        <Col lg={6}>
-                            <Async
-                                refetchOnChanged={[allSqlFilters]}
-                                renderData={(data) => (
-                                    <BarGraph
-                                        bars={data.map(({groundtruth, my_percentage}) => ({
-                                            name: getName(groundtruth),
-                                            value: my_percentage,
-                                            fill: getHexColor(groundtruth)
-                                        }))}
-                                        title='Groundtruth Distribution'
-                                        unit='%'
-                                    />
-                                )}
-                                fetchData={() => metricsClient('gt-distribution', {
-                                    sql_filters: allSqlFilters,
-                                    model_type: mlModelType
-                                })}
-                            />
-                        </Col>
-                    </Row>
-                </div>
-            ) : null}
             {(mlModelType !== 'Q_N_A' && mlModelType !== 'SPEECH_TO_TEXT') ? <ConfusionMatrix /> : null}
             {(mlModelType !== 'Q_N_A') ? <Segmentation /> : null}
         </div>
