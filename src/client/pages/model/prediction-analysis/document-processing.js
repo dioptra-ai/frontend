@@ -1,7 +1,6 @@
 import {useState} from 'react';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import Container from 'react-bootstrap/Container';
 
 import Select from 'components/select';
 import useAllSqlFilters from 'hooks/use-all-sql-filters';

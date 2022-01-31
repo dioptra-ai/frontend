@@ -1,30 +1,20 @@
-import {useContext} from 'react';
 import useModel from 'hooks/use-model';
 import FeatureIntegrityTable from './feature-integrity';
 import FeatureAnalysisImages from './feature-analysis-images';
-import PerformanceClustersAnalysis from 'pages/common/performance-clusters-analysis';
-import appContext from 'context/app-context';
 
 const FeatureAnalysis = () => {
     const model = useModel();
-    const {isTimeEnabled} = useContext(appContext);
 
+    // Break this down into one file for each model type
+    // when this gets more complicated.
     switch (model.mlModelType) {
     case 'IMAGE_CLASSIFIER':
     case 'DOCUMENT_PROCESSING':
     case 'UNSUPERVISED_OBJECT_DETECTION':
     case 'SPEECH_TO_TEXT':
-        if (isTimeEnabled) {
 
-            return <FeatureAnalysisImages/>;
-        } else {
-
-            return <PerformanceClustersAnalysis/>;
-        }
-
+        return <FeatureAnalysisImages/>;
     case 'TABULAR_CLASSIFIER':
-
-        return <FeatureIntegrityTable/>;
     case 'TEXT_CLASSIFIER':
 
         return <FeatureIntegrityTable/>;
