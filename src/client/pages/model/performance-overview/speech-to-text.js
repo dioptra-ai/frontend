@@ -43,7 +43,7 @@ const PerformanceOverview = () => {
                                     model_type: 'SPEECH_TO_TEXT'
                                 }),
                                 () => metricsClient('accuracy-metric', {
-                                    sql_filters: allSqlFilters,
+                                    sql_filters: sqlFiltersWithModelTime,
                                     model_type: 'SPEECH_TO_TEXT'
                                 })
                             ]}
@@ -67,7 +67,7 @@ const PerformanceOverview = () => {
                                     model_type: 'SPEECH_TO_TEXT'
                                 }),
                                 () => metricsClient('f1-score-metric', {
-                                    sql_filters: allSqlFilters,
+                                    sql_filters: sqlFiltersWithModelTime,
                                     model_type: 'SPEECH_TO_TEXT'
                                 })
                             ]}
@@ -91,7 +91,7 @@ const PerformanceOverview = () => {
                                     model_type: 'SPEECH_TO_TEXT'
                                 }),
                                 () => metricsClient('recall-metric', {
-                                    sql_filters: allSqlFilters,
+                                    sql_filters: sqlFiltersWithModelTime,
                                     model_type: 'SPEECH_TO_TEXT'
                                 })
                             ]}
@@ -117,7 +117,7 @@ const PerformanceOverview = () => {
                                     model_type: 'SPEECH_TO_TEXT'
                                 }),
                                 () => metricsClient('precision-metric', {
-                                    sql_filters: allSqlFilters,
+                                    sql_filters: sqlFiltersWithModelTime,
                                     model_type: 'SPEECH_TO_TEXT'
                                 })
                             ]}

@@ -63,8 +63,7 @@ const PerformanceOverview = () => {
                             refetchOnChanged={[allSqlFilters]}
                             renderData={([d]) => (
                                 <MetricInfoBox
-                                    name='Exact Match'
-                                    subtext='iou=0.5'
+                                    name='EM'
                                     value={d?.value}
                                 />
                             )}
