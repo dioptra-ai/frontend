@@ -1,13 +1,13 @@
 import React from 'react';
 import {Route, Switch} from 'react-router-dom';
 import {AuthorizedRouteConfigs} from './configs/route-config';
-import Model from 'pages/templates/model-template';
+import Model from 'pages/model';
 import Menu from 'components/menu';
 import Login from 'pages/login';
 import Logout from 'pages/logout';
 import Register from 'pages/register';
 import AuthRoute from 'components/auth-route';
-import Benchmarks from './pages/benchmarks';
+import Benchmark from './pages/benchmark';
 import AppContext from 'context/app-context';
 
 const App = () => {
@@ -34,11 +34,11 @@ const App = () => {
                         <Model/>
                     </AppContext.Provider>
                 )}/>
-                <AuthRoute path='/benchmarks' renderLoggedIn={() => (
+                <AuthRoute path='/benchmark' renderLoggedIn={() => (
                     <AppContext.Provider value={{
                         isTimeEnabled: false
                     }}>
-                        <Benchmarks/>
+                        <Benchmark/>
                     </AppContext.Provider>
                 )}/>
                 <AuthRoute path='/'/>

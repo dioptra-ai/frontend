@@ -5,7 +5,7 @@ import FontIcon from 'components/font-icon';
 import Select from 'components/select';
 import TextInput from 'components/text-input';
 import {IconNames} from 'constants';
-import useModel from 'customHooks/use-model';
+import useModel from 'hooks/use-model';
 import {AlertAutoResolvePeriods} from 'enums/alert-auto-resolve-periods';
 import {AlertErrorHandlingStatuses} from 'enums/alert-error-handling-states';
 import {AlertTypes} from 'enums/alert-types';
@@ -20,7 +20,7 @@ import BtnIcon from '../components/btn-icon';
 import DynamicArray from '../components/generic/dynamic-array';
 import {noop} from '../constants';
 import {setupComponent} from '../helpers/component-helper';
-import useAllSqlFilters from 'customHooks/use-all-sql-filters';
+import useAllSqlFilters from 'hooks/use-all-sql-filters';
 import { getMetricsForModel } from '../enums/metrics';
 import { IsoDurations } from '../enums/iso-durations';
 

@@ -13,7 +13,7 @@ import {
 import {useThrottle} from '@react-hook/throttle';
 import theme from 'styles/theme.module.scss';
 import PropTypes from 'prop-types';
-import useModal from 'customHooks/useModal';
+import useModal from 'hooks/useModal';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import Modal from 'components/modal';
