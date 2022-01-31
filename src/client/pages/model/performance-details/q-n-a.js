@@ -14,11 +14,7 @@ const PerformanceDetails = () => {
             <div className='my-3'>
                 <Row className='mb-3 align-items-stretch'>
                     <Col className='d-flex' lg={3}>
-                        <MetricInfoBox
-                            name='Datapoints'
-                        >
-                            {sampleSizeComponent}
-                        </MetricInfoBox>
+                        <MetricInfoBox name='Datapoints'>{sampleSizeComponent}</MetricInfoBox>
                     </Col>
                 </Row>
             </div>

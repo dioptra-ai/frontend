@@ -1,5 +1,4 @@
 import {Bar, Tooltip as ChartTooltip} from 'recharts';
-import PropTypes from 'prop-types';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import ConfusionMatrix from 'components/confusion-matrix';
@@ -16,28 +15,15 @@ const PerformanceDetails = () => {
     const allSqlFilters = useAllSqlFilters();
     const sampleSizeComponent = <CountEvents sqlFilters={allSqlFilters}/>;
 
-    // This is ugly. Should find a better way to do it
-    const d = new Date();
-
-    d.setDate(d.getDate() - 1);
-    d.setMinutes(0);
-    d.setSeconds(0);
-    d.setMilliseconds(0);
-
     return (
         <div className='pb-5'>
             <div className='my-3'>
                 <Row className='mb-3 align-items-stretch'>
                     <Col className='d-flex' lg={3}>
-                        <MetricInfoBox
-                            name='Datapoints'
-                        >
-                            {sampleSizeComponent}
-                        </MetricInfoBox>
+                        <MetricInfoBox name='Datapoints'>{sampleSizeComponent}</MetricInfoBox>
                     </Col>
                 </Row>
             </div>
-
             <div className='my-3'>
                 <Row className='mb-3 align-items-stretch'>
                     <Col className='d-flex' lg={2}>
@@ -270,10 +256,6 @@ const PerformanceDetails = () => {
             <Segmentation />
         </div>
     );
-};
-
-PerformanceDetails.propTypes = {
-    benchmarkFilters: PropTypes.string
 };
 
 export default PerformanceDetails;
