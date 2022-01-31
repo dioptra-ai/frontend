@@ -8,5 +8,5 @@ export const IsoDurations = {
     PT1H: {value: 'PT1H', name: '1 hour'},
     PT6H: {value: 'PT6H', name: '6 hours'},
     PT12H: {value: 'PT12H', name: '12 hours'},
-    P1D: {value: 'P1D', name: '1 day'},
+    P1D: {value: 'P1D', name: '1 day'}
 };
