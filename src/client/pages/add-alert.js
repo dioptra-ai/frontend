@@ -43,8 +43,8 @@ BinButton.propTypes = {
 };
 
 const AddButton = ({onClick = noop}) => (
-    <Button className="text-white w-100 py-2" onClick={onClick} variant={'primary'}>
-        <FontIcon className="me-2" icon={IconNames.PLUS} size={10} />
+    <Button className='text-white w-100 py-2' onClick={onClick} variant={'primary'}>
+        <FontIcon className='me-2' icon={IconNames.PLUS} size={10} />
         <span>ADD</span>
     </Button>
 );
@@ -78,9 +78,9 @@ LabelBox.propTypes = {
 };
 
 const FormSection = ({name = '', children}) => (
-    <Row className="py-4">
+    <Row className='py-4'>
         <Col xl={12}>
-            <h6 className="mb-0 text-dark bold-text">{name}</h6>
+            <h6 className='mb-0 text-dark bold-text'>{name}</h6>
         </Col>
         {children}
     </Row>
@@ -95,14 +95,14 @@ const ErrorHandlingRow = ({errorCondition, initialValue, onChange}) => {
     return (
         <Row>
             <Col xl={3}>
-                <LabelBox color="dark" isBold={false} text={errorCondition} />
+                <LabelBox color='dark' isBold={false} text={errorCondition} />
             </Col>
             <Col xl={2}>
-                <LabelBox text="SET STATE TO" />
+                <LabelBox text='SET STATE TO' />
             </Col>
             <Col xl={2}>
                 <Select
-                    backgroundColor="white-blue"
+                    backgroundColor='white-blue'
                     initialValue={initialValue}
                     onChange={onChange}
                     options={Object.values(AlertErrorHandlingStatuses)}
@@ -140,22 +140,22 @@ const ConditionRow = ({
 
     return (
         <span key={idx}>
-            <Row className="mt-3 align-items-center">
+            <Row className='mt-3 align-items-center'>
                 <Col xl={1}>
                     {isFirst ? (
-                        <LabelBox text="WHEN" />
+                        <LabelBox text='WHEN' />
                     ) : (
                         <Select
-                            backgroundColor="white"
+                            backgroundColor='white'
                             initialValue={rowState.logicalOperator}
                             isTextBold
                             onChange={handleLogicalChange}
                             options={Object.values(LogicalOperators)}
-                            textColor="primary"
+                            textColor='primary'
                         />
                     )}
                 </Col>
-                <Col className="d-flex" xl={2}>
+                <Col className='d-flex' xl={2}>
                     <Select
                         initialValue={rowState.metric}
                         onChange={handleMetricChange}
@@ -166,25 +166,25 @@ const ConditionRow = ({
                 </Col>
                 <Col xl={rowState.comparator === 'HAS_NO_VALUE' ? 2 : 1}>
                     <Select
-                        backgroundColor="white"
+                        backgroundColor='white'
                         initialValue={rowState.comparator}
                         isTextBold
                         onChange={handleComparatorChange}
                         options={Object.values(Comparators)}
-                        textColor="primary"
+                        textColor='primary'
                     />
                 </Col>
-                <Col className="d-flex" xl={1}>
+                <Col className='d-flex' xl={1}>
                     {rowState.comparator !== 'HAS_NO_VALUE' && (
                         <TextInput
-                            type="number"
-                            className="form-control py-3 mt-0 bg-white-blue"
+                            type='number'
+                            className='form-control py-3 mt-0 bg-white-blue'
                             initialValue={rowState.valueToCompare}
                             onChange={handleValueToCompareChange}
                         />
                     )}
                     {isFirst ? null : (
-                        <div className="ms-3">
+                        <div className='ms-3'>
                             <BinButton onClick={handleDeleteRow} />
                         </div>
                     )}
@@ -217,11 +217,11 @@ const RecipientRow = ({
         handleRowDataChange({address: newAddress});
 
     return (
-        <Row className="my-3 align-items-center" key={idx}>
-            <Col xl={1}>{isFirst ? <LabelBox text="SEND TO" /> : null}</Col>
+        <Row className='my-3 align-items-center' key={idx}>
+            <Col xl={1}>{isFirst ? <LabelBox text='SEND TO' /> : null}</Col>
             <Col xl={2}>
                 <Select
-                    backgroundColor="white-blue"
+                    backgroundColor='white-blue'
                     initialValue={rowState.type}
                     onChange={handleTypeChange}
                     options={Object.values(NotificationTypes)}
@@ -232,7 +232,7 @@ const RecipientRow = ({
                     className={inputStyling}
                     initialValue={rowState.address}
                     onChange={handleAddressChange}
-                    placeholder="Enter email"
+                    placeholder='Enter email'
                 />{' '}
             </Col>
             <Col xl={1}>
@@ -271,12 +271,12 @@ const TagRow = ({
     if (!hasData) {
         return (
             <>
-                <Row className="my-3">
+                <Row className='my-3'>
                     <Col xl={1}>
-                        <LabelBox text="TAGS" />
+                        <LabelBox text='TAGS' />
                     </Col>
                 </Row>
-                <Row className="my-3">
+                <Row className='my-3'>
                     <AddButton onClick={handleAddRow} />
                 </Row>
             </>
@@ -285,32 +285,32 @@ const TagRow = ({
 
     return (
         <span key={idx}>
-            <Row className="my-3">
-                <Col xl={1}>{isFirst ? <LabelBox text="TAGS" /> : null}</Col>
+            <Row className='my-3'>
+                <Col xl={1}>{isFirst ? <LabelBox text='TAGS' /> : null}</Col>
                 <Col xl={5}>
                     <TextInput
                         className={inputStyling}
                         initialValue={rowState.name}
                         onChange={handleNameChange}
-                        placeholder="Enter tag name"
+                        placeholder='Enter tag name'
                     />{' '}
                 </Col>
-                <Col className="d-flex" xl={6}>
-                    <div className="flex-grow-1">
+                <Col className='d-flex' xl={6}>
+                    <div className='flex-grow-1'>
                         <TextInput
                             className={inputStyling}
                             initialValue={rowState.value}
                             onChange={handleValueChange}
-                            placeholder="Enter tag value"
+                            placeholder='Enter tag value'
                         />{' '}
                     </div>
-                    <div className="ms-3">
+                    <div className='ms-3'>
                         <BinButton onClick={handleDeleteRow} />
                     </div>
                 </Col>
             </Row>
             {isLast ? (
-                <Row className="my-3">
+                <Row className='my-3'>
                     <Col xl={1}>
                         <AddButton onClick={handleAddRow} />
                     </Col>
@@ -386,58 +386,58 @@ const AddAlertPage = ({timeStore}) => {
     };
 
     return (
-        <Container className="py-5 px-4" fluid>
+        <Container className='py-5 px-4' fluid>
             <Row>
-                <Col className="d-flex align-items center" lg={12}>
-                    <h3 className="text-dark bold-text flex-grow-1">Add Alert</h3>
+                <Col className='d-flex align-items center' lg={12}>
+                    <h3 className='text-dark bold-text flex-grow-1'>Add Alert</h3>
                     <BtnIcon
-                        className="text-dark border-0"
+                        className='text-dark border-0'
                         icon={IconNames.CLOSE}
                         onClick={goToPreviousRoute}
                         size={20}
                     />
                 </Col>
             </Row>
-            <Row className="py-5  justify-content-between">
-                <Col className="d-flex align-items-center" xl={8}>
+            <Row className='py-5  justify-content-between'>
+                <Col className='d-flex align-items-center' xl={8}>
                     <div>
                         {
-                            <h6 className="mb-0 text-dark bold-text">
+                            <h6 className='mb-0 text-dark bold-text'>
                                 {'Alert name'}
                             </h6>
                         }
                     </div>
-                    <div className="flex-grow-1 ms-3">
+                    <div className='flex-grow-1 ms-3'>
                         <TextInput
                             className={inputStyling}
                             onChange={setAlertName}
-                            placeholder="Enter Alert Name"
+                            placeholder='Enter Alert Name'
                         />{' '}
                     </div>
                 </Col>
-                <Col className="d-flex align-items-center" xl={4}>
+                <Col className='d-flex align-items-center' xl={4}>
                     <div>
                         {
-                            <h6 className="mb-0 text-dark bold-text">
+                            <h6 className='mb-0 text-dark bold-text'>
                                 {'Evaluate every'}
                             </h6>
                         }
                     </div>
-                    <div className="flex-grow-1 ms-3">
+                    <div className='flex-grow-1 ms-3'>
                         <Select
-                            backgroundColor="white"
+                            backgroundColor='white'
                             initialValue={IsoDurations.PT5M.value}
                             isTextBold
                             onChange={setEvaluationPeriod}
                             options={Object.values(IsoDurations)}
-                            textColor="primary"
+                            textColor='primary'
                         />
                     </div>
                 </Col>
             </Row>
-            <div className="border-bottom border-bottom-2"></div>
-            <FormSection name="Conditions">
-                <Col className="mt-2" xl={12}>
+            <div className='border-bottom border-bottom-2'></div>
+            <FormSection name='Conditions'>
+                <Col className='mt-2' xl={12}>
                     <DynamicArray
                         data={conditions}
                         newRowInitialState={conditionInitialValue}
@@ -446,8 +446,8 @@ const AddAlertPage = ({timeStore}) => {
                     />
                 </Col>
             </FormSection>
-            <div className="border-bottom border-bottom-2"></div>
-            <Row className="pt-4">
+            <div className='border-bottom border-bottom-2'></div>
+            <Row className='pt-4'>
                 <Col xl={2}>
                     <Button
                         disabled={
@@ -463,18 +463,18 @@ const AddAlertPage = ({timeStore}) => {
                                 );
                             }).length !== 0
                         }
-                        className="w-100 p-3 text-white"
+                        className='w-100 p-3 text-white'
                         onClick={handleCreate}
-                        variant="primary"
+                        variant='primary'
                     >
                         CREATE
                     </Button>
                 </Col>
                 <Col xl={2}>
                     <Button
-                        className="w-100 p-3 text-secondary"
+                        className='w-100 p-3 text-secondary'
                         onClick={goToPreviousRoute}
-                        variant="light"
+                        variant='light'
                     >
                         CANCEL
                     </Button>
