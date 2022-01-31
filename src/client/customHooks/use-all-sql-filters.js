@@ -21,9 +21,11 @@ const useAllSqlFilters = ({useReferenceRange = false, __REMOVE_ME__excludeOrgId}
             allFilters.push(modelStore.getSqlReferencePeriodFilter(_id));
         } else if (isTimeEnabled) {
             allFilters.push(timeStore.sqlTimeFilter);
+            allFilters.push('dataset_id IS NULL');
         }
     } else if (isTimeEnabled) {
         allFilters.push(timeStore.sqlTimeFilter);
+        allFilters.push('dataset_id IS NULL');
     }
 
     return allFilters.join(' AND ');
