@@ -1,7 +1,6 @@
 /* eslint-disable */
 import baseJSONClient from 'clients/base-json-client';
 import FontIcon from 'components/font-icon';
-// import RadioButtons from 'components/radio-buttons';
 import Select from 'components/select';
 import TextInput from 'components/text-input';
 import {IconNames} from 'constants';
@@ -424,23 +423,10 @@ const AddAlertPage = ({timeStore}) => {
                         options={Object.values(IsoDurations)}
                         textColor='primary'
                     />
-                        {/* <TextInput
-                            className={inputStyling}
-                            placeholder='Enter ISO Duration (example: PT30S)'
-                        />{' '} */}
                     </div>
                 </Col>
             </Row>
             <div className='border-bottom border-bottom-2'></div>
-            {/* <FormSection name='Alert Type'>
-                <Col className='mt-4' xl={12}>
-                    <RadioButtons
-                        initialValue={alertType}
-                        items={Object.values(AlertTypes)}
-                        onChange={setAlertType}
-                    />
-                </Col>
-            </FormSection> */}
             <FormSection name='Conditions'>
                 <Col className='mt-2' xl={12}>
                     <DynamicArray
@@ -449,35 +435,8 @@ const AddAlertPage = ({timeStore}) => {
                         onChange={setConditions}
                         renderRow={ConditionRow}
                     />
-                    {/* <Row className='mt-4'>
-                        <Col xl={3}><LabelBox text='DURING THE LAST'/></Col>
-                        <Col xl={1}><TextInput className={inputStyling} onChange={setConditionsPeriod}/></Col>
-                    </Row> */}
                 </Col>
             </FormSection>
-            {/* <FormSection name='No Date & Error Handling'>
-                <Col className='mt-4' xl={12}>
-                    <ErrorHandlingRow errorCondition='If no date or all values are null' initialValue={stateForNoDateOrNullValues} onChange={setStateForNoDateOrNullValues}/>
-                </Col>
-                <Col className='mt-4' xl={12}>
-                    <ErrorHandlingRow errorCondition='If execution error or timeout' initialValue={stateExecutionErrorOrTimeout} onChange={setStateExecutionErrorOrTimeout}/>
-                </Col>
-            </FormSection>
-            <FormSection name='Autoresolve?'>
-                <Col className='mt-2' xl={3}>
-                    <Select backgroundColor='white-blue' initialValue={autoResolve} onChange={setAutoResolvePeriod} options={Object.values(AlertAutoResolvePeriods)}/>
-                </Col>
-            </FormSection>
-            <FormSection name='Notifications'>
-                <Col className='mt-2' xl={12}>
-                    <DynamicArray data={recipients} newRowInitialState={recipientInitialValue} onChange={setRecipients} renderRow={RecipientRow} />
-                    <Row className='my-3'>
-                        <Col xl={1}><LabelBox text='MESSAGE'/></Col>
-                        <Col xl={11}><TextArea className={inputStyling} onChange={setMessage} placeholder='Notification message details' rows={9} /></Col>
-                    </Row>
-                    <DynamicArray data={tags} onChange={setTags} renderRow={TagRow} />
-                </Col>
-            </FormSection> */}
             <div className='border-bottom border-bottom-2'></div>
             <Row className='pt-4'>
                 <Col xl={2}>
