@@ -48,9 +48,9 @@ const IncidentsAndAlerts = () => {
                 <Alerts
                     alerts={alerts}
                     refreshCallback={fetchAlerts}
-                    onDeleteRefreshCallback={() => {
+                    onDeleteRefreshCallback={(page) => {
                         fetchIncidents();
-                        fetchAlerts();
+                        fetchAlerts(page);
                     }}
                     loading={alertsLoading}
                 />
