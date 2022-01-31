@@ -75,11 +75,7 @@ const PerformanceOverview = () => {
     return (
         <>
             <div className='my-2'>
-                <Row>
-                    <Col>
-                        <Throughput sqlFilters={allSqlFilters}/>
-                    </Col>
-                </Row>
+                <Throughput sqlFilters={allSqlFilters}/>
             </div>
             <div className='my-3'>
 

@@ -14,12 +14,7 @@ const ModelPerformanceMetrics = {
     ACCURACY: {value: 'ACCURACY', name: 'Accuracy'},
     F1_SCORE: {value: 'F1_SCORE', name: 'F1 Score'},
     PRECISION: {value: 'PRECISION', name: 'Precision'},
-    RECALL: {value: 'RECALL', name: 'Recall'},
-    EXACT_MATCH: {value: 'EXACT_MATCH', name: 'Exact Match'},
-    MEAN_AVERAGE_PRECISION: {value: 'MEAN_AVERAGE_PRECISION', name: 'mAP'},
-    MEAN_AVERAGE_RECALL: {value: 'MEAN_AVERAGE_RECALL', name: 'mAR'},
-    SEMANTIC_SIMILARITY: {value: 'SEMANTIC_SIMILARITY', name: 'Semantic Similarity'},
-    CONFIDENCE: {value: 'CONFIDENCE', name: 'Confidence'}
+    RECALL: {value: 'RECALL', name: 'Recall'}
 };
 
 const PerformanceOverview = () => {
@@ -74,11 +69,7 @@ const PerformanceOverview = () => {
     return (
         <>
             <div className='my-2'>
-                <Row>
-                    <Col>
-                        <Throughput sqlFilters={allSqlFilters}/>
-                    </Col>
-                </Row>
+                <Throughput sqlFilters={allSqlFilters}/>
             </div>
             <div className='my-3'>
                 <Row className='mb-3 align-items-stretch'>

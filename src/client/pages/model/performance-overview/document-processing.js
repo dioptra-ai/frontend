@@ -1,82 +1,32 @@
-import {useState} from 'react';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import metricsClient from 'clients/metrics';
 import Async from 'components/async';
 import MetricInfoBox from 'components/metric-info-box';
 import useAllSqlFilters from 'hooks/use-all-sql-filters';
-import useModel from 'hooks/use-model';
 import CorrelationToKPIs from 'pages/common/correlation-to-kpis';
 import Throughput from 'pages/common/throughput';
-
-const ModelPerformanceMetrics = {
-    F1_SCORE: {value: 'F1_SCORE', name: 'F1 Score'},
-    EXACT_MATCH: {value: 'EXACT_MATCH', name: 'Exact Match'},
-    MEAN_AVERAGE_PRECISION: {value: 'MEAN_AVERAGE_PRECISION', name: 'mAP'},
-    MEAN_AVERAGE_RECALL: {value: 'MEAN_AVERAGE_RECALL', name: 'mAR'}
-};
 
 const PerformanceOverview = () => {
     const allSqlFilters = useAllSqlFilters({
         __REMOVE_ME__excludeOrgId: true
     });
-    const model = useModel();
-    const [iou] = useState(0.5);
-    const getQueryForMetric = (metricName, timeGranularity, sqlFilters = allSqlFilters) => {
-
-        return {
-            [ModelPerformanceMetrics.F1_SCORE.value]: () => {
-
-                return metricsClient('f1-score-metric', {
-                    sql_filters: sqlFilters,
-                    time_granularity: timeGranularity,
-                    model_type: model.mlModelType
-                });
-            },
-            [ModelPerformanceMetrics.EXACT_MATCH.value]: () => {
-
-                return metricsClient('exact-match', {
-                    sql_filters: sqlFilters,
-                    time_granularity: timeGranularity,
-                    model_type: model.mlModelType
-                });
-            },
-            [ModelPerformanceMetrics.MEAN_AVERAGE_PRECISION.value]: () => {
-
-                return metricsClient('map', {
-                    sql_filters: sqlFilters,
-                    time_granularity: timeGranularity,
-                    model_type: model.mlModelType,
-                    iou_threshold: iou
-                });
-            },
-            [ModelPerformanceMetrics.MEAN_AVERAGE_RECALL.value]: () => {
-
-                return metricsClient('mar', {
-                    sql_filters: sqlFilters,
-                    time_granularity: timeGranularity,
-                    model_type: model.mlModelType,
-                    iou_threshold: iou
-                });
-            }
-        }[metricName];
-    };
 
     return (
         <>
             <div className='my-2'>
-                <Row>
-                    <Col>
-                        <Throughput sqlFilters={allSqlFilters}/>
-                    </Col>
-                </Row>
+                <Throughput sqlFilters={allSqlFilters}/>
             </div>
             <div className='my-3'>
 
                 <Row className='mb-3 align-items-stretch'>
                     <Col className='d-flex' lg={3}>
                         <Async
-                            fetchData={getQueryForMetric('MEAN_AVERAGE_PRECISION')}
+                            fetchData={() => metricsClient('map', {
+                                sql_filters: allSqlFilters,
+                                model_type: 'DOCUMENT_PROCESSING',
+                                iou_threshold: 0.5
+                            })}
                             refetchOnChanged={[allSqlFilters]}
                             renderData={([d]) => (
                                 <MetricInfoBox
@@ -89,7 +39,11 @@ const PerformanceOverview = () => {
                     </Col>
                     <Col className='d-flex' lg={3}>
                         <Async
-                            fetchData={getQueryForMetric('MEAN_AVERAGE_RECALL')}
+                            fetchData={() => metricsClient('mar', {
+                                sql_filters: allSqlFilters,
+                                model_type: 'DOCUMENT_PROCESSING',
+                                iou_threshold: 0.5
+                            })}
                             refetchOnChanged={[allSqlFilters]}
                             renderData={([d]) => (
                                 <MetricInfoBox
@@ -102,7 +56,10 @@ const PerformanceOverview = () => {
                     </Col>
                     <Col className='d-flex' lg={3}>
                         <Async
-                            fetchData={getQueryForMetric('EXACT_MATCH')}
+                            fetchData={() => metricsClient('exact-match', {
+                                sql_filters: allSqlFilters,
+                                model_type: 'DOCUMENT_PROCESSING'
+                            })}
                             refetchOnChanged={[allSqlFilters]}
                             renderData={([d]) => (
                                 <MetricInfoBox

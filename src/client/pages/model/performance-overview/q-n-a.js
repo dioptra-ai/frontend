@@ -3,75 +3,33 @@ import metricsClient from 'clients/metrics';
 import Async from 'components/async';
 import MetricInfoBox from 'components/metric-info-box';
 import useAllSqlFilters from 'hooks/use-all-sql-filters';
-import useModel from 'hooks/use-model';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import CountEvents from 'components/count-events';
-import useTimeGranularity from 'hooks/use-time-granularity';
 import CorrelationToKPIs from 'pages/common/correlation-to-kpis';
 import Throughput from 'pages/common/throughput';
-
-const ModelPerformanceMetrics = {
-    F1_SCORE: {value: 'F1_SCORE', name: 'F1 Score'},
-    EXACT_MATCH: {value: 'EXACT_MATCH', name: 'Exact Match'},
-    SEMANTIC_SIMILARITY: {value: 'SEMANTIC_SIMILARITY', name: 'Semantic Similarity'}
-};
 
 const PerformanceOverview = () => {
     const allSqlFilters = useAllSqlFilters({
         __REMOVE_ME__excludeOrgId: true
     });
-    const model = useModel();
-
     const sampleSizeComponent = (<CountEvents sqlFilters={allSqlFilters}/>);
-    const timeGranularity = useTimeGranularity()?.toISOString();
-
-    const getQueryForMetric = (metricName, timeGranularity, sqlFilters = allSqlFilters) => {
-
-        return {
-            [ModelPerformanceMetrics.F1_SCORE.value]: () => {
-
-                return metricsClient('f1-score-metric', {
-                    sql_filters: sqlFilters,
-                    time_granularity: timeGranularity,
-                    model_type: model.mlModelType
-                });
-            },
-            [ModelPerformanceMetrics.EXACT_MATCH.value]: () => {
-
-                return metricsClient('exact-match', {
-                    sql_filters: sqlFilters,
-                    time_granularity: timeGranularity,
-                    model_type: model.mlModelType
-                });
-            },
-            [ModelPerformanceMetrics.SEMANTIC_SIMILARITY.value]: () => {
-
-                return metricsClient('semantic-similarity', {
-                    sql_filters: sqlFilters,
-                    time_granularity: timeGranularity,
-                    model_type: model.mlModelType
-                });
-            }
-        }[metricName];
-    };
 
     return (
         <>
             <div className='my-2'>
-                <Row>
-                    <Col>
-                        <Throughput sqlFilters={allSqlFilters}/>
-                    </Col>
-                </Row>
+                <Throughput sqlFilters={allSqlFilters}/>
             </div>
             <div className='my-3'>
 
                 <Row className='mb-3 align-items-stretch'>
                     <Col className='d-flex' lg={3}>
                         <Async
-                            fetchData={getQueryForMetric('EXACT_MATCH')}
-                            refetchOnChanged={[model, allSqlFilters]}
+                            fetchData={() => metricsClient('exact-match', {
+                                sql_filters: allSqlFilters,
+                                model_type: 'Q_N_A'
+                            })}
+                            refetchOnChanged={[allSqlFilters]}
                             renderData={([d]) => (
                                 <MetricInfoBox
                                     name='EM'
@@ -84,8 +42,11 @@ const PerformanceOverview = () => {
                     </Col>
                     <Col className='d-flex' lg={3}>
                         <Async
-                            fetchData={getQueryForMetric('F1_SCORE')}
-                            refetchOnChanged={[model, allSqlFilters]}
+                            fetchData={() => metricsClient('f1-score-metric', {
+                                sql_filters: allSqlFilters,
+                                model_type: 'Q_N_A'
+                            })}
+                            refetchOnChanged={[allSqlFilters]}
                             renderData={([d]) => (
                                 <MetricInfoBox
                                     name='F1 Score'
@@ -98,8 +59,11 @@ const PerformanceOverview = () => {
                     </Col>
                     <Col className='d-flex' lg={3}>
                         <Async
-                            fetchData={getQueryForMetric('SEMANTIC_SIMILARITY')}
-                            refetchOnChanged={[timeGranularity, model, allSqlFilters]}
+                            fetchData={() => metricsClient('semantic-similarity', {
+                                sql_filters: allSqlFilters,
+                                model_type: 'Q_N_A'
+                            })}
+                            refetchOnChanged={[allSqlFilters]}
                             renderData={([d]) => (
                                 <MetricInfoBox
                                     name='Semantic Similarity'
