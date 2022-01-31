@@ -1,8 +1,9 @@
 import baseJSONClient from 'clients/base-json-client';
+import {formatDateTime} from 'helpers/date-helper';
+import moment from 'moment';
 import PropTypes from 'prop-types';
 import React, {useEffect, useState} from 'react';
 import Button from 'react-bootstrap/Button';
-import {IoRefreshSharp} from 'react-icons/io5';
 import BarLoader from 'react-spinners/BarLoader';
 import {IconNames} from '../constants';
 import useModal from '../customHooks/useModal';
@@ -14,7 +15,8 @@ const IncidentRow = ({
     selectCallback,
     checked = false,
     id = '',
-    name = ' ',
+    message = '',
+    creationDate = '',
     resolved = false,
     isMainRow = true
 }) => {
@@ -46,7 +48,7 @@ const IncidentRow = ({
                     isMainRow ? 'bold-text' : ''
                 }`}
             >
-                {name}
+                {message}. Date: {formatDateTime(moment(creationDate))}
             </span>
             <Button
                 className='text-white btn-incident p-0 fs-6'
@@ -61,7 +63,8 @@ const IncidentRow = ({
 
 IncidentRow.propTypes = {
     isMainRow: PropTypes.bool,
-    name: PropTypes.string,
+    message: PropTypes.string,
+    creationDate: PropTypes.string,
     resolved: PropTypes.bool,
     selectCallback: PropTypes.func,
     checked: PropTypes.bool,
@@ -130,18 +133,17 @@ const Incidents = ({incidents, refreshCallback, loading}) => {
         <div className='incidents'>
             <div className='header mb-3'>
                 <p className='bold-text fs-3 text-dark'>Incidents</p>
-                <div className='d-flex gap-2'>
-                    <Button
-                        style={{width: 40}}
-                        className='text-white d-flex align-items-center justify-content-between ms-1 btn-secondary'
-                        variant='primary'
+                <div className='d-flex justify-content-center align-items-center align-content-center gap-4'>
+                    <FontIcon
+                        disabled={loading}
+                        className='text-dark'
+                        icon={IconNames.REFRESH}
                         onClick={() => refreshCallback(page)}
-                    >
-                        <IoRefreshSharp className='fs-5' />
-                    </Button>
+                        size={20}
+                    />
                     <Button
-                        className='text-white bold-text fs-6'
-                        variant='primary'
+                        className='bold-text fs-6'
+                        variant='outline-secondary'
                         onClick={() => setResolveIncidentModal(true)}
                         disabled={
                             selectedEventIds.length === 0 || resolvingInProgress
@@ -165,7 +167,7 @@ const Incidents = ({incidents, refreshCallback, loading}) => {
                                     }
                                 />
                             )}
-                            <span className='fs-6'>Incidents Name</span>
+                            <span className='fs-6'>Incidents Message</span>
                         </label>
                     </div>
                 </div>
@@ -185,7 +187,8 @@ const Incidents = ({incidents, refreshCallback, loading}) => {
                         checked={selectedEventIds.includes(incident.alert_id)}
                         id={incident.alert_id}
                         key={i}
-                        name={incident.message}
+                        message={incident.message}
+                        creationDate={incident.__time}
                         resolved={incident.state === 'resolved'}
                     />
                 ))}
