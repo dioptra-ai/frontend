@@ -52,7 +52,11 @@ export class Filter {
                 switch (op) {
                 case undefined:
                 case null:
+                    break;
                 case '=':
+                    if (rightStr) {
+                        right = rightStr;
+                    }
                     break;
                 case 'in':
                     if (rightStr) {
