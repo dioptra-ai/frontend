@@ -1,7 +1,9 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import {Route, Switch, useParams} from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
 
+import FilterInput from 'components/filter-input';
 import GeneralSearchBar from 'pages/common/general-search-bar';
 import AddAlertPage from 'pages/add-alert';
 import ModelDescription from 'components/model-description';
@@ -17,7 +19,7 @@ import useModel from 'hooks/use-model';
 import useSyncStoresToUrl from 'hooks/use-sync-stores-to-url';
 import Menu from 'components/menu';
 
-const Model = () => {
+const Model = ({filtersStore}) => {
     const modelId = useParams()._id;
     const model = useModel();
 
@@ -60,6 +62,11 @@ const Model = () => {
                     <ModelDescription {...model}/>
                     <Container fluid>
                         <Tabs tabs={tabs} />
+
+                        <FilterInput
+                            defaultFilters={filtersStore.filters}
+                            onChange={(filters) => (filtersStore.filters = filters)}
+                        />
                         <div className='px-3'>
                             <Route exact
                                 path='/models/:_id/performance-overview'
@@ -85,6 +92,10 @@ const Model = () => {
             </Switch>
         </Menu>
     ) : 'Loading...';
+};
+
+Model.propTypes = {
+    filtersStore: PropTypes.object.isRequired
 };
 
 export default setupComponent(Model);

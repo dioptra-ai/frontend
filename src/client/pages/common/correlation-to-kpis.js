@@ -3,8 +3,6 @@ import baseJSONClient from 'clients/base-json-client';
 import metricsClient from 'clients/metrics';
 import AreaGraph from 'components/area-graph';
 import Async from 'components/async';
-import FilterInput from 'components/filter-input';
-import MetricInfoBox from 'components/metric-info-box';
 import Select from 'components/select';
 import useAllSqlFilters from 'hooks/use-all-sql-filters';
 import useModel from 'hooks/use-model';
@@ -17,7 +15,6 @@ import {Tooltip as BootstrapTooltip, OverlayTrigger} from 'react-bootstrap';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import {FaExclamation} from 'react-icons/fa';
-import CountEvents from 'components/count-events';
 import useTimeGranularity from 'hooks/use-time-granularity';
 
 const ModelPerformanceMetrics = {
@@ -32,35 +29,14 @@ const ModelPerformanceMetrics = {
     CONFIDENCE: {value: 'CONFIDENCE', name: 'Confidence'}
 };
 
-const CorrelationToKPIs = ({timeStore, filtersStore}) => {
+const CorrelationToKPIs = ({timeStore, selectableMetrics}) => {
     const [modelPerformanceIndicators, setModelPerformanceIndicators] = useState([]);
     const [selectedIndicator, setSelectedIndicator] = useState(null);
     const allSqlFilters = useAllSqlFilters({
         __REMOVE_ME__excludeOrgId: true
     });
-    const sqlFiltersWithModelTime = useAllSqlFilters({
-        useReferenceRange: true,
-        __REMOVE_ME__excludeOrgId: true
-    });
     const model = useModel();
     const [iou] = useState(0.5);
-    const selectableMetrics = model.mlModelType === 'Q_N_A' ? [
-        {value: 'EXACT_MATCH', name: 'Exact Match'},
-        {value: 'F1_SCORE', name: 'F1 Score'},
-        {value: 'SEMANTIC_SIMILARITY', name: 'Semantic Similarity'}
-    ] : model.mlModelType === 'DOCUMENT_PROCESSING' ? [
-        {value: 'MEAN_AVERAGE_PRECISION', name: 'mAP'},
-        {value: 'MEAN_AVERAGE_RECALL', name: 'mAR'},
-        {value: 'EXACT_MATCH', name: 'Exact Match'},
-        {value: 'F1_SCORE', name: 'F1 Score'}
-    ] : model.mlModelType === 'UNSUPERVISED_OBJECT_DETECTION' ? [
-        {value: 'CONFIDENCE', name: 'Confidence'}
-    ] : [
-        {value: 'ACCURACY', name: 'Accuracy'},
-        {value: 'F1_SCORE', name: 'F1 Score'},
-        {value: 'PRECISION', name: 'Precision'},
-        {value: 'RECALL', name: 'Recall'}
-    ];
     const [selectedMetric, setSelectedMetric] = useState(selectableMetrics[0].value);
 
     useEffect(() => {
@@ -77,7 +53,6 @@ const CorrelationToKPIs = ({timeStore, filtersStore}) => {
         });
     }, []);
 
-    const sampleSizeComponent = (<CountEvents sqlFilters={allSqlFilters}/>);
     const timeGranularity = useTimeGranularity()?.toISOString();
 
     const getQueryForMetric = (metricName, timeGranularity, sqlFilters = allSqlFilters) => {
@@ -394,7 +369,7 @@ const CorrelationToKPIs = ({timeStore, filtersStore}) => {
 };
 
 CorrelationToKPIs.propTypes = {
-    filtersStore: PropTypes.object.isRequired,
+    selectableMetrics: PropTypes.array.isRequired,
     timeStore: PropTypes.object.isRequired
 };
 

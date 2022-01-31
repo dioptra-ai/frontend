@@ -1,24 +1,15 @@
 /* eslint-disable max-lines */
-import baseJSONClient from 'clients/base-json-client';
 import metricsClient from 'clients/metrics';
 import AreaGraph from 'components/area-graph';
 import Async from 'components/async';
-import FilterInput from 'components/filter-input';
 import MetricInfoBox from 'components/metric-info-box';
-import Select from 'components/select';
 import useAllSqlFilters from 'hooks/use-all-sql-filters';
 import useModel from 'hooks/use-model';
 import {setupComponent} from 'helpers/component-helper';
-import {getName} from 'helpers/name-helper';
-import moment from 'moment';
 import PropTypes from 'prop-types';
-import React, {useEffect, useState} from 'react';
-import {Tooltip as BootstrapTooltip, OverlayTrigger} from 'react-bootstrap';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
-import {FaExclamation} from 'react-icons/fa';
 import CountEvents from 'components/count-events';
-import useTimeGranularity from 'hooks/use-time-granularity';
 import CorrelationToKPIs from 'pages/common/correlation-to-kpis';
 
 const ModelPerformanceMetrics = {
@@ -33,9 +24,7 @@ const ModelPerformanceMetrics = {
     CONFIDENCE: {value: 'CONFIDENCE', name: 'Confidence'}
 };
 
-const PerformanceOverview = ({timeStore, filtersStore}) => {
-    const [modelPerformanceIndicators, setModelPerformanceIndicators] = useState([]);
-    const [selectedIndicator, setSelectedIndicator] = useState(null);
+const PerformanceOverview = ({timeStore}) => {
     const allSqlFilters = useAllSqlFilters({
         __REMOVE_ME__excludeOrgId: true
     });
@@ -44,31 +33,8 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
         __REMOVE_ME__excludeOrgId: true
     });
     const model = useModel();
-    const [iou] = useState(0.5);
-    const selectableMetrics = [
-        {value: 'ACCURACY', name: 'Accuracy'},
-        {value: 'F1_SCORE', name: 'F1 Score'},
-        {value: 'PRECISION', name: 'Precision'},
-        {value: 'RECALL', name: 'Recall'}
-    ];
-    const [selectedMetric, setSelectedMetric] = useState(selectableMetrics[0].value);
-
-    useEffect(() => {
-        baseJSONClient('/api/metrics/integrations/redash').then(({queries = []}) => {
-            if (queries.length) {
-                setSelectedIndicator(String(queries[0].id));
-            }
-            setModelPerformanceIndicators(
-                queries.map(({id, name}) => ({
-                    value: String(id),
-                    name
-                }))
-            );
-        });
-    }, []);
 
     const sampleSizeComponent = (<CountEvents sqlFilters={allSqlFilters}/>);
-    const timeGranularity = useTimeGranularity()?.toISOString();
 
     const getQueryForMetric = (metricName, timeGranularity, sqlFilters = allSqlFilters) => {
 
@@ -110,10 +76,6 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
 
     return (
         <>
-            <FilterInput
-                defaultFilters={filtersStore.filters}
-                onChange={(filters) => (filtersStore.filters = filters)}
-            />
             <div className='my-2'>
                 <Row>
                     <Col>
@@ -222,14 +184,18 @@ const PerformanceOverview = ({timeStore, filtersStore}) => {
                         />
                     </Col>
                 </Row>
-                <CorrelationToKPIs/>
+                <CorrelationToKPIs selectableMetrics={[
+                    {value: 'ACCURACY', name: 'Accuracy'},
+                    {value: 'F1_SCORE', name: 'F1 Score'},
+                    {value: 'PRECISION', name: 'Precision'},
+                    {value: 'RECALL', name: 'Recall'}
+                ]}/>
             </div>
         </>
     );
 };
 
 PerformanceOverview.propTypes = {
-    filtersStore: PropTypes.object.isRequired,
     timeStore: PropTypes.object.isRequired
 };
 
