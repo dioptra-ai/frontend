@@ -27,7 +27,6 @@ const PerformanceDetails = () => {
                     </Col>
                 </Row>
             </div>
-
             <div className='my-3'>
                 <PerformancePerClass/>
             </div>
