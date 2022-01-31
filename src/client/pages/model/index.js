@@ -50,13 +50,16 @@ const Model = ({filtersStore}) => {
 
     return model ? (
         <Menu>
-            <Switch>
-                <Route path={'/models/:_id/add-alert'} component={AddAlertPage} exact/>
-                <Route>
-                    <GeneralSearchBar/>
-                    <ModelDescription {...model}/>
-                    <Container fluid>
-                        <Tabs tabs={tabs} />
+            <GeneralSearchBar/>
+            <ModelDescription {...model}/>
+            <Container fluid>
+                <Tabs tabs={tabs} />
+                <Switch>
+                    <Route path={'/models/:_id/add-alert'} component={AddAlertPage} exact/>
+                    <Route exact
+                        path='/models/:_id/incidents-and-alerts'
+                        component={IncidentsAndAlerts}/>
+                    <Route>
 
                         <FilterInput
                             defaultFilters={filtersStore.filters}
@@ -76,15 +79,12 @@ const Model = ({filtersStore}) => {
                                 path='/models/:_id/feature-analysis'
                                 component={FeatureAnalysis}/>
                             <Route exact
-                                path='/models/:_id/incidents-and-alerts'
-                                component={IncidentsAndAlerts}/>
-                            <Route exact
                                 path='/models/:_id/traffic-replay'
                                 component={TrafficReplay}/>
                         </div>
-                    </Container>
-                </Route>
-            </Switch>
+                    </Route>
+                </Switch>
+            </Container>
         </Menu>
     ) : 'Loading...';
 };

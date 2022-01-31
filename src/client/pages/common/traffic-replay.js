@@ -5,7 +5,6 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
 
-import FilterInput from 'pages/common/filter-input';
 import baseJSONClient from 'clients/base-json-client';
 import {setupComponent} from 'helpers/component-helper';
 import useAllSqlFilters from 'hooks/use-all-sql-filters';
@@ -18,53 +17,47 @@ const TrafficReplay = ({filtersStore, timeStore}) => {
     const model = useModel();
 
     return (
-        <>
-            <FilterInput
-                defaultFilters={filtersStore.filters}
-                onChange={(filters) => (filtersStore.filters = filters)}
-            />
-            <div className='my-2 text-dark'>
-                <div className='bold-text fs-3 my-3'>
+        <div className='my-2 text-dark'>
+            <div className='bold-text fs-3 my-3'>
                     Replay Events
-                </div>
-                <Form onSubmit={(e) => {
-                    e.preventDefault();
-
-                    baseJSONClient('/api/tasks/replays', {
-                        method: 'post',
-                        body: {
-                            endpoint,
-                            start_date_time_iso: timeStore.start.toISOString(),
-                            end_date_time_iso: timeStore.end.toISOString(),
-                            filters: filtersStore.filters,
-                            ml_model_id: model.mlModelId
-                        }
-                    });
-                }}>
-                    <Form.Group as={Row} className='mb-3'>
-                        <Col sm={3}>
-                            Events to be replayed
-                        </Col>
-                        <Col>
-                            <CountEvents sqlFilters={allSqlFilters}/>
-                        </Col>
-                    </Form.Group>
-                    <Form.Group as={Row} className='mb-3'>
-                        <Form.Label column sm={3}>
-                            Send to endpoint
-                        </Form.Label>
-                        <Col>
-                            <Form.Control type='text' placeholder='https://example.com' required onChange={(e) => setEndpoint(e.target.value)}/>
-                        </Col>
-                    </Form.Group>
-                    <Row>
-                        <Col>
-                            <Button type='submit' className='text-white'>START</Button>
-                        </Col>
-                    </Row>
-                </Form>
             </div>
-        </>
+            <Form onSubmit={(e) => {
+                e.preventDefault();
+
+                baseJSONClient('/api/tasks/replays', {
+                    method: 'post',
+                    body: {
+                        endpoint,
+                        start_date_time_iso: timeStore.start.toISOString(),
+                        end_date_time_iso: timeStore.end.toISOString(),
+                        filters: filtersStore.filters,
+                        ml_model_id: model.mlModelId
+                    }
+                });
+            }}>
+                <Form.Group as={Row} className='mb-3'>
+                    <Col sm={3}>
+                            Events to be replayed
+                    </Col>
+                    <Col>
+                        <CountEvents sqlFilters={allSqlFilters}/>
+                    </Col>
+                </Form.Group>
+                <Form.Group as={Row} className='mb-3'>
+                    <Form.Label column sm={3}>
+                            Send to endpoint
+                    </Form.Label>
+                    <Col>
+                        <Form.Control type='text' placeholder='https://example.com' required onChange={(e) => setEndpoint(e.target.value)}/>
+                    </Col>
+                </Form.Group>
+                <Row>
+                    <Col>
+                        <Button type='submit' className='text-white'>START</Button>
+                    </Col>
+                </Row>
+            </Form>
+        </div>
     );
 };
 
