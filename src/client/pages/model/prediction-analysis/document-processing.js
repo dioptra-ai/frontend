@@ -1,6 +1,7 @@
 import {useState} from 'react';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import Container from 'react-bootstrap/Container';
 
 import Select from 'components/select';
 import useAllSqlFilters from 'hooks/use-all-sql-filters';
@@ -25,7 +26,7 @@ const PredictionAnalysis = () => {
                 <ClassDistribution/>
             </div>
             <div className='my-3'>
-                <Row className='my-3 rounded border mx-1'>
+                <Row className='rounded border m-0'>
                     <Col className='d-flex align-items-center' lg={4}>
                         <h4 className='text-dark bold-text fs-4 m-0'>Bounding Box Location Analysis</h4>
                     </Col>

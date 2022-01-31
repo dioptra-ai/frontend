@@ -57,7 +57,7 @@ const UnsupervisedObjectDetection = ({filtersStore}) => {
             </div>
 
             <div className='my-3'>
-                <Row className='my-3 rounded border mx-1'>
+                <Row className='my-3 rounded border'>
                     <Col className='d-flex align-items-center' lg={4}>
                         <h4 className='text-dark bold-text fs-4 m-0'>Bounding Box Location Analysis</h4>
                     </Col>
