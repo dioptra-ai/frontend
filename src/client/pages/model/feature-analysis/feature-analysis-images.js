@@ -3,7 +3,7 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
 import {setupComponent} from 'helpers/component-helper';
-import FilterInput from 'components/filter-input';
+import FilterInput from 'pages/common/filter-input';
 import MetricInfoBox from 'components/metric-info-box';
 import AreaGraph from 'components/area-graph';
 import Async from 'components/async';

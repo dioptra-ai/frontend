@@ -11,7 +11,7 @@ import {IconNames} from 'constants';
 import {getHexColor} from 'helpers/color-helper';
 import FontIcon from 'components/font-icon';
 import {setupComponent} from 'helpers/component-helper';
-import FilterInput from 'components/filter-input';
+import FilterInput from 'pages/common/filter-input';
 import metricsClient from 'clients/metrics';
 import Async from 'components/async';
 import useTimeGranularity from 'hooks/use-time-granularity';

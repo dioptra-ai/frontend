@@ -1,7 +1,5 @@
 import React, {useEffect, useState} from 'react';
 import {Bar, Tooltip as ChartTooltip} from 'recharts';
-import FilterInput from 'components/filter-input';
-import {setupComponent} from 'helpers/component-helper';
 import PropTypes from 'prop-types';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -139,7 +137,7 @@ ClassRow.propTypes = {
     value: PropTypes.any
 };
 
-const PerformanceDetails = ({filtersStore}) => {
+const PerformanceDetails = () => {
     const allSqlFilters = useAllSqlFilters();
     const sqlFiltersWithModelTime = useAllSqlFilters({useReferenceRange: true});
     const {mlModelType} = useModel();
@@ -156,11 +154,6 @@ const PerformanceDetails = ({filtersStore}) => {
 
     return (
         <div className='pb-5'>
-            <FilterInput
-                defaultFilters={filtersStore.filters}
-                onChange={(filters) => (filtersStore.filters = filters)}
-            />
-
             <div className='my-3'>
                 <Row className='mb-3 align-items-stretch'>
                     <Col className='d-flex' lg={3}>
@@ -531,8 +524,7 @@ const PerformanceDetails = ({filtersStore}) => {
 };
 
 PerformanceDetails.propTypes = {
-    filtersStore: PropTypes.object.isRequired,
     benchmarkFilters: PropTypes.string
 };
 
-export default setupComponent(PerformanceDetails);
+export default PerformanceDetails;

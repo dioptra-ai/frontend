@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import {Route, Switch, useParams} from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
 
-import FilterInput from 'components/filter-input';
+import FilterInput from 'pages/common/filter-input';
 import GeneralSearchBar from 'pages/common/general-search-bar';
 import AddAlertPage from 'pages/add-alert';
 import ModelDescription from 'components/model-description';

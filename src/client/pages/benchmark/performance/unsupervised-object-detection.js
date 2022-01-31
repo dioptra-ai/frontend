@@ -1,6 +1,6 @@
 import React from 'react';
 import {Bar, Tooltip as ChartTooltip} from 'recharts';
-import FilterInput from 'components/filter-input';
+import FilterInput from 'pages/common/filter-input';
 import {setupComponent} from 'helpers/component-helper';
 import PropTypes from 'prop-types';
 import Row from 'react-bootstrap/Row';

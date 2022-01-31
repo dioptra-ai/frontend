@@ -4,7 +4,7 @@ import OutsideClickHandler from 'react-outside-click-handler';
 import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
 import {setupComponent} from 'helpers/component-helper';
-import FontIcon from './font-icon';
+import FontIcon from 'components/font-icon';
 import metricsClient from 'clients/metrics';
 import {Filter} from 'state/stores/filters-store';
 import useModel from 'hooks/use-model';
@@ -172,7 +172,7 @@ const FilterInput = ({
     };
 
     return (
-        <div className='my-3'>
+        <div className='m-3'>
             <OutsideClickHandler useCapture onOutsideClick={() => {
                 setShowSuggestions(false);
             }}>

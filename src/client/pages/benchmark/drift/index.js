@@ -3,7 +3,7 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
 import {setupComponent} from 'helpers/component-helper';
-import FilterInput from 'components/filter-input';
+import FilterInput from 'pages/common/filter-input';
 import Async from 'components/async';
 import useAllSqlFilters from 'hooks/use-all-sql-filters';
 import ScatterGraph from 'components/scatter-graph';

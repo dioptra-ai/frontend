@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
-import FilterInput from 'components/filter-input';
+import FilterInput from 'pages/common/filter-input';
 import BarGraph from 'components/bar-graph';
 import Select from 'components/select';
 import {setupComponent} from 'helpers/component-helper';

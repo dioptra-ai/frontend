@@ -5,7 +5,7 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Button from 'react-bootstrap/Button';
 
-import FilterInput from 'components/filter-input';
+import FilterInput from 'pages/common/filter-input';
 import baseJSONClient from 'clients/base-json-client';
 import {setupComponent} from 'helpers/component-helper';
 import useAllSqlFilters from 'hooks/use-all-sql-filters';
