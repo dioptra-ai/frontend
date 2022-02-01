@@ -22,13 +22,15 @@
     }
     .suggestions {
         position: absolute;
-        top: 55px;
+        top: 45px;
         left: 0;
         right: 0;
-        list-style: none;
         box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.1);
-        padding-left: 0;
         z-index: 1;
+        ul {
+            list-style: none;
+            padding-left: 0;
+        }
         li {
             padding-left: 20px;
             height: 32px;
