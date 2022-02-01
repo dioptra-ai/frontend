@@ -27,15 +27,12 @@ const PerformanceDetails = () => {
                     </Col>
                 </Row>
             </div>
-            <div className='my-3'>
-                <PerformancePerClass/>
-            </div>
             <div>
                 <h3 className='text-dark bold-text fs-3 mb-3'>
                     Groundtruth distribution
                 </h3>
                 <Row>
-                    <Col lg={6}>
+                    <Col>
                         <Async
                             refetchOnChanged={[allSqlFilters]}
                             renderData={(data) => (
@@ -56,6 +53,9 @@ const PerformanceDetails = () => {
                         />
                     </Col>
                 </Row>
+            </div>
+            <div className='my-3'>
+                <PerformancePerClass/>
             </div>
             <ConfusionMatrix />
             <Segmentation />
