@@ -8,9 +8,9 @@ import MetricInfoBox from 'components/metric-info-box';
 import Async from 'components/async';
 import metricsClient from 'clients/metrics';
 import CountEvents from 'components/count-events';
-import MapMarAnalysis from 'pages/common/map-mar-analysis';
+import PerformancePerClass from 'pages/common/performance-per-class';
 
-const UnsupervisedObjectDetection = ({benchmarkFilters}) => {
+const TextClassifier = ({benchmarkFilters}) => {
     const allSqlFilters = useAllSqlFilters();
     const {mlModelType} = useModel();
     const sampleSizeComponent = <CountEvents sqlFilters={allSqlFilters}/>;
@@ -20,20 +20,19 @@ const UnsupervisedObjectDetection = ({benchmarkFilters}) => {
         <div className='pb-5'>
             <div className='my-3'>
                 <Row className='mb-3 align-items-stretch'>
-                    <Col className='d-flex' lg={3}>
+                    <Col className='d-flex' lg={2}>
                         <MetricInfoBox
                             name='Datapoints'
                         >
                             {sampleSizeComponent}
                         </MetricInfoBox>
                     </Col>
-                    <Col className='d-flex' lg={3}>
+                    <Col className='d-flex' lg={2}>
                         <Async
                             fetchData={() => metricsClient('compute', {
                                 metrics_type: 'outlier_detection',
                                 current_filters: allSqlFilters,
-                                reference_filters: liveModelFilters,
-                                model_type: mlModelType
+                                reference_filters: liveModelFilters
                             })}
                             refetchOnChanged={[allSqlFilters]}
                             renderData={(data) => {
@@ -50,18 +49,16 @@ const UnsupervisedObjectDetection = ({benchmarkFilters}) => {
                             }}
                         />
                     </Col>
-                    <Col className='d-flex' lg={3}>
+                    <Col className='d-flex' lg={2}>
                         <Async
                             fetchData={[
-                                () => metricsClient('map', {
+                                () => metricsClient('accuracy-metric', {
                                     sql_filters: allSqlFilters,
-                                    model_type: mlModelType,
-                                    iou_threshold: 0.5
+                                    model_type: mlModelType
                                 }),
-                                () => benchmarkFilters ? metricsClient('map', {
+                                () => benchmarkFilters ? metricsClient('accuracy-metric', {
                                     sql_filters: benchmarkFilters,
-                                    model_type: mlModelType,
-                                    iou_threshold: 0.5
+                                    model_type: mlModelType
                                 }) : null
                             ]}
                             refetchOnChanged={[allSqlFilters, benchmarkFilters]}
@@ -70,10 +67,7 @@ const UnsupervisedObjectDetection = ({benchmarkFilters}) => {
                                 const benchmarkValue = b?.[0]?.value;
 
                                 return (
-                                    <MetricInfoBox
-                                        name='mAP'
-                                        subtext='iou=0.5'
-                                    >
+                                    <MetricInfoBox name='Accuracy'>
                                         {Number(value).toFixed(2)}
                                         {benchmarkValue ? (
                                             <span className='fs-1 text-secondary'>
@@ -85,18 +79,16 @@ const UnsupervisedObjectDetection = ({benchmarkFilters}) => {
                             }}
                         />
                     </Col>
-                    <Col className='d-flex' lg={3}>
+                    <Col className='d-flex' lg={2}>
                         <Async
                             fetchData={[
-                                () => metricsClient('mar', {
+                                () => metricsClient('f1-score-metric', {
                                     sql_filters: allSqlFilters,
-                                    model_type: mlModelType,
-                                    iou_threshold: 0.5
+                                    model_type: mlModelType
                                 }),
-                                () => benchmarkFilters ? metricsClient('mar', {
+                                () => benchmarkFilters ? metricsClient('f1-score-metric', {
                                     sql_filters: benchmarkFilters,
-                                    model_type: mlModelType,
-                                    iou_threshold: 0.5
+                                    model_type: mlModelType
                                 }) : null
                             ]}
                             refetchOnChanged={[allSqlFilters, benchmarkFilters]}
@@ -105,10 +97,67 @@ const UnsupervisedObjectDetection = ({benchmarkFilters}) => {
                                 const benchmarkValue = b?.[0]?.value;
 
                                 return (
-                                    <MetricInfoBox
-                                        name='mAR'
-                                        subtext='iou=0.5'
-                                    >
+                                    <MetricInfoBox name='F1 Score'>
+                                        {Number(value).toFixed(2)}
+                                        {benchmarkValue ? (
+                                            <span className='fs-1 text-secondary'>
+                                                {` | ${Number(benchmarkValue).toFixed(2)}`}
+                                            </span>) : null
+                                        }
+                                    </MetricInfoBox>
+                                );
+                            }}
+                        />
+                    </Col>
+                    <Col className='d-flex' lg={2}>
+                        <Async
+                            fetchData={[
+                                () => metricsClient('precision-metric', {
+                                    sql_filters: allSqlFilters,
+                                    model_type: mlModelType
+                                }),
+                                () => benchmarkFilters ? metricsClient('precision-metric', {
+                                    sql_filters: benchmarkFilters,
+                                    model_type: mlModelType
+                                }) : null
+                            ]}
+                            refetchOnChanged={[allSqlFilters, benchmarkFilters]}
+                            renderData={([d, b]) => {
+                                const value = d?.[0]?.value;
+                                const benchmarkValue = b?.[0]?.value;
+
+                                return (
+                                    <MetricInfoBox name='Precision'>
+                                        {Number(value).toFixed(2)}
+                                        {benchmarkValue ? (
+                                            <span className='fs-1 text-secondary'>
+                                                {` | ${Number(benchmarkValue).toFixed(2)}`}
+                                            </span>) : null
+                                        }
+                                    </MetricInfoBox>
+                                );
+                            }}
+                        />
+                    </Col>
+                    <Col className='d-flex' lg={2}>
+                        <Async
+                            fetchData={[
+                                () => metricsClient('recall-metric', {
+                                    sql_filters: allSqlFilters,
+                                    model_type: mlModelType
+                                }),
+                                () => benchmarkFilters ? metricsClient('recall-metric', {
+                                    sql_filters: benchmarkFilters,
+                                    model_type: mlModelType
+                                }) : null
+                            ]}
+                            refetchOnChanged={[allSqlFilters, benchmarkFilters]}
+                            renderData={([d, b]) => {
+                                const value = d?.[0]?.value;
+                                const benchmarkValue = b?.[0]?.value;
+
+                                return (
+                                    <MetricInfoBox name='Recall'>
                                         {Number(value).toFixed(2)}
                                         {benchmarkValue ? (
                                             <span className='fs-1 text-secondary'>
@@ -123,14 +172,14 @@ const UnsupervisedObjectDetection = ({benchmarkFilters}) => {
                 </Row>
             </div>
             <div className='my-3'>
-                <MapMarAnalysis/>
+                <PerformancePerClass/>
             </div>
         </div>
     );
 };
 
-UnsupervisedObjectDetection.propTypes = {
+TextClassifier.propTypes = {
     benchmarkFilters: PropTypes.string
 };
 
-export default UnsupervisedObjectDetection;
+export default TextClassifier;

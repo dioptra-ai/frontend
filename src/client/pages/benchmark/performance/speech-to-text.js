@@ -1,5 +1,3 @@
-import FilterInput from 'pages/common/filter-input';
-import {setupComponent} from 'helpers/component-helper';
 import PropTypes from 'prop-types';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -12,26 +10,14 @@ import metricsClient from 'clients/metrics';
 import CountEvents from 'components/count-events';
 import useTimeGranularity from 'hooks/use-time-granularity';
 
-const SpeechToText = ({filtersStore}) => {
+const SpeechToText = () => {
     const allSqlFilters = useAllSqlFilters();
     const {mlModelType} = useModel();
     const sampleSizeComponent = <CountEvents sqlFilters={allSqlFilters}/>;
     const timeGranularity = useTimeGranularity()?.toISOString();
 
-    // This is ugly. Should find a better way to do it
-    const d = new Date();
-
-    d.setDate(d.getDate() - 1);
-    d.setMinutes(0);
-    d.setSeconds(0);
-    d.setMilliseconds(0);
-
     return (
         <div className='pb-3'>
-            <FilterInput
-                defaultFilters={filtersStore.filters}
-                onChange={(filters) => (filtersStore.filters = filters)}
-            />
             <Row className='my-3 align-items-stretch'>
                 <Col className='d-flex' lg={3}>
                     <MetricInfoBox
@@ -79,8 +65,7 @@ const SpeechToText = ({filtersStore}) => {
 };
 
 SpeechToText.propTypes = {
-    filtersStore: PropTypes.object.isRequired,
     benchmarkFilters: PropTypes.string
 };
 
-export default setupComponent(SpeechToText);
+export default SpeechToText;

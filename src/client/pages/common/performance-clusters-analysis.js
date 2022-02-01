@@ -1,5 +1,4 @@
 import {useState} from 'react';
-import PropTypes from 'prop-types';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import {Scatter} from 'recharts';
@@ -7,7 +6,6 @@ import {Scatter} from 'recharts';
 import {SpinnerWrapper} from 'components/spinner';
 import Table from 'components/table';
 import Select from 'components/select';
-import {setupComponent} from 'helpers/component-helper';
 import {getHexColor} from 'helpers/color-helper';
 import BarGraph from 'components/bar-graph';
 import Async from 'components/async';
@@ -162,8 +160,4 @@ const PerformanceClustersAnalysis = () => {
     );
 };
 
-PerformanceClustersAnalysis.propTypes = {
-    filtersStore: PropTypes.object.isRequired
-};
-
-export default setupComponent(PerformanceClustersAnalysis);
+export default PerformanceClustersAnalysis;

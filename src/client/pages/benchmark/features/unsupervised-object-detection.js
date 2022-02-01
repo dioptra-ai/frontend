@@ -1,24 +1,10 @@
-import PropTypes from 'prop-types';
-
-import {setupComponent} from 'helpers/component-helper';
-import FilterInput from 'pages/common/filter-input';
 import PerformanceClustersAnalysis from 'pages/common/performance-clusters-analysis';
 
-const UnsupervisedObjectDetection = ({filtersStore}) => {
+const UnsupervisedObjectDetection = () => {
 
     return (
-        <>
-            <FilterInput
-                defaultFilters={filtersStore.filters}
-                onChange={(filters) => (filtersStore.filters = filters)}
-            />
-            <PerformanceClustersAnalysis/>
-        </>
+        <PerformanceClustersAnalysis/>
     );
 };
 
-UnsupervisedObjectDetection.propTypes = {
-    filtersStore: PropTypes.object.isRequired
-};
-
-export default setupComponent(UnsupervisedObjectDetection);
+export default UnsupervisedObjectDetection;

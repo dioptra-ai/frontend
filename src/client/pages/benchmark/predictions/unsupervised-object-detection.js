@@ -1,16 +1,12 @@
 import {useState} from 'react';
-import PropTypes from 'prop-types';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
-import FilterInput from 'pages/common/filter-input';
 import BarGraph from 'components/bar-graph';
 import Select from 'components/select';
-import {setupComponent} from 'helpers/component-helper';
 import {getHexColor} from 'helpers/color-helper';
 import {getName} from 'helpers/name-helper';
 import useAllSqlFilters from 'hooks/use-all-sql-filters';
-import useModel from 'hooks/use-model';
 import HeatMap from 'components/heatmap';
 import metricsClient from 'clients/metrics';
 import Async from 'components/async';
@@ -19,26 +15,20 @@ import Modal from 'components/modal';
 import AddFilters from 'components/add-filters';
 import {Filter} from 'state/stores/filters-store';
 
-const UnsupervisedObjectDetection = ({filtersStore}) => {
+const UnsupervisedObjectDetection = () => {
     const allSqlFilters = useAllSqlFilters();
     const allSqlFiltersWithoutOrgId = useAllSqlFilters({__REMOVE_ME__excludeOrgId: true});
     const [classFilter, setClassFilter] = useState(null);
     const [heatMapSamples, setHeatMapSamples] = useState([]);
     const [exampleInModal, setExampleInModal] = useModal(null);
 
-    const {mlModelType} = useModel();
-
     return (
         <>
-            <FilterInput
-                defaultFilters={filtersStore.filters}
-                onChange={(filters) => (filtersStore.filters = filters)}
-            />
             <div className='my-3'>
                 <Row className='my-3'>
-                    <Col className='d-flex' lg={4}>
+                    <Col className='d-flex'>
                         <Async
-                            refetchOnChanged={[allSqlFilters, mlModelType]}
+                            refetchOnChanged={[allSqlFilters]}
                             renderData={(data) => (
                                 <BarGraph
                                     bars={data.map(({prediction, my_percentage}) => ({
@@ -177,7 +167,4 @@ const UnsupervisedObjectDetection = ({filtersStore}) => {
     );
 };
 
-UnsupervisedObjectDetection.propTypes = {
-    filtersStore: PropTypes.object.isRequired
-};
-export default setupComponent(UnsupervisedObjectDetection);
+export default UnsupervisedObjectDetection;

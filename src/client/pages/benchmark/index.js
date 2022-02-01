@@ -16,6 +16,7 @@ import Select from 'components/select';
 import Performance from './performance';
 import Predictions from './predictions';
 import Features from './features';
+import FilterInput from 'pages/common/filter-input';
 import Drift from './drift';
 
 const Benchmarks = ({filtersStore, modelStore}) => {
@@ -53,6 +54,10 @@ const Benchmarks = ({filtersStore, modelStore}) => {
         break;
     case 'Q_N_A':
         tabs.push({name: 'Feature Analysis', to: '/benchmark/features'});
+        tabs.push({name: 'Drift Analysis', to: '/benchmark/drift-analysis'});
+        break;
+    case 'TEXT_CLASSIFIER':
+        tabs.push({name: 'Prediction Analysis', to: '/benchmark/predictions'});
         tabs.push({name: 'Drift Analysis', to: '/benchmark/drift-analysis'});
         break;
     case 'UNSUPERVISED_OBJECT_DETECTION':
@@ -114,6 +119,10 @@ const Benchmarks = ({filtersStore, modelStore}) => {
             </Container>
             <Container fluid>
                 <Tabs tabs={tabs} />
+                <FilterInput
+                    defaultFilters={filtersStore.filters}
+                    onChange={(filters) => (filtersStore.filters = filters)}
+                />
                 <div className='px-3'>
                     <Route exact path='/benchmark/performance' render={() => {
 
