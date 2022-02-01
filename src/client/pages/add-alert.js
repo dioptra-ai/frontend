@@ -130,8 +130,12 @@ const ConditionRow = ({
     const handleLogicalChange = (newValue) =>
         handleRowDataChange({logicalOperator: newValue});
     const handleMetricChange = (newValue) => handleRowDataChange({metric: newValue});
-    const handleComparatorChange = (newValue) =>
-        handleRowDataChange({comparator: newValue});
+    const handleComparatorChange = (newValue) => {
+        if (newValue === Comparators.HAS_NO_VALUE.value) {
+            handleRowDataChange({valueToCompare: ''}); 
+        }
+        handleRowDataChange({comparator: newValue})
+    };
     const handleValueToCompareChange = (newValue) =>
         handleRowDataChange({
             valueToCompare: newValue.replace(',', '.')
@@ -458,8 +462,9 @@ const AddAlertPage = ({timeStore}) => {
                             addAlertInProgress ||
                             conditions.filter((condition) => {
                                 return (
-                                    !condition.valueToCompare ||
-                                    condition.valueToCompare === ''
+                                    (!condition.valueToCompare ||
+                                    condition.valueToCompare === '')
+                                    && condition.comparator !== Comparators.HAS_NO_VALUE.value
                                 );
                             }).length !== 0
                         }
