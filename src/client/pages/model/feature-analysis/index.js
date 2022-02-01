@@ -1,6 +1,7 @@
 import useModel from 'hooks/use-model';
 import FeatureIntegrityTable from './feature-integrity';
 import FeatureAnalysisImages from './feature-analysis-images';
+import FeatureAnalysisText from './feature-analysis-text';
 
 const FeatureAnalysis = () => {
     const model = useModel();
@@ -14,8 +15,10 @@ const FeatureAnalysis = () => {
     case 'SPEECH_TO_TEXT':
 
         return <FeatureAnalysisImages/>;
-    case 'TABULAR_CLASSIFIER':
     case 'TEXT_CLASSIFIER':
+    case 'Q_N_A':
+        return <FeatureAnalysisText/>;
+    case 'TABULAR_CLASSIFIER':
 
         return <FeatureIntegrityTable/>;
     default:

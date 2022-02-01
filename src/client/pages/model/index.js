@@ -42,8 +42,9 @@ const Model = ({filtersStore}) => {
 
     if (model?.mlModelType !== 'Q_N_A') {
         tabs.push({name: 'Prediction Analysis', to: `/models/${modelId}/prediction-analysis`});
-        tabs.push({name: 'Feature Analysis', to: `/models/${modelId}/feature-analysis`});
     }
+
+    tabs.push({name: 'Feature Analysis', to: `/models/${modelId}/feature-analysis`});
 
     tabs.push({name: 'Traffic Replay', to: `/models/${modelId}/traffic-replay`});
     tabs.push({name: 'Incidents & Alerts', to: `/models/${modelId}/incidents-and-alerts`});

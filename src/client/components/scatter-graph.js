@@ -26,7 +26,7 @@ const SMALL_DOT_SIZE = 60;
 
 const inRange = (num, min, max) => num >= min && num <= max;
 
-const ScatterGraph = ({data, noveltyIsObsolete}) => {
+const ScatterGraph = ({data, noveltyIsObsolete, examplesType}) => {
     const ref = useRef();
     const firstOutlier = useMemo(() => {
         return data.find(({outlier}) => outlier);
@@ -279,18 +279,29 @@ const ScatterGraph = ({data, noveltyIsObsolete}) => {
                     </div>
                     <div className={`d-flex p-2 overflow-auto flex-grow-0 ${samples.length ? 'justify-content-left' : 'justify-content-center align-items-center'} scatterGraph-examples`}>
                         {samples.length ? samples.map((sample, i) => (
-                            <div
-                                key={i}
-                                className='d-flex justify-content-center align-items-center m-4 bg-white scatterGraph-item cursor-pointer'
-                                onClick={() => setExampleInModal(sample)}
-                            >
-                                <img
-                                    alt='Example'
-                                    className='rounded modal-image'
-                                    src={sample}
-                                    width='100%'
-                                />
-                            </div>
+                            examplesType === 'image' ?
+                                <div
+                                    key={i}
+                                    className='d-flex justify-content-center align-items-center m-4 bg-white scatterGraph-item cursor-pointer'
+                                    onClick={() => setExampleInModal(sample)}
+                                >
+                                    <img
+                                        alt='Example'
+                                        className='rounded modal-image'
+                                        src={sample}
+                                        width='100%'
+                                    />
+                                </div> :
+                                examplesType === 'text' ?
+                                    <div
+                                        key={i}
+                                        className='d-flex cursor-pointer'
+                                        onClick={() => setExampleInModal(sample)}
+                                    >
+                                        <pre>{JSON.stringify(sample, null, 4)}</pre>
+                                    </div> :
+                                    null
+
                         )) : (
                             <h3 className='text-secondary m-0'>No Examples Available</h3>
                         )}
@@ -299,12 +310,16 @@ const ScatterGraph = ({data, noveltyIsObsolete}) => {
             </Row>
             {exampleInModal && (
                 <Modal isOpen={true} onClose={() => setExampleInModal(null)} title='Example'>
-                    <img
-                        alt='Example'
-                        className='rounded modal-image'
-                        src={exampleInModal}
-                        style={{maxHeight: '80vh', maxWidth: '80vw'}}
-                    />
+                    {examplesType === 'image' ?
+                        <img
+                            alt='Example'
+                            className='rounded modal-image'
+                            src={exampleInModal}
+                            style={{maxHeight: '80vh', maxWidth: '80vw'}}
+                        /> :
+                        examplesType === 'text' ?
+                            <pre>{JSON.stringify(exampleInModal, null, 4)}</pre> :
+                            null}
                 </Modal>
             )}
         </>
