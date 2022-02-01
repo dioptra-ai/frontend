@@ -18,14 +18,6 @@ const SpeechToText = ({filtersStore}) => {
     const sampleSizeComponent = <CountEvents sqlFilters={allSqlFilters}/>;
     const timeGranularity = useTimeGranularity()?.toISOString();
 
-    // This is ugly. Should find a better way to do it
-    const d = new Date();
-
-    d.setDate(d.getDate() - 1);
-    d.setMinutes(0);
-    d.setSeconds(0);
-    d.setMilliseconds(0);
-
     return (
         <div className='pb-3'>
             <FilterInput

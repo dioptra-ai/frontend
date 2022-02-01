@@ -55,6 +55,7 @@ const Benchmarks = ({filtersStore, modelStore}) => {
         tabs.push({name: 'Feature Analysis', to: '/benchmark/features'});
         tabs.push({name: 'Drift Analysis', to: '/benchmark/drift-analysis'});
         break;
+    case 'TEXT_CLASSIFIER':
     case 'UNSUPERVISED_OBJECT_DETECTION':
         tabs.push({name: 'Prediction Analysis', to: '/benchmark/predictions'});
         tabs.push({name: 'Feature Analysis', to: '/benchmark/features'});

@@ -20,21 +20,7 @@ import useModel from 'hooks/use-model';
 const DriftAnalysis = ({filtersStore}) => {
     const allSqlFilters = useAllSqlFilters();
     const {mlModelType} = useModel();
-
-    // This is ugly. Should find a better way to do it
-    const d = new Date();
-
-    d.setDate(d.getDate() - 1);
-    d.setMinutes(0);
-    d.setSeconds(0);
-    d.setMilliseconds(0);
-
-    const allReferenceFilters = `${allSqlFilters
-        .replace(/\("dataset_id"=[^)]+\)/, '')
-        .replace(/\("model_version"=[^)]+\)/, '')
-        .replace(/\("benchmark_id"=[^)]+\)/, '')
-        .replaceAll(/AND(\s+AND)+/g, 'AND')
-    } AND __time >= '${d.toISOString()}' AND "dataset_id" IS NULL AND "benchmark_id" IS NULL`;
+    const allReferenceFilters = useAllSqlFilters({forLiveModel: true});
 
     return (
         <div>
