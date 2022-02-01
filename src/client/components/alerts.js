@@ -5,7 +5,7 @@ import Button from 'react-bootstrap/Button';
 import {Link, useParams} from 'react-router-dom';
 import BarLoader from 'react-spinners/BarLoader';
 import {IconNames} from '../constants';
-import useModal from '../customHooks/useModal';
+import useModal from '../hooks/useModal';
 import FontIcon from './font-icon';
 import Modal from './modal';
 import Pagination from './pagination';

@@ -28,13 +28,13 @@ const mlModelSchema = new mongoose.Schema({
     mlModelType: {
         type: String,
         enum: [
-            'IMAGE_CLASSIFIER',
-            'TABULAR_CLASSIFIER',
-            'DOCUMENT_PROCESSING',
-            'Q_N_A',
-            'TEXT_CLASSIFIER',
-            'UNSUPERVISED_OBJECT_DETECTION',
-            'SPEECH_TO_TEXT'
+            'IMAGE_CLASSIFIER', // ok
+            'TABULAR_CLASSIFIER', // TODO check working data
+            'DOCUMENT_PROCESSING', // ok
+            'Q_N_A', // ok
+            'TEXT_CLASSIFIER', // ok
+            'UNSUPERVISED_OBJECT_DETECTION', // TODO check working data
+            'SPEECH_TO_TEXT' // ok
         ],
         required: true
     },

@@ -2,7 +2,7 @@ import Modal from 'components/modal';
 import PropTypes from 'prop-types';
 import {useState} from 'react';
 import Table from 'components/table';
-import useAllSqlFilters from 'customHooks/use-all-sql-filters';
+import useAllSqlFilters from 'hooks/use-all-sql-filters';
 import Async from 'components/async';
 import metricsClient from 'clients/metrics';
 import {IoArrowBackCircleOutline, IoCloseCircleOutline} from 'react-icons/io5';

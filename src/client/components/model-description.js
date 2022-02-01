@@ -5,7 +5,7 @@ import Col from 'react-bootstrap/Col';
 import PropTypes from 'prop-types';
 import {formatDateTime} from 'helpers/date-helper';
 import ModalComponent from 'components/modal';
-import ModelForm from 'pages/templates/model-form';
+import EditModel from 'pages/model/edit-model';
 import {setupComponent} from 'helpers/component-helper';
 import Select from './select';
 import metricsClient from 'clients/metrics';
@@ -60,9 +60,9 @@ const ModelDescription = ({_id, filtersStore, modelStore, name, description, tea
 
     return (
         <Container className='bg-white-blue model-desc' fluid >
-            <Row className='align-items-center mb-3 px-3'>
+            <Row className='align-items-center py-2 px-3'>
                 <Col className='d-flex align-items-center'>
-                    <h1 className='text-dark fs-1 m-0 bold-text'>{name}</h1>
+                    <h1 className='text-dark fs-1 my-3 bold-text'>{name}</h1>
                     <button className='btn-expand bg-transparent text-dark' onClick={() => setExpand(!expand)}>
                         {expand ? (
                             <BsChevronUp className='fs-2'/>
@@ -115,7 +115,7 @@ const ModelDescription = ({_id, filtersStore, modelStore, name, description, tea
                 </Row>
             </div>
             <ModalComponent isOpen={showModal} onClose={() => setShowModal(false)} title='Edit  Model'>
-                <ModelForm
+                <EditModel
                     errors={errors}
                     initialValue={{name, description, mlModelId, mlModelType, referencePeriod}}
                     onSubmit={handleSubmit}
