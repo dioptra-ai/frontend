@@ -392,6 +392,31 @@ const Segmentation = ({timeStore, segmentationStore}) => {
                                         accessor: 'value',
                                         Header: 'Sample Size'
                                     }
+                                ] : mlModelType === 'TEXT_CLASSIFIER' ? [
+                                    {
+                                        id: 'accuracy-metric',
+                                        Header: 'Accuracy',
+                                        Cell: metricCell
+                                    },
+                                    {
+                                        id: 'f1-score-metric',
+                                        Header: 'f1',
+                                        Cell: metricCell
+                                    },
+                                    {
+                                        id: 'precision-metric',
+                                        Header: 'Precision',
+                                        Cell: metricCell
+                                    },
+                                    {
+                                        id: 'recall-metric',
+                                        Header: 'Recall',
+                                        Cell: metricCell
+                                    },
+                                    {
+                                        accessor: 'value',
+                                        Header: 'Sample Size'
+                                    }
                                 ] :
                                     [
                                         {
