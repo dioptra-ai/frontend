@@ -328,7 +328,8 @@ const ScatterGraph = ({data, noveltyIsObsolete, examplesType}) => {
 
 ScatterGraph.propTypes = {
     data: PropTypes.array.isRequired,
-    noveltyIsObsolete: PropTypes.bool
+    noveltyIsObsolete: PropTypes.bool,
+    examplesType: PropTypes.string
 };
 
 export default ScatterGraph;

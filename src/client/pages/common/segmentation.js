@@ -372,6 +372,26 @@ const Segmentation = ({timeStore, segmentationStore}) => {
                                         accessor: 'value',
                                         Header: 'Sample Size'
                                     }
+                                ] : mlModelType === 'Q_N_A' ? [
+                                    {
+                                        id: 'exact-match',
+                                        Header: 'EM',
+                                        Cell: metricCell
+                                    },
+                                    {
+                                        id: 'f1-score-metric',
+                                        Header: 'f1',
+                                        Cell: metricCell
+                                    },
+                                    {
+                                        id: 'semantic-similarity',
+                                        Header: 'semantic similarity',
+                                        Cell: metricCell
+                                    },
+                                    {
+                                        accessor: 'value',
+                                        Header: 'Sample Size'
+                                    }
                                 ] :
                                     [
                                         {

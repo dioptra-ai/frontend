@@ -51,6 +51,10 @@ const Benchmarks = ({filtersStore, modelStore}) => {
     case 'SPEECH_TO_TEXT':
         tabs.push({name: 'Feature Analysis', to: '/benchmark/features'});
         break;
+    case 'Q_N_A':
+        tabs.push({name: 'Feature Analysis', to: '/benchmark/features'});
+        tabs.push({name: 'Drift Analysis', to: '/benchmark/drift-analysis'});
+        break;
     case 'UNSUPERVISED_OBJECT_DETECTION':
         tabs.push({name: 'Prediction Analysis', to: '/benchmark/predictions'});
         tabs.push({name: 'Feature Analysis', to: '/benchmark/features'});
@@ -59,6 +63,7 @@ const Benchmarks = ({filtersStore, modelStore}) => {
     default:
         tabs.push({name: 'Prediction Analysis', to: '/benchmark/predictions'});
         tabs.push({name: 'Feature Analysis', to: '/benchmark/features'});
+        tabs.push({name: 'Drift Analysis', to: '/benchmark/drift-analysis'});
         break;
     }
 
