@@ -32,7 +32,8 @@ const TextClassifier = ({benchmarkFilters}) => {
                             fetchData={() => metricsClient('compute', {
                                 metrics_type: 'outlier_detection',
                                 current_filters: allSqlFilters,
-                                reference_filters: liveModelFilters
+                                reference_filters: liveModelFilters,
+                                model_type: mlModelType
                             })}
                             refetchOnChanged={[allSqlFilters]}
                             renderData={(data) => {
