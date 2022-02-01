@@ -1,12 +1,9 @@
 import {useState} from 'react';
-import PropTypes from 'prop-types';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
-import FilterInput from 'pages/common/filter-input';
 import BarGraph from 'components/bar-graph';
 import Select from 'components/select';
-import {setupComponent} from 'helpers/component-helper';
 import {getHexColor} from 'helpers/color-helper';
 import {getName} from 'helpers/name-helper';
 import useAllSqlFilters from 'hooks/use-all-sql-filters';
@@ -18,7 +15,7 @@ import Modal from 'components/modal';
 import AddFilters from 'components/add-filters';
 import {Filter} from 'state/stores/filters-store';
 
-const UnsupervisedObjectDetection = ({filtersStore}) => {
+const UnsupervisedObjectDetection = () => {
     const allSqlFilters = useAllSqlFilters();
     const allSqlFiltersWithoutOrgId = useAllSqlFilters({__REMOVE_ME__excludeOrgId: true});
     const [classFilter, setClassFilter] = useState(null);
@@ -27,10 +24,6 @@ const UnsupervisedObjectDetection = ({filtersStore}) => {
 
     return (
         <>
-            <FilterInput
-                defaultFilters={filtersStore.filters}
-                onChange={(filters) => (filtersStore.filters = filters)}
-            />
             <div className='my-3'>
                 <Row className='my-3'>
                     <Col className='d-flex'>
@@ -174,7 +167,4 @@ const UnsupervisedObjectDetection = ({filtersStore}) => {
     );
 };
 
-UnsupervisedObjectDetection.propTypes = {
-    filtersStore: PropTypes.object.isRequired
-};
-export default setupComponent(UnsupervisedObjectDetection);
+export default UnsupervisedObjectDetection;

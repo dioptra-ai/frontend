@@ -51,7 +51,7 @@ const FeatureAnalysisText = ({timeStore}) => {
                 <Row>
                     <Col>
                         <Async
-                            refetchOnChanged={[allOfflineSqlFilters, allSqlFilters, timeGranularity]}
+                            refetchOnChanged={[allOfflineSqlFilters, allSqlFilters]}
                             fetchData={() => metricsClient('compute', {
                                 metrics_type: 'outlier_detection',
                                 current_filters: allSqlFilters,

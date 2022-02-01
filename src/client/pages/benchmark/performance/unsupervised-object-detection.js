@@ -1,6 +1,4 @@
 import React from 'react';
-import FilterInput from 'pages/common/filter-input';
-import {setupComponent} from 'helpers/component-helper';
 import PropTypes from 'prop-types';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -12,7 +10,7 @@ import metricsClient from 'clients/metrics';
 import CountEvents from 'components/count-events';
 import MapMarAnalysis from 'pages/common/map-mar-analysis';
 
-const UnsupervisedObjectDetection = ({filtersStore, benchmarkFilters}) => {
+const UnsupervisedObjectDetection = ({benchmarkFilters}) => {
     const allSqlFilters = useAllSqlFilters();
     const {mlModelType} = useModel();
     const sampleSizeComponent = <CountEvents sqlFilters={allSqlFilters}/>;
@@ -20,11 +18,6 @@ const UnsupervisedObjectDetection = ({filtersStore, benchmarkFilters}) => {
 
     return (
         <div className='pb-5'>
-            <FilterInput
-                defaultFilters={filtersStore.filters}
-                onChange={(filters) => (filtersStore.filters = filters)}
-            />
-
             <div className='my-3'>
                 <Row className='mb-3 align-items-stretch'>
                     <Col className='d-flex' lg={3}>
@@ -137,8 +130,7 @@ const UnsupervisedObjectDetection = ({filtersStore, benchmarkFilters}) => {
 };
 
 UnsupervisedObjectDetection.propTypes = {
-    filtersStore: PropTypes.object.isRequired,
     benchmarkFilters: PropTypes.string
 };
 
-export default setupComponent(UnsupervisedObjectDetection);
+export default UnsupervisedObjectDetection;
