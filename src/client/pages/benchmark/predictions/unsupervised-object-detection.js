@@ -10,7 +10,6 @@ import {setupComponent} from 'helpers/component-helper';
 import {getHexColor} from 'helpers/color-helper';
 import {getName} from 'helpers/name-helper';
 import useAllSqlFilters from 'hooks/use-all-sql-filters';
-import useModel from 'hooks/use-model';
 import HeatMap from 'components/heatmap';
 import metricsClient from 'clients/metrics';
 import Async from 'components/async';
@@ -26,8 +25,6 @@ const UnsupervisedObjectDetection = ({filtersStore}) => {
     const [heatMapSamples, setHeatMapSamples] = useState([]);
     const [exampleInModal, setExampleInModal] = useModal(null);
 
-    const {mlModelType} = useModel();
-
     return (
         <>
             <FilterInput
@@ -36,9 +33,9 @@ const UnsupervisedObjectDetection = ({filtersStore}) => {
             />
             <div className='my-3'>
                 <Row className='my-3'>
-                    <Col className='d-flex' lg={4}>
+                    <Col className='d-flex'>
                         <Async
-                            refetchOnChanged={[allSqlFilters, mlModelType]}
+                            refetchOnChanged={[allSqlFilters]}
                             renderData={(data) => (
                                 <BarGraph
                                     bars={data.map(({prediction, my_percentage}) => ({
