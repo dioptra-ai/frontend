@@ -30,6 +30,26 @@ const TextClassifier = () => {
                         fetchData={() => metricsClient('queries/online-class-distribution-1', {sql_filters: allSqlFilters})}
                     />
                 </Col>
+                <Col lg={6}>
+                    <Async
+                        refetchOnChanged={[allSqlFilters]}
+                        renderData={(data) => (
+                            <BarGraph
+                                bars={data.map(({groundtruth, my_percentage}) => ({
+                                    name: getName(groundtruth),
+                                    value: my_percentage,
+                                    fill: getHexColor(groundtruth)
+                                }))}
+                                title='Groundtruth Distribution'
+                                unit='%'
+                            />
+                        )}
+                        fetchData={() => metricsClient('gt-distribution', {
+                            sql_filters: allSqlFilters,
+                            model_type: 'TEXT_CLASSIFIER'
+                        })}
+                    />
+                </Col>
             </Row>
         </div>
     );
