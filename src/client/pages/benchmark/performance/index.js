@@ -1,6 +1,7 @@
 import useModel from 'hooks/use-model';
 import UnsupervisedObjectDetection from './unsupervised-object-detection';
 import SpeechToText from './speech-to-text';
+import QnA from './q-n-a';
 
 const Performance = (props) => {
     const model = useModel();
@@ -17,6 +18,8 @@ const Performance = (props) => {
     case 'SPEECH_TO_TEXT':
 
         return <SpeechToText {...props}/>;
+    case 'Q_N_A':
+        return <QnA {...props}/>;
     default:
 
         return null;

@@ -8,6 +8,7 @@ import Async from 'components/async';
 import useAllSqlFilters from 'hooks/use-all-sql-filters';
 import ScatterGraph from 'components/scatter-graph';
 import metricsClient from 'clients/metrics';
+import useModel from 'hooks/use-model';
 
 /////////////////////////////////////////////////////////////////////////
 ///
@@ -18,6 +19,7 @@ import metricsClient from 'clients/metrics';
 
 const DriftAnalysis = ({filtersStore}) => {
     const allSqlFilters = useAllSqlFilters();
+    const {mlModelType} = useModel();
 
     // This is ugly. Should find a better way to do it
     const d = new Date();
@@ -48,7 +50,9 @@ const DriftAnalysis = ({filtersStore}) => {
                             fetchData={() => metricsClient('compute', {
                                 metrics_type: 'outlier_detection',
                                 current_filters: allSqlFilters,
-                                reference_filters: allReferenceFilters
+                                reference_filters: allReferenceFilters,
+                                model_type: mlModelType
+
                             })}
                             renderData={(data) => (
                                 <ScatterGraph

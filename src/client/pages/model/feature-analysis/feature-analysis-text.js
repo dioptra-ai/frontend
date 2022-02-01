@@ -4,7 +4,6 @@ import Col from 'react-bootstrap/Col';
 
 import useModel from 'hooks/use-model';
 import {setupComponent} from 'helpers/component-helper';
-import MetricInfoBox from 'components/metric-info-box';
 import AreaGraph from 'components/area-graph';
 import Async from 'components/async';
 import useAllSqlFilters from 'hooks/use-all-sql-filters';
@@ -12,7 +11,7 @@ import ScatterGraph from 'components/scatter-graph';
 import metricsClient from 'clients/metrics';
 import useTimeGranularity from 'hooks/use-time-granularity';
 
-const FeatureAnalysisImages = ({timeStore}) => {
+const FeatureAnalysisText = ({timeStore}) => {
     const allSqlFilters = useAllSqlFilters();
     const allOfflineSqlFilters = useAllSqlFilters({useReferenceRange: true});
     const timeGranularity = useTimeGranularity()?.toISOString();
@@ -69,39 +68,9 @@ const FeatureAnalysisImages = ({timeStore}) => {
                                         novelty,
                                         request_id
                                     }))}
-                                    examplesType='image'
+                                    examplesType='text'
                                 />
                             )}
-                        />
-                    </Col>
-                </Row>
-            </div>
-            <div className='my-3'>
-                <Row>
-                    <Col className='d-flex' lg={2}>
-                        <Async
-                            renderData={([d]) => (
-                                <MetricInfoBox name='% Unique' unit='%' value={100 * d?.value} />
-                            )}
-                            fetchData={() => metricsClient('queries/unique-images', {sql_filters: allSqlFilters})}
-                        />
-                    </Col>
-                    <Col className='d-flex' lg={5}>
-                        <Async
-                            defaultData={[]}
-                            renderData={(data) => (
-                                <AreaGraph
-                                    dots={data.map(({time, value}) => ({time, value: 100 * value}))}
-                                    xDataKey='time'
-                                    yDataKey='value'
-                                    title='Unique Images Over Time'
-                                    xAxisDomain={timeStore.rangeMillisec}
-                                    xAxisName='Time'
-                                    yAxisName='Unique Images'
-                                    unit='%'
-                                />
-                            )}
-                            fetchData={() => metricsClient('queries/unique-images-over-time', {time_granularity: timeGranularity, sql_filters: allSqlFilters})}
                         />
                     </Col>
                 </Row>
@@ -110,8 +79,8 @@ const FeatureAnalysisImages = ({timeStore}) => {
     );
 };
 
-FeatureAnalysisImages.propTypes = {
+FeatureAnalysisText.propTypes = {
     timeStore: PropTypes.object.isRequired
 };
 
-export default setupComponent(FeatureAnalysisImages);
+export default setupComponent(FeatureAnalysisText);
