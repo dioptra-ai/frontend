@@ -13,7 +13,7 @@ const TextClassifier = () => {
     return (
         <div className='my-3'>
             <Row className='my-3'>
-                <Col className='d-flex'>
+                <Col className='d-flex' lg={6}>
                     <Async
                         refetchOnChanged={[allSqlFilters]}
                         renderData={(data) => (
