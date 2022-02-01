@@ -29,6 +29,7 @@ const IncidentRow = ({
             {!resolved && (
                 <label className='checkbox'>
                     <input
+                        style={{cursor: 'pointer'}}
                         type='checkbox'
                         checked={checked}
                         onChange={(event) => {

@@ -1,7 +1,6 @@
 /* eslint-disable */
 import baseJSONClient from 'clients/base-json-client';
 import FontIcon from 'components/font-icon';
-// import RadioButtons from 'components/radio-buttons';
 import Select from 'components/select';
 import TextInput from 'components/text-input';
 import {IconNames} from 'constants';
@@ -13,16 +12,16 @@ import {Comparators} from 'enums/comparators';
 import {LogicalOperators} from 'enums/logical-operators';
 import {NotificationTypes} from 'enums/notification-types';
 import PropTypes from 'prop-types';
-import React, {useCallback, useState} from 'react';
-import {Button, Col, Container, Row} from 'react-bootstrap';
-import {useHistory} from 'react-router-dom';
+import React, { useCallback, useState } from 'react';
+import { Button, Col, Container, Row } from 'react-bootstrap';
+import { useHistory } from 'react-router-dom';
 import BtnIcon from '../components/btn-icon';
 import DynamicArray from '../components/generic/dynamic-array';
 import {noop} from '../constants';
 import {setupComponent} from '../helpers/component-helper';
 import useAllSqlFilters from 'hooks/use-all-sql-filters';
-import { getMetricsForModel } from '../enums/metrics';
 import { IsoDurations } from '../enums/iso-durations';
+import { getMetricsForModel } from '../enums/metrics';
 
 const inputStyling = 'form-control py-3 bg-white-blue mt-0';
 const BinButton = ({onClick = noop, className}) => (
@@ -126,12 +125,17 @@ const ConditionRow = ({
     isFirst,
     isLast,
     idx,
-    rowState,
+    rowState
 }) => {
-    const handleLogicalChange = (newValue) => handleRowDataChange({logicalOperator: newValue});
+    const handleLogicalChange = (newValue) =>
+        handleRowDataChange({logicalOperator: newValue});
     const handleMetricChange = (newValue) => handleRowDataChange({metric: newValue});
-    const handleComparatorChange = (newValue) => handleRowDataChange({comparator: newValue});
-    const handleValueToCompareChange = (newValue) => handleRowDataChange({valueToCompare: newValue});
+    const handleComparatorChange = (newValue) =>
+        handleRowDataChange({comparator: newValue});
+    const handleValueToCompareChange = (newValue) =>
+        handleRowDataChange({
+            valueToCompare: newValue.replace(',', '.')
+        });
     const model = useModel();
 
     return (
@@ -155,10 +159,12 @@ const ConditionRow = ({
                     <Select
                         initialValue={rowState.metric}
                         onChange={handleMetricChange}
-                        options={Object.values(getMetricsForModel(model.mlModelType))}
+                        options={Object.values(
+                            getMetricsForModel(model.mlModelType)
+                        )}
                     />
                 </Col>
-                <Col xl={rowState.comparator === "HAS_NO_VALUE" ? 2 : 1}>
+                <Col xl={rowState.comparator === 'HAS_NO_VALUE' ? 2 : 1}>
                     <Select
                         backgroundColor='white'
                         initialValue={rowState.comparator}
@@ -171,6 +177,7 @@ const ConditionRow = ({
                 <Col className='d-flex' xl={1}>
                     {rowState.comparator !== 'HAS_NO_VALUE' && (
                         <TextInput
+                            type='number'
                             className='form-control py-3 mt-0 bg-white-blue'
                             initialValue={rowState.valueToCompare}
                             onChange={handleValueToCompareChange}
@@ -206,7 +213,8 @@ const RecipientRow = ({
     rowState
 }) => {
     const handleTypeChange = (newType) => handleRowDataChange({type: newType});
-    const handleAddressChange = (newAddress) => handleRowDataChange({address: newAddress});
+    const handleAddressChange = (newAddress) =>
+        handleRowDataChange({address: newAddress});
 
     return (
         <Row className='my-3 align-items-center' key={idx}>
@@ -338,10 +346,10 @@ const AddAlertPage = ({timeStore}) => {
     const [recipients, setRecipients] = useState([recipientInitialValue]);
     const [message, setMessage] = useState('');
     const [alertName, setAlertName] = useState('');
-    const [conditions, setConditions] = useState([
-        conditionInitialValue
-    ]);
-    const [evaluationPeriod, setEvaluationPeriod] = useState('');
+    const [conditions, setConditions] = useState([conditionInitialValue]);
+    const [evaluationPeriod, setEvaluationPeriod] = useState(
+        IsoDurations.PT5M.value
+    );
     const [conditionsPeriod, setConditionsPeriod] = useState('');
     const [addAlertInProgress, setAddAlertInProgress] = useState(false);
     const [alertType, setAlertType] = useState(AlertTypes.THRESHOLD.value);
@@ -360,7 +368,7 @@ const AddAlertPage = ({timeStore}) => {
     }, []);
 
     const handleCreate = () => {
-        setAddAlertInProgress(true)
+        setAddAlertInProgress(true);
         baseJSONClient('/api/tasks/alert', {
             method: 'POST',
             body: {
@@ -372,7 +380,7 @@ const AddAlertPage = ({timeStore}) => {
                 sqlFilters: allSqlFilters
             }
         }).then(() => {
-            setAddAlertInProgress(false)
+            setAddAlertInProgress(false);
             goToPreviousRoute();
         });
     };
@@ -416,31 +424,18 @@ const AddAlertPage = ({timeStore}) => {
                         }
                     </div>
                     <div className='flex-grow-1 ms-3'>
-                    <Select
-                        backgroundColor='white'
-                        initialValue={IsoDurations.PT5M.value}
-                        isTextBold
-                        onChange={setEvaluationPeriod}
-                        options={Object.values(IsoDurations)}
-                        textColor='primary'
-                    />
-                        {/* <TextInput
-                            className={inputStyling}
-                            placeholder='Enter ISO Duration (example: PT30S)'
-                        />{' '} */}
+                        <Select
+                            backgroundColor='white'
+                            initialValue={IsoDurations.PT5M.value}
+                            isTextBold
+                            onChange={setEvaluationPeriod}
+                            options={Object.values(IsoDurations)}
+                            textColor='primary'
+                        />
                     </div>
                 </Col>
             </Row>
             <div className='border-bottom border-bottom-2'></div>
-            {/* <FormSection name='Alert Type'>
-                <Col className='mt-4' xl={12}>
-                    <RadioButtons
-                        initialValue={alertType}
-                        items={Object.values(AlertTypes)}
-                        onChange={setAlertType}
-                    />
-                </Col>
-            </FormSection> */}
             <FormSection name='Conditions'>
                 <Col className='mt-2' xl={12}>
                     <DynamicArray
@@ -449,35 +444,8 @@ const AddAlertPage = ({timeStore}) => {
                         onChange={setConditions}
                         renderRow={ConditionRow}
                     />
-                    {/* <Row className='mt-4'>
-                        <Col xl={3}><LabelBox text='DURING THE LAST'/></Col>
-                        <Col xl={1}><TextInput className={inputStyling} onChange={setConditionsPeriod}/></Col>
-                    </Row> */}
                 </Col>
             </FormSection>
-            {/* <FormSection name='No Date & Error Handling'>
-                <Col className='mt-4' xl={12}>
-                    <ErrorHandlingRow errorCondition='If no date or all values are null' initialValue={stateForNoDateOrNullValues} onChange={setStateForNoDateOrNullValues}/>
-                </Col>
-                <Col className='mt-4' xl={12}>
-                    <ErrorHandlingRow errorCondition='If execution error or timeout' initialValue={stateExecutionErrorOrTimeout} onChange={setStateExecutionErrorOrTimeout}/>
-                </Col>
-            </FormSection>
-            <FormSection name='Autoresolve?'>
-                <Col className='mt-2' xl={3}>
-                    <Select backgroundColor='white-blue' initialValue={autoResolve} onChange={setAutoResolvePeriod} options={Object.values(AlertAutoResolvePeriods)}/>
-                </Col>
-            </FormSection>
-            <FormSection name='Notifications'>
-                <Col className='mt-2' xl={12}>
-                    <DynamicArray data={recipients} newRowInitialState={recipientInitialValue} onChange={setRecipients} renderRow={RecipientRow} />
-                    <Row className='my-3'>
-                        <Col xl={1}><LabelBox text='MESSAGE'/></Col>
-                        <Col xl={11}><TextArea className={inputStyling} onChange={setMessage} placeholder='Notification message details' rows={9} /></Col>
-                    </Row>
-                    <DynamicArray data={tags} onChange={setTags} renderRow={TagRow} />
-                </Col>
-            </FormSection> */}
             <div className='border-bottom border-bottom-2'></div>
             <Row className='pt-4'>
                 <Col xl={2}>
@@ -486,8 +454,14 @@ const AddAlertPage = ({timeStore}) => {
                             !alertName ||
                             !alertType ||
                             !evaluationPeriod ||
-                            !conditions
-                            || addAlertInProgress
+                            !conditions ||
+                            addAlertInProgress ||
+                            conditions.filter((condition) => {
+                                return (
+                                    !condition.valueToCompare ||
+                                    condition.valueToCompare === ''
+                                );
+                            }).length !== 0
                         }
                         className='w-100 p-3 text-white'
                         onClick={handleCreate}
