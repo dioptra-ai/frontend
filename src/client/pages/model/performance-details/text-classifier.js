@@ -22,7 +22,7 @@ const PerformanceDetails = () => {
         <div className='pb-5'>
             <div className='my-3'>
                 <Row className='mb-3 align-items-stretch'>
-                    <Col className='d-flex'>
+                    <Col className='d-flex' lg={3}>
                         <MetricInfoBox name='Datapoints'>{sampleSizeComponent}</MetricInfoBox>
                     </Col>
                 </Row>
@@ -32,7 +32,7 @@ const PerformanceDetails = () => {
                     Groundtruth distribution
                 </h3>
                 <Row>
-                    <Col>
+                    <Col lg={6}>
                         <Async
                             refetchOnChanged={[allSqlFilters]}
                             renderData={(data) => (
