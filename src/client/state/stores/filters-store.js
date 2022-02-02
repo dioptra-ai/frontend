@@ -33,10 +33,10 @@ export class Filter {
     }
 
     static parse(str) {
-        const match = (/([^\s]+)(\s+((=|in|.+)\s*)?)?([^\s]+)?/gim).exec(str);
+        const match = (/([^\s]+)(\s+(((=|in)|([^\s]+))\s*)?)?([^\s]+)?/gim).exec(str);
 
         if (match) {
-            const [, left, opStart,, validOp, rightStr] = match;
+            const [, left, opStart,,, validOp, /* invalidOp*/ , rightStr] = match;
 
             let op = null;
 
@@ -86,7 +86,7 @@ export class Filter {
         }
     }
 
-    toString() {
+    toString(truncate) {
         switch (this.op) {
 
         case undefined:
@@ -108,23 +108,28 @@ export class Filter {
             if (this.right) {
 
                 if (this.right.length > 0) {
-                    const firstValue = this.right[0].toString();
-                    const firstDisplayValue = `${firstValue.substring(0, 10)}${firstValue.length > 10 ? '...' : ''}`;
+                    if (truncate) {
+                        const firstValue = this.right[0].toString();
+                        const firstDisplayValue = `${firstValue.substring(0, 10)}${firstValue.length > 10 ? '...' : ''}`;
 
-                    if (this.right.length > 1) {
+                        if (this.right.length > 1) {
 
-                        return `${this.left} ${this.op} [${firstDisplayValue}, ...]`;
+                            return `${this.left} ${this.op} [${firstDisplayValue}, ...]`;
+                        } else {
+
+                            return `${this.left} ${this.op} [${firstDisplayValue}]`;
+                        }
                     } else {
 
-                        return `${this.left} ${this.op} [${firstDisplayValue}]`;
+                        return `${this.left} ${this.op} ${this.right.join(',')}`;
                     }
                 } else {
 
-                    return `${this.left} ${this.op} []`;
+                    return `${this.left} ${this.op} `;
                 }
             } else {
 
-                return `${this.left} ${this.op} `;
+                return `${this.left} ${this.op}`;
             }
         default:
             return `${this.left} ${this.op}`;

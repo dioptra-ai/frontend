@@ -11,13 +11,14 @@ import useModel from 'hooks/use-model';
 import Spinner from 'components/spinner';
 
 const RenderedFilter = ({filter, onDelete, applied = false}) => {
+    const truncatedFilters = filter.toString(true);
 
     return (
         <OverlayTrigger
             placement='bottom'
             overlay={(
-                <Tooltip id={filter.toString()}>
-                    {filter.toString()}
+                <Tooltip id={truncatedFilters}>
+                    {truncatedFilters}
                 </Tooltip>
             )}>
             <div
@@ -29,7 +30,7 @@ const RenderedFilter = ({filter, onDelete, applied = false}) => {
                 <div className='text-truncate mr-1' style={{
                     maxWidth: 200,
                     overflow: 'hidden'
-                }}>{filter.toString()}</div>
+                }}>{truncatedFilters}</div>
                 <button onClick={onDelete}>
                     <FontIcon className='text-dark' icon='Close' size={10} />
                 </button>
@@ -71,7 +72,7 @@ const FilterInput = ({
 
                 const allSuggestions = await metricsClient('queries/get-suggestions-with-key', {
                     key,
-                    value,
+                    value: Array.isArray(value) ? value[value.length - 1] : value,
                     ml_model_id: mlModelId
                 });
 
@@ -172,7 +173,15 @@ const FilterInput = ({
 
     const handleSuggestionSelected = (suggestion) => {
         if (newFilter.left && newFilter.isOpValid) {
-            newFilter.right = suggestion;
+            switch (newFilter.op) {
+            case 'in':
+            case 'not in':
+                newFilter.right = [suggestion];
+            default:
+                newFilter.right = suggestion;
+                break;
+            }
+
             setFilters([...filters, newFilter]);
             setNewFilter(new Filter());
         } else {
