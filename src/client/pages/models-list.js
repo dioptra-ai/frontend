@@ -17,6 +17,7 @@ import theme from 'styles/theme.module.scss';
 import ModalComponent from 'components/modal';
 import EditModel from 'pages/model/edit-model';
 import metricsClient from 'clients/metrics';
+import Spinner from 'components/spinner';
 
 const NUMBER_OF_RECORDS_PER_PAGE = 10;
 const TRAFFIC_START_MOMENT = moment().subtract(1, 'day');
@@ -210,7 +211,7 @@ const Models = ({modelStore}) => {
         <>
             <GeneralSearchBar shouldShowOnlySearchInput={true} />
             {modelStore.state === modelStore.STATE_PENDING ? (
-                'Loading...'
+                <Spinner/>
             ) : (
                 <div className='p-4 mt-5'>
                     <div className='d-flex justify-content-between'>
