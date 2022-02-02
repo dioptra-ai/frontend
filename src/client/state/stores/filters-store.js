@@ -195,7 +195,7 @@ class FiltersStore {
         this.mlModelVersion = v;
     }
 
-    get sqlFilters() {
+    getSqlFilters() {
         const filtersByKey = this.f.reduce((agg, filter) => {
             const {left} = filter;
 

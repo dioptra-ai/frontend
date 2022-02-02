@@ -10,7 +10,7 @@ const useAllSqlFilters = ({useReferenceRange = false, forLiveModel, __REMOVE_ME_
     const {isTimeEnabled} = useContext(appContext);
     const {_id, mlModelId} = useModel();
 
-    let allFilters = JSON.parse(JSON.stringify(filtersStore.sqlFilters));
+    let allFilters = filtersStore.getSqlFilters();
 
     if (!__REMOVE_ME__excludeOrgId) {
         allFilters.push(`organization_id='${_WEBPACK_DEF_OVERRIDE_ORG_ID_ || authStore.userData.activeOrganizationMembership.organization._id}'`);
