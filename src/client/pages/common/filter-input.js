@@ -177,6 +177,7 @@ const FilterInput = ({
             case 'in':
             case 'not in':
                 newFilter.right = [suggestion];
+                break;
             default:
                 newFilter.right = suggestion;
                 break;
