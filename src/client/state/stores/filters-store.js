@@ -3,10 +3,6 @@ import {
     makeAutoObservable
 } from 'mobx';
 
-import {
-    authStore
-} from './auth-store';
-
 export class Filter {
     constructor({left, op, right} = {}) {
         this.left = left;
@@ -194,7 +190,7 @@ class FiltersStore {
         this.mlModelVersion = v;
     }
 
-    concatSQLFilters() {
+    get sqlFilters() {
         const filtersByKey = this.f.reduce((agg, filter) => {
             const {left} = filter;
 
@@ -218,21 +214,6 @@ class FiltersStore {
         }
 
         return allFilters;
-    }
-
-    get sqlFilters() {
-        const filters = this.concatSQLFilters();
-
-        filters.push(`organization_id='${_WEBPACK_DEF_OVERRIDE_ORG_ID_ || authStore.userData.activeOrganizationMembership.organization._id}'`);
-
-        return filters.join(' AND ') || ' TRUE ';
-    }
-
-    get __RENAME_ME__sqlFilters() {
-        const filters = this.concatSQLFilters();
-
-        return filters.join(' AND ') || ' TRUE ';
-
     }
 }
 

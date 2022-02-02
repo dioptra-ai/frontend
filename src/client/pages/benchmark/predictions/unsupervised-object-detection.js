@@ -1,6 +1,4 @@
 import BBoxLocationAnalysis from 'pages/common/bbox-location-analysis';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
 
 import BarGraph from 'components/bar-graph';
 import {getHexColor} from 'helpers/color-helper';
@@ -15,27 +13,22 @@ const UnsupervisedObjectDetection = () => {
     return (
         <>
             <div className='my-3'>
-                <Row className='my-3'>
-                    <Col className='d-flex'>
-                        <Async
-                            refetchOnChanged={[allSqlFilters]}
-                            renderData={(data) => (
-                                <BarGraph
-                                    bars={data.map(({prediction, my_percentage}) => ({
-                                        name: getName(prediction),
-                                        value: my_percentage,
-                                        fill: getHexColor(prediction)
-                                    }))}
-                                    title='Online Class Distribution'
-                                    unit='%'
-                                />
-                            )}
-                            fetchData={() => metricsClient('queries/online-class-distribution-2', {sql_filters: allSqlFilters})}
+                <Async
+                    refetchOnChanged={[allSqlFilters]}
+                    renderData={(data) => (
+                        <BarGraph
+                            bars={data.map(({prediction, my_percentage}) => ({
+                                name: getName(prediction),
+                                value: my_percentage,
+                                fill: getHexColor(prediction)
+                            }))}
+                            title='Online Class Distribution'
+                            unit='%'
                         />
-                    </Col>
-                </Row>
+                    )}
+                    fetchData={() => metricsClient('queries/online-class-distribution-2', {sql_filters: allSqlFilters})}
+                />
             </div>
-
             <div className='my-3'>
                 <BBoxLocationAnalysis/>
             </div>
