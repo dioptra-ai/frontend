@@ -7,7 +7,8 @@ import Login from 'pages/login';
 import Logout from 'pages/logout';
 import Register from 'pages/register';
 import AuthRoute from 'components/auth-route';
-import Benchmark from './pages/benchmark';
+import Benchmark from 'pages/benchmark';
+import DatasetsList from 'pages/datasets-list';
 import AppContext from 'context/app-context';
 
 const App = () => {
@@ -40,6 +41,9 @@ const App = () => {
                     }}>
                         <Benchmark/>
                     </AppContext.Provider>
+                )}/>
+                <AuthRoute path='/dataset' renderLoggedIn={() => (
+                    <DatasetsList/>
                 )}/>
                 <AuthRoute path='/'/>
             </Switch>
