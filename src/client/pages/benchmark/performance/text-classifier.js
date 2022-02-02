@@ -10,6 +10,7 @@ import metricsClient from 'clients/metrics';
 import CountEvents from 'components/count-events';
 import PerformancePerClass from 'pages/common/performance-per-class';
 import Segmentation from 'pages/common/segmentation';
+import ConfusionMatrix from 'components/confusion-matrix';
 
 const TextClassifier = ({benchmarkFilters}) => {
     const allSqlFilters = useAllSqlFilters();
@@ -151,6 +152,9 @@ const TextClassifier = ({benchmarkFilters}) => {
             </div>
             <div className='my-3'>
                 <PerformancePerClass/>
+            </div>
+            <div>
+                <ConfusionMatrix/>
             </div>
             <Segmentation />
         </div>
