@@ -18,6 +18,7 @@ import TrafficReplay from 'pages/common/traffic-replay';
 import useModel from 'hooks/use-model';
 import useSyncStoresToUrl from 'hooks/use-sync-stores-to-url';
 import Menu from 'components/menu';
+import Spinner from 'components/spinner';
 
 const Model = ({filtersStore}) => {
     const modelId = useParams()._id;
@@ -54,40 +55,27 @@ const Model = ({filtersStore}) => {
             <GeneralSearchBar/>
             <ModelDescription {...model}/>
             <Container fluid>
-                <Tabs tabs={tabs} />
+                <Tabs tabs={tabs}/>
                 <Switch>
-                    <Route path={'/models/:_id/add-alert'} component={AddAlertPage} exact/>
-                    <Route exact
-                        path='/models/:_id/incidents-and-alerts'
-                        component={IncidentsAndAlerts}/>
+                    <Route exact path='/models/:_id/add-alert' component={AddAlertPage}/>
+                    <Route exact path='/models/:_id/incidents-and-alerts' component={IncidentsAndAlerts}/>
                     <Route>
-
                         <FilterInput
                             defaultFilters={filtersStore.filters}
                             onChange={(filters) => (filtersStore.filters = filters)}
                         />
                         <div className='px-3'>
-                            <Route exact
-                                path='/models/:_id/performance-overview'
-                                component={PerformanceOverview}/>
-                            <Route exact
-                                path='/models/:_id/performance-details'
-                                component={PerformanceDetails}/>
-                            <Route exact
-                                path='/models/:_id/prediction-analysis'
-                                component={PredictionAnalysis}/>
-                            <Route exact
-                                path='/models/:_id/feature-analysis'
-                                component={FeatureAnalysis}/>
-                            <Route exact
-                                path='/models/:_id/traffic-replay'
-                                component={TrafficReplay}/>
+                            <Route exact path='/models/:_id/performance-overview' component={PerformanceOverview}/>
+                            <Route exact path='/models/:_id/performance-details' component={PerformanceDetails}/>
+                            <Route exact path='/models/:_id/prediction-analysis' component={PredictionAnalysis}/>
+                            <Route exact path='/models/:_id/feature-analysis' component={FeatureAnalysis}/>
+                            <Route exact path='/models/:_id/traffic-replay' component={TrafficReplay}/>
                         </div>
                     </Route>
                 </Switch>
             </Container>
         </Menu>
-    ) : 'Loading...';
+    ) : <Spinner/>;
 };
 
 Model.propTypes = {
