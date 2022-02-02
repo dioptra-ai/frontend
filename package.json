@@ -57,6 +57,7 @@
     "express": "^4.17.1",
     "express-session": "^1.17.2",
     "express-validator": "^6.13.0",
+    "file-saver": "^2.0.5",
     "jquery": "^3.6.0",
     "lodash": "^4.17.21",
     "mathjs": "^9.4.3",
