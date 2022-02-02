@@ -1,4 +1,5 @@
 import Table from 'react-bootstrap/Table';
+import {Button} from 'react-bootstrap';
 
 import Async from 'components/async';
 import GeneralSearchBar from 'pages/common/general-search-bar';
@@ -13,6 +14,14 @@ const DatasetsList = () => {
             <div className='p-4 mt-5'>
                 <div className='d-flex justify-content-between'>
                     <span className='h2 fs-1 text-dark bold-text'>Datasets</span>
+
+                    <Button
+                        className='py-3 fs-6 bold-text px-5 text-white'
+                        onClick={() => console.log('nothing')}
+                        variant='primary'
+                    >
+                        CREATE NEW
+                    </Button>
                 </div>
                 <Async
                     fetchData={() => metricsClient('datasets', null, 'get')}
