@@ -1,9 +1,10 @@
 import PropTypes from 'prop-types';
 import {OverlayTrigger, Tooltip} from 'react-bootstrap';
 import {IoInformationCircleOutline} from 'react-icons/io5';
+import {Textfit} from 'react-textfit';
 
 import {SpinnerWrapper} from 'components/spinner';
-import DifferenceLabel from './difference-labels';
+import DifferenceLabel from 'components/difference-labels';
 
 const MetricInfoBox = ({value, name, subtext, info, unit = '', difference, children}) => (
     <div className='border rounded p-3 w-100 d-flex flex-column align-items-center justify-content-center metric-box'>
@@ -25,9 +26,11 @@ const MetricInfoBox = ({value, name, subtext, info, unit = '', difference, child
                 </div>
             </div>
             <span className='text-dark metric-box-font-60'>
-                {
-                    children || `${!isNaN(value) ? Number(value).toFixed(2) : '-'}${unit}`
-                }
+                <Textfit mode='single' max={50}>
+                    {
+                        children || `${!isNaN(value) ? Number(value).toFixed(2) : '-'}${unit}`
+                    }
+                </Textfit>
             </span>
             {difference !== undefined ? (
                 <DifferenceLabel difference={!isNaN(difference) ? Number(difference).toFixed(2) : '-'}/>
