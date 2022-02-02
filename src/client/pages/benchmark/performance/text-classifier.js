@@ -15,7 +15,6 @@ const TextClassifier = ({benchmarkFilters}) => {
     const allSqlFilters = useAllSqlFilters();
     const {mlModelType} = useModel();
     const sampleSizeComponent = <CountEvents sqlFilters={allSqlFilters}/>;
-    const liveModelFilters = useAllSqlFilters({forLiveModel: true});
 
     return (
         <div className='pb-5'>
@@ -27,29 +26,6 @@ const TextClassifier = ({benchmarkFilters}) => {
                         >
                             {sampleSizeComponent}
                         </MetricInfoBox>
-                    </Col>
-                    <Col className='d-flex' lg={2}>
-                        <Async
-                            fetchData={() => metricsClient('compute', {
-                                metrics_type: 'outlier_detection',
-                                current_filters: allSqlFilters,
-                                reference_filters: liveModelFilters,
-                                model_type: mlModelType
-                            })}
-                            refetchOnChanged={[allSqlFilters]}
-                            renderData={(data) => {
-                                const noveltyNum = data?.outlier_analysis?.filter((d) => d.novelty).length;
-
-                                return (
-                                    <MetricInfoBox
-                                        name='Obsolete'
-                                        value={100 * noveltyNum / data?.outlier_analysis.length}
-                                        unit='%'
-                                        info='As of the last 24h of the model and version.'
-                                    />
-                                );
-                            }}
-                        />
                     </Col>
                     <Col className='d-flex' lg={2}>
                         <Async
