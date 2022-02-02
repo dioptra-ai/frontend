@@ -110,7 +110,7 @@ const EditModel = ({initialValue, onSubmit, errors}) => {
                         </Form.Control>
                     </InputGroup>
                     <Button
-                        className='w-100 text-white btn-submit mt-5'
+                        className='w-100 text-white btn-submit mt-3'
                         variant='primary' type='submit'
                     >
                         {Object.keys(initialValue).length ? 'Update Model' : 'Create Model'}

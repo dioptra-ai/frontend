@@ -14,24 +14,23 @@ const DatasetsList = () => {
             <div className='p-4 mt-5'>
                 <div className='d-flex justify-content-between'>
                     <span className='h2 fs-1 text-dark bold-text'>Datasets</span>
-
                     <Button
                         className='py-3 fs-6 bold-text px-5 text-white'
                         onClick={() => console.log('nothing')}
                         variant='primary'
                     >
-                        CREATE NEW
+                        CREATE NEW DATASET
                     </Button>
                 </div>
                 <Async
                     fetchData={() => metricsClient('datasets', null, 'get')}
                     renderData={(benchmarks) => (
-                        <Table className='models-table'>
+                        <Table className='models-table mt-3'>
                             <thead className='align-middle text-secondary'>
                                 <tr className='border-0 border-bottom border-mercury'>
-                                    <th>Dataset ID</th>
-                                    <th>Size</th>
-                                    <th>Created At</th>
+                                    <th className='text-secondary'>Dataset ID</th>
+                                    <th className='text-secondary'>Size</th>
+                                    <th className='text-secondary'>Created At</th>
                                 </tr>
                             </thead>
                             <tbody>
