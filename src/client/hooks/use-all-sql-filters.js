@@ -3,11 +3,13 @@ import {useContext} from 'react';
 import stores from 'state/stores';
 import useModel from 'hooks/use-model';
 import appContext from 'context/app-context';
+import comparisonContext from 'context/comparison-context';
 
 const {filtersStore, timeStore, modelStore, authStore} = stores;
 
 const useAllSqlFilters = ({useReferenceRange = false, forLiveModel, __REMOVE_ME__excludeOrgId} = {}) => {
     const {isModelView} = useContext(appContext);
+    const comparisonContextValue = useContext(comparisonContext);
 
     let allFilters = [];
 
@@ -16,11 +18,12 @@ const useAllSqlFilters = ({useReferenceRange = false, forLiveModel, __REMOVE_ME_
     }
 
     if (isModelView) {
-        const {_id} = useModel();
 
-        allFilters.push(...filtersStore.getModelSqlFilters());
+        allFilters.push(...filtersStore.getModelSqlFilters(comparisonContextValue?.index));
 
         if (useReferenceRange) {
+            const {_id} = useModel();
+
             allFilters.push(modelStore.getSqlReferencePeriodFilter(_id));
             // This is ugly af
             allFilters = allFilters.filter((f) => !f.match(/request_id/));
@@ -30,7 +33,7 @@ const useAllSqlFilters = ({useReferenceRange = false, forLiveModel, __REMOVE_ME_
         }
     } else {
 
-        allFilters.push(...filtersStore.getBenchmarkSqlFilters());
+        allFilters.push(...filtersStore.getBenchmarkSqlFilters(comparisonContextValue?.index));
 
         if (forLiveModel) {
             // This is ugly. Should find a better way to do it

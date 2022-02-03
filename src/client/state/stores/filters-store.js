@@ -231,7 +231,7 @@ class FiltersStore {
         allFilters.push(`"model_id"='${model.mlModelId}'`);
 
         if (model.mlModelVersion && model.mlModelVersion !== 'null') {
-            allFilters.push(`"model_version"='${this.mlModelVersion}'`);
+            allFilters.push(`"model_version"='${model.mlModelVersion}'`);
         }
 
         return allFilters;
@@ -245,7 +245,7 @@ class FiltersStore {
         this.b = b;
     }
 
-    getBenchmarkSqlFilters(forbenchmark = 0) {
+    getBenchmarkSqlFilters(forBenchmark = 0) {
         const filtersByKey = this.f.reduce((agg, filter) => {
             const {left} = filter;
 
@@ -264,7 +264,7 @@ class FiltersStore {
             return `(${keyFilters.map((filter) => filter.toSQLString()).join(' OR ')})`;
         });
 
-        const benchmark = this.b[forbenchmark];
+        const benchmark = this.b[forBenchmark];
 
         allFilters.push(`"benchmark_id"='${benchmark['benchmark_id']}'`);
 

@@ -1,8 +1,12 @@
+import {useContext} from 'react';
 import useStores from 'hooks/use-stores';
+import comparisonContext from 'context/comparison-context';
 
-const useBenchmark = (benchmarkNum = 0) => {
+const useBenchmark = () => {
     const {filtersStore, benchmarkStore} = useStores();
-    const currentBenchmark = filtersStore.benchmarks[benchmarkNum];
+    const comparisonContextValue = useContext(comparisonContext);
+    const comparisonIndex = comparisonContextValue?.index || 0;
+    const currentBenchmark = filtersStore.benchmarks[comparisonIndex];
 
     return benchmarkStore.getBenchmarkById(currentBenchmark?.['benchmark_id']);
 };
