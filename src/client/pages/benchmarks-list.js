@@ -12,11 +12,9 @@ import metricsClient from 'clients/metrics';
 import {setupComponent} from 'helpers/component-helper';
 import ModalComponent from 'components/modal';
 import Select from 'components/select';
-import useStores from 'hooks/use-stores';
 import Spinner from 'components/spinner';
 
-const BenchmarksList = () => {
-    const {filtersStore, modelStore, benchmarkStore} = useStores();
+const BenchmarksList = ({filtersStore, modelStore, benchmarkStore}) => {
     const history = useHistory();
     const [isRunBenchmarkOpen, setIsRunBenchmarkOpen] = useState(false);
     const [newBenchmarkModelId, setNewBenchmarkModelId] = useState(null);
@@ -134,7 +132,8 @@ const BenchmarksList = () => {
 
 BenchmarksList.propTypes = {
     filtersStore: PropTypes.object.isRequired,
-    modelStore: PropTypes.object.isRequired
+    modelStore: PropTypes.object.isRequired,
+    benchmarkStore: PropTypes.object.isRequired
 };
 
 export default setupComponent(BenchmarksList);

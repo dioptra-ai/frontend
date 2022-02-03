@@ -5,6 +5,7 @@ import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
+import {setupComponent} from 'helpers/component-helper';
 import FilterInput from 'pages/common/filter-input';
 import GeneralSearchBar from 'pages/common/general-search-bar';
 import AddAlertPage from 'pages/add-alert';
@@ -20,7 +21,6 @@ import useSyncStoresToUrl from 'hooks/use-sync-stores-to-url';
 import Menu from 'components/menu';
 import Spinner from 'components/spinner';
 import comparisonContext from 'context/comparison-context';
-import useStores from 'hooks/use-stores';
 
 const SplitView = ({children}) => (
     <Row>
@@ -36,15 +36,14 @@ SplitView.propTypes = {
     children: PropTypes.node.isRequired
 };
 
-const Model = () => {
-    const {filtersStore, modelStore} = useStores();
+const Model = ({timeStore, filtersStore, modelStore}) => {
     const models = filtersStore.models.map(({_id}) => {
 
         return modelStore.getModelById(_id);
     });
     const firstModel = models[0];
 
-    useSyncStoresToUrl(({timeStore, filtersStore, segmentationStore}) => ({
+    useSyncStoresToUrl(({filtersStore, segmentationStore}) => ({
         startTime: timeStore.start?.toISOString() || '',
         endTime: timeStore.end?.toISOString() || '',
         lastMs: timeStore.lastMs || '',
@@ -120,5 +119,10 @@ const Model = () => {
     ) : <Spinner/>;
 };
 
+Model.propTypes = {
+    timeStore: PropTypes.object.isRequired,
+    filtersStore: PropTypes.object.isRequired,
+    modelStore: PropTypes.object.isRequired
+};
 
-export default Model;
+export default setupComponent(Model);

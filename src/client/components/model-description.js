@@ -15,17 +15,15 @@ import {MdOutlineCompare, MdOutlineDelete} from 'react-icons/md';
 import Select from 'components/select';
 import Async from 'components/async';
 import metricsClient from 'clients/metrics';
-import useStores from 'hooks/use-stores';
 import comparisonContext from 'context/comparison-context';
 
-const ModelDescription = ({_id, name, description, team, tier, lastDeployed, mlModelId, mlModelType, referencePeriod}) => {
+const ModelDescription = ({_id, name, description, team, tier, lastDeployed, mlModelId, mlModelType, referencePeriod, modelStore, filtersStore}) => {
     const [expand, setExpand] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showCompareModal, setShowCompareModal] = useState(false);
     const [errors, setErrors] = useState([]);
     const [addedModelId, setAddedModelId] = useState();
     const [addedModelVersion, setAddedModelVersion] = useState();
-    const {modelStore, filtersStore} = useStores();
     const {index: comparisonIndex, total: comparisonTotal} = useContext(comparisonContext);
     const allModels = modelStore.models;
 
@@ -198,7 +196,8 @@ ModelDescription.propTypes = {
     _id: PropTypes.string.isRequired,
     mlModelId: PropTypes.string.isRequired,
     mlModelType: PropTypes.string.isRequired,
-    referencePeriod: PropTypes.object
+    referencePeriod: PropTypes.object,
+    filtersStore: PropTypes.object.isRequired
 };
 
 export default setupComponent(ModelDescription);

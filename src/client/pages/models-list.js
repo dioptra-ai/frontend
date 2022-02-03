@@ -18,7 +18,6 @@ import ModalComponent from 'components/modal';
 import EditModel from 'pages/model/edit-model';
 import metricsClient from 'clients/metrics';
 import Spinner from 'components/spinner';
-import useStores from 'hooks/use-stores';
 
 const NUMBER_OF_RECORDS_PER_PAGE = 10;
 const TRAFFIC_START_MOMENT = moment().subtract(1, 'day');
@@ -43,11 +42,10 @@ IncidentsTooltipContent.propTypes = {
     incidents: PropTypes.array
 };
 
-const _ModelRow = ({model, idx, color}) => {
+const _ModelRow = ({model, idx, color, filtersStore}) => {
     const incidentsRef = useRef(null);
     const hasIncidents = false;
     const [shouldShowTooltip, setShouldShowTooltip] = useState(false);
-    const {filtersStore} = useStores();
 
     return (
         <tr className='border-0 border-bottom border-mercury py-5' key={idx}>
@@ -148,7 +146,8 @@ const _ModelRow = ({model, idx, color}) => {
 _ModelRow.propTypes = {
     color: PropTypes.string,
     idx: PropTypes.number,
-    model: PropTypes.object
+    model: PropTypes.object,
+    filtersStore: PropTypes.object.isRequired
 };
 
 const ModelRow = setupComponent(_ModelRow);
