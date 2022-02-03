@@ -2,10 +2,10 @@ import PropTypes from 'prop-types';
 import BarLoader from 'react-spinners/BarLoader';
 import {AsyncContext} from 'components/async';
 
-const Spinner = ({size = 150, standalone}) => (
+const Spinner = ({size = 150}) => (
     <AsyncContext.Consumer>
-        {({loading} = {}) => (
-            (loading || standalone) ? (
+        {(asyncContext) => (
+            (asyncContext?.loading || !asyncContext) ? (
                 <div style={{
                     position: 'absolute',
                     left: 0,
@@ -17,10 +17,7 @@ const Spinner = ({size = 150, standalone}) => (
                     justifyContent: 'center',
                     zIndex: 10
                 }}>
-                    <BarLoader
-                        loading
-                        size={size}
-                    />
+                    <BarLoader loading size={size}/>
                 </div>
             ) : null
         )}

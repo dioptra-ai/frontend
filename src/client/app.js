@@ -30,14 +30,14 @@ const App = () => {
                 ))}
                 <AuthRoute path='/models/:_id' renderLoggedIn={() => (
                     <AppContext.Provider value={{
-                        isTimeEnabled: true
+                        isModelView: true
                     }}>
                         <Model/>
                     </AppContext.Provider>
                 )}/>
                 <AuthRoute path='/benchmark' renderLoggedIn={() => (
                     <AppContext.Provider value={{
-                        isTimeEnabled: false
+                        isModelView: false
                     }}>
                         <Benchmark/>
                     </AppContext.Provider>
