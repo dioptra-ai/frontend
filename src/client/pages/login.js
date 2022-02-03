@@ -10,7 +10,6 @@ import Tooltip from '../components/tooltip';
 import FontIcon from '../components/font-icon';
 import {setupComponent} from '../helpers/component-helper';
 import {IconNames} from '../constants';
-import Spinner from 'components/spinner';
 
 const Login = ({authStore}) => {
     const [loginData, setLoginData] = useState({email: '', password: ''});
@@ -39,7 +38,7 @@ const Login = ({authStore}) => {
     }, [authStore.error]);
 
     return authStore.loading ? (
-        <Spinner/>
+        'Loading...'
     ) : authStore.isAuthenticated ? (
         <Redirect to={initialLocation} />
     ) : (
