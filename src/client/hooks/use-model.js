@@ -3,13 +3,16 @@ import {useContext} from 'react';
 import useStores from 'hooks/use-stores';
 import useBenchmark from 'hooks/use-benchmark';
 import appContext from 'context/app-context';
+import comparisonContext from 'context/comparison-context';
 
-const useModel = (modelNum = 0) => {
+const useModel = () => {
     const {isModelView} = useContext(appContext);
 
     if (isModelView) {
         const {filtersStore, modelStore} = useStores();
-        const currentModelFilter = filtersStore.models[modelNum];
+        const comparisonContextValue = useContext(comparisonContext);
+        const comparisonIndex = comparisonContextValue?.index || 0;
+        const currentModelFilter = filtersStore.models[comparisonIndex];
 
         return modelStore.getModelById(currentModelFilter._id);
     } else {

@@ -2,26 +2,47 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {Route, Switch} from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 
 import FilterInput from 'pages/common/filter-input';
 import GeneralSearchBar from 'pages/common/general-search-bar';
 import AddAlertPage from 'pages/add-alert';
 import ModelDescription from 'components/model-description';
 import Tabs from 'components/tabs';
-import {setupComponent} from 'helpers/component-helper';
 import PerformanceOverview from './performance-overview';
 import PerformanceDetails from './performance-details';
 import PredictionAnalysis from './prediction-analysis';
 import FeatureAnalysis from './feature-analysis';
 import IncidentsAndAlerts from 'pages/common/incidents-and-alerts';
 import TrafficReplay from 'pages/common/traffic-replay';
-import useModel from 'hooks/use-model';
 import useSyncStoresToUrl from 'hooks/use-sync-stores-to-url';
 import Menu from 'components/menu';
 import Spinner from 'components/spinner';
+import comparisonContext from 'context/comparison-context';
+import useStores from 'hooks/use-stores';
 
-const Model = ({filtersStore}) => {
-    const model = useModel();
+const SplitView = ({children}) => (
+    <Row>
+        {children.map((c, i) => (
+            <comparisonContext.Provider value={{index: i, total: children.length}} key={i}>
+                <Col xs={12 / children.length}>{c}</Col>
+            </comparisonContext.Provider>
+        ))}
+    </Row>
+);
+
+SplitView.propTypes = {
+    children: PropTypes.node.isRequired
+};
+
+const Model = () => {
+    const {filtersStore, modelStore} = useStores();
+    const models = filtersStore.models.map(({_id}) => {
+
+        return modelStore.getModelById(_id);
+    });
+    const firstModel = models[0];
 
     useSyncStoresToUrl(({timeStore, filtersStore, segmentationStore}) => ({
         startTime: timeStore.start?.toISOString() || '',
@@ -36,11 +57,11 @@ const Model = ({filtersStore}) => {
         {name: 'Performance Overview', to: '/models/performance-overview'}
     ];
 
-    if (model?.mlModelType !== 'UNSUPERVISED_OBJECT_DETECTION') {
+    if (firstModel?.mlModelType !== 'UNSUPERVISED_OBJECT_DETECTION') {
         tabs.push({name: 'Performance Analysis', to: '/models/performance-details'});
     }
 
-    if (model?.mlModelType !== 'Q_N_A') {
+    if (firstModel?.mlModelType !== 'Q_N_A') {
         tabs.push({name: 'Prediction Analysis', to: '/models/prediction-analysis'});
     }
 
@@ -49,10 +70,12 @@ const Model = ({filtersStore}) => {
     tabs.push({name: 'Traffic Replay', to: '/models/traffic-replay'});
     tabs.push({name: 'Incidents & Alerts', to: '/models/incidents-and-alerts'});
 
-    return model ? (
+    return firstModel ? (
         <Menu>
             <GeneralSearchBar/>
-            <ModelDescription {...model}/>
+            <SplitView>
+                {models.map((model, i) => <ModelDescription key={i} {...model}/>)}
+            </SplitView>
             <Container fluid>
                 <Tabs tabs={tabs}/>
                 <Switch>
@@ -64,11 +87,31 @@ const Model = ({filtersStore}) => {
                             onChange={(filters) => (filtersStore.filters = filters)}
                         />
                         <div className='px-3'>
-                            <Route exact path='/models/performance-overview' component={PerformanceOverview}/>
-                            <Route exact path='/models/performance-details' component={PerformanceDetails}/>
-                            <Route exact path='/models/prediction-analysis' component={PredictionAnalysis}/>
-                            <Route exact path='/models/feature-analysis' component={FeatureAnalysis}/>
-                            <Route exact path='/models/traffic-replay' component={TrafficReplay}/>
+                            <Route exact path='/models/performance-overview' render={() => (
+                                <SplitView>
+                                    {models.map((model, i) => <PerformanceOverview key={i}/>)}
+                                </SplitView>
+                            )}/>
+                            <Route exact path='/models/performance-details' render={() => (
+                                <SplitView>
+                                    {models.map((model, i) => <PerformanceDetails key={i}/>)}
+                                </SplitView>
+                            )}/>
+                            <Route exact path='/models/prediction-analysis' render={() => (
+                                <SplitView>
+                                    {models.map((model, i) => <PredictionAnalysis key={i}/>)}
+                                </SplitView>
+                            )}/>
+                            <Route exact path='/models/feature-analysis' render={() => (
+                                <SplitView>
+                                    {models.map((model, i) => <FeatureAnalysis key={i}/>)}
+                                </SplitView>
+                            )}/>
+                            <Route exact path='/models/traffic-replay' render={() => (
+                                <SplitView>
+                                    {models.map((model, i) => <TrafficReplay key={i}/>)}
+                                </SplitView>
+                            )}/>
                         </div>
                     </Route>
                 </Switch>
@@ -77,8 +120,5 @@ const Model = ({filtersStore}) => {
     ) : <Spinner/>;
 };
 
-Model.propTypes = {
-    filtersStore: PropTypes.object.isRequired
-};
 
-export default setupComponent(Model);
+export default Model;
