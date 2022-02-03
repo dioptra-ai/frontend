@@ -253,7 +253,7 @@ const _metricCell = ({cell, timeStore}) => {
                         }
                     }}
                     renderData={(data) => (
-                        <div style={{height: '150px', width: '300px'}}>
+                        <div style={{height: '150px'}}>
                             <SmallChart
                                 data={data}
                                 xDataKey='time'
@@ -380,7 +380,7 @@ const Segmentation = ({timeStore, segmentationStore}) => {
                                     },
                                     {
                                         id: 'f1-score-metric',
-                                        Header: 'f1',
+                                        Header: 'F1 Score',
                                         Cell: metricCell
                                     },
                                     {
@@ -400,7 +400,7 @@ const Segmentation = ({timeStore, segmentationStore}) => {
                                     },
                                     {
                                         id: 'f1-score-metric',
-                                        Header: 'f1',
+                                        Header: 'F1 Score',
                                         Cell: metricCell
                                     },
                                     {
