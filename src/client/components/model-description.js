@@ -1,35 +1,33 @@
-import React, {useEffect, useState} from 'react';
+import {Textfit} from 'react-textfit';
+import {useContext, useState} from 'react';
+import {Button, Form} from 'react-bootstrap';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import PropTypes from 'prop-types';
 import {formatDateTime} from 'helpers/date-helper';
-import ModalComponent from 'components/modal';
+import Modal from 'components/modal';
 import EditModel from 'pages/model/edit-model';
 import {setupComponent} from 'helpers/component-helper';
-import Select from './select';
-import metricsClient from 'clients/metrics';
 import {BsChevronDown, BsChevronUp} from 'react-icons/bs';
 import {AiOutlineEdit} from 'react-icons/ai';
+import {MdOutlineCompare, MdOutlineDelete} from 'react-icons/md';
+import Select from 'components/select';
+import Async from 'components/async';
+import metricsClient from 'clients/metrics';
+import useStores from 'hooks/use-stores';
+import comparisonContext from 'context/comparison-context';
 
-const ModelDescription = ({_id, filtersStore, modelStore, name, description, team, tier, lastDeployed, mlModelId, mlModelType, referencePeriod}) => {
+const ModelDescription = ({_id, name, description, team, tier, lastDeployed, mlModelId, mlModelType, referencePeriod}) => {
     const [expand, setExpand] = useState(false);
-    const [showModal, setShowModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [showCompareModal, setShowCompareModal] = useState(false);
     const [errors, setErrors] = useState([]);
-    const mlModelVersion = filtersStore.modelVersion;
-    const [allMlModelVersions, setAllMlModelVersions] = useState([]);
-
-    useEffect(() => {
-        metricsClient('queries/all-ml-model-versions', {
-            ml_model_id: mlModelId
-        })
-            .then((data) => {
-                setAllMlModelVersions([
-                    ...data.map((v) => ({name: v.mlModelVersion, value: v.mlModelVersion}))
-                ]);
-            })
-            .catch(() => setAllMlModelVersions([]));
-    }, [mlModelId]);
+    const [addedModelId, setAddedModelId] = useState();
+    const [addedModelVersion, setAddedModelVersion] = useState();
+    const {modelStore, filtersStore} = useStores();
+    const {index: comparisonIndex, total: comparisonTotal} = useContext(comparisonContext);
+    const allModels = modelStore.models;
 
     const handleSubmit = (data) => {
         if (errors) {
@@ -50,7 +48,7 @@ const ModelDescription = ({_id, filtersStore, modelStore, name, description, tea
                     throw new Error(modelData.error);
                 }
                 modelStore.setModelById(_id, modelData);
-                setShowModal(false);
+                setShowEditModal(false);
             })
             .catch((e) => {
 
@@ -61,8 +59,10 @@ const ModelDescription = ({_id, filtersStore, modelStore, name, description, tea
     return (
         <Container className='bg-white-blue model-desc' fluid >
             <Row className='align-items-center py-2 px-3'>
-                <Col className='d-flex align-items-center'>
-                    <h1 className='text-dark fs-1 my-3 bold-text'>{name}</h1>
+                <Col className='d-flex align-items-center' xs={11}>
+                    <Textfit mode='single'>
+                        <h1 className='text-dark my-3 bold-text'>{name}</h1>
+                    </Textfit>
                     <button className='btn-expand bg-transparent text-dark' onClick={() => setExpand(!expand)}>
                         {expand ? (
                             <BsChevronUp className='fs-2'/>
@@ -72,37 +72,48 @@ const ModelDescription = ({_id, filtersStore, modelStore, name, description, tea
                     </button>
                     <button
                         className='btn-expand bg-transparent text-dark'
-                        onClick={() => setShowModal(true)}
+                        onClick={() => setShowEditModal(true)}
                     >
                         <AiOutlineEdit className='fs-2'/>
                     </button>
                 </Col>
+                <Col xs={1}>
+                    <div className='d-flex align-items-center justify-content-end'>
+                        {
+                            comparisonIndex === comparisonTotal - 1 ? (
+                                <button
+                                    className='btn-expand bg-transparent text-dark'
+                                    onClick={() => setShowCompareModal(true)}
+                                >
+                                    <MdOutlineCompare className='fs-2'/>
+                                </button>
+                            ) : null
+                        }
+                        {
+                            comparisonIndex !== 0 ? (
+                                <button
+                                    className='btn-expand bg-transparent text-dark'
+                                    onClick={() => {
+
+                                        filtersStore.models = filtersStore.models.filter((_, i) => i !== comparisonIndex);
+                                    }}
+                                >
+                                    <MdOutlineDelete className='fs-2'/>
+                                </button>
+                            ) : null
+                        }
+                    </div>
+                </Col>
             </Row>
             <div className={`model-details ${expand ? 'show' : ''} text-dark mx-3`}>
                 <Row className='mt-3 py-3'>
-                    <Col className='details-col' lg={4}>
+                    <Col className='details-col' lg={6}>
                         <p className='bold-text fs-4'>Description</p>
                         <p className='description fs-6'>{description}</p>
                     </Col>
                     <Col className='details-col p-3 justify-content-start' lg={2}>
                         <p className='bold-text fs-5'>Owner</p>
                         <p className='fs-6'>{team?.name || <>&nbsp;</>}</p>
-                    </Col>
-                    <Col className='details-col p-3 justify-content-start' lg={2}>
-                        <p className='bold-text fs-5'>Version</p>
-                        {
-                            mlModelVersion ?
-                                allMlModelVersions.length ?
-                                    <Select
-                                        initialValue={mlModelVersion}
-                                        onChange={(v) => {
-                                            filtersStore.modelVersion = v;
-                                        }}
-                                        options={allMlModelVersions}
-                                    /> :
-                                    <p className='fs-6'>{mlModelVersion}</p> :
-                                <p className='fs-6'>NA</p>
-                        }
                     </Col>
                     <Col className='details-col p-3 justify-content-start' lg={2}>
                         <p className='bold-text fs-5'>Tier of the model</p>
@@ -114,20 +125,71 @@ const ModelDescription = ({_id, filtersStore, modelStore, name, description, tea
                     </Col>
                 </Row>
             </div>
-            <ModalComponent isOpen={showModal} onClose={() => setShowModal(false)} title='Edit  Model'>
+            <Modal isOpen={showEditModal} onClose={() => setShowEditModal(false)} title='Edit Model'>
                 <EditModel
                     errors={errors}
                     initialValue={{name, description, mlModelId, mlModelType, referencePeriod}}
                     onSubmit={handleSubmit}
                 />
-            </ModalComponent>
+            </Modal>
+            <Modal isOpen={showCompareModal} onClose={() => setShowCompareModal(false)} title='Compare Model'>
+                <Form style={{width: 500}} onSubmit={(e) => {
+                    e.preventDefault();
+
+                    filtersStore.models = filtersStore.models.concat([{
+                        _id: addedModelId,
+                        mlModelId: modelStore.getModelById(addedModelId)?.mlModelId,
+                        mlModelVersion: addedModelVersion
+                    }]);
+
+                    setShowCompareModal(false);
+                }}>
+                    <Form.Group className='mb-3'>
+                        <Form.Label>Model</Form.Label>
+                        <Select
+                            onChange={setAddedModelId}
+                            options={[{name: 'Choose Model'}].concat(allModels.map((m) => ({
+                                name: m.name,
+                                value: m._id
+                            })))}
+                        />
+                    </Form.Group>
+                    <Form.Group className='mb-3'>
+                        <Form.Label>Model Version</Form.Label>
+                        <Async
+                            refetchOnChanged={[addedModelId]}
+                            fetchData={() => metricsClient('queries/all-ml-model-versions', {
+                                ml_model_id: modelStore.getModelById(addedModelId)?.mlModelId
+                            })}
+                            renderData={(data) => (
+                                <Select
+                                    onChange={setAddedModelVersion}
+                                    options={data.map((d) => ({
+                                        name: d.mlModelVersion,
+                                        value: d.mlModelVersion
+                                    }))}
+                                />
+                            )}
+                        />
+                    </Form.Group>
+                    <Row>
+                        <Col>
+                            <Button
+                                className='w-100 text-white btn-submit mt-3 py-2'
+                                variant='primary' type='submit'
+                            >
+                                Compare Models
+                            </Button>
+                        </Col>
+                    </Row>
+                </Form>
+            </Modal>
         </Container>
     );
 };
 
 ModelDescription.propTypes = {
     description: PropTypes.string,
-    filtersStore: PropTypes.object,
     lastDeployed: PropTypes.string,
     modelStore: PropTypes.object,
     name: PropTypes.string,
