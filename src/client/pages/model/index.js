@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {Route, Switch, useParams} from 'react-router-dom';
+import {Route, Switch} from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
 
 import FilterInput from 'pages/common/filter-input';
@@ -21,7 +21,6 @@ import Menu from 'components/menu';
 import Spinner from 'components/spinner';
 
 const Model = ({filtersStore}) => {
-    const modelId = useParams()._id;
     const model = useModel();
 
     useSyncStoresToUrl(({timeStore, filtersStore, segmentationStore}) => ({
@@ -29,26 +28,26 @@ const Model = ({filtersStore}) => {
         endTime: timeStore.end?.toISOString() || '',
         lastMs: timeStore.lastMs || '',
         filters: JSON.stringify(filtersStore.filters),
-        mlModelVersion: filtersStore.mlModelVersion,
+        models: JSON.stringify(filtersStore.models.map(({_id, mlModelId, mlModelVersion}) => ({_id, mlModelId, mlModelVersion}))),
         segmentation: JSON.stringify(segmentationStore.segmentation)
     }));
 
     const tabs = [
-        {name: 'Performance Overview', to: `/models/${modelId}/performance-overview`}
+        {name: 'Performance Overview', to: '/models/performance-overview'}
     ];
 
     if (model?.mlModelType !== 'UNSUPERVISED_OBJECT_DETECTION') {
-        tabs.push({name: 'Performance Analysis', to: `/models/${modelId}/performance-details`});
+        tabs.push({name: 'Performance Analysis', to: '/models/performance-details'});
     }
 
     if (model?.mlModelType !== 'Q_N_A') {
-        tabs.push({name: 'Prediction Analysis', to: `/models/${modelId}/prediction-analysis`});
+        tabs.push({name: 'Prediction Analysis', to: '/models/prediction-analysis'});
     }
 
-    tabs.push({name: 'Feature Analysis', to: `/models/${modelId}/feature-analysis`});
+    tabs.push({name: 'Feature Analysis', to: '/models/feature-analysis'});
 
-    tabs.push({name: 'Traffic Replay', to: `/models/${modelId}/traffic-replay`});
-    tabs.push({name: 'Incidents & Alerts', to: `/models/${modelId}/incidents-and-alerts`});
+    tabs.push({name: 'Traffic Replay', to: '/models/traffic-replay'});
+    tabs.push({name: 'Incidents & Alerts', to: '/models/incidents-and-alerts'});
 
     return model ? (
         <Menu>
@@ -57,19 +56,19 @@ const Model = ({filtersStore}) => {
             <Container fluid>
                 <Tabs tabs={tabs}/>
                 <Switch>
-                    <Route exact path='/models/:_id/add-alert' component={AddAlertPage}/>
-                    <Route exact path='/models/:_id/incidents-and-alerts' component={IncidentsAndAlerts}/>
+                    <Route exact path='/models/add-alert' component={AddAlertPage}/>
+                    <Route exact path='/models/incidents-and-alerts' component={IncidentsAndAlerts}/>
                     <Route>
                         <FilterInput
                             defaultFilters={filtersStore.filters}
                             onChange={(filters) => (filtersStore.filters = filters)}
                         />
                         <div className='px-3'>
-                            <Route exact path='/models/:_id/performance-overview' component={PerformanceOverview}/>
-                            <Route exact path='/models/:_id/performance-details' component={PerformanceDetails}/>
-                            <Route exact path='/models/:_id/prediction-analysis' component={PredictionAnalysis}/>
-                            <Route exact path='/models/:_id/feature-analysis' component={FeatureAnalysis}/>
-                            <Route exact path='/models/:_id/traffic-replay' component={TrafficReplay}/>
+                            <Route exact path='/models/performance-overview' component={PerformanceOverview}/>
+                            <Route exact path='/models/performance-details' component={PerformanceDetails}/>
+                            <Route exact path='/models/prediction-analysis' component={PredictionAnalysis}/>
+                            <Route exact path='/models/feature-analysis' component={FeatureAnalysis}/>
+                            <Route exact path='/models/traffic-replay' component={TrafficReplay}/>
                         </div>
                     </Route>
                 </Switch>

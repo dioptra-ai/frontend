@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -7,29 +7,13 @@ import {formatDateTime} from 'helpers/date-helper';
 import ModalComponent from 'components/modal';
 import EditModel from 'pages/model/edit-model';
 import {setupComponent} from 'helpers/component-helper';
-import Select from './select';
-import metricsClient from 'clients/metrics';
 import {BsChevronDown, BsChevronUp} from 'react-icons/bs';
 import {AiOutlineEdit} from 'react-icons/ai';
 
-const ModelDescription = ({_id, filtersStore, modelStore, name, description, team, tier, lastDeployed, mlModelId, mlModelType, referencePeriod}) => {
+const ModelDescription = ({_id, modelStore, name, description, team, tier, lastDeployed, mlModelId, mlModelType, referencePeriod}) => {
     const [expand, setExpand] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [errors, setErrors] = useState([]);
-    const mlModelVersion = filtersStore.modelVersion;
-    const [allMlModelVersions, setAllMlModelVersions] = useState([]);
-
-    useEffect(() => {
-        metricsClient('queries/all-ml-model-versions', {
-            ml_model_id: mlModelId
-        })
-            .then((data) => {
-                setAllMlModelVersions([
-                    ...data.map((v) => ({name: v.mlModelVersion, value: v.mlModelVersion}))
-                ]);
-            })
-            .catch(() => setAllMlModelVersions([]));
-    }, [mlModelId]);
 
     const handleSubmit = (data) => {
         if (errors) {
@@ -80,29 +64,13 @@ const ModelDescription = ({_id, filtersStore, modelStore, name, description, tea
             </Row>
             <div className={`model-details ${expand ? 'show' : ''} text-dark mx-3`}>
                 <Row className='mt-3 py-3'>
-                    <Col className='details-col' lg={4}>
+                    <Col className='details-col' lg={6}>
                         <p className='bold-text fs-4'>Description</p>
                         <p className='description fs-6'>{description}</p>
                     </Col>
                     <Col className='details-col p-3 justify-content-start' lg={2}>
                         <p className='bold-text fs-5'>Owner</p>
                         <p className='fs-6'>{team?.name || <>&nbsp;</>}</p>
-                    </Col>
-                    <Col className='details-col p-3 justify-content-start' lg={2}>
-                        <p className='bold-text fs-5'>Version</p>
-                        {
-                            mlModelVersion ?
-                                allMlModelVersions.length ?
-                                    <Select
-                                        initialValue={mlModelVersion}
-                                        onChange={(v) => {
-                                            filtersStore.modelVersion = v;
-                                        }}
-                                        options={allMlModelVersions}
-                                    /> :
-                                    <p className='fs-6'>{mlModelVersion}</p> :
-                                <p className='fs-6'>NA</p>
-                        }
                     </Col>
                     <Col className='details-col p-3 justify-content-start' lg={2}>
                         <p className='bold-text fs-5'>Tier of the model</p>
@@ -127,7 +95,6 @@ const ModelDescription = ({_id, filtersStore, modelStore, name, description, tea
 
 ModelDescription.propTypes = {
     description: PropTypes.string,
-    filtersStore: PropTypes.object,
     lastDeployed: PropTypes.string,
     modelStore: PropTypes.object,
     name: PropTypes.string,
