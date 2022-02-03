@@ -27,11 +27,6 @@ class ModelStore {
         return this.modelsById[_id];
     }
 
-    getModelByMlModelId(mlModelId) {
-
-        return this.models.find((m) => m.mlModelId === mlModelId);
-    }
-
     setModelById(_id, data) {
         this.modelsById[_id] = data;
     }
@@ -59,6 +54,26 @@ class ModelStore {
 
                 this.state = ModelStore.STATE_ERROR;
             }));
+    }
+
+    fetchModel(_id) {
+
+        if (!this.modelsById[_id]) {
+            this.state = ModelStore.STATE_PENDING;
+
+            window.fetch(`/api/ml-model/${_id}`)
+                .then((res) => res.json())
+                .then(action((model) => {
+
+                    this.modelsById[model._id] = model;
+
+                    this.state = ModelStore.STATE_DONE;
+                })).catch(action((e) => {
+                    console.error(e);
+
+                    this.state = ModelStore.STATE_ERROR;
+                }));
+        }
     }
 }
 

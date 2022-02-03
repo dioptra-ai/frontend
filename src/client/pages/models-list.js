@@ -17,8 +17,6 @@ import theme from 'styles/theme.module.scss';
 import ModalComponent from 'components/modal';
 import EditModel from 'pages/model/edit-model';
 import metricsClient from 'clients/metrics';
-import Spinner from 'components/spinner';
-import useStores from 'hooks/use-stores';
 
 const NUMBER_OF_RECORDS_PER_PAGE = 10;
 const TRAFFIC_START_MOMENT = moment().subtract(1, 'day');
@@ -47,18 +45,13 @@ const _ModelRow = ({model, idx, color}) => {
     const incidentsRef = useRef(null);
     const hasIncidents = false;
     const [shouldShowTooltip, setShouldShowTooltip] = useState(false);
-    const {filtersStore} = useStores();
 
     return (
         <tr className='border-0 border-bottom border-mercury py-5' key={idx}>
             <td className='fs-6 py-2 align-middle'>
                 <Link
                     className='cursor-pointer'
-                    to='/models/performance-overview'
-                    onClick={() => {
-
-                        filtersStore.models = [model];
-                    }}
+                    to={`/models/${model._id}/performance-overview`}
                 >
                     {model.name}
                 </Link>
@@ -217,7 +210,7 @@ const Models = ({modelStore}) => {
         <>
             <GeneralSearchBar shouldShowOnlySearchInput={true} />
             {modelStore.state === modelStore.STATE_PENDING ? (
-                <Spinner/>
+                'Loading...'
             ) : (
                 <div className='p-4 mt-5'>
                     <div className='d-flex justify-content-between'>
