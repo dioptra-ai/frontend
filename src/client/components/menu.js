@@ -3,9 +3,8 @@ import React from 'react';
 import LogoSymbol from './logo-symbol';
 import {Link, useLocation} from 'react-router-dom';
 import {AiFillDatabase} from 'react-icons/ai';
-import {getMatchingRouteConfig} from '../configs/route-config';
+import {Paths, getMatchingRouteConfig} from 'configs/route-config';
 import {IconNames} from 'constants';
-import {Paths} from 'configs/route-config';
 import FontIcon from './font-icon';
 
 const MenuItem = ({icon, isActive, size, className}) => {

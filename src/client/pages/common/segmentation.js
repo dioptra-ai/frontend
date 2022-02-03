@@ -227,10 +227,10 @@ const _metricCell = ({cell, timeStore}) => {
     const cellFields = Object.keys(cellValues).filter((f) => f !== 'value');
     const {mlModelType} = useModel();
     const allSqlFilters = useAllSqlFilters();
-    const {isTimeEnabled} = useContext(appContext);
+    const {isModelView} = useContext(appContext);
     const {ref, inView} = useInView();
 
-    if (isTimeEnabled) {
+    if (isModelView) {
         const timeGranularity = timeStore.getTimeGranularity(5).toISOString();
 
         return (
@@ -307,7 +307,7 @@ const Segmentation = ({timeStore, segmentationStore}) => {
     const [addColModal, setAddColModal] = useModal(false);
     const groupByColumns = segmentationStore.segmentation;
     const {mlModelType, mlModelId} = useModel();
-    const {isTimeEnabled} = useContext(appContext);
+    const {isModelView} = useContext(appContext);
     const handleApply = (cols) => {
         segmentationStore.segmentation = cols;
         setAddColModal(false);
@@ -467,7 +467,7 @@ const Segmentation = ({timeStore, segmentationStore}) => {
                                 resultFormat='array'
                                 fetchData={() => metricsClient('queries/fairness-bias-columns-counts', {
                                     counts: featuresAndTags.map(({column}) => `COUNT("${column}")`).join(', '),
-                                    sql_time_filter: isTimeEnabled ? timeStore.sqlTimeFilter : 'TRUE',
+                                    sql_time_filter: isModelView ? timeStore.sqlTimeFilter : 'TRUE',
                                     ml_model_id: mlModelId
                                 })}
                             />
