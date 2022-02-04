@@ -6,6 +6,7 @@ import {AiFillDatabase} from 'react-icons/ai';
 import {Paths, getMatchingRouteConfig} from 'configs/route-config';
 import {IconNames} from 'constants';
 import FontIcon from './font-icon';
+import {MdHelpOutline} from 'react-icons/md';
 
 const MenuItem = ({icon, isActive, size, className}) => {
     return (
@@ -39,6 +40,7 @@ const TopMenuItemsConfig = [
 ];
 
 const BottomMenuItemsConfig = [
+    {icon: <MdHelpOutline className='fs-3'/>, url: '/documentation', title: 'Documentation'},
     {icon: IconNames.SETTING, url: Paths().SETTINGS, title: 'Settings'},
     {icon: IconNames.USER, url: Paths().PROFILE, title: 'User'}
 ];
