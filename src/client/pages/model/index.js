@@ -19,7 +19,6 @@ import IncidentsAndAlerts from 'pages/common/incidents-and-alerts';
 import TrafficReplay from 'pages/common/traffic-replay';
 import useSyncStoresToUrl from 'hooks/use-sync-stores-to-url';
 import Menu from 'components/menu';
-import Spinner from 'components/spinner';
 import comparisonContext from 'context/comparison-context';
 
 const SplitView = ({children}) => (
