@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {Route, Switch} from 'react-router-dom';
+import {Redirect, Route, Switch} from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -19,7 +19,6 @@ import IncidentsAndAlerts from 'pages/common/incidents-and-alerts';
 import TrafficReplay from 'pages/common/traffic-replay';
 import useSyncStoresToUrl from 'hooks/use-sync-stores-to-url';
 import Menu from 'components/menu';
-import Spinner from 'components/spinner';
 import comparisonContext from 'context/comparison-context';
 
 const SplitView = ({children}) => (
@@ -60,7 +59,7 @@ const Model = ({timeStore, filtersStore, modelStore}) => {
         tabs.push({name: 'Performance Analysis', to: '/models/performance-details'});
     }
 
-    if (firstModel?.mlModelType !== 'Q_N_A') {
+    if (firstModel?.mlModelType !== 'Q_N_A' && firstModel?.mlModelType !== 'SPEECH_TO_TEXT') {
         tabs.push({name: 'Prediction Analysis', to: '/models/prediction-analysis'});
     }
 
@@ -116,7 +115,7 @@ const Model = ({timeStore, filtersStore, modelStore}) => {
                 </Switch>
             </Container>
         </Menu>
-    ) : <Spinner/>;
+    ) : <Redirect to='/'/>;
 };
 
 Model.propTypes = {

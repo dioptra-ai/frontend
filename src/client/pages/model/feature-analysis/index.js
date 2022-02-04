@@ -12,11 +12,11 @@ const FeatureAnalysis = () => {
     case 'IMAGE_CLASSIFIER':
     case 'DOCUMENT_PROCESSING':
     case 'UNSUPERVISED_OBJECT_DETECTION':
-    case 'SPEECH_TO_TEXT':
 
         return <FeatureAnalysisImages/>;
     case 'TEXT_CLASSIFIER':
     case 'Q_N_A':
+    case 'SPEECH_TO_TEXT':
         return <FeatureAnalysisText/>;
     case 'TABULAR_CLASSIFIER':
 
