@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {Route, Switch} from 'react-router-dom';
+import {Redirect, Route, Switch} from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -116,7 +116,7 @@ const Model = ({timeStore, filtersStore, modelStore}) => {
                 </Switch>
             </Container>
         </Menu>
-    ) : <Spinner/>;
+    ) : <Redirect to='/'/>;
 };
 
 Model.propTypes = {

@@ -20,6 +20,7 @@ import useTimeGranularity from 'hooks/use-time-granularity';
 const ModelPerformanceMetrics = {
     ACCURACY: {value: 'ACCURACY', name: 'Accuracy'},
     F1_SCORE: {value: 'F1_SCORE', name: 'F1 Score'},
+    WORD_ERROR_RATE: {value: 'WORD_ERROR_RATE', name: 'Word Error Rate'},
     PRECISION: {value: 'PRECISION', name: 'Precision'},
     RECALL: {value: 'RECALL', name: 'Recall'},
     EXACT_MATCH: {value: 'EXACT_MATCH', name: 'Exact Match'},
