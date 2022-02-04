@@ -90,6 +90,14 @@ const CorrelationToKPIs = ({timeStore, selectableMetrics}) => {
                     model_type: model.mlModelType
                 });
             },
+            [ModelPerformanceMetrics.WORD_ERROR_RATE.value]: () => {
+
+                return metricsClient('word-error-rate', {
+                    sql_filters: sqlFilters,
+                    time_granularity: timeGranularity,
+                    model_type: model.mlModelType
+                });
+            },
             [ModelPerformanceMetrics.EXACT_MATCH.value]: () => {
 
                 return metricsClient('exact-match', {
