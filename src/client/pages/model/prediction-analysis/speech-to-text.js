@@ -1,13 +1,5 @@
 import ClassDistribution from 'pages/common/class-distribution';
 
-const PredictionAnalysis = () => {
-
-    return (
-        <div className='my-3'>
-            <ClassDistribution/>
-        </div>
-
-    );
-};
+const PredictionAnalysis = () => null;
 
 export default PredictionAnalysis;

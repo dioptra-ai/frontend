@@ -60,7 +60,7 @@ const Model = ({timeStore, filtersStore, modelStore}) => {
         tabs.push({name: 'Performance Analysis', to: '/models/performance-details'});
     }
 
-    if (firstModel?.mlModelType !== 'Q_N_A') {
+    if (firstModel?.mlModelType !== 'Q_N_A' && firstModel?.mlModelType !== 'SPEECH_TO_TEXT') {
         tabs.push({name: 'Prediction Analysis', to: '/models/prediction-analysis'});
     }
 
