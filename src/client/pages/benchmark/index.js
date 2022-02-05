@@ -19,8 +19,9 @@ import Features from './features';
 import FilterInput from 'pages/common/filter-input';
 import Drift from './drift';
 import useBenchmark from 'hooks/use-benchmark';
+import {BenchmarkStore} from 'state/stores/benchmark-store';
 
-const Benchmarks = ({filtersStore, modelStore}) => {
+const Benchmarks = ({filtersStore, modelStore, benchmarkStore}) => {
     const [benchmarkFilters, setBenchmarkFilters] = useState();
     const benchmark = useBenchmark();
     const mlModelId = benchmark?.['model_id'];
@@ -34,7 +35,7 @@ const Benchmarks = ({filtersStore, modelStore}) => {
         segmentation: JSON.stringify(segmentationStore.segmentation)
     }));
 
-    if (!benchmark) {
+    if (benchmarkStore.state !== BenchmarkStore.STATE_PENDING && !benchmark) {
 
         return <Redirect to={{
             pathname: '/benchmark',
@@ -57,6 +58,7 @@ const Benchmarks = ({filtersStore, modelStore}) => {
         tabs.push({name: 'Drift Analysis', to: '/benchmark/drift-analysis'});
         break;
     case 'TEXT_CLASSIFIER':
+    case 'IMAGE_CLASSIFIER':
         tabs.push({name: 'Prediction Analysis', to: '/benchmark/predictions'});
         tabs.push({name: 'Drift Analysis', to: '/benchmark/drift-analysis'});
         break;
@@ -141,7 +143,8 @@ const Benchmarks = ({filtersStore, modelStore}) => {
 
 Benchmarks.propTypes = {
     filtersStore: PropTypes.object.isRequired,
-    modelStore: PropTypes.object.isRequired
+    modelStore: PropTypes.object.isRequired,
+    benchmarkStore: PropTypes.object.isRequired
 };
 
 export default setupComponent(Benchmarks);

@@ -20,6 +20,7 @@ import TrafficReplay from 'pages/common/traffic-replay';
 import useSyncStoresToUrl from 'hooks/use-sync-stores-to-url';
 import Menu from 'components/menu';
 import comparisonContext from 'context/comparison-context';
+import {ModelStore} from 'state/stores/model-store';
 
 const SplitView = ({children}) => (
     <Row>
@@ -68,7 +69,10 @@ const Model = ({timeStore, filtersStore, modelStore}) => {
     tabs.push({name: 'Traffic Replay', to: '/models/traffic-replay'});
     tabs.push({name: 'Incidents & Alerts', to: '/models/incidents-and-alerts'});
 
-    return firstModel ? (
+    if (modelStore.state !== ModelStore.STATE_PENDING && !firstModel) {
+
+        return <Redirect to='/models'/>;
+    } else return (
         <Menu>
             <GeneralSearchBar/>
             <SplitView>
@@ -115,7 +119,7 @@ const Model = ({timeStore, filtersStore, modelStore}) => {
                 </Switch>
             </Container>
         </Menu>
-    ) : <Redirect to='/'/>;
+    );
 };
 
 Model.propTypes = {
