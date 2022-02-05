@@ -3,12 +3,15 @@ import UnsupervisedObjectDetection from './unsupervised-object-detection';
 import SpeechToText from './speech-to-text';
 import QnA from './q-n-a';
 import TextClassifier from './text-classifier';
+import ImageClassifier from './image-classifier';
 
 const Performance = (props) => {
     const model = useModel();
 
     switch (model.mlModelType) {
-    // case 'IMAGE_CLASSIFIER':
+    case 'IMAGE_CLASSIFIER':
+
+        return <ImageClassifier {...props}/>;
     // case 'TABULAR_CLASSIFIER':
     // case 'DOCUMENT_PROCESSING':
     // case 'Q_N_A':
