@@ -1,19 +1,27 @@
-import {useParams} from 'react-router-dom';
+import {useContext} from 'react';
 
+import useBenchmark from 'hooks/use-benchmark';
+import appContext from 'context/app-context';
+import comparisonContext from 'context/comparison-context';
 import stores from 'state/stores';
 
-const {modelStore, filtersStore} = stores;
-
 const useModel = () => {
-    const modelIdFromPath = useParams()._id;
+    const {isModelView} = useContext(appContext);
 
-    if (modelIdFromPath) {
+    if (isModelView) {
+        const {filtersStore, modelStore} = stores;
+        const comparisonContextValue = useContext(comparisonContext);
+        const comparisonIndex = comparisonContextValue?.index || 0;
+        const currentModelFilter = filtersStore.models[comparisonIndex];
 
-        return modelStore.getModelById(modelIdFromPath);
+        return modelStore.getModelById(currentModelFilter._id);
     } else {
-        const mlModelIdFromFilters = filtersStore.filters.find((f) => f.left === 'model_id').right;
 
-        return modelStore.models.find((m) => m.mlModelId === mlModelIdFromFilters);
+        const {modelStore} = stores;
+        const benchmark = useBenchmark();
+        const mlModelId = benchmark['model_id'];
+
+        return modelStore.getModelByMlModelId(mlModelId);
     }
 };
 

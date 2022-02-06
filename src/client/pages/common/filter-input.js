@@ -8,15 +8,17 @@ import FontIcon from 'components/font-icon';
 import metricsClient from 'clients/metrics';
 import {Filter} from 'state/stores/filters-store';
 import useModel from 'hooks/use-model';
+import Spinner from 'components/spinner';
 
 const RenderedFilter = ({filter, onDelete, applied = false}) => {
+    const truncatedFilters = filter.toString(true);
 
     return (
         <OverlayTrigger
             placement='bottom'
             overlay={(
-                <Tooltip id={filter.toString()}>
-                    {filter.toString()}
+                <Tooltip id={truncatedFilters}>
+                    {truncatedFilters}
                 </Tooltip>
             )}>
             <div
@@ -28,7 +30,7 @@ const RenderedFilter = ({filter, onDelete, applied = false}) => {
                 <div className='text-truncate mr-1' style={{
                     maxWidth: 200,
                     overflow: 'hidden'
-                }}>{filter.toString()}</div>
+                }}>{truncatedFilters}</div>
                 <button onClick={onDelete}>
                     <FontIcon className='text-dark' icon='Close' size={10} />
                 </button>
@@ -53,6 +55,7 @@ const FilterInput = ({
     const [suggestions, setSuggestions] = useState([]);
     const [suggestionIndex, setSuggestionIndex] = useState(-1);
     const [showSuggestions, setShowSuggestions] = useState(false);
+    const [suggestionsLoading, setSuggestionsLoading] = useState(false);
 
     const appliedFilters = filtersStore.filters;
 
@@ -63,9 +66,13 @@ const FilterInput = ({
 
         try {
             if (key && isOpValid) {
+
+                setShowSuggestions(true);
+                setSuggestionsLoading(true);
+
                 const allSuggestions = await metricsClient('queries/get-suggestions-with-key', {
                     key,
-                    value,
+                    value: Array.isArray(value) ? value[value.length - 1] : value,
                     ml_model_id: mlModelId
                 });
 
@@ -73,34 +80,44 @@ const FilterInput = ({
 
                 setSuggestions(allSuggestionValues);
             } else if (key) {
+
+                setShowSuggestions(true);
+                setSuggestionsLoading(true);
+
                 const allSuggestions = await metricsClient('queries/get-suggestions-without-key', {
                     key
                 });
-                const allSuggestionValues = allSuggestions.map(({value}) => value);
-                const non1Options = await metricsClient('queries/all-key-options', {
-                    // COUNT DISTINCT required here otherwise COUNT() returns weird results for model_id
-                    keys_calc: allSuggestionValues.map((value) => `COUNT(DISTINCT "${value}") FILTER(WHERE "${value}" IS NOT NULL) as "${value}"`).join(', '),
-                    ml_model_id: mlModelId
-                });
-                const filteredKeys = allSuggestionValues.filter((v) => non1Options[v] > 0);
 
-                setSuggestions([...filteredKeys]);
+                if (allSuggestions.length) {
+                    const allSuggestionValues = allSuggestions.map(({value}) => value);
+                    const non1Options = await metricsClient('queries/all-key-options', {
+                        // COUNT DISTINCT required here otherwise COUNT() returns weird results for model_id
+                        keys_calc: allSuggestionValues.map((value) => `COUNT(DISTINCT "${value}") FILTER(WHERE "${value}" IS NOT NULL) as "${value}"`).join(', '),
+                        ml_model_id: mlModelId
+                    });
+                    const filteredKeys = allSuggestionValues.filter((v) => non1Options[v] > 0);
+
+                    setSuggestions([...filteredKeys]);
+                } else {
+                    setSuggestions([]);
+                }
+
             }
         } catch (e) {
             setSuggestions([]);
+        } finally {
+            setSuggestionsLoading(false);
         }
     };
 
     useEffect(() => {
-        if (showSuggestions) {
-            try {
-                getSuggestions();
-            } catch (e) {
-                setSuggestions([]);
-                console.error(e);
-            }
+        try {
+            getSuggestions();
+        } catch (e) {
+            setSuggestions([]);
+            console.error(e);
         }
-    }, [newFilter, showSuggestions]);
+    }, [newFilter.toString()]);
 
     const handleEndCharacterKey = (e) => {
         if (e.keyCode === 9) {
@@ -156,7 +173,16 @@ const FilterInput = ({
 
     const handleSuggestionSelected = (suggestion) => {
         if (newFilter.left && newFilter.isOpValid) {
-            newFilter.right = suggestion;
+            switch (newFilter.op) {
+            case 'in':
+            case 'not in':
+                newFilter.right = [suggestion];
+                break;
+            default:
+                newFilter.right = suggestion;
+                break;
+            }
+
             setFilters([...filters, newFilter]);
             setNewFilter(new Filter());
         } else {
@@ -188,7 +214,6 @@ const FilterInput = ({
                         placeholder={filters.length === 0 ? inputPlaceholder : ''}
                         type='text'
                         value={newFilter.toString()}
-                        onFocus={() => setShowSuggestions(true)}
                     />
                     <Button
                         className='bg-dark text-white border-0 bold-text fs-7'
@@ -202,19 +227,27 @@ const FilterInput = ({
                     >
               APPLY FILTERS
                     </Button>
-                    {showSuggestions && (
-                        <ul className='suggestions bg-white text-dark'>
-                            {suggestions.map((suggestion, index) => (
-                                <li
-                                    className={suggestionIndex === index ? 'active' : ''}
-                                    key={index}
-                                    onClick={() => handleSuggestionSelected(suggestion)}
-                                >
-                                    {suggestion}
-                                </li>
-                            ))}
-                        </ul>
-                    )}
+                    {showSuggestions ? (
+                        <div className='suggestions bg-white text-dark py-3'>
+                            {
+                                suggestionsLoading ? (
+                                    <Spinner/>
+                                ) : (
+                                    <ul className='m-0'>
+                                        {suggestions.length ? suggestions.map((suggestion, index) => (
+                                            <li
+                                                className={suggestionIndex === index ? 'active' : ''}
+                                                key={index}
+                                                onClick={() => handleSuggestionSelected(suggestion)}
+                                            >
+                                                {suggestion}
+                                            </li>
+                                        )) : <span className='px-3 text-secondary'>No results</span>}
+                                    </ul>
+                                )
+                            }
+                        </div>
+                    ) : null}
                 </div>
             </OutsideClickHandler>
             <div

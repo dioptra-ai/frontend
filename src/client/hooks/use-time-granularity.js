@@ -6,9 +6,9 @@ import appContext from 'context/app-context';
 const {timeStore} = stores;
 
 const useTimeGranularity = (...args) => {
-    const {isTimeEnabled} = useContext(appContext);
+    const {isModelView} = useContext(appContext);
 
-    if (isTimeEnabled) {
+    if (isModelView) {
 
         return timeStore.getTimeGranularity(...args);
     } else {

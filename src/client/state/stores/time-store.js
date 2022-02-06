@@ -13,6 +13,7 @@ const granularityLadderMs = [
     moment.duration(10, 'minute'),
     moment.duration(1, 'hour'),
     moment.duration(3, 'hour'),
+    moment.duration(6, 'hour'),
     moment.duration(1, 'day'),
     moment.duration(5, 'day'),
     moment.duration(1, 'month')

@@ -9,15 +9,13 @@ const AddFilters = ({filtersStore, filters, disabled, solidIcon, tooltipText}) =
     const displayFilter = filters.map((f) => f.toString()).join(', ');
 
     return (
-        <OverlayTrigger
-            overlay={
-                <Tooltip>
-                    {
-                        tooltipText || `Filter the current view with ${displayFilter.substring(0, 50)}${displayFilter.length > 50 ? '...' : ''}`
-                    }
-                </Tooltip>
-            }
-        >
+        <OverlayTrigger overlay={
+            <Tooltip>
+                {
+                    tooltipText || `Filter the current view with ${displayFilter.substring(0, 50)}${displayFilter.length > 50 ? '...' : ''}`
+                }
+            </Tooltip>
+        }>
             <button
                 className={`${disabled ? 'disabled' : ''} text-dark border-0 bg-transparent click-down fs-2`}
                 onClick={() => {

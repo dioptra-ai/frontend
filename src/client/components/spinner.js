@@ -4,8 +4,8 @@ import {AsyncContext} from 'components/async';
 
 const Spinner = ({size = 150}) => (
     <AsyncContext.Consumer>
-        {({loading} = {}) => (
-            loading ? (
+        {(asyncContext) => (
+            (asyncContext?.loading || !asyncContext) ? (
                 <div style={{
                     position: 'absolute',
                     left: 0,
@@ -17,10 +17,7 @@ const Spinner = ({size = 150}) => (
                     justifyContent: 'center',
                     zIndex: 10
                 }}>
-                    <BarLoader
-                        loading
-                        size={size}
-                    />
+                    <BarLoader loading size={size}/>
                 </div>
             ) : null
         )}
@@ -28,7 +25,8 @@ const Spinner = ({size = 150}) => (
 );
 
 Spinner.propTypes = {
-    size: PropTypes.number
+    size: PropTypes.number,
+    standalone: PropTypes.bool
 };
 
 export default Spinner;

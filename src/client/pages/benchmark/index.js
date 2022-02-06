@@ -18,23 +18,24 @@ import Predictions from './predictions';
 import Features from './features';
 import FilterInput from 'pages/common/filter-input';
 import Drift from './drift';
+import useBenchmark from 'hooks/use-benchmark';
+import {BenchmarkStore} from 'state/stores/benchmark-store';
 
-const Benchmarks = ({filtersStore, modelStore}) => {
+const Benchmarks = ({filtersStore, modelStore, benchmarkStore}) => {
     const [benchmarkFilters, setBenchmarkFilters] = useState();
-    const mlModelIdFilter = filtersStore.filters.find((f) => f.left === 'model_id');
-    const mlModelVersionFilter = filtersStore.filters.find((f) => f.left === 'model_version');
-    const datasetIdFilter = filtersStore.filters.find((f) => f.left === 'dataset_id');
-    const mlModelId = mlModelIdFilter?.right;
-    const mlModelVersion = mlModelVersionFilter?.right;
-    const datasetId = datasetIdFilter?.right;
-    const model = modelStore.models.find((model) => model.mlModelId === mlModelId);
+    const benchmark = useBenchmark();
+    const mlModelId = benchmark?.['model_id'];
+    const mlModelVersion = benchmark?.['model_version'];
+    const datasetId = benchmark?.['dataset_id'];
+    const model = modelStore.getModelByMlModelId(benchmark?.['model_id']);
 
     useSyncStoresToUrl(({filtersStore, segmentationStore}) => ({
         filters: JSON.stringify(filtersStore.filters),
+        benchmarks: JSON.stringify(filtersStore.benchmarks.map(({benchmark_id}) => benchmark_id)),
         segmentation: JSON.stringify(segmentationStore.segmentation)
     }));
 
-    if (!mlModelIdFilter || !mlModelVersionFilter) {
+    if (benchmarkStore.state !== BenchmarkStore.STATE_PENDING && !benchmark) {
 
         return <Redirect to={{
             pathname: '/benchmark',
@@ -57,6 +58,7 @@ const Benchmarks = ({filtersStore, modelStore}) => {
         tabs.push({name: 'Drift Analysis', to: '/benchmark/drift-analysis'});
         break;
     case 'TEXT_CLASSIFIER':
+    case 'IMAGE_CLASSIFIER':
         tabs.push({name: 'Prediction Analysis', to: '/benchmark/predictions'});
         tabs.push({name: 'Drift Analysis', to: '/benchmark/drift-analysis'});
         break;
@@ -141,7 +143,8 @@ const Benchmarks = ({filtersStore, modelStore}) => {
 
 Benchmarks.propTypes = {
     filtersStore: PropTypes.object.isRequired,
-    modelStore: PropTypes.object.isRequired
+    modelStore: PropTypes.object.isRequired,
+    benchmarkStore: PropTypes.object.isRequired
 };
 
 export default setupComponent(Benchmarks);

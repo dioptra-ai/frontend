@@ -12,7 +12,7 @@ import PerformancePerClass from 'pages/common/performance-per-class';
 import Segmentation from 'pages/common/segmentation';
 import ConfusionMatrix from 'components/confusion-matrix';
 
-const TextClassifier = ({benchmarkFilters}) => {
+const ImageClassifier = ({benchmarkFilters}) => {
     const allSqlFilters = useAllSqlFilters();
     const {mlModelType} = useModel();
     const sampleSizeComponent = <CountEvents sqlFilters={allSqlFilters}/>;
@@ -161,8 +161,8 @@ const TextClassifier = ({benchmarkFilters}) => {
     );
 };
 
-TextClassifier.propTypes = {
+ImageClassifier.propTypes = {
     benchmarkFilters: PropTypes.string
 };
 
-export default TextClassifier;
+export default ImageClassifier;

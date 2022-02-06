@@ -1,4 +1,4 @@
-/* eslint-disable max-lines */
+import {useContext} from 'react';
 import metricsClient from 'clients/metrics';
 import Async from 'components/async';
 import MetricInfoBox from 'components/metric-info-box';
@@ -8,6 +8,7 @@ import Row from 'react-bootstrap/Row';
 import CountEvents from 'components/count-events';
 import CorrelationToKPIs from 'pages/common/correlation-to-kpis';
 import Throughput from 'pages/common/throughput';
+import comparisonContext from 'context/comparison-context';
 
 const PerformanceOverview = () => {
     const allSqlFilters = useAllSqlFilters({
@@ -17,6 +18,19 @@ const PerformanceOverview = () => {
         useReferenceRange: true,
         __REMOVE_ME__excludeOrgId: true
     });
+    const {total: comparisonTotal} = useContext(comparisonContext);
+    const metricBoxBreakpoints = [{}, {
+        xs: 3
+    }, {
+        xs: 3
+    }, {
+        xs: 3,
+        md: 2
+    }, {
+        s: 3,
+        md: 2
+    }][comparisonTotal];
+
     const sampleSizeComponent = (<CountEvents sqlFilters={allSqlFilters}/>);
 
     return (
@@ -25,9 +39,8 @@ const PerformanceOverview = () => {
                 <Throughput sqlFilters={allSqlFilters}/>
             </div>
             <div className='my-3'>
-
                 <Row className='mb-3 align-items-stretch'>
-                    <Col className='d-flex' lg={3}>
+                    <Col className='d-flex' {...metricBoxBreakpoints[comparisonTotal]}>
                         <Async
                             renderData={([[data], [benchmarkData]]) => (
                                 <MetricInfoBox
@@ -51,7 +64,7 @@ const PerformanceOverview = () => {
                             refetchOnChanged={[allSqlFilters, sqlFiltersWithModelTime]}
                         />
                     </Col>
-                    <Col className='d-flex' lg={3}>
+                    <Col className='d-flex' {...metricBoxBreakpoints[comparisonTotal]}>
                         <Async
                             renderData={([[data], [benchmarkData]]) => (
                                 <MetricInfoBox
@@ -75,7 +88,7 @@ const PerformanceOverview = () => {
                             refetchOnChanged={[allSqlFilters, sqlFiltersWithModelTime]}
                         />
                     </Col>
-                    <Col className='d-flex' lg={3}>
+                    <Col className='d-flex' {...metricBoxBreakpoints[comparisonTotal]}>
                         <Async
                             renderData={([[data], [benchmarkData]]) => (
                                 <MetricInfoBox
@@ -99,7 +112,7 @@ const PerformanceOverview = () => {
                             refetchOnChanged={[allSqlFilters, sqlFiltersWithModelTime]}
                         />
                     </Col>
-                    <Col className='d-flex' lg={3}>
+                    <Col className='d-flex' {...metricBoxBreakpoints[comparisonTotal]}>
                         <Async
                             renderData={([[data], [benchmarkData]]) => (
                                 <MetricInfoBox

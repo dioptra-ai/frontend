@@ -3,10 +3,6 @@ import {
     makeAutoObservable
 } from 'mobx';
 
-import {
-    authStore
-} from './auth-store';
-
 export class Filter {
     constructor({left, op, right} = {}) {
         this.left = left;
@@ -37,10 +33,10 @@ export class Filter {
     }
 
     static parse(str) {
-        const match = (/([^\s]+)(\s+((=|in|.+)\s*)?)?([^\s]+)?/gim).exec(str);
+        const match = (/([^\s]+)(\s+(((=|in)|([^\s]+))\s*)?)?([^\s]+)?/gim).exec(str);
 
         if (match) {
-            const [, left, opStart,, validOp, rightStr] = match;
+            const [, left, opStart,,, validOp, /* invalidOp*/ , rightStr] = match;
 
             let op = null;
 
@@ -90,7 +86,7 @@ export class Filter {
         }
     }
 
-    toString() {
+    toString(truncate) {
         switch (this.op) {
 
         case undefined:
@@ -112,23 +108,28 @@ export class Filter {
             if (this.right) {
 
                 if (this.right.length > 0) {
-                    const firstValue = this.right[0].toString();
-                    const firstDisplayValue = `${firstValue.substring(0, 10)}${firstValue.length > 10 ? '...' : ''}`;
+                    if (truncate) {
+                        const firstValue = this.right[0].toString();
+                        const firstDisplayValue = `${firstValue.substring(0, 10)}${firstValue.length > 10 ? '...' : ''}`;
 
-                    if (this.right.length > 1) {
+                        if (this.right.length > 1) {
 
-                        return `${this.left} ${this.op} [${firstDisplayValue}, ...]`;
+                            return `${this.left} ${this.op} [${firstDisplayValue}, ...]`;
+                        } else {
+
+                            return `${this.left} ${this.op} [${firstDisplayValue}]`;
+                        }
                     } else {
 
-                        return `${this.left} ${this.op} [${firstDisplayValue}]`;
+                        return `${this.left} ${this.op} ${this.right.join(',')}`;
                     }
                 } else {
 
-                    return `${this.left} ${this.op} []`;
+                    return `${this.left} ${this.op} `;
                 }
             } else {
 
-                return `${this.left} ${this.op} `;
+                return `${this.left} ${this.op}`;
             }
         default:
             return `${this.left} ${this.op}`;
@@ -150,21 +151,33 @@ class FiltersStore {
     // [{left, op, right}]
     f = [];
 
-    mlModelVersion = ''
+    // Models to filter with. Several models can be compared.
+    m = [];
 
-    constructor(initialValue) {
+    // Benchmarks to filter with. Several benchmarks can be compared.
+    b = [];
+
+    constructor(localStorageValue) {
         const filters = new URL(window.location).searchParams.get('filters');
-        const mlModelVersion = new URL(window.location).searchParams.get('mlModelVersion');
+        const models = new URL(window.location).searchParams.get('models');
+        const benchmarks = new URL(window.location).searchParams.get('benchmarks');
 
-        if (filters) {
+        if (filters && models && benchmarks) {
             const parsedFilters = JSON.parse(filters);
+            const parsedModels = JSON.parse(models);
+            const parsedBenchmarks = JSON.parse(benchmarks);
 
             this.f = parsedFilters ? parsedFilters.map((f) => new Filter(f)) : [];
-            this.mlModelVersion = mlModelVersion;
-        } else if (initialValue) {
-            this.f = JSON.parse(initialValue).f.map((_f) => new Filter(_f));
-            this.mlModelVersion = mlModelVersion;
+            this.m = parsedModels;
+            this.b = parsedBenchmarks;
+        } else if (localStorageValue) {
+            const parsedLocalStorageValue = JSON.parse(localStorageValue);
+
+            this.f = parsedLocalStorageValue.f.map((_f) => new Filter(_f));
+            this.m = parsedLocalStorageValue.m;
+            this.b = parsedLocalStorageValue.b;
         }
+
         makeAutoObservable(this);
     }
 
@@ -186,15 +199,15 @@ class FiltersStore {
         this.filters = this.filters.concat(...args);
     }
 
-    get modelVersion() {
-        return this.mlModelVersion;
+    get models() {
+        return this.m;
     }
 
-    set modelVersion(v) {
-        this.mlModelVersion = v;
+    set models(m) {
+        this.m = m;
     }
 
-    concatSQLFilters() {
+    getModelSqlFilters(forModel = 0) {
         const filtersByKey = this.f.reduce((agg, filter) => {
             const {left} = filter;
 
@@ -213,26 +226,49 @@ class FiltersStore {
             return `(${keyFilters.map((filter) => filter.toSQLString()).join(' OR ')})`;
         });
 
-        if (this.mlModelVersion && this.mlModelVersion !== 'null') {
-            allFilters.push(`"model_version"='${this.mlModelVersion}'`);
+        const model = this.m[forModel];
+
+        allFilters.push(`"model_id"='${model.mlModelId}'`);
+
+        if (model.mlModelVersion && model.mlModelVersion !== 'null') {
+            allFilters.push(`"model_version"='${model.mlModelVersion}'`);
         }
 
         return allFilters;
     }
 
-    get sqlFilters() {
-        const filters = this.concatSQLFilters();
-
-        filters.push(`organization_id='${_WEBPACK_DEF_OVERRIDE_ORG_ID_ || authStore.userData.activeOrganizationMembership.organization._id}'`);
-
-        return filters.join(' AND ') || ' TRUE ';
+    get benchmarks() {
+        return this.b;
     }
 
-    get __RENAME_ME__sqlFilters() {
-        const filters = this.concatSQLFilters();
+    set benchmarks(b) {
+        this.b = b;
+    }
 
-        return filters.join(' AND ') || ' TRUE ';
+    getBenchmarkSqlFilters(forBenchmark = 0) {
+        const filtersByKey = this.f.reduce((agg, filter) => {
+            const {left} = filter;
 
+            if (!agg[left]) {
+                agg[left] = [];
+            }
+
+            agg[left].push(filter);
+
+            return agg;
+        }, {});
+
+        const allFilters = Object.keys(filtersByKey).map((left) => {
+            const keyFilters = filtersByKey[left];
+
+            return `(${keyFilters.map((filter) => filter.toSQLString()).join(' OR ')})`;
+        });
+
+        const benchmark = this.b[forBenchmark];
+
+        allFilters.push(`"benchmark_id"='${benchmark['benchmark_id']}'`);
+
+        return allFilters;
     }
 }
 

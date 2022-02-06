@@ -10,7 +10,6 @@ import CountEvents from 'components/count-events';
 
 const QnA = () => {
     const allSqlFilters = useAllSqlFilters();
-    const liveModelFilters = useAllSqlFilters({forLiveModel: true});
     const sampleSizeComponent = <CountEvents sqlFilters={allSqlFilters}/>;
 
     return (
@@ -22,29 +21,6 @@ const QnA = () => {
                     >
                         {sampleSizeComponent}
                     </MetricInfoBox>
-                </Col>
-                <Col className='d-flex' lg={3}>
-                    <Async
-                        fetchData={() => metricsClient('compute', {
-                            metrics_type: 'outlier_detection',
-                            current_filters: allSqlFilters,
-                            reference_filters: liveModelFilters,
-                            model_type: 'Q_N_A'
-                        })}
-                        refetchOnChanged={[allSqlFilters]}
-                        renderData={(data) => {
-                            const noveltyNum = data?.outlier_analysis?.filter((d) => d.novelty).length;
-
-                            return (
-                                <MetricInfoBox
-                                    name='Obsolete'
-                                    value={100 * noveltyNum / data?.outlier_analysis.length}
-                                    unit='%'
-                                    info='As of the last 24h of the model and version.'
-                                />
-                            );
-                        }}
-                    />
                 </Col>
             </Row>
             <Row className='my-3 align-items-stretch'>

@@ -3,53 +3,54 @@ import {useContext} from 'react';
 import stores from 'state/stores';
 import useModel from 'hooks/use-model';
 import appContext from 'context/app-context';
+import comparisonContext from 'context/comparison-context';
 
-const {filtersStore, timeStore, modelStore} = stores;
+const {filtersStore, timeStore, modelStore, authStore} = stores;
 
 const useAllSqlFilters = ({useReferenceRange = false, forLiveModel, __REMOVE_ME__excludeOrgId} = {}) => {
-    const {isTimeEnabled} = useContext(appContext);
-    const {_id, mlModelId} = useModel();
-    const allFilters = [
-        __REMOVE_ME__excludeOrgId ? filtersStore.__RENAME_ME__sqlFilters :
-            filtersStore.sqlFilters
-    ];
+    const {isModelView} = useContext(appContext);
+    const comparisonContextValue = useContext(comparisonContext);
 
-    if (mlModelId) {
-        allFilters.push(`model_id='${mlModelId}'`);
+    let allFilters = [];
+
+    if (!__REMOVE_ME__excludeOrgId) {
+        allFilters.push(`organization_id='${_WEBPACK_DEF_OVERRIDE_ORG_ID_ || authStore.userData.activeOrganizationMembership.organization._id}'`);
+    }
+
+    if (isModelView) {
+
+        allFilters.push(...filtersStore.getModelSqlFilters(comparisonContextValue?.index));
 
         if (useReferenceRange) {
+            const {_id} = useModel();
+
             allFilters.push(modelStore.getSqlReferencePeriodFilter(_id));
-        } else if (isTimeEnabled) {
+            // This is ugly af
+            allFilters = allFilters.filter((f) => !f.match(/request_id/));
+        } else {
             allFilters.push(timeStore.sqlTimeFilter);
             allFilters.push('dataset_id IS NULL');
         }
-    } else if (isTimeEnabled) {
-        allFilters.push(timeStore.sqlTimeFilter);
-        allFilters.push('dataset_id IS NULL');
-    }
-
-    const allSqlFilters = allFilters.join(' AND ');
-
-    if (forLiveModel) {
-
-        // This is ugly. Should find a better way to do it
-        const d = new Date();
-
-        d.setDate(d.getDate() - 1);
-        d.setMinutes(0);
-        d.setSeconds(0);
-        d.setMilliseconds(0);
-
-        return `${allSqlFilters
-            .replace(/\("dataset_id"=[^)]+\)/, '')
-            .replace(/\("model_version"=[^)]+\)/, '')
-            .replace(/\("benchmark_id"=[^)]+\)/, '')
-            .replace(/AND(\s+AND)+/g, 'AND')
-        } AND __time >= '${d.toISOString()}' AND "dataset_id" IS NULL AND "benchmark_id" IS NULL`;
     } else {
 
-        return allSqlFilters;
+        allFilters.push(...filtersStore.getBenchmarkSqlFilters(comparisonContextValue?.index));
+
+        if (forLiveModel) {
+            // This is ugly. Should find a better way to do it
+            allFilters = allFilters.filter((f) => !f.match(/(dataset_id|model_version|benchmark_id|request_id)/));
+
+            const d = new Date();
+
+            d.setDate(d.getDate() - 1);
+            d.setMinutes(0);
+            d.setSeconds(0);
+            d.setMilliseconds(0);
+
+            allFilters.push(`__time >= '${d.toISOString()}' AND "dataset_id" IS NULL AND "benchmark_id" IS NULL`);
+        }
     }
+
+    return allFilters.join(' AND ');
 };
 
 export default useAllSqlFilters;

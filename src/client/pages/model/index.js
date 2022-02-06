@@ -1,97 +1,131 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {Route, Switch, useParams} from 'react-router-dom';
+import {Redirect, Route, Switch} from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 
+import {setupComponent} from 'helpers/component-helper';
 import FilterInput from 'pages/common/filter-input';
 import GeneralSearchBar from 'pages/common/general-search-bar';
 import AddAlertPage from 'pages/add-alert';
 import ModelDescription from 'components/model-description';
 import Tabs from 'components/tabs';
-import {setupComponent} from 'helpers/component-helper';
 import PerformanceOverview from './performance-overview';
 import PerformanceDetails from './performance-details';
 import PredictionAnalysis from './prediction-analysis';
 import FeatureAnalysis from './feature-analysis';
 import IncidentsAndAlerts from 'pages/common/incidents-and-alerts';
 import TrafficReplay from 'pages/common/traffic-replay';
-import useModel from 'hooks/use-model';
 import useSyncStoresToUrl from 'hooks/use-sync-stores-to-url';
 import Menu from 'components/menu';
+import comparisonContext from 'context/comparison-context';
+import {ModelStore} from 'state/stores/model-store';
 
-const Model = ({filtersStore}) => {
-    const modelId = useParams()._id;
-    const model = useModel();
+const SplitView = ({children}) => (
+    <Row>
+        {children.map((c, i) => (
+            <comparisonContext.Provider value={{index: i, total: children.length}} key={i}>
+                <Col xs={12 / children.length}>{c}</Col>
+            </comparisonContext.Provider>
+        ))}
+    </Row>
+);
 
-    useSyncStoresToUrl(({timeStore, filtersStore, segmentationStore}) => ({
+SplitView.propTypes = {
+    children: PropTypes.node.isRequired
+};
+
+const Model = ({timeStore, filtersStore, modelStore}) => {
+    const models = filtersStore.models.map(({_id}) => {
+
+        return modelStore.getModelById(_id);
+    });
+    const firstModel = models[0];
+
+    useSyncStoresToUrl(({filtersStore, segmentationStore}) => ({
         startTime: timeStore.start?.toISOString() || '',
         endTime: timeStore.end?.toISOString() || '',
         lastMs: timeStore.lastMs || '',
         filters: JSON.stringify(filtersStore.filters),
-        mlModelVersion: filtersStore.mlModelVersion,
+        models: JSON.stringify(filtersStore.models.map(({_id, mlModelId, mlModelVersion}) => ({_id, mlModelId, mlModelVersion}))),
         segmentation: JSON.stringify(segmentationStore.segmentation)
     }));
 
     const tabs = [
-        {name: 'Performance Overview', to: `/models/${modelId}/performance-overview`}
+        {name: 'Performance Overview', to: '/models/performance-overview'}
     ];
 
-    if (model?.mlModelType !== 'UNSUPERVISED_OBJECT_DETECTION') {
-        tabs.push({name: 'Performance Analysis', to: `/models/${modelId}/performance-details`});
+    if (firstModel?.mlModelType !== 'UNSUPERVISED_OBJECT_DETECTION') {
+        tabs.push({name: 'Performance Analysis', to: '/models/performance-details'});
     }
 
-    if (model?.mlModelType !== 'Q_N_A') {
-        tabs.push({name: 'Prediction Analysis', to: `/models/${modelId}/prediction-analysis`});
+    if (firstModel?.mlModelType !== 'Q_N_A' && firstModel?.mlModelType !== 'SPEECH_TO_TEXT') {
+        tabs.push({name: 'Prediction Analysis', to: '/models/prediction-analysis'});
     }
 
-    tabs.push({name: 'Feature Analysis', to: `/models/${modelId}/feature-analysis`});
+    tabs.push({name: 'Feature Analysis', to: '/models/feature-analysis'});
 
-    tabs.push({name: 'Traffic Replay', to: `/models/${modelId}/traffic-replay`});
-    tabs.push({name: 'Incidents & Alerts', to: `/models/${modelId}/incidents-and-alerts`});
+    tabs.push({name: 'Traffic Replay', to: '/models/traffic-replay'});
+    tabs.push({name: 'Incidents & Alerts', to: '/models/incidents-and-alerts'});
 
-    return model ? (
+    if (modelStore.state !== ModelStore.STATE_PENDING && !firstModel) {
+
+        return <Redirect to='/models'/>;
+    } else return (
         <Menu>
             <GeneralSearchBar/>
-            <ModelDescription {...model}/>
+            <SplitView>
+                {models.map((model, i) => <ModelDescription key={i} {...model}/>)}
+            </SplitView>
             <Container fluid>
-                <Tabs tabs={tabs} />
+                <Tabs tabs={tabs}/>
                 <Switch>
-                    <Route path={'/models/:_id/add-alert'} component={AddAlertPage} exact/>
-                    <Route exact
-                        path='/models/:_id/incidents-and-alerts'
-                        component={IncidentsAndAlerts}/>
+                    <Route exact path='/models/add-alert' component={AddAlertPage}/>
+                    <Route exact path='/models/incidents-and-alerts' component={IncidentsAndAlerts}/>
                     <Route>
-
                         <FilterInput
                             defaultFilters={filtersStore.filters}
                             onChange={(filters) => (filtersStore.filters = filters)}
                         />
                         <div className='px-3'>
-                            <Route exact
-                                path='/models/:_id/performance-overview'
-                                component={PerformanceOverview}/>
-                            <Route exact
-                                path='/models/:_id/performance-details'
-                                component={PerformanceDetails}/>
-                            <Route exact
-                                path='/models/:_id/prediction-analysis'
-                                component={PredictionAnalysis}/>
-                            <Route exact
-                                path='/models/:_id/feature-analysis'
-                                component={FeatureAnalysis}/>
-                            <Route exact
-                                path='/models/:_id/traffic-replay'
-                                component={TrafficReplay}/>
+                            <Route exact path='/models/performance-overview' render={() => (
+                                <SplitView>
+                                    {models.map((model, i) => <PerformanceOverview key={i}/>)}
+                                </SplitView>
+                            )}/>
+                            <Route exact path='/models/performance-details' render={() => (
+                                <SplitView>
+                                    {models.map((model, i) => <PerformanceDetails key={i}/>)}
+                                </SplitView>
+                            )}/>
+                            <Route exact path='/models/prediction-analysis' render={() => (
+                                <SplitView>
+                                    {models.map((model, i) => <PredictionAnalysis key={i}/>)}
+                                </SplitView>
+                            )}/>
+                            <Route exact path='/models/feature-analysis' render={() => (
+                                <SplitView>
+                                    {models.map((model, i) => <FeatureAnalysis key={i}/>)}
+                                </SplitView>
+                            )}/>
+                            <Route exact path='/models/traffic-replay' render={() => (
+                                <SplitView>
+                                    {models.map((model, i) => <TrafficReplay key={i}/>)}
+                                </SplitView>
+                            )}/>
                         </div>
                     </Route>
                 </Switch>
             </Container>
         </Menu>
-    ) : 'Loading...';
+    );
 };
 
 Model.propTypes = {
-    filtersStore: PropTypes.object.isRequired
+    timeStore: PropTypes.object.isRequired,
+    filtersStore: PropTypes.object.isRequired,
+    modelStore: PropTypes.object.isRequired
 };
 
 export default setupComponent(Model);

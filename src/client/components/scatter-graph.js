@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import {useEffect, useMemo, useRef, useState} from 'react';
 import {
     CartesianGrid,
@@ -11,8 +12,11 @@ import {
     ZAxis
 } from 'recharts';
 import {useThrottle} from '@react-hook/throttle';
+import {saveAs} from 'file-saver';
+import {IoDownloadOutline} from 'react-icons/io5';
+import {OverlayTrigger, Tooltip} from 'react-bootstrap';
+
 import theme from 'styles/theme.module.scss';
-import PropTypes from 'prop-types';
 import useModal from 'hooks/useModal';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
@@ -257,25 +261,33 @@ const ScatterGraph = ({data, noveltyIsObsolete, examplesType}) => {
                 </Col>
 
                 <Col lg={8} className='rounded p-3 bg-white-blue'>
-                    <div className='text-dark m-0 bold-text'>
-                        Examples
-                        <AddFilters
-                            filters={[new Filter({
-                                left: 'request_id',
-                                op: 'in',
-                                right: sampleRequestIds
-                            })]}
-                            tooltipText='Filter-in these examples'
-                        />
-                        <AddFilters
-                            filters={[new Filter({
-                                left: 'request_id',
-                                op: 'not in',
-                                right: sampleRequestIds
-                            })]}
-                            tooltipText='Filter-out these examples'
-                            solidIcon
-                        />
+                    <div className='text-dark m-0 bold-text d-flex justify-content-between'>
+                        <div>
+                            Examples
+                            <AddFilters
+                                filters={[new Filter({
+                                    left: 'request_id',
+                                    op: 'in',
+                                    right: sampleRequestIds
+                                })]}
+                                tooltipText='Filter-in these examples'
+                            />
+                            <AddFilters
+                                filters={[new Filter({
+                                    left: 'request_id',
+                                    op: 'not in',
+                                    right: sampleRequestIds
+                                })]}
+                                tooltipText='Filter-out these examples'
+                                solidIcon
+                            />
+                        </div>
+                        <OverlayTrigger overlay={<Tooltip>Download samples as JSON</Tooltip>}>
+                            <IoDownloadOutline className='fs-2 cursor-pointer' onClick={() => {
+
+                                saveAs(new Blob([JSON.stringify(selectedPoints)], {type: 'application/json;charset=utf-8'}), 'samples.json');
+                            }}/>
+                        </OverlayTrigger>
                     </div>
                     <div className={`d-flex p-2 overflow-auto flex-grow-0 ${samples.length ? 'justify-content-left' : 'justify-content-center align-items-center'} scatterGraph-examples`}>
                         {samples.length ? samples.map((sample, i) => (
