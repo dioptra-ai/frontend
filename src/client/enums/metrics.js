@@ -44,6 +44,12 @@ const availableMetricsForModel = {
         RECALL: Metrics.RECALL,
         PRECISION: Metrics.PRECISION
     },
+    SPEECH_TO_TEXT: {
+        ACCURACY: Metrics.ACCURACY,
+        F1_SCORE: Metrics.F1_SCORE,
+        RECALL: Metrics.RECALL,
+        PRECISION: Metrics.PRECISION
+    },
     TABULAR_CLASSIFIER: {
         ACCURACY: Metrics.ACCURACY,
         F1_SCORE: Metrics.F1_SCORE,

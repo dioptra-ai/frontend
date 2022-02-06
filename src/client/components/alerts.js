@@ -2,7 +2,7 @@ import baseJSONClient from 'clients/base-json-client';
 import PropTypes from 'prop-types';
 import React, {useState} from 'react';
 import Button from 'react-bootstrap/Button';
-import {Link, useParams} from 'react-router-dom';
+import {Link} from 'react-router-dom';
 import BarLoader from 'react-spinners/BarLoader';
 import {IconNames} from '../constants';
 import useModal from '../hooks/useModal';
@@ -45,7 +45,6 @@ Alert.propTypes = {
 const Alerts = ({alerts, refreshCallback, onDeleteRefreshCallback, loading}) => {
     const [selectedAlert, setSelectedAlert] = useState(null);
     const [deleteAlertModal, setDeleteAlertModal] = useModal(null);
-    const {_id} = useParams();
     const [page, setPage] = useState(1);
 
     const closeModal = () => {
@@ -70,7 +69,7 @@ const Alerts = ({alerts, refreshCallback, onDeleteRefreshCallback, loading}) => 
             <div className='alerts'>
                 <div className='header mb-3'>
                     <p className='bold-text fs-3 text-dark'>Alerts</p>
-                    <Link to={`/models/${_id}/add-alert`}>
+                    <Link to={'/models/add-alert'}>
                         <Button
                             className='text-white bold-text fs-6'
                             variant='primary'
