@@ -33,6 +33,7 @@ import appContext from 'context/app-context';
 const AddColumnModal = ({onCancel, onApply, allColumns, initiallyselected}) => {
     const featureColumns = allColumns.filter((c) => c.startsWith('features.'));
     const tagColumns = allColumns.filter((c) => c.startsWith('tags.'));
+    const audioMetadataColumns = allColumns.filter((c) => c.startsWith('audio_metadata.'));
     const allColumnsSet = new Set(allColumns);
     const [selectedColumns, setSelectedColumns] = useState(initiallyselected.filter((s) => allColumnsSet.has(s)));
 
@@ -78,7 +79,22 @@ const AddColumnModal = ({onCancel, onApply, allColumns, initiallyselected}) => {
                     ))}
                 </div>
             )}
-            {!tagColumns.length && !featureColumns.length ? (
+            {audioMetadataColumns.length > 0 && (
+                <div className='d-flex flex-column mb-4'>
+                    <p className='text-dark fw-bold fs-6'>AUDIO METADATA</p>
+                    {audioMetadataColumns.map((tag, i) => (
+                        <label className='checkbox my-2 fs-6' key={i}>
+                            <input
+                                defaultChecked={selectedColumns.includes(tag)}
+                                onChange={(e) => handleChange(e, tag)}
+                                type='checkbox'
+                            />
+                            <span className='fs-6'>{tag}</span>
+                        </label>
+                    ))}
+                </div>
+            )}
+            {!tagColumns.length && !featureColumns.length && !audioMetadataColumns.length ? (
                 <p className='text-secondary fs-6 mb-4 text-center'>No Columns Available</p>
             ) : null}
             <div className='border-top border-mercury py-3'>
@@ -227,10 +243,10 @@ const _metricCell = ({cell, timeStore}) => {
     const cellFields = Object.keys(cellValues).filter((f) => f !== 'value');
     const {mlModelType} = useModel();
     const allSqlFilters = useAllSqlFilters();
-    const {isTimeEnabled} = useContext(appContext);
+    const {isModelView} = useContext(appContext);
     const {ref, inView} = useInView();
 
-    if (isTimeEnabled) {
+    if (isModelView) {
         const timeGranularity = timeStore.getTimeGranularity(5).toISOString();
 
         return (
@@ -253,7 +269,7 @@ const _metricCell = ({cell, timeStore}) => {
                         }
                     }}
                     renderData={(data) => (
-                        <div style={{height: '150px', width: '300px'}}>
+                        <div style={{height: '150px'}}>
                             <SmallChart
                                 data={data}
                                 xDataKey='time'
@@ -307,7 +323,7 @@ const Segmentation = ({timeStore, segmentationStore}) => {
     const [addColModal, setAddColModal] = useModal(false);
     const groupByColumns = segmentationStore.segmentation;
     const {mlModelType, mlModelId} = useModel();
-    const {isTimeEnabled} = useContext(appContext);
+    const {isModelView} = useContext(appContext);
     const handleApply = (cols) => {
         segmentationStore.segmentation = cols;
         setAddColModal(false);
@@ -364,7 +380,7 @@ const Segmentation = ({timeStore, segmentationStore}) => {
                                         Cell: metricCell
                                     },
                                     {
-                                        id: 'word-error-rate', // Should be changed to real WER
+                                        id: 'word-error-rate',
                                         Header: 'WER',
                                         Cell: metricCell
                                     },
@@ -380,7 +396,7 @@ const Segmentation = ({timeStore, segmentationStore}) => {
                                     },
                                     {
                                         id: 'f1-score-metric',
-                                        Header: 'f1',
+                                        Header: 'F1 Score',
                                         Cell: metricCell
                                     },
                                     {
@@ -400,7 +416,7 @@ const Segmentation = ({timeStore, segmentationStore}) => {
                                     },
                                     {
                                         id: 'f1-score-metric',
-                                        Header: 'f1',
+                                        Header: 'F1 Score',
                                         Cell: metricCell
                                     },
                                     {
@@ -467,7 +483,7 @@ const Segmentation = ({timeStore, segmentationStore}) => {
                                 resultFormat='array'
                                 fetchData={() => metricsClient('queries/fairness-bias-columns-counts', {
                                     counts: featuresAndTags.map(({column}) => `COUNT("${column}")`).join(', '),
-                                    sql_time_filter: isTimeEnabled ? timeStore.sqlTimeFilter : 'TRUE',
+                                    sql_time_filter: isModelView ? timeStore.sqlTimeFilter : 'TRUE',
                                     ml_model_id: mlModelId
                                 })}
                             />
@@ -475,7 +491,9 @@ const Segmentation = ({timeStore, segmentationStore}) => {
                         }
                         fetchData={mlModelType === 'TABULAR_CLASSIFIER' ?
                             () => metricsClient('queries/fairness-bias-columns-names-for-features') :
-                            () => metricsClient('queries/fairness-bias-columns-names-for-tags')
+                            mlModelType === 'SPEECH_TO_TEXT' ?
+                                () => metricsClient('queries/fairness-bias-columns-names-for-audio-metadata') :
+                                () => metricsClient('queries/fairness-bias-columns-names-for-tags')
                         }
                     />
                 )}

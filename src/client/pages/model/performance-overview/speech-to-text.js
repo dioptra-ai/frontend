@@ -30,7 +30,7 @@ const PerformanceOverview = () => {
                         <Async
                             renderData={([[data], [benchmarkData]]) => (
                                 <MetricInfoBox
-                                    name='Accuracy'
+                                    name='Exact Match'
                                     subtext={sampleSizeComponent}
                                     unit='%'
                                     value={100 * data?.value}
@@ -38,11 +38,11 @@ const PerformanceOverview = () => {
                                 />
                             )}
                             fetchData={[
-                                () => metricsClient('accuracy-metric', {
+                                () => metricsClient('exact-match', {
                                     sql_filters: allSqlFilters,
                                     model_type: 'SPEECH_TO_TEXT'
                                 }),
-                                () => metricsClient('accuracy-metric', {
+                                () => metricsClient('exact-match', {
                                     sql_filters: sqlFiltersWithModelTime,
                                     model_type: 'SPEECH_TO_TEXT'
                                 })
@@ -54,7 +54,7 @@ const PerformanceOverview = () => {
                         <Async
                             renderData={([[data], [benchmarkData]]) => (
                                 <MetricInfoBox
-                                    name='F1 Score'
+                                    name='Word Error Rate'
                                     subtext={sampleSizeComponent}
                                     unit='%'
                                     value={100 * data?.value}
@@ -62,61 +62,11 @@ const PerformanceOverview = () => {
                                 />
                             )}
                             fetchData={[
-                                () => metricsClient('f1-score-metric', {
+                                () => metricsClient('word-error-rate', {
                                     sql_filters: allSqlFilters,
                                     model_type: 'SPEECH_TO_TEXT'
                                 }),
-                                () => metricsClient('f1-score-metric', {
-                                    sql_filters: sqlFiltersWithModelTime,
-                                    model_type: 'SPEECH_TO_TEXT'
-                                })
-                            ]}
-                            refetchOnChanged={[allSqlFilters, sqlFiltersWithModelTime]}
-                        />
-                    </Col>
-                    <Col className='d-flex' lg={3}>
-                        <Async
-                            renderData={([[data], [benchmarkData]]) => (
-                                <MetricInfoBox
-                                    name='Recall'
-                                    subtext={sampleSizeComponent}
-                                    unit='%'
-                                    value={100 * data?.value}
-                                    difference={100 * (data?.value - benchmarkData?.value)}
-                                />
-                            )}
-                            fetchData={[
-                                () => metricsClient('recall-metric', {
-                                    sql_filters: allSqlFilters,
-                                    model_type: 'SPEECH_TO_TEXT'
-                                }),
-                                () => metricsClient('recall-metric', {
-                                    sql_filters: sqlFiltersWithModelTime,
-                                    model_type: 'SPEECH_TO_TEXT'
-                                })
-                            ]}
-                            refetchOnChanged={[allSqlFilters, sqlFiltersWithModelTime]}
-                        />
-                    </Col>
-                    <Col className='d-flex' lg={3}>
-                        <Async
-                            renderData={([[data], [benchmarkData]]) => (
-                                <MetricInfoBox
-                                    name='Precision'
-                                    subtext={sampleSizeComponent}
-                                    unit='%'
-                                    value={100 * data?.value}
-                                    difference={
-                                        100 * (data?.value - benchmarkData?.value)
-                                    }
-                                />
-                            )}
-                            fetchData={[
-                                () => metricsClient('precision-metric', {
-                                    sql_filters: allSqlFilters,
-                                    model_type: 'SPEECH_TO_TEXT'
-                                }),
-                                () => metricsClient('precision-metric', {
+                                () => metricsClient('word-error-rate', {
                                     sql_filters: sqlFiltersWithModelTime,
                                     model_type: 'SPEECH_TO_TEXT'
                                 })
@@ -126,10 +76,8 @@ const PerformanceOverview = () => {
                     </Col>
                 </Row>
                 <CorrelationToKPIs selectableMetrics={[
-                    {value: 'ACCURACY', name: 'Accuracy'},
-                    {value: 'F1_SCORE', name: 'F1 Score'},
-                    {value: 'PRECISION', name: 'Precision'},
-                    {value: 'RECALL', name: 'Recall'}
+                    {value: 'EXACT_MATCH', name: 'Exact Match'},
+                    {value: 'WORD_ERROR_RATE', name: 'Word Error Rate'}
                 ]}/>
             </div>
         </>

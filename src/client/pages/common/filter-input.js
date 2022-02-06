@@ -231,7 +231,7 @@ const FilterInput = ({
                         <div className='suggestions bg-white text-dark py-3'>
                             {
                                 suggestionsLoading ? (
-                                    <Spinner standalone/>
+                                    <Spinner/>
                                 ) : (
                                     <ul className='m-0'>
                                         {suggestions.length ? suggestions.map((suggestion, index) => (

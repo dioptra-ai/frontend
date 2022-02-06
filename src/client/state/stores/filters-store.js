@@ -151,21 +151,33 @@ class FiltersStore {
     // [{left, op, right}]
     f = [];
 
-    mlModelVersion = ''
+    // Models to filter with. Several models can be compared.
+    m = [];
 
-    constructor(initialValue) {
+    // Benchmarks to filter with. Several benchmarks can be compared.
+    b = [];
+
+    constructor(localStorageValue) {
         const filters = new URL(window.location).searchParams.get('filters');
-        const mlModelVersion = new URL(window.location).searchParams.get('mlModelVersion');
+        const models = new URL(window.location).searchParams.get('models');
+        const benchmarks = new URL(window.location).searchParams.get('benchmarks');
 
-        if (filters) {
+        if (filters && models && benchmarks) {
             const parsedFilters = JSON.parse(filters);
+            const parsedModels = JSON.parse(models);
+            const parsedBenchmarks = JSON.parse(benchmarks);
 
             this.f = parsedFilters ? parsedFilters.map((f) => new Filter(f)) : [];
-            this.mlModelVersion = mlModelVersion;
-        } else if (initialValue) {
-            this.f = JSON.parse(initialValue).f.map((_f) => new Filter(_f));
-            this.mlModelVersion = mlModelVersion;
+            this.m = parsedModels;
+            this.b = parsedBenchmarks;
+        } else if (localStorageValue) {
+            const parsedLocalStorageValue = JSON.parse(localStorageValue);
+
+            this.f = parsedLocalStorageValue.f.map((_f) => new Filter(_f));
+            this.m = parsedLocalStorageValue.m;
+            this.b = parsedLocalStorageValue.b;
         }
+
         makeAutoObservable(this);
     }
 
@@ -187,15 +199,15 @@ class FiltersStore {
         this.filters = this.filters.concat(...args);
     }
 
-    get modelVersion() {
-        return this.mlModelVersion;
+    get models() {
+        return this.m;
     }
 
-    set modelVersion(v) {
-        this.mlModelVersion = v;
+    set models(m) {
+        this.m = m;
     }
 
-    get sqlFilters() {
+    getModelSqlFilters(forModel = 0) {
         const filtersByKey = this.f.reduce((agg, filter) => {
             const {left} = filter;
 
@@ -214,9 +226,47 @@ class FiltersStore {
             return `(${keyFilters.map((filter) => filter.toSQLString()).join(' OR ')})`;
         });
 
-        if (this.mlModelVersion && this.mlModelVersion !== 'null') {
-            allFilters.push(`"model_version"='${this.mlModelVersion}'`);
+        const model = this.m[forModel];
+
+        allFilters.push(`"model_id"='${model.mlModelId}'`);
+
+        if (model.mlModelVersion && model.mlModelVersion !== 'null') {
+            allFilters.push(`"model_version"='${model.mlModelVersion}'`);
         }
+
+        return allFilters;
+    }
+
+    get benchmarks() {
+        return this.b;
+    }
+
+    set benchmarks(b) {
+        this.b = b;
+    }
+
+    getBenchmarkSqlFilters(forBenchmark = 0) {
+        const filtersByKey = this.f.reduce((agg, filter) => {
+            const {left} = filter;
+
+            if (!agg[left]) {
+                agg[left] = [];
+            }
+
+            agg[left].push(filter);
+
+            return agg;
+        }, {});
+
+        const allFilters = Object.keys(filtersByKey).map((left) => {
+            const keyFilters = filtersByKey[left];
+
+            return `(${keyFilters.map((filter) => filter.toSQLString()).join(' OR ')})`;
+        });
+
+        const benchmark = this.b[forBenchmark];
+
+        allFilters.push(`"benchmark_id"='${benchmark['benchmark_id']}'`);
 
         return allFilters;
     }
