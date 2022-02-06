@@ -20,38 +20,6 @@ const PerformanceDetails = () => {
                     <Col className='d-flex' lg={3}>
                         <MetricInfoBox name='Datapoints'>{sampleSizeComponent}</MetricInfoBox>
                     </Col>
-                    <Col className='d-flex' lg={3}>
-                        <Async
-                            fetchData={() => metricsClient('exact-match', {
-                                sql_filters: allSqlFilters,
-                                time_granularity: timeGranularity,
-                                model_type: 'SPEECH_TO_TEXT'
-                            })}
-                            refetchOnChanged={[allSqlFilters]}
-                            renderData={([d]) => (
-                                <MetricInfoBox
-                                    name='EM'
-                                    value={d?.value}
-                                />
-                            )}
-                        />
-                    </Col>
-                    <Col className='d-flex' lg={3}>
-                        <Async
-                            fetchData={() => metricsClient('word-error-rate', {
-                                sql_filters: allSqlFilters,
-                                time_granularity: timeGranularity,
-                                model_type: 'SPEECH_TO_TEXT'
-                            })}
-                            refetchOnChanged={[allSqlFilters]}
-                            renderData={([d]) => (
-                                <MetricInfoBox
-                                    name='WER'
-                                    value={d?.value}
-                                />
-                            )}
-                        />
-                    </Col>
                 </Row>
             </div>
             <Segmentation />
