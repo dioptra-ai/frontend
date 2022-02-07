@@ -49,7 +49,7 @@ const IncidentRow = ({
                     isMainRow ? 'bold-text' : ''
                 }`}
             >
-                {message}. Date: {formatDateTime(moment(creationDate))}
+                {message} Date: {formatDateTime(moment(creationDate))}
             </span>
             <Button
                 className='text-white btn-incident p-0 fs-6'
@@ -65,8 +65,8 @@ const IncidentRow = ({
 IncidentRow.propTypes = {
     isMainRow: PropTypes.bool,
     message: PropTypes.string,
-    creationDate: PropTypes.string,
     resolved: PropTypes.bool,
+    creationDate: PropTypes.string,
     selectCallback: PropTypes.func,
     checked: PropTypes.bool,
     id: PropTypes.string

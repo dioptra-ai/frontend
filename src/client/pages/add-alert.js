@@ -3,14 +3,14 @@ import baseJSONClient from 'clients/base-json-client';
 import FontIcon from 'components/font-icon';
 import Select from 'components/select';
 import TextInput from 'components/text-input';
-import {IconNames} from 'constants';
+import TextArea from 'components/text-area';
+import { IconNames } from 'constants';
 import useModel from 'hooks/use-model';
-import {AlertAutoResolvePeriods} from 'enums/alert-auto-resolve-periods';
-import {AlertErrorHandlingStatuses} from 'enums/alert-error-handling-states';
-import {AlertTypes} from 'enums/alert-types';
-import {Comparators} from 'enums/comparators';
-import {LogicalOperators} from 'enums/logical-operators';
-import {NotificationTypes} from 'enums/notification-types';
+import { AlertTypes } from 'enums/alert-types';
+import { AlertErrorHandlingStatuses } from 'enums/alert-error-handling-states';
+import { Comparators } from 'enums/comparators';
+import { LogicalOperators } from 'enums/logical-operators';
+import { NotificationTypes } from 'enums/notification-types';
 import PropTypes from 'prop-types';
 import React, { useCallback, useState } from 'react';
 import { Button, Col, Container, Row } from 'react-bootstrap';
@@ -168,7 +168,7 @@ const ConditionRow = ({
                         )}
                     />
                 </Col>
-                <Col xl={rowState.comparator === 'HAS_NO_VALUE' ? 2 : 1}>
+                <Col xl={2}>
                     <Select
                         backgroundColor='white'
                         initialValue={rowState.comparator}
@@ -178,7 +178,7 @@ const ConditionRow = ({
                         textColor='primary'
                     />
                 </Col>
-                <Col className='d-flex' xl={1}>
+                <Col className='d-flex' xl={2}>
                     {rowState.comparator !== 'HAS_NO_VALUE' && (
                         <TextInput
                             type='number'
@@ -223,7 +223,7 @@ const RecipientRow = ({
     return (
         <Row className='my-3 align-items-center' key={idx}>
             <Col xl={1}>{isFirst ? <LabelBox text='SEND TO' /> : null}</Col>
-            <Col xl={2}>
+            <Col xl={3}>
                 <Select
                     backgroundColor='white-blue'
                     initialValue={rowState.type}
@@ -236,15 +236,8 @@ const RecipientRow = ({
                     className={inputStyling}
                     initialValue={rowState.address}
                     onChange={handleAddressChange}
-                    placeholder='Enter email'
-                />{' '}
-            </Col>
-            <Col xl={1}>
-                {isFirst ? (
-                    <AddButton onClick={handleAddRow} />
-                ) : (
-                    <BinButton onClick={handleDeleteRow} />
-                )}
+                    placeholder='Enter webhook URL'
+                />
             </Col>
         </Row>
     );
@@ -335,7 +328,7 @@ TagRow.propTypes = {
     rowState: PropTypes.object
 };
 
-const AddAlertPage = ({timeStore}) => {
+const AddAlertPage = () => {
     const model = useModel();
     const allSqlFilters = useAllSqlFilters();
 
@@ -344,28 +337,18 @@ const AddAlertPage = ({timeStore}) => {
         metric: Object.values(getMetricsForModel(model.mlModelType))[0].value,
         comparator: Comparators.IS_ABOVE_OR_EQUAL.value
     };
-    const recipientInitialValue = {type: NotificationTypes.EMAIL.value};
+    const recipientInitialValue = {type: NotificationTypes.SLACK.value, address: ''};
     const history = useHistory();
-    const [tags, setTags] = useState([{}]);
     const [recipients, setRecipients] = useState([recipientInitialValue]);
-    const [message, setMessage] = useState('');
+    const [template, setTemplate] = useState('{ "text" : "$dioptra_message" }');
     const [alertName, setAlertName] = useState('');
     const [conditions, setConditions] = useState([conditionInitialValue]);
+    const [notificationEnabled, setNotificationEnabled] = useState(true);
     const [evaluationPeriod, setEvaluationPeriod] = useState(
         IsoDurations.PT5M.value
     );
-    const [conditionsPeriod, setConditionsPeriod] = useState('');
-    const [addAlertInProgress, setAddAlertInProgress] = useState(false);
     const [alertType, setAlertType] = useState(AlertTypes.THRESHOLD.value);
-    const [autoResolve, setAutoResolvePeriod] = useState(
-        AlertAutoResolvePeriods.NEVER.value
-    );
-    const [stateForNoDateOrNullValues, setStateForNoDateOrNullValues] = useState(
-        AlertErrorHandlingStatuses.ALERTING.value
-    );
-    const [stateExecutionErrorOrTimeout, setStateExecutionErrorOrTimeout] = useState(
-        AlertErrorHandlingStatuses.ALERTING.value
-    );
+    const [addAlertInProgress, setAddAlertInProgress] = useState(false);
 
     const goToPreviousRoute = useCallback(() => {
         history.goBack();
@@ -381,7 +364,11 @@ const AddAlertPage = ({timeStore}) => {
                 evaluation_period: evaluationPeriod,
                 conditions,
                 modelType: model.mlModelType,
-                sqlFilters: allSqlFilters
+                sqlFilters: allSqlFilters,
+                notification: notificationEnabled ? {
+                    recipients: recipients,
+                    template: template
+                } : {}
             }
         }).then(() => {
             setAddAlertInProgress(false);
@@ -450,6 +437,31 @@ const AddAlertPage = ({timeStore}) => {
                     />
                 </Col>
             </FormSection>
+            <label className='checkbox fs-6' style={{marginBottom: notificationEnabled ? 0 : 20, width: 180}}>
+                <input
+                    defaultChecked={notificationEnabled}
+                    onChange={(e) => setNotificationEnabled(e.target.checked)}
+                    type='checkbox'
+                />
+                <span className='fs-6'>Enable notifications</span>
+            </label>
+            { notificationEnabled && <div>
+                <FormSection name='Notifications'>
+                    <Col className='mt-2' xl={12}>
+                        <DynamicArray data={recipients} newRowInitialState={recipientInitialValue} onChange={setRecipients} renderRow={RecipientRow} />
+                        <Row className='my-3'>
+                            <Col xl={1}><LabelBox text='TEMPLATE'/></Col>
+                            <Col xl={11}><TextArea className={inputStyling} onChange={setTemplate} placeholder='Enter webhook template (a handlebar template) or leave it empty to use default: { "text" : "$dioptra_message" }' rows={9} /></Col>
+                        </Row>
+                    </Col>
+                    <Col className='mt-2' xl={12}>
+                        <Row>
+                            <Col xl={1}></Col>
+                            <Col xl={11} style={{fontSize: 12}}>Please use <strong>$dioptra_message</strong> key in webhook template to use original Dioptra alert message</Col>
+                        </Row>
+                    </Col>
+                </FormSection>
+            </div> }
             <div className='border-bottom border-bottom-2'></div>
             <Row className='pt-4'>
                 <Col xl={2}>
@@ -466,7 +478,8 @@ const AddAlertPage = ({timeStore}) => {
                                     condition.valueToCompare === '')
                                     && condition.comparator !== Comparators.HAS_NO_VALUE.value
                                 );
-                            }).length !== 0
+                            }).length !== 0 ||
+                            (notificationEnabled && recipients.filter((recipient) => recipient.address === '').length !== 0)
                         }
                         className='w-100 p-3 text-white'
                         onClick={handleCreate}
