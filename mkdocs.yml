@@ -5,7 +5,7 @@ nav:
   - Supported types and schemas: supported_types.md
   - Collector api: collector.md
 
-site_dir: src/client/pages/documentation/build
+site_dir: build/documentation
 
 theme:
   name: "material"

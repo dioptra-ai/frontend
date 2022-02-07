@@ -40,7 +40,7 @@ const TopMenuItemsConfig = [
 ];
 
 const BottomMenuItemsConfig = [
-    {icon: <MdHelpOutline className='fs-3'/>, url: '/documentation', title: 'Documentation'},
+    {icon: <MdHelpOutline className='fs-3'/>, url: '/documentation', title: 'Documentation', target: '_blank'},
     {icon: IconNames.SETTING, url: Paths().SETTINGS, title: 'Settings'},
     {icon: IconNames.USER, url: Paths().PROFILE, title: 'User'}
 ];
@@ -51,12 +51,12 @@ const Menu = ({children}) => {
     const renderItems = (configs) => {
         return (
             <div>
-                {configs.map(({icon, url, title}, idx) => {
+                {configs.map(({icon, url, title, ...rest}, idx) => {
                     const matchingConfig = getMatchingRouteConfig(location.pathname);
                     const isActive = location.pathname.startsWith(url) || matchingConfig.menuMatch === url;
 
                     return (
-                        <Link key={idx} title={title} to={url} >
+                        <Link key={idx} title={title} to={url} {...rest}>
                             <MenuItem
                                 className='my-4 d-flex justify-content-center align-items-center'
                                 icon={icon}

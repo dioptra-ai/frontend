@@ -12,6 +12,7 @@ const app = express();
 const basePath = dirname(fileURLToPath(import.meta.url));
 
 app.use(express.static(join(basePath, 'build')));
+app.use(express.static(join(basePath, 'src/client/build/documentation')));
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 

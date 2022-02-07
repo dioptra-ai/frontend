@@ -1,4 +1,4 @@
-import htmlContent from './build/index.html';
+import htmlContent from 'build/documentation/index.html';
 
 const Documentation = () => {
     return (
