@@ -64,6 +64,10 @@ module.exports = {
                         loader: 'file-loader'
                     }
                 ]
+            },
+            {
+                test: /\.html$/i,
+                loader: 'html-loader',
             }
         ]
     },

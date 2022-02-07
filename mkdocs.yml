@@ -1,0 +1,19 @@
+site_name: Dioptra
+nav:
+  - Home: index.md
+  - Getting started: getting_started.md
+  - Supported types and schemas: supported_types.md
+  - Collector api: collector.md
+
+site_dir: src/client/pages/documentation/build
+
+theme:
+  name: "material"
+  logo: logo_symbol.svg
+  favicon: logo_symbol.svg
+  palette:
+    primary: blue grey
+
+plugins:
+- search
+- mkdocstrings
