@@ -52,8 +52,8 @@ workflows:
           run-command: lint
 
       - checkout-submodules:
-        requires:
-          - lint
+          requires:
+            - lint
 
       - aws-ecr/build-and-push-image:
           name: build-image
