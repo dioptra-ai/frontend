@@ -61,15 +61,12 @@ const Model = ({timeStore, filtersStore, modelStore}) => {
         tabs.push({name: 'Performance Analysis', to: '/models/performance-details'});
     }
 
-    if (firstModel?.mlModelType !== 'Q_N_A' && firstModel?.mlModelType !== 'SPEECH_TO_TEXT') {
+    if (firstModel?.mlModelType !== 'Q_N_A' && firstModel?.mlModelType !== 'SPEECH_TO_TEXT' && firstModel?.mlModelType !== 'AUTO_COMPLETION') {
         tabs.push({name: 'Prediction Analysis', to: '/models/prediction-analysis'});
     }
 
 
-    if (firstModel?.mlModelType !== 'AUTO_COMPLETION') {
-        tabs.push({name: 'Feature Analysis', to: '/models/feature-analysis'});
-    }
-
+    tabs.push({name: 'Feature Analysis', to: '/models/feature-analysis'});
     tabs.push({name: 'Traffic Replay', to: '/models/traffic-replay'});
     tabs.push({name: 'Incidents & Alerts', to: '/models/incidents-and-alerts'});
 
