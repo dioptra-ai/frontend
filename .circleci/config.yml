@@ -4,7 +4,7 @@ version: 2.1
 jobs:
   checkout-submodules:
     docker:
-      - image: cimg/base
+      - image: cimg/base:2021.04
     steps:
       - checkout
       - run: git submodule sync
