@@ -226,10 +226,10 @@ workflows:
             - aws-creds
           requires:
             - lint
-          # filters:
-          #   branches:
-          #     only:
-          #       - dev
+          filters:
+            branches:
+              only:
+                - dev
       - helm-upgrade:
           name: upgrade-dev
           cluster-name: dioptra-dev-eks
