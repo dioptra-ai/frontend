@@ -52,6 +52,7 @@ const Model = ({timeStore, filtersStore, modelStore}) => {
         segmentation: JSON.stringify(segmentationStore.segmentation)
     }));
 
+    // TODO: make this a clean switch
     const tabs = [
         {name: 'Performance Overview', to: '/models/performance-overview'}
     ];
