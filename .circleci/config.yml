@@ -59,7 +59,6 @@ workflows:
           aws-access-key-id: AWS_ACCESS_KEY_ID
           aws-secret-access-key: AWS_SECRET_ACCESS_KEY
           create-repo: true
-          checkout: false
           dockerfile: Dockerfile
           executor:
             name: aws-ecr/default
