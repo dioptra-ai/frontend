@@ -3,6 +3,8 @@ version: 2.1
 
 jobs:
   checkout-submodules:
+    docker:
+      - image: cimg/base
     steps:
       - checkout
       - run: git submodule sync
