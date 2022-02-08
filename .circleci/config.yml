@@ -2,6 +2,14 @@
 version: 2.1
 
 jobs:
+  checkout-submodules:
+    docker:
+      - image: cimg/base:2021.04
+    steps:
+      - checkout
+      - run: git submodule sync
+      - run: git submodule update --init
+
   helm-upgrade:
     parameters:
       cluster-name:
@@ -42,12 +50,16 @@ workflows:
           name: lint
           version: 16.4.0 # This to be kept in sync with Dockerfile
           run-command: lint
+      - checkout-submodules:
+          requires:
+            - lint
       - aws-ecr/build-and-push-image:
           name: build-image
           account-url: AWS_ECR_ACCOUNT_URL
           aws-access-key-id: AWS_ACCESS_KEY_ID
           aws-secret-access-key: AWS_SECRET_ACCESS_KEY
           create-repo: true
+          checkout: false
           dockerfile: Dockerfile
           executor:
             name: aws-ecr/default
@@ -59,7 +71,7 @@ workflows:
           context:
             - aws-creds
           requires:
-            - lint
+            - checkout-submodules
           filters:
             branches:
               only:
@@ -77,6 +89,7 @@ workflows:
             branches:
               only:
                 - dev
+
   Delivery:
     jobs:
       - node/test:
@@ -88,6 +101,9 @@ workflows:
               only: /^v.*/
             branches:
               ignore: /.*/
+      - checkout-submodules:
+          requires:
+            - lint
       - aws-ecr/build-and-push-image:
           name: build-image
           account-url: AWS_ECR_ACCOUNT_URL
@@ -105,7 +121,7 @@ workflows:
           context:
             - aws-creds
           requires:
-            - lint
+            - checkout-submodules
           filters:
             tags:
               only: /^v.*/

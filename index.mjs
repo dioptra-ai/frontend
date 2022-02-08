@@ -6,20 +6,22 @@ import {} from 'dotenv/config';
 import {sessionHandler, userAuth} from './src/server/middleware/authentication.mjs';
 import ApiRouter from './src/server/api-router.mjs';
 import jsonError from './src/server/middleware/json-error.mjs';
+import {isAuthenticated} from './src/server/middleware/authentication.mjs';
 import './src/server/models/index.mjs';
 
 const app = express();
 const basePath = dirname(fileURLToPath(import.meta.url));
 
-app.use(express.static(join(basePath, 'build')));
-app.use(express.json());
-app.use(express.urlencoded({extended: true}));
-
 userAuth(passport);
-
 app.use(sessionHandler);
 app.use(passport.initialize());
 app.use(passport.session());
+
+app.use('/documentation', isAuthenticated);
+app.use(express.static(join(basePath, 'build')));
+
+app.use(express.json());
+app.use(express.urlencoded({extended: true}));
 
 // Register all controller routes to /api/ basepath
 app.use('/api', ApiRouter);

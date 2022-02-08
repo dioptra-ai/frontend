@@ -1,0 +1,3 @@
+[submodule "submodules/collector-py-private"]
+	path = submodules/collector-py-private
+	url = git@github.com:dioptra-ai/collector-py-private.git
