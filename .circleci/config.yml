@@ -102,6 +102,8 @@ workflows:
             branches:
               ignore: /.*/
       - checkout-submodules:
+          context:
+            - aws-creds
           requires:
             - lint
       - aws-ecr/build-and-push-image:
