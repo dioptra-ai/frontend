@@ -4,6 +4,7 @@ nav:
   - Getting started: getting_started.md
   - Supported types and schemas: supported_types.md
   - Collector api: collector.md
+  - Segment.com: segment.md
 
 site_dir: build/documentation
 
