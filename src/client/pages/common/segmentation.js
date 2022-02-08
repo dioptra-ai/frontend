@@ -433,24 +433,36 @@ const Segmentation = ({timeStore, segmentationStore}) => {
                                         accessor: 'value',
                                         Header: 'Sample Size'
                                     }
-                                ] :
-                                    [
-                                        {
-                                            id: 'accuracy',
-                                            Header: 'Accuracy Trend',
-                                            Cell: AccuracyCell,
-                                            width: 200
-                                        },
-                                        {
-                                            accessor: 'value',
-                                            Header: 'Sample Size'
-                                        },
-                                        {
-                                            id: 'prediction',
-                                            Header: 'Online Predictions',
-                                            Cell: DistributionCell
-                                        }
-                                    ]
+                                ] : mlModelType === 'AUTO_COMPLETION' ? [{
+                                    id: 'precision-metric',
+                                    Header: 'Completion Precision',
+                                    Cell: metricCell
+                                },
+                                {
+                                    id: 'recall-metric',
+                                    Header: 'Completion Recall',
+                                    Cell: metricCell
+                                }, {
+                                    id: 'f1-score-metric',
+                                    Header: 'Token F1 Score',
+                                    Cell: metricCell
+                                }] : [
+                                    {
+                                        id: 'accuracy',
+                                        Header: 'Accuracy Trend',
+                                        Cell: AccuracyCell,
+                                        width: 200
+                                    },
+                                    {
+                                        accessor: 'value',
+                                        Header: 'Sample Size'
+                                    },
+                                    {
+                                        id: 'prediction',
+                                        Header: 'Online Predictions',
+                                        Cell: DistributionCell
+                                    }
+                                ]
                             ).concat(
                                 groupByColumns.map((column) => ({
                                     accessor: (c) => c[column],
