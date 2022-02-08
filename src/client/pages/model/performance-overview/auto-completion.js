@@ -25,40 +25,6 @@ const PerformanceOverview = () => {
                 <Row className='mb-3 align-items-stretch'>
                     <Col className='d-flex' lg={3}>
                         <Async
-                            fetchData={() => metricsClient('precision-metric', {
-                                sql_filters: allSqlFilters,
-                                model_type: 'AUTO_COMPLETION'
-                            })}
-                            refetchOnChanged={[allSqlFilters]}
-                            renderData={([d]) => (
-                                <MetricInfoBox
-                                    name='Completion Precision'
-                                    subtext={sampleSizeComponent}
-                                    unit='%'
-                                    value={100 * d?.value}
-                                />
-                            )}
-                        />
-                    </Col>
-                    <Col className='d-flex' lg={3}>
-                        <Async
-                            fetchData={() => metricsClient('recall-metric', {
-                                sql_filters: allSqlFilters,
-                                model_type: 'AUTO_COMPLETION'
-                            })}
-                            refetchOnChanged={[allSqlFilters]}
-                            renderData={([d]) => (
-                                <MetricInfoBox
-                                    name='Completion Recall'
-                                    subtext={sampleSizeComponent}
-                                    unit='%'
-                                    value={100 * d?.value}
-                                />
-                            )}
-                        />
-                    </Col>
-                    <Col className='d-flex' lg={3}>
-                        <Async
                             fetchData={() => metricsClient('f1-score-metric', {
                                 sql_filters: allSqlFilters,
                                 model_type: 'AUTO_COMPLETION'
@@ -76,8 +42,6 @@ const PerformanceOverview = () => {
                     </Col>
                 </Row>
                 <CorrelationToKPIs selectableMetrics={[
-                    {value: 'PRECISION', name: 'Completion Precision'},
-                    {value: 'RECALL', name: 'Completion Recall'},
                     {value: 'F1_SCORE', name: 'Token F1 Score'}
                 ]}/>
             </div>
