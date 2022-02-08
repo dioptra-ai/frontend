@@ -25,13 +25,15 @@ $ python3 setup.py install
 import datetime
 import uuid
 from dioptra.api import Logger
+from dioptra.supported_types import SupportedTypes
 
 dioptra_logger = Logger(api_key=API_KEY)
 
 dioptra_logger.commit(
     model_id='my_model_id',
     model_version='v1.1',
-    timestamp=datetime.datetime.utcnow()
+    model_type=SupportedTypes.IMAGE_CLASSIFIER,
+    timestamp=datetime.datetime.utcnow(),
     request_id=str(uuid.uuid4()),
     prediction='cat',
     groundtruth='dog',
