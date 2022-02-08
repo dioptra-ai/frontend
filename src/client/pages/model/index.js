@@ -64,7 +64,10 @@ const Model = ({timeStore, filtersStore, modelStore}) => {
         tabs.push({name: 'Prediction Analysis', to: '/models/prediction-analysis'});
     }
 
-    tabs.push({name: 'Feature Analysis', to: '/models/feature-analysis'});
+
+    if (firstModel?.mlModelType !== 'AUTO_COMPLETION') {
+        tabs.push({name: 'Feature Analysis', to: '/models/feature-analysis'});
+    }
 
     tabs.push({name: 'Traffic Replay', to: '/models/traffic-replay'});
     tabs.push({name: 'Incidents & Alerts', to: '/models/incidents-and-alerts'});

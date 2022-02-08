@@ -107,6 +107,7 @@ const EditModel = ({initialValue, onSubmit, errors}) => {
                             <option value='TEXT_CLASSIFIER'>Text Classifier</option>
                             <option value='UNSUPERVISED_OBJECT_DETECTION'>Unsupervised Object Detection</option>
                             <option value='SPEECH_TO_TEXT'>Speech to Text</option>
+                            <option value='AUTO_COMPLETION'>Auto Completion</option>
                         </Form.Control>
                     </InputGroup>
                     <Button

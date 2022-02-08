@@ -6,6 +6,7 @@ import SpeechToText from './speech-to-text';
 import TabularClassifier from './tabular-classifier';
 import TextClassifier from './text-classifier';
 import UnsupervisedObjectDetection from './unsupervised-object-detection';
+import AutoCompletion from './auto-completion';
 
 const PerformanceOverview = (props) => {
     const model = useModel();
@@ -26,6 +27,9 @@ const PerformanceOverview = (props) => {
     case 'TEXT_CLASSIFIER':
 
         return <TextClassifier/>;
+    case 'AUTO_COMPLETION':
+
+        return <AutoCompletion/>;
     case 'UNSUPERVISED_OBJECT_DETECTION':
 
         return <UnsupervisedObjectDetection {...props}/>;
