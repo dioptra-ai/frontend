@@ -36,10 +36,16 @@ class ModelStore {
         this.modelsById[_id] = data;
     }
 
-    getSqlReferencePeriodFilter(_id) {
-        const {referencePeriod} = this.modelsById[_id];
+    getSqlReferenceFilters(_id) {
+        const {referencePeriod, referenceBenchmarkId} = this.modelsById[_id];
 
-        return referencePeriod ? `"__time" >= TIME_PARSE('${referencePeriod.start}') AND "__time" < TIME_PARSE('${referencePeriod.end}')` : 'TRUE';
+        if (referenceBenchmarkId) {
+
+            return `benchmark_id = '${referenceBenchmarkId}'`;
+        } else if (referencePeriod) {
+
+            return `"__time" >= TIME_PARSE('${referencePeriod.start}') AND "__time" < TIME_PARSE('${referencePeriod.end}')`;
+        } else return 'TRUE';
     }
 
     fetchModels() {

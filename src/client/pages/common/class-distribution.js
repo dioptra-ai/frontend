@@ -15,7 +15,7 @@ import {setupComponent} from 'helpers/component-helper';
 const ClassDistribution = ({timeStore}) => {
     const {mlModelType} = useModel();
     const allSqlFilters = useAllSqlFilters();
-    const allOfflineSqlFilters = useAllSqlFilters({useReferenceRange: true});
+    const allOfflineSqlFilters = useAllSqlFilters({useReferenceFilters: true});
     const timeGranularity = useTimeGranularity()?.toISOString();
 
     return (

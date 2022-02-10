@@ -14,7 +14,7 @@ import useTimeGranularity from 'hooks/use-time-granularity';
 
 const FeatureAnalysisImages = ({timeStore}) => {
     const allSqlFilters = useAllSqlFilters();
-    const allOfflineSqlFilters = useAllSqlFilters({useReferenceRange: true});
+    const allOfflineSqlFilters = useAllSqlFilters({useReferenceFilters: true});
     const timeGranularity = useTimeGranularity()?.toISOString();
     const {mlModelType} = useModel();
 

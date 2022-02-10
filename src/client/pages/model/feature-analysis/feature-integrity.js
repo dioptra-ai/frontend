@@ -70,7 +70,7 @@ const FeatureIntegrityRow = ({name}) => {
     const [featureOnlineDistribution, setFeatureOnlineDistribution] = useState(null);
     const {ref, inView} = useInView();
     const allSqlFilters = useAllSqlFilters();
-    const allOfflineSqlFilters = useAllSqlFilters({useReferenceRange: true});
+    const allOfflineSqlFilters = useAllSqlFilters({useReferenceFilters: true});
     const maxTimeseriesTicks = 20;
     const timeGranularity = useTimeGranularity(maxTimeseriesTicks)?.toISOString();
 

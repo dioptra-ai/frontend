@@ -130,7 +130,7 @@ ClassRow.propTypes = {
 
 const PerformancePerClass = () => {
     const allSqlFilters = useAllSqlFilters();
-    const sqlFiltersWithModelTime = useAllSqlFilters({useReferenceRange: true});
+    const sqlFiltersWithModelTime = useAllSqlFilters({useReferenceFilters: true});
     const sampleSizeComponent = <CountEvents sqlFilters={allSqlFilters}/>;
 
     return (

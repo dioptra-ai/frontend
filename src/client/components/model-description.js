@@ -17,7 +17,7 @@ import Async from 'components/async';
 import metricsClient from 'clients/metrics';
 import comparisonContext from 'context/comparison-context';
 
-const ModelDescription = ({_id, name, description, team, tier, lastDeployed, mlModelId, mlModelType, referencePeriod, modelStore, filtersStore}) => {
+const ModelDescription = ({_id, name, description, team, tier, lastDeployed, mlModelId, mlModelType, referencePeriod, referenceBenchmarkId, modelStore, filtersStore}) => {
     const [expand, setExpand] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showCompareModal, setShowCompareModal] = useState(false);
@@ -126,7 +126,7 @@ const ModelDescription = ({_id, name, description, team, tier, lastDeployed, mlM
             <Modal isOpen={showEditModal} onClose={() => setShowEditModal(false)} title='Edit Model'>
                 <EditModel
                     errors={errors}
-                    initialValue={{name, description, mlModelId, mlModelType, referencePeriod}}
+                    initialValue={{name, description, mlModelId, mlModelType, referencePeriod, referenceBenchmarkId}}
                     onSubmit={handleSubmit}
                 />
             </Modal>
@@ -197,6 +197,7 @@ ModelDescription.propTypes = {
     mlModelId: PropTypes.string.isRequired,
     mlModelType: PropTypes.string.isRequired,
     referencePeriod: PropTypes.object,
+    referenceBenchmarkId: PropTypes.string,
     filtersStore: PropTypes.object.isRequired
 };
 
