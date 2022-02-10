@@ -12,6 +12,7 @@ import {
     Tooltip,
     XAxis
 } from 'recharts';
+import Alert from 'react-bootstrap/Alert';
 
 import useModel from 'hooks/use-model';
 import {setupComponent} from 'helpers/component-helper';
@@ -217,15 +218,22 @@ const _DistributionCell = ({row, segmentationStore}) => {
 
     return (
         <div ref={ref}>
-            <BarChart data={distributionData.map((d) => ({...d, value: 100 * d.value}))} height={150} width={150}>
-                <Tooltip content={<BarTooltip unit='%'/>}/>
-                <Bar background={false} dataKey='value' minPointSize={2}>
-                    {distributionData.map((d, i) => (
-                        <Cell accentHeight='0px' fill={getHexColor(d.name, 0.65)} key={i} />
-                    ))}
-                </Bar>
-                <XAxis dataKey='name' tick={false}/>
-            </BarChart>
+            {distributionData.length > 25 ? (
+                <Alert variant='secondary'>
+                    Too many classes.
+                </Alert>
+            ) : (
+                <BarChart data={distributionData.map((d) => ({...d, value: 100 * d.value}))} height={150} width={150}>
+                    <Tooltip content={<BarTooltip unit='%'/>}/>
+                    <Bar background={false} dataKey='value' minPointSize={2}>
+                        {distributionData.map((d, i) => (
+                            <Cell accentHeight='0px' fill={getHexColor(d.name, 0.65)} key={i} />
+                        ))}
+                    </Bar>
+                    <XAxis dataKey='name' tick={false}/>
+                </BarChart>
+            )
+            }
         </div>
     );
 };
