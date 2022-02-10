@@ -63,8 +63,8 @@ const EditModel = ({initialValue, onSubmit, errors, modelStore}) => {
                     <Form.Label className='mt-3 mb-0'>Benchmark</Form.Label>
                     <InputGroup className='mt-1 text-center'>
                         <ToggleButtonGroup defaultValue={benchmarkType} type='radio' onChange={setBenchmarkType} name='benchmark-type'>
-                            <ToggleButton as='span' className='btn-secondary' id='date-range' value='date-range'>Date Range</ToggleButton>
-                            <ToggleButton as='span' className='btn-secondary' id='benchmark-run' value='benchmark-run'>Benchmark Run</ToggleButton>
+                            <ToggleButton variant='outline-secondary' id='date-range' value='date-range'>&nbsp;Date Range</ToggleButton>
+                            <ToggleButton variant='outline-secondary' id='benchmark-run' value='benchmark-run'>&nbsp;Benchmark Run</ToggleButton>
                         </ToggleButtonGroup>
                         <div className='mt-1'>
                             {
