@@ -44,8 +44,11 @@ class ModelStore {
             return `benchmark_id = '${referenceBenchmarkId}'`;
         } else if (referencePeriod) {
 
-            return `"__time" >= TIME_PARSE('${referencePeriod.start}') AND "__time" < TIME_PARSE('${referencePeriod.end}')`;
-        } else return 'TRUE';
+            return `"__time" >= TIME_PARSE('${referencePeriod.start}') AND "__time" < TIME_PARSE('${referencePeriod.end}') AND benchmark_id IS NULL AND dataset_id IS NULL`;
+        } else {
+
+            return 'benchmark_id IS NULL AND dataset_id IS NULL';
+        }
     }
 
     fetchModels() {
