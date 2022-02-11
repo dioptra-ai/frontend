@@ -7,6 +7,7 @@ import TabularClassifier from './tabular-classifier';
 import TextClassifier from './text-classifier';
 import UnsupervisedObjectDetection from './unsupervised-object-detection';
 import AutoCompletion from './auto-completion';
+import SemanticSimilarity from './semantic-similarity';
 
 const PerformanceDetails = (props) => {
     const model = useModel();
@@ -37,6 +38,9 @@ const PerformanceDetails = (props) => {
     case 'AUTO_COMPLETION':
 
         return <AutoCompletion {...props}/>;
+    case 'SEMANTIC_SIMILARITY':
+
+        return <SemanticSimilarity/>;
     default:
 
         return null;
