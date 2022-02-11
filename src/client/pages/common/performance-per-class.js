@@ -136,7 +136,7 @@ const PerformancePerClass = () => {
     return (
         <>
             <h3 className='text-dark bold-text fs-3 mb-3'>
-                        Performance per class
+                Performance per class
             </h3>
             <Row>
                 <Col lg={6}>

@@ -27,7 +27,7 @@ const TextClassifier = () => {
                                 unit='%'
                             />
                         )}
-                        fetchData={() => metricsClient('queries/online-class-distribution-1', {sql_filters: allSqlFilters})}
+                        fetchData={() => metricsClient('queries/class-distribution-1', {sql_filters: allSqlFilters})}
                     />
                 </Col>
                 <Col lg={6}>
