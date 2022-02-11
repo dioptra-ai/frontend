@@ -1,8 +1,8 @@
-import {Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis} from 'recharts';
+import {Bar, BarChart, Brush, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis} from 'recharts';
 import PropTypes from 'prop-types';
-import Legend from './graph-legend';
 import fontSizes from '../styles/font-sizes.module.scss';
 import {SpinnerWrapper} from 'components/spinner';
+import theme from 'styles/theme.module.scss';
 
 const CustomTooltip = ({payload, label, unit}) => {
     if (payload && payload.length) {
@@ -31,6 +31,8 @@ CustomTooltip.propTypes = {
 };
 const BarGraph = ({title, bars, unit, yAxisName, xAxisName, yAxisDomain, className = '', onClick, children, ...rest}) => {
 
+    bars.sort((b1, b2) => b1.name.localeCompare(b2.name));
+
     return (
         <div className={`border rounded p-3 pe-5 w-100 ${className}`}>
             <SpinnerWrapper>
@@ -58,13 +60,15 @@ const BarGraph = ({title, bars, unit, yAxisName, xAxisName, yAxisDomain, classNa
                                 tick={{fontSize: fontSizes.fs_7}}
                                 unit={unit}
                             />
-                            {bars.length > 4 && bars.length < 9 ? <Legend data={bars}/> : null}
                             {children ||
                                 <>
                                     <Tooltip content={<CustomTooltip unit={unit}/>}/>
-                                    <Bar cursor={onClick ? 'pointer' : 'default'} onClick={onClick} dataKey='value' fill='#8884d8' maxBarSize={50} minPointSize={2}/>
+                                    <Bar cursor={onClick ? 'pointer' : 'default'} onClick={onClick} dataKey='value' fill={theme.primary} maxBarSize={50} minPointSize={2}/>
                                 </>
                             }
+                            {bars.length > 100 ? (
+                                <Brush dataKey='name' height={30} stroke={theme.primary}/>
+                            ) : null}
                         </BarChart>
                     </ResponsiveContainer>
                 </div>
