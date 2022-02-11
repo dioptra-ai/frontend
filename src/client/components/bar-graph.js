@@ -31,8 +31,6 @@ CustomTooltip.propTypes = {
 };
 const BarGraph = ({title, bars, unit, yAxisName, xAxisName, yAxisDomain, className = '', onClick, children, ...rest}) => {
 
-    bars.sort((b1, b2) => b1.name.localeCompare(b2.name));
-
     return (
         <div className={`border rounded p-3 pe-5 w-100 ${className}`}>
             <SpinnerWrapper>
