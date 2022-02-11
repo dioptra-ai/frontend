@@ -4,7 +4,6 @@ import LogoSymbol from './logo-symbol';
 import {Link, useLocation} from 'react-router-dom';
 import {AiOutlineDatabase} from 'react-icons/ai';
 import {getMatchingRouteConfig} from 'configs/route-config';
-import {IconNames} from 'constants';
 import FontIcon from './font-icon';
 import {MdHelpOutline} from 'react-icons/md';
 import {RiSpeedLine} from 'react-icons/ri';
