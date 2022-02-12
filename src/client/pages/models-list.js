@@ -1,12 +1,11 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {useHistory} from 'react-router-dom';
 import moment from 'moment';
 import Tooltip from 'react-bootstrap/Tooltip';
 import Overlay from 'react-bootstrap/Overlay';
 import Table from 'react-bootstrap/Table';
 import PropTypes from 'prop-types';
 import {Button} from 'react-bootstrap';
-import {Link} from 'react-router-dom';
+import {Link, useHistory} from 'react-router-dom';
 import GeneralSearchBar from 'pages/common/general-search-bar';
 import {setupComponent} from 'helpers/component-helper';
 import {formatDateTime} from 'helpers/date-helper';
