@@ -110,7 +110,7 @@ const ClassRow = ({name = '', value, difference = 0}) => {
         <div className='d-flex align-items-center text-dark class-row'>
             <div className='w-100'>{name}</div>
             <div className='w-100 d-flex align-items-center'>
-                <ProgressBar completed={(value / 1) * 100} />
+                <ProgressBar completed={(value / 1) * 100} unit='%'/>
                 <DifferenceLabel
                     value={value}
                     difference={difference.toFixed(2)}

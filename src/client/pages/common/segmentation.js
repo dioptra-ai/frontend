@@ -27,7 +27,6 @@ import theme from 'styles/theme.module.scss';
 import useAllSqlFilters from 'hooks/use-all-sql-filters';
 import Async from 'components/async';
 import metricsClient from 'clients/metrics';
-import {SmallChart} from 'components/area-graph';
 import {Tooltip as BarTooltip} from 'components/bar-graph';
 import appContext from 'context/app-context';
 
@@ -245,83 +244,44 @@ _DistributionCell.propTypes = {
 
 const DistributionCell = setupComponent(_DistributionCell);
 
-const _metricCell = ({cell, timeStore}) => {
+const _metricCell = ({cell}) => {
     const cellValues = cell.row.original;
     const cellId = cell.column.id;
     const cellFields = Object.keys(cellValues).filter((f) => f !== 'value');
     const {mlModelType} = useModel();
     const allSqlFilters = useAllSqlFilters();
-    const {isModelView} = useContext(appContext);
     const {ref, inView} = useInView();
 
-    if (isModelView) {
-        const timeGranularity = timeStore.getTimeGranularity(5).toISOString();
+    return (
+        <>
+            <div ref={ref}/>
+            <Async
+                refetchOnChanged={[allSqlFilters, inView]}
+                fetchData={() => {
 
-        return (
-            <>
-                <div ref={ref}/>
-                <Async
-                    refetchOnChanged={[allSqlFilters, timeGranularity, inView]}
-                    fetchData={() => {
+                    if (inView) {
 
-                        if (inView) {
-                            return metricsClient(cellId, {
-                                sql_filters: `${allSqlFilters} AND ${cellFields.map((f) => `"${f}"='${cellValues[f]}'`).join(' AND ')}`,
-                                model_type: mlModelType,
-                                iou_threshold: 0.5,
-                                time_granularity: timeGranularity
-                            });
-                        } else {
+                        return metricsClient(cellId, {
+                            sql_filters: `${allSqlFilters} AND ${cellFields.map((f) => `"${f}"='${cellValues[f]}'`).join(' AND ')}`,
+                            model_type: mlModelType,
+                            iou_threshold: 0.5
+                        });
+                    } else {
 
-                            return Promise.resolve([]);
-                        }
-                    }}
-                    renderData={(data) => (
-                        <div style={{height: '150px'}}>
-                            <SmallChart
-                                data={data}
-                                xDataKey='time'
-                                yDataKey='value'
-                            />
-                        </div>
-                    )}
-                />
-            </>
-        );
-    } else {
+                        return Promise.resolve([]);
+                    }
+                }}
 
-        return (
-            <>
-                <div ref={ref}/>
-                <Async
-                    refetchOnChanged={[allSqlFilters, inView]}
-                    fetchData={() => {
-
-                        if (inView) {
-
-                            return metricsClient(cellId, {
-                                sql_filters: `${allSqlFilters} AND ${cellFields.map((f) => `"${f}"='${cellValues[f]}'`).join(' AND ')}`,
-                                model_type: mlModelType,
-                                iou_threshold: 0.5
-                            });
-                        } else {
-
-                            return Promise.resolve([]);
-                        }
-                    }}
-
-                    renderData={(data) => (
-                        !isNaN(data[0]?.value) ? data[0]?.value.toFixed(2) : '-'
-                    )}
-                />
-            </>
-        );
-    }
+                renderData={(data) => (
+                    !isNaN(data[0]?.value) ? data[0]?.value.toFixed(2) : '-'
+                )}
+            />
+        </>
+    );
 };
 
 _metricCell.propTypes = {
-    cell: PropTypes.object.isRequired,
-    timeStore: PropTypes.object.isRequired
+    cell: PropTypes.object.isRequired
 };
 
 const metricCell = setupComponent(_metricCell);

@@ -37,7 +37,7 @@ const Table = ({columns, data, getRowProps}) => {
                         <tr key={i} {...row.getRowProps()} {...getRowProps?.(row)}>
                             {row.cells.map((cell, i) => {
                                 return (
-                                    <td className='align-middle py-3' key={i} style={{textOverflow: 'ellipsis', overflow: 'hidden'}} {...cell.getCellProps()}
+                                    <td className='text-center align-middle py-3' key={i} style={{textOverflow: 'ellipsis', overflow: 'hidden'}} {...cell.getCellProps()}
                                         title={cell.value}
                                     >
                                         {cell.render('Cell')}
