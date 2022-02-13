@@ -1,6 +1,7 @@
 import useModel from 'hooks/use-model';
 import UnsupervisedObjectDetection from './unsupervised-object-detection';
 import SpeechToText from './speech-to-text';
+import AutoCompletion from './auto-completion';
 import QnA from './q-n-a';
 import TextClassifier from './text-classifier';
 import ImageClassifier from './image-classifier';
@@ -24,6 +25,9 @@ const Performance = (props) => {
     case 'SPEECH_TO_TEXT':
 
         return <SpeechToText {...props}/>;
+    case 'AUTO_COMPLETION':
+
+        return <AutoCompletion {...props}/>;
     case 'Q_N_A':
 
         return <QnA {...props}/>;

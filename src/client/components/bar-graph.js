@@ -6,6 +6,7 @@ import theme from 'styles/theme.module.scss';
 
 const CustomTooltip = ({payload, label, unit}) => {
     if (payload && payload.length) {
+
         return (
             <div className='line-graph-tooltip bg-white p-3'>
                 <p className='text-dark bold-text fs-5 m-0'>{Number(payload[0].value).toFixed(4)}{unit}</p>
@@ -17,6 +18,16 @@ const CustomTooltip = ({payload, label, unit}) => {
                 }}>
                     {label === '' ? '<empty>' : label}
                 </p>
+                {payload[0]?.payload?.size ?
+                    <p className='text-secondary m-0 fs-7' style={{
+                        textOverflow: 'ellipsis',
+                        overflow: 'hidden',
+                        whiteSpace: 'nowrap',
+                        maxWidth: 200
+                    }}>
+                    Size : {payload[0].payload.size}
+                    </p> :
+                    null}
             </div>
         );
     } else return null;

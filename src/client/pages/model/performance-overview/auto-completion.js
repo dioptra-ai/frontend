@@ -25,6 +25,23 @@ const PerformanceOverview = () => {
                 <Row className='mb-3 align-items-stretch'>
                     <Col className='d-flex' lg={3}>
                         <Async
+                            fetchData={() => metricsClient('exact-match', {
+                                sql_filters: allSqlFilters,
+                                model_type: 'AUTO_COMPLETION'
+                            })}
+                            refetchOnChanged={[allSqlFilters]}
+                            renderData={([d]) => (
+                                <MetricInfoBox
+                                    name='Token Exact Match'
+                                    subtext={sampleSizeComponent}
+                                    unit='%'
+                                    value={100 * d?.value}
+                                />
+                            )}
+                        />
+                    </Col>
+                    <Col className='d-flex' lg={3}>
+                        <Async
                             fetchData={() => metricsClient('f1-score-metric', {
                                 sql_filters: allSqlFilters,
                                 model_type: 'AUTO_COMPLETION'
@@ -42,6 +59,7 @@ const PerformanceOverview = () => {
                     </Col>
                 </Row>
                 <CorrelationToKPIs selectableMetrics={[
+                    {value: 'EXACT_MATCH', name: 'Token Exact Match'},
                     {value: 'F1_SCORE', name: 'Token F1 Score'}
                 ]}/>
             </div>

@@ -1,10 +1,10 @@
 import PerformanceClustersAnalysis from 'pages/common/performance-clusters-analysis';
 
-const TextClassifier = () => {
+const AutoCompletion = () => {
 
     return (
         <PerformanceClustersAnalysis/>
     );
 };
 
-export default TextClassifier;
+export default AutoCompletion;

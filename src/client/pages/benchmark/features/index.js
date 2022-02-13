@@ -1,6 +1,7 @@
 import useModel from 'hooks/use-model';
 import UnsupervisedObjectDetection from './unsupervised-object-detection';
 import SpeechToText from './speech-to-text';
+import AutoCompletion from './auto-completion';
 import QnA from './q-n-a';
 import TextClassifier from './text-classifier';
 
@@ -23,6 +24,9 @@ const Features = (props) => {
     case 'SPEECH_TO_TEXT':
 
         return <SpeechToText {...props}/>;
+    case 'AUTO_COMPLETION':
+
+        return <AutoCompletion {...props}/>;
     default:
 
         return null;

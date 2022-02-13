@@ -402,6 +402,10 @@ const Segmentation = ({timeStore, segmentationStore}) => {
                                         Header: 'Sample Size'
                                     }
                                 ] : mlModelType === 'AUTO_COMPLETION' ? [{
+                                    id: 'exact-match',
+                                    Header: 'Token Exact Match',
+                                    Cell: metricCell
+                                }, {
                                     id: 'f1-score-metric',
                                     Header: 'Token F1 Score',
                                     Cell: metricCell

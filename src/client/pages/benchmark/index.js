@@ -60,12 +60,16 @@ const Benchmarks = ({filtersStore, modelStore, benchmarkStore}) => {
     case 'TEXT_CLASSIFIER':
     case 'IMAGE_CLASSIFIER':
         tabs.push({name: 'Prediction Analysis', to: '/benchmark/predictions'});
+        tabs.push({name: 'Feature Analysis', to: '/benchmark/features'});
         tabs.push({name: 'Drift Analysis', to: '/benchmark/drift-analysis'});
         break;
     case 'UNSUPERVISED_OBJECT_DETECTION':
         tabs.push({name: 'Prediction Analysis', to: '/benchmark/predictions'});
         tabs.push({name: 'Feature Analysis', to: '/benchmark/features'});
         tabs.push({name: 'Drift Analysis', to: '/benchmark/drift-analysis'});
+        break;
+    case 'AUTO_COMPLETION':
+        tabs.push({name: 'Feature Analysis', to: '/benchmark/features'});
         break;
     default:
         tabs.push({name: 'Prediction Analysis', to: '/benchmark/predictions'});
