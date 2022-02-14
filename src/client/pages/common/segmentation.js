@@ -409,6 +409,9 @@ const Segmentation = ({timeStore, segmentationStore}) => {
                                     id: 'f1-score-metric',
                                     Header: 'Token F1 Score',
                                     Cell: metricCell
+                                }, {
+                                    accessor: 'value',
+                                    Header: 'Sample Size'
                                 }] : mlModelType === 'SEMANTIC_SIMILARITY' ? [{
                                     id: 'pearson-cosine',
                                     Header: 'Cosine Pearson Correlation',
