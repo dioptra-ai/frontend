@@ -7,7 +7,6 @@ export const IconNames = {
     CHECK: 'Check',
     DATE: 'Date',
     EDIT: 'Edit',
-    EXPERIMENTATIONS: 'Experimentations',
     HOME: 'Home',
     INFO: 'Info',
     PLUS_MINUS: 'Plus-Minus',

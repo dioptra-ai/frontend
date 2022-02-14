@@ -9,6 +9,7 @@ import Async from 'components/async';
 import metricsClient from 'clients/metrics';
 import CountEvents from 'components/count-events';
 import MapMarAnalysis from 'pages/common/map-mar-analysis';
+import Segmentation from 'pages/common/segmentation';
 
 const UnsupervisedObjectDetection = ({benchmarkFilters}) => {
     const allSqlFilters = useAllSqlFilters();
@@ -101,6 +102,7 @@ const UnsupervisedObjectDetection = ({benchmarkFilters}) => {
             <div className='my-3'>
                 <MapMarAnalysis/>
             </div>
+            <Segmentation />
         </div>
     );
 };

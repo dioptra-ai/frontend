@@ -5,7 +5,7 @@ import Overlay from 'react-bootstrap/Overlay';
 import Table from 'react-bootstrap/Table';
 import PropTypes from 'prop-types';
 import {Button} from 'react-bootstrap';
-import {Link} from 'react-router-dom';
+import {Link, useHistory} from 'react-router-dom';
 import GeneralSearchBar from 'pages/common/general-search-bar';
 import {setupComponent} from 'helpers/component-helper';
 import {formatDateTime} from 'helpers/date-helper';
@@ -46,6 +46,7 @@ const _ModelRow = ({model, idx, color, filtersStore}) => {
     const incidentsRef = useRef(null);
     const hasIncidents = false;
     const [shouldShowTooltip, setShouldShowTooltip] = useState(false);
+    const history = useHistory();
 
     return (
         <tr className='border-0 border-bottom border-mercury py-5' key={idx}>
@@ -68,15 +69,14 @@ const _ModelRow = ({model, idx, color, filtersStore}) => {
                     onMouseLeave={() => setShouldShowTooltip(hasIncidents && false)}
                     ref={incidentsRef}
                 >
-                    <FontIcon
-                        className={`text-${hasIncidents ? 'warning' : 'success'}`}
-                        icon={hasIncidents ? IconNames.WARNING : IconNames.CHECK}
-                        size={25}
-                    />
                     {hasIncidents ? (
-                        <span className='text-decoration-underline text-warning align-middle ms-1'>
+                        <Link className='text-warning align-middle ms-1' onClick={() => {
+
+                            filtersStore.models = [model];
+                            history.push('/models/incidents-and-alerts');
+                        }}>
                             {model.incidents.length}
-                        </span>
+                        </Link>
                     ) : null}
                 </div>
                 {hasIncidents ? (
@@ -237,7 +237,7 @@ const Models = ({modelStore}) => {
                                 <tr className='border-0 border-bottom border-mercury'>
                                     {[
                                         'Model Name',
-                                        'Open Incidents',
+                                        'Incidents',
                                         'Project',
                                         'Owner',
                                         'Tier',

@@ -38,6 +38,7 @@ const PerformanceClustersAnalysis = () => {
                 const selectedMetricName = userSelectedMetricName || metricNames[0];
                 const sortedClusters = data.map((c, i) => ({
                     name: `Cluster #${i + 1}`,
+                    size: c.elements.length,
                     ...c
                 })).sort((c1, c2) => {
                     const metric1 = c1.metrics.find((m) => m.name === selectedMetricName);
@@ -50,7 +51,8 @@ const PerformanceClustersAnalysis = () => {
                     return {
                         name: cluster.name,
                         value: cluster.metrics.find((m) => m.name === selectedMetricName)?.value,
-                        fill: getHexColor(cluster.name)
+                        fill: getHexColor(cluster.name),
+                        size: cluster.size
                     };
                 });
                 const samples = (selectedPoints || sortedClusters[selectedClusterIndex]?.elements || []).map((p) => p.sample).flat();
@@ -105,7 +107,7 @@ const PerformanceClustersAnalysis = () => {
                                                 name={cluster.name}
                                                 data={cluster.elements.map((e) => ({
                                                     samples: [e.sample],
-                                                    size: selectedClusterIndex === index ? 200 : 100,
+                                                    size: selectedClusterIndex === index ? 100 : 50,
                                                     ...e
                                                 }))}
                                                 fill={getHexColor(cluster.name)}
@@ -118,7 +120,7 @@ const PerformanceClustersAnalysis = () => {
                                 <Col lg={4} className='px-3'>
                                     <div className='bg-white-blue rounded p-3'>
                                         <div className='text-dark bold-text d-flex align-items-center justify-content-between'>
-                                            <span>Examples</span>
+                                            <span>Examples {samples?.length ? `(${samples.length})` : ''}</span>
                                             <AddFilters disabled={!samples?.length} filters={[new Filter({
                                                 left: 'request_id',
                                                 op: 'in',

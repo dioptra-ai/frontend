@@ -110,7 +110,7 @@ const ClassRow = ({name = '', value, difference = 0}) => {
         <div className='d-flex align-items-center text-dark class-row'>
             <div className='w-100'>{name}</div>
             <div className='w-100 d-flex align-items-center'>
-                <ProgressBar completed={(value / 1) * 100} />
+                <ProgressBar completed={(value / 1) * 100} unit='%'/>
                 <DifferenceLabel
                     value={value}
                     difference={difference.toFixed(2)}
@@ -130,13 +130,13 @@ ClassRow.propTypes = {
 
 const PerformancePerClass = () => {
     const allSqlFilters = useAllSqlFilters();
-    const sqlFiltersWithModelTime = useAllSqlFilters({useReferenceRange: true});
+    const sqlFiltersWithModelTime = useAllSqlFilters({useReferenceFilters: true});
     const sampleSizeComponent = <CountEvents sqlFilters={allSqlFilters}/>;
 
     return (
         <>
             <h3 className='text-dark bold-text fs-3 mb-3'>
-                        Performance per class
+                Performance per class
             </h3>
             <Row>
                 <Col lg={6}>

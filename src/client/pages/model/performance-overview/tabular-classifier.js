@@ -14,7 +14,7 @@ const PerformanceOverview = () => {
         __REMOVE_ME__excludeOrgId: true
     });
     const sqlFiltersWithModelTime = useAllSqlFilters({
-        useReferenceRange: true,
+        useReferenceFilters: true,
         __REMOVE_ME__excludeOrgId: true
     });
     const sampleSizeComponent = (<CountEvents sqlFilters={allSqlFilters}/>);

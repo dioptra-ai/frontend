@@ -1,5 +1,7 @@
 import React, {useState} from 'react';
 import PropTypes from 'prop-types';
+import Alert from 'react-bootstrap/Alert';
+
 import {getName} from 'helpers/name-helper';
 import MatrixTable from 'components/matrix-table';
 import useAllSqlFilters from 'hooks/use-all-sql-filters';
@@ -110,7 +112,7 @@ const ConfusionMatrix = () => {
     const model = useModel();
     const allSqlFilters = useAllSqlFilters({__REMOVE_ME__excludeOrgId: true});
     const sqlFiltersWithModelTime = useAllSqlFilters({
-        useReferenceRange: true,
+        useReferenceFilters: true,
         __REMOVE_ME__excludeOrgId: true
     });
     const sampleSizeComponent = (<CountEvents sqlFilters={allSqlFilters}/>); // Use this component to get # of events
@@ -153,16 +155,28 @@ const ConfusionMatrix = () => {
                         ) : null}
                 </Row>
                 <Async
-                    renderData={([data, rangeData]) => (
-                        <Table
-                            data={data}
-                            groundtruthClasses={getClasses(data, 'groundtruth')}
-                            onCellClick={(prediction, groundtruth) => setSelectedCell({prediction, groundtruth})
-                            }
-                            predictionClasses={getClasses(data, 'prediction')}
-                            referenceData={rangeData}
-                        />
-                    )}
+                    renderData={([data, rangeData]) => {
+
+                        return (
+                            <>
+                                {
+                                    data.length > 100 ? (
+                                        <Alert variant='warning'>
+                                            This matrix is only showing the first 100 classes found. Try filtering down and/or narrowing the time range to see all values.
+                                        </Alert>
+                                    ) : null
+                                }
+                                <Table
+                                    data={data}
+                                    groundtruthClasses={getClasses(data, 'groundtruth')}
+                                    onCellClick={(prediction, groundtruth) => setSelectedCell({prediction, groundtruth})
+                                    }
+                                    predictionClasses={getClasses(data, 'prediction')}
+                                    referenceData={rangeData}
+                                />
+                            </>
+                        );
+                    }}
                     fetchData={[
                         () => metricsClient('confusion-matrix', {
                             sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ||

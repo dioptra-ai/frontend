@@ -7,7 +7,7 @@ import comparisonContext from 'context/comparison-context';
 
 const {filtersStore, timeStore, modelStore, authStore} = stores;
 
-const useAllSqlFilters = ({useReferenceRange = false, forLiveModel, __REMOVE_ME__excludeOrgId} = {}) => {
+const useAllSqlFilters = ({useReferenceFilters = false, forLiveModel, __REMOVE_ME__excludeOrgId} = {}) => {
     const {isModelView} = useContext(appContext);
     const comparisonContextValue = useContext(comparisonContext);
 
@@ -21,10 +21,10 @@ const useAllSqlFilters = ({useReferenceRange = false, forLiveModel, __REMOVE_ME_
 
         allFilters.push(...filtersStore.getModelSqlFilters(comparisonContextValue?.index));
 
-        if (useReferenceRange) {
+        if (useReferenceFilters) {
             const {_id} = useModel();
 
-            allFilters.push(modelStore.getSqlReferencePeriodFilter(_id));
+            allFilters.push(modelStore.getSqlReferenceFilters(_id));
             // This is ugly af
             allFilters = allFilters.filter((f) => !f.match(/request_id/));
         } else {

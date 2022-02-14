@@ -56,16 +56,44 @@ const Model = ({timeStore, filtersStore, modelStore}) => {
         {name: 'Performance Overview', to: '/models/performance-overview'}
     ];
 
-    if (firstModel?.mlModelType !== 'UNSUPERVISED_OBJECT_DETECTION') {
-        tabs.push({name: 'Performance Analysis', to: '/models/performance-details'});
-    }
+    switch (firstModel?.mlModelType) {
 
-    if (firstModel?.mlModelType !== 'Q_N_A' && firstModel?.mlModelType !== 'SPEECH_TO_TEXT') {
+    case 'IMAGE_CLASSIFIER':
+        tabs.push({name: 'Performance Analysis', to: '/models/performance-details'});
         tabs.push({name: 'Prediction Analysis', to: '/models/prediction-analysis'});
+        break;
+    case 'TABULAR_CLASSIFIER':
+        tabs.push({name: 'Prediction Analysis', to: '/models/prediction-analysis'});
+        tabs.push({name: 'Performance Analysis', to: '/models/performance-details'});
+        break;
+    case 'DOCUMENT_PROCESSING':
+        tabs.push({name: 'Prediction Analysis', to: '/models/prediction-analysis'});
+        tabs.push({name: 'Performance Analysis', to: '/models/performance-details'});
+        break;
+    case 'Q_N_A':
+        tabs.push({name: 'Performance Analysis', to: '/models/performance-details'});
+        break;
+    case 'TEXT_CLASSIFIER':
+        tabs.push({name: 'Prediction Analysis', to: '/models/prediction-analysis'});
+        tabs.push({name: 'Performance Analysis', to: '/models/performance-details'});
+        break;
+    case 'UNSUPERVISED_OBJECT_DETECTION':
+        tabs.push({name: 'Prediction Analysis', to: '/models/prediction-analysis'});
+        break;
+    case 'SPEECH_TO_TEXT':
+        tabs.push({name: 'Performance Analysis', to: '/models/performance-details'});
+        break;
+    case 'AUTO_COMPLETION':
+        tabs.push({name: 'Performance Analysis', to: '/models/performance-details'});
+        break;
+    case 'SEMANTIC_SIMILARITY':
+        tabs.push({name: 'Performance Analysis', to: '/models/performance-details'});
+        break;
+    default:
+        break;
     }
 
     tabs.push({name: 'Feature Analysis', to: '/models/feature-analysis'});
-
     tabs.push({name: 'Traffic Replay', to: '/models/traffic-replay'});
     tabs.push({name: 'Incidents & Alerts', to: '/models/incidents-and-alerts'});
 
