@@ -82,6 +82,7 @@ const Model = ({timeStore, filtersStore, modelStore}) => {
                 <Tabs tabs={tabs}/>
                 <Switch>
                     <Route exact path='/models/add-alert' component={AddAlertPage}/>
+                    <Route exact path='/models/edit-alert/:id' component={AddAlertPage}/>
                     <Route exact path='/models/incidents-and-alerts' component={IncidentsAndAlerts}/>
                     <Route>
                         <FilterInput

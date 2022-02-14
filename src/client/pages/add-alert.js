@@ -162,6 +162,7 @@ const ConditionRow = ({
                 <Col className='d-flex' xl={2}>
                     <Select
                         initialValue={rowState.metric}
+                        selectValue={rowState.metric}
                         onChange={handleMetricChange}
                         options={Object.values(
                             getMetricsForModel(model.mlModelType)
@@ -224,19 +225,19 @@ const RecipientRow = ({
         <Row className='my-3 align-items-center' key={idx}>
             <Col xl={1}>{isFirst ? <LabelBox text='SEND TO' /> : null}</Col>
             <Col xl={3}>
-                <Select
+                {false && <Select
                     backgroundColor='white-blue'
                     initialValue={rowState.type}
                     onChange={handleTypeChange}
                     options={Object.values(NotificationTypes)}
-                />
+                />}
             </Col>
             <Col xl={8}>
                 <TextInput
                     className={inputStyling}
                     initialValue={rowState.address}
                     onChange={handleAddressChange}
-                    placeholder='Enter webhook URL'
+                    placeholder='Enter webhook URL (ex. Slack webhook URL)'
                 />
             </Col>
         </Row>
@@ -328,7 +329,7 @@ TagRow.propTypes = {
     rowState: PropTypes.object
 };
 
-const AddAlertPage = () => {
+const AddAlertPage = (props) => {
     const model = useModel();
     const allSqlFilters = useAllSqlFilters();
 
@@ -344,9 +345,8 @@ const AddAlertPage = () => {
     const [alertName, setAlertName] = useState('');
     const [conditions, setConditions] = useState([conditionInitialValue]);
     const [notificationEnabled, setNotificationEnabled] = useState(true);
-    const [evaluationPeriod, setEvaluationPeriod] = useState(
-        IsoDurations.PT5M.value
-    );
+    const [evaluationPeriod, setEvaluationPeriod] = useState();
+    const [alertId, setAlertId] = useState('');
     const [alertType, setAlertType] = useState(AlertTypes.THRESHOLD.value);
     const [addAlertInProgress, setAddAlertInProgress] = useState(false);
 
@@ -354,10 +354,10 @@ const AddAlertPage = () => {
         history.goBack();
     }, []);
 
-    const handleCreate = () => {
+    const handleCreate = (update) => {
         setAddAlertInProgress(true);
-        baseJSONClient('/api/tasks/alert', {
-            method: 'POST',
+        baseJSONClient(update ? `/api/tasks/alert?id=${alertId}` : '/api/tasks/alert', {
+            method: update ? 'PUT' : 'POST',
             body: {
                 name: alertName,
                 type: alertType,
@@ -367,7 +367,7 @@ const AddAlertPage = () => {
                 sqlFilters: allSqlFilters,
                 notification: notificationEnabled ? {
                     recipients: recipients,
-                    template: template
+                    template: JSON.parse(template)
                 } : {}
             }
         }).then(() => {
@@ -376,11 +376,34 @@ const AddAlertPage = () => {
         });
     };
 
+    React.useEffect(() => {
+        if (props.match.params.id) {
+            baseJSONClient(`/api/tasks/alert?id=${props.match.params.id}`)
+                .then(response => {
+                    const alert = response.alert;
+                    setAlertId(alert._id)
+                    setAlertName(alert.name)
+                    setConditions(alert.conditions)
+                    setEvaluationPeriod(alert.evaluation_period)
+                    if (alert.notification_channel_id) {
+                        baseJSONClient(`/api/tasks/notification/channel?id=${alert.notification_channel_id}`)
+                            .then(response => {
+                                const channel = response.notification_channel
+                                setTemplate(channel.template)
+                                setRecipients(channel.recipients)
+                            })
+                    } else {
+                        setNotificationEnabled(false)
+                    }
+                })
+        }
+    }, [props.match.params.id])
+
     return (
         <Container className='py-5 px-4' fluid>
             <Row>
                 <Col className='d-flex align-items center' lg={12}>
-                    <h3 className='text-dark bold-text flex-grow-1'>Add Alert</h3>
+                    <h3 className='text-dark bold-text flex-grow-1'>{!props.match.params.id ? "Add Alert" : "Edit Alert"}</h3>
                     <BtnIcon
                         className='text-dark border-0'
                         icon={IconNames.CLOSE}
@@ -401,6 +424,7 @@ const AddAlertPage = () => {
                     <div className='flex-grow-1 ms-3'>
                         <TextInput
                             className={inputStyling}
+                            value={alertName}
                             onChange={setAlertName}
                             placeholder='Enter Alert Name'
                         />{' '}
@@ -417,11 +441,12 @@ const AddAlertPage = () => {
                     <div className='flex-grow-1 ms-3'>
                         <Select
                             backgroundColor='white'
-                            initialValue={IsoDurations.PT5M.value}
+                            initialValue={evaluationPeriod || IsoDurations.PT5M.value}
                             isTextBold
                             onChange={setEvaluationPeriod}
                             options={Object.values(IsoDurations)}
                             textColor='primary'
+                            selectValue={evaluationPeriod || IsoDurations.PT5M.value}
                         />
                     </div>
                 </Col>
@@ -451,7 +476,7 @@ const AddAlertPage = () => {
                         <DynamicArray data={recipients} newRowInitialState={recipientInitialValue} onChange={setRecipients} renderRow={RecipientRow} />
                         <Row className='my-3'>
                             <Col xl={1}><LabelBox text='TEMPLATE'/></Col>
-                            <Col xl={11}><TextArea className={inputStyling} onChange={setTemplate} placeholder='Enter webhook template (a handlebar template) or leave it empty to use default: { "text" : "$dioptra_message" }' rows={9} /></Col>
+                            <Col xl={11}><TextArea className={inputStyling} inputValue={template} onChange={setTemplate} placeholder='Enter webhook template (a handlebar template) or leave it empty to use default: { "text" : "$dioptra_message" }' rows={9} /></Col>
                         </Row>
                     </Col>
                     <Col className='mt-2' xl={12}>
@@ -482,10 +507,10 @@ const AddAlertPage = () => {
                             (notificationEnabled && recipients.filter((recipient) => recipient.address === '').length !== 0)
                         }
                         className='w-100 p-3 text-white'
-                        onClick={handleCreate}
+                        onClick={() => { handleCreate(props.match.params.id !== undefined) }}
                         variant='primary'
                     >
-                        CREATE
+                        {!props.match.params.id ? "CREATE" : "UPDATE"}
                     </Button>
                 </Col>
                 <Col xl={2}>

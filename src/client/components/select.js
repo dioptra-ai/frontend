@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useState, useEffect} from 'react';
 import PropTypes from 'prop-types';
 import DropdownToggle from 'react-bootstrap/DropdownToggle';
 import Dropdown from 'react-bootstrap/Dropdown';
@@ -16,7 +16,8 @@ const Select = ({
     onChange = noop,
     options,
     initialValue,
-    isTextBold
+    isTextBold,
+    selectValue
 }) => {
     const [value, setValue] = useState(initialValue || options[0]?.value);
     const handleSelect = useCallback((newValue) => {
@@ -24,6 +25,12 @@ const Select = ({
         onChange(newValue);
     }, []);
     const activeOption = options.filter((o) => o.value === value);
+
+    useEffect(() => {
+        if (selectValue) {
+            handleSelect(selectValue);
+        }
+    }, [selectValue]);
 
     return (
         <Dropdown className='w-100'>
@@ -60,7 +67,8 @@ Select.propTypes = {
         value: PropTypes.any.isRequired
     })),
     textColor: PropTypes.string,
-    padding: PropTypes.number
+    padding: PropTypes.number,
+    selectValue: PropTypes.string
 };
 
 export default Select;

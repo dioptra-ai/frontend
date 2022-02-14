@@ -10,21 +10,23 @@ import FontIcon from './font-icon';
 import Modal from './modal';
 import Pagination from './pagination';
 
-const Alert = ({name, onDelete, onEdit}) => {
+const Alert = ({id, name, onDelete}) => {
     return (
         <div className='table-row py-4 text-dark'>
             <div className='col bold-text'>
                 <span className='fs-6'>{name}</span>
             </div>
             <div className='col actions-cell'>
-                {false && (
+                <Link to={`/models/edit-alert/${id}`}
+                    style={{textDecoration: 'none'}}
+                >
                     <FontIcon
                         className='text-dark mx-2'
                         icon={IconNames.EDIT}
-                        onClick={onEdit}
                         size={20}
                     />
-                )}
+                </Link>
+
                 <FontIcon
                     className='text-dark mx-2'
                     icon={IconNames.BIN}
@@ -37,9 +39,9 @@ const Alert = ({name, onDelete, onEdit}) => {
 };
 
 Alert.propTypes = {
+    id: PropTypes.string,
     name: PropTypes.string,
-    onDelete: PropTypes.func,
-    onEdit: PropTypes.func
+    onDelete: PropTypes.func
 };
 
 const Alerts = ({alerts, refreshCallback, onDeleteRefreshCallback, loading}) => {
@@ -58,10 +60,6 @@ const Alerts = ({alerts, refreshCallback, onDeleteRefreshCallback, loading}) => 
             onDeleteRefreshCallback(page);
             setDeleteAlertModal(false);
         });
-    };
-
-    const handleAlertEdit = () => {
-        // edit alert
     };
 
     return (
@@ -101,12 +99,12 @@ const Alerts = ({alerts, refreshCallback, onDeleteRefreshCallback, loading}) => 
                     {alerts.data?.map((alert) => (
                         <Alert
                             key={alert._id}
+                            id={alert._id}
                             name={alert.name}
                             onDelete={() => {
                                 setSelectedAlert(alert);
                                 setDeleteAlertModal(true);
                             }}
-                            onEdit={handleAlertEdit}
                         />
                     ))}
                 </div>
