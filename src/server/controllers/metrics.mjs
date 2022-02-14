@@ -1,3 +1,4 @@
+import zlib from 'zlib';
 import url from 'url';
 import axios from 'axios';
 import express from 'express';
@@ -92,7 +93,8 @@ MetricsRouter.get('*', async (req, res, next) => {
 
             throw new Error(json.error.message);
         } else {
-            metricsResponse.body.pipe(res);
+            res.set('Content-Encoding', 'gzip');
+            metricsResponse.body.pipe(zlib.createGzip()).pipe(res);
         }
 
     } catch (e) {
@@ -122,7 +124,8 @@ MetricsRouter.post('*', async (req, res, next) => {
 
             throw new Error(json.error.message);
         } else {
-            metricsResponse.body.pipe(res);
+            res.set('Content-Encoding', 'gzip');
+            metricsResponse.body.pipe(zlib.createGzip()).pipe(res);
         }
     } catch (e) {
         next(e);

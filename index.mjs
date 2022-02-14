@@ -1,4 +1,5 @@
 import express from 'express';
+import compression from 'compression';
 import passport from 'passport';
 import {dirname, join, resolve} from 'path';
 import {fileURLToPath} from 'url';
@@ -11,6 +12,9 @@ import './src/server/models/index.mjs';
 
 const app = express();
 const basePath = dirname(fileURLToPath(import.meta.url));
+
+app.set('x-powered-by', false);
+app.use(compression());
 
 userAuth(passport);
 app.use(sessionHandler);
