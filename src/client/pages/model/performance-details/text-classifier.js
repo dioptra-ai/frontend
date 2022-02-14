@@ -53,7 +53,6 @@ const PerformanceDetails = () => {
                 <PerformancePerClass/>
             </div>
             <ConfusionMatrix />
-            <Segmentation />
         </div>
     );
 };

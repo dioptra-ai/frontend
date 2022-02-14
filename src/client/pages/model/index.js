@@ -15,6 +15,7 @@ import PerformanceOverview from './performance-overview';
 import PerformanceDetails from './performance-details';
 import PredictionAnalysis from './prediction-analysis';
 import FeatureAnalysis from './feature-analysis';
+import Segmentation from './segmentation';
 import IncidentsAndAlerts from 'pages/common/incidents-and-alerts';
 import TrafficReplay from 'pages/common/traffic-replay';
 import useSyncStoresToUrl from 'hooks/use-sync-stores-to-url';
@@ -75,6 +76,7 @@ const Model = ({timeStore, filtersStore, modelStore}) => {
         break;
     case 'TEXT_CLASSIFIER':
         tabs.push({name: 'Performance Analysis', to: '/models/performance-details'});
+        tabs.push({name: 'Segmentation', to: '/models/segmentation'});
         tabs.push({name: 'Prediction Analysis', to: '/models/prediction-analysis'});
         break;
     case 'UNSUPERVISED_OBJECT_DETECTION':
@@ -135,6 +137,11 @@ const Model = ({timeStore, filtersStore, modelStore}) => {
                             <Route exact path='/models/feature-analysis' render={() => (
                                 <SplitView>
                                     {models.map((model, i) => <FeatureAnalysis key={i}/>)}
+                                </SplitView>
+                            )}/>
+                            <Route exact path='/models/segmentation' render={() => (
+                                <SplitView>
+                                    {models.map((model, i) => <Segmentation key={i}/>)}
                                 </SplitView>
                             )}/>
                             <Route exact path='/models/traffic-replay' render={() => (
