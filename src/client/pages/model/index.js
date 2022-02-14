@@ -74,8 +74,8 @@ const Model = ({timeStore, filtersStore, modelStore}) => {
         tabs.push({name: 'Performance Analysis', to: '/models/performance-details'});
         break;
     case 'TEXT_CLASSIFIER':
-        tabs.push({name: 'Prediction Analysis', to: '/models/prediction-analysis'});
         tabs.push({name: 'Performance Analysis', to: '/models/performance-details'});
+        tabs.push({name: 'Prediction Analysis', to: '/models/prediction-analysis'});
         break;
     case 'UNSUPERVISED_OBJECT_DETECTION':
         tabs.push({name: 'Prediction Analysis', to: '/models/prediction-analysis'});
