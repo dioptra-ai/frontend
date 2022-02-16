@@ -2,7 +2,6 @@ import React, {useState} from 'react';
 import PropTypes from 'prop-types';
 import Alert from 'react-bootstrap/Alert';
 
-import {getName} from 'helpers/name-helper';
 import MatrixTable from 'components/matrix-table';
 import useAllSqlFilters from 'hooks/use-all-sql-filters';
 import ImageExamples from './image-examples';
@@ -23,7 +22,7 @@ const Table = ({
     classes
 }) => {
     const classColumns = classes.sort().map((c) => ({
-        Header: getName(c),
+        Header: c,
         accessor: c,
         Cell: Object.assign(
             ({value: cell = {}}) => {
@@ -50,7 +49,7 @@ const Table = ({
         {
             Header: '',
             accessor: 'groundtruth',
-            Cell: ({value}) => getName(value)
+            Cell: ({value}) => value
         },
         ...classColumns
     ];
