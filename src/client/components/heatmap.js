@@ -141,18 +141,6 @@ const HeatMap = ({data, numCellsH, numCellsW, setHeatMapSamples, selectedSamples
                         <span className='text-secondary heat-map-legend-text'>Non-Outlier</span>
                     </div>
                 </div>
-                {/* Math for this is not properly working */}
-                {/* {refTopLeft && refBottomRight && (
-                    <div
-                        className='heat-map-refArea bg-white-blue'
-                        style={{
-                            top: `${refTopLeft?.x}vw`,
-                            left: `${refTopLeft?.y}vw`,
-                            width: `${refBottomRight?.y}vw`,
-                            height: `${refBottomRight?.x}vw`
-                        }}
-                    />
-                )} */}
             </SpinnerWrapper>
         </div>
     );

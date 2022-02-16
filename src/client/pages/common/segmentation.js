@@ -3,12 +3,9 @@ import {useInView} from 'react-intersection-observer';
 import PropTypes from 'prop-types';
 import React, {useContext, useEffect, useState} from 'react';
 import {
-    Area,
-    AreaChart,
     Bar,
     BarChart,
     Cell,
-    ResponsiveContainer,
     Tooltip,
     XAxis
 } from 'recharts';
@@ -23,7 +20,6 @@ import Table from 'components/table';
 import Modal from 'components/modal';
 import useModal from 'hooks/useModal';
 import {getHexColor} from 'helpers/color-helper';
-import theme from 'styles/theme.module.scss';
 import useAllSqlFilters from 'hooks/use-all-sql-filters';
 import Async from 'components/async';
 import metricsClient from 'clients/metrics';
@@ -123,76 +119,6 @@ AddColumnModal.propTypes = {
     onCancel: PropTypes.func,
     initiallyselected: PropTypes.array
 };
-
-const _AccuracyCell = ({timeStore, segmentationStore, row}) => {
-    const groupByColumns = segmentationStore.segmentation;
-    const {ref, inView} = useInView();
-    const [accuracyData, setAccuracyData] = useState([]);
-    const allSqlFilters = useAllSqlFilters();
-    const maxTimeseriesTicks = 20;
-    const timeGranularity = timeStore
-        .getTimeGranularity(maxTimeseriesTicks)
-        .toISOString();
-
-    useEffect(() => {
-        if (inView) {
-            metricsClient('queries/accuracy-data', {
-                sql_filters: allSqlFilters,
-                time_granularity: timeGranularity,
-                columns: groupByColumns.map((c) => `"${c}"`).join(', '),
-                original_columns: groupByColumns.map((c) => `"${c}"='${row.original[c]}'`).join(' AND ')
-            }).then((data) => {
-                setAccuracyData(data);
-            });
-        }
-    }, [inView, allSqlFilters, groupByColumns.join()]);
-
-    return (
-        <div ref={ref} style={{height: '150px', width: '300px'}}>
-            <ResponsiveContainer height='100%' width='100%'>
-                <AreaChart
-                    data={accuracyData.map(({x, y}) => ({
-                        y,
-                        x: new Date(x).getTime()
-                    }))}
-                >
-                    <defs>
-                        <linearGradient id='color' x1='0' x2='0' y1='0' y2='1'>
-                            <stop offset='10%' stopColor={theme.primary} stopOpacity={0.7} />
-                            <stop offset='90%' stopColor='#FFFFFF' stopOpacity={0.1} />
-                        </linearGradient>
-                        <linearGradient id='warning' x1='0' x2='0' y1='0' y2='1'>
-                            <stop offset='10%' stopColor={theme.warning} stopOpacity={0.9} />
-                            <stop offset='90%' stopColor='#FFFFFF' stopOpacity={0.1} />
-                        </linearGradient>
-                    </defs>
-                    <XAxis
-                        axisLine={false}
-                        dataKey='x'
-                        domain={timeStore.rangeMillisec}
-                        scale='time'
-                        tick={false}
-                        type='number'
-                    />
-                    <Area
-                        dataKey='y'
-                        fill='url(#color)'
-                        stroke={theme.primary}
-                        strokeWidth={2}
-                    />
-                </AreaChart>
-            </ResponsiveContainer>
-        </div>
-    );
-};
-
-_AccuracyCell.propTypes = {
-    row: PropTypes.object,
-    segmentationStore: PropTypes.object,
-    timeStore: PropTypes.object.isRequired
-};
-
-const AccuracyCell = setupComponent(_AccuracyCell);
 
 const _DistributionCell = ({row, segmentationStore}) => {
     const groupByColumns = segmentationStore.segmentation;
@@ -409,6 +335,9 @@ const Segmentation = ({timeStore, segmentationStore}) => {
                                     id: 'f1-score-metric',
                                     Header: 'Token F1 Score',
                                     Cell: metricCell
+                                }, {
+                                    accessor: 'value',
+                                    Header: 'Sample Size'
                                 }] : mlModelType === 'SEMANTIC_SIMILARITY' ? [{
                                     id: 'pearson-cosine',
                                     Header: 'Cosine Pearson Correlation',
@@ -419,9 +348,9 @@ const Segmentation = ({timeStore, segmentationStore}) => {
                                     Cell: metricCell
                                 }] : [
                                     {
-                                        id: 'accuracy',
-                                        Header: 'Accuracy Trend',
-                                        Cell: AccuracyCell,
+                                        id: 'accuracy-metric',
+                                        Header: 'Accuracy',
+                                        Cell: metricCell,
                                         width: 200
                                     },
                                     {

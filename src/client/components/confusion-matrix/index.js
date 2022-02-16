@@ -2,7 +2,6 @@ import React, {useState} from 'react';
 import PropTypes from 'prop-types';
 import Alert from 'react-bootstrap/Alert';
 
-import {getName} from 'helpers/name-helper';
 import MatrixTable from 'components/matrix-table';
 import useAllSqlFilters from 'hooks/use-all-sql-filters';
 import ImageExamples from './image-examples';
@@ -20,11 +19,10 @@ const Table = ({
     data,
     referenceData,
     onCellClick,
-    groundtruthClasses,
-    predictionClasses
+    classes
 }) => {
-    const classes = predictionClasses.sort().map((c) => ({
-        Header: getName(c),
+    const classColumns = classes.sort().map((c) => ({
+        Header: c,
         accessor: c,
         Cell: Object.assign(
             ({value: cell = {}}) => {
@@ -51,12 +49,12 @@ const Table = ({
         {
             Header: '',
             accessor: 'groundtruth',
-            Cell: ({value}) => getName(value)
+            Cell: ({value}) => value
         },
-        ...classes
+        ...classColumns
     ];
 
-    const rows = groundtruthClasses.sort().map((c) => {
+    const rows = classes.sort().map((c) => {
         const filtered = data.filter((d) => d.groundtruth === c);
         const referenceDataForClass = referenceData.filter((d) => d.groundtruth === c);
 
@@ -102,9 +100,8 @@ const Table = ({
 Table.propTypes = {
     data: PropTypes.array,
     referenceData: PropTypes.array,
-    groundtruthClasses: PropTypes.array,
     onCellClick: PropTypes.func,
-    predictionClasses: PropTypes.array
+    classes: PropTypes.array
 };
 
 const ConfusionMatrix = () => {
@@ -117,17 +114,6 @@ const ConfusionMatrix = () => {
     });
     const sampleSizeComponent = (<CountEvents sqlFilters={allSqlFilters}/>); // Use this component to get # of events
     const [iou, setIou] = useState('0.5');
-    const getClasses = (data, key) => {
-        const classes = [];
-
-        data.forEach((obj) => {
-            if (classes.indexOf(obj[key]) === -1 && obj[key]) {
-                classes.push(obj[key]);
-            }
-        });
-
-        return classes;
-    };
 
     return (
         <div className='my-3'>
@@ -156,6 +142,20 @@ const ConfusionMatrix = () => {
                 </Row>
                 <Async
                     renderData={([data, rangeData]) => {
+                        const allClasses = Array.from(data.reduce((agg, row) => {
+                            const groundtruth = row['groundtruth'];
+                            const prediction = row['prediction'];
+
+                            if (groundtruth) {
+                                agg.add(groundtruth);
+                            }
+
+                            if (prediction) {
+                                agg.add(prediction);
+                            }
+
+                            return agg;
+                        }, new Set()));
 
                         return (
                             <>
@@ -168,10 +168,9 @@ const ConfusionMatrix = () => {
                                 }
                                 <Table
                                     data={data}
-                                    groundtruthClasses={getClasses(data, 'groundtruth')}
+                                    classes={allClasses}
                                     onCellClick={(prediction, groundtruth) => setSelectedCell({prediction, groundtruth})
                                     }
-                                    predictionClasses={getClasses(data, 'prediction')}
                                     referenceData={rangeData}
                                 />
                             </>

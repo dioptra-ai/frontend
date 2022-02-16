@@ -30,7 +30,7 @@ const SMALL_DOT_SIZE = 60;
 
 const inRange = (num, min, max) => num >= min && num <= max;
 
-const ScatterGraph = ({data, noveltyIsObsolete, examplesType}) => {
+const ScatterGraph = ({data, noveltyIsObsolete}) => {
     const ref = useRef();
     const firstOutlier = useMemo(() => {
         return data.find(({outlier}) => outlier);
@@ -49,6 +49,7 @@ const ScatterGraph = ({data, noveltyIsObsolete, examplesType}) => {
 
     const samples = selectedPoints?.map(({sample}) => sample);
     const sampleRequestIds = selectedPoints?.map(({request_id}) => request_id);
+    const examplesType = samples.every((s) => (/^https?:\/\//).test(s)) ? 'image' : 'text';
 
     const handleKeyDown = ({keyCode}) => {
         if (keyCode === 16) setShiftPressed(true);
@@ -340,8 +341,7 @@ const ScatterGraph = ({data, noveltyIsObsolete, examplesType}) => {
 
 ScatterGraph.propTypes = {
     data: PropTypes.array.isRequired,
-    noveltyIsObsolete: PropTypes.bool,
-    examplesType: PropTypes.string
+    noveltyIsObsolete: PropTypes.bool
 };
 
 export default ScatterGraph;

@@ -1,7 +1,6 @@
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import ConfusionMatrix from 'components/confusion-matrix';
-import Segmentation from 'pages/common/segmentation';
 import useAllSqlFilters from 'hooks/use-all-sql-filters';
 import useModel from 'hooks/use-model';
 import MetricInfoBox from 'components/metric-info-box';
@@ -53,7 +52,6 @@ const PerformanceDetails = () => {
                 <PerformancePerClass/>
             </div>
             <ConfusionMatrix />
-            <Segmentation />
         </div>
     );
 };

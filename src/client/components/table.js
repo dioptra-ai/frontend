@@ -1,33 +1,49 @@
 import PropTypes from 'prop-types';
-import {useTable} from 'react-table';
+import {useSortBy, useTable} from 'react-table';
+import {TiArrowSortedDown, TiArrowSortedUp, TiArrowUnsorted} from 'react-icons/ti';
+
 
 const Table = ({columns, data, getRowProps}) => {
     const {
         getTableProps,
         getTableBodyProps,
-        headers,
+        headerGroups,
         rows,
         prepareRow
     } = useTable(
         {
             columns,
             data
-        }
+        },
+        useSortBy
     );
 
     return (
         <table {...getTableProps()} className='table fs-6'>
             <thead className='text-secondary border-top border-bottom'>
-                <tr>
-                    {headers.map((column, i) => (
-                        <th className='text-center py-3 border-0' key={i} {...column.getHeaderProps()}
-                            style={{width: `${100 / headers.length}%`, textOverflow: 'ellipsis', overflow: 'hidden'}}
-                            title={column.render('Header')}
-                        >
-                            {column.render('Header')}
-                        </th>
-                    ))}
-                </tr>
+                {headerGroups.map((headerGroup, i) => (
+                    <tr key={i} {...headerGroup.getHeaderGroupProps()}>
+                        {headerGroup.headers.map((column, i) => (
+                            // Add the sorting props to control sorting. For this example
+                            // we can add them into the header props
+                            <th className='text-center py-3 border-0' key={i}
+                                {...column.getHeaderProps(column.getSortByToggleProps())}
+                                style={{width: `${100 / headerGroup.headers.length}%`, textOverflow: 'ellipsis', overflow: 'hidden'}}
+                                title={column.render('Header')}
+                            >
+                                {column.render('Header')}
+                                {/* Add a sort direction indicator */}
+                                <span>
+                                    {column.isSorted ?
+                                        column.isSortedDesc ?
+                                            <TiArrowSortedDown/> :
+                                            <TiArrowSortedUp/> :
+                                        <TiArrowUnsorted/>}
+                                </span>
+                            </th>
+                        ))}
+                    </tr>
+                ))}
             </thead>
             <tbody {...getTableBodyProps()} className='text-dark'>
                 {rows.map((row, i) => {

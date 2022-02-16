@@ -71,6 +71,7 @@ const ImageExamples = ({onClose, groundtruth, prediction, iou, model}) => {
                                             groundtruth={groundtruth}
                                             onClose={onClose}
                                             prediction={prediction}
+                                            previewColumns={['confidence', 'groundtruth', 'prediction', 'tags', /^text$/, 'features']}
                                         />
                                     </>
                                 );
