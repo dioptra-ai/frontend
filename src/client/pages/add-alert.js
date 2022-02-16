@@ -224,15 +224,17 @@ const RecipientRow = ({
     return (
         <Row className='my-3 align-items-center' key={idx}>
             <Col xl={1}>{isFirst ? <LabelBox text='SEND TO' /> : null}</Col>
+            {false &&
             <Col xl={3}>
-                {false && <Select
+                 <Select
                     backgroundColor='white-blue'
                     initialValue={rowState.type}
                     onChange={handleTypeChange}
                     options={Object.values(NotificationTypes)}
-                />}
+                />
             </Col>
-            <Col xl={8}>
+            }
+            <Col xl={11}>
                 <TextInput
                     className={inputStyling}
                     initialValue={rowState.address}
@@ -476,7 +478,7 @@ const AddAlertPage = (props) => {
                         <DynamicArray data={recipients} newRowInitialState={recipientInitialValue} onChange={setRecipients} renderRow={RecipientRow} />
                         <Row className='my-3'>
                             <Col xl={1}><LabelBox text='TEMPLATE'/></Col>
-                            <Col xl={11}><TextArea className={inputStyling} inputValue={template} onChange={setTemplate} placeholder='Enter webhook template (a handlebar template) or leave it empty to use default: { "text" : "$dioptra_message" }' rows={9} /></Col>
+                            <Col xl={11}><TextArea className={inputStyling} inputValue={template && JSON.stringify(template)} onChange={setTemplate} placeholder='Enter webhook template (a handlebar template) or leave it empty to use default: { "text" : "$dioptra_message" }' rows={9} /></Col>
                         </Row>
                     </Col>
                     <Col className='mt-2' xl={12}>
