@@ -1,30 +1,50 @@
 import React, {useState} from 'react';
 import {Button, Container, Form, InputGroup} from 'react-bootstrap';
+import ToggleButtonGroup from 'react-bootstrap/ToggleButtonGroup';
+import ToggleButton from 'react-bootstrap/ToggleButton';
 import moment from 'moment';
 import PropTypes from 'prop-types';
+
 import DateTimeRangePicker from 'components/date-time-range-picker';
 import {setupComponent} from 'helpers/component-helper';
+import {lastMilliseconds} from 'helpers/date-helper';
+import Async from 'components/async';
+import metricsClient from 'clients/metrics';
 
-const EditModel = ({initialValue, onSubmit, errors}) => {
+const EditModel = ({initialValue, onSubmit, errors, modelStore}) => {
     const [formData, setFormData] = useState({
         name: '',
         mlModelId: '',
         description: '',
         mlModelType: '',
-        referencePeriod: {
-            start: moment(0),
-            end: moment()
-        },
+        referencePeriod: null,
+        referenceBenchmarkId: null,
         ...initialValue
     });
-
+    const [benchmarkType, setBenchmarkType] = useState(initialValue.referenceBenchmarkId ? 'benchmark-run' : 'date-range');
     const handleChange = (event) => setFormData({...formData, [event.target.name]: event.target.value});
+    const onBenchmarkDateChange = ({start, end, lastMs}) => {
+        let isoStart = null;
 
-    const onDateChange = ({start, end}) => setFormData({
-        ...formData,
-        referencePeriod: {start: start.toISOString(), end: end.toISOString()}
-    });
+        let isoEnd = null;
 
+        if (lastMs) {
+            const e = moment();
+            const s = lastMilliseconds()[0];
+
+            isoStart = s.toISOString();
+            isoEnd = e.toISOString();
+        } else {
+            isoStart = start.toISOString();
+            isoEnd = end.toISOString();
+        }
+
+        setFormData({
+            ...formData,
+            referencePeriod: {start: isoStart, end: isoEnd},
+            referenceBenchmarkId: null
+        });
+    };
     const handleSubmit = (e) => {
         e.preventDefault();
         onSubmit(formData);
@@ -40,17 +60,62 @@ const EditModel = ({initialValue, onSubmit, errors}) => {
                     <div key={i} className='bg-warning text-white p-3 mt-2'>{e}</div>
                 )) : null}
                 <Form autoComplete='off' className='w-100' onSubmit={handleSubmit}>
-                    <InputGroup className='mt-3 text-center'>
-                        <Form.Label>Benchmark Date Range</Form.Label>
-                        <DateTimeRangePicker
-                            datePickerSettings={{
-                                opens: 'center'
-                            }}
-                            end={moment(formData?.referencePeriod?.end)}
-                            onChange={onDateChange}
-                            start={moment(formData?.referencePeriod?.start)}
-                            width='100%'
-                        />
+                    <Form.Label className='mt-3 mb-0'>Benchmark</Form.Label>
+                    <InputGroup className='mt-1 text-center'>
+                        <ToggleButtonGroup defaultValue={benchmarkType} type='radio' onChange={setBenchmarkType} name='benchmark-type'>
+                            <ToggleButton variant='outline-secondary' id='date-range' value='date-range'>&nbsp;Date Range</ToggleButton>
+                            <ToggleButton variant='outline-secondary' id='benchmark-run' value='benchmark-run'>&nbsp;Benchmark Run</ToggleButton>
+                        </ToggleButtonGroup>
+                        <div className='mt-1'>
+                            {
+                                benchmarkType === 'date-range' ? (
+                                    <DateTimeRangePicker
+                                        datePickerSettings={{
+                                            opens: 'center'
+                                        }}
+                                        end={moment(formData?.referencePeriod?.end)}
+                                        onChange={onBenchmarkDateChange}
+                                        start={moment(formData?.referencePeriod?.start)}
+                                        width='100%'
+                                    />
+                                ) : benchmarkType === 'benchmark-run' ? (
+                                    <Async
+                                        fetchData={() => metricsClient(`benchmarks?sql_filters=${encodeURI(
+                                            `model_id='${formData.mlModelId}'`
+                                        )}`, null, 'get')}
+                                        renderData={(benchmarks) => (
+                                            <Form.Control
+                                                as='select'
+                                                className='form-select'
+                                                name='referenceBenchmarkId'
+                                                value={formData.referenceBenchmarkId}
+                                                onChange={handleChange}
+                                                custom
+                                                required
+                                            >
+                                                {
+                                                    benchmarks.map((b, i) => {
+                                                        const model = modelStore.models.find((m) => m.mlModelId === b.model_id);
+
+                                                        if (model) {
+
+                                                            return (
+                                                                <option key={i} value={b.benchmark_id}>{model?.name} {b.model_version} [{new Date(b.started_at).toLocaleString()}]</option>
+                                                            );
+                                                        } else {
+
+                                                            return (
+                                                                <option key={i} value={null}>{'<unknown model>'}</option>
+                                                            );
+                                                        }
+                                                    })
+                                                }
+                                            </Form.Control>
+                                        )}
+                                    />
+                                ) : null
+                            }
+                        </div>
                     </InputGroup>
                     <Form.Label className='mt-3 mb-0'>Model ID</Form.Label>
                     <InputGroup className='mt-1'>
@@ -107,6 +172,8 @@ const EditModel = ({initialValue, onSubmit, errors}) => {
                             <option value='TEXT_CLASSIFIER'>Text Classifier</option>
                             <option value='UNSUPERVISED_OBJECT_DETECTION'>Unsupervised Object Detection</option>
                             <option value='SPEECH_TO_TEXT'>Speech to Text</option>
+                            <option value='AUTO_COMPLETION'>Auto Completion</option>
+                            <option value='SEMANTIC_SIMILARITY'>Semantic Similarity</option>
                         </Form.Control>
                     </InputGroup>
                     <Button
@@ -124,7 +191,8 @@ const EditModel = ({initialValue, onSubmit, errors}) => {
 EditModel.propTypes = {
     errors: PropTypes.array,
     initialValue: PropTypes.object,
-    onSubmit: PropTypes.func
+    onSubmit: PropTypes.func,
+    modelStore: PropTypes.object.isRequired
 };
 
 export default setupComponent(EditModel);

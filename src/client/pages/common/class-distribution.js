@@ -15,7 +15,7 @@ import {setupComponent} from 'helpers/component-helper';
 const ClassDistribution = ({timeStore}) => {
     const {mlModelType} = useModel();
     const allSqlFilters = useAllSqlFilters();
-    const allOfflineSqlFilters = useAllSqlFilters({useReferenceRange: true});
+    const allOfflineSqlFilters = useAllSqlFilters({useReferenceFilters: true});
     const timeGranularity = useTimeGranularity()?.toISOString();
 
     return (
@@ -37,13 +37,13 @@ const ClassDistribution = ({timeStore}) => {
                     )}
                     fetchData={() => metricsClient(`queries/${(mlModelType === 'IMAGE_CLASSIFIER' ||
                             mlModelType === 'TEXT_CLASSIFIER') ?
-                        'online-class-distribution-1' :
-                        'online-class-distribution-2'}`, {sql_filters: allSqlFilters})}
+                        'class-distribution-1' :
+                        'class-distribution-2'}`, {sql_filters: allSqlFilters})}
                 />
             </Col>
             <Col className='d-flex' lg={4}>
                 <Async
-                    refetchOnChanged={[allOfflineSqlFilters, mlModelType]}
+                    refetchOnChanged={[allSqlFilters, mlModelType]}
                     renderData={(data) => (
                         <BarGraph
                             bars={data.map(({prediction, my_percentage}) => ({
@@ -55,10 +55,10 @@ const ClassDistribution = ({timeStore}) => {
                             unit='%'
                         />
                     )}
-                    fetchData={() => metricsClient(`queries/${
-                        mlModelType === 'DOCUMENT_PROCESSING' || mlModelType === 'UNSUPERVISED_OBJECT_DETECTION' ?
-                            'offline-class-distribution-1' :
-                            'offline-class-distribution-2'}`, {offline_sql_filters: allOfflineSqlFilters})}
+                    fetchData={() => metricsClient(`queries/${(mlModelType === 'IMAGE_CLASSIFIER' ||
+                            mlModelType === 'TEXT_CLASSIFIER') ?
+                        'class-distribution-1' :
+                        'class-distribution-2'}`, {sql_filters: allOfflineSqlFilters})}
                 />
             </Col>
             <Col className='d-flex' lg={4}>

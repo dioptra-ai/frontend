@@ -9,7 +9,6 @@ import Register from 'pages/register';
 import AuthRoute from 'components/auth-route';
 import Benchmark from 'pages/benchmark';
 import DatasetsList from 'pages/datasets-list';
-import Documentation from 'pages/documentation';
 import AppContext from 'context/app-context';
 
 const App = () => {
@@ -45,9 +44,6 @@ const App = () => {
                 )}/>
                 <AuthRoute path='/dataset' renderLoggedIn={() => (
                     <DatasetsList/>
-                )}/>
-                <AuthRoute path='/documentation' renderLoggedIn={() => (
-                    <Documentation/>
                 )}/>
                 <AuthRoute path='/'/>
             </Switch>

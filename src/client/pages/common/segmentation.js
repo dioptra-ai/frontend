@@ -3,15 +3,13 @@ import {useInView} from 'react-intersection-observer';
 import PropTypes from 'prop-types';
 import React, {useContext, useEffect, useState} from 'react';
 import {
-    Area,
-    AreaChart,
     Bar,
     BarChart,
     Cell,
-    ResponsiveContainer,
     Tooltip,
     XAxis
 } from 'recharts';
+import Alert from 'react-bootstrap/Alert';
 
 import useModel from 'hooks/use-model';
 import {setupComponent} from 'helpers/component-helper';
@@ -22,11 +20,9 @@ import Table from 'components/table';
 import Modal from 'components/modal';
 import useModal from 'hooks/useModal';
 import {getHexColor} from 'helpers/color-helper';
-import theme from 'styles/theme.module.scss';
 import useAllSqlFilters from 'hooks/use-all-sql-filters';
 import Async from 'components/async';
 import metricsClient from 'clients/metrics';
-import {SmallChart} from 'components/area-graph';
 import {Tooltip as BarTooltip} from 'components/bar-graph';
 import appContext from 'context/app-context';
 
@@ -124,76 +120,6 @@ AddColumnModal.propTypes = {
     initiallyselected: PropTypes.array
 };
 
-const _AccuracyCell = ({timeStore, segmentationStore, row}) => {
-    const groupByColumns = segmentationStore.segmentation;
-    const {ref, inView} = useInView();
-    const [accuracyData, setAccuracyData] = useState([]);
-    const allSqlFilters = useAllSqlFilters();
-    const maxTimeseriesTicks = 20;
-    const timeGranularity = timeStore
-        .getTimeGranularity(maxTimeseriesTicks)
-        .toISOString();
-
-    useEffect(() => {
-        if (inView) {
-            metricsClient('queries/accuracy-data', {
-                sql_filters: allSqlFilters,
-                time_granularity: timeGranularity,
-                columns: groupByColumns.map((c) => `"${c}"`).join(', '),
-                original_columns: groupByColumns.map((c) => `"${c}"='${row.original[c]}'`).join(' AND ')
-            }).then((data) => {
-                setAccuracyData(data);
-            });
-        }
-    }, [inView, allSqlFilters, groupByColumns.join()]);
-
-    return (
-        <div ref={ref} style={{height: '150px', width: '300px'}}>
-            <ResponsiveContainer height='100%' width='100%'>
-                <AreaChart
-                    data={accuracyData.map(({x, y}) => ({
-                        y,
-                        x: new Date(x).getTime()
-                    }))}
-                >
-                    <defs>
-                        <linearGradient id='color' x1='0' x2='0' y1='0' y2='1'>
-                            <stop offset='10%' stopColor={theme.primary} stopOpacity={0.7} />
-                            <stop offset='90%' stopColor='#FFFFFF' stopOpacity={0.1} />
-                        </linearGradient>
-                        <linearGradient id='warning' x1='0' x2='0' y1='0' y2='1'>
-                            <stop offset='10%' stopColor={theme.warning} stopOpacity={0.9} />
-                            <stop offset='90%' stopColor='#FFFFFF' stopOpacity={0.1} />
-                        </linearGradient>
-                    </defs>
-                    <XAxis
-                        axisLine={false}
-                        dataKey='x'
-                        domain={timeStore.rangeMillisec}
-                        scale='time'
-                        tick={false}
-                        type='number'
-                    />
-                    <Area
-                        dataKey='y'
-                        fill='url(#color)'
-                        stroke={theme.primary}
-                        strokeWidth={2}
-                    />
-                </AreaChart>
-            </ResponsiveContainer>
-        </div>
-    );
-};
-
-_AccuracyCell.propTypes = {
-    row: PropTypes.object,
-    segmentationStore: PropTypes.object,
-    timeStore: PropTypes.object.isRequired
-};
-
-const AccuracyCell = setupComponent(_AccuracyCell);
-
 const _DistributionCell = ({row, segmentationStore}) => {
     const groupByColumns = segmentationStore.segmentation;
     const {ref, inView} = useInView();
@@ -217,15 +143,22 @@ const _DistributionCell = ({row, segmentationStore}) => {
 
     return (
         <div ref={ref}>
-            <BarChart data={distributionData.map((d) => ({...d, value: 100 * d.value}))} height={150} width={150}>
-                <Tooltip content={<BarTooltip unit='%'/>}/>
-                <Bar background={false} dataKey='value' minPointSize={2}>
-                    {distributionData.map((d, i) => (
-                        <Cell accentHeight='0px' fill={getHexColor(d.name, 0.65)} key={i} />
-                    ))}
-                </Bar>
-                <XAxis dataKey='name' tick={false}/>
-            </BarChart>
+            {distributionData.length > 25 ? (
+                <Alert variant='secondary'>
+                    Too many classes.
+                </Alert>
+            ) : (
+                <BarChart data={distributionData.map((d) => ({...d, value: 100 * d.value}))} height={150} width={150}>
+                    <Tooltip content={<BarTooltip unit='%'/>}/>
+                    <Bar background={false} dataKey='value' minPointSize={2}>
+                        {distributionData.map((d, i) => (
+                            <Cell accentHeight='0px' fill={getHexColor(d.name, 0.65)} key={i} />
+                        ))}
+                    </Bar>
+                    <XAxis dataKey='name' tick={false}/>
+                </BarChart>
+            )
+            }
         </div>
     );
 };
@@ -237,83 +170,44 @@ _DistributionCell.propTypes = {
 
 const DistributionCell = setupComponent(_DistributionCell);
 
-const _metricCell = ({cell, timeStore}) => {
+const _metricCell = ({cell}) => {
     const cellValues = cell.row.original;
     const cellId = cell.column.id;
     const cellFields = Object.keys(cellValues).filter((f) => f !== 'value');
     const {mlModelType} = useModel();
     const allSqlFilters = useAllSqlFilters();
-    const {isModelView} = useContext(appContext);
     const {ref, inView} = useInView();
 
-    if (isModelView) {
-        const timeGranularity = timeStore.getTimeGranularity(5).toISOString();
+    return (
+        <>
+            <div ref={ref}/>
+            <Async
+                refetchOnChanged={[allSqlFilters, inView]}
+                fetchData={() => {
 
-        return (
-            <>
-                <div ref={ref}/>
-                <Async
-                    refetchOnChanged={[allSqlFilters, timeGranularity, inView]}
-                    fetchData={() => {
+                    if (inView) {
 
-                        if (inView) {
-                            return metricsClient(cellId, {
-                                sql_filters: `${allSqlFilters} AND ${cellFields.map((f) => `"${f}"='${cellValues[f]}'`).join(' AND ')}`,
-                                model_type: mlModelType,
-                                iou_threshold: 0.5,
-                                time_granularity: timeGranularity
-                            });
-                        } else {
+                        return metricsClient(cellId, {
+                            sql_filters: `${allSqlFilters} AND ${cellFields.map((f) => `"${f}"='${cellValues[f]}'`).join(' AND ')}`,
+                            model_type: mlModelType,
+                            iou_threshold: 0.5
+                        });
+                    } else {
 
-                            return Promise.resolve([]);
-                        }
-                    }}
-                    renderData={(data) => (
-                        <div style={{height: '150px'}}>
-                            <SmallChart
-                                data={data}
-                                xDataKey='time'
-                                yDataKey='value'
-                            />
-                        </div>
-                    )}
-                />
-            </>
-        );
-    } else {
+                        return Promise.resolve([]);
+                    }
+                }}
 
-        return (
-            <>
-                <div ref={ref}/>
-                <Async
-                    refetchOnChanged={[allSqlFilters, inView]}
-                    fetchData={() => {
-
-                        if (inView) {
-
-                            return metricsClient(cellId, {
-                                sql_filters: `${allSqlFilters} AND ${cellFields.map((f) => `"${f}"='${cellValues[f]}'`).join(' AND ')}`,
-                                model_type: mlModelType,
-                                iou_threshold: 0.5
-                            });
-                        } else {
-
-                            return Promise.resolve([]);
-                        }
-                    }}
-
-                    renderData={(data) => (
-                        !isNaN(data[0]?.value) ? data[0]?.value.toFixed(2) : '-'
-                    )}
-                />
-            </>
-        );
-    }
+                renderData={(data) => (
+                    !isNaN(data[0]?.value) ? data[0]?.value.toFixed(2) : '-'
+                )}
+            />
+        </>
+    );
 };
 
 _metricCell.propTypes = {
-    cell: PropTypes.object.isRequired,
-    timeStore: PropTypes.object.isRequired
+    cell: PropTypes.object.isRequired
 };
 
 const metricCell = setupComponent(_metricCell);
@@ -433,24 +327,42 @@ const Segmentation = ({timeStore, segmentationStore}) => {
                                         accessor: 'value',
                                         Header: 'Sample Size'
                                     }
-                                ] :
-                                    [
-                                        {
-                                            id: 'accuracy',
-                                            Header: 'Accuracy Trend',
-                                            Cell: AccuracyCell,
-                                            width: 200
-                                        },
-                                        {
-                                            accessor: 'value',
-                                            Header: 'Sample Size'
-                                        },
-                                        {
-                                            id: 'prediction',
-                                            Header: 'Online Predictions',
-                                            Cell: DistributionCell
-                                        }
-                                    ]
+                                ] : mlModelType === 'AUTO_COMPLETION' ? [{
+                                    id: 'exact-match',
+                                    Header: 'Token Exact Match',
+                                    Cell: metricCell
+                                }, {
+                                    id: 'f1-score-metric',
+                                    Header: 'Token F1 Score',
+                                    Cell: metricCell
+                                }, {
+                                    accessor: 'value',
+                                    Header: 'Sample Size'
+                                }] : mlModelType === 'SEMANTIC_SIMILARITY' ? [{
+                                    id: 'pearson-cosine',
+                                    Header: 'Cosine Pearson Correlation',
+                                    Cell: metricCell
+                                }, {
+                                    id: 'spearman-cosine',
+                                    Header: 'Cosine Spearman Correlation',
+                                    Cell: metricCell
+                                }] : [
+                                    {
+                                        id: 'accuracy-metric',
+                                        Header: 'Accuracy',
+                                        Cell: metricCell,
+                                        width: 200
+                                    },
+                                    {
+                                        accessor: 'value',
+                                        Header: 'Sample Size'
+                                    },
+                                    {
+                                        id: 'prediction',
+                                        Header: 'Online Predictions',
+                                        Cell: DistributionCell
+                                    }
+                                ]
                             ).concat(
                                 groupByColumns.map((column) => ({
                                     accessor: (c) => c[column],

@@ -6,7 +6,7 @@ const DifferenceLabel = ({difference, containerStyle = {}, diffStyles = {}}) => 
 
     return (
         <div style={containerStyle} className='mx-2'>
-            <OverlayTrigger overlay={<Tooltip>Benchmark comparison</Tooltip>}>
+            <OverlayTrigger overlay={<Tooltip>vs. Reference</Tooltip>}>
                 <span className='text-secondary metric-box-diffText' style={{
                     fontSize: '80%',
                     whiteSpace: 'nowrap',

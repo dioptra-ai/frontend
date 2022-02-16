@@ -27,7 +27,9 @@ const ModelPerformanceMetrics = {
     MEAN_AVERAGE_PRECISION: {value: 'MEAN_AVERAGE_PRECISION', name: 'mAP'},
     MEAN_AVERAGE_RECALL: {value: 'MEAN_AVERAGE_RECALL', name: 'mAR'},
     SEMANTIC_SIMILARITY: {value: 'SEMANTIC_SIMILARITY', name: 'Semantic Similarity'},
-    CONFIDENCE: {value: 'CONFIDENCE', name: 'Confidence'}
+    CONFIDENCE: {value: 'CONFIDENCE', name: 'Confidence'},
+    COSINE_PEARSON_CORRELATION: {value: 'COSINE_PEARSON_CORRELATION', name: 'Cosine Pearson Correlation'},
+    COSINE_SPEARMAN_CORRELATION: {value: 'COSINE_SPEARMAN_CORRELATION', name: 'Cosine Spearman Correlation'}
 };
 
 const CorrelationToKPIs = ({timeStore, selectableMetrics}) => {
@@ -140,6 +142,22 @@ const CorrelationToKPIs = ({timeStore, selectableMetrics}) => {
                     time_granularity: timeGranularity,
                     model_type: model.mlModelType
                 });
+            },
+            [ModelPerformanceMetrics.COSINE_PEARSON_CORRELATION.value]: () => {
+
+                return metricsClient('pearson-cosine', {
+                    sql_filters: sqlFilters,
+                    time_granularity: timeGranularity,
+                    model_type: model.mlModelType
+                });
+            },
+            [ModelPerformanceMetrics.COSINE_SPEARMAN_CORRELATION.value]: () => {
+
+                return metricsClient('spearman-cosine', {
+                    sql_filters: sqlFilters,
+                    time_granularity: timeGranularity,
+                    model_type: model.mlModelType
+                });
             }
         }[metricName];
     };
@@ -158,7 +176,10 @@ const CorrelationToKPIs = ({timeStore, selectableMetrics}) => {
                                 margin={{right: 0, bottom: 30}}
                                 unit='%'
                                 xAxisName='Time'
-                                yAxisDomain={[0, 100]}
+                                yAxisDomain={
+                                    (selectedMetric === 'COSINE_SPEARMAN_CORRELATION' ||
+                                    selectedMetric === 'COSINE_PEARSON_CORRELATION') ? [-100, 100] : [0, 100]
+                                }
                                 xDataKey='time'
                                 yDataKey='value'
                                 title={

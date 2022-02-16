@@ -1,21 +1,18 @@
 import PropTypes from 'prop-types';
-import {OverlayTrigger, Tooltip} from 'react-bootstrap';
 
 const ProgressBar = ({completed}) => {
     return (
-        <OverlayTrigger overlay={
-            <Tooltip>{completed}%</Tooltip>
-        }>
+        <div
+            className='bg-light-blue cursor-pointer'
+            style={{height: 10, width: '100%', borderRadius: 2}}
+        >
             <div
-                className='bg-light-blue cursor-pointer'
-                style={{height: 10, width: '100%', borderRadius: 2, overflow: 'hidden'}}
+                className='bg-primary position-relative'
+                style={{height: '100%', width: `${completed}%`}}
             >
-                <div
-                    className='bg-primary'
-                    style={{height: '100%', width: `${completed}%`}}
-                ></div>
+                <span className='position-absolute text-secondary fs-6' style={{right: 0, top: -20}}>{completed}%</span>
             </div>
-        </OverlayTrigger>
+        </div>
     );
 };
 

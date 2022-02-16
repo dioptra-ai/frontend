@@ -26,7 +26,7 @@ const UnsupervisedObjectDetection = () => {
                             unit='%'
                         />
                     )}
-                    fetchData={() => metricsClient('queries/online-class-distribution-2', {sql_filters: allSqlFilters})}
+                    fetchData={() => metricsClient('queries/class-distribution-2', {sql_filters: allSqlFilters})}
                 />
             </div>
             <div className='my-3'>

@@ -1,11 +1,12 @@
-import {Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis} from 'recharts';
+import {Bar, BarChart, Brush, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis} from 'recharts';
 import PropTypes from 'prop-types';
-import Legend from './graph-legend';
 import fontSizes from '../styles/font-sizes.module.scss';
 import {SpinnerWrapper} from 'components/spinner';
+import theme from 'styles/theme.module.scss';
 
 const CustomTooltip = ({payload, label, unit}) => {
     if (payload && payload.length) {
+
         return (
             <div className='line-graph-tooltip bg-white p-3'>
                 <p className='text-dark bold-text fs-5 m-0'>{Number(payload[0].value).toFixed(4)}{unit}</p>
@@ -17,6 +18,16 @@ const CustomTooltip = ({payload, label, unit}) => {
                 }}>
                     {label === '' ? '<empty>' : label}
                 </p>
+                {payload[0]?.payload?.size ?
+                    <p className='text-secondary m-0 fs-7' style={{
+                        textOverflow: 'ellipsis',
+                        overflow: 'hidden',
+                        whiteSpace: 'nowrap',
+                        maxWidth: 200
+                    }}>
+                    Size : {payload[0].payload.size}
+                    </p> :
+                    null}
             </div>
         );
     } else return null;
@@ -58,13 +69,15 @@ const BarGraph = ({title, bars, unit, yAxisName, xAxisName, yAxisDomain, classNa
                                 tick={{fontSize: fontSizes.fs_7}}
                                 unit={unit}
                             />
-                            {bars.length > 4 && bars.length < 9 ? <Legend data={bars}/> : null}
                             {children ||
                                 <>
                                     <Tooltip content={<CustomTooltip unit={unit}/>}/>
-                                    <Bar cursor={onClick ? 'pointer' : 'default'} onClick={onClick} dataKey='value' fill='#8884d8' maxBarSize={50} minPointSize={2}/>
+                                    <Bar cursor={onClick ? 'pointer' : 'default'} onClick={onClick} dataKey='value' fill={theme.primary} maxBarSize={50} minPointSize={2}/>
                                 </>
                             }
+                            {bars.length > 100 ? (
+                                <Brush dataKey='name' height={30} stroke={theme.primary}/>
+                            ) : null}
                         </BarChart>
                     </ResponsiveContainer>
                 </div>

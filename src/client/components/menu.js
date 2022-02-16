@@ -2,11 +2,13 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import LogoSymbol from './logo-symbol';
 import {Link, useLocation} from 'react-router-dom';
-import {AiFillDatabase} from 'react-icons/ai';
-import {Paths, getMatchingRouteConfig} from 'configs/route-config';
-import {IconNames} from 'constants';
+import {AiOutlineDatabase} from 'react-icons/ai';
+import {getMatchingRouteConfig} from 'configs/route-config';
 import FontIcon from './font-icon';
 import {MdHelpOutline} from 'react-icons/md';
+import {RiSpeedLine} from 'react-icons/ri';
+import {HiOutlineCube, HiOutlineUserCircle} from 'react-icons/hi';
+import {IoSettingsOutline} from 'react-icons/io5';
 
 const MenuItem = ({icon, isActive, size, className}) => {
     return (
@@ -34,15 +36,15 @@ MenuItem.propTypes = {
 };
 
 const TopMenuItemsConfig = [
-    {icon: IconNames.MODELS, url: Paths().MODELS, title: 'Models'},
-    {icon: IconNames.EXPERIMENTATIONS, url: Paths().EXPERIMENTATIONS, title: 'Experimentations'},
-    {icon: <AiFillDatabase className='fs-3'/>, url: '/dataset', title: 'Datasets'}
+    {icon: <HiOutlineCube className='fs-2 text-dark'/>, url: '/models', title: 'Models'},
+    {icon: <RiSpeedLine className='fs-3'/>, url: '/benchmark', title: 'Experimentations'},
+    {icon: <AiOutlineDatabase className='fs-3'/>, url: '/dataset', title: 'Datasets'}
 ];
 
 const BottomMenuItemsConfig = [
-    {icon: <MdHelpOutline className='fs-3'/>, url: '/documentation', title: 'Documentation'},
-    {icon: IconNames.SETTING, url: Paths().SETTINGS, title: 'Settings'},
-    {icon: IconNames.USER, url: Paths().PROFILE, title: 'User'}
+    {icon: <MdHelpOutline className='fs-3'/>, url: '/documentation', title: 'Documentation', target: '_blank'},
+    {icon: <IoSettingsOutline className='fs-3'/>, url: '/settings', title: 'Settings'},
+    {icon: <HiOutlineUserCircle className='fs-3'/>, url: '/profile', title: 'User'}
 ];
 
 const Menu = ({children}) => {
@@ -51,12 +53,12 @@ const Menu = ({children}) => {
     const renderItems = (configs) => {
         return (
             <div>
-                {configs.map(({icon, url, title}, idx) => {
+                {configs.map(({icon, url, title, ...rest}, idx) => {
                     const matchingConfig = getMatchingRouteConfig(location.pathname);
                     const isActive = location.pathname.startsWith(url) || matchingConfig.menuMatch === url;
 
                     return (
-                        <Link key={idx} title={title} to={url} >
+                        <Link key={idx} title={title} to={url} {...rest}>
                             <MenuItem
                                 className='my-4 d-flex justify-content-center align-items-center'
                                 icon={icon}

@@ -6,6 +6,8 @@ import SpeechToText from './speech-to-text';
 import TabularClassifier from './tabular-classifier';
 import TextClassifier from './text-classifier';
 import UnsupervisedObjectDetection from './unsupervised-object-detection';
+import AutoCompletion from './auto-completion';
+import SemanticSimilarity from './semantic-similarity';
 
 const PerformanceDetails = (props) => {
     const model = useModel();
@@ -13,25 +15,32 @@ const PerformanceDetails = (props) => {
     switch (model.mlModelType) {
     case 'IMAGE_CLASSIFIER':
 
-        return <ImageClassifier/>;
+        return <ImageClassifier {...props}/>;
     case 'TABULAR_CLASSIFIER':
 
-        return <TabularClassifier/>;
+        return <TabularClassifier {...props}/>;
     case 'DOCUMENT_PROCESSING':
 
-        return <DocumentProcessing/>;
+        return <DocumentProcessing {...props}/>;
     case 'Q_N_A':
 
-        return <QNA/>;
+        return <QNA {...props}/>;
     case 'TEXT_CLASSIFIER':
 
-        return <TextClassifier/>;
+        return <TextClassifier {...props}/>;
     case 'UNSUPERVISED_OBJECT_DETECTION':
 
         return <UnsupervisedObjectDetection {...props}/>;
     case 'SPEECH_TO_TEXT':
 
         return <SpeechToText {...props}/>;
+
+    case 'AUTO_COMPLETION':
+
+        return <AutoCompletion {...props}/>;
+    case 'SEMANTIC_SIMILARITY':
+
+        return <SemanticSimilarity/>;
     default:
 
         return null;

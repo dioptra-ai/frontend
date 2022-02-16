@@ -34,14 +34,17 @@ const mlModelSchema = new mongoose.Schema({
             'Q_N_A', // ok
             'TEXT_CLASSIFIER', // ok
             'UNSUPERVISED_OBJECT_DETECTION', // TODO check working data
-            'SPEECH_TO_TEXT' // ok
+            'SPEECH_TO_TEXT', // ok
+            'AUTO_COMPLETION', // WIP
+            'SEMANTIC_SIMILARITY'
         ],
         required: true
     },
     referencePeriod: {
         start: Date,
         end: Date
-    }
+    },
+    referenceBenchmarkId: String
 }, {timestamps: true});
 
 const MlModel = mongoose.model('MlModel', mlModelSchema);
