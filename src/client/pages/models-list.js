@@ -153,7 +153,7 @@ _ModelRow.propTypes = {
 const ModelRow = setupComponent(_ModelRow);
 
 const Models = ({modelStore}) => {
-    const [pageNumber, setPageNumber] = useState(0);
+    const [pageNumber, setPageNumber] = useState(1);
     const [showModal, setShowModal] = useState(false);
     const [errors, setErrors] = useState([]);
     const [formattedData, setFormattedData] = useState([]);
@@ -162,9 +162,10 @@ const Models = ({modelStore}) => {
     const totalPages = Math.ceil(
         modelStore.models.length / NUMBER_OF_RECORDS_PER_PAGE
     );
+
     const data = modelStore.models.slice(
-        pageNumber - Number(NUMBER_OF_RECORDS_PER_PAGE),
-        (pageNumber) * NUMBER_OF_RECORDS_PER_PAGE
+        (pageNumber - 1) * Number(NUMBER_OF_RECORDS_PER_PAGE),
+        (pageNumber - 1) * Number(NUMBER_OF_RECORDS_PER_PAGE) + 10
     );
 
     const handleSubmit = (data) => {
