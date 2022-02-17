@@ -343,7 +343,7 @@ const AddAlertPage = (props) => {
     const recipientInitialValue = {type: NotificationTypes.SLACK.value, address: ''};
     const history = useHistory();
     const [recipients, setRecipients] = useState([recipientInitialValue]);
-    const [template, setTemplate] = useState('{ "text" : "$dioptra_message" }');
+    const [template, setTemplate] = useState();
     const [alertName, setAlertName] = useState('');
     const [conditions, setConditions] = useState([conditionInitialValue]);
     const [notificationEnabled, setNotificationEnabled] = useState(true);
@@ -369,7 +369,7 @@ const AddAlertPage = (props) => {
                 sqlFilters: allSqlFilters,
                 notification: notificationEnabled ? {
                     recipients: recipients,
-                    template: JSON.parse(template)
+                    template: JSON.parse(template ? template : '{ "text" : "$dioptra_message" }')
                 } : {}
             }
         }).then(() => {
@@ -478,7 +478,7 @@ const AddAlertPage = (props) => {
                         <DynamicArray data={recipients} newRowInitialState={recipientInitialValue} onChange={setRecipients} renderRow={RecipientRow} />
                         <Row className='my-3'>
                             <Col xl={1}><LabelBox text='TEMPLATE'/></Col>
-                            <Col xl={11}><TextArea className={inputStyling} inputValue={template && JSON.stringify(template)} onChange={setTemplate} placeholder='Enter webhook template (a handlebar template) or leave it empty to use default: { "text" : "$dioptra_message" }' rows={9} /></Col>
+                            <Col xl={11}><TextArea className={inputStyling} inputValue={template} onChange={setTemplate} placeholder='Enter webhook template (a handlebar template) or leave it empty to use default: { "text" : "$dioptra_message" }' rows={9} /></Col>
                         </Row>
                     </Col>
                     <Col className='mt-2' xl={12}>
