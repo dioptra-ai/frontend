@@ -32,13 +32,21 @@ const MatrixTable = ({columns, data, onCellClick}) => {
 
     return (
         <table className='matrix-table table fs-6' style={{marginBottom: '50px', position: 'relative'}} >
+
+            <colgroup>
+                {
+                    columns.map((_, i) => (
+                        <col key={i} span='1' style={{maxWidth: 200, overflowWrap: 'anywhere'}}/>
+                    ))
+                }
+            </colgroup>
             <thead className='text-dark bold-text border-0'>
                 <tr className='w-100'>
                     {headers.map((column, i) => (
                         <th
                             className='align-middle py-3 border-0'
                             key={i}
-                            style={{width: `${100 / columns.length}%`}}
+                            style={{maxWidth: 200, overflowWrap: 'anywhere'}}
                         >
                             {column.render('Header')}
                         </th>
@@ -61,8 +69,7 @@ const MatrixTable = ({columns, data, onCellClick}) => {
                                         backgroundColor: getCellBackground(cell, i),
                                         cursor: (i && cell?.value?.value) ? 'pointer' : 'auto',
                                         position: 'relative',
-                                        width: `${100 / columns.length}%`,
-                                        whiteSpace: 'nowrap'
+                                        maxWidth: 200, overflowWrap: 'anywhere'
                                     }
                                 }, <>
                                     <div
