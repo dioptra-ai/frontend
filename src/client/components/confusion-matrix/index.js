@@ -107,7 +107,8 @@ Table.propTypes = {
 const ConfusionMatrix = () => {
     const [selectedCell, setSelectedCell] = useState(null);
     const model = useModel();
-    const allSqlFilters = useAllSqlFilters({__REMOVE_ME__excludeOrgId: true});
+    const allSqlFilters = useAllSqlFilters();
+
     const sqlFiltersWithModelTime = useAllSqlFilters({
         useReferenceFilters: true,
         __REMOVE_ME__excludeOrgId: true

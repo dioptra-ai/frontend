@@ -23,10 +23,6 @@ const Metrics = {
         name: 'Exact Match',
         value: 'EXACT_MATCH'
     },
-    WORD_ERROR_RATE: {
-        name: 'Word Error Rate',
-        value: 'WORD_ERROR_RATE'
-    },
     SEMANTIC_SIMILARITY: {
         name: 'Semantic Similarity',
         value: 'SEMANTIC_SIMILARITY'
@@ -49,8 +45,10 @@ const availableMetricsForModel = {
         PRECISION: Metrics.PRECISION
     },
     SPEECH_TO_TEXT: {
-        EXACT_MATCH: Metrics.EXACT_MATCH,
-        WORD_ERROR_RATE: Metrics.WORD_ERROR_RATE
+        ACCURACY: Metrics.ACCURACY,
+        F1_SCORE: Metrics.F1_SCORE,
+        RECALL: Metrics.RECALL,
+        PRECISION: Metrics.PRECISION
     },
     TABULAR_CLASSIFIER: {
         ACCURACY: Metrics.ACCURACY,

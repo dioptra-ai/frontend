@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import {useTable} from 'react-table';
 import theme from '../styles/theme.module.scss';
 import PropTypes from 'prop-types';
+import {OverlayTrigger, Tooltip} from 'react-bootstrap';
 
 const MatrixTable = ({columns, data, onCellClick}) => {
     const {
@@ -43,13 +44,19 @@ const MatrixTable = ({columns, data, onCellClick}) => {
             <thead className='text-dark bold-text border-0'>
                 <tr className='w-100'>
                     {headers.map((column, i) => (
-                        <th
-                            className='align-middle py-3 border-0'
+                        <OverlayTrigger
                             key={i}
-                            style={{maxWidth: 200, overflowWrap: 'anywhere'}}
+                            placement='top'
+                            delay={{show: 250, hide: 400}}
+                            overlay={ <Tooltip id='button-tooltip'>{column.render('Header')}</Tooltip> }
                         >
-                            {column.render('Header')}
-                        </th>
+                            <th
+                                className='align-middle py-3 border-0'
+                                style={{maxWidth: 200, width: 200, overflowWrap: 'break-word', transform: 'rotate(-90deg)'}}
+                            >
+                                {`${column.render('Header').substring(0, 20)}`}
+                            </th>
+                        </OverlayTrigger>
                     ))}
                 </tr>
             </thead>
@@ -69,7 +76,7 @@ const MatrixTable = ({columns, data, onCellClick}) => {
                                         backgroundColor: getCellBackground(cell, i),
                                         cursor: (i && cell?.value?.value) ? 'pointer' : 'auto',
                                         position: 'relative',
-                                        maxWidth: 200, overflowWrap: 'anywhere'
+                                        maxWidth: 200, overflowWrap: 'break-word'
                                     }
                                 }, <>
                                     <div
