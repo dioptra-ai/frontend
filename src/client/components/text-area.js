@@ -14,7 +14,8 @@ const TextArea = ({className, placeholder, onChange = noop, initialValue = '', r
 
     useEffect(() => {
         if (inputValue && typeof Object) {
-            const value = inputValue instanceof Object ? JSON.stringify(inputValue) : inputValue
+            const value = inputValue instanceof Object ? JSON.stringify(inputValue) : inputValue;
+
             setValue(value);
             onChange(value);
         }
