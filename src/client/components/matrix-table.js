@@ -36,7 +36,7 @@ const MatrixTable = ({columns, data, onCellClick}) => {
             <colgroup>
                 {
                     columns.map((_, i) => (
-                        <col key={i} span='1' style={{maxWidth: 200, overflowWrap: 'anywhere'}}/>
+                        <col key={i} span='1' style={{maxWidth: 200, width: `${100 / columns.length}%`}}/>
                     ))
                 }
             </colgroup>
@@ -46,9 +46,15 @@ const MatrixTable = ({columns, data, onCellClick}) => {
                         <th
                             className='align-middle py-3 border-0'
                             key={i}
-                            style={{maxWidth: 200, overflowWrap: 'anywhere'}}
+                            style={{
+                                maxWidth: 200,
+                                overflowWrap: 'break-word',
+                                textAlign: 'center'
+                            }}
                         >
-                            {column.render('Header')}
+                            {
+                                column.render('Header')
+                            }
                         </th>
                     ))}
                 </tr>
@@ -69,7 +75,8 @@ const MatrixTable = ({columns, data, onCellClick}) => {
                                         backgroundColor: getCellBackground(cell, i),
                                         cursor: (i && cell?.value?.value) ? 'pointer' : 'auto',
                                         position: 'relative',
-                                        maxWidth: 200, overflowWrap: 'anywhere'
+                                        maxWidth: 200,
+                                        overflowWrap: 'break-word'
                                     }
                                 }, <>
                                     <div
@@ -79,7 +86,9 @@ const MatrixTable = ({columns, data, onCellClick}) => {
                                             inset: 0
                                         }}
                                     />
-                                    {cell.render('Cell')}
+                                    {
+                                        cell.render('Cell')
+                                    }
                                 </>)
                             ))}
                         </tr>
