@@ -68,7 +68,7 @@ class AuthStore {
 
         try {
             this.userData = await authenticationClient('login', data);
-            this.isAuthenticated = true;
+            window.location.reload();
         } catch (e) {
             this.userData = null;
             this.isAuthenticated = false;
