@@ -59,7 +59,7 @@ const FilterInput = ({
 
     const appliedFilters = filtersStore.filters;
 
-    const {mlModelId} = useModel();
+    const model = useModel();
 
     const getSuggestions = async () => {
         const {left: key, isOpValid, right: value} = newFilter;
@@ -73,7 +73,7 @@ const FilterInput = ({
                 const allSuggestions = await metricsClient('queries/get-suggestions-with-key', {
                     key,
                     value: Array.isArray(value) ? value[value.length - 1] : value,
-                    ml_model_id: mlModelId
+                    ml_model_id: model?.mlModelId
                 });
 
                 const allSuggestionValues = allSuggestions.map(({value}) => value);
@@ -93,7 +93,7 @@ const FilterInput = ({
                     const non1Options = await metricsClient('queries/all-key-options', {
                         // COUNT DISTINCT required here otherwise COUNT() returns weird results for model_id
                         keys_calc: allSuggestionValues.map((value) => `COUNT(DISTINCT "${value}") FILTER(WHERE "${value}" IS NOT NULL) as "${value}"`).join(', '),
-                        ml_model_id: mlModelId
+                        ml_model_id: model?.mlModelId
                     });
                     const filteredKeys = allSuggestionValues.filter((v) => non1Options[v] > 0);
 
