@@ -64,10 +64,6 @@ export default function AwsS3Integration({formData, handleSubmit}) {
                 </Form.Group>
                 <Button
                     className='w-100 text-white bold-text mt-3'
-                    disabled={
-                        !formik.values.aws_access_key_id ||
-                        !formik.values.aws_secret_access_key
-                    }
                     type='submit'
                     variant='primary'
                 >

@@ -14,7 +14,6 @@ export default function RedashIntegration({formData, handleSubmit}) {
             handleSubmit(values);
         }
     });
-    const isDisabled = !(formik.values.apiKey && formik.values.endpoint);
 
     useEffect(() => {
         if (formData) {
@@ -64,7 +63,6 @@ export default function RedashIntegration({formData, handleSubmit}) {
                 </Form.Group>
                 <Button
                     className='w-100 text-white bold-text mt-3'
-                    disabled={isDisabled}
                     type='submit'
                     variant='primary'
                 >

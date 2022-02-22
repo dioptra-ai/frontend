@@ -18,7 +18,7 @@ const integrationSchema = new Schema({
     },
     type: {
         type: String,
-        enum: ['REDASH', 'CLOUD_STORAGE'],
+        enum: ['REDASH', 'AWS_S3'],
         default: 'REDASH',
         required: true
     },
