@@ -8,16 +8,21 @@ IntegrationRouter.all('*', isAuthenticated);
 
 IntegrationRouter.post('/', async (req, res, next) => {
     try {
-        const {_id: createdBy, activeOrganizationMembership} = req.user;
-        const {apiKey, endpoint} = req.body;
+        const {_id: createdBy, activeOrganizationMembership, id} = req.user;
+        const {data, type} = req.body;
         const IntegrationModel = mongoose.model('Integrations');
 
         const integration = await IntegrationModel.findOneAndUpdate(
-            {organization: activeOrganizationMembership.organization._id},
             {
-                apiKey,
-                endpoint,
+                type,
+                user: id,
+                organization: activeOrganizationMembership.organization._id
+            },
+            {
+                data,
+                type,
                 createdBy,
+                user: id,
                 organization: activeOrganizationMembership.organization._id
             },
             {new: true, upsert: true}
@@ -31,15 +36,16 @@ IntegrationRouter.post('/', async (req, res, next) => {
 
 IntegrationRouter.get('/:type', async (req, res, next) => {
     try {
-        const {activeOrganizationMembership} = req.user;
+        const {id, activeOrganizationMembership} = req.user;
         const IntegrationModel = mongoose.model('Integrations');
 
         const integration = await IntegrationModel.findOne({
+            user: id,
             organization: activeOrganizationMembership.organization._id,
             type: req.params.type
         });
 
-        res.json(integration);
+        res.json(integration || {});
     } catch (e) {
         next(e);
     }

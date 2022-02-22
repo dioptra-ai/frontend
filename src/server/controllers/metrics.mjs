@@ -111,6 +111,7 @@ MetricsRouter.post('*', async (req, res, next) => {
             },
             body: JSON.stringify({
                 ...req.body,
+                user_id: req.user.id,
                 organization_id:
                     OVERRIDE_DRUID_ORG_ID || req.user.activeOrganizationMembership.organization._id
             }),
