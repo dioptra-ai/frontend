@@ -2,7 +2,10 @@ import {useState} from 'react';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import {Scatter} from 'recharts';
+import {OverlayTrigger, Tooltip} from 'react-bootstrap';
+import {IoDownloadOutline} from 'react-icons/io5';
 
+import {saveAs} from 'file-saver';
 import {SpinnerWrapper} from 'components/spinner';
 import Table from 'components/table';
 import Select from 'components/select';
@@ -126,6 +129,12 @@ const PerformanceClustersAnalysis = () => {
                                                 op: 'in',
                                                 right: samples.map((s) => s.request_id)
                                             })]}/>
+                                            <OverlayTrigger overlay={<Tooltip>Download samples as JSON</Tooltip>}>
+                                                <IoDownloadOutline className='fs-2 cursor-pointer' onClick={() => {
+
+                                                    saveAs(new Blob([JSON.stringify(samples)], {type: 'application/json;charset=utf-8'}), 'samples.json');
+                                                }}/>
+                                            </OverlayTrigger>
                                         </div>
                                         <div className={`d-flex p-2 overflow-auto flex-grow-0 ${samples.length ? 'justify-content-left' : 'justify-content-center align-items-center'} scatterGraph-examples`}>
                                             {samples.length ? samples.map((sample, i) => (
