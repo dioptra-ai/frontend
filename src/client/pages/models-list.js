@@ -9,7 +9,6 @@ import {Link, useHistory} from 'react-router-dom';
 import GeneralSearchBar from 'pages/common/general-search-bar';
 import {setupComponent} from 'helpers/component-helper';
 import {formatDateTime} from 'helpers/date-helper';
-import Pagination from 'components/pagination';
 import FontIcon from 'components/font-icon';
 import {IconNames} from 'constants';
 import {Area, AreaChart, Line, XAxis} from 'recharts';
@@ -19,7 +18,6 @@ import EditModel from 'pages/model/edit-model';
 import metricsClient from 'clients/metrics';
 import Spinner from 'components/spinner';
 
-const NUMBER_OF_RECORDS_PER_PAGE = 10;
 const TRAFFIC_START_MOMENT = moment().subtract(1, 'day');
 const TRAFFIC_END_MOMENT = moment();
 
@@ -153,19 +151,12 @@ _ModelRow.propTypes = {
 const ModelRow = setupComponent(_ModelRow);
 
 const Models = ({modelStore}) => {
-    const [pageNumber, setPageNumber] = useState(0);
     const [showModal, setShowModal] = useState(false);
     const [errors, setErrors] = useState([]);
     const [formattedData, setFormattedData] = useState([]);
 
     const color = theme.primary;
-    const totalPages = Math.ceil(
-        modelStore.models.length / NUMBER_OF_RECORDS_PER_PAGE
-    );
-    const data = modelStore.models.slice(
-        pageNumber - Number(NUMBER_OF_RECORDS_PER_PAGE),
-        (pageNumber) * NUMBER_OF_RECORDS_PER_PAGE
-    );
+    const data = modelStore.models;
 
     const handleSubmit = (data) => {
         if (errors) {
@@ -210,7 +201,7 @@ const Models = ({modelStore}) => {
             })
                 .catch(() => setFormattedData([]));
         }
-    }, [data.length, pageNumber]);
+    }, [data.length]);
 
     return (
         <>
@@ -262,7 +253,6 @@ const Models = ({modelStore}) => {
                             </tbody>
                         </Table>
                     </div>
-                    <Pagination onPageChange={setPageNumber} totalPages={totalPages} />
                 </div>
             )}
             <ModalComponent isOpen={showModal} onClose={() => setShowModal(false)} title='Create New Model'>
