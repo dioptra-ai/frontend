@@ -4,6 +4,10 @@ import Col from 'react-bootstrap/Col';
 import {Scatter} from 'recharts';
 import {OverlayTrigger, Tooltip} from 'react-bootstrap';
 import {IoDownloadOutline} from 'react-icons/io5';
+import {BsMinecartLoaded} from 'react-icons/bs';
+import Form from 'react-bootstrap/Form';
+import InputGroup from 'react-bootstrap/InputGroup';
+import Button from 'react-bootstrap/Button';
 
 import {saveAs} from 'file-saver';
 import {SpinnerWrapper} from 'components/spinner';
@@ -28,6 +32,8 @@ const PerformanceClustersAnalysis = () => {
     const [selectedClusterIndex, setSelectedClusterIndex] = useState();
     const [selectedPoints, setSelectedPoints] = useState(null);
     const [exampleInModal, setExampleInModal] = useModal(false);
+    const [minerModalOpen, setMinerModalOpen] = useModal(false);
+    const [minerDatasetSelected, setMinerDatasetSelected] = useState(false);
 
     return (
         <Async
@@ -124,17 +130,28 @@ const PerformanceClustersAnalysis = () => {
                                     <div className='bg-white-blue rounded p-3'>
                                         <div className='text-dark bold-text d-flex align-items-center justify-content-between'>
                                             <span>Examples {samples?.length ? `(${samples.length})` : ''}</span>
-                                            <AddFilters disabled={!samples?.length} filters={[new Filter({
-                                                left: 'request_id',
-                                                op: 'in',
-                                                right: samples.map((s) => s.request_id)
-                                            })]}/>
-                                            <OverlayTrigger overlay={<Tooltip>Download samples as JSON</Tooltip>}>
-                                                <IoDownloadOutline className='fs-2 cursor-pointer' onClick={() => {
+                                            <div className='d-flex align-items-center'>
+                                                <AddFilters
+                                                    disabled={!samples?.length}
+                                                    filters={[new Filter({
+                                                        left: 'request_id',
+                                                        op: 'in',
+                                                        right: samples.map((s) => s.request_id)
+                                                    })]}
+                                                    tooltipText='Filter-in these examples'
+                                                />
+                                                <OverlayTrigger overlay={<Tooltip>Download samples as JSON</Tooltip>}>
+                                                    <IoDownloadOutline className='fs-2 cursor-pointer' onClick={() => {
 
-                                                    saveAs(new Blob([JSON.stringify(samples)], {type: 'application/json;charset=utf-8'}), 'samples.json');
-                                                }}/>
-                                            </OverlayTrigger>
+                                                        saveAs(new Blob([JSON.stringify(samples)], {type: 'application/json;charset=utf-8'}), 'samples.json');
+                                                    }}/>
+                                                </OverlayTrigger>
+                                                <OverlayTrigger overlay={<Tooltip>Mine for Similar Datapoints</Tooltip>}>
+                                                    <BsMinecartLoaded className='fs-2 ps-2 cursor-pointer' onClick={() => {
+                                                        setMinerModalOpen(true);
+                                                    }}/>
+                                                </OverlayTrigger>
+                                            </div>
                                         </div>
                                         <div className={`d-flex p-2 overflow-auto flex-grow-0 ${samples.length ? 'justify-content-left' : 'justify-content-center align-items-center'} scatterGraph-examples`}>
                                             {samples.length ? samples.map((sample, i) => (
@@ -164,6 +181,54 @@ const PerformanceClustersAnalysis = () => {
                                 />
                             </Modal>
                         )}
+                        {minerModalOpen ? (
+                            <Modal isOpen onClose={() => setMinerModalOpen(false)} title='Mine for Similar Datapoints'>
+                                <div style={{width: 500}}>
+                                    Create a new miner that will search for datapoints that are close to the selected {samples.length} examples in the embedding space.
+                                </div>
+                                <Form onSubmit={(e) => {
+                                    e.preventDefault();
+                                    setMinerModalOpen(false);
+                                }}>
+                                    <Form.Label className='mt-3 mb-0 w-100'>
+                                        Source
+                                    </Form.Label>
+                                    <InputGroup className='mt-1 flex-column'>
+                                        <Form.Control
+                                            as='select'
+                                            className={'form-select bg-light w-100'}
+                                            custom
+                                            required
+                                            onChange={(e) => {
+                                                setMinerDatasetSelected(e.target.value === 'true');
+                                            }}
+                                        >
+                                            <option disabled>
+                                                Select Source
+                                            </option>
+                                            <option value={false}>Live traffic of "{model.name}"</option>
+                                            <option value={true}>Dataset</option>
+                                        </Form.Control>
+                                    </InputGroup>
+                                    {
+                                        minerDatasetSelected ? (
+                                            <>
+
+                                                <Form.Label className='mt-3 mb-0 w-100'>
+                                                    Dataset Location
+                                                </Form.Label>
+                                                <InputGroup className='mt-1'>
+                                                    <Form.Control placeholder='s3://'/>
+                                                </InputGroup>
+                                            </>
+                                        ) : null
+                                    }
+                                    <Button
+                                        className='w-100 text-white btn-submit mt-3'
+                                        variant='primary' type='submit'>Create Miner</Button>
+                                </Form>
+                            </Modal>
+                        ) : null}
                     </>
                 );
             }}

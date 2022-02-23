@@ -15,9 +15,14 @@ import {useThrottle} from '@react-hook/throttle';
 import {saveAs} from 'file-saver';
 import {IoDownloadOutline} from 'react-icons/io5';
 import {OverlayTrigger, Tooltip} from 'react-bootstrap';
+import {BsMinecartLoaded} from 'react-icons/bs';
+import Form from 'react-bootstrap/Form';
+import InputGroup from 'react-bootstrap/InputGroup';
+import Button from 'react-bootstrap/Button';
 
 import theme from 'styles/theme.module.scss';
 import useModal from 'hooks/useModal';
+import useModel from 'hooks/use-model';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import Modal from 'components/modal';
@@ -32,6 +37,7 @@ const inRange = (num, min, max) => num >= min && num <= max;
 
 const ScatterGraph = ({data, noveltyIsObsolete}) => {
     const ref = useRef();
+    const model = useModel();
     const firstOutlier = useMemo(() => {
         return data.find(({outlier}) => outlier);
     }, [data]);
@@ -46,6 +52,8 @@ const ScatterGraph = ({data, noveltyIsObsolete}) => {
     const [refTopLeft, setRefTopLeft] = useThrottle(null, 10, true);
     const [refBottomRight, setRefBottomRight] = useThrottle(null, 10, true);
     const [multiSelect, setMultiSelect] = useState(false);
+    const [minerModalOpen, setMinerModalOpen] = useModal(false);
+    const [minerDatasetSelected, setMinerDatasetSelected] = useState(false);
 
     const samples = selectedPoints?.map(({sample}) => sample);
     const sampleRequestIds = selectedPoints?.map(({request_id}) => request_id);
@@ -289,6 +297,11 @@ const ScatterGraph = ({data, noveltyIsObsolete}) => {
                                 saveAs(new Blob([JSON.stringify(selectedPoints)], {type: 'application/json;charset=utf-8'}), 'samples.json');
                             }}/>
                         </OverlayTrigger>
+                        <OverlayTrigger overlay={<Tooltip>Mine for Similar Datapoints</Tooltip>}>
+                            <BsMinecartLoaded className='fs-2 ps-2 cursor-pointer' onClick={() => {
+                                setMinerModalOpen(true);
+                            }}/>
+                        </OverlayTrigger>
                     </div>
                     <div className={`d-flex p-2 overflow-auto flex-grow-0 ${samples.length ? 'justify-content-left' : 'justify-content-center align-items-center'} scatterGraph-examples`}>
                         {samples.length ? samples.map((sample, i) => (
@@ -335,6 +348,54 @@ const ScatterGraph = ({data, noveltyIsObsolete}) => {
                             null}
                 </Modal>
             )}
+            {minerModalOpen ? (
+                <Modal isOpen onClose={() => setMinerModalOpen(false)} title='Mine for Similar Datapoints'>
+                    <div style={{width: 500}}>
+                                    Create a new miner that will search for datapoints that are close to the selected {samples.length} examples in the embedding space.
+                    </div>
+                    <Form onSubmit={(e) => {
+                        e.preventDefault();
+                        setMinerModalOpen(false);
+                    }}>
+                        <Form.Label className='mt-3 mb-0 w-100'>
+                                        Source
+                        </Form.Label>
+                        <InputGroup className='mt-1 flex-column'>
+                            <Form.Control
+                                as='select'
+                                className={'form-select bg-light w-100'}
+                                custom
+                                required
+                                onChange={(e) => {
+                                    setMinerDatasetSelected(e.target.value === 'true');
+                                }}
+                            >
+                                <option disabled>
+                                                Select Source
+                                </option>
+                                <option value={false}>Live traffic of "{model.name}"</option>
+                                <option value={true}>Dataset</option>
+                            </Form.Control>
+                        </InputGroup>
+                        {
+                            minerDatasetSelected ? (
+                                <>
+
+                                    <Form.Label className='mt-3 mb-0 w-100'>
+                                                    Dataset Location
+                                    </Form.Label>
+                                    <InputGroup className='mt-1'>
+                                        <Form.Control placeholder='s3://'/>
+                                    </InputGroup>
+                                </>
+                            ) : null
+                        }
+                        <Button
+                            className='w-100 text-white btn-submit mt-3'
+                            variant='primary' type='submit'>Create Miner</Button>
+                    </Form>
+                </Modal>
+            ) : null}
         </>
     );
 };
