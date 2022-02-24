@@ -1,6 +1,9 @@
 import React, {useEffect, useState} from 'react';
+import {withErrorBoundary} from 'react-error-boundary';
 import PropTypes from 'prop-types';
+
 import {SpinnerWrapper} from 'components/spinner';
+import Error from 'components/error';
 
 export const AsyncContext = React.createContext();
 
@@ -58,9 +61,9 @@ const Async = ({
                 <SpinnerWrapper/>
             </div>
         );
-    } else return null;
+    }
 
-    return (
+    return content && (
         <AsyncContext.Provider value={{data, loading, error}}>
             {content}
         </AsyncContext.Provider>
@@ -81,7 +84,9 @@ Async.propTypes = {
 };
 
 Async.defaultProps = {
-    renderError: String
+    renderError: (error) => <Error error={error} variant='warning'/>
 };
 
-export default Async;
+export default withErrorBoundary(Async, {
+    FallbackComponent: ({error}) => <Error error={error} variant='warning'/> // eslint-disable-line react/prop-types
+});
