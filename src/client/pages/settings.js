@@ -1,8 +1,8 @@
 import baseJSONClient from 'clients/base-json-client';
-import React, { useEffect, useState } from 'react';
-import { Alert, Col, Container, Row } from 'react-bootstrap';
-import { useLocation } from 'react-router-dom';
-import { Integrations } from '../enums/integrations';
+import React, {useEffect, useState} from 'react';
+import {Alert, Col, Container, Row} from 'react-bootstrap';
+import {useLocation} from 'react-router-dom';
+import {Integrations} from '../enums/integrations';
 import AwsS3Integration from './integrations/aws-s3';
 import RedashIntegration from './integrations/redash';
 
@@ -68,23 +68,23 @@ const Settings = () => {
     };
 
     return (
-        <Container className="login fs-6 d-flex px-4 profile" fluid>
-            <div className="login-form d-flex flex-column m-4">
-                <p className="text-dark bold-text fs-3">Integrations</p>
-                <Row className="mt-3 align-items-center">
+        <Container className='login fs-6 d-flex px-4 profile' fluid>
+            <div className='login-form d-flex flex-column m-4'>
+                <p className='text-dark bold-text fs-3'>Integrations</p>
+                <Row className='mt-3 align-items-center'>
                     <Col xl={5}>
-                        <Row className="border-bottom px-3">
-                            <div className="d-flex">
+                        <Row className='border-bottom px-3'>
+                            <div className='d-flex'>
                                 {Object.values(Integrations).map(
                                     (integration, index) => {
                                         return (
                                             <span
-                                                activeClassName="active"
+                                                activeClassName='active'
                                                 className={`tab fs-5 ${
                                                     integration.value ===
-                                                    selectedIntegration
-                                                        ? 'active'
-                                                        : ''
+                                                    selectedIntegration ?
+                                                        'active' :
+                                                        ''
                                                 }`}
                                                 key={index}
                                                 style={{
@@ -98,7 +98,7 @@ const Settings = () => {
                                                 }}
                                             >
                                                 {integration.name}
-                                                <span className="d-block mt-3 rounded-top"></span>
+                                                <span className='d-block mt-3 rounded-top'></span>
                                             </span>
                                         );
                                     }
@@ -107,20 +107,19 @@ const Settings = () => {
                         </Row>
                     </Col>
                 </Row>
-                <p className="text-dark bold-text fs-4 m-0 mt-4">
+                <p className='text-dark bold-text fs-4 m-0 mt-4'>
                     {selectedIntegration &&
                         Object.values(Integrations).filter(
-                            (integration) =>
-                                integration.value === selectedIntegration
+                            (integration) => integration.value === selectedIntegration
                         )[0].name}
                 </p>
                 {updated && (
-                    <Alert className="mt-3" variant="success">
+                    <Alert className='mt-3' variant='success'>
                         Configuration updated successfully
                     </Alert>
                 )}
                 {error && error !== '' && (
-                    <Alert className="mt-3" variant="warning">
+                    <Alert className='mt-3' variant='warning'>
                         {error}
                     </Alert>
                 )}
