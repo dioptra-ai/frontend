@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {withErrorBoundary} from 'react-error-boundary';
+import * as Sentry from '@sentry/react';
 import PropTypes from 'prop-types';
 
 import {SpinnerWrapper} from 'components/spinner';
@@ -22,22 +22,27 @@ const Async = ({
     const [hasLoaded, setHasLoaded] = useState(false);
 
     useEffect(() => {
-        setLoading(true);
-        const fetchAllData = Array.isArray(fetchData) ?
-            Promise.all(fetchData.map((f) => f())) : fetchData();
+        (async () => {
+            setLoading(true);
 
-        fetchAllData.then((data) => {
-            setError(null);
-            setData(data);
-        })
-            .catch((error) => {
+            try {
+                const fetchAllData = Array.isArray(fetchData) ?
+                    Promise.all(fetchData.map((f) => f())) :
+                    fetchData();
+                const data = await fetchAllData;
+
+                setError(null);
+                setData(data);
+            } catch (err) {
                 setData(null);
-                setError(error);
-            })
-            .finally(() => {
+                setError(err);
+
+                Sentry.captureException(err);
+            } finally {
                 setLoading(false);
                 setHasLoaded(true);
-            });
+            }
+        })();
     }, refetchOnChanged);
 
     let content = null;
@@ -87,6 +92,6 @@ Async.defaultProps = {
     renderError: (error) => <Error error={error} variant='warning'/>
 };
 
-export default withErrorBoundary(Async, {
-    FallbackComponent: ({error}) => <Error error={error} variant='warning'/> // eslint-disable-line react/prop-types
+export default Sentry.withErrorBoundary(Async, {
+    fallback: ({error}) => <Error error={error} variant='warning'/> // eslint-disable-line react/prop-types
 });
