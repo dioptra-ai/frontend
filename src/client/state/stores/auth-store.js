@@ -15,7 +15,7 @@ class AuthStore {
         makeAutoObservable(this);
     }
 
-    async init() {
+    async initialize() {
         this.loading = true;
 
         try {
@@ -122,5 +122,3 @@ class AuthStore {
 }
 
 export const authStore = new AuthStore();
-
-authStore.init();

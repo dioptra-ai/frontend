@@ -1,4 +1,4 @@
-import {action, makeAutoObservable} from 'mobx';
+import {makeAutoObservable} from 'mobx';
 
 class ModelStore {
     modelsById = {};
@@ -15,6 +15,17 @@ class ModelStore {
 
     constructor() {
         makeAutoObservable(this);
+    }
+
+    async initialize() {
+        this.state = ModelStore.STATE_PENDING;
+
+        const res = await window.fetch('/api/ml-model');
+        const models = await res.json();
+
+        models.forEach((model) => {
+            this.modelsById[model._id] = model;
+        });
     }
 
     get models() {
@@ -50,28 +61,7 @@ class ModelStore {
             return 'benchmark_id IS NULL AND dataset_id IS NULL';
         }
     }
-
-    fetchModels() {
-        this.state = ModelStore.STATE_PENDING;
-
-        window.fetch('/api/ml-model')
-            .then((res) => res.json())
-            .then(action((models) => {
-
-                models.forEach((model) => {
-                    this.modelsById[model._id] = model;
-                });
-
-                this.state = ModelStore.STATE_DONE;
-            })).catch(action((e) => {
-                console.error(e);
-
-                this.state = ModelStore.STATE_ERROR;
-            }));
-    }
 }
 
 export const modelStore = new ModelStore();
 export {ModelStore};
-
-modelStore.fetchModels();

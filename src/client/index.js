@@ -1,12 +1,14 @@
 import * as Sentry from '@sentry/react';
 import {BrowserTracing} from '@sentry/tracing';
 import React from 'react';
+import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 import {BrowserRouter as Router} from 'react-router-dom';
-import {Provider} from 'mobx-react';
+import {Provider as StateProvider} from 'mobx-react';
 import Button from 'react-bootstrap/Button';
 
 import App from './app';
+import Spinner from 'components/spinner';
 import state from './state/stores';
 import './styles/custom.scss';
 
@@ -20,7 +22,7 @@ Sentry.init({
     tracesSampleRate: 1.0
 });
 
-ReactDOM.render(
+const Index = ({children}) => (
     <React.StrictMode>
         <Sentry.ErrorBoundary
             fallback={() => {
@@ -45,12 +47,30 @@ ReactDOM.render(
                 localStorage.clear();
             }}
         >
-            <Router>
-                <Provider {...state}>
-                    <App />
-                </Provider>
-            </Router>
+            {children}
         </Sentry.ErrorBoundary>
-    </React.StrictMode>,
+    </React.StrictMode>
+);
+
+Index.propTypes = {
+    children: PropTypes.node.isRequired
+};
+
+ReactDOM.render(
+    <Index><Spinner/></Index>,
     document.getElementById('root')
 );
+
+state.initializeStores().then(() => {
+
+    ReactDOM.render(
+        <Index>
+            <Router>
+                <StateProvider {...state}>
+                    <App />
+                </StateProvider>
+            </Router>
+        </Index>,
+        document.getElementById('root')
+    );
+});
