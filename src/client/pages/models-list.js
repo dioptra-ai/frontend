@@ -15,6 +15,11 @@ import Overlay from 'react-bootstrap/Overlay';
 import Table from 'react-bootstrap/Table';
 import Tooltip from 'react-bootstrap/Tooltip';
 import {Link, useHistory} from 'react-router-dom';
+import GeneralSearchBar from 'pages/common/general-search-bar';
+import {setupComponent} from 'helpers/component-helper';
+import {formatDateTime} from 'helpers/date-helper';
+import FontIcon from 'components/font-icon';
+import {IconNames} from 'constants';
 import {Area, AreaChart, Line, XAxis} from 'recharts';
 import theme from 'styles/theme.module.scss';
 
@@ -156,7 +161,6 @@ const Models = ({modelStore}) => {
     const [formattedData, setFormattedData] = useState([]);
 
     const color = theme.primary;
-
     const data = modelStore.models;
 
     const handleSubmit = (data) => {

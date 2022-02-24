@@ -11,6 +11,7 @@ import useAllSqlFilters from 'hooks/use-all-sql-filters';
 import DifferenceLabel from 'components/difference-labels';
 import CountEvents from 'components/count-events';
 import metricsClient from 'clients/metrics';
+import useModel from 'hooks/use-model';
 
 const PerformanceBox = ({
     title = '',
@@ -79,14 +80,14 @@ const PerformanceBox = ({
                             ({label}) => label === c.label
                         );
                         const classReferenceMetric =
-                            classReferenceData?.[performanceType];
+                            classReferenceData?.value;
                         const difference = classMetric - classReferenceMetric;
 
                         return (
                             <ClassRow
                                 key={i}
                                 name={getName(c.label)}
-                                value={c[performanceType].toFixed(1)}
+                                value={c.value.toFixed(4)}
                                 difference={difference}
                             />
                         );
@@ -132,6 +133,7 @@ const PerformancePerClass = () => {
     const allSqlFilters = useAllSqlFilters();
     const sqlFiltersWithModelTime = useAllSqlFilters({useReferenceFilters: true});
     const sampleSizeComponent = <CountEvents sqlFilters={allSqlFilters}/>;
+    const model = useModel();
 
     return (
         <>
@@ -152,8 +154,16 @@ const PerformancePerClass = () => {
                             />
                         )}
                         fetchData={[
-                            () => metricsClient('queries/precision-per-class', {sql_filters: allSqlFilters}),
-                            () => metricsClient('queries/precision-per-class', {sql_filters: sqlFiltersWithModelTime})
+                            () => metricsClient('precision-metric', {
+                                sql_filters: allSqlFilters,
+                                per_class: true,
+                                model_type: model.mlModelType
+                            }),
+                            () => metricsClient('precision-metric', {
+                                sql_filters: sqlFiltersWithModelTime,
+                                per_class: true,
+                                model_type: model.mlModelType
+                            })
                         ]}
                         refetchOnChanged={[allSqlFilters, sqlFiltersWithModelTime]}
                     />
@@ -171,8 +181,16 @@ const PerformancePerClass = () => {
                             />
                         )}
                         fetchData={[
-                            () => metricsClient('queries/recall-per-class', {sql_filters: allSqlFilters}),
-                            () => metricsClient('queries/recall-per-class', {sql_filters: sqlFiltersWithModelTime})
+                            () => metricsClient('recall-metric', {
+                                sql_filters: allSqlFilters,
+                                per_class: true,
+                                model_type: model.mlModelType
+                            }),
+                            () => metricsClient('recall-metric', {
+                                sql_filters: sqlFiltersWithModelTime,
+                                per_class: true,
+                                model_type: model.mlModelType
+                            })
                         ]}
                         refetchOnChanged={[allSqlFilters, sqlFiltersWithModelTime]}
                     />

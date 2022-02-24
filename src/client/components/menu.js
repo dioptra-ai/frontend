@@ -9,6 +9,7 @@ import {MdHelpOutline} from 'react-icons/md';
 import {RiSpeedLine} from 'react-icons/ri';
 import {HiOutlineCube, HiOutlineUserCircle} from 'react-icons/hi';
 import {IoSettingsOutline} from 'react-icons/io5';
+import {BsMinecartLoaded} from 'react-icons/bs';
 
 const MenuItem = ({icon, isActive, size, className}) => {
     return (
@@ -38,7 +39,8 @@ MenuItem.propTypes = {
 const TopMenuItemsConfig = [
     {icon: <HiOutlineCube className='fs-2 text-dark'/>, url: '/models', title: 'Models'},
     {icon: <RiSpeedLine className='fs-3'/>, url: '/benchmark', title: 'Experimentations'},
-    {icon: <AiOutlineDatabase className='fs-3'/>, url: '/dataset', title: 'Datasets'}
+    {icon: <AiOutlineDatabase className='fs-3'/>, url: '/dataset', title: 'Datasets'},
+    {icon: <BsMinecartLoaded className='fs-3'/>, url: '/miners', title: 'Miners'}
 ];
 
 const BottomMenuItemsConfig = [

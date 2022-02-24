@@ -8,13 +8,11 @@ import MetricInfoBox from 'components/metric-info-box';
 import Async from 'components/async';
 import metricsClient from 'clients/metrics';
 import CountEvents from 'components/count-events';
-import useTimeGranularity from 'hooks/use-time-granularity';
 
-const SpeechToText = () => {
+const SpeechToText = ({benchmarkFilters}) => {
     const allSqlFilters = useAllSqlFilters();
     const {mlModelType} = useModel();
     const sampleSizeComponent = <CountEvents sqlFilters={allSqlFilters}/>;
-    const timeGranularity = useTimeGranularity()?.toISOString();
 
     return (
         <div className='pb-3'>
@@ -28,34 +26,62 @@ const SpeechToText = () => {
                 </Col>
                 <Col className='d-flex' lg={3}>
                     <Async
-                        fetchData={() => metricsClient('exact-match', {
-                            sql_filters: allSqlFilters,
-                            time_granularity: timeGranularity,
-                            model_type: mlModelType
-                        })}
-                        refetchOnChanged={[allSqlFilters]}
-                        renderData={([d]) => (
-                            <MetricInfoBox
-                                name='EM'
-                                value={d?.value}
-                            />
-                        )}
+                        fetchData={[
+                            () => metricsClient('exact-match', {
+                                sql_filters: allSqlFilters,
+                                model_type: mlModelType
+                            }),
+                            () => benchmarkFilters ? metricsClient('exact-match', {
+                                sql_filters: benchmarkFilters,
+                                model_type: mlModelType
+                            }) : null
+                        ]}
+                        refetchOnChanged={[allSqlFilters, benchmarkFilters]}
+                        renderData={([d, b]) => {
+                            const value = d?.[0]?.value;
+                            const benchmarkValue = b?.[0]?.value;
+
+                            return (
+                                <MetricInfoBox name='EM'>
+                                    {Number(value).toFixed(2)}
+                                    {benchmarkValue ? (
+                                        <span className='fs-1 text-secondary'>
+                                            {` | ${Number(benchmarkValue).toFixed(2)}`}
+                                        </span>) : null
+                                    }
+                                </MetricInfoBox>
+                            );
+                        }}
                     />
                 </Col>
                 <Col className='d-flex' lg={3}>
                     <Async
-                        fetchData={() => metricsClient('word-error-rate', {
-                            sql_filters: allSqlFilters,
-                            time_granularity: timeGranularity,
-                            model_type: mlModelType
-                        })}
-                        refetchOnChanged={[allSqlFilters]}
-                        renderData={([d]) => (
-                            <MetricInfoBox
-                                name='WER'
-                                value={d?.value}
-                            />
-                        )}
+                        fetchData={[
+                            () => metricsClient('word-error-rate', {
+                                sql_filters: allSqlFilters,
+                                model_type: mlModelType
+                            }),
+                            () => benchmarkFilters ? metricsClient('word-error-rate', {
+                                sql_filters: benchmarkFilters,
+                                model_type: mlModelType
+                            }) : null
+                        ]}
+                        refetchOnChanged={[allSqlFilters, benchmarkFilters]}
+                        renderData={([d, b]) => {
+                            const value = d?.[0]?.value;
+                            const benchmarkValue = b?.[0]?.value;
+
+                            return (
+                                <MetricInfoBox name='WER'>
+                                    {Number(value).toFixed(2)}
+                                    {benchmarkValue ? (
+                                        <span className='fs-1 text-secondary'>
+                                            {` | ${Number(benchmarkValue).toFixed(2)}`}
+                                        </span>) : null
+                                    }
+                                </MetricInfoBox>
+                            );
+                        }}
                     />
                 </Col>
             </Row>
