@@ -48,6 +48,8 @@
     "@aws-sdk/client-api-gateway": "^3.35.0",
     "@babel/eslint-parser": "^7.14.7",
     "@react-hook/throttle": "^2.2.0",
+    "@sentry/react": "^6.18.0",
+    "@sentry/tracing": "^6.18.0",
     "axios": "^0.24.0",
     "bcrypt": "^5.0.1",
     "bootstrap": "^5.0.2",
@@ -100,7 +102,7 @@
     "build:frontend": "webpack --mode=production",
     "lint": "eslint ./src --cache --fix --ext .js --ext .mjs",
     "prepare": "husky install",
-    "dev": "npm-run-all -p dev-server dev-client dev-lint"
+    "dev": "NODE_ENV=development npm-run-all -p dev-server dev-client dev-lint"
   },
   "eslintConfig": {
     "extends": [
