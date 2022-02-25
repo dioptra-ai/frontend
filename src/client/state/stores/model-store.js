@@ -5,21 +5,11 @@ class ModelStore {
 
     error = null;
 
-    static STATE_DONE = 'STATE_DONE';
-
-    static STATE_PENDING = 'STATE_PENDING';
-
-    static STATE_ERROR = 'STATE_ERROR';
-
-    state = ModelStore.STATE_DONE;
-
     constructor() {
         makeAutoObservable(this);
     }
 
     async initialize() {
-        this.state = ModelStore.STATE_PENDING;
-
         const res = await window.fetch('/api/ml-model');
         const models = await res.json();
 

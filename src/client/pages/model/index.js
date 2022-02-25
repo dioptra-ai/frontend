@@ -21,7 +21,6 @@ import TrafficReplay from 'pages/common/traffic-replay';
 import useSyncStoresToUrl from 'hooks/use-sync-stores-to-url';
 import Menu from 'components/menu';
 import comparisonContext from 'context/comparison-context';
-import {ModelStore} from 'state/stores/model-store';
 
 const SplitView = ({children}) => (
     <Row>
@@ -38,11 +37,6 @@ SplitView.propTypes = {
 };
 
 const Model = ({timeStore, filtersStore, modelStore}) => {
-    const models = filtersStore.models.map(({_id}) => {
-
-        return modelStore.getModelById(_id);
-    });
-    const firstModel = models[0];
 
     useSyncStoresToUrl(({filtersStore, segmentationStore}) => ({
         startTime: timeStore.start?.toISOString() || '',
@@ -53,6 +47,11 @@ const Model = ({timeStore, filtersStore, modelStore}) => {
         segmentation: JSON.stringify(segmentationStore.segmentation)
     }));
 
+    const models = filtersStore.models.map(({_id}) => {
+
+        return modelStore.getModelById(_id);
+    });
+    const firstModel = models[0];
     const tabs = [
         {name: 'Performance Overview', to: '/models/performance-overview'}
     ];
@@ -99,7 +98,7 @@ const Model = ({timeStore, filtersStore, modelStore}) => {
     tabs.push({name: 'Traffic Replay', to: '/models/traffic-replay'});
     tabs.push({name: 'Incidents & Alerts', to: '/models/incidents-and-alerts'});
 
-    if (modelStore.state !== ModelStore.STATE_PENDING && !firstModel) {
+    if (!firstModel) {
 
         return <Redirect to='/models'/>;
     } else return (

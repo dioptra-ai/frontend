@@ -161,28 +161,24 @@ class FiltersStore {
         const filters = new URL(window.location).searchParams.get('filters');
         const models = new URL(window.location).searchParams.get('models');
         const benchmarks = new URL(window.location).searchParams.get('benchmarks');
+        const {f, m, b} = localStorageValue ? JSON.parse(localStorageValue) : {};
 
-        if (filters && models && benchmarks) {
+        if (filters) {
             const parsedFilters = JSON.parse(filters);
-            const parsedModels = JSON.parse(models);
-            const parsedBenchmarks = JSON.parse(benchmarks);
 
             this.f = parsedFilters ? parsedFilters.map((f) => new Filter(f)) : [];
-            this.m = parsedModels;
-            this.b = parsedBenchmarks;
-        } else if (localStorageValue) {
-            const parsedLocalStorageValue = JSON.parse(localStorageValue);
-
-            this.f = parsedLocalStorageValue.f.map((_f) => new Filter(_f));
-            this.m = parsedLocalStorageValue.m;
-            this.b = parsedLocalStorageValue.b;
+        } else {
+            this.f = f?.map((_f) => new Filter(_f));
         }
+
+        this.m = models ? JSON.parse(models) : m;
+        this.b = benchmarks ? JSON.parse(benchmarks) : b;
 
         makeAutoObservable(this);
     }
 
     get filters() {
-        return this.f;
+        return this.f || [];
     }
 
     set filters(newFilters) {
@@ -200,7 +196,7 @@ class FiltersStore {
     }
 
     get models() {
-        return this.m;
+        return this.m || [];
     }
 
     set models(m) {
@@ -238,7 +234,7 @@ class FiltersStore {
     }
 
     get benchmarks() {
-        return this.b;
+        return this.b || [];
     }
 
     set benchmarks(b) {

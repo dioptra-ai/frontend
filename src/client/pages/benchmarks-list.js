@@ -12,7 +12,6 @@ import metricsClient from 'clients/metrics';
 import {setupComponent} from 'helpers/component-helper';
 import ModalComponent from 'components/modal';
 import Select from 'components/select';
-import Spinner from 'components/spinner';
 
 const BenchmarksList = ({filtersStore, modelStore, benchmarkStore}) => {
     const history = useHistory();
@@ -23,49 +22,47 @@ const BenchmarksList = ({filtersStore, modelStore, benchmarkStore}) => {
     return (
         <>
             <GeneralSearchBar shouldShowOnlySearchInput/>
-            {benchmarkStore.state === benchmarkStore.STATE_PENDING ? (
-                <Spinner/>
-            ) : (
-                <div className='p-4 mt-5'>
-                    <div className='d-flex justify-content-between'>
-                        <span className='h2 fs-1 text-dark bold-text'>Benchmarks</span>
-                        <Button
-                            className='py-3 fs-6 bold-text px-5 text-white'
-                            onClick={() => setIsRunBenchmarkOpen(true)}
-                            variant='primary'
-                        >
+            <div className='p-4 mt-5'>
+                <div className='d-flex justify-content-between'>
+                    <span className='h2 fs-1 text-dark bold-text'>Benchmarks</span>
+                    <Button
+                        className='py-3 fs-6 bold-text px-5 text-white'
+                        onClick={() => setIsRunBenchmarkOpen(true)}
+                        variant='primary'
+                    >
                             RUN NEW BENCHMARK
-                        </Button>
-                    </div>
-                    <Table className='models-table mt-3'>
-                        <thead className='align-middle'>
-                            <tr className='border-0 border-bottom border-mercury'>
-                                <th className='text-secondary'>Benchmark ID</th>
-                                <th className='text-secondary'>Dataset ID</th>
-                                <th className='text-secondary'>Model</th>
-                                <th className='text-secondary'>Model Version</th>
-                                <th className='text-secondary'>Started At</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {benchmarkStore.benchmarks.map((benchmark, i) => (
-                                <tr className='cursor-pointer' onClick={() => {
-
-                                    filtersStore.benchmarks = [benchmark];
-                                    history.push('/benchmark/performance');
-                                }} key={i}>
-                                    <td>{benchmark['benchmark_id']}</td>
-                                    <td>{benchmark['dataset_id']}</td>
-                                    <td>{modelStore.getModelByMlModelId(benchmark['model_id'])?.name || '<unknown>'}</td>
-                                    <td>{benchmark['model_version']}</td>
-                                    <td>{new Date(benchmark['started_at']).toLocaleString()}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </Table>
+                    </Button>
                 </div>
+                <Table className='models-table mt-3'>
+                    <thead className='align-middle'>
+                        <tr className='border-0 border-bottom border-mercury'>
+                            <th className='text-secondary'>Benchmark ID</th>
+                            <th className='text-secondary'>Dataset ID</th>
+                            <th className='text-secondary'>Model</th>
+                            <th className='text-secondary'>Model Version</th>
+                            <th className='text-secondary'>Started At</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {benchmarkStore.benchmarks.map((benchmark, i) => (
+                            <tr className='cursor-pointer' onClick={() => {
 
-            )}
+                                filtersStore.benchmarks = [benchmark];
+                                setTimeout(() => {
+
+                                    history.push('/benchmark/performance');
+                                });
+                            }} key={i}>
+                                <td>{benchmark['benchmark_id']}</td>
+                                <td>{benchmark['dataset_id']}</td>
+                                <td>{modelStore.getModelByMlModelId(benchmark['model_id'])?.name || '<unknown>'}</td>
+                                <td>{benchmark['model_version']}</td>
+                                <td>{new Date(benchmark['started_at']).toLocaleString()}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </Table>
+            </div>
             <ModalComponent isOpen={isRunBenchmarkOpen} onClose={() => setIsRunBenchmarkOpen(false)} title='Run New Benchmark'>
                 <Form style={{width: 500}}>
                     <Form.Group className='mb-3'>

@@ -16,7 +16,6 @@ import theme from 'styles/theme.module.scss';
 import ModalComponent from 'components/modal';
 import EditModel from 'pages/model/edit-model';
 import metricsClient from 'clients/metrics';
-import Spinner from 'components/spinner';
 
 const TRAFFIC_START_MOMENT = moment().subtract(1, 'day');
 const TRAFFIC_END_MOMENT = moment();
@@ -206,55 +205,51 @@ const Models = ({modelStore}) => {
     return (
         <>
             <GeneralSearchBar shouldShowOnlySearchInput={true} />
-            {modelStore.state === modelStore.STATE_PENDING ? (
-                <Spinner/>
-            ) : (
-                <div className='p-4 mt-5'>
-                    <div className='d-flex justify-content-between'>
-                        <span className='h2 fs-1 text-dark bold-text'>Models</span>
-                        <span>
-                            <Button
-                                className='py-3 fs-6 bold-text px-5 text-white'
-                                onClick={() => setShowModal(true)}
-                                variant='primary'
-                            >
-                REGISTER MODEL
-                            </Button>
-                        </span>
-                    </div>
-                    <div>
-                        <Table className='models-table'>
-                            <thead className='align-middle text-secondary'>
-                                <tr className='border-0 border-bottom border-mercury'>
-                                    {[
-                                        'Model Name',
-                                        'Incidents',
-                                        'Project',
-                                        'Owner',
-                                        'Tier',
-                                        'Last Deployed',
-                                        'Traffic'
-                                    ].map((c, idx) => (
-                                        <th
-                                            className={`text-secondary border-0 fs-6 py-4 ${
-                                                idx === 0 ? 'w-25' : ''
-                                            } ${idx === 1 || idx === 6 ? 'text-center' : ''}`}
-                                            key={c}
-                                        >
-                                            {c}
-                                        </th>
-                                    ))}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {formattedData.map((model) => (
-                                    <ModelRow color={color} key={model._id} model={model} />
-                                ))}
-                            </tbody>
-                        </Table>
-                    </div>
+            <div className='p-4 mt-5'>
+                <div className='d-flex justify-content-between'>
+                    <span className='h2 fs-1 text-dark bold-text'>Models</span>
+                    <span>
+                        <Button
+                            className='py-3 fs-6 bold-text px-5 text-white'
+                            onClick={() => setShowModal(true)}
+                            variant='primary'
+                        >
+            REGISTER MODEL
+                        </Button>
+                    </span>
                 </div>
-            )}
+                <div>
+                    <Table className='models-table'>
+                        <thead className='align-middle text-secondary'>
+                            <tr className='border-0 border-bottom border-mercury'>
+                                {[
+                                    'Model Name',
+                                    'Incidents',
+                                    'Project',
+                                    'Owner',
+                                    'Tier',
+                                    'Last Deployed',
+                                    'Traffic'
+                                ].map((c, idx) => (
+                                    <th
+                                        className={`text-secondary border-0 fs-6 py-4 ${
+                                            idx === 0 ? 'w-25' : ''
+                                        } ${idx === 1 || idx === 6 ? 'text-center' : ''}`}
+                                        key={c}
+                                    >
+                                        {c}
+                                    </th>
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {formattedData.map((model) => (
+                                <ModelRow color={color} key={model._id} model={model} />
+                            ))}
+                        </tbody>
+                    </Table>
+                </div>
+            </div>
             <ModalComponent isOpen={showModal} onClose={() => setShowModal(false)} title='Create New Model'>
                 <EditModel
                     errors={errors}

@@ -19,9 +19,15 @@ import Features from './features';
 import FilterInput from 'pages/common/filter-input';
 import Drift from './drift';
 import useBenchmark from 'hooks/use-benchmark';
-import {BenchmarkStore} from 'state/stores/benchmark-store';
 
-const Benchmarks = ({filtersStore, modelStore, benchmarkStore}) => {
+const Benchmarks = ({filtersStore, modelStore}) => {
+
+    useSyncStoresToUrl(({filtersStore, segmentationStore}) => ({
+        filters: JSON.stringify(filtersStore.filters),
+        benchmarks: JSON.stringify(filtersStore.benchmarks.map(({benchmark_id}) => ({benchmark_id}))),
+        segmentation: JSON.stringify(segmentationStore.segmentation)
+    }));
+
     const [benchmarkFilters, setBenchmarkFilters] = useState();
     const benchmark = useBenchmark();
     const mlModelId = benchmark?.['model_id'];
@@ -29,13 +35,7 @@ const Benchmarks = ({filtersStore, modelStore, benchmarkStore}) => {
     const datasetId = benchmark?.['dataset_id'];
     const model = modelStore.getModelByMlModelId(benchmark?.['model_id']);
 
-    useSyncStoresToUrl(({filtersStore, segmentationStore}) => ({
-        filters: JSON.stringify(filtersStore.filters),
-        benchmarks: JSON.stringify(filtersStore.benchmarks.map(({benchmark_id}) => benchmark_id)),
-        segmentation: JSON.stringify(segmentationStore.segmentation)
-    }));
-
-    if (benchmarkStore.state !== BenchmarkStore.STATE_PENDING && !benchmark) {
+    if (!benchmark) {
 
         return <Redirect to={{
             pathname: '/benchmark',
