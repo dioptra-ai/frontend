@@ -1,4 +1,5 @@
 import {makeAutoObservable} from 'mobx';
+import baseJSONClient from 'clients/base-json-client';
 
 class ModelStore {
     modelsById = {};
@@ -10,12 +11,16 @@ class ModelStore {
     }
 
     async initialize() {
-        const res = await window.fetch('/api/ml-model');
-        const models = await res.json();
+        try {
+            const models = await baseJSONClient('/api/ml-model');
 
-        models.forEach((model) => {
-            this.modelsById[model._id] = model;
-        });
+            models.forEach((model) => {
+                this.modelsById[model._id] = model;
+            });
+        } catch (e) {
+            console.warn(e);
+        }
+
     }
 
     get models() {

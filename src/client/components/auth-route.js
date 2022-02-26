@@ -24,7 +24,7 @@ AuthRoute.propTypes = {
 AuthRoute.defaultProps = {
     renderLoggedIn: (location) => ( // eslint-disable-line react/display-name
         <Redirect to={{
-            pathname: '/models',
+            pathname: '/',
             state: {from: location}
         }}/>
     ),

@@ -21,6 +21,8 @@ class AuthStore {
         try {
             this.userData = await authenticationClient('login');
             this.isAuthenticated = true;
+        } catch (e) {
+            console.warn(e);
         } finally {
             this.loading = false;
         }

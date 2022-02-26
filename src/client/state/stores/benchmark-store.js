@@ -9,11 +9,15 @@ class BenchmarkStore {
     }
 
     async initialize() {
-        const benchmarks = await metricsClient('benchmarks', null, 'get');
+        try {
+            const benchmarks = await metricsClient('benchmarks', null, 'get');
 
-        benchmarks.forEach((benchmark) => {
-            this.benchmarksById[benchmark.benchmark_id] = benchmark;
-        });
+            benchmarks.forEach((benchmark) => {
+                this.benchmarksById[benchmark.benchmark_id] = benchmark;
+            });
+        } catch (e) {
+            console.warn(e);
+        }
     }
 
     get benchmarks() {
