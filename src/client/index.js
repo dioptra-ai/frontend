@@ -1,5 +1,4 @@
 import * as Sentry from '@sentry/react';
-import {BrowserTracing} from '@sentry/tracing';
 import React from 'react';
 import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
@@ -9,18 +8,9 @@ import Button from 'react-bootstrap/Button';
 
 import App from './app';
 import Spinner from 'components/spinner';
-import state from './state/stores';
-import './styles/custom.scss';
-
-Sentry.init({
-    dsn: 'https://0c17778bda074b85a984ae1c64ae1cdb@o1152673.ingest.sentry.io/6230917',
-    integrations: [new BrowserTracing()],
-
-    // Set tracesSampleRate to 1.0 to capture 100%
-    // of transactions for performance monitoring.
-    // We recommend adjusting this value in production
-    tracesSampleRate: 1.0
-});
+import state from 'state/stores';
+import 'styles/custom.scss';
+import 'helpers/tracking';
 
 const Index = ({children}) => (
     <React.StrictMode>
