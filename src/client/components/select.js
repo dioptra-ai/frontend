@@ -63,9 +63,9 @@ Select.propTypes = {
     isTextBold: PropTypes.bool,
     onChange: PropTypes.func,
     options: PropTypes.arrayOf(PropTypes.shape({
-        name: PropTypes.node.isRequired,
-        value: PropTypes.any.isRequired
-    })),
+        name: PropTypes.node,
+        value: PropTypes.any
+    })).isRequired,
     textColor: PropTypes.string,
     padding: PropTypes.number,
     selectValue: PropTypes.string

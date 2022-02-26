@@ -1,5 +1,5 @@
 import React from 'react';
-import {Route, Switch} from 'react-router-dom';
+import {Redirect, Route, Switch} from 'react-router-dom';
 import {AuthorizedRouteConfigs} from './configs/route-config';
 import Model from 'pages/model';
 import Menu from 'components/menu';
@@ -49,7 +49,7 @@ const App = () => {
                 <AuthRoute path='/miners' renderLoggedIn={() => (
                     <MinersList/>
                 )}/>
-                <AuthRoute path='/'/>
+                <AuthRoute path='/' renderLoggedIn={() => <Redirect to='/models'/>}/>
             </Switch>
         </>
     );
