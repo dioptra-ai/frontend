@@ -168,7 +168,7 @@ class FiltersStore {
 
             this.f = parsedFilters ? parsedFilters.map((f) => new Filter(f)) : [];
         } else {
-            this.f = f?.map((_f) => new Filter(_f));
+            this.f = f?.map((_f) => new Filter(_f)) || [];
         }
 
         this.m = models ? JSON.parse(models) : m;
