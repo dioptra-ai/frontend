@@ -1,4 +1,4 @@
-import fetch from 'node-fetch';
+import fetch from '@adobe/node-fetch-retry';
 
 class DruidClient {
 
@@ -8,6 +8,7 @@ class DruidClient {
         console.log(query);
 
         const result = await fetch(`${process.env.TIME_SERIES_DB}/druid/v2/sql/`, {
+            retryMaxDuration: 5000,
             method: 'post',
             body: JSON.stringify({query}),
             headers: {'Content-Type': 'application/json'}

@@ -1,7 +1,8 @@
 import mem from 'mem';
+import fetchWithRetry from './fetch-retry-client';
 
 const jsonFetch = async (...args) => {
-    const res = await window.fetch(...args);
+    const res = await fetchWithRetry(...args);
 
     let responseBody = await res.text();
 
@@ -30,6 +31,9 @@ const baseJSONClient = (url, {method = 'get', body, headers = {'content-type': '
     const fetch = memoized ? memoizedFetch : jsonFetch;
 
     return fetch(url, {
+        retries: 15,
+        retryDelay: 3000,
+        retryOn: [500, 503, 504],
         method, headers,
         body: body ? JSON.stringify(body) : undefined
     });

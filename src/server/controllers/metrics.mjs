@@ -1,9 +1,17 @@
-import zlib from 'zlib';
-import url from 'url';
+import fetch from '@adobe/node-fetch-retry';
 import axios from 'axios';
 import express from 'express';
-import fetch from 'node-fetch';
+import * as rax from 'retry-axios';
+import url from 'url';
+import zlib from 'zlib';
 import {isAuthenticated} from '../middleware/authentication.mjs';
+
+const axiosRetryClient = axios.create();
+
+axiosRetryClient.defaults.raxConfig = {
+    instance: axiosRetryClient
+};
+rax.attach(axiosRetryClient);
 
 const {OVERRIDE_DRUID_ORG_ID} = process.env;
 
@@ -17,7 +25,7 @@ MetricsRouter.get('/integrations/:sourceName', async (req, res, next) => {
         const {activeOrganizationMembership} = req.user;
         const organization_id = activeOrganizationMembership.organization._id;
 
-        await axios
+        await axiosRetryClient
             .get(
                 `${process.env.METRICS_ENGINE_URL}/integrations/${sourceName}/queries?org_id=${organization_id}`
             )
@@ -37,7 +45,7 @@ MetricsRouter.post('/integrations/:sourceName/:queryId', async (req, res, next) 
         const organization_id = activeOrganizationMembership.organization._id;
         const parameters = req.body;
 
-        await axios
+        await axiosRetryClient
             .post(
                 `${process.env.METRICS_ENGINE_URL}/integrations/${sourceName}/results/${queryId}?org_id=${organization_id}`,
                 parameters
@@ -60,7 +68,7 @@ MetricsRouter.post(
             const organization_id = activeOrganizationMembership.organization._id;
             const payload = req.body;
 
-            await axios
+            await axiosRetryClient
                 .post(
                     `${process.env.METRICS_ENGINE_URL}/integrations/${sourceName}/correlation/${queryId}?org_id=${organization_id}`,
                     payload
@@ -80,11 +88,19 @@ MetricsRouter.get('*', async (req, res, next) => {
         const originalUrl = url.parse(req.url);
         const originalQS = new url.URLSearchParams(originalUrl.query);
 
-        originalQS.set('organization_id', OVERRIDE_DRUID_ORG_ID || req.user.activeOrganizationMembership.organization._id);
+        originalQS.set(
+            'organization_id',
+            OVERRIDE_DRUID_ORG_ID ||
+                req.user.activeOrganizationMembership.organization._id
+        );
 
         const newurl = {...originalUrl, search: originalQS.toString()};
-        const metricsEnginePath = `${process.env.METRICS_ENGINE_URL}${url.format(newurl)}`;
-        const metricsResponse = await fetch(metricsEnginePath);
+        const metricsEnginePath = `${process.env.METRICS_ENGINE_URL}${url.format(
+            newurl
+        )}`;
+        const metricsResponse = await fetch(metricsEnginePath, {
+            retryMaxDuration: 5000
+        });
 
         if (metricsResponse.status !== 200) {
             const json = await metricsResponse.json();
@@ -96,7 +112,6 @@ MetricsRouter.get('*', async (req, res, next) => {
             res.set('Content-Encoding', 'gzip');
             metricsResponse.body.pipe(zlib.createGzip()).pipe(res);
         }
-
     } catch (e) {
         next(e);
     }
@@ -106,13 +121,15 @@ MetricsRouter.post('*', async (req, res, next) => {
     try {
         const metricsEnginePath = `${process.env.METRICS_ENGINE_URL}${req.url}`;
         const metricsResponse = await fetch(metricsEnginePath, {
+            retryMaxDuration: 5000,
             headers: {
                 'content-type': 'application/json;charset=UTF-8'
             },
             body: JSON.stringify({
                 ...req.body,
                 organization_id:
-                    OVERRIDE_DRUID_ORG_ID || req.user.activeOrganizationMembership.organization._id
+                    OVERRIDE_DRUID_ORG_ID ||
+                    req.user.activeOrganizationMembership.organization._id
             }),
             method: 'post'
         });

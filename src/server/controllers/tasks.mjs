@@ -1,7 +1,15 @@
+import fetch from '@adobe/node-fetch-retry';
 import axios from 'axios';
 import express from 'express';
-import fetch from 'node-fetch';
+import * as rax from 'retry-axios';
 import {isAuthenticated} from '../middleware/authentication.mjs';
+
+const axiosRetryClient = axios.create();
+
+axiosRetryClient.defaults.raxConfig = {
+    instance: axiosRetryClient
+};
+rax.attach(axiosRetryClient);
 
 const {OVERRIDE_DRUID_ORG_ID, TASK_ENGINE_URL} = process.env;
 
@@ -14,7 +22,7 @@ TasksRouter.get('*', async (req, res, next) => {
         const {activeOrganizationMembership} = req.user;
         const organizationId = String(activeOrganizationMembership.organization._id);
 
-        await axios
+        await axiosRetryClient
             .get(
                 `${TASK_ENGINE_URL}${req.url}${
                     req.url.includes('?') ? '&' : '?'
@@ -37,6 +45,7 @@ TasksRouter.put('*', async (req, res, next) => {
             req.url.includes('?') ? '&' : '?'
         }organization_id=${organizationId}`;
         const taskEngineResponse = await fetch(taskEnginePath, {
+            retryMaxDuration: 5000,
             headers: {
                 'content-type': 'application/json;charset=UTF-8'
             },
@@ -67,6 +76,7 @@ TasksRouter.post('*', async (req, res, next) => {
         const organizationId = String(activeOrganizationMembership.organization._id);
         const taskEnginePath = `${TASK_ENGINE_URL}${req.url}?organization_id=${organizationId}`;
         const taskEngineResponse = await fetch(taskEnginePath, {
+            retryMaxDuration: 5000,
             headers: {
                 'content-type': 'application/json;charset=UTF-8'
             },
@@ -96,7 +106,7 @@ TasksRouter.delete('*', async (req, res, next) => {
         const {activeOrganizationMembership} = req.user;
         const organizationId = String(activeOrganizationMembership.organization._id);
 
-        await axios
+        await axiosRetryClient
             .delete(
                 `${TASK_ENGINE_URL}${req.url}${
                     req.url.includes('?') ? '&' : '?'

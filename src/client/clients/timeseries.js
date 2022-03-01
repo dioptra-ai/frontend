@@ -1,7 +1,8 @@
 import mem from 'mem';
+import fetchWithRetry from './fetch-retry-client';
 
 const memoizedFetch = mem(async (...args) => {
-    const res = await window.fetch(...args);
+    const res = await fetchWithRetry(...args);
 
     if (res.ok) {
 
@@ -25,6 +26,9 @@ const memoizedFetch = mem(async (...args) => {
 const timeseriesClient = ({query, resultFormat = 'object', sqlOuterLimit}) => {
 
     return memoizedFetch('/api/timeseries', {
+        retries: 15,
+        retryDelay: 3000,
+        retryOn: [500, 503, 504],
         headers: {
             'content-type': 'application/json',
             'x-debug-druid-query': query.replaceAll(/\n/gm, '')
