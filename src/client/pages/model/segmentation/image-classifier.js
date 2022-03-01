@@ -5,8 +5,8 @@ const TextClassifier = () => {
 
     return (
         <div className='pb-5'>
-            <Segmentation />
             <PerformanceClustersAnalysis/>
+            <Segmentation />
         </div>
     );
 };
