@@ -4,7 +4,6 @@ import ConfusionMatrix from 'components/confusion-matrix';
 import Segmentation from 'pages/common/segmentation';
 import useAllSqlFilters from 'hooks/use-all-sql-filters';
 import MetricInfoBox from 'components/metric-info-box';
-import PerformanceClustersAnalysis from 'pages/common/performance-clusters-analysis';
 import CountEvents from 'components/count-events';
 import PerformancePerClass from 'pages/common/performance-per-class';
 
@@ -25,7 +24,6 @@ const PerformanceDetails = () => {
                 <PerformancePerClass/>
             </div>
             <ConfusionMatrix />
-            <PerformanceClustersAnalysis/>
             <Segmentation />
         </div>
     );

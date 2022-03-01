@@ -61,6 +61,7 @@ const Model = ({timeStore, filtersStore, modelStore}) => {
     case 'IMAGE_CLASSIFIER':
         tabs.push({name: 'Performance Analysis', to: '/models/performance-details'});
         tabs.push({name: 'Prediction Analysis', to: '/models/prediction-analysis'});
+        tabs.push({name: 'Segmentation', to: '/models/segmentation'});
         break;
     case 'TABULAR_CLASSIFIER':
         tabs.push({name: 'Prediction Analysis', to: '/models/prediction-analysis'});
