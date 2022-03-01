@@ -14,7 +14,7 @@ import {FaQuestionCircle} from 'react-icons/fa';
 import {Tooltip as BootstrapTooltip, OverlayTrigger} from 'react-bootstrap';
 
 const embeddingDistanceTooltip = <OverlayTrigger
-    placement="bottom"
+    placement='bottom'
     overlay={
         <BootstrapTooltip>
           Based on cosine similarity
@@ -22,7 +22,7 @@ const embeddingDistanceTooltip = <OverlayTrigger
     }
 >
     <FaQuestionCircle
-        className="cursor-pointer blinking"
+        className='cursor-pointer blinking'
         style={{
             height: 30
         }}
@@ -56,15 +56,15 @@ const FeatureAnalysisImages = ({timeStore}) => {
                                     }))}
                                     title={
                                         <div style={{
-                                            display: "flex",
-                                            alignItems: "center",
+                                            display: 'flex',
+                                            alignItems: 'center',
                                             height: 29,
-                                            gap: 8,
+                                            gap: 8
                                         }}>
                                             <span>Embedding Distance</span>
                                             {embeddingDistanceTooltip}
                                         </div>
-                                        
+
                                     }
                                     xAxisDomain={timeStore.rangeMillisec}
                                     xAxisName='Time'
