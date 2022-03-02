@@ -4,12 +4,15 @@ import SpeechToText from './speech-to-text';
 import AutoCompletion from './auto-completion';
 import QnA from './q-n-a';
 import TextClassifier from './text-classifier';
+import ImageClassifier from './image-classifier';
 
 const Features = (props) => {
     const model = useModel();
 
     switch (model.mlModelType) {
-    // case 'IMAGE_CLASSIFIER':
+    case 'IMAGE_CLASSIFIER':
+
+        return <ImageClassifier {...props}/>;
     // case 'TABULAR_CLASSIFIER':
     // case 'DOCUMENT_PROCESSING':
     case 'TEXT_CLASSIFIER':

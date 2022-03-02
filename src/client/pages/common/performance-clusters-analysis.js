@@ -175,7 +175,7 @@ const PerformanceClustersAnalysis = () => {
                                 <Table
                                     columns={Object.keys(exampleInModal).map((k) => ({
                                         Header: k,
-                                        accessor: (c) => c[k]
+                                        accessor: (c) => <pre style={{textAlign: 'left', whiteSpace: 'break-spaces'}}>{c[k]}</pre>
                                     }))}
                                     data={[exampleInModal]}
                                 />
