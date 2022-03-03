@@ -46,7 +46,7 @@ RenderedFilter.propTypes = {
 };
 
 const FilterInput = ({
-    inputPlaceholder = 'filter1=foo filter2=bar',
+    inputPlaceholder = 'filter1 = foo   filter2 in a,b,c',
     onChange,
     filtersStore
 }) => {
@@ -82,7 +82,7 @@ const FilterInput = ({
             } else if (newFilter.isLeftComplete) {
 
                 setShowSuggestions(true);
-                setSuggestions(['=', '<', '>']);
+                setSuggestions(['=', '<', '>', 'in', 'not in']);
             } else if (key) {
 
                 setShowSuggestions(true);
