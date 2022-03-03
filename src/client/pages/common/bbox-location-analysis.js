@@ -114,7 +114,7 @@ const BBoxLocationAnalysis = () => {
                                     className='d-flex flex-column p-3'
                                     style={{gap: 10}}
                                 >
-                                    <span>AWS S3 integration is not set</span>
+                                    <span>Cloud storage integration is not set</span>
                                     <Button
                                         className='bold-text fs-6'
                                         variant='outline-secondary'
