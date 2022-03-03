@@ -194,7 +194,7 @@ const PerformanceClustersAnalysis = () => {
                                 <Col className='px-3'>
                                     <div className='bg-white-blue rounded p-3'>
                                         <div className='text-dark bold-text d-flex align-items-center justify-content-between'>
-                                            <span>Examples {samples?.length ? `(${samples.length})` : ''}</span>
+                                            <span>Examples {samples?.length ? `(${samples.length} total)` : ''}</span>
                                             <div className='d-flex align-items-center'>
                                                 <AddFilters
                                                     disabled={!samples?.length}
@@ -219,7 +219,7 @@ const PerformanceClustersAnalysis = () => {
                                             </div>
                                         </div>
                                         <div className={`d-flex p-2 overflow-auto flex-grow-0 ${samples.length ? 'justify-content-left' : 'justify-content-center align-items-center'} scatterGraph-examples`}>
-                                            {samples.length ? samples.map((sample, i) => (
+                                            {samples.length ? samples.slice(0, 100).map((sample, i) => (
                                                 <div
                                                     key={i}
                                                     className='d-flex cursor-pointer'
