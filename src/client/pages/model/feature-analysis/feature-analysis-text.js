@@ -10,6 +10,24 @@ import useAllSqlFilters from 'hooks/use-all-sql-filters';
 import ScatterGraph from 'components/scatter-graph';
 import metricsClient from 'clients/metrics';
 import useTimeGranularity from 'hooks/use-time-granularity';
+import {FaQuestionCircle} from 'react-icons/fa';
+import {Tooltip as BootstrapTooltip, OverlayTrigger} from 'react-bootstrap';
+
+const embeddingDistanceTooltip = <OverlayTrigger
+    placement='bottom'
+    overlay={
+        <BootstrapTooltip>
+          Based on cosine similarity
+        </BootstrapTooltip>
+    }
+>
+    <FaQuestionCircle
+        className='cursor-pointer blinking'
+        style={{
+            height: 30
+        }}
+    />
+</OverlayTrigger>;
 
 const FeatureAnalysisText = ({timeStore}) => {
     const allSqlFilters = useAllSqlFilters();
@@ -36,7 +54,18 @@ const FeatureAnalysisText = ({timeStore}) => {
                                         y: distance * 100,
                                         x: new Date(time).getTime()
                                     }))}
-                                    title='Embedding Distance'
+                                    title={
+                                        <div style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            height: 29,
+                                            gap: 8
+                                        }}>
+                                            <span>Embedding Distance</span>
+                                            {embeddingDistanceTooltip}
+                                        </div>
+
+                                    }
                                     xAxisDomain={timeStore.rangeMillisec}
                                     xAxisName='Time'
                                     yAxisName='Distance (%)'
