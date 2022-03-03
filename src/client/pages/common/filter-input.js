@@ -1,5 +1,5 @@
-import {OverlayTrigger, Tooltip} from 'react-bootstrap';
-import React, {useEffect, useState} from 'react';
+import {Overlay, OverlayTrigger, Tooltip} from 'react-bootstrap';
+import React, {useEffect, useRef, useState} from 'react';
 import OutsideClickHandler from 'react-outside-click-handler';
 import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
@@ -56,6 +56,7 @@ const FilterInput = ({
     const [suggestionIndex, setSuggestionIndex] = useState(-1);
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [suggestionsLoading, setSuggestionsLoading] = useState(false);
+    const inFilterTooltipTarget = useRef(null);
 
     const appliedFilters = filtersStore.filters;
 
@@ -124,10 +125,6 @@ const FilterInput = ({
     }, [newFilter.toString()]);
 
     const handleEndCharacterKey = (e) => {
-        if (e.keyCode === 9) {
-            e.preventDefault();
-        }
-        //on enter while suggestion is selected
         const parsedFilter = Filter.parse(e.target.value);
 
         if (parsedFilter.isComplete) {
@@ -154,9 +151,6 @@ const FilterInput = ({
             // on enter to select the suggestion
             handleSuggestionSelected(suggestions[suggestionIndex]);
             setSuggestionIndex(-1);
-        } else if (e.keyCode === 32) {
-            //on space
-            handleEndCharacterKey(e);
         } else if (e.keyCode === 13 && !e.target.value.trim() && filters.length) {
             // on enter to apply all
             onChange([...appliedFilters, ...filters]);
@@ -164,6 +158,9 @@ const FilterInput = ({
             setNewFilter(new Filter());
             setSuggestionIndex(-1);
             setShowSuggestions(false);
+        } else if (e.keyCode === 32 || e.keyCode === 13) {
+            //on space or enter to validate filter
+            handleEndCharacterKey(e);
         }
     };
 
@@ -208,10 +205,17 @@ const FilterInput = ({
             <OutsideClickHandler useCapture onOutsideClick={() => {
                 setShowSuggestions(false);
             }}>
-                <div className='filter-input'>
+                <div className='filter-input' ref={inFilterTooltipTarget}>
                     {filters.map((filter, index) => (
                         <RenderedFilter filter={filter} key={index} onDelete={() => handleRemoveFilter(index)} />
                     ))}
+                    <Overlay target={inFilterTooltipTarget.current} show={newFilter.op === 'in' || newFilter.op === 'not in'} placement='top'>
+                        {(props) => (
+                            <Tooltip id='overlay-example' {...props}>
+                                Enter a comma-separated, unspaced list of values: value1,value2,value4
+                            </Tooltip>
+                        )}
+                    </Overlay>
                     <input
                         onChange={(e) => {
                             setNewFilter(Filter.parse(e.target.value));
