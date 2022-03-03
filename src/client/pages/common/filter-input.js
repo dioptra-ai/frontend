@@ -79,6 +79,10 @@ const FilterInput = ({
                 const allSuggestionValues = allSuggestions.map(({value}) => value);
 
                 setSuggestions(allSuggestionValues);
+            } else if (newFilter.isLeftComplete) {
+
+                setShowSuggestions(true);
+                setSuggestions(['=', '<', '>']);
             } else if (key) {
 
                 setShowSuggestions(true);
@@ -153,7 +157,7 @@ const FilterInput = ({
         } else if (e.keyCode === 32) {
             //on space
             handleEndCharacterKey(e);
-        } else if (e.keyCode === 13 && !e.target.value && filters.length) {
+        } else if (e.keyCode === 13 && !e.target.value.trim() && filters.length) {
             // on enter to apply all
             onChange([...appliedFilters, ...filters]);
             setFilters([]);
@@ -185,6 +189,8 @@ const FilterInput = ({
 
             setFilters([...filters, newFilter]);
             setNewFilter(new Filter());
+        } else if (newFilter.isLeftComplete && !newFilter.isOpValid) {
+            setNewFilter(new Filter({left: newFilter.left, op: suggestion}));
         } else {
             setNewFilter(new Filter({left: suggestion}));
         }

@@ -36,7 +36,7 @@ export class Filter {
         const match = (/([^\s]+)(\s+(((=|in|not in|>|<)|([^\s]+))\s*)?)?([^\s]+)?/gim).exec(str);
 
         if (match) {
-            const [, left, opStart,,, validOp, /* invalidOp*/ , rightStr] = match;
+            const [, left, opStart,,, validOp, /*invalidOp*/, rightStr] = match;
 
             let op = null;
 
@@ -148,6 +148,11 @@ export class Filter {
     get isOpValid() {
 
         return ['=', 'in', 'not in', '<', '>'].includes(this.op?.toLowerCase());
+    }
+
+    get isLeftComplete() {
+
+        return this.left && this.op !== undefined && this.op !== null;
     }
 
     get isComplete() {
