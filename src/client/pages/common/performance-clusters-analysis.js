@@ -65,6 +65,8 @@ const PerformanceClustersAnalysis = () => {
                     };
                 });
                 const samples = (selectedPoints || sortedClusters[selectedClusterIndex]?.elements || []).map((p) => p.sample).flat();
+                const samplesSqlFilter = `${allSqlFilters} AND request_id in (${samples.map((s) => `'${s['request_id']}'`).join(',')})`;
+                const samplesCsvClassNames = samples.map((s) => s['prediction'] || s['prediction.class_name']).join(',');
                 const handleClusterClick = (i) => {
                     if (selectedClusterIndex !== i) {
                         setSelectedClusterIndex(i);
@@ -105,7 +107,7 @@ const PerformanceClustersAnalysis = () => {
                         </Row>
                         <SpinnerWrapper>
                             <Row className='my-3'>
-                                <Col lg={8}>
+                                <Col lg={8} style={{height: 440}}>
                                     <ClusterGraph>
                                         {sortedClusters.map((cluster, index) => (
                                             <Scatter
@@ -127,6 +129,49 @@ const PerformanceClustersAnalysis = () => {
                                     </ClusterGraph>
                                 </Col>
                                 <Col lg={4} className='px-3'>
+                                    <div className='bg-white-blue rounded p-3'>
+                                        <div className='text-dark bold-text d-flex align-items-center justify-content-between'>
+                                            <span>Summary {samples?.length ? `(${samples.length})` : ''}</span>
+                                            <div className='d-flex align-items-center'>
+                                                {samplesCsvClassNames ? (
+                                                    <OverlayTrigger overlay={<Tooltip>Download classes as CSV</Tooltip>}>
+                                                        <IoDownloadOutline className='fs-2 cursor-pointer' onClick={() => {
+
+                                                            saveAs(new Blob([samplesCsvClassNames], {type: 'text/csv;charset=utf-8'}), 'classes.csv');
+                                                        }}/>
+                                                    </OverlayTrigger>
+                                                ) : null}
+                                            </div>
+                                        </div>
+                                        <div className={`d-flex p-2 overflow-auto flex-grow-0 ${samples.length ? 'justify-content-left' : 'justify-content-center align-items-center'} scatterGraph-examples`}>
+                                            {samples.length ? (
+                                                <Async
+                                                    refetchOnChanged={[samplesSqlFilter, samples, model.mlModelType]}
+                                                    renderData={(data) => (
+                                                        <BarGraph
+                                                            bars={data.map(({prediction, my_percentage}) => ({
+                                                                name: prediction,
+                                                                value: my_percentage,
+                                                                fill: getHexColor(prediction)
+                                                            }))}
+                                                            title='Class Distribution'
+                                                            unit='%'
+                                                        />
+                                                    )}
+                                                    fetchData={() => metricsClient(`queries/${(model.mlModelType === 'IMAGE_CLASSIFIER' ||
+                                                            model.mlModelType === 'TEXT_CLASSIFIER') ?
+                                                        'class-distribution-1' :
+                                                        'class-distribution-2'}`, {sql_filters: samplesSqlFilter})}
+                                                />
+                                            ) : (
+                                                <h3 className='text-secondary m-0'>No Examples Selected</h3>
+                                            )}
+                                        </div>
+                                    </div>
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col className='px-3'>
                                     <div className='bg-white-blue rounded p-3'>
                                         <div className='text-dark bold-text d-flex align-items-center justify-content-between'>
                                             <span>Examples {samples?.length ? `(${samples.length})` : ''}</span>

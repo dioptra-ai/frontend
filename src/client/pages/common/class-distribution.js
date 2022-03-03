@@ -6,7 +6,6 @@ import useModel from 'hooks/use-model';
 import Async from 'components/async';
 import AreaGraph from 'components/area-graph';
 import {getHexColor} from 'helpers/color-helper';
-import {getName} from 'helpers/name-helper';
 import BarGraph from 'components/bar-graph';
 import metricsClient from 'clients/metrics';
 import useTimeGranularity from 'hooks/use-time-granularity';
@@ -27,7 +26,7 @@ const ClassDistribution = ({timeStore}) => {
                     renderData={(data) => (
                         <BarGraph
                             bars={data.map(({prediction, my_percentage}) => ({
-                                name: getName(prediction),
+                                name: prediction,
                                 value: my_percentage,
                                 fill: getHexColor(prediction)
                             }))}
@@ -47,7 +46,7 @@ const ClassDistribution = ({timeStore}) => {
                     renderData={(data) => (
                         <BarGraph
                             bars={data.map(({prediction, my_percentage}) => ({
-                                name: getName(prediction),
+                                name: prediction,
                                 value: my_percentage,
                                 fill: getHexColor(prediction)
                             }))}
