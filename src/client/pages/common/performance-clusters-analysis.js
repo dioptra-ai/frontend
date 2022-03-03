@@ -29,6 +29,7 @@ const PerformanceClustersAnalysis = () => {
     const allSqlFilters = useAllSqlFilters();
     const model = useModel();
     const [userSelectedMetricName, setUserSelectedMetricName] = useState(null);
+    const [userSelectedSummaryDistribution, setUserSelectedSummaryDistribution] = useState('prediction');
     const [selectedClusterIndex, setSelectedClusterIndex] = useState();
     const [selectedPoints, setSelectedPoints] = useState(null);
     const [exampleInModal, setExampleInModal] = useModal(false);
@@ -154,14 +155,33 @@ const PerformanceClustersAnalysis = () => {
                                                                 value: my_percentage,
                                                                 fill: getHexColor(prediction)
                                                             }))}
-                                                            title='Class Distribution'
+                                                            title={(
+                                                                <Row>
+                                                                    <Col>Class Distribution</Col>
+                                                                    <Col style={{marginRight: -12}}>
+                                                                        <Select
+                                                                            options={[{
+                                                                                name: 'prediction',
+                                                                                value: 'prediction'
+                                                                            }, {
+                                                                                name: 'groundtruth',
+                                                                                value: 'groundtruth'
+                                                                            }]}
+                                                                            onChange={setUserSelectedSummaryDistribution}
+                                                                        />
+                                                                    </Col>
+                                                                </Row>
+                                                            )}
                                                             unit='%'
                                                         />
                                                     )}
                                                     fetchData={() => metricsClient(`queries/${(model.mlModelType === 'IMAGE_CLASSIFIER' ||
                                                             model.mlModelType === 'TEXT_CLASSIFIER') ?
                                                         'class-distribution-1' :
-                                                        'class-distribution-2'}`, {sql_filters: samplesSqlFilter})}
+                                                        'class-distribution-2'}`, {
+                                                        sql_filters: samplesSqlFilter,
+                                                        distribution_field: userSelectedSummaryDistribution
+                                                    })}
                                                 />
                                             ) : (
                                                 <h3 className='text-secondary m-0'>No Examples Selected</h3>
