@@ -186,7 +186,7 @@ const FilterInput = ({
             setFilters([...filters, newFilter]);
             setNewFilter(new Filter());
         } else {
-            setNewFilter(new Filter({left: suggestion, op: '='}));
+            setNewFilter(new Filter({left: suggestion}));
         }
     };
 

@@ -4,9 +4,9 @@ import {
 } from 'mobx';
 
 export class Filter {
-    constructor({left, op, right} = {}) {
-        this.left = left;
-        this.op = op;
+    constructor({left = '', op = '', right} = {}) {
+        this.left = left.trim();
+        this.op = op?.toLowerCase();
         this.right = right;
     }
 
@@ -16,7 +16,7 @@ export class Filter {
     }
 
     set right(r) {
-        if (this.op === 'in') {
+        if (this.op === 'in' || this.op === 'not in') {
             this.r = Array.from(new Set(r));
         } else {
             this.r = r;
@@ -33,7 +33,7 @@ export class Filter {
     }
 
     static parse(str) {
-        const match = (/([^\s]+)(\s+(((=|in)|([^\s]+))\s*)?)?([^\s]+)?/gim).exec(str);
+        const match = (/([^\s]+)(\s+(((=|in|not in|>|<)|([^\s]+))\s*)?)?([^\s]+)?/gim).exec(str);
 
         if (match) {
             const [, left, opStart,,, validOp, /* invalidOp*/ , rightStr] = match;
@@ -50,11 +50,14 @@ export class Filter {
                 case null:
                     break;
                 case '=':
+                case '>':
+                case '<':
                     if (rightStr) {
                         right = rightStr;
                     }
                     break;
                 case 'in':
+                case 'not in':
                     if (rightStr) {
                         right = rightStr.split(/\s*,\s*/);
                     }
@@ -63,7 +66,7 @@ export class Filter {
                     throw new Error(`Unknown filter operator: "${op}"`);
                 }
             } else if (opStart) {
-                op = opStart;
+                op = opStart.trim();
             }
 
             return new Filter({left, op, right});
@@ -72,11 +75,15 @@ export class Filter {
 
     toSQLString() {
 
-        switch (this.op?.toLowerCase()) {
+        switch (this.op) {
 
         case '=':
 
-            return `"${this.left}"='${this.right}'`;
+            return `"${this.left}" ${this.op} '${this.right}'`;
+        case '>':
+        case '<':
+
+            return `CAST("${this.left}" AS FLOAT) ${this.op} ${this.right}`;
         case 'in':
         case 'not in':
 
@@ -94,13 +101,15 @@ export class Filter {
 
             return this.left || '';
         case '=':
+        case '>':
+        case '<':
 
             if (this.right) {
 
-                return `${this.left} = ${this.right}`;
+                return `${this.left} ${this.op} ${this.right}`;
             } else {
 
-                return `${this.left} = `;
+                return `${this.left} ${this.op} `;
             }
         case 'in':
         case 'not in':
@@ -138,7 +147,7 @@ export class Filter {
 
     get isOpValid() {
 
-        return ['=', 'in', 'not in'].includes(this.op?.toLowerCase());
+        return ['=', 'in', 'not in', '<', '>'].includes(this.op?.toLowerCase());
     }
 
     get isComplete() {
