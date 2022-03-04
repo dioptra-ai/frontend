@@ -67,7 +67,7 @@ const PerformanceClustersAnalysis = () => {
                 });
                 const samples = (selectedPoints || sortedClusters[selectedClusterIndex]?.elements || []).map((p) => p.sample).flat();
                 const samplesSqlFilter = `${allSqlFilters} AND request_id in (${samples.map((s) => `'${s['request_id']}'`).join(',')})`;
-                const samplesCsvClassNames = samples.map((s) => s['prediction'] || s['prediction.class_name']).join(',');
+                const samplesCsvClassNames = Array.from(new Set(samples.map((s) => s['prediction'] || s['prediction.class_name']))).join(',');
                 const handleClusterClick = (i) => {
                     if (selectedClusterIndex !== i) {
                         setSelectedClusterIndex(i);
