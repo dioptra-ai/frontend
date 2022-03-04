@@ -14,6 +14,7 @@ class DruidClient {
                     if ((response.status === 503) || response.status === 504) {
                         return true;
                     }
+
                     return false;
                 }
             },
