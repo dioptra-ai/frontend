@@ -117,7 +117,7 @@ const PerformanceClustersAnalysis = () => {
                                                 cursor='pointer'
                                                 onClick={() => handleClusterClick(index)}
                                                 name={cluster.name}
-                                                data={cluster.elements.map((e) => ({
+                                                data={cluster.elements.filter(() => Math.random() < 1000 / cluster.elements.length).map((e) => ({
                                                     samples: [e.sample],
                                                     size: selectedClusterIndex === index ? 100 : 50,
                                                     ...e
