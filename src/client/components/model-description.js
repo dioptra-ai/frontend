@@ -36,7 +36,7 @@ const ModelDescription = ({_id, name, description, team, tier, lastDeployed, mlM
         fetchWithRetry(`/api/ml-model/${_id}`, {
             retries: 15,
             retryDelay: 3000,
-            retryOn: [500, 503, 504],
+            retryOn: [503, 504],
             method: 'PUT',
             headers: {
                 'content-type': 'application/json'

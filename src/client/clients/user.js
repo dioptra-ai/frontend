@@ -9,7 +9,7 @@ const userClient = async (method, data = {}) => {
     const res = await fetchWithRetry('/api/user', {
         retries: 15,
         retryDelay: 3000,
-        retryOn: [500, 503, 504],
+        retryOn: [503, 504],
         headers: {
             'content-type': 'application/json'
         },

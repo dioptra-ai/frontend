@@ -9,9 +9,23 @@ import {isAuthenticated} from '../middleware/authentication.mjs';
 const axiosRetryClient = axios.create();
 
 axiosRetryClient.defaults.raxConfig = {
-    instance: axiosRetryClient
+    instance: axiosRetryClient,
+    statusCodesToRetry: [[503, 504]],
+    retry: 15,
+    retryDelay: 3000
 };
 rax.attach(axiosRetryClient);
+
+const fetchRetryConfig = {
+    retryMaxDuration: 5000,
+    retryOnHttpResponse (response) {
+        if (response.status === 503 || response.status === 504) {
+            return true;
+        }
+
+        return false;
+    }
+};
 
 const {OVERRIDE_DRUID_ORG_ID} = process.env;
 
@@ -99,7 +113,7 @@ MetricsRouter.get('*', async (req, res, next) => {
             newurl
         )}`;
         const metricsResponse = await fetch(metricsEnginePath, {
-            retryMaxDuration: 5000
+            retryOptions: fetchRetryConfig
         });
 
         if (metricsResponse.status !== 200) {
@@ -121,7 +135,7 @@ MetricsRouter.post('*', async (req, res, next) => {
     try {
         const metricsEnginePath = `${process.env.METRICS_ENGINE_URL}${req.url}`;
         const metricsResponse = await fetch(metricsEnginePath, {
-            retryMaxDuration: 5000,
+            retryOptions: fetchRetryConfig,
             headers: {
                 'content-type': 'application/json;charset=UTF-8'
             },

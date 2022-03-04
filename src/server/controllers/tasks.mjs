@@ -7,9 +7,23 @@ import {isAuthenticated} from '../middleware/authentication.mjs';
 const axiosRetryClient = axios.create();
 
 axiosRetryClient.defaults.raxConfig = {
-    instance: axiosRetryClient
+    instance: axiosRetryClient,
+    statusCodesToRetry: [[503, 504]],
+    retry: 15,
+    retryDelay: 3000
 };
 rax.attach(axiosRetryClient);
+
+const fetchRetryConfig = {
+    retryMaxDuration: 5000,
+    retryOnHttpResponse (response) {
+        if (response.status === 503 || response.status === 504) {
+            return true;
+        }
+
+        return false;
+    }
+};
 
 const {OVERRIDE_DRUID_ORG_ID, TASK_ENGINE_URL} = process.env;
 
@@ -45,7 +59,7 @@ TasksRouter.put('*', async (req, res, next) => {
             req.url.includes('?') ? '&' : '?'
         }organization_id=${organizationId}`;
         const taskEngineResponse = await fetch(taskEnginePath, {
-            retryMaxDuration: 5000,
+            retryOptions: fetchRetryConfig,
             headers: {
                 'content-type': 'application/json;charset=UTF-8'
             },
@@ -76,7 +90,7 @@ TasksRouter.post('*', async (req, res, next) => {
         const organizationId = String(activeOrganizationMembership.organization._id);
         const taskEnginePath = `${TASK_ENGINE_URL}${req.url}?organization_id=${organizationId}`;
         const taskEngineResponse = await fetch(taskEnginePath, {
-            retryMaxDuration: 5000,
+            retryOptions: fetchRetryConfig,
             headers: {
                 'content-type': 'application/json;charset=UTF-8'
             },

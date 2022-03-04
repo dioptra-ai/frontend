@@ -28,7 +28,7 @@ const timeseriesClient = ({query, resultFormat = 'object', sqlOuterLimit}) => {
     return memoizedFetch('/api/timeseries', {
         retries: 15,
         retryDelay: 3000,
-        retryOn: [500, 503, 504],
+        retryOn: [503, 504],
         headers: {
             'content-type': 'application/json',
             'x-debug-druid-query': query.replaceAll(/\n/gm, '')

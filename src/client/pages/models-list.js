@@ -166,7 +166,7 @@ const Models = ({modelStore}) => {
         fetchWithRetry('/api/ml-model', {
             retries: 15,
             retryDelay: 3000,
-            retryOn: [500, 503, 504],
+            retryOn: [503, 504],
             method: 'POST',
             headers: {
                 'content-type': 'application/json'

@@ -7,10 +7,18 @@ const TimeseriesRouter = express.Router();
 TimeseriesRouter.all('*', isAuthenticated);
 
 TimeseriesRouter.post('/', async (req, res, next) => {
-
     try {
         const druidResponse = await fetch(process.env.DRUID_DB_URL, {
-            retryMaxDuration: 5000,
+            retryOptions: {
+                retryMaxDuration: 5000,
+                retryOnHttpResponse (response) {
+                    if (response.status === 503 || response.status === 504) {
+                        return true;
+                    }
+
+                    return false;
+                }
+            },
             headers: {
                 'content-type': 'application/json;charset=UTF-8'
             },

@@ -33,7 +33,7 @@ const baseJSONClient = (url, {method = 'get', body, headers = {'content-type': '
     return fetch(url, {
         retries: 15,
         retryDelay: 3000,
-        retryOn: [500, 503, 504],
+        retryOn: [503, 504],
         method, headers,
         body: body ? JSON.stringify(body) : undefined
     });
