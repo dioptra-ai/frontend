@@ -12,11 +12,7 @@ TimeseriesRouter.post('/', async (req, res, next) => {
             retryOptions: {
                 retryMaxDuration: 5000,
                 retryOnHttpResponse (response) {
-                    if (response.status === 503 || response.status === 504) {
-                        return true;
-                    }
-
-                    return false;
+                    return response.status === 503 || response.status === 504;
                 }
             },
             headers: {
