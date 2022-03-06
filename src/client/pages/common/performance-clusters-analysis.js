@@ -29,6 +29,7 @@ const PerformanceClustersAnalysis = () => {
     const allSqlFilters = useAllSqlFilters();
     const model = useModel();
     const [userSelectedMetricName, setUserSelectedMetricName] = useState(null);
+    const [userSelectedDistanceName, setUserSelectedDistanceName] = useState('euclidean');
     const [userSelectedSummaryDistribution, setUserSelectedSummaryDistribution] = useState('prediction');
     const [selectedClusterIndex, setSelectedClusterIndex] = useState();
     const [selectedPoints, setSelectedPoints] = useState(null);
@@ -38,10 +39,11 @@ const PerformanceClustersAnalysis = () => {
 
     return (
         <Async
-            refetchOnChanged={[allSqlFilters]}
+            refetchOnChanged={[allSqlFilters, userSelectedDistanceName]}
             fetchData={() => metricsClient('clusters', {
                 model_type: model.mlModelType,
-                sql_filters: allSqlFilters
+                sql_filters: allSqlFilters,
+                distance: userSelectedDistanceName
             })}
             renderData={(data = []) => {
                 const metricNames = data[0]?.metrics.map((m) => m.name) || [];
@@ -98,6 +100,18 @@ const PerformanceClustersAnalysis = () => {
                                                         onChange={setUserSelectedMetricName}
                                                     />
                                                 ) : null}
+                                            </Col>
+                                            <Col lg={3} style={{marginRight: -12}}>
+                                                <Select
+                                                    options={[{
+                                                        name: 'Euclidean Distance',
+                                                        value: 'euclidean'
+                                                    }, {
+                                                        name: 'Cosine Distance',
+                                                        value: 'cosine'
+                                                    }]}
+                                                    onChange={setUserSelectedDistanceName}
+                                                />
                                             </Col>
                                         </Row>
                                     )}
