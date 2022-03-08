@@ -1,7 +1,25 @@
+import fetch from '@adobe/node-fetch-retry';
 import axios from 'axios';
 import express from 'express';
-import fetch from 'node-fetch';
+import * as rax from 'retry-axios';
 import {isAuthenticated} from '../middleware/authentication.mjs';
+
+const axiosRetryClient = axios.create();
+
+axiosRetryClient.defaults.raxConfig = {
+    instance: axiosRetryClient,
+    statusCodesToRetry: [[503, 504]],
+    retry: 15,
+    retryDelay: 3000
+};
+rax.attach(axiosRetryClient);
+
+const fetchRetryConfig = {
+    retryMaxDuration: 5000,
+    retryOnHttpResponse (response) {
+        return response.status === 503 || response.status === 504;
+    }
+};
 
 const {OVERRIDE_DRUID_ORG_ID, TASK_ENGINE_URL} = process.env;
 
@@ -14,7 +32,7 @@ TasksRouter.get('*', async (req, res, next) => {
         const {activeOrganizationMembership} = req.user;
         const organizationId = String(activeOrganizationMembership.organization._id);
 
-        await axios
+        await axiosRetryClient
             .get(
                 `${TASK_ENGINE_URL}${req.url}${
                     req.url.includes('?') ? '&' : '?'
@@ -37,6 +55,7 @@ TasksRouter.put('*', async (req, res, next) => {
             req.url.includes('?') ? '&' : '?'
         }organization_id=${organizationId}`;
         const taskEngineResponse = await fetch(taskEnginePath, {
+            retryOptions: fetchRetryConfig,
             headers: {
                 'content-type': 'application/json;charset=UTF-8'
             },
@@ -67,6 +86,7 @@ TasksRouter.post('*', async (req, res, next) => {
         const organizationId = String(activeOrganizationMembership.organization._id);
         const taskEnginePath = `${TASK_ENGINE_URL}${req.url}?organization_id=${organizationId}`;
         const taskEngineResponse = await fetch(taskEnginePath, {
+            retryOptions: fetchRetryConfig,
             headers: {
                 'content-type': 'application/json;charset=UTF-8'
             },
@@ -96,7 +116,7 @@ TasksRouter.delete('*', async (req, res, next) => {
         const {activeOrganizationMembership} = req.user;
         const organizationId = String(activeOrganizationMembership.organization._id);
 
-        await axios
+        await axiosRetryClient
             .delete(
                 `${TASK_ENGINE_URL}${req.url}${
                     req.url.includes('?') ? '&' : '?'

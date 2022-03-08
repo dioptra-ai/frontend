@@ -16,6 +16,7 @@ import Select from 'components/select';
 import Async from 'components/async';
 import metricsClient from 'clients/metrics';
 import comparisonContext from 'context/comparison-context';
+import fetchWithRetry from '../clients/fetch-retry-client';
 
 const ModelDescription = ({_id, name, description, team, tier, lastDeployed, mlModelId, mlModelType, referencePeriod, referenceBenchmarkId, modelStore, filtersStore}) => {
     const [expand, setExpand] = useState(false);
@@ -32,7 +33,10 @@ const ModelDescription = ({_id, name, description, team, tier, lastDeployed, mlM
             setErrors([]);
         }
 
-        fetch(`/api/ml-model/${_id}`, {
+        fetchWithRetry(`/api/ml-model/${_id}`, {
+            retries: 15,
+            retryDelay: 3000,
+            retryOn: [503, 504],
             method: 'PUT',
             headers: {
                 'content-type': 'application/json'

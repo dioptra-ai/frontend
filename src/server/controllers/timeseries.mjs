@@ -1,5 +1,5 @@
 import express from 'express';
-import fetch from 'node-fetch';
+import fetch from '@adobe/node-fetch-retry';
 import {isAuthenticated} from '../middleware/authentication.mjs';
 
 const TimeseriesRouter = express.Router();
@@ -7,9 +7,14 @@ const TimeseriesRouter = express.Router();
 TimeseriesRouter.all('*', isAuthenticated);
 
 TimeseriesRouter.post('/', async (req, res, next) => {
-
     try {
         const druidResponse = await fetch(process.env.DRUID_DB_URL, {
+            retryOptions: {
+                retryMaxDuration: 5000,
+                retryOnHttpResponse (response) {
+                    return response.status === 503 || response.status === 504;
+                }
+            },
             headers: {
                 'content-type': 'application/json;charset=UTF-8'
             },
