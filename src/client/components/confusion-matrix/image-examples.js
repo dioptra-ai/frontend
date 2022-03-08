@@ -1,6 +1,5 @@
 import PropTypes from 'prop-types';
 import {useState} from 'react';
-import CustomCarousel from 'components/carousel';
 import Modal from 'components/modal';
 import useAllSqlFilters from 'hooks/use-all-sql-filters';
 import TabularExamples from './tabular-examples';
@@ -9,6 +8,10 @@ import metricsClient from 'clients/metrics';
 import {IoArrowBackCircleOutline, IoCloseCircleOutline} from 'react-icons/io5';
 import AddFilters from 'components/add-filters';
 import {Filter} from 'state/stores/filters-store';
+import SignedImage from 'components/signed-image';
+import Container from 'react-bootstrap/Container';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 
 const ImageExamples = ({onClose, groundtruth, prediction, iou, model}) => {
     const [exampleInModal, setExampleInModal] = useState(false);
@@ -47,15 +50,35 @@ const ImageExamples = ({onClose, groundtruth, prediction, iou, model}) => {
 
                                 return (
                                     <>
-                                        <AddFilters filters={[new Filter({
-                                            left: 'request_id',
-                                            op: 'in',
-                                            right: data.map((d) => d['request_id'])
-                                        })]}/>
-                                        <CustomCarousel
-                                            items={data.map((x) => x['image_metadata.uri'].replace(/"/g, ''))}
-                                            onItemClick={setExampleInModal}
+                                        <AddFilters
+                                            filters={[
+                                                new Filter({
+                                                    left: 'request_id',
+                                                    op: 'in',
+                                                    right: data.map(
+                                                        (d) => d['request_id']
+                                                    )
+                                                })
+                                            ]}
                                         />
+                                        <Container>
+                                            <Row>
+                                                {data.map((item, i) => (
+                                                    <Col
+                                                        className='mt-2 rounded cursor-pointer'
+                                                        key={i}
+                                                        onClick={() => setExampleInModal(item.signedUrl)}
+                                                        xs={4}
+                                                        md={2}
+                                                    >
+                                                        <SignedImage
+                                                            height={200}
+                                                            rawUrl={item['image_metadata.uri'].replace(/"/g, '')}
+                                                        />
+                                                    </Col>
+                                                ))}
+                                            </Row>
+                                        </Container>
                                     </>
                                 );
                             } else {

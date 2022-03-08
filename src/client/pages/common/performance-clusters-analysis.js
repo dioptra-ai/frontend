@@ -24,6 +24,7 @@ import Modal from 'components/modal';
 import metricsClient from 'clients/metrics';
 import AddFilters from 'components/add-filters';
 import {Filter} from 'state/stores/filters-store';
+import SignedImage from 'components/signed-image';
 
 const PerformanceClustersAnalysis = () => {
     const allSqlFilters = useAllSqlFilters();
@@ -248,14 +249,15 @@ const PerformanceClustersAnalysis = () => {
 
                                                     return (
                                                         <div
-                                                            key={i} className='m-4 heat-map-item cursor-pointer'
+                                                            key={i}
+                                                            className='m-4 heat-map-item cursor-pointer'
                                                             onClick={() => setExampleInModal(sample)}
                                                         >
-                                                            <img
+                                                            <SignedImage
                                                                 alt='Example'
                                                                 className='rounded'
-                                                                src={sample['image_metadata.uri']}
                                                                 height={200}
+                                                                rawUrl={sample['image_metadata.uri']}
                                                             />
                                                             <div className='heat-map-box' style={{
                                                                 height: bounding_box_h * 200 / height,
@@ -292,10 +294,10 @@ const PerformanceClustersAnalysis = () => {
                                         <div
                                             className='m-4 heat-map-item'
                                         >
-                                            <img
+                                            <SignedImage
                                                 alt='Example'
                                                 className='rounded'
-                                                src={exampleInModal['image_metadata.uri']}
+                                                rawUrl={exampleInModal['image_metadata.uri']}
                                                 height={600}
                                             />
                                             <div className='heat-map-box' style={{

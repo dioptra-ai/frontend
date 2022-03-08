@@ -1,35 +1,35 @@
 import metricsClient from 'clients/metrics';
 import PropTypes from 'prop-types';
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import Button from 'react-bootstrap/Button';
 import {useHistory} from 'react-router-dom';
 
-const SignedImage = ({rawUrl, setSignedUrlCallback}) => {
+const SignedImage = ({rawUrl, ...rest}) => {
     const [signedUrl, setSignedUrl] = useState(rawUrl);
+    const [signedImageRequested, setSignedImageRequested] = useState(false);
 
     const [awsS3IntegrationNotSet, setAwsS3IntegrationNotSet] = useState(false);
     const [gcpIntegrationNotSet, setGcpIntegrationNotSet] = useState(false);
 
     const history = useHistory();
 
-    useEffect(() => {
-        fetchSignedImage();
-    }, [rawUrl]);
+    const handleLoadError = async () => {
+        if (!signedImageRequested) {
+            try {
+                const signedUrl = await metricsClient('/signed-url', {
+                    url: rawUrl
+                });
 
-    const fetchSignedImage = async () => {
-        const signedUrl = await metricsClient('/signed-url', {
-            url: rawUrl
-        });
-
-        setSignedUrlCallback(signedUrl[0]);
-        setSignedUrl(signedUrl[0]);
-    };
-
-    const handleLoadError = () => {
-        if (rawUrl.includes('amazon')) {
-            setAwsS3IntegrationNotSet(true);
-        } else if (rawUrl.includes('google')) {
-            setGcpIntegrationNotSet(true);
+                setSignedUrl(signedUrl[0]);
+            } catch (e) {
+                if (rawUrl.includes('amazon')) {
+                    setAwsS3IntegrationNotSet(true);
+                } else if (rawUrl.includes('google')) {
+                    setGcpIntegrationNotSet(true);
+                }
+            } finally {
+                setSignedImageRequested(true);
+            }
         }
     };
 
@@ -44,12 +44,10 @@ const SignedImage = ({rawUrl, setSignedUrlCallback}) => {
     return (
         <div>
             <img
-                alt='Example'
-                className='rounded'
                 src={signedUrl}
-                height={200}
                 onLoad={handleLoad}
                 onError={handleLoadError}
+                {...rest}
             />
             {(awsS3IntegrationNotSet || gcpIntegrationNotSet) && (
                 <div className='d-flex flex-column p-3' style={{gap: 10}}>
@@ -82,8 +80,7 @@ const SignedImage = ({rawUrl, setSignedUrlCallback}) => {
 };
 
 SignedImage.propTypes = {
-    rawUrl: PropTypes.string,
-    setSignedUrlCallback: PropTypes.func
+    rawUrl: PropTypes.string
 };
 
 export default SignedImage;
