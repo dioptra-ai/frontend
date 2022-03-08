@@ -15,7 +15,6 @@ axiosRetryClient.defaults.raxConfig = {
 rax.attach(axiosRetryClient);
 
 const fetchRetryConfig = {
-    retryMaxDuration: 5000,
     retryOnHttpResponse (response) {
         return response.status === 503 || response.status === 504;
     }
