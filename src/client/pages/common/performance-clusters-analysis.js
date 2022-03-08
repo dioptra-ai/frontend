@@ -68,7 +68,10 @@ const PerformanceClustersAnalysis = () => {
                     };
                 });
                 const samples = (selectedPoints || sortedClusters[selectedClusterIndex]?.elements || []).map((p) => p.sample).flat();
-                const samplesSqlFilter = `${allSqlFilters} AND request_id in (${samples.map((s) => `'${s['request_id']}'`).join(',')})`;
+                // SQL Filter for samples is sampled if there are more than 500 samples.
+                const samplesSqlFilter = `${allSqlFilters} AND request_id in (${
+                    samples.filter(() => Math.random() < 500 / samples.length).map((s) => `'${s['request_id']}'`).join(',')
+                })`;
                 const samplesCsvClassNames = Array.from(new Set(samples.map((s) => s['prediction'] || s['prediction.class_name']))).join(',');
                 const handleClusterClick = (i) => {
                     if (selectedClusterIndex !== i) {
@@ -131,7 +134,8 @@ const PerformanceClustersAnalysis = () => {
                                                 cursor='pointer'
                                                 onClick={() => handleClusterClick(index)}
                                                 name={cluster.name}
-                                                data={cluster.elements.filter(() => Math.random() < 1000 / cluster.elements.length).map((e) => ({
+                                                // Samples are filtered if there are more than 500 samples.
+                                                data={cluster.elements.filter(() => Math.random() < 500 / cluster.elements.length).map((e) => ({
                                                     samples: [e.sample],
                                                     size: selectedClusterIndex === index ? 100 : 50,
                                                     ...e
@@ -146,7 +150,7 @@ const PerformanceClustersAnalysis = () => {
                                 <Col lg={4} className='px-3'>
                                     <div className='bg-white-blue rounded p-3'>
                                         <div className='text-dark bold-text d-flex align-items-center justify-content-between'>
-                                            <span>Summary {samples?.length ? `(${samples.length})` : ''}</span>
+                                            <span>Summary {samples?.length ? `(${samples.length} total)` : ''}</span>
                                             <div className='d-flex align-items-center'>
                                                 {samplesCsvClassNames ? (
                                                     <OverlayTrigger overlay={<Tooltip>Download classes as CSV</Tooltip>}>
