@@ -233,15 +233,47 @@ const PerformanceClustersAnalysis = () => {
                                             </div>
                                         </div>
                                         <div className={`d-flex p-2 overflow-auto flex-grow-0 ${samples.length ? 'justify-content-left' : 'justify-content-center align-items-center'} scatterGraph-examples`}>
-                                            {samples.length ? samples.slice(0, 100).map((sample, i) => (
-                                                <div
-                                                    key={i}
-                                                    className='d-flex cursor-pointer'
-                                                    onClick={() => setExampleInModal(sample)}
-                                                >
-                                                    <pre>{JSON.stringify(sample, null, 4)}</pre>
-                                                </div>
-                                            )) : (
+                                            {samples.length ? samples.slice(0, 100).map((sample, i) => {
+                                                if (sample['image_metadata.uri']) {
+                                                    const width = sample['image_metadata.width'];
+                                                    const height = sample['image_metadata.height'];
+                                                    const bounding_box_h = sample['image_metadata.object.height'];
+                                                    const bounding_box_w = sample['image_metadata.object.width'];
+                                                    const bounding_box_y = sample['image_metadata.object.top'];
+                                                    const bounding_box_x = sample['image_metadata.object.left'];
+
+                                                    return (
+                                                        <div
+                                                            key={i} className='m-4 heat-map-item cursor-pointer'
+                                                            onClick={() => setExampleInModal(sample)}
+                                                        >
+                                                            <img
+                                                                alt='Example'
+                                                                className='rounded'
+                                                                src={sample['image_metadata.uri']}
+                                                                height={200}
+                                                            />
+                                                            <div className='heat-map-box' style={{
+                                                                height: bounding_box_h * 200 / height,
+                                                                width: bounding_box_w * 200 / width,
+                                                                top: bounding_box_y * 200 / height,
+                                                                left: bounding_box_x * 200 / width
+                                                            }}/>
+                                                        </div>
+                                                    );
+                                                } else {
+
+                                                    return (
+                                                        <div
+                                                            key={i}
+                                                            className='d-flex cursor-pointer'
+                                                            onClick={() => setExampleInModal(sample)}
+                                                        >
+                                                            <pre>{JSON.stringify(sample, null, 4)}</pre>
+                                                        </div>
+                                                    );
+                                                }
+                                            }) : (
                                                 <h3 className='text-secondary m-0'>No Examples Selected</h3>
                                             )}
                                         </div>
@@ -249,17 +281,38 @@ const PerformanceClustersAnalysis = () => {
                                 </Col>
                             </Row>
                         </SpinnerWrapper>
-                        {exampleInModal && (
+                        {exampleInModal ? (
                             <Modal isOpen onClose={() => setExampleInModal(null)} title=''>
-                                <Table
-                                    columns={Object.keys(exampleInModal).map((k) => ({
-                                        Header: k,
-                                        accessor: (c) => <pre style={{textAlign: 'left', whiteSpace: 'break-spaces'}}>{c[k]}</pre>
-                                    }))}
-                                    data={[exampleInModal]}
-                                />
+                                {
+                                    exampleInModal['image_metadata.uri'] ? (
+                                        <div
+                                            className='m-4 heat-map-item'
+                                        >
+                                            <img
+                                                alt='Example'
+                                                className='rounded'
+                                                src={exampleInModal['image_metadata.uri']}
+                                                height={600}
+                                            />
+                                            <div className='heat-map-box' style={{
+                                                height: exampleInModal['image_metadata.object.height'] * 600 / exampleInModal['image_metadata.height'],
+                                                width: exampleInModal['image_metadata.object.width'] * 600 / exampleInModal['image_metadata.width'],
+                                                top: exampleInModal['image_metadata.object.top'] * 600 / exampleInModal['image_metadata.height'],
+                                                left: exampleInModal['image_metadata.object.left'] * 600 / exampleInModal['image_metadata.width']
+                                            }}/>
+                                        </div>
+                                    ) : (
+                                        <Table
+                                            columns={Object.keys(exampleInModal).map((k) => ({
+                                                Header: k,
+                                                accessor: (c) => <pre style={{textAlign: 'left', whiteSpace: 'break-spaces'}}>{c[k]}</pre>
+                                            }))}
+                                            data={[exampleInModal]}
+                                        />
+                                    )
+                                }
                             </Modal>
-                        )}
+                        ) : null}
                         {minerModalOpen ? (
                             <Modal isOpen onClose={() => setMinerModalOpen(false)} title='Mine for Similar Datapoints'>
                                 <div style={{width: 500}}>
