@@ -24,6 +24,7 @@ import Modal from 'components/modal';
 import metricsClient from 'clients/metrics';
 import AddFilters from 'components/add-filters';
 import {Filter} from 'state/stores/filters-store';
+import SignedImage from 'components/signed-image';
 
 const PerformanceClustersAnalysis = () => {
     const allSqlFilters = useAllSqlFilters();
@@ -248,14 +249,13 @@ const PerformanceClustersAnalysis = () => {
 
                                                     return (
                                                         <div
-                                                            key={i} className='m-4 heat-map-item cursor-pointer'
+                                                            key={i}
+                                                            className='m-4 heat-map-item cursor-pointer'
                                                             onClick={() => setExampleInModal(sample)}
                                                         >
-                                                            <img
-                                                                alt='Example'
-                                                                className='rounded'
-                                                                src={sample['image_metadata.uri']}
-                                                                height={200}
+                                                            <SignedImage
+                                                                rawUrl={sample['image_metadata.uri']}
+                                                                setSignedUrlCallback={(signedUrl) => { sample['image_metadata.uri'] = signedUrl }}
                                                             />
                                                             <div className='heat-map-box' style={{
                                                                 height: bounding_box_h * 200 / height,
