@@ -9,6 +9,7 @@ class DruidClient {
 
         const result = await fetch(`${process.env.TIME_SERIES_DB}/druid/v2/sql/`, {
             retryOptions: {
+                retryMaxDuration: 300000,
                 retryOnHttpResponse (response) {
                     if ((response.status === 503) || response.status === 504) {
                         return true;

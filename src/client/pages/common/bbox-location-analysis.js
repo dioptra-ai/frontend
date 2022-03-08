@@ -118,9 +118,6 @@ const BBoxLocationAnalysis = () => {
                                     >
                                         <SignedImage
                                             rawUrl={image_url}
-                                            setSignedUrlCallback={(signedUrl) => {
-                                                sample.image_url = signedUrl;
-                                            }}
                                         />
                                         <div
                                             className='heat-map-box'

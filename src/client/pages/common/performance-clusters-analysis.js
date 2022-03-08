@@ -254,10 +254,10 @@ const PerformanceClustersAnalysis = () => {
                                                             onClick={() => setExampleInModal(sample)}
                                                         >
                                                             <SignedImage
+                                                                alt='Example'
+                                                                className='rounded'
+                                                                height={200}
                                                                 rawUrl={sample['image_metadata.uri']}
-                                                                setSignedUrlCallback={(signedUrl) => {
-                                                                    sample['image_metadata.uri'] = signedUrl;
-                                                                }}
                                                             />
                                                             <div className='heat-map-box' style={{
                                                                 height: bounding_box_h * 200 / height,
@@ -294,10 +294,10 @@ const PerformanceClustersAnalysis = () => {
                                         <div
                                             className='m-4 heat-map-item'
                                         >
-                                            <img
+                                            <SignedImage
                                                 alt='Example'
                                                 className='rounded'
-                                                src={exampleInModal['image_metadata.uri']}
+                                                rawUrl={exampleInModal['image_metadata.uri']}
                                                 height={600}
                                             />
                                             <div className='heat-map-box' style={{
