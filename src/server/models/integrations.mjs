@@ -2,12 +2,13 @@ import mongoose from 'mongoose';
 
 const Schema = mongoose.Schema;
 const integrationSchema = new Schema({
-    apiKey: {
-        type: String,
+    user: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
         required: true
     },
-    endpoint: {
-        type: String,
+    data: {
+        type: Object,
         required: true
     },
     organization: {
@@ -17,7 +18,7 @@ const integrationSchema = new Schema({
     },
     type: {
         type: String,
-        enum: ['REDASH'],
+        enum: ['REDASH', 'AWS_S3'],
         default: 'REDASH',
         required: true
     },
