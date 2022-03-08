@@ -2,6 +2,7 @@ import {useFormik} from 'formik';
 import PropTypes from 'prop-types';
 import React, {useEffect} from 'react';
 import {Button, Form, InputGroup} from 'react-bootstrap';
+
 export default function AwsS3Integration({formData, handleSubmit}) {
     const formik = useFormik({
         initialValues: {
@@ -28,7 +29,7 @@ export default function AwsS3Integration({formData, handleSubmit}) {
                 className='w-100'
                 onSubmit={formik.handleSubmit}
             >
-                <Form.Group className='mb-1'>
+                <Form.Group className='mb-3'>
                     <Form.Label className='mt-3'>Access Key ID</Form.Label>
                     <InputGroup>
                         <Form.Control

@@ -4,6 +4,7 @@ import {Alert, Col, Container, Row} from 'react-bootstrap';
 import {useLocation} from 'react-router-dom';
 import {Integrations} from '../enums/integrations';
 import AwsS3Integration from './integrations/aws-s3';
+import GoogleCloudStorageIntegration from './integrations/google-cloud-storage';
 import RedashIntegration from './integrations/redash';
 
 const Settings = () => {
@@ -20,8 +21,14 @@ const Settings = () => {
     }, [selectedIntegration]);
 
     useEffect(() => {
-        if (location.state && location.state.integration === 'aws') {
+        if (location.state && location.state.integration === 'aws_s3') {
             setSelectedIntegration(Integrations.AWS_S3.value);
+        }
+        if (
+            location.state &&
+            location.state.integration === 'google_cloud_storage'
+        ) {
+            setSelectedIntegration(Integrations.GOOGLE_CLOUD_STORAGE.value);
         }
     }, [location.state]);
 
@@ -35,10 +42,9 @@ const Settings = () => {
             })
             .catch((e) => {
                 setFormData(null);
-                console.log(e);
                 setUpdated(false);
                 setError(
-                    'An error occurred during configuration fetch. Please try again.'
+                    `An error occurred during configuration fetch. Please try again. Reason: ${e}`
                 );
             });
     };
@@ -54,7 +60,11 @@ const Settings = () => {
                 setFormData(null);
                 setUpdated(true);
                 setError('');
-                if (location.state && location.state.integration === 'aws') {
+                if (
+                    location.state &&
+                    (location.state.integration === 'aws_s3' ||
+                        location.state.integration === 'google_cloud_storage')
+                ) {
                     window.location = location.state.backPath;
                 }
             })
@@ -72,7 +82,7 @@ const Settings = () => {
             <div className='login-form d-flex flex-column m-4'>
                 <p className='text-dark bold-text fs-3'>Integrations</p>
                 <Row className='mt-3 align-items-center'>
-                    <Col xl={5}>
+                    <Col>
                         <Row className='border-bottom px-3'>
                             <div className='d-flex'>
                                 {Object.values(Integrations).map(
@@ -88,8 +98,7 @@ const Settings = () => {
                                                 }`}
                                                 key={index}
                                                 style={{
-                                                    cursor: 'pointer',
-                                                    minWidth: 70
+                                                    cursor: 'pointer'
                                                 }}
                                                 onClick={() => {
                                                     setSelectedIntegration(
@@ -132,6 +141,12 @@ const Settings = () => {
                 )}
                 {selectedIntegration === Integrations.AWS_S3.value && (
                     <AwsS3Integration
+                        formData={formData}
+                        handleSubmit={handleSubmit}
+                    />
+                )}
+                {selectedIntegration === Integrations.GOOGLE_CLOUD_STORAGE.value && (
+                    <GoogleCloudStorageIntegration
                         formData={formData}
                         handleSubmit={handleSubmit}
                     />

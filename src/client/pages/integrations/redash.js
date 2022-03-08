@@ -38,7 +38,7 @@ export default function RedashIntegration({formData, handleSubmit}) {
                 onSubmit={formik.handleSubmit}
             >
                 <Form.Group className='mb-3'>
-                    <Form.Label>API Key</Form.Label>
+                    <Form.Label className='mt-3'>API Key</Form.Label>
                     <InputGroup>
                         <Form.Control
                             className='bg-light'

@@ -7,22 +7,18 @@ import Select from 'components/select';
 import useAllSqlFilters from 'hooks/use-all-sql-filters';
 import useModal from 'hooks/useModal';
 import {useState} from 'react';
-import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
-import {useHistory} from 'react-router-dom';
 import {Filter} from 'state/stores/filters-store';
-
+import SignedImage from 'components/signed-image';
 
 const BBoxLocationAnalysis = () => {
     const allSqlFiltersWithoutOrgId = useAllSqlFilters({
         __REMOVE_ME__excludeOrgId: true
     });
-    const history = useHistory();
     const [classFilter, setClassFilter] = useState(null);
     const [heatMapSamples, setHeatMapSamples] = useState([]);
     const [exampleInModal, setExampleInModal] = useModal(null);
-    const [awsS3IntegrationIsNotSet, setAwsS3IntegrationIsNotSet] = useState(false);
 
     return (
         <>
@@ -109,73 +105,43 @@ const BBoxLocationAnalysis = () => {
                             }
                             style={{maxHeight: 600}}
                         >
-                            {awsS3IntegrationIsNotSet && (
-                                <div
-                                    className='d-flex flex-column p-3'
-                                    style={{gap: 10}}
-                                >
-                                    <span>Cloud storage integration is not set</span>
-                                    <Button
-                                        className='bold-text fs-6'
-                                        variant='outline-secondary'
-                                        onClick={() => {
-                                            history.push({
-                                                pathname: '/settings',
-                                                state: {
-                                                    integration: 'aws',
-                                                    backPath: location.href
-                                                }
-                                            });
-                                        }}
-                                    >
-                                        GO TO SETTINGS
-                                    </Button>
-                                </div>
-                            )}
-                            {!awsS3IntegrationIsNotSet &&
-                                heatMapSamples.map((sample, i) => {
-                                    const {image_url, width, height, bounding_box} =
-                                        sample;
+                            {heatMapSamples.map((sample, i) => {
+                                const {image_url, width, height, bounding_box} =
+                                    sample;
 
-                                    return (
+
+                                return (
+                                    <div
+                                        key={i}
+                                        className='m-4 heat-map-item cursor-pointer'
+                                        onClick={() => setExampleInModal(sample)}
+                                    >
+                                        <SignedImage
+                                            rawUrl={image_url}
+                                            setSignedUrlCallback={(signedUrl) => {
+                                                sample.image_url = signedUrl;
+                                            }}
+                                        />
                                         <div
-                                            key={i}
-                                            className='m-4 heat-map-item cursor-pointer'
-                                            onClick={() => setExampleInModal(sample)}
-                                        >
-                                            <img
-                                                alt='Example'
-                                                className='rounded'
-                                                src={image_url}
-                                                height={200}
-                                                onError={({currentTarget}) => {
-                                                    currentTarget.onerror = null; // prevents looping
-                                                    setAwsS3IntegrationIsNotSet(
-                                                        true
-                                                    );
-                                                }}
-                                            />
-                                            <div
-                                                className='heat-map-box'
-                                                style={{
-                                                    height: bounding_box.h * 200,
-                                                    width:
-                                                        bounding_box.w *
-                                                        ((200 * width) / height),
-                                                    top:
-                                                        (bounding_box.y -
-                                                            bounding_box.h / 2) *
-                                                        200,
-                                                    left:
-                                                        (bounding_box.x -
-                                                            bounding_box.w / 2) *
-                                                        ((200 * width) / height)
-                                                }}
-                                            />
-                                        </div>
-                                    );
-                                })}
-                            &nbsp;
+                                            className='heat-map-box'
+                                            style={{
+                                                height: bounding_box.h * 200,
+                                                width:
+                                                    bounding_box.w *
+                                                    ((200 * width) / height),
+                                                top:
+                                                    (bounding_box.y -
+                                                        bounding_box.h / 2) *
+                                                    200,
+                                                left:
+                                                    (bounding_box.x -
+                                                        bounding_box.w / 2) *
+                                                    ((200 * width) / height)
+                                            }}
+                                        />
+                                    </div>
+                                );
+                            })}
                         </div>
                     ) : (
                         <div
