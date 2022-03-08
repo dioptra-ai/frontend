@@ -9,7 +9,7 @@ const Tabs = ({tabs = []}) => {
                 {tabs.map((tab, i) => (
                     <NavLink
                         activeClassName='active'
-                        className='tab fs-5'
+                        className='tab fs-5 d-flex flex-column justify-content-between'
                         key={i}
                         to={tab.to}
                     >
