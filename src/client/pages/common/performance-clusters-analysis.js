@@ -255,7 +255,9 @@ const PerformanceClustersAnalysis = () => {
                                                         >
                                                             <SignedImage
                                                                 rawUrl={sample['image_metadata.uri']}
-                                                                setSignedUrlCallback={(signedUrl) => { sample['image_metadata.uri'] = signedUrl }}
+                                                                setSignedUrlCallback={(signedUrl) => {
+                                                                    sample['image_metadata.uri'] = signedUrl;
+                                                                }}
                                                             />
                                                             <div className='heat-map-box' style={{
                                                                 height: bounding_box_h * 200 / height,

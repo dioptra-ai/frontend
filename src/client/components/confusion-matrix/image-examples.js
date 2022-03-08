@@ -73,7 +73,9 @@ const ImageExamples = ({onClose, groundtruth, prediction, iou, model}) => {
                                                     >
                                                         <SignedImage
                                                             rawUrl={item['image_metadata.uri'].replace(/"/g, '')}
-                                                            setSignedUrlCallback={(signedUrl) => { item.signedUrl = signedUrl }}
+                                                            setSignedUrlCallback={(signedUrl) => {
+                                                                item.signedUrl = signedUrl;
+                                                            }}
                                                         />
                                                     </Col>
                                                 ))}
