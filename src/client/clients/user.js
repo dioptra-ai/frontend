@@ -3,6 +3,7 @@
  * @param  {Object} data can be 'object'
  */
 const userClient = async (method, data = {}) => {
+    // TODO: Replace this with baseJSONClient
     const res = await window.fetch('/api/user', {
         headers: {
             'content-type': 'application/json'

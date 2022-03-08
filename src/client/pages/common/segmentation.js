@@ -404,7 +404,7 @@ const Segmentation = ({timeStore, segmentationStore}) => {
                         fetchData={mlModelType === 'TABULAR_CLASSIFIER' ?
                             () => metricsClient('queries/fairness-bias-columns-names-for-features') :
                             mlModelType === 'SPEECH_TO_TEXT' ?
-                                () => metricsClient('queries/fairness-bias-columns-names-for-audio-metadata') :
+                                () => metricsClient('queries/fairness-bias-columns-names-for-audio-metadata-and-tags') :
                                 () => metricsClient('queries/fairness-bias-columns-names-for-tags')
                         }
                     />

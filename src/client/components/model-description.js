@@ -58,9 +58,11 @@ const ModelDescription = ({_id, name, description, team, tier, lastDeployed, mlM
         <Container className='bg-white-blue model-desc' fluid >
             <Row className='align-items-center py-2 px-3'>
                 <Col className='d-flex align-items-center' xs={11}>
-                    <Textfit mode='single'>
-                        <h1 className='text-dark my-3 bold-text'>{name}</h1>
-                    </Textfit>
+                    <div style={{fontSize: 24}}>
+                        <Textfit mode='multi' min={2} max={24} forceSingleModeWidth={false}>
+                            <span>{name}</span>
+                        </Textfit>
+                    </div>
                     <button className='btn-expand bg-transparent text-dark' onClick={() => setExpand(!expand)}>
                         {expand ? (
                             <BsChevronUp className='fs-2'/>

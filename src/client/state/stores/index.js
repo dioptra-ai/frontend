@@ -6,12 +6,24 @@ import {authStore} from './auth-store';
 import {segmentationStore} from './segmentation';
 import {benchmarkStore} from './benchmark-store';
 
-export default {
+const initializeStores = async () => {
+    const readyStatuses = await Promise.all(Object.values(stores).map((store) => {
+
+        return store.initialize?.() || true;
+    }));
+
+    return readyStatuses.every((r) => r);
+};
+
+const stores = {
     modelStore,
     errorStore,
     timeStore,
     filtersStore,
     authStore,
     segmentationStore,
-    benchmarkStore
+    benchmarkStore,
+    initializeStores
 };
+
+export default stores;

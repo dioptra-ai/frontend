@@ -1,6 +1,9 @@
 import React, {useEffect, useState} from 'react';
+import * as Sentry from '@sentry/react';
 import PropTypes from 'prop-types';
+
 import {SpinnerWrapper} from 'components/spinner';
+import Error from 'components/error';
 
 export const AsyncContext = React.createContext();
 
@@ -19,22 +22,27 @@ const Async = ({
     const [hasLoaded, setHasLoaded] = useState(false);
 
     useEffect(() => {
-        setLoading(true);
-        const fetchAllData = Array.isArray(fetchData) ?
-            Promise.all(fetchData.map((f) => f())) : fetchData();
+        (async () => {
+            setLoading(true);
 
-        fetchAllData.then((data) => {
-            setError(null);
-            setData(data);
-        })
-            .catch((error) => {
+            try {
+                const fetchAllData = Array.isArray(fetchData) ?
+                    Promise.all(fetchData.map((f) => f())) :
+                    fetchData();
+                const data = await fetchAllData;
+
+                setError(null);
+                setData(data);
+            } catch (err) {
                 setData(null);
-                setError(error);
-            })
-            .finally(() => {
+                setError(err);
+
+                Sentry.captureException(err);
+            } finally {
                 setLoading(false);
                 setHasLoaded(true);
-            });
+            }
+        })();
     }, refetchOnChanged);
 
     let content = null;
@@ -58,9 +66,9 @@ const Async = ({
                 <SpinnerWrapper/>
             </div>
         );
-    } else return null;
+    }
 
-    return (
+    return content && (
         <AsyncContext.Provider value={{data, loading, error}}>
             {content}
         </AsyncContext.Provider>
@@ -81,7 +89,9 @@ Async.propTypes = {
 };
 
 Async.defaultProps = {
-    renderError: String
+    renderError: (error) => <Error error={error} variant='warning'/>
 };
 
-export default Async;
+export default Sentry.withErrorBoundary(Async, {
+    fallback: ({error}) => <Error error={error} variant='warning'/> // eslint-disable-line react/prop-types
+});

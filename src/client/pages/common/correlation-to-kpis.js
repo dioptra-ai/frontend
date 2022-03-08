@@ -53,7 +53,7 @@ const CorrelationToKPIs = ({timeStore, selectableMetrics}) => {
                     name
                 }))
             );
-        });
+        }).catch(console.warn);
     }, []);
 
     const timeGranularity = useTimeGranularity()?.toISOString();

@@ -15,12 +15,14 @@ class AuthStore {
         makeAutoObservable(this);
     }
 
-    async init() {
+    async initialize() {
         this.loading = true;
 
         try {
             this.userData = await authenticationClient('login');
             this.isAuthenticated = true;
+        } catch (e) {
+            console.warn(e);
         } finally {
             this.loading = false;
         }
@@ -122,5 +124,3 @@ class AuthStore {
 }
 
 export const authStore = new AuthStore();
-
-authStore.init();

@@ -40,7 +40,7 @@ MetricInfoBox.propTypes = {
     name: PropTypes.string,
     subtext: PropTypes.any,
     unit: PropTypes.string,
-    value: PropTypes.number,
+    value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     difference: PropTypes.number,
     children: PropTypes.node,
     info: PropTypes.node
