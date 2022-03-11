@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import React, {useState} from 'react';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import {Scatter} from 'recharts';
@@ -37,6 +37,38 @@ const PerformanceClustersAnalysis = () => {
     const [exampleInModal, setExampleInModal] = useModal(false);
     const [minerModalOpen, setMinerModalOpen] = useModal(false);
     const [minerDatasetSelected, setMinerDatasetSelected] = useState(false);
+
+    const [distributionMetricsOptions, setDistributionMetricsOptions] = useState([]);
+
+    const getDistributionMetricsForModel = async (modelType) => {
+        if (modelType === 'IMAGE_CLASSIFIER' || modelType === 'TEXT_CLASSIFIER') {
+            return [{
+                name: 'prediction',
+                value: 'prediction'
+            }, {
+                name: 'groundtruth',
+                value: 'groundtruth'
+            }];
+        } else if (modelType === 'SPEECH_TO_TEXT') {
+            const results = await metricsClient('queries/fairness-bias-columns-names-for-audio-metadata-and-tags');
+
+            return results.map((p) => {
+                return {
+                    name: p.column,
+                    value: p.column
+                };
+            });
+        } else {
+            return [];
+        }
+    };
+
+    React.useEffect(() => {
+        const result = getDistributionMetricsForModel(model.mlModelType);
+
+        console.log(result);
+        setDistributionMetricsOptions(result);
+    }, [model.mlModelType]);
 
     return (
         <Async
@@ -179,13 +211,7 @@ const PerformanceClustersAnalysis = () => {
                                                                     <Col>Class Distribution</Col>
                                                                     <Col style={{marginRight: -12}}>
                                                                         <Select
-                                                                            options={[{
-                                                                                name: 'prediction',
-                                                                                value: 'prediction'
-                                                                            }, {
-                                                                                name: 'groundtruth',
-                                                                                value: 'groundtruth'
-                                                                            }]}
+                                                                            options={distributionMetricsOptions}
                                                                             onChange={setUserSelectedSummaryDistribution}
                                                                         />
                                                                     </Col>
@@ -195,7 +221,7 @@ const PerformanceClustersAnalysis = () => {
                                                         />
                                                     )}
                                                     fetchData={() => metricsClient(`queries/${(model.mlModelType === 'IMAGE_CLASSIFIER' ||
-                                                            model.mlModelType === 'TEXT_CLASSIFIER') ?
+                                                            model.mlModelType === 'TEXT_CLASSIFIER' || model.mlModelType === 'SPEECH_TO_TEXT') ?
                                                         'class-distribution-1' :
                                                         'class-distribution-2'}`, {
                                                         sql_filters: samplesSqlFilter,
@@ -373,5 +399,6 @@ const PerformanceClustersAnalysis = () => {
         />
     );
 };
+
 
 export default PerformanceClustersAnalysis;
