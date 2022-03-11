@@ -63,10 +63,8 @@ const PerformanceClustersAnalysis = () => {
         }
     };
 
-    React.useEffect(() => {
-        const result = getDistributionMetricsForModel(model.mlModelType);
-
-        console.log(result);
+    React.useEffect(async () => {
+        const result = await getDistributionMetricsForModel(model.mlModelType);
         setDistributionMetricsOptions(result);
     }, [model.mlModelType]);
 
