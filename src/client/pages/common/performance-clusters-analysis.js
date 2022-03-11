@@ -182,7 +182,7 @@ const PerformanceClustersAnalysis = () => {
                                 <Col lg={4} className='px-3'>
                                     <div className='bg-white-blue rounded p-3'>
                                         <div className='text-dark bold-text d-flex align-items-center justify-content-between'>
-                                            <span>Summary {samples?.length ? `(${samples.length} total)` : ''}</span>
+                                            <span>Summary {selectedClusterIndex ? ` - Cluster #${selectedClusterIndex}` : ''} {samples?.length ? `(${samples.length} total)` : ''}</span>
                                             <div className='d-flex align-items-center'>
                                                 {samplesCsvClassNames ? (
                                                     <OverlayTrigger overlay={<Tooltip>Download classes as CSV</Tooltip>}>
