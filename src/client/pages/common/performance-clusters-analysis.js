@@ -144,9 +144,6 @@ const PerformanceClustersAnalysis = () => {
                                                     }, {
                                                         name: 'Cosine Distance',
                                                         value: 'cosine'
-                                                    }, {
-                                                        name: 'Minkowski Distance',
-                                                        value: 'minkowski'
                                                     }]}
                                                     onChange={setUserSelectedDistanceName}
                                                 />
