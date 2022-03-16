@@ -12,6 +12,8 @@ import DifferenceLabel from 'components/difference-labels';
 import CountEvents from 'components/count-events';
 import metricsClient from 'clients/metrics';
 import useModel from 'hooks/use-model';
+import {OverlayTrigger, Tooltip} from 'react-bootstrap';
+import {IoDownloadOutline} from 'react-icons/io5';
 
 const PerformanceBox = ({
     title = '',
@@ -145,13 +147,20 @@ const PerformancePerClass = () => {
                     <Async
                         defaultData={[[], []]}
                         renderData={([data, referenceData]) => (
-                            <PerformanceBox
-                                data={data}
-                                performanceType='precision'
-                                subtext={sampleSizeComponent}
-                                title='Precision per class'
-                                referenceData={referenceData}
-                            />
+                            <div style={{position: "relative"}}>
+                                <OverlayTrigger overlay={<Tooltip>Download classes as CSV</Tooltip>}>
+                                    <IoDownloadOutline style={{ position: "absolute", right: 0, margin: 10 }} className='fs-2 cursor-pointer' onClick={() => {
+                                        saveAs(new Blob(["class,precision\n", ...data.map(r => `${r.label},${r.value}\n`)], {type: 'text/csv;charset=utf-8'}), 'classes.csv');
+                                    }}/>
+                                </OverlayTrigger>
+                                <PerformanceBox
+                                    data={data}
+                                    performanceType='precision'
+                                    subtext={sampleSizeComponent}
+                                    title='Precision per class'
+                                    referenceData={referenceData}
+                                />
+                            </div>
                         )}
                         fetchData={[
                             () => metricsClient('precision-metric', {
@@ -171,15 +180,22 @@ const PerformancePerClass = () => {
                 <Col lg={6}>
                     <Async
                         defaultData={[[], []]}
-                        renderData={([data, referenceData]) => (
-                            <PerformanceBox
-                                data={data}
-                                performanceType='recall'
-                                subtext={sampleSizeComponent}
-                                title='Recall per class'
-                                referenceData={referenceData}
-                            />
-                        )}
+                        renderData={([data, referenceData]) => {
+                            return <div style={{position: "relative"}}>
+                                <OverlayTrigger overlay={<Tooltip>Download classes as CSV</Tooltip>}>
+                                    <IoDownloadOutline style={{ position: "absolute", right: 0, margin: 10 }} className='fs-2 cursor-pointer' onClick={() => {
+                                        saveAs(new Blob(["class,precision\n", ...data.map(r => `${r.label},${r.value}\n`)], {type: 'text/csv;charset=utf-8'}), 'classes.csv');
+                                    }}/>
+                                </OverlayTrigger>
+                                <PerformanceBox
+                                    data={data}
+                                    performanceType='recall'
+                                    subtext={sampleSizeComponent}
+                                    title='Recall per class'
+                                    referenceData={referenceData}
+                                />
+                            </div>
+                        }}
                         fetchData={[
                             () => metricsClient('recall-metric', {
                                 sql_filters: allSqlFilters,
