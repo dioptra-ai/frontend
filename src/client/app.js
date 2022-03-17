@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, {useEffect} from 'react';
 import {Redirect, Route, Switch, useLocation} from 'react-router-dom';
 import {AuthorizedRouteConfigs} from './configs/route-config';
 import Model from 'pages/model';
@@ -18,7 +18,7 @@ const App = () => {
 
     useEffect(() => {
         attachInteractionListeners();
-    }, [location])
+    }, [location]);
 
     return (
         <>

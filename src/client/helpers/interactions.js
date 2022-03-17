@@ -9,6 +9,7 @@ const addEventListeners = (selector) => {
         if (element.getAttribute('listener') !== 'true') {
             element.addEventListener('click', (event) => {
                 const elementClicked = event.currentTarget;
+
                 elementClicked.setAttribute('listener', 'true');
                 window.analytics.track(element.innerText, {});
             });
