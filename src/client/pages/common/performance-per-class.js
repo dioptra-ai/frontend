@@ -14,6 +14,7 @@ import metricsClient from 'clients/metrics';
 import useModel from 'hooks/use-model';
 import {OverlayTrigger, Tooltip} from 'react-bootstrap';
 import {IoDownloadOutline} from 'react-icons/io5';
+import {saveAs} from 'file-saver';
 
 const PerformanceBox = ({
     title = '',
@@ -147,10 +148,10 @@ const PerformancePerClass = () => {
                     <Async
                         defaultData={[[], []]}
                         renderData={([data, referenceData]) => (
-                            <div style={{position: "relative"}}>
+                            <div style={{position: 'relative'}}>
                                 <OverlayTrigger overlay={<Tooltip>Download classes as CSV</Tooltip>}>
-                                    <IoDownloadOutline style={{ position: "absolute", right: 0, margin: 10 }} className='fs-2 cursor-pointer' onClick={() => {
-                                        saveAs(new Blob(["class,precision\n", ...data.map(r => `${r.label},${r.value}\n`)], {type: 'text/csv;charset=utf-8'}), 'classes.csv');
+                                    <IoDownloadOutline style={{position: 'absolute', right: 0, margin: 10}} className='fs-2 cursor-pointer' onClick={() => {
+                                        saveAs(new Blob(['class,precision\n', ...data.map((r) => `${r.label},${r.value}\n`)], {type: 'text/csv;charset=utf-8'}), 'classes.csv');
                                     }}/>
                                 </OverlayTrigger>
                                 <PerformanceBox
@@ -181,10 +182,10 @@ const PerformancePerClass = () => {
                     <Async
                         defaultData={[[], []]}
                         renderData={([data, referenceData]) => {
-                            return <div style={{position: "relative"}}>
+                            return <div style={{position: 'relative'}}>
                                 <OverlayTrigger overlay={<Tooltip>Download classes as CSV</Tooltip>}>
-                                    <IoDownloadOutline style={{ position: "absolute", right: 0, margin: 10 }} className='fs-2 cursor-pointer' onClick={() => {
-                                        saveAs(new Blob(["class,recall\n", ...data.map(r => `${r.label},${r.value}\n`)], {type: 'text/csv;charset=utf-8'}), 'classes.csv');
+                                    <IoDownloadOutline style={{position: 'absolute', right: 0, margin: 10}} className='fs-2 cursor-pointer' onClick={() => {
+                                        saveAs(new Blob(['class,recall\n', ...data.map((r) => `${r.label},${r.value}\n`)], {type: 'text/csv;charset=utf-8'}), 'classes.csv');
                                     }}/>
                                 </OverlayTrigger>
                                 <PerformanceBox
@@ -194,7 +195,7 @@ const PerformancePerClass = () => {
                                     title='Recall per class'
                                     referenceData={referenceData}
                                 />
-                            </div>
+                            </div>;
                         }}
                         fetchData={[
                             () => metricsClient('recall-metric', {
