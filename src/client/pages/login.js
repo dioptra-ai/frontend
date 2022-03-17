@@ -38,6 +38,14 @@ const Login = ({authStore}) => {
         }
     }, [authStore.error]);
 
+    useEffect(() => {
+        if (authStore.userData.id) {
+            window.analytics.identify(authStore.userData.id, {
+                email: loginData.email
+            });
+        }
+    }, [authStore.userData.id]);
+
     return authStore.loading ? (
         <Spinner/>
     ) : authStore.isAuthenticated ? (
