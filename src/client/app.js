@@ -1,5 +1,5 @@
-import React from 'react';
-import {Redirect, Route, Switch} from 'react-router-dom';
+import React, { useEffect } from 'react';
+import {Redirect, Route, Switch, useLocation} from 'react-router-dom';
 import {AuthorizedRouteConfigs} from './configs/route-config';
 import Model from 'pages/model';
 import Menu from 'components/menu';
@@ -11,8 +11,14 @@ import Benchmark from 'pages/benchmark';
 import DatasetsList from 'pages/datasets-list';
 import MinersList from 'pages/miners-list';
 import AppContext from 'context/app-context';
+import attachInteractionListeners from './helpers/interactions';
 
 const App = () => {
+    const location = useLocation();
+
+    useEffect(() => {
+        attachInteractionListeners();
+    }, [location])
 
     return (
         <>
