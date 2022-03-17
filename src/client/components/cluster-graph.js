@@ -1,6 +1,5 @@
 import {
     CartesianGrid,
-    Legend,
     ResponsiveContainer,
     ScatterChart,
     XAxis,
@@ -58,7 +57,6 @@ const ClusterGraph = ({children}) => {
                     range={[SMALL_DOT_SIZE, LARGE_DOT_SIZE]}
                     scale='linear'
                 />
-                <Legend wrapperStyle={{bottom: '10px'}} fill='black' />
                 <defs>
                     <linearGradient id='colorGrad' x1='0' y1='0' x2='1' y2='0'>
                         <stop offset='50%' stopColor={theme.warning} stopOpacity={1} />
