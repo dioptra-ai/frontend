@@ -184,7 +184,7 @@ const PerformancePerClass = () => {
                             return <div style={{position: "relative"}}>
                                 <OverlayTrigger overlay={<Tooltip>Download classes as CSV</Tooltip>}>
                                     <IoDownloadOutline style={{ position: "absolute", right: 0, margin: 10 }} className='fs-2 cursor-pointer' onClick={() => {
-                                        saveAs(new Blob(["class,precision\n", ...data.map(r => `${r.label},${r.value}\n`)], {type: 'text/csv;charset=utf-8'}), 'classes.csv');
+                                        saveAs(new Blob(["class,recall\n", ...data.map(r => `${r.label},${r.value}\n`)], {type: 'text/csv;charset=utf-8'}), 'classes.csv');
                                     }}/>
                                 </OverlayTrigger>
                                 <PerformanceBox
