@@ -10,7 +10,6 @@ import App from './app';
 import Spinner from 'components/spinner';
 import state from 'state/stores';
 import 'styles/custom.scss';
-import 'helpers/tracking';
 
 const Index = ({children}) => (
     <React.StrictMode>

@@ -1,3 +1,5 @@
+import {authStore} from 'state/stores/auth-store';
+
 /* eslint-disable */
 !(function() {
     if (_WEBPACK_DEF_ENV_ === 'production') {
@@ -24,7 +26,38 @@
                 n.parentNode.insertBefore(t, n); analytics._loadOptions = e;
             }; analytics._writeKey = 'rMMWIHH5QB7uaQvdCuoMPak8edlF6mwJ'; analytics.SNIPPET_VERSION = '4.15.3';
             analytics.load('rMMWIHH5QB7uaQvdCuoMPak8edlF6mwJ');
-            analytics.page();
         }
     }
 }());
+
+export const initializeUserTracking = () => {
+    if (window.analytics) {
+        if (authStore.userData?.id) {
+            window.analytics.identify(authStore.userData.id, {
+                username: authStore.userData.username
+            });
+        }
+
+        ['button', '.btn', 'a', '.tab', 'input', 'select', 'li[data-range-key]'].forEach((selector) => {
+
+            document.querySelectorAll(selector).forEach((element) => {
+                if (element.getAttribute('listener') !== 'true') {
+
+                    element.addEventListener('click', (event) => {
+                        const elementClicked = event.currentTarget;
+
+                        elementClicked.setAttribute('listener', 'true');
+                        window.analytics.track(element.innerText, {});
+                    });
+                }
+            });
+        });
+    }
+};
+
+export const trackPage = () => {
+    window.analytics?.page();
+};
+
+
+export default initializeUserTracking;

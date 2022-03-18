@@ -11,14 +11,18 @@ import Benchmark from 'pages/benchmark';
 import DatasetsList from 'pages/datasets-list';
 import MinersList from 'pages/miners-list';
 import AppContext from 'context/app-context';
-import attachInteractionListeners from './helpers/interactions';
+import {initializeUserTracking, trackPage} from 'helpers/tracking';
 
 const App = () => {
     const location = useLocation();
 
     useEffect(() => {
-        attachInteractionListeners();
-    }, [location]);
+        initializeUserTracking();
+    }, []);
+
+    useEffect(() => {
+        trackPage();
+    }, [location.pathname]);
 
     return (
         <>
