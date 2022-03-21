@@ -30,7 +30,7 @@ import {authStore} from 'state/stores/auth-store';
 
 export const initializeUserTracking = () => {
     if (window.analytics) {
-        if (authStore.userData?.id) {
+        if (authStore.userData && authStore.userData.id) {
             window.analytics.identify(authStore.userData.id, {
                 username: authStore.userData.username
             });
