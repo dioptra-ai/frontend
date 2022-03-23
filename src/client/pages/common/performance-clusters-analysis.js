@@ -394,45 +394,48 @@ const PerformanceClustersAnalysis = () => {
                                         </Form.Control>
                                     </InputGroup>
                                     {
+                                    !minerDatasetSelected && (
+                                        <InputGroup className='mt-1'>
+                                            <Form.Label className='mt-3 mb-0 w-100'>
+                                                Date range
+                                            </Form.Label>
+                                            <DateTimeRangePicker
+                                                datePickerSettings={{
+                                                    opens: 'center'
+                                                }}
+                                                end={referencePeriod ? moment(referencePeriod.end) : null}
+                                                onChange={onDatasetDateChange}
+                                                start={referencePeriod ? moment(referencePeriod.start) : null}
+                                                width='100%'
+                                            />
+                                        </InputGroup>
+                                    )}
+                                    {
                                         minerDatasetSelected ? (
                                             <>
-                                                <InputGroup className='mt-1'>
-                                                    <Form.Label className='mt-3 mb-0 w-100'>
-                                                        Date range
-                                                    </Form.Label>
-                                                    <DateTimeRangePicker
-                                                        datePickerSettings={{
-                                                            opens: 'center'
-                                                        }}
-                                                        end={referencePeriod ? moment(referencePeriod.end) : null}
-                                                        onChange={onDatasetDateChange}
-                                                        start={referencePeriod ? moment(referencePeriod.start) : null}
-                                                        width='100%'
-                                                    />
-                                                </InputGroup>
                                                 <Form.Label className='mt-3 mb-0 w-100'>
                                                     Dataset
                                                 </Form.Label>
                                                 <InputGroup className='mt-1'>
-                                                <Async
-                                                    fetchData={() => metricsClient('datasets', null, 'get')}
-                                                    renderData={(datasets) => (
-                                                        <Form.Control
-                                                            as='select'
-                                                            className={'form-select bg-light w-100'}
-                                                            custom
-                                                            required
-                                                            onChange={(e) => setSelectedDataset(e.target.value)}
-                                                        >
-                                                            <option disabled>
+                                                    <Async
+                                                        fetchData={() => metricsClient('datasets', null, 'get')}
+                                                        renderData={(datasets) => (
+                                                            <Form.Control
+                                                                as='select'
+                                                                className={'form-select bg-light w-100'}
+                                                                custom
+                                                                required
+                                                                onChange={(e) => setSelectedDataset(e.target.value)}
+                                                            >
+                                                                <option disabled>
                                                                 Select Dataset
-                                                            </option>
-                                                            {datasets.map(dataset => {
-                                                                return <option value={dataset.dataset_id}>{dataset.dataset_id}</option>
-                                                            })}
-                                                        </Form.Control>
-                                                    )}
-                                                />
+                                                                </option>
+                                                                {datasets.map((dataset) => {
+                                                                    return <option value={dataset.dataset_id}>{dataset.dataset_id}</option>;
+                                                                })}
+                                                            </Form.Control>
+                                                        )}
+                                                    />
                                                 </InputGroup>
                                             </>
                                         ) : null
