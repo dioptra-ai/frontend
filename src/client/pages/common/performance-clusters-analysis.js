@@ -292,9 +292,9 @@ const PerformanceClustersAnalysis = () => {
                                                             renderData={(data) => {
                                                                 const predictionResult = data.filter(entry => entry.prediction === sample['prediction'])
                                                                 return model.mlModelType === 'IMAGE_CLASSIFIER' && predictionResult.length !== 0 ? (
-                                                                    <Textfit mode="single" max={14}>
+                                                                    <Textfit mode="single" max={8}>
                                                                         <span style={{border: `2px solid ${getHexColor(sample['prediction'])}`, padding: 3, borderRadius: 6}}>
-                                                                            Prediction: {predictionResult[0]['my_percentage']}
+                                                                            {predictionResult[0]['prediction']}
                                                                         </span>
                                                                     </Textfit>
                                                                 ) : (
@@ -318,9 +318,9 @@ const PerformanceClustersAnalysis = () => {
                                                                 renderData={(data) => {
                                                                     const groundtruthResult = data.filter(entry => entry.prediction === sample['prediction']);
                                                                     return model.mlModelType === 'IMAGE_CLASSIFIER' && groundtruthResult.length !== 0 ? (
-                                                                        <Textfit mode="single" max={14}>
+                                                                        <Textfit mode="single" max={8}>
                                                                             <span style={{border: `2px solid ${getHexColor(sample['prediction'])}`, padding: 3, borderRadius: 6}}>
-                                                                                Groundtruth: {groundtruthResult[0]['my_percentage']}
+                                                                                {groundtruthResult[0]['prediction']}
                                                                             </span>
                                                                         </Textfit>
                                                                     ) : (
