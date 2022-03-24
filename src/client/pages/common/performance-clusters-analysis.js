@@ -88,6 +88,18 @@ const PerformanceClustersAnalysis = () => {
         setReferencePeriod({start: isoStart, end: isoEnd});
     };
 
+    const createMiner = (samples) => {
+        const requestIds = samples.map(selectedPoint => selectedPoint.request_id)
+        const payload = {
+            request_ids: requestIds,
+            selectedDataset,
+        }
+        if (minerDatasetSelected) {
+            payload['referencePeriod'] = referencePeriod;
+        }
+        metricsClient("/miners", payload)
+    }
+
     return (
         <Async
             refetchOnChanged={[allSqlFilters, userSelectedDistanceName]}
@@ -370,7 +382,7 @@ const PerformanceClustersAnalysis = () => {
                                 </div>
                                 <Form onSubmit={(e) => {
                                     e.preventDefault();
-                                    // todo :: here logic for adding miner
+                                    createMiner();
                                     setMinerModalOpen(false);
                                 }}>
                                     <Form.Label className='mt-3 mb-0 w-100'>
@@ -425,9 +437,14 @@ const PerformanceClustersAnalysis = () => {
                                                                 className={'form-select bg-light w-100'}
                                                                 custom
                                                                 required
-                                                                onChange={(e) => setSelectedDataset(e.target.value)}
+                                                                onChange={(e) => {
+                                                                    const value = e.target.value
+                                                                    if (value != 'desc') {
+                                                                        setSelectedDataset(value)
+                                                                    }
+                                                                }}
                                                             >
-                                                                <option disabled>
+                                                                <option value="desc">
                                                                 Select Dataset
                                                                 </option>
                                                                 {datasets.map((dataset) => {
@@ -442,7 +459,7 @@ const PerformanceClustersAnalysis = () => {
                                     }
                                     <Button
                                         className='w-100 text-white btn-submit mt-3'
-                                        variant='primary' type='submit'>Create Miner</Button>
+                                        variant='primary' type='submit' disabled={!selectedDataset} onClick={() => createMiner(samples)}>Create Miner</Button>
                                 </Form>
                             </Modal>
                         ) : null}

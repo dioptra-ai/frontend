@@ -177,6 +177,18 @@ const ScatterGraph = ({data, noveltyIsObsolete}) => {
         setReferencePeriod({start: isoStart, end: isoEnd});
     };
 
+    const createMiner = () => {
+        const requestIds = selectedPoints.map(selectedPoint => selectedPoint.request_id)
+        const payload = {
+            request_ids: requestIds,
+            selectedDataset,
+        }
+        if (minerDatasetSelected) {
+            payload['referencePeriod'] = referencePeriod;
+        }
+        metricsClient("/miners", payload)
+    }
+
     return (
         <>
             <Row className='border rounded p-3 w-100 scatterGraph' ref={ref}>
@@ -375,7 +387,7 @@ const ScatterGraph = ({data, noveltyIsObsolete}) => {
                     </div>
                     <Form onSubmit={(e) => {
                         e.preventDefault();
-                        // todo :: here logic for adding miner
+                        createMiner();
                         setMinerModalOpen(false);
                     }}>
                         <Form.Label className='mt-3 mb-0 w-100'>
@@ -430,9 +442,14 @@ const ScatterGraph = ({data, noveltyIsObsolete}) => {
                                                     className={'form-select bg-light w-100'}
                                                     custom
                                                     required
-                                                    onChange={(e) => setSelectedDataset(e.target.value)}
+                                                    onChange={(e) => {
+                                                        const value = e.target.value
+                                                        if (value != 'desc') {
+                                                            setSelectedDataset(value)
+                                                        }
+                                                    }}
                                                 >
-                                                    <option disabled>
+                                                    <option value="desc">
                                                     Select Dataset
                                                     </option>
                                                     {datasets.map((dataset) => {
