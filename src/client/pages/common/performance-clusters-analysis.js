@@ -94,7 +94,8 @@ const PerformanceClustersAnalysis = () => {
             request_ids: requestIds,
         }
         if (!minerDatasetSelected) {
-            payload['reference_period'] = referencePeriod;
+            payload['start_time'] = referencePeriod.start;
+            payload['end_time'] = referencePeriod.end;
         } else {
             payload['dataset'] = selectedDataset;
         }
