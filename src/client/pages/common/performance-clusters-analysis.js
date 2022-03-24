@@ -92,10 +92,11 @@ const PerformanceClustersAnalysis = () => {
         const requestIds = samples.map(selectedPoint => selectedPoint.request_id)
         const payload = {
             request_ids: requestIds,
-            selectedDataset,
         }
-        if (minerDatasetSelected) {
-            payload['referencePeriod'] = referencePeriod;
+        if (!minerDatasetSelected) {
+            payload['reference_period'] = referencePeriod;
+        } else {
+            payload['selected_dataset'] = selectedDataset;
         }
         metricsClient("/miners", payload)
     }
