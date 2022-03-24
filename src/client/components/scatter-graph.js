@@ -185,7 +185,7 @@ const ScatterGraph = ({data, noveltyIsObsolete}) => {
         if (!minerDatasetSelected) {
             payload['reference_period'] = referencePeriod;
         } else {
-            payload['selected_dataset'] = selectedDataset;
+            payload['dataset'] = selectedDataset;
         }
         metricsClient("/miners", payload)
     }
@@ -389,7 +389,7 @@ const ScatterGraph = ({data, noveltyIsObsolete}) => {
                     <Form onSubmit={(e) => {
                         e.preventDefault();
                         createMiner();
-                        setMinerModalOpen(false);
+                        // setMinerModalOpen(false);
                     }}>
                         <Form.Label className='mt-3 mb-0 w-100'>
                                         Source

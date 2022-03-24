@@ -96,9 +96,10 @@ const PerformanceClustersAnalysis = () => {
         if (!minerDatasetSelected) {
             payload['reference_period'] = referencePeriod;
         } else {
-            payload['selected_dataset'] = selectedDataset;
+            payload['dataset'] = selectedDataset;
         }
         metricsClient("/miners", payload)
+        // setMinerModalOpen(false);
     }
 
     return (
