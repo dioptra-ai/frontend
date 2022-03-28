@@ -174,6 +174,7 @@ const EditModel = ({initialValue, onSubmit, errors, modelStore}) => {
                             <option value='SPEECH_TO_TEXT'>Speech to Text</option>
                             <option value='AUTO_COMPLETION'>Auto Completion</option>
                             <option value='SEMANTIC_SIMILARITY'>Semantic Similarity</option>
+                            <option value='MULTIPLE_OBJECT_TRACKING'>Multiple Object Tracking</option>
                         </Form.Control>
                     </InputGroup>
                     <Button
