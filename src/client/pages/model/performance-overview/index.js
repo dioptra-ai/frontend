@@ -8,6 +8,7 @@ import TextClassifier from './text-classifier';
 import UnsupervisedObjectDetection from './unsupervised-object-detection';
 import AutoCompletion from './auto-completion';
 import SemanticSimilarity from './semantic-similarity';
+import MultipleObjectTracking from './multiple-object-tracking';
 
 const PerformanceOverview = (props) => {
     const model = useModel();
@@ -40,6 +41,9 @@ const PerformanceOverview = (props) => {
     case 'SPEECH_TO_TEXT':
 
         return <SpeechToText {...props}/>;
+    case 'MULTIPLE_OBJECT_TRACKING':
+
+        return <MultipleObjectTracking />;
     default:
 
         return null;
