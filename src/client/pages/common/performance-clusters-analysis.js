@@ -287,51 +287,22 @@ const PerformanceClustersAnalysis = () => {
                                                             onClick={() => setExampleInModal(sample)}
                                                         >
 
-                                                        <Async
-                                                            refetchOnChanged={[samplesSqlFilter, samples, model.mlModelType]}
-                                                            renderData={(data) => {
-                                                                const predictionResult = data.filter(entry => entry.prediction === sample['prediction'])
-                                                                return model.mlModelType === 'IMAGE_CLASSIFIER' && predictionResult.length !== 0 ? (
+                                                            {model.mlModelType === 'IMAGE_CLASSIFIER' ? (
                                                                     <Textfit mode="single" max={8}>
                                                                         <span style={{border: `2px solid ${getHexColor(sample['prediction'])}`, padding: 3, borderRadius: 6}}>
-                                                                            {predictionResult[0]['prediction']}
+                                                                            {sample['prediction']}
                                                                         </span>
                                                                     </Textfit>
                                                                 ) : (
                                                                     <></>
-                                                                );
-                                                            }}
-                                                            fetchData={() => metricsClient(`queries/class-distribution-1`, {
-                                                                sql_filters: samplesSqlFilter,
-                                                                distribution_field: 'prediction'
-                                                            })}
-                                                    />
+                                                                )
+                                                            }
                                                             <SignedImage
                                                                 alt='Example'
                                                                 className='rounded'
                                                                 height={200}
                                                                 rawUrl={sample['image_metadata.uri']}
                                                                 />
-
-                                                            <Async
-                                                                refetchOnChanged={[samplesSqlFilter, samples, model.mlModelType]}
-                                                                renderData={(data) => {
-                                                                    const groundtruthResult = data.filter(entry => entry.prediction === sample['prediction']);
-                                                                    return model.mlModelType === 'IMAGE_CLASSIFIER' && groundtruthResult.length !== 0 ? (
-                                                                        <Textfit mode="single" max={8}>
-                                                                            <span style={{border: `2px solid ${getHexColor(sample['prediction'])}`, padding: 3, borderRadius: 6}}>
-                                                                                {groundtruthResult[0]['prediction']}
-                                                                            </span>
-                                                                        </Textfit>
-                                                                    ) : (
-                                                                        <></>
-                                                                    );
-                                                                }}
-                                                                fetchData={() => metricsClient(`queries/class-distribution-1`, {
-                                                                    sql_filters: samplesSqlFilter,
-                                                                    distribution_field: 'groundtruth'
-                                                                })}
-                                                            />
                                                             {model.mlModelType !== 'IMAGE_CLASSIFIER' &&
                                                                 <div className='heat-map-box' style={{
                                                                     height: bounding_box_h * 200 / height,
