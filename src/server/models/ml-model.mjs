@@ -36,7 +36,8 @@ const mlModelSchema = new mongoose.Schema({
             'UNSUPERVISED_OBJECT_DETECTION', // TODO check working data
             'SPEECH_TO_TEXT', // ok
             'AUTO_COMPLETION', // WIP
-            'SEMANTIC_SIMILARITY'
+            'SEMANTIC_SIMILARITY',
+            'MULTIPLE_OBJECT_TRACKING'
         ],
         required: true
     },

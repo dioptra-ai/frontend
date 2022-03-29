@@ -209,10 +209,19 @@ const PerformanceClustersAnalysis = () => {
                                                                 <Row>
                                                                     <Col>Class Distribution</Col>
                                                                     <Col style={{marginRight: -12}}>
-                                                                        <Select
-                                                                            options={distributionMetricsOptions}
-                                                                            onChange={setUserSelectedSummaryDistribution}
-                                                                        />
+                                                                        <Form.Control
+                                                                            as='select'
+                                                                            className='form-select bg-light w-100'
+                                                                            custom
+                                                                            required
+                                                                            onChange={(e) => {
+                                                                                setUserSelectedSummaryDistribution(e.target.value);
+                                                                            }}
+                                                                        >
+                                                                            {distributionMetricsOptions.map((o, i) => (
+                                                                                <option key={i} value={o.value}>{o.name}</option>
+                                                                            ))}
+                                                                        </Form.Control>
                                                                     </Col>
                                                                 </Row>
                                                             )}
