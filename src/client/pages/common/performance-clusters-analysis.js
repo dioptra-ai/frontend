@@ -278,31 +278,31 @@ const PerformanceClustersAnalysis = () => {
                                                             className='m-4 heat-map-item cursor-pointer'
                                                             style={{
                                                                 gap: 8,
-                                                                display: "flex",
-                                                                justifyContent: "space-between",
-                                                                alignItems: "center",
-                                                                alignContent: "center",
-                                                                flexDirection: "column",
+                                                                display: 'flex',
+                                                                justifyContent: 'space-between',
+                                                                alignItems: 'center',
+                                                                alignContent: 'center',
+                                                                flexDirection: 'column'
                                                             }}
                                                             onClick={() => setExampleInModal(sample)}
                                                         >
 
                                                             {model.mlModelType === 'IMAGE_CLASSIFIER' ? (
-                                                                    <Textfit mode="single" max={8}>
-                                                                        <span style={{border: `2px solid ${getHexColor(sample['prediction'])}`, padding: 3, borderRadius: 6}}>
-                                                                            {sample['prediction']}
-                                                                        </span>
-                                                                    </Textfit>
-                                                                ) : (
-                                                                    <></>
-                                                                )
+                                                                <Textfit mode='single' max={8}>
+                                                                    <span style={{border: `2px solid ${getHexColor(sample['prediction'])}`, padding: 3, borderRadius: 6}}>
+                                                                        {sample['prediction']}
+                                                                    </span>
+                                                                </Textfit>
+                                                            ) : (
+                                                                <></>
+                                                            )
                                                             }
                                                             <SignedImage
                                                                 alt='Example'
                                                                 className='rounded'
                                                                 height={200}
                                                                 rawUrl={sample['image_metadata.uri']}
-                                                                />
+                                                            />
                                                             {model.mlModelType !== 'IMAGE_CLASSIFIER' &&
                                                                 <div className='heat-map-box' style={{
                                                                     height: bounding_box_h * 200 / height,
