@@ -38,6 +38,23 @@ const MultipleObjectTracking = () => {
                             )}
                         />
                     </Col>
+                    <Col className='d-flex' lg={3}>
+                        <Async
+                            fetchData={() => metricsClient('mostly-lost', {
+                                sql_filters: allSqlFilters,
+                                model_type: 'MULTIPLE_OBJECT_TRACKING'
+                            })}
+                            refetchOnChanged={[allSqlFilters]}
+                            renderData={([d]) => (
+                                <MetricInfoBox
+                                    name='Mostly Lost'
+                                    subtext={sampleSizeComponent}
+                                    unit='%'
+                                    value={100 * d?.value}
+                                />
+                            )}
+                        />
+                    </Col>
                 </Row>
             </div>
         </>
