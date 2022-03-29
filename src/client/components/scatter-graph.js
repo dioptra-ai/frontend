@@ -16,21 +16,14 @@ import {saveAs} from 'file-saver';
 import {IoDownloadOutline} from 'react-icons/io5';
 import {OverlayTrigger, Tooltip} from 'react-bootstrap';
 import {BsMinecartLoaded} from 'react-icons/bs';
-import Form from 'react-bootstrap/Form';
-import InputGroup from 'react-bootstrap/InputGroup';
-import Button from 'react-bootstrap/Button';
-import DateTimeRangePicker from 'components/date-time-range-picker';
-import Async from 'components/async';
 import theme from 'styles/theme.module.scss';
 import useModal from 'hooks/useModal';
-import useModel from 'hooks/use-model';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import Modal from 'components/modal';
 import AddFilters from 'components/add-filters';
 import {Filter} from 'state/stores/filters-store';
-import moment from 'moment';
-import {lastMilliseconds} from 'helpers/date-helper';
+import MinerModal from './miner-modal';
 
 const LARGE_DOT_SIZE = 200;
 const MEDIUM_DOT_SIZE = 100;
@@ -40,7 +33,6 @@ const inRange = (num, min, max) => num >= min && num <= max;
 
 const ScatterGraph = ({data, noveltyIsObsolete}) => {
     const ref = useRef();
-    const model = useModel();
     const firstOutlier = useMemo(() => {
         return data.find(({outlier}) => outlier);
     }, [data]);
@@ -56,9 +48,6 @@ const ScatterGraph = ({data, noveltyIsObsolete}) => {
     const [refBottomRight, setRefBottomRight] = useThrottle(null, 10, true);
     const [multiSelect, setMultiSelect] = useState(false);
     const [minerModalOpen, setMinerModalOpen] = useModal(false);
-    const [minerDatasetSelected, setMinerDatasetSelected] = useState(false);
-    const [selectedDataset, setSelectedDataset] = useState();
-    const [referencePeriod, setReferencePeriod] = useState();
     const samples = selectedPoints?.map(({sample}) => sample);
     const sampleRequestIds = selectedPoints?.map(({request_id}) => request_id);
     const examplesType = samples.every((s) => (/^https?:\/\//).test(s)) ? 'image' : 'text';
@@ -160,36 +149,6 @@ const ScatterGraph = ({data, noveltyIsObsolete}) => {
                 ...d
             }));
     }, [data, selectedPoints]);
-
-    const onDatasetDateChange = ({start, end, lastMs}) => {
-        let isoStart = null;
-        let isoEnd = null;
-
-        if (lastMs) {
-            const e = moment();
-            const s = lastMilliseconds(lastMs)[0];
-            isoStart = s.toISOString();
-            isoEnd = e.toISOString();
-        } else {
-            isoStart = start.toISOString();
-            isoEnd = end.toISOString();
-        }
-        setReferencePeriod({start: isoStart, end: isoEnd});
-    };
-
-    const createMiner = () => {
-        const requestIds = selectedPoints.map(selectedPoint => selectedPoint.request_id)
-        const payload = {
-            request_ids: requestIds,
-        }
-        if (!minerDatasetSelected) {
-            payload['start_time'] = referencePeriod.start;
-            payload['end_time'] = referencePeriod.end;
-        } else {
-            payload['dataset'] = selectedDataset;
-        }
-        metricsClient("/miners", payload)
-    }
 
     return (
         <>
@@ -382,94 +341,7 @@ const ScatterGraph = ({data, noveltyIsObsolete}) => {
                             null}
                 </Modal>
             )}
-            {minerModalOpen ? (
-                <Modal isOpen onClose={() => setMinerModalOpen(false)} title='Mine for Similar Datapoints'>
-                    <div style={{width: 500}}>
-                                    Create a new miner that will search for datapoints that are close to the selected {samples.length} examples in the embedding space.
-                    </div>
-                    <Form onSubmit={(e) => {
-                        e.preventDefault();
-                        createMiner();
-                        // setMinerModalOpen(false);
-                    }}>
-                        <Form.Label className='mt-3 mb-0 w-100'>
-                                        Source
-                        </Form.Label>
-                        <InputGroup className='mt-1 flex-column'>
-                            <Form.Control
-                                as='select'
-                                className={'form-select bg-light w-100'}
-                                custom
-                                required
-                                onChange={(e) => {
-                                    setMinerDatasetSelected(e.target.value === 'true');
-                                }}
-                            >
-                                <option disabled>
-                                    Select Source
-                                </option>
-                                <option value={false}>Live traffic of "{model.name}"</option>
-                                <option value={true}>Dataset</option>
-                            </Form.Control>
-                        </InputGroup>
-                        {
-                            !minerDatasetSelected && (
-                                <InputGroup className='mt-1'>
-                                    <Form.Label className='mt-3 mb-0 w-100'>
-                                        Date range
-                                    </Form.Label>
-                                    <DateTimeRangePicker
-                                        datePickerSettings={{
-                                            opens: 'center'
-                                        }}
-                                        end={referencePeriod ? moment(referencePeriod.end) : null}
-                                        onChange={onDatasetDateChange}
-                                        start={referencePeriod ? moment(referencePeriod.start) : null}
-                                        width='100%'
-                                    />
-                                </InputGroup>
-                            )}
-                        {
-                            minerDatasetSelected ? (
-                                <>
-                                    <Form.Label className='mt-3 mb-0 w-100'>
-                                        Dataset
-                                    </Form.Label>
-                                    <InputGroup className='mt-1'>
-                                        <Async
-                                            fetchData={() => metricsClient('datasets', null, 'get')}
-                                            renderData={(datasets) => (
-                                                <Form.Control
-                                                    as='select'
-                                                    className={'form-select bg-light w-100'}
-                                                    custom
-                                                    required
-                                                    onChange={(e) => {
-                                                        const value = e.target.value
-                                                        if (value != 'desc') {
-                                                            setSelectedDataset(value)
-                                                        }
-                                                    }}
-                                                >
-                                                    <option value="desc">
-                                                    Select Dataset
-                                                    </option>
-                                                    {datasets.map((dataset) => {
-                                                        return <option value={dataset.dataset_id}>{dataset.dataset_id}</option>;
-                                                    })}
-                                                </Form.Control>
-                                            )}
-                                        />
-                                    </InputGroup>
-                                </>
-                            ) : null
-                        }
-                        <Button
-                            className='w-100 text-white btn-submit mt-3'
-                            variant='primary' type='submit'>Create Miner</Button>
-                    </Form>
-                </Modal>
-            ) : null}
+            <MinerModal isOpen={minerModalOpen} closeCallback={() => setMinerModalOpen(false)} samples={selectedPoints}/>
         </>
     );
 };
