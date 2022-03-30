@@ -34,6 +34,7 @@ const MultipleObjectTracking = () => {
                                     subtext={sampleSizeComponent}
                                     unit='%'
                                     value={100 * d?.value}
+                                    info='Multiple Object Tracking Accuracy'
                                 />
                             )}
                         />
@@ -51,6 +52,7 @@ const MultipleObjectTracking = () => {
                                     subtext={sampleSizeComponent}
                                     unit='%'
                                     value={100 * d?.value}
+                                    info='Tracks detected >= 80%'
                                 />
                             )}
                         />
@@ -68,6 +70,7 @@ const MultipleObjectTracking = () => {
                                     subtext={sampleSizeComponent}
                                     unit='%'
                                     value={100 * d?.value}
+                                    info='Tracks detected < 20%'
                                 />
                             )}
                         />
