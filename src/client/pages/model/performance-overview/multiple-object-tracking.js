@@ -23,6 +23,24 @@ const MultipleObjectTracking = () => {
                 <Row className='mb-3 align-items-stretch'>
                     <Col className='d-flex' lg={3}>
                         <Async
+                            fetchData={() => metricsClient('mota', {
+                                sql_filters: allSqlFilters,
+                                model_type: 'MULTIPLE_OBJECT_TRACKING'
+                            })}
+                            refetchOnChanged={[allSqlFilters]}
+                            renderData={([d]) => (
+                                <MetricInfoBox
+                                    name='MOTA'
+                                    subtext={sampleSizeComponent}
+                                    unit='%'
+                                    value={100 * d?.value}
+                                    info='Multiple Object Tracking Accuracy'
+                                />
+                            )}
+                        />
+                    </Col>
+                    <Col className='d-flex' lg={3}>
+                        <Async
                             fetchData={() => metricsClient('mostly-tracked', {
                                 sql_filters: allSqlFilters,
                                 model_type: 'MULTIPLE_OBJECT_TRACKING'
@@ -34,6 +52,7 @@ const MultipleObjectTracking = () => {
                                     subtext={sampleSizeComponent}
                                     unit='%'
                                     value={100 * d?.value}
+                                    info='Tracks detected >= 80%'
                                 />
                             )}
                         />
@@ -51,6 +70,7 @@ const MultipleObjectTracking = () => {
                                     subtext={sampleSizeComponent}
                                     unit='%'
                                     value={100 * d?.value}
+                                    info='Tracks detected < 20%'
                                 />
                             )}
                         />
