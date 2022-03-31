@@ -2,10 +2,10 @@ import metricsClient from 'clients/metrics';
 import Menu from 'components/menu';
 import moment from 'moment';
 import GeneralSearchBar from 'pages/common/general-search-bar';
-import { useEffect, useState } from 'react';
+import {useEffect, useState} from 'react';
 import Table from 'react-bootstrap/Table';
-import { IoDownloadOutline } from 'react-icons/io5';
-import { BarLoader } from 'react-spinners';
+import {IoDownloadOutline} from 'react-icons/io5';
+import {BarLoader} from 'react-spinners';
 
 const MinersList = () => {
     const [miners, setMiners] = useState();
