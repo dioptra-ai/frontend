@@ -29,9 +29,6 @@ const BBoxLocationAnalysis = () => {
                     </h4>
                 </Col>
                 <Col className='d-flex align-items-center' lg={4}>
-                    <h4 className='text-dark bold-text fs-4 m-0'>
-                        Bounding Box Examples
-                    </h4>
                 </Col>
                 <Col lg={{span: 3, offset: 1}} className='my-3'>
                     <Async
@@ -106,7 +103,7 @@ const BBoxLocationAnalysis = () => {
                             style={{maxHeight: 600}}
                         >
                             {heatMapSamples.map((sample, i) => {
-                                const {image_url, width, height, bounding_box} =
+                                const {image_url, width, height, bounding_box, video_frame} =
                                     sample;
 
 
@@ -116,9 +113,15 @@ const BBoxLocationAnalysis = () => {
                                         className='m-4 heat-map-item cursor-pointer'
                                         onClick={() => setExampleInModal(sample)}
                                     >
-                                        <SignedImage
-                                            rawUrl={image_url}
-                                        />
+                                        {video_frame ? (
+                                            <video width='100%' controls>
+                                                <source src={image_url}/>
+                                            </video>
+                                        ) : (
+                                            <SignedImage
+                                                rawUrl={image_url}
+                                            />
+                                        )}
                                         <div
                                             className='heat-map-box'
                                             style={{
@@ -154,14 +157,20 @@ const BBoxLocationAnalysis = () => {
             {exampleInModal ? (
                 <Modal onClose={() => setExampleInModal(null)} title='Example'>
                     <div style={{position: 'relative'}}>
-                        <img
-                            alt='Example'
-                            className='rounded modal-image'
-                            src={exampleInModal.image_url}
-                            style={{
-                                height: 600
-                            }}
-                        />
+                        {exampleInModal.video_frame ? (
+                            <video width='100%' controls>
+                                <source src={exampleInModal.image_url}/>
+                            </video>
+                        ) : (
+                            <img
+                                alt='Example'
+                                className='rounded modal-image'
+                                src={exampleInModal.image_url}
+                                style={{
+                                    height: 600
+                                }}
+                            />
+                        )}
                         <div
                             className='heat-map-box'
                             style={{

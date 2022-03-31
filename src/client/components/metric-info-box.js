@@ -8,10 +8,7 @@ import DifferenceLabel from 'components/difference-labels';
 const MetricInfoBox = ({value, name, subtext, info, unit = '', difference, children}) => (
     <div className='border rounded p-3 w-100 d-flex flex-column align-items-center justify-content-center metric-box'>
         <div className='d-flex flex-wrap align-items-baseline justify-content-between'>
-            <div>
-                <span className='text-dark-bold bold-text text-nowrap'>{name}</span>
-                {subtext && <span className='text-primary mx-1' style={{fontSize: '70%'}}>{subtext}</span>}
-            </div>
+            <span className='text-dark-bold bold-text text-nowrap'>{name}</span>
             <div>
                 {info ? (
 
@@ -22,6 +19,7 @@ const MetricInfoBox = ({value, name, subtext, info, unit = '', difference, child
                     </OverlayTrigger>
                 ) : null}
             </div>
+            {subtext && <span className='text-primary mx-1' style={{fontSize: '70%'}}>{subtext}</span>}
         </div>
         <span className='text-dark w-100'>
             <Textfit mode='single' max={50}>

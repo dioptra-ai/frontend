@@ -12,6 +12,7 @@ const FeatureAnalysis = () => {
     case 'IMAGE_CLASSIFIER':
     case 'DOCUMENT_PROCESSING':
     case 'UNSUPERVISED_OBJECT_DETECTION':
+    case 'MULTIPLE_OBJECT_TRACKING':
 
         return <FeatureAnalysisImages/>;
     case 'TEXT_CLASSIFIER':
