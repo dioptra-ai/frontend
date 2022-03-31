@@ -10,13 +10,24 @@ import {BarLoader} from 'react-spinners';
 const MinersList = () => {
     const [miners, setMiners] = useState();
 
-    const downloadDatapoints = (minerId) => {
-        console.log(minerId);
+    const downloadDatapoints = async (minerId) => {
+        return await metricsClient(`/miner/datapoints?id=${minerId}`, null, 'get');
     };
 
     useEffect(() => {
-        metricsClient('miners', null, 'get').then((miners) => setMiners(miners));
+        const interval = setInterval(() => {
+            fetchMiners();
+        }, 5000);
+
+
+        return () => clearInterval(interval);
     }, []);
+
+    useEffect(() => {
+        fetchMiners();
+    }, []);
+
+    const fetchMiners = () => metricsClient('miners', null, 'get').then((miners) => setMiners(miners));
 
     return (
         <Menu>
@@ -60,7 +71,11 @@ const MinersList = () => {
                                                 ) : (
                                                     <IoDownloadOutline
                                                         className='fs-3 cursor-pointer'
-                                                        onClick={() => downloadDatapoints(miner._id)}
+                                                        onClick={async () => {
+                                                            const datapoints = await downloadDatapoints(miner._id);
+                                                            saveAs(new Blob([datapoints], {type: 'application/json;charset=utf-8'}), 'datapoints.json');
+                                                        }
+                                                        }
                                                     />
                                                 )}
                                             </div>
