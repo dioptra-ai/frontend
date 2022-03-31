@@ -18,9 +18,7 @@ rax.attach(axiosRetryClient);
 
 const fetchRetryConfig = {
     retryOnHttpResponse (response) {
-        if ((response.status === 503) || (response.status === 504)) {
-            return true;
-        }
+        return response.status === 503 || response.status === 504;
     },
     retryMaxDuration: 500000
 };

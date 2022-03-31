@@ -1,12 +1,23 @@
 import metricsClient from 'clients/metrics';
-import Async from 'components/async';
 import Menu from 'components/menu';
-import GeneralSearchBar from 'pages/common/general-search-bar';
-import Table from 'react-bootstrap/Table';
-import {IoDownloadOutline} from 'react-icons/io5';
 import moment from 'moment';
+import GeneralSearchBar from 'pages/common/general-search-bar';
+import { useEffect, useState } from 'react';
+import Table from 'react-bootstrap/Table';
+import { IoDownloadOutline } from 'react-icons/io5';
+import { BarLoader } from 'react-spinners';
 
 const MinersList = () => {
+    const [miners, setMiners] = useState();
+
+    const downloadDatapoints = (minerId) => {
+        console.log(minerId);
+    };
+
+    useEffect(() => {
+        metricsClient('miners', null, 'get').then((miners) => setMiners(miners));
+    }, []);
+
     return (
         <Menu>
             <GeneralSearchBar shouldShowOnlySearchInput />
@@ -20,33 +31,43 @@ const MinersList = () => {
                             <th className='text-secondary'>Miner ID</th>
                             <th className='text-secondary'>Size</th>
                             <th className='text-secondary'>Created At</th>
+                            <th className='text-secondary'>Status</th>
                             <th className='text-secondary d-flex justify-content-end'>
                                 Download Datapoints
                             </th>
                         </tr>
                     </thead>
                     <tbody>
-                        <Async
-                            fetchData={[() => metricsClient('miners', null, 'get')]}
-                            renderData={(miners) => {
-                                return miners && miners[0].map((miner) => {
-                                    return (
-                                        <tr className='cursor-pointer' key={miner._id}>
-                                            <td>{miner._id}</td>
-                                            <td>{miner.size}</td>
-                                            <td>
-                                                {new Date(
-                                                    moment(miner.created_at)
-                                                ).toLocaleString()}
-                                            </td>
-                                            <td className='d-flex justify-content-end'>
-                                                <IoDownloadOutline className='fs-2' />
-                                            </td>
-                                        </tr>
-                                    );
-                                });
-                            }}
-                        />
+                        {miners &&
+                            miners.map((miner) => {
+                                return (
+                                    <tr key={miner._id}>
+                                        <td>{miner._id}</td>
+                                        <td>{miner.size}</td>
+                                        <td>
+                                            {new Date(
+                                                moment(miner.created_at)
+                                            ).toLocaleString()}
+                                        </td>
+                                        <td>{miner.status}</td>
+                                        <td
+                                            className='d-flex justify-content-end'
+                                            style={{height: 50}}
+                                        >
+                                            <div className='d-flex justify-content-center align-content-center align-items-center'>
+                                                {miner.status === 'psending' ? (
+                                                    <BarLoader loading size={40} />
+                                                ) : (
+                                                    <IoDownloadOutline
+                                                        className='fs-3 cursor-pointer'
+                                                        onClick={() => downloadDatapoints(miner._id)}
+                                                    />
+                                                )}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
                     </tbody>
                 </Table>
             </div>

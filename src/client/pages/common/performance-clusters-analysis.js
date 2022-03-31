@@ -22,6 +22,7 @@ import {Filter} from 'state/stores/filters-store';
 import SignedImage from 'components/signed-image';
 import MinerModal from '../../components/miner-modal';
 import useModel from 'hooks/use-model';
+import Form from 'react-bootstrap/Form';
 
 const PerformanceClustersAnalysis = () => {
     const allSqlFilters = useAllSqlFilters();
