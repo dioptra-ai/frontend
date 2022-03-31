@@ -66,7 +66,7 @@ const MinersList = () => {
                                             style={{height: 50}}
                                         >
                                             <div className='d-flex justify-content-center align-content-center align-items-center'>
-                                                {miner.status === 'psending' ? (
+                                                {miner.status === 'pending' ? (
                                                     <BarLoader loading size={40} />
                                                 ) : (
                                                     <IoDownloadOutline
