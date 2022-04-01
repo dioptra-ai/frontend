@@ -5,6 +5,7 @@ import {Scatter} from 'recharts';
 import {OverlayTrigger, Tooltip} from 'react-bootstrap';
 import {IoDownloadOutline} from 'react-icons/io5';
 import {BsMinecartLoaded} from 'react-icons/bs';
+import {Textfit} from 'react-textfit';
 import {saveAs} from 'file-saver';
 import {SpinnerWrapper} from 'components/spinner';
 import Table from 'components/table';
@@ -281,20 +282,51 @@ const PerformanceClustersAnalysis = () => {
                                                         <div
                                                             key={i}
                                                             className='m-4 heat-map-item cursor-pointer'
+                                                            style={{
+                                                                gap: 8,
+                                                                display: 'flex',
+                                                                justifyContent: 'space-between',
+                                                                alignItems: 'center',
+                                                                alignContent: 'center',
+                                                                flexDirection: 'column'
+                                                            }}
                                                             onClick={() => setExampleInModal(sample)}
                                                         >
+
+                                                            {model.mlModelType === 'IMAGE_CLASSIFIER' ? (
+                                                                <Textfit mode='single' max={8}>
+                                                                    <span style={{border: `2px solid ${getHexColor(sample['prediction'])}`, padding: 3, borderRadius: 6}}>
+                                                                        {sample['prediction']}
+                                                                    </span>
+                                                                </Textfit>
+                                                            ) : (
+                                                                <></>
+                                                            )
+                                                            }
                                                             <SignedImage
                                                                 alt='Example'
                                                                 className='rounded'
                                                                 height={200}
                                                                 rawUrl={sample['image_metadata.uri']}
                                                             />
-                                                            <div className='heat-map-box' style={{
-                                                                height: bounding_box_h * 200 / height,
-                                                                width: bounding_box_w * 200 / width,
-                                                                top: bounding_box_y * 200 / height,
-                                                                left: bounding_box_x * 200 / width
-                                                            }}/>
+                                                            {model.mlModelType === 'IMAGE_CLASSIFIER' ? (
+                                                                <Textfit mode='single' max={8}>
+                                                                    <span style={{border: `2px solid ${getHexColor(sample['groundtruth'])}`, padding: 3, borderRadius: 6}}>
+                                                                        {sample['groundtruth']}
+                                                                    </span>
+                                                                </Textfit>
+                                                            ) : (
+                                                                <></>
+                                                            )
+                                                            }
+                                                            {model.mlModelType !== 'IMAGE_CLASSIFIER' &&
+                                                                <div className='heat-map-box' style={{
+                                                                    height: bounding_box_h * 200 / height,
+                                                                    width: bounding_box_w * 200 / width,
+                                                                    top: bounding_box_y * 200 / height,
+                                                                    left: bounding_box_x * 200 / width
+                                                                }}/>
+                                                            }
                                                         </div>
                                                     );
                                                 } else {
@@ -330,12 +362,14 @@ const PerformanceClustersAnalysis = () => {
                                                 rawUrl={exampleInModal['image_metadata.uri']}
                                                 height={600}
                                             />
-                                            <div className='heat-map-box' style={{
-                                                height: exampleInModal['image_metadata.object.height'] * 600 / exampleInModal['image_metadata.height'],
-                                                width: exampleInModal['image_metadata.object.width'] * 600 / exampleInModal['image_metadata.width'],
-                                                top: exampleInModal['image_metadata.object.top'] * 600 / exampleInModal['image_metadata.height'],
-                                                left: exampleInModal['image_metadata.object.left'] * 600 / exampleInModal['image_metadata.width']
-                                            }}/>
+                                            {model.mlModelType !== 'IMAGE_CLASSIFIER' &&
+                                                <div className='heat-map-box' style={{
+                                                    height: exampleInModal['image_metadata.object.height'] * 600 / exampleInModal['image_metadata.height'],
+                                                    width: exampleInModal['image_metadata.object.width'] * 600 / exampleInModal['image_metadata.width'],
+                                                    top: exampleInModal['image_metadata.object.top'] * 600 / exampleInModal['image_metadata.height'],
+                                                    left: exampleInModal['image_metadata.object.left'] * 600 / exampleInModal['image_metadata.width']
+                                                }}/>
+                                            }
                                         </div>
                                     ) : (
                                         <Table
