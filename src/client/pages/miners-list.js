@@ -8,12 +8,13 @@ import {IoDownloadOutline} from 'react-icons/io5';
 import {BarLoader} from 'react-spinners';
 import baseJSONClient from 'clients/base-json-client';
 import {OverlayTrigger, Tooltip} from 'react-bootstrap';
+import {saveAs} from 'file-saver';
 
 const MinersList = () => {
     const [miners, setMiners] = useState();
 
     const downloadDatapoints = async (minerId) => {
-        return await metricsClient(`miner/datapoints?id=${minerId}`, null, 'get');
+        return metricsClient(`miner/datapoints?id=${minerId}`, null, 'get');
     };
 
     useEffect(() => {

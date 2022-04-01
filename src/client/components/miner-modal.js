@@ -236,7 +236,7 @@ const MinerModal = ({isOpen, closeCallback, samples}) => {
                             variant='primary'
                             type='submit'
                             disabled={
-                                requestIds == [] ||
+                                requestIds === [] ||
                                 (minerDatasetSelected && !selectedDataset) ||
                                 (!minerDatasetSelected &&
                                     liveDataType === 'range' &&
