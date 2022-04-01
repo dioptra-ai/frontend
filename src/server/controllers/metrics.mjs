@@ -21,7 +21,7 @@ const fetchRetryConfig = {
         return response.status === 503 || response.status === 504;
     },
     retryMaxDuration: 300000,
-    socketTimeout: 180000
+    socketTimeout: 300000
 };
 
 const {OVERRIDE_DRUID_ORG_ID} = process.env;
@@ -132,6 +132,7 @@ MetricsRouter.post('*', async (req, res, next) => {
     try {
         const metricsEnginePath = `${process.env.METRICS_ENGINE_URL}${req.url}`;
         const metricsResponse = await fetch(metricsEnginePath, {
+            timeout: 60000,
             retryOptions: fetchRetryConfig,
             headers: {
                 'content-type': 'application/json;charset=UTF-8'

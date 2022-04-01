@@ -5,7 +5,6 @@ import {Scatter} from 'recharts';
 import {OverlayTrigger, Tooltip} from 'react-bootstrap';
 import {IoDownloadOutline} from 'react-icons/io5';
 import {BsMinecartLoaded} from 'react-icons/bs';
-import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Button from 'react-bootstrap/Button';
 import {Textfit} from 'react-textfit';
@@ -18,13 +17,15 @@ import BarGraph from 'components/bar-graph';
 import Async from 'components/async';
 import useAllSqlFilters from 'hooks/use-all-sql-filters';
 import ClusterGraph from 'components/cluster-graph';
-import useModel from 'hooks/use-model';
 import useModal from 'hooks/useModal';
 import Modal from 'components/modal';
 import metricsClient from 'clients/metrics';
 import AddFilters from 'components/add-filters';
 import {Filter} from 'state/stores/filters-store';
 import SignedImage from 'components/signed-image';
+import MinerModal from '../../components/miner-modal';
+import useModel from 'hooks/use-model';
+import Form from 'react-bootstrap/Form';
 
 const PerformanceClustersAnalysis = () => {
     const allSqlFilters = useAllSqlFilters();
@@ -36,8 +37,6 @@ const PerformanceClustersAnalysis = () => {
     const [selectedPoints, setSelectedPoints] = useState(null);
     const [exampleInModal, setExampleInModal] = useModal(false);
     const [minerModalOpen, setMinerModalOpen] = useModal(false);
-    const [minerDatasetSelected, setMinerDatasetSelected] = useState(false);
-
     const [distributionMetricsOptions, setDistributionMetricsOptions] = useState([]);
 
     const getDistributionMetricsForModel = async (modelType) => {
@@ -386,54 +385,7 @@ const PerformanceClustersAnalysis = () => {
                                 }
                             </Modal>
                         ) : null}
-                        {minerModalOpen ? (
-                            <Modal isOpen onClose={() => setMinerModalOpen(false)} title='Mine for Similar Datapoints'>
-                                <div style={{width: 500}}>
-                                    Create a new miner that will search for datapoints that are close to the selected {samples.length} examples in the embedding space.
-                                </div>
-                                <Form onSubmit={(e) => {
-                                    e.preventDefault();
-                                    setMinerModalOpen(false);
-                                }}>
-                                    <Form.Label className='mt-3 mb-0 w-100'>
-                                        Source
-                                    </Form.Label>
-                                    <InputGroup className='mt-1 flex-column'>
-                                        <Form.Control
-                                            as='select'
-                                            className={'form-select bg-light w-100'}
-                                            custom
-                                            required
-                                            onChange={(e) => {
-                                                setMinerDatasetSelected(e.target.value === 'true');
-                                            }}
-                                        >
-                                            <option disabled>
-                                                Select Source
-                                            </option>
-                                            <option value={false}>Live traffic of "{model.name}"</option>
-                                            <option value={true}>Dataset</option>
-                                        </Form.Control>
-                                    </InputGroup>
-                                    {
-                                        minerDatasetSelected ? (
-                                            <>
-
-                                                <Form.Label className='mt-3 mb-0 w-100'>
-                                                    Dataset Location
-                                                </Form.Label>
-                                                <InputGroup className='mt-1'>
-                                                    <Form.Control placeholder='s3://'/>
-                                                </InputGroup>
-                                            </>
-                                        ) : null
-                                    }
-                                    <Button
-                                        className='w-100 text-white btn-submit mt-3'
-                                        variant='primary' type='submit'>Create Miner</Button>
-                                </Form>
-                            </Modal>
-                        ) : null}
+                        <MinerModal isOpen={minerModalOpen} closeCallback={() => setMinerModalOpen(false)} samples={samples}/>
                     </>
                 );
             }}
