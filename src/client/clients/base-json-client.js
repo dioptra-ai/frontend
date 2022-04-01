@@ -36,7 +36,7 @@ const baseJSONClient = (url, {method = 'get', body, headers = {'content-type': '
         retryOn: [503, 504],
         method, headers,
         body: body ? JSON.stringify(body) : undefined
-    }, );
+    });
 };
 
 export default baseJSONClient;

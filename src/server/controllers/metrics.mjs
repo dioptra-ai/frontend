@@ -7,6 +7,7 @@ import zlib from 'zlib';
 import {isAuthenticated} from '../middleware/authentication.mjs';
 
 const axiosRetryClient = axios.create();
+
 axiosRetryClient.defaults.raxConfig = {
     instance: axiosRetryClient,
     statusCodesToRetry: [[503, 504]],
@@ -20,7 +21,7 @@ const fetchRetryConfig = {
         return response.status === 503 || response.status === 504;
     },
     retryMaxDuration: 300000,
-    socketTimeout: 300000,
+    socketTimeout: 300000
 };
 
 const {OVERRIDE_DRUID_ORG_ID} = process.env;
