@@ -2,20 +2,29 @@ import metricsClient from 'clients/metrics';
 import Async from 'components/async';
 import DateTimeRangePicker from 'components/date-time-range-picker';
 import Modal from 'components/modal';
+import Select from 'components/select';
 import {lastMilliseconds} from 'helpers/date-helper';
 import useModel from 'hooks/use-model';
 import {PropTypes} from 'mobx-react';
 import moment from 'moment';
-import React, {useEffect, useState} from 'react';
+import {useEffect, useState} from 'react';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
+import ToggleButton from 'react-bootstrap/ToggleButton';
+import ToggleButtonGroup from 'react-bootstrap/ToggleButtonGroup';
+import {IsoDurations} from '../enums/iso-durations';
 
 const MinerModal = ({isOpen, closeCallback, samples}) => {
     const [minerDatasetSelected, setMinerDatasetSelected] = useState(false);
     const [selectedDataset, setSelectedDataset] = useState();
-    const [referencePeriod, setReferencePeriod] = useState({});
+    const [referencePeriod, setReferencePeriod] = useState({
+        start: moment(),
+        end: moment().add(5, 'minutes')
+    });
     const [requestIds, setRequestIds] = useState([]);
+    const [evaluationPeriod, setEvaluationPeriod] = useState();
+    const [liveDataType, setLiveDataType] = useState('range');
 
     const model = useModel();
 
@@ -39,6 +48,7 @@ const MinerModal = ({isOpen, closeCallback, samples}) => {
             isoEnd = end.toISOString();
         }
         setReferencePeriod({start: isoStart, end: isoEnd});
+        console.log({start: isoStart, end: isoEnd});
     };
 
     const createMiner = () => {
@@ -47,14 +57,22 @@ const MinerModal = ({isOpen, closeCallback, samples}) => {
         };
 
         if (!minerDatasetSelected) {
-            payload['start_time'] = referencePeriod.start;
-            payload['end_time'] = referencePeriod.end;
             payload['ml_model_id'] = model.mlModelId;
+            if (liveDataType === 'range') {
+                payload['start_time'] = referencePeriod.start;
+                payload['end_time'] = referencePeriod.end;
+            } else {
+                payload['evaluation_period'] = evaluationPeriod;
+            }
         } else {
             payload['dataset'] = selectedDataset;
         }
-        metricsClient('/miners', payload);
+        metricsClient('/miners', payload).catch(() =>
+            console.log('Miner creation operation timeout')
+        );
         setMinerDatasetSelected(false);
+        setSelectedDataset(null);
+        setReferencePeriod({});
         closeCallback();
     };
 
@@ -64,7 +82,7 @@ const MinerModal = ({isOpen, closeCallback, samples}) => {
                 <Modal
                     isOpen
                     onClose={() => closeCallback()}
-                    title='Mine for Similar Datapoints'
+                    title="Mine for Similar Datapoints"
                 >
                     <div style={{width: 500}}>
                         Create a new miner that will search for datapoints that are
@@ -77,10 +95,10 @@ const MinerModal = ({isOpen, closeCallback, samples}) => {
                             createMiner();
                         }}
                     >
-                        <Form.Label className='mt-3 mb-0 w-100'>Source</Form.Label>
-                        <InputGroup className='mt-1 flex-column'>
+                        <Form.Label className="mt-3 mb-0 w-100">Source</Form.Label>
+                        <InputGroup className="mt-1 flex-column">
                             <Form.Control
-                                as='select'
+                                as="select"
                                 className={'form-select bg-light w-100'}
                                 custom
                                 required
@@ -98,41 +116,90 @@ const MinerModal = ({isOpen, closeCallback, samples}) => {
                             </Form.Control>
                         </InputGroup>
                         {!minerDatasetSelected && (
-                            <InputGroup className='mt-1'>
-                                <Form.Label className='mt-3 mb-0 w-100'>
-                                    Date range
-                                </Form.Label>
-                                <DateTimeRangePicker
-                                    datePickerSettings={{
-                                        opens: 'center'
-                                    }}
-                                    end={
-                                        referencePeriod ?
-                                            moment(referencePeriod.end) :
-                                            null
-                                    }
-                                    onChange={onDatasetDateChange}
-                                    start={
-                                        referencePeriod ?
-                                            moment(referencePeriod.start) :
-                                            null
-                                    }
-                                    width='100%'
-                                />
-                            </InputGroup>
+                            <div>
+                                <ToggleButtonGroup
+                                    defaultValue={liveDataType}
+                                    type="radio"
+                                    className="mt-4"
+                                    onChange={setLiveDataType}
+                                    name="benchmark-type"
+                                >
+                                    <ToggleButton
+                                        variant="outline-secondary"
+                                        id="range"
+                                        value="range"
+                                    >
+                                        &nbsp;Date Range
+                                    </ToggleButton>
+                                    <ToggleButton
+                                        variant="outline-secondary"
+                                        id="duration"
+                                        value="duration"
+                                    >
+                                        &nbsp;Reccurring duration
+                                    </ToggleButton>
+                                </ToggleButtonGroup>
+                                {liveDataType === 'range' && (
+                                    <InputGroup className="mt-1">
+                                        <Form.Label className="mt-3 mb-0 w-100">
+                                            Date range
+                                        </Form.Label>
+                                        <DateTimeRangePicker
+                                            datePickerSettings={{
+                                                opens: 'center'
+                                            }}
+                                            end={
+                                                referencePeriod
+                                                    ? moment(referencePeriod.end)
+                                                    : null
+                                            }
+                                            onChange={onDatasetDateChange}
+                                            start={
+                                                referencePeriod
+                                                    ? moment(referencePeriod.start)
+                                                    : null
+                                            }
+                                            width="100%"
+                                        />
+                                    </InputGroup>
+                                )}
+                                {liveDataType === 'duration' && (
+                                    <InputGroup className="mt-1">
+                                        <Form.Label className="mt-3 mb-0 w-100">
+                                            Reccurring duration for last:
+                                        </Form.Label>
+                                        <Select
+                                            backgroundColor="white"
+                                            initialValue={
+                                                evaluationPeriod ||
+                                                IsoDurations.PT5M.value
+                                            }
+                                            isTextBold
+                                            onChange={setEvaluationPeriod}
+                                            options={Object.values(IsoDurations)}
+                                            textColor="primary"
+                                            selectValue={
+                                                evaluationPeriod ||
+                                                IsoDurations.PT5M.value
+                                            }
+                                        />
+                                    </InputGroup>
+                                )}
+                            </div>
                         )}
                         {minerDatasetSelected ? (
                             <>
-                                <Form.Label className='mt-3 mb-0 w-100'>
+                                <Form.Label className="mt-3 mb-0 w-100">
                                     Dataset
                                 </Form.Label>
-                                <InputGroup className='mt-1'>
+                                <InputGroup className="mt-1">
                                     <Async
-                                        fetchData={() => metricsClient('datasets', null, 'get')
+                                        fetchData={() =>
+                                            metricsClient('datasets', null, 'get')
                                         }
                                         renderData={(datasets) => (
                                             <Form.Control
-                                                as='select'
+                                                as="select"
                                                 className={
                                                     'form-select bg-light w-100'
                                                 }
@@ -146,7 +213,7 @@ const MinerModal = ({isOpen, closeCallback, samples}) => {
                                                     }
                                                 }}
                                             >
-                                                <option value='desc'>
+                                                <option value="desc">
                                                     Select Dataset
                                                 </option>
                                                 {datasets.map((dataset) => {
@@ -168,10 +235,19 @@ const MinerModal = ({isOpen, closeCallback, samples}) => {
                             </>
                         ) : null}
                         <Button
-                            className='w-100 text-white btn-submit mt-3'
-                            variant='primary'
-                            type='submit'
-                            disabled={minerDatasetSelected && !selectedDataset}
+                            className="w-100 text-white btn-submit mt-3"
+                            variant="primary"
+                            type="submit"
+                            disabled={
+                                requestIds == [] ||
+                                (minerDatasetSelected && !selectedDataset) ||
+                                (!minerDatasetSelected &&
+                                    liveDataType === 'range' &&
+                                    !referencePeriod) ||
+                                (!minerDatasetSelected &&
+                                    liveDataType === 'duration' &&
+                                    !evaluationPeriod)
+                            }
                             onClick={() => createMiner()}
                         >
                             Create Miner

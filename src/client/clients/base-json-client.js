@@ -1,8 +1,8 @@
 import mem from 'mem';
-import fetchWithRetry from './fetch-retry-client';
+// import fetchWithRetry from './fetch-retry-client';
 
 const jsonFetch = async (...args) => {
-    const res = await fetchWithRetry(...args);
+    const res = await fetch(...args);
 
     let responseBody = await res.text();
 
@@ -36,7 +36,7 @@ const baseJSONClient = (url, {method = 'get', body, headers = {'content-type': '
         retryOn: [503, 504],
         method, headers,
         body: body ? JSON.stringify(body) : undefined
-    });
+    }, );
 };
 
 export default baseJSONClient;

@@ -7,6 +7,7 @@ import Table from 'react-bootstrap/Table';
 import {IoDownloadOutline} from 'react-icons/io5';
 import {BarLoader} from 'react-spinners';
 import baseJSONClient from 'clients/base-json-client';
+import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 
 const MinersList = () => {
     const [miners, setMiners] = useState();
@@ -42,7 +43,9 @@ const MinersList = () => {
                             <th className="text-secondary">Miner ID</th>
                             <th className="text-secondary">Size</th>
                             <th className="text-secondary">Created At</th>
+                            <th className="text-secondary">Updated At</th>
                             <th className="text-secondary">Status</th>
+                            <th className="text-secondary">Type</th>
                             <th className="text-secondary d-flex justify-content-end">
                                 Download Datapoints
                             </th>
@@ -60,7 +63,13 @@ const MinersList = () => {
                                                 moment(miner.created_at)
                                             ).toLocaleString()}
                                         </td>
+                                        <td>
+                                            {miner.updated_at && new Date(
+                                                moment(miner.updated_at)
+                                            ).toLocaleString()}
+                                        </td>
                                         <td>{miner.status}</td>
+                                        <td>{miner.type}</td>
                                         <td
                                             className="d-flex justify-content-end"
                                             style={{height: 50}}
@@ -70,24 +79,20 @@ const MinersList = () => {
                                                     <BarLoader loading size={40} />
                                                 ) : (
                                                     miner.status !== 'error' && (
-                                                        <IoDownloadOutline
-                                                            className="fs-3 cursor-pointer"
-                                                            onClick={async () => {
-                                                                const datapoints =
-                                                                    await downloadDatapoints(
-                                                                        miner._id
-                                                                    );
-                                                                saveAs(
-                                                                    new Blob(
-                                                                        [datapoints],
-                                                                        {
-                                                                            type: 'application/json;charset=utf-8'
-                                                                        }
-                                                                    ),
-                                                                    'datapoints.json'
-                                                                );
-                                                            }}
-                                                        />
+                                                        <OverlayTrigger overlay={
+                                                            <Tooltip>
+                                                                {(miner.size && miner.size !== 0) ? "Download datapoints" : "There are no datapoints to download"}
+                                                            </Tooltip>
+                                                        }>
+                                                            <IoDownloadOutline
+                                                                className={`fs-3 ${(miner.size && miner.size !== 0) ? "cursor-pointer" : ""}`}
+                                                                style={(miner.size && miner.size !== 0) ? {} : {opacity: 0.2}}
+                                                                onClick={async () => {
+                                                                    const datapoints =await downloadDatapoints(miner._id);
+                                                                    saveAs(new Blob([datapoints], {type: 'text/csv;charset=utf-8'}), 'classes.csv');
+                                                                }}
+                                                            />
+                                                        </OverlayTrigger>
                                                     )
                                                 )}
                                             </div>
