@@ -17,10 +17,11 @@ axiosRetryClient.defaults.raxConfig = {
 rax.attach(axiosRetryClient);
 
 const fetchRetryConfig = {
-    retryMaxDuration: 300000,
     retryOnHttpResponse (response) {
         return response.status === 503 || response.status === 504;
-    }
+    },
+    retryMaxDuration: 300000,
+    socketTimeout: 180000
 };
 
 const {OVERRIDE_DRUID_ORG_ID} = process.env;

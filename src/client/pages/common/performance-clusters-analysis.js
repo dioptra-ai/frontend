@@ -312,6 +312,16 @@ const PerformanceClustersAnalysis = () => {
                                                                 height={200}
                                                                 rawUrl={sample['image_metadata.uri']}
                                                             />
+                                                            {model.mlModelType === 'IMAGE_CLASSIFIER' ? (
+                                                                <Textfit mode='single' max={8}>
+                                                                    <span style={{border: `2px solid ${getHexColor(sample['groundtruth'])}`, padding: 3, borderRadius: 6}}>
+                                                                        {sample['groundtruth']}
+                                                                    </span>
+                                                                </Textfit>
+                                                            ) : (
+                                                                <></>
+                                                            )
+                                                            }
                                                             {model.mlModelType !== 'IMAGE_CLASSIFIER' &&
                                                                 <div className='heat-map-box' style={{
                                                                     height: bounding_box_h * 200 / height,
