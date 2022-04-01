@@ -75,6 +75,23 @@ const MultipleObjectTracking = () => {
                             )}
                         />
                     </Col>
+                    <Col className='d-flex' lg={3}>
+                        <Async
+                            fetchData={() => metricsClient('id-switches', {
+                                sql_filters: allSqlFilters,
+                                model_type: 'MULTIPLE_OBJECT_TRACKING'
+                            })}
+                            refetchOnChanged={[allSqlFilters]}
+                            renderData={([d]) => (
+                                <MetricInfoBox
+                                    name='ID Switches per Track'
+                                    subtext={sampleSizeComponent}
+                                    value={d?.value}
+                                    info='ID switches per detected tracks'
+                                />
+                            )}
+                        />
+                    </Col>
                 </Row>
             </div>
         </>

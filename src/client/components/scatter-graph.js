@@ -50,7 +50,7 @@ const ScatterGraph = ({data, noveltyIsObsolete}) => {
     const [minerModalOpen, setMinerModalOpen] = useModal(false);
     const samples = selectedPoints?.map(({sample}) => sample);
     const sampleRequestIds = selectedPoints?.map(({request_id}) => request_id);
-    const examplesType = samples.every((s) => (/^https?:\/\//).test(s)) ? 'image' : 'text';
+    const examplesType = samples.every((s) => (/\.mp4$/).test(s)) ? 'video' : samples.every((s) => (/^https?:\/\//).test(s)) ? 'image' : 'text';
 
     const handleKeyDown = ({keyCode}) => {
         if (keyCode === 16) setShiftPressed(true);
@@ -266,6 +266,8 @@ const ScatterGraph = ({data, noveltyIsObsolete}) => {
                     <div className='text-dark m-0 bold-text d-flex justify-content-between'>
                         <div>
                             Examples
+                        </div>
+                        <div>
                             <AddFilters
                                 filters={[new Filter({
                                     left: 'request_id',
@@ -283,43 +285,54 @@ const ScatterGraph = ({data, noveltyIsObsolete}) => {
                                 tooltipText='Filter-out these examples'
                                 solidIcon
                             />
-                        </div>
-                        <OverlayTrigger overlay={<Tooltip>Download samples as JSON</Tooltip>}>
-                            <IoDownloadOutline className='fs-2 cursor-pointer' onClick={() => {
+                            <OverlayTrigger overlay={<Tooltip>Download samples as JSON</Tooltip>}>
+                                <button
+                                    className='text-dark border-0 bg-transparent click-down fs-2'
+                                    onClick={() => {
 
-                                saveAs(new Blob([JSON.stringify(selectedPoints)], {type: 'application/json;charset=utf-8'}), 'samples.json');
-                            }}/>
-                        </OverlayTrigger>
-                        <OverlayTrigger overlay={<Tooltip>Mine for Similar Datapoints</Tooltip>}>
-                            <BsMinecartLoaded className='fs-2 ps-2 cursor-pointer' onClick={() => {
-                                setMinerModalOpen(true);
-                            }}/>
-                        </OverlayTrigger>
+                                        saveAs(new Blob([JSON.stringify(selectedPoints)], {type: 'application/json;charset=utf-8'}), 'samples.json');
+                                    }}>
+                                    <IoDownloadOutline className='fs-2 cursor-pointer'/>
+                                </button>
+                            </OverlayTrigger>
+                            <OverlayTrigger overlay={<Tooltip>Mine for Similar Datapoints</Tooltip>}>
+                                <button
+                                    className='text-dark border-0 bg-transparent click-down fs-2' onClick={() => {
+                                        setMinerModalOpen(true);
+                                    }}>
+                                    <BsMinecartLoaded className='fs-2 ps-2 cursor-pointer'/>
+                                </button>
+                            </OverlayTrigger>
+                        </div>
                     </div>
                     <div className={`d-flex p-2 overflow-auto flex-grow-0 ${samples.length ? 'justify-content-left' : 'justify-content-center align-items-center'} scatterGraph-examples`}>
                         {samples.length ? samples.map((sample, i) => (
-                            examplesType === 'image' ?
-                                <div
-                                    key={i}
-                                    className='d-flex justify-content-center align-items-center m-4 bg-white scatterGraph-item cursor-pointer'
-                                    onClick={() => setExampleInModal(sample)}
-                                >
-                                    <img
-                                        alt='Example'
-                                        className='rounded modal-image'
-                                        src={sample}
-                                        width='100%'
-                                    />
-                                </div> :
-                                examplesType === 'text' ?
+                            examplesType === 'video' ?
+                                <video width='100%' controls>
+                                    <source src={sample}/>
+                                </video> :
+                                examplesType === 'image' ?
                                     <div
                                         key={i}
-                                        className='d-flex cursor-pointer'
+                                        className='d-flex justify-content-center align-items-center m-4 bg-white scatterGraph-item cursor-pointer'
                                         onClick={() => setExampleInModal(sample)}
                                     >
-                                        <pre>{JSON.stringify(sample, null, 4)}</pre>
+                                        <img
+                                            alt='Example'
+                                            className='rounded modal-image'
+                                            src={sample}
+                                            width='100%'
+                                        />
                                     </div> :
-                                    null
+                                    examplesType === 'text' ?
+                                        <div
+                                            key={i}
+                                            className='d-flex cursor-pointer'
+                                            onClick={() => setExampleInModal(sample)}
+                                        >
+                                            <pre>{JSON.stringify(sample, null, 4)}</pre>
+                                        </div> :
+                                        null
 
                         )) : (
                             <h3 className='text-secondary m-0'>No Examples Available</h3>
