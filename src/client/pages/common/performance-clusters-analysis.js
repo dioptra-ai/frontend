@@ -5,8 +5,6 @@ import {Scatter} from 'recharts';
 import {OverlayTrigger, Tooltip} from 'react-bootstrap';
 import {IoDownloadOutline} from 'react-icons/io5';
 import {BsMinecartLoaded} from 'react-icons/bs';
-import InputGroup from 'react-bootstrap/InputGroup';
-import Button from 'react-bootstrap/Button';
 import {Textfit} from 'react-textfit';
 import {saveAs} from 'file-saver';
 import {SpinnerWrapper} from 'components/spinner';
