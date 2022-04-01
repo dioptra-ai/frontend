@@ -13,7 +13,7 @@ import {saveAs} from 'file-saver';
 const MinersList = () => {
     const [miners, setMiners] = useState();
 
-    const downloadDatapoints = async (minerId) => {
+    const downloadDatapoints = (minerId) => {
         return metricsClient(`miner/datapoints?id=${minerId}`, null, 'get');
     };
 
