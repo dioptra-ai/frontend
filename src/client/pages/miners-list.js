@@ -91,6 +91,7 @@ const MinersList = () => {
                                                                 onClick={async () => {
                                                                     if (miner.size && miner.size !== 0) {
                                                                         const datapoints = await downloadDatapoints(miner._id);
+
                                                                         saveAs(new Blob([datapoints], {type: 'text/csv;charset=utf-8'}), 'classes.csv');
                                                                     }
                                                                 }}
