@@ -89,9 +89,10 @@ const MinersList = () => {
                                                                 className={`fs-3 ${(miner.size && miner.size !== 0) ? 'cursor-pointer' : ''}`}
                                                                 style={(miner.size && miner.size !== 0) ? {} : {opacity: 0.2}}
                                                                 onClick={async () => {
-                                                                    const datapoints = await downloadDatapoints(miner._id);
-
-                                                                    saveAs(new Blob([datapoints], {type: 'text/csv;charset=utf-8'}), 'classes.csv');
+                                                                    if (miner.size && miner.size !== 0) {
+                                                                        const datapoints = await downloadDatapoints(miner._id);
+                                                                        saveAs(new Blob([datapoints], {type: 'text/csv;charset=utf-8'}), 'classes.csv');
+                                                                    }
                                                                 }}
                                                             />
                                                         </OverlayTrigger>
