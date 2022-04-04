@@ -22,7 +22,9 @@ class AuthStore {
             this.userData = await authenticationClient('login');
             this.isAuthenticated = true;
         } catch (e) {
-            console.warn(e);
+            if (e.message === 'Unauthorized' && window.location.pathname !== '/login') {
+                window.location = '/login';
+            }
         } finally {
             this.loading = false;
         }
