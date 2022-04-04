@@ -22,14 +22,15 @@ const Table = ({
     onCellClick,
     classes
 }) => {
-    const [rowSortAsc, setRowSortAsc] = useState(true);
+    const [rowSortAsc, setRowSortAsc] = useState(false);
     const [columnSortAsc, setColumnSortAsc] = useState(true);
     const [columns, setColumns] = useState([]);
     const [rows, setRows] = useState([]);
 
     useEffect(() => {
         if (classes) {
-            const classColumns = classes.map((c) => ({
+            const proceedClasses = columnSortAsc ? classes.sort() : classes.reverse()
+            const classColumns = proceedClasses.map((c) => ({
                 Header: c,
                 accessor: c,
                 Cell: Object.assign(
@@ -63,11 +64,19 @@ const Table = ({
 
             setColumns(preparedColumns);
         }
-    }, [classes]);
+    }, [classes, columnSortAsc]);
 
     useEffect(() => {
-        const sortedRows = rowSortAsc ? classes.sort() : classes.reverse();
-        const rows = sortedRows.map((c) => {
+        const rowEntries = rowSortAsc ? classes.sort() : classes.reverse();
+        setRows(prepareRows(rowEntries));
+    }, [rowSortAsc]);
+
+    useEffect(() => {
+        setRows(prepareRows(classes.sort()));
+    }, []);
+
+    const prepareRows = (sortedRows) => {
+        return sortedRows.map((c) => {
             const filtered = data.filter((d) => d.groundtruth === c);
             const referenceDataForClass = referenceData.filter((d) => d.groundtruth === c);
             const cells = {groundtruth: c};
@@ -85,9 +94,7 @@ const Table = ({
 
             return cells;
         });
-
-        setRows(rows);
-    }, [rowSortAsc]);
+    }
 
     return (
         <div className='d-flex'>
