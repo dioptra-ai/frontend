@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import Alert from 'react-bootstrap/Alert';
 
@@ -14,6 +14,7 @@ import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import metricsClient from 'clients/metrics';
 import CountEvents from 'components/count-events';
+import {TiArrowSortedDown, TiArrowSortedUp} from 'react-icons/ti';
 
 const Table = ({
     data,
@@ -21,76 +22,97 @@ const Table = ({
     onCellClick,
     classes
 }) => {
-    const classColumns = classes.sort().map((c) => ({
-        Header: c,
-        accessor: c,
-        Cell: Object.assign(
-            ({value: cell = {}}) => {
-                const {value = 0, difference = 0} = cell;
-                const displayTruncatedValue = (value * 100).toFixed(2);
-                const truncatedValue = Number(displayTruncatedValue);
-                const displayValue = value ? (
-                    truncatedValue ? `${displayTruncatedValue} %` : `< ${displayTruncatedValue} %`
-                ) : '-';
-                const truncatedDifference = Number((difference * 100).toFixed(2));
+    const [rowSortAsc, setRowSortAsc] = useState(true);
+    const [columnSortAsc, setColumnSortAsc] = useState(true);
+    const [columns, setColumns] = useState([]);
+    const [rows, setRows] = useState([]);
 
-                return (
-                    <>
-                        <span>{displayValue}</span>
-                        <DifferenceLabel difference={truncatedDifference}/>
-                    </>
+    useEffect(() => {
+        if (classes) {
+            const classColumns = classes.map((c) => ({
+                Header: c,
+                accessor: c,
+                Cell: Object.assign(
+                    ({value: cell = {}}) => {
+                        const {value = 0, difference = 0} = cell;
+                        const displayTruncatedValue = (value * 100).toFixed(2);
+                        const truncatedValue = Number(displayTruncatedValue);
+                        const displayValue = value ? (
+                            truncatedValue ? `${displayTruncatedValue} %` : `< ${displayTruncatedValue} %`
+                        ) : '-';
+                        const truncatedDifference = Number((difference * 100).toFixed(2));
+
+                        return (
+                            <>
+                                <span>{displayValue}</span>
+                                <DifferenceLabel difference={truncatedDifference}/>
+                            </>
+                        );
+                    },
+                    {displayName: 'Cell'}
+                )
+            }));
+            const preparedColumns = [
+                {
+                    Header: '',
+                    accessor: 'groundtruth',
+                    Cell: ({value}) => value
+                },
+                ...classColumns
+            ];
+
+            setColumns(preparedColumns);
+        }
+    }, [classes]);
+
+    useEffect(() => {
+        const sortedRows = rowSortAsc ? classes.sort() : classes.reverse();
+        const rows = sortedRows.map((c) => {
+            const filtered = data.filter((d) => d.groundtruth === c);
+            const referenceDataForClass = referenceData.filter((d) => d.groundtruth === c);
+            const cells = {groundtruth: c};
+
+            filtered.forEach((e) => {
+                const referenceDataForCell = referenceDataForClass.find(
+                    (d) => d.prediction === e.prediction
                 );
-            },
-            {displayName: 'Cell'}
-        )
-    }));
 
-    const columns = [
-        {
-            Header: '',
-            accessor: 'groundtruth',
-            Cell: ({value}) => value
-        },
-        ...classColumns
-    ];
+                cells[e.prediction] = {
+                    value: e.distribution,
+                    difference: e.distribution - referenceDataForCell?.distribution
+                };
+            });
 
-    const rows = classes.sort().map((c) => {
-        const filtered = data.filter((d) => d.groundtruth === c);
-        const referenceDataForClass = referenceData.filter((d) => d.groundtruth === c);
-
-        const cells = {groundtruth: c};
-
-        filtered.forEach((e) => {
-            const referenceDataForCell = referenceDataForClass.find(
-                (d) => d.prediction === e.prediction
-            );
-
-            cells[e.prediction] = {
-                value: e.distribution,
-                difference: e.distribution - referenceDataForCell?.distribution
-            };
+            return cells;
         });
 
-        return cells;
-    });
+        setRows(rows);
+    }, [rowSortAsc]);
 
     return (
         <div className='d-flex'>
             <div className='position-relative' style={{width: 30}}>
                 <p
-                    className='position-absolute text-secondary m-0 text-center bold-text'
-                    style={{transform: 'rotate(-90deg)', top: '50%', left: -85, width: 200}}
+                    className='position-absolute text-secondary m-0 text-center bold-text cursor-pointer'
+                    style={{transform: 'rotate(-90deg)', top: '50%', left: -85, width: 200, zIndex: 999}}
+                    onClick={() => setRowSortAsc(!rowSortAsc)}
                 >
                     Ground Truth
+                    <span>
+                        {rowSortAsc ? <TiArrowSortedUp/> : <TiArrowSortedDown/>}
+                    </span>
                 </p>
             </div>
             <div className='position-relative' style={{
                 overflow: 'auto', width: '100%', maxHeight: '98vh'
             }}>
                 <p
-                    className='text-secondary m-0 mb-2 text-center bold-text position-sticky'
-                    style={{left: 0}}
-                >Prediction</p>
+                    className='text-secondary m-0 mb-2 text-center bold-text position-sticky cursor-pointer'
+                    style={{left: 0, zIndex: 999}}
+                    onClick={() => setColumnSortAsc(!columnSortAsc)}
+                >Prediction
+                    {columnSortAsc ? <TiArrowSortedUp/> : <TiArrowSortedDown/>}
+                </p>
                 <MatrixTable columns={columns} data={rows} onCellClick={onCellClick} />
             </div>
         </div>
@@ -169,8 +191,7 @@ const ConfusionMatrix = () => {
                                 <Table
                                     data={data}
                                     classes={allClasses}
-                                    onCellClick={(prediction, groundtruth) => setSelectedCell({prediction, groundtruth})
-                                    }
+                                    onCellClick={(prediction, groundtruth) => setSelectedCell({prediction, groundtruth})}
                                     referenceData={rangeData}
                                 />
                             </>
