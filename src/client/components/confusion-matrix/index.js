@@ -29,7 +29,7 @@ const Table = ({
 
     useEffect(() => {
         if (classes) {
-            const proceedClasses = columnSortAsc ? classes.sort() : classes.reverse()
+            const proceedClasses = columnSortAsc ? classes.sort() : classes.reverse();
             const classColumns = proceedClasses.map((c) => ({
                 Header: c,
                 accessor: c,
@@ -68,6 +68,7 @@ const Table = ({
 
     useEffect(() => {
         const rowEntries = rowSortAsc ? classes.sort() : classes.reverse();
+
         setRows(prepareRows(rowEntries));
     }, [rowSortAsc]);
 
@@ -94,7 +95,7 @@ const Table = ({
 
             return cells;
         });
-    }
+    };
 
     return (
         <div className='d-flex'>
