@@ -34,7 +34,7 @@ const MinersList = () => {
                 <Table className='models-table mt-3'>
                     <thead className='align-middle text-secondary'>
                         <tr className='border-0 border-bottom border-mercury'>
-                            <th className='text-secondary'>Miner ID</th>
+                            <th className='text-secondary'>Name</th>
                             <th className='text-secondary'>Created At</th>
                             <th className='text-secondary'>Updated At</th>
                             <th className='text-secondary'>Status</th>
@@ -53,7 +53,7 @@ const MinersList = () => {
                             miners.map((miner) => {
                                 return (
                                     <tr key={miner._id}>
-                                        <td>{miner._id}</td>
+                                        <td>{miner.display_name}</td>
                                         <td>
                                             {new Date(
                                                 moment(miner.created_at)

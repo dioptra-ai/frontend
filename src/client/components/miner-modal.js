@@ -15,7 +15,6 @@ import ToggleButton from 'react-bootstrap/ToggleButton';
 import ToggleButtonGroup from 'react-bootstrap/ToggleButtonGroup';
 
 const IsoDurations = {
-    PT5S: {value: 'PT5S', name: '5 seconds'},
     PT30M: {value: 'PT30M', name: '30 minutes'},
     PT1H: {value: 'PT1H', name: '1 hour'},
     PT6H: {value: 'PT6H', name: '6 hours'},
@@ -28,6 +27,7 @@ const IsoDurations = {
 const MinerModal = ({isOpen, closeCallback, samples}) => {
     const [minerDatasetSelected, setMinerDatasetSelected] = useState(false);
     const [selectedDataset, setSelectedDataset] = useState();
+    const [minerName, setMinerName] = useState();
     const [referencePeriod, setReferencePeriod] = useState({
         start: moment(),
         end: moment().add(5, 'minutes')
@@ -63,7 +63,8 @@ const MinerModal = ({isOpen, closeCallback, samples}) => {
 
     const createMiner = () => {
         const payload = {
-            request_ids: requestIds
+            request_ids: requestIds,
+            display_name: minerName
         };
 
         if (!minerDatasetSelected) {
@@ -103,6 +104,15 @@ const MinerModal = ({isOpen, closeCallback, samples}) => {
                             createMiner();
                         }}
                     >
+                        <Form.Label className='mt-3 mb-0 w-100'>Name</Form.Label>
+                        <InputGroup className='mt-1'>
+                            <Form.Control
+                                required
+                                onChange={(e) => {
+                                    setMinerName(e.target.value);
+                                }}
+                            />
+                        </InputGroup>
                         <Form.Label className='mt-3 mb-0 w-100'>Source</Form.Label>
                         <InputGroup className='mt-1 flex-column'>
                             <Form.Control
