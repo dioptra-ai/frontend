@@ -16,7 +16,6 @@ import theme from 'styles/theme.module.scss';
 import ModalComponent from 'components/modal';
 import EditModel from 'pages/model/edit-model';
 import metricsClient from 'clients/metrics';
-import fetchWithRetry from '../clients/fetch-retry-client';
 
 const TRAFFIC_START_MOMENT = moment().subtract(1, 'day');
 const TRAFFIC_END_MOMENT = moment();
@@ -163,10 +162,7 @@ const Models = ({modelStore}) => {
             setErrors([]);
         }
 
-        fetchWithRetry('/api/ml-model', {
-            retries: 15,
-            retryDelay: 3000,
-            retryOn: [503, 504],
+        fetch('/api/ml-model', {
             method: 'POST',
             headers: {
                 'content-type': 'application/json'

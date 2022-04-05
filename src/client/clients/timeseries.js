@@ -1,8 +1,7 @@
 import mem from 'mem';
-import fetchWithRetry from './fetch-retry-client';
 
 const memoizedFetch = mem(async (...args) => {
-    const res = await fetchWithRetry(...args);
+    const res = await fetch(...args);
 
     if (res.ok) {
 

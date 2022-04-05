@@ -23,6 +23,7 @@ const Async = ({
 
     useEffect(() => {
         (async () => {
+            setError(null);
             setLoading(true);
 
             try {
@@ -31,7 +32,6 @@ const Async = ({
                     fetchData();
                 const data = await fetchAllData;
 
-                setError(null);
                 setData(data);
             } catch (err) {
                 setData(null);

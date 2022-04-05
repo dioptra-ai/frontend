@@ -1,10 +1,12 @@
 import metricsClient from 'clients/metrics';
 import Menu from 'components/menu';
+import Async from 'components/async';
 import moment from 'moment';
 import GeneralSearchBar from 'pages/common/general-search-bar';
 import {useEffect, useState} from 'react';
 import Table from 'react-bootstrap/Table';
 import {IoDownloadOutline} from 'react-icons/io5';
+import {AiOutlineDelete} from 'react-icons/ai';
 import {BarLoader} from 'react-spinners';
 import baseJSONClient from 'clients/base-json-client';
 import {OverlayTrigger, Tooltip} from 'react-bootstrap';
@@ -16,14 +18,6 @@ const MinersList = () => {
     const downloadDatapoints = (minerId) => {
         return metricsClient(`miner/datapoints?id=${minerId}`, null, 'get');
     };
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            fetchMiners().then((miners) => setMiners(miners));
-        }, 5000);
-
-        return () => clearInterval(interval);
-    }, []);
 
     useEffect(() => {
         fetchMiners().then((miners) => setMiners(miners));
@@ -47,8 +41,11 @@ const MinersList = () => {
                             <th className='text-secondary'>Updated At</th>
                             <th className='text-secondary'>Status</th>
                             <th className='text-secondary'>Type</th>
+                            <th className='text-secondary'>
+                                Download
+                            </th>
                             <th className='text-secondary d-flex justify-content-end'>
-                                Download Datapoints
+                                Delete
                             </th>
                         </tr>
                     </thead>
@@ -58,7 +55,12 @@ const MinersList = () => {
                                 return (
                                     <tr key={miner._id}>
                                         <td>{miner._id}</td>
-                                        <td>{miner.size}</td>
+                                        <td>
+                                            <Async
+                                                fetchData={() => metricsClient(`miners/size?id=${miner._id}`, null, 'get')}
+                                                renderData={({size}) => Number(size).toLocaleString()}
+                                            />
+                                        </td>
                                         <td>
                                             {new Date(
                                                 moment(miner.created_at)
@@ -71,10 +73,7 @@ const MinersList = () => {
                                         </td>
                                         <td>{miner.status}</td>
                                         <td>{miner.type}</td>
-                                        <td
-                                            className='d-flex justify-content-end'
-                                            style={{height: 50}}
-                                        >
+                                        <td>
                                             <div className='d-flex justify-content-center align-content-center align-items-center'>
                                                 {miner.status === 'pending' ? (
                                                     <BarLoader loading size={40} />
@@ -99,6 +98,20 @@ const MinersList = () => {
                                                         </OverlayTrigger>
                                                     )
                                                 )}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div className='d-flex justify-content-center align-content-center align-items-center'>
+                                                <OverlayTrigger overlay={
+                                                    <Tooltip>Delete this miner</Tooltip>
+                                                }>
+                                                    <AiOutlineDelete
+                                                        className='fs-3 cursor-pointer'
+                                                        onClick={() => metricsClient('miners/delete', {
+                                                            miner_id: miner._id
+                                                        })}
+                                                    />
+                                                </OverlayTrigger>
                                             </div>
                                         </td>
                                     </tr>
