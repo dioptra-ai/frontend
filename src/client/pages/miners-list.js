@@ -19,11 +19,10 @@ const MinersList = () => {
         return metricsClient(`miner/datapoints?id=${minerId}`, null, 'get');
     };
 
-    useEffect(() => {
-        fetchMiners().then((miners) => setMiners(miners));
-    }, []);
+    const fetchMiners = () => baseJSONClient('/api/metrics/miners', {memoized: false}).then((miners) => setMiners(miners));
 
-    const fetchMiners = () => baseJSONClient('/api/metrics/miners', {memoized: false});
+    useEffect(fetchMiners, []);
+
 
     return (
         <Menu>
@@ -107,9 +106,12 @@ const MinersList = () => {
                                                 }>
                                                     <AiOutlineDelete
                                                         className='fs-3 cursor-pointer'
-                                                        onClick={() => metricsClient('miners/delete', {
-                                                            miner_id: miner._id
-                                                        })}
+                                                        onClick={async () => {
+                                                            await metricsClient('miners/delete', {
+                                                                miner_id: miner._id
+                                                            });
+                                                            await fetchMiners();
+                                                        }}
                                                     />
                                                 </OverlayTrigger>
                                             </div>
