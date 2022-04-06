@@ -13,7 +13,7 @@ const Throughput = ({sqlFilters, timeStore}) => (
                 dots={data}
                 xDataKey='time'
                 yDataKey='value'
-                title='Average Throughput (QPS)'
+                title='Average Throughput'
                 xAxisName='Time'
             />
         )}
@@ -21,10 +21,7 @@ const Throughput = ({sqlFilters, timeStore}) => (
             sql_filters: sqlFilters,
             granularity_iso: timeStore
                 .getTimeGranularity()
-                .toISOString(),
-            granularity_sec: timeStore
-                .getTimeGranularity()
-                .asSeconds()
+                .toISOString()
         })}
         refetchOnChanged={[
             sqlFilters,

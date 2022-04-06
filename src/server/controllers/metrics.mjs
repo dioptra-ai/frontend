@@ -1,31 +1,12 @@
-import fetch from '@adobe/node-fetch-retry';
+import fetch from 'node-fetch';
 import axios from 'axios';
 import express from 'express';
-import * as rax from 'retry-axios';
 import url from 'url';
 import zlib from 'zlib';
 import {isAuthenticated} from '../middleware/authentication.mjs';
 
-const axiosRetryClient = axios.create();
-
-axiosRetryClient.defaults.raxConfig = {
-    instance: axiosRetryClient,
-    statusCodesToRetry: [[503, 504]],
-    retry: 5,
-    retryDelay: 10000
-};
-rax.attach(axiosRetryClient);
-
-const fetchRetryConfig = {
-    retryOnHttpResponse (response) {
-        return response.status === 503 || response.status === 504;
-    },
-    retryMaxDuration: 600000,
-    socketTimeout: 600000
-};
-
+const axiosClient = axios.create();
 const {OVERRIDE_DRUID_ORG_ID} = process.env;
-
 const MetricsRouter = express.Router();
 
 MetricsRouter.all('*', isAuthenticated);
@@ -36,7 +17,7 @@ MetricsRouter.get('/integrations/:sourceName', async (req, res, next) => {
         const {activeOrganizationMembership} = req.user;
         const organization_id = activeOrganizationMembership.organization._id;
 
-        await axiosRetryClient
+        await axiosClient
             .get(
                 `${process.env.METRICS_ENGINE_URL}/integrations/${sourceName}/queries?org_id=${organization_id}`
             )
@@ -56,7 +37,7 @@ MetricsRouter.post('/integrations/:sourceName/:queryId', async (req, res, next) 
         const organization_id = activeOrganizationMembership.organization._id;
         const parameters = req.body;
 
-        await axiosRetryClient
+        await axiosClient
             .post(
                 `${process.env.METRICS_ENGINE_URL}/integrations/${sourceName}/results/${queryId}?org_id=${organization_id}`,
                 parameters
@@ -79,7 +60,7 @@ MetricsRouter.post(
             const organization_id = activeOrganizationMembership.organization._id;
             const payload = req.body;
 
-            await axiosRetryClient
+            await axiosClient
                 .post(
                     `${process.env.METRICS_ENGINE_URL}/integrations/${sourceName}/correlation/${queryId}?org_id=${organization_id}`,
                     payload
@@ -109,9 +90,7 @@ MetricsRouter.get('*', async (req, res, next) => {
         const metricsEnginePath = `${process.env.METRICS_ENGINE_URL}${url.format(
             newurl
         )}`;
-        const metricsResponse = await fetch(metricsEnginePath, {
-            retryOptions: fetchRetryConfig
-        });
+        const metricsResponse = await fetch(metricsEnginePath);
 
         if (metricsResponse.status !== 200) {
             const json = await metricsResponse.json();
@@ -133,7 +112,6 @@ MetricsRouter.post('*', async (req, res, next) => {
         const metricsEnginePath = `${process.env.METRICS_ENGINE_URL}${req.url}`;
         const metricsResponse = await fetch(metricsEnginePath, {
             timeout: 60000,
-            retryOptions: fetchRetryConfig,
             headers: {
                 'content-type': 'application/json;charset=UTF-8'
             },

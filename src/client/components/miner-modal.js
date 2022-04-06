@@ -13,11 +13,21 @@ import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import ToggleButton from 'react-bootstrap/ToggleButton';
 import ToggleButtonGroup from 'react-bootstrap/ToggleButtonGroup';
-import {IsoDurations} from '../enums/iso-durations';
+
+const IsoDurations = {
+    PT30M: {value: 'PT30M', name: '30 minutes'},
+    PT1H: {value: 'PT1H', name: '1 hour'},
+    PT6H: {value: 'PT6H', name: '6 hours'},
+    PT12H: {value: 'PT12H', name: '12 hours'},
+    P1D: {value: 'P1D', name: '1 day'},
+    P7D: {value: 'P7D', name: '7 days'}
+};
+
 
 const MinerModal = ({isOpen, closeCallback, samples}) => {
     const [minerDatasetSelected, setMinerDatasetSelected] = useState(false);
     const [selectedDataset, setSelectedDataset] = useState();
+    const [minerName, setMinerName] = useState();
     const [referencePeriod, setReferencePeriod] = useState({
         start: moment(),
         end: moment().add(5, 'minutes')
@@ -53,7 +63,8 @@ const MinerModal = ({isOpen, closeCallback, samples}) => {
 
     const createMiner = () => {
         const payload = {
-            request_ids: requestIds
+            request_ids: requestIds,
+            display_name: minerName
         };
 
         if (!minerDatasetSelected) {
@@ -67,7 +78,7 @@ const MinerModal = ({isOpen, closeCallback, samples}) => {
         } else {
             payload['dataset'] = selectedDataset;
         }
-        metricsClient('/miners', payload).catch(() => console.log('Miner creation operation timeout'));
+        metricsClient('miners', payload).catch(console.error);
         setMinerDatasetSelected(false);
         setSelectedDataset(null);
         setReferencePeriod({});
@@ -93,6 +104,15 @@ const MinerModal = ({isOpen, closeCallback, samples}) => {
                             createMiner();
                         }}
                     >
+                        <Form.Label className='mt-3 mb-0 w-100'>Name</Form.Label>
+                        <InputGroup className='mt-1'>
+                            <Form.Control
+                                required
+                                onChange={(e) => {
+                                    setMinerName(e.target.value);
+                                }}
+                            />
+                        </InputGroup>
                         <Form.Label className='mt-3 mb-0 w-100'>Source</Form.Label>
                         <InputGroup className='mt-1 flex-column'>
                             <Form.Control
@@ -127,14 +147,14 @@ const MinerModal = ({isOpen, closeCallback, samples}) => {
                                         id='range'
                                         value='range'
                                     >
-                                        &nbsp;Date Range
+                                        &nbsp;Past Time Range
                                     </ToggleButton>
                                     <ToggleButton
                                         variant='outline-secondary'
                                         id='duration'
                                         value='duration'
                                     >
-                                        &nbsp;Reccurring duration
+                                        &nbsp;Periodic Schedule
                                     </ToggleButton>
                                 </ToggleButtonGroup>
                                 {liveDataType === 'range' && (
@@ -144,7 +164,8 @@ const MinerModal = ({isOpen, closeCallback, samples}) => {
                                         </Form.Label>
                                         <DateTimeRangePicker
                                             datePickerSettings={{
-                                                opens: 'center'
+                                                opens: 'center',
+                                                drops: 'up'
                                             }}
                                             end={
                                                 referencePeriod ?
@@ -164,13 +185,13 @@ const MinerModal = ({isOpen, closeCallback, samples}) => {
                                 {liveDataType === 'duration' && (
                                     <InputGroup className='mt-1'>
                                         <Form.Label className='mt-3 mb-0 w-100'>
-                                            Reccurring duration for last:
+                                            Mine latest data every
                                         </Form.Label>
                                         <Select
                                             backgroundColor='white'
                                             initialValue={
                                                 evaluationPeriod ||
-                                                IsoDurations.PT5M.value
+                                                IsoDurations.PT30M.value
                                             }
                                             isTextBold
                                             onChange={setEvaluationPeriod}
@@ -178,7 +199,7 @@ const MinerModal = ({isOpen, closeCallback, samples}) => {
                                             textColor='primary'
                                             selectValue={
                                                 evaluationPeriod ||
-                                                IsoDurations.PT5M.value
+                                                IsoDurations.PT30M.value
                                             }
                                         />
                                     </InputGroup>
