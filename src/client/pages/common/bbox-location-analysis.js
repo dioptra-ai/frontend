@@ -106,20 +106,20 @@ const BBoxLocationAnalysis = () => {
                                 const {image_url, width, height, bounding_box, video_frame} =
                                     sample;
 
-
                                 return (
                                     <div
-                                        key={i}
+                                        key={`${image_url}-${i}`}
                                         className='m-4 heat-map-item cursor-pointer'
                                         onClick={() => setExampleInModal(sample)}
                                     >
                                         {video_frame ? (
-                                            <video width='100%' controls>
+                                            <video height={200} controls>
                                                 <source src={image_url}/>
                                             </video>
                                         ) : (
                                             <SignedImage
                                                 rawUrl={image_url}
+                                                height={200}
                                             />
                                         )}
                                         <div
