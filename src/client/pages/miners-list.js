@@ -2,6 +2,7 @@ import metricsClient from 'clients/metrics';
 import Menu from 'components/menu';
 import Async from 'components/async';
 import moment from 'moment';
+import slugify from 'slugify';
 import GeneralSearchBar from 'pages/common/general-search-bar';
 import {useEffect, useState} from 'react';
 import Table from 'react-bootstrap/Table';
@@ -89,7 +90,7 @@ const MinersList = () => {
                                                                                 if (size) {
                                                                                     const datapoints = await downloadDatapoints(miner._id);
 
-                                                                                    saveAs(new Blob([datapoints], {type: 'text/csv;charset=utf-8'}), `${miner._id}-data.csv`);
+                                                                                    saveAs(new Blob([datapoints], {type: 'text/csv;charset=utf-8'}), `${slugify(miner.display_name)}.csv`);
                                                                                 }
                                                                             }}
                                                                         />
