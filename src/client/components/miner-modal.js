@@ -164,7 +164,8 @@ const MinerModal = ({isOpen, closeCallback, samples}) => {
                                         </Form.Label>
                                         <DateTimeRangePicker
                                             datePickerSettings={{
-                                                opens: 'center'
+                                                opens: 'center',
+                                                drops: 'up'
                                             }}
                                             end={
                                                 referencePeriod ?
