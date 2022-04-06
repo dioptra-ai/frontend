@@ -11,6 +11,7 @@ import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import {Filter} from 'state/stores/filters-store';
 import SignedImage from 'components/signed-image';
+import SeekableVideo from 'components/seekable-video';
 
 const BBoxLocationAnalysis = () => {
     const allSqlFiltersWithoutOrgId = useAllSqlFilters({
@@ -103,19 +104,24 @@ const BBoxLocationAnalysis = () => {
                             style={{maxHeight: 600}}
                         >
                             {heatMapSamples.map((sample, i) => {
-                                const {image_url, width, height, bounding_box, video_frame} =
+                                const {image_url, width, height, bounding_box} =
                                     sample;
+                                const {video_frame, video_frame_rate} = bounding_box;
 
                                 return (
                                     <div
-                                        key={`${image_url}-${i}`}
+                                        key={`${JSON.stringify(sample)}-${i}`}
                                         className='m-4 heat-map-item cursor-pointer'
                                         onClick={() => setExampleInModal(sample)}
                                     >
                                         {video_frame ? (
-                                            <video height={200} controls>
-                                                <source src={image_url}/>
-                                            </video>
+                                            <SeekableVideo
+                                                url={image_url}
+                                                seekToSecs={video_frame / video_frame_rate}
+                                                height={200}
+                                                width='auto'
+                                                controls
+                                            />
                                         ) : (
                                             <SignedImage
                                                 rawUrl={image_url}
@@ -158,17 +164,19 @@ const BBoxLocationAnalysis = () => {
                 <Modal onClose={() => setExampleInModal(null)} title='Example'>
                     <div style={{position: 'relative'}}>
                         {exampleInModal.video_frame ? (
-                            <video width='100%' controls>
-                                <source src={exampleInModal.image_url}/>
-                            </video>
+                            <SeekableVideo
+                                url={exampleInModal.image_url}
+                                seekToSecs={exampleInModal.bounding_box.video_frame / exampleInModal.bounding_box.video_frame_rate}
+                                width='auto'
+                                height={600}
+                                controls
+                            />
                         ) : (
-                            <img
+                            <SignedImage
                                 alt='Example'
                                 className='rounded modal-image'
-                                src={exampleInModal.image_url}
-                                style={{
-                                    height: 600
-                                }}
+                                rawUrl={exampleInModal.image_url}
+                                height={200}
                             />
                         )}
                         <div

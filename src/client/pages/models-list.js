@@ -189,7 +189,6 @@ const Models = ({modelStore}) => {
             metricsClient('throughput', {
                 sql_filters: '__time >= CURRENT_TIMESTAMP - INTERVAL \'1\' DAY',
                 granularity_iso: moment.duration(1, 'hour').toISOString(),
-                granularity_sec: moment.duration(1, 'hour').asSeconds(),
                 group_by: ['model_id']
             }).then((trafficData) => {
                 setFormattedData(data.map((d) => {

@@ -11,6 +11,7 @@ import {
     YAxis,
     ZAxis
 } from 'recharts';
+import ReactPlayer from 'react-player';
 import {useThrottle} from '@react-hook/throttle';
 import {saveAs} from 'file-saver';
 import {IoDownloadOutline} from 'react-icons/io5';
@@ -308,9 +309,7 @@ const ScatterGraph = ({data, noveltyIsObsolete}) => {
                     <div className={`d-flex p-2 overflow-auto flex-grow-0 ${samples.length ? 'justify-content-left' : 'justify-content-center align-items-center'} scatterGraph-examples`}>
                         {samples.length ? samples.map((sample, i) => (
                             examplesType === 'video' ?
-                                <video width='100%' controls>
-                                    <source src={sample}/>
-                                </video> :
+                                <ReactPlayer url={sample} controls width='100%' hight='auto'/> :
                                 examplesType === 'image' ?
                                     <div
                                         key={i}
