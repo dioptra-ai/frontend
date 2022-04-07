@@ -24,7 +24,7 @@ import Row from 'react-bootstrap/Row';
 import Modal from 'components/modal';
 import AddFilters from 'components/add-filters';
 import {Filter} from 'state/stores/filters-store';
-import MinerModal from './miner-modal';
+import MinerModal from 'components/miner-modal';
 
 const LARGE_DOT_SIZE = 200;
 const MEDIUM_DOT_SIZE = 100;

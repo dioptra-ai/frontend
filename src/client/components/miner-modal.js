@@ -13,6 +13,7 @@ import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import ToggleButton from 'react-bootstrap/ToggleButton';
 import ToggleButtonGroup from 'react-bootstrap/ToggleButtonGroup';
+import Error from 'components/error';
 
 const IsoDurations = {
     PT30M: {value: 'PT30M', name: '30 minutes'},
@@ -252,12 +253,17 @@ const MinerModal = ({isOpen, closeCallback, samples}) => {
                                 </InputGroup>
                             </>
                         ) : null}
+                        {requestIds.length < 2 ? (
+                            <div className='mt-3'>
+                                <Error error={`${requestIds.length} sample(s) are selected but at least two (2) are required to run a novelty miner.`} variant='warning'/>
+                            </div>
+                        ) : null}
                         <Button
                             className='w-100 text-white btn-submit mt-3'
                             variant='primary'
                             type='submit'
                             disabled={
-                                requestIds === [] ||
+                                requestIds.length < 2 ||
                                 (minerDatasetSelected && !selectedDataset) ||
                                 (!minerDatasetSelected &&
                                     liveDataType === 'range' &&

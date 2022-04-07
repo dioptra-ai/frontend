@@ -10,8 +10,11 @@ import {useState} from 'react';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import {Filter} from 'state/stores/filters-store';
+import {BsMinecartLoaded} from 'react-icons/bs';
 import SignedImage from 'components/signed-image';
 import SeekableVideo from 'components/seekable-video';
+import {OverlayTrigger, Tooltip} from 'react-bootstrap';
+import MinerModal from 'components/miner-modal';
 
 const BBoxLocationAnalysis = () => {
     const allSqlFiltersWithoutOrgId = useAllSqlFilters({
@@ -20,6 +23,7 @@ const BBoxLocationAnalysis = () => {
     const [classFilter, setClassFilter] = useState(null);
     const [heatMapSamples, setHeatMapSamples] = useState([]);
     const [exampleInModal, setExampleInModal] = useModal(null);
+    const [minerModalOpen, setMinerModalOpen] = useModal(false);
 
     return (
         <>
@@ -95,6 +99,15 @@ const BBoxLocationAnalysis = () => {
                                 })
                             ]}
                         />
+                        <OverlayTrigger overlay={<Tooltip>Mine for Similar Datapoints</Tooltip>}>
+                            <button
+                                className='text-dark border-0 bg-transparent click-down fs-2' onClick={() => {
+                                    setMinerModalOpen(true);
+                                }}>
+                                <BsMinecartLoaded className='fs-2 ps-2 cursor-pointer'/>
+                            </button>
+                        </OverlayTrigger>
+                        <MinerModal isOpen={minerModalOpen} closeCallback={() => setMinerModalOpen(false)} samples={heatMapSamples.map((s) => s.bounding_box)}/>
                     </div>
                     {heatMapSamples.length ? (
                         <div

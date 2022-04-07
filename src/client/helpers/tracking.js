@@ -31,9 +31,7 @@ import {authStore} from 'state/stores/auth-store';
 export const initializeUserTracking = () => {
     if (window.analytics) {
         if (authStore.userData && authStore.userData.id) {
-            window.analytics.identify(authStore.userData.id, {
-                username: authStore.userData.username
-            });
+            window.analytics.identify(authStore.userData.username);
         }
 
         ['button', '.btn', 'a', '.tab', 'input', 'select', 'li[data-range-key]'].forEach((selector) => {
