@@ -3,7 +3,7 @@ kind: Service
 metadata:
   annotations:
     service.beta.kubernetes.io/aws-load-balancer-internal: 0.0.0.0/0
-  name: {{ .Release.Name }}-{{ .Values.environment }}-mongodb-internal
+  name: {{ .Release.Name }}-{{ .Values.environment }}-mongodb
 spec:
   type: LoadBalancer
   ports:
