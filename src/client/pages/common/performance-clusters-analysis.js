@@ -21,14 +21,25 @@ import metricsClient from 'clients/metrics';
 import AddFilters from 'components/add-filters';
 import {Filter} from 'state/stores/filters-store';
 import SignedImage from 'components/signed-image';
-import MinerModal from '../../components/miner-modal';
+import MinerModal from 'components/miner-modal';
 import useModel from 'hooks/use-model';
 import Form from 'react-bootstrap/Form';
+
+const MODEL_TYPE_TO_METRICS_NAMES = {
+    'Q_N_A': ['EXACT_MATCH', 'F1_SCORE'],
+    'AUTO_COMPLETION': ['EXACT_MATCH', 'F1_SCORE'],
+    'SPEECH_TO_TEXT': ['EXACT_MATCH', 'WORD_ERROR_RATE'],
+    'TEXT_CLASSIFIER': ['ACCURACY', 'F1_SCORE', 'PRECISION', 'RECALL'],
+    'UNSUPERVISED_OBJECT_DETECTION': ['MEAN_AVERAGE_PRECISION', 'MEAN_AVERAGE_RECALL'],
+    'IMAGE_CLASSIFIER': ['ACCURACY', 'PRECISION', 'F1_SCORE', 'RECALL'],
+    'SEMANTIC_SIMILARITY': ['PEARSON_CONSINE', 'SPEARMAN_COSINE']
+};
 
 const PerformanceClustersAnalysis = () => {
     const allSqlFilters = useAllSqlFilters();
     const model = useModel();
-    const [userSelectedMetricName, setUserSelectedMetricName] = useState(null);
+    const metricNames = MODEL_TYPE_TO_METRICS_NAMES[model.mlModelType];
+    const [userSelectedMetricName, setUserSelectedMetricName] = useState(metricNames[0]);
     const [userSelectedDistanceName, setUserSelectedDistanceName] = useState('euclidean');
     const [userSelectedSummaryDistribution, setUserSelectedSummaryDistribution] = useState('prediction');
     const [selectedClusterIndex, setSelectedClusterIndex] = useState();
@@ -68,30 +79,35 @@ const PerformanceClustersAnalysis = () => {
 
     return (
         <Async
-            refetchOnChanged={[allSqlFilters, userSelectedDistanceName]}
+            refetchOnChanged={[allSqlFilters, userSelectedDistanceName, userSelectedMetricName]}
             fetchData={() => metricsClient('clusters', {
                 model_type: model.mlModelType,
                 sql_filters: allSqlFilters,
-                distance: userSelectedDistanceName
+                distance: userSelectedDistanceName,
+                metrics: [userSelectedMetricName]
             })}
             renderData={(data = []) => {
-                const metricNames = data[0]?.metrics.map((m) => m.name) || [];
-                const selectedMetricName = userSelectedMetricName || metricNames[0];
                 const sortedClusters = data.map((c, i) => ({
                     name: `Cluster #${i + 1}`,
                     size: c.elements.length,
                     ...c
                 })).sort((c1, c2) => {
-                    const metric1 = c1.metrics.find((m) => m.name === selectedMetricName);
-                    const metric2 = c2.metrics.find((m) => m.name === selectedMetricName);
+                    const metric1 = c1.metrics.find((m) => m.name === userSelectedMetricName);
+                    const metric2 = c2.metrics.find((m) => m.name === userSelectedMetricName);
 
-                    return metric2.value - metric1.value;
+                    if (metric1 && metric2) {
+
+                        return metric2.value - metric1.value;
+                    } else {
+
+                        return 1;
+                    }
                 });
                 const selectedMetric = sortedClusters.map((cluster) => {
 
                     return {
                         name: cluster.name,
-                        value: cluster.metrics.find((m) => m.name === selectedMetricName)?.value,
+                        value: cluster.metrics.find((m) => m.name === userSelectedMetricName)?.value,
                         fill: getHexColor(cluster.name),
                         size: cluster.size
                     };
