@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import {Scatter} from 'recharts';
+import {Scatter, Tooltip as ScatterTooltip} from 'recharts';
 import {OverlayTrigger, Tooltip} from 'react-bootstrap';
 import {IoDownloadOutline} from 'react-icons/io5';
 import {BsMinecartLoaded} from 'react-icons/bs';
@@ -25,6 +25,7 @@ import MinerModal from 'components/miner-modal';
 import useModel from 'hooks/use-model';
 import Form from 'react-bootstrap/Form';
 
+// Keep this in sync with metrics-engine/handlers/clusters.py
 const MODEL_TYPE_TO_METRICS_NAMES = {
     'Q_N_A': ['EXACT_MATCH', 'F1_SCORE'],
     'AUTO_COMPLETION': ['EXACT_MATCH', 'F1_SCORE'],
@@ -87,8 +88,8 @@ const PerformanceClustersAnalysis = () => {
                 metrics: [userSelectedMetricName]
             })}
             renderData={(data = []) => {
-                const sortedClusters = data.map((c, i) => ({
-                    name: `Cluster #${i + 1}`,
+                const sortedClusters = data.map((c) => ({
+                    name: c.label === -1 ? '[noise]' : `[${c.label}]`,
                     size: c.elements.length,
                     ...c
                 })).sort((c1, c2) => {
@@ -108,7 +109,7 @@ const PerformanceClustersAnalysis = () => {
                     return {
                         name: cluster.name,
                         value: cluster.metrics.find((m) => m.name === userSelectedMetricName)?.value,
-                        fill: getHexColor(cluster.name),
+                        fill: getHexColor(cluster.label === -1 ? '' : cluster.name),
                         size: cluster.size
                     };
                 });
@@ -181,15 +182,46 @@ const PerformanceClustersAnalysis = () => {
                                                 name={cluster.name}
                                                 // Samples are filtered if there are more than 500 samples.
                                                 data={cluster.elements.filter(() => Math.random() < 500 / cluster.elements.length).map((e) => ({
-                                                    samples: [e.sample],
+                                                    clusterSize: cluster.elements.length,
+                                                    metricValue: cluster.metrics.find((m) => m.name === userSelectedMetricName)?.value,
                                                     size: selectedClusterIndex === index ? 100 : 50,
+                                                    clusterLabel: cluster.label,
                                                     ...e
                                                 }))}
-                                                fill={getHexColor(cluster.name)}
+                                                fill={getHexColor(cluster.label === -1 ? '' : cluster.name)}
                                                 xAxisId='PCA1'
                                                 yAxisId='PCA2'
                                             />
                                         ))}
+                                        <ScatterTooltip animationDuration={200} content={({payload}) => {
+                                            const cluster = payload.find((p) => p.dataKey === 'size')?.payload;
+                                            const label = cluster?.clusterLabel;
+
+                                            return (
+                                                <div className='line-graph-tooltip bg-white p-3'>
+                                                    <p className='text-dark bold-text fs-5 m-0'>{Number(cluster?.metricValue).toFixed(4)}</p>
+                                                    <p className='text-secondary m-0 fs-7' style={{
+                                                        textOverflow: 'ellipsis',
+                                                        overflow: 'hidden',
+                                                        whiteSpace: 'nowrap',
+                                                        maxWidth: 200
+                                                    }}>
+                                                        [{label === -1 ? 'noise' : String(label)}]
+                                                    </p>
+
+                                                    {cluster?.clusterSize ?
+                                                        <p className='text-secondary m-0 fs-7' style={{
+                                                            textOverflow: 'ellipsis',
+                                                            overflow: 'hidden',
+                                                            whiteSpace: 'nowrap',
+                                                            maxWidth: 200
+                                                        }}>
+                                                        Size: {cluster?.clusterSize}
+                                                        </p> :
+                                                        null}
+                                                </div>
+                                            );
+                                        }}/>
                                     </ClusterGraph>
                                 </Col>
                                 <Col lg={4} className='px-3'>

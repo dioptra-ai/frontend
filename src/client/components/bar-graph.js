@@ -25,7 +25,7 @@ const CustomTooltip = ({payload, label, unit}) => {
                         whiteSpace: 'nowrap',
                         maxWidth: 200
                     }}>
-                    Size : {payload[0].payload.size}
+                    Size: {payload[0].payload.size}
                     </p> :
                     null}
             </div>
@@ -71,7 +71,7 @@ const BarGraph = ({title, bars, unit, yAxisName, xAxisName, yAxisDomain, classNa
                             />
                             {children ||
                                 <>
-                                    <Tooltip content={<CustomTooltip unit={unit}/>}/>
+                                    <Tooltip animationDuration={200} content={<CustomTooltip unit={unit}/>}/>
                                     <Bar cursor={onClick ? 'pointer' : 'default'} onClick={onClick} dataKey='value' fill={theme.primary} maxBarSize={50} minPointSize={2}/>
                                 </>
                             }
