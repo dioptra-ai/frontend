@@ -1,6 +1,7 @@
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Segmentation from 'pages/common/segmentation';
+import PerformanceClustersAnalysis from 'pages/common/performance-clusters-analysis';
 import useAllSqlFilters from 'hooks/use-all-sql-filters';
 import MetricInfoBox from 'components/metric-info-box';
 import CountEvents from 'components/count-events';
@@ -18,6 +19,7 @@ const PerformanceDetails = () => {
                     </Col>
                 </Row>
             </div>
+            <PerformanceClustersAnalysis/>
             <Segmentation />
         </div>
     );

@@ -81,6 +81,7 @@ const Model = ({timeStore, filtersStore, modelStore}) => {
         break;
     case 'UNSUPERVISED_OBJECT_DETECTION':
     case 'MULTIPLE_OBJECT_TRACKING':
+        tabs.push({name: 'Performance Analysis', to: '/models/performance-details'});
         tabs.push({name: 'Prediction Analysis', to: '/models/prediction-analysis'});
         break;
     case 'SPEECH_TO_TEXT':

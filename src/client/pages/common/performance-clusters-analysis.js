@@ -85,7 +85,7 @@ const PerformanceClustersAnalysis = () => {
                 model_type: model.mlModelType,
                 sql_filters: allSqlFilters,
                 distance: userSelectedDistanceName,
-                metrics: [userSelectedMetricName]
+                metric: userSelectedMetricName
             })}
             renderData={(data = []) => {
                 const sortedClusters = data.map((c) => ({
@@ -93,22 +93,14 @@ const PerformanceClustersAnalysis = () => {
                     size: c.elements.length,
                     ...c
                 })).sort((c1, c2) => {
-                    const metric1 = c1.metrics.find((m) => m.name === userSelectedMetricName);
-                    const metric2 = c2.metrics.find((m) => m.name === userSelectedMetricName);
 
-                    if (metric1 && metric2) {
-
-                        return metric2.value - metric1.value;
-                    } else {
-
-                        return 1;
-                    }
+                    return c2.metric.value - c1.metric.value;
                 });
                 const selectedMetric = sortedClusters.map((cluster) => {
 
                     return {
                         name: cluster.name,
-                        value: cluster.metrics.find((m) => m.name === userSelectedMetricName)?.value,
+                        value: cluster.metric.value,
                         fill: getHexColor(cluster.label === -1 ? '' : cluster.name),
                         size: cluster.size
                     };
@@ -171,7 +163,7 @@ const PerformanceClustersAnalysis = () => {
                         </Row>
                         <SpinnerWrapper>
                             <Row className='my-3'>
-                                <Col lg={8} style={{height: 440}}>
+                                <Col lg={distributionMetricsOptions?.length ? 8 : 12} style={{height: 440}}>
                                     <ClusterGraph>
                                         {sortedClusters.map((cluster, index) => (
                                             <Scatter
@@ -183,7 +175,7 @@ const PerformanceClustersAnalysis = () => {
                                                 // Samples are filtered if there are more than 500 samples.
                                                 data={cluster.elements.filter(() => Math.random() < 500 / cluster.elements.length).map((e) => ({
                                                     clusterSize: cluster.elements.length,
-                                                    metricValue: cluster.metrics.find((m) => m.name === userSelectedMetricName)?.value,
+                                                    metricValue: cluster.metric.value,
                                                     size: selectedClusterIndex === index ? 100 : 50,
                                                     clusterLabel: cluster.label,
                                                     ...e
@@ -224,69 +216,71 @@ const PerformanceClustersAnalysis = () => {
                                         }}/>
                                     </ClusterGraph>
                                 </Col>
-                                <Col lg={4} className='px-3'>
-                                    <div className='bg-white-blue rounded p-3'>
-                                        <div className='text-dark bold-text d-flex align-items-center justify-content-between'>
-                                            <span>Summary {selectedClusterIndex ? ` - ${sortedClusters[selectedClusterIndex].name}` : ''} {samples?.length ? `(${samples.length} total)` : ''}</span>
-                                            <div className='d-flex align-items-center'>
-                                                {samplesCsvClassNames ? (
-                                                    <OverlayTrigger overlay={<Tooltip>Download classes as CSV</Tooltip>}>
-                                                        <IoDownloadOutline className='fs-2 cursor-pointer' onClick={() => {
+                                {distributionMetricsOptions?.length ? (
+                                    <Col lg={4} className='px-3'>
+                                        <div className='bg-white-blue rounded p-3'>
+                                            <div className='text-dark bold-text d-flex align-items-center justify-content-between'>
+                                                <span>Summary {selectedClusterIndex ? ` - ${sortedClusters[selectedClusterIndex].name}` : ''} {samples?.length ? `(${samples.length} total)` : ''}</span>
+                                                <div className='d-flex align-items-center'>
+                                                    {samplesCsvClassNames ? (
+                                                        <OverlayTrigger overlay={<Tooltip>Download classes as CSV</Tooltip>}>
+                                                            <IoDownloadOutline className='fs-2 cursor-pointer' onClick={() => {
 
-                                                            saveAs(new Blob([samplesCsvClassNames], {type: 'text/csv;charset=utf-8'}), 'classes.csv');
-                                                        }}/>
-                                                    </OverlayTrigger>
-                                                ) : null}
+                                                                saveAs(new Blob([samplesCsvClassNames], {type: 'text/csv;charset=utf-8'}), 'classes.csv');
+                                                            }}/>
+                                                        </OverlayTrigger>
+                                                    ) : null}
+                                                </div>
+                                            </div>
+                                            <div className={`d-flex p-2 overflow-auto flex-grow-0 ${samples.length ? 'justify-content-left' : 'justify-content-center align-items-center'} scatterGraph-examples`}>
+                                                {samples.length ? (
+                                                    <Async
+                                                        refetchOnChanged={[samplesSqlFilter, samples, model.mlModelType]}
+                                                        renderData={(data) => (
+                                                            <BarGraph
+                                                                bars={data.map(({name, value}) => ({
+                                                                    name,
+                                                                    value,
+                                                                    fill: getHexColor(name)
+                                                                }))}
+                                                                title={(
+                                                                    <Row>
+                                                                        <Col>Class Distribution</Col>
+                                                                        <Col style={{marginRight: -12}}>
+                                                                            <Form.Control
+                                                                                as='select'
+                                                                                className='form-select bg-light w-100'
+                                                                                custom
+                                                                                required
+                                                                                onChange={(e) => {
+                                                                                    setUserSelectedSummaryDistribution(e.target.value);
+                                                                                }}
+                                                                            >
+                                                                                {distributionMetricsOptions.map((o, i) => (
+                                                                                    <option key={i} value={o.value}>{o.name}</option>
+                                                                                ))}
+                                                                            </Form.Control>
+                                                                        </Col>
+                                                                    </Row>
+                                                                )}
+                                                                unit='%'
+                                                            />
+                                                        )}
+                                                        fetchData={() => metricsClient(`queries/${(model.mlModelType === 'IMAGE_CLASSIFIER' ||
+                                                                model.mlModelType === 'TEXT_CLASSIFIER' || model.mlModelType === 'SPEECH_TO_TEXT') ?
+                                                            'class-distribution-1' :
+                                                            'class-distribution-2'}`, {
+                                                            sql_filters: samplesSqlFilter,
+                                                            distribution_field: userSelectedSummaryDistribution
+                                                        })}
+                                                    />
+                                                ) : (
+                                                    <h3 className='text-secondary m-0'>No Examples Selected</h3>
+                                                )}
                                             </div>
                                         </div>
-                                        <div className={`d-flex p-2 overflow-auto flex-grow-0 ${samples.length ? 'justify-content-left' : 'justify-content-center align-items-center'} scatterGraph-examples`}>
-                                            {samples.length ? (
-                                                <Async
-                                                    refetchOnChanged={[samplesSqlFilter, samples, model.mlModelType]}
-                                                    renderData={(data) => (
-                                                        <BarGraph
-                                                            bars={data.map(({prediction, my_percentage}) => ({
-                                                                name: prediction,
-                                                                value: my_percentage,
-                                                                fill: getHexColor(prediction)
-                                                            }))}
-                                                            title={(
-                                                                <Row>
-                                                                    <Col>Class Distribution</Col>
-                                                                    <Col style={{marginRight: -12}}>
-                                                                        <Form.Control
-                                                                            as='select'
-                                                                            className='form-select bg-light w-100'
-                                                                            custom
-                                                                            required
-                                                                            onChange={(e) => {
-                                                                                setUserSelectedSummaryDistribution(e.target.value);
-                                                                            }}
-                                                                        >
-                                                                            {distributionMetricsOptions.map((o, i) => (
-                                                                                <option key={i} value={o.value}>{o.name}</option>
-                                                                            ))}
-                                                                        </Form.Control>
-                                                                    </Col>
-                                                                </Row>
-                                                            )}
-                                                            unit='%'
-                                                        />
-                                                    )}
-                                                    fetchData={() => metricsClient(`queries/${(model.mlModelType === 'IMAGE_CLASSIFIER' ||
-                                                            model.mlModelType === 'TEXT_CLASSIFIER' || model.mlModelType === 'SPEECH_TO_TEXT') ?
-                                                        'class-distribution-1' :
-                                                        'class-distribution-2'}`, {
-                                                        sql_filters: samplesSqlFilter,
-                                                        distribution_field: userSelectedSummaryDistribution
-                                                    })}
-                                                />
-                                            ) : (
-                                                <h3 className='text-secondary m-0'>No Examples Selected</h3>
-                                            )}
-                                        </div>
-                                    </div>
-                                </Col>
+                                    </Col>
+                                ) : null}
                             </Row>
                             <Row>
                                 <Col className='px-3'>
