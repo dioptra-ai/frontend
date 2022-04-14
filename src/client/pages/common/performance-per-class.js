@@ -20,8 +20,7 @@ const PerformanceBox = ({
     title = '',
     subtext,
     data,
-    referenceData,
-    performanceType
+    referenceData
 }) => {
     const [sortAcs, setSortAsc] = useState(true);
     const [classes, setClasses] = useState([]);
@@ -29,11 +28,11 @@ const PerformanceBox = ({
     useEffect(() => {
         if (sortAcs) {
             setClasses([
-                ...data.sort((c1, c2) => c2[performanceType] - c1[performanceType])
+                ...data.sort((c1, c2) => c2.value - c1.value)
             ]);
         } else {
             setClasses([
-                ...data.sort((c1, c2) => c1[performanceType] - c2[performanceType])
+                ...data.sort((c1, c2) => c1.value - c2.value)
             ]);
         }
     }, [sortAcs, data]);
@@ -78,13 +77,12 @@ const PerformanceBox = ({
                     }}
                 >
                     {classes.map((c, i) => {
-                        const classMetric = c[performanceType];
                         const classReferenceData = referenceData?.find(
                             ({label}) => label === c.label
                         );
                         const classReferenceMetric =
                             classReferenceData?.value;
-                        const difference = classMetric - classReferenceMetric;
+                        const difference = c.value - classReferenceMetric;
 
                         return (
                             <ClassRow
@@ -104,7 +102,6 @@ const PerformanceBox = ({
 PerformanceBox.propTypes = {
     data: PropTypes.array,
     referenceData: PropTypes.array,
-    performanceType: PropTypes.string,
     subtext: PropTypes.node,
     title: PropTypes.string
 };
@@ -132,10 +129,53 @@ ClassRow.propTypes = {
     value: PropTypes.any
 };
 
-const PerformancePerClass = () => {
+const PerformanceMetricAnalysis = ({metricUrl, title}) => {
     const allSqlFilters = useAllSqlFilters();
     const sqlFiltersWithModelTime = useAllSqlFilters({useReferenceFilters: true});
     const sampleSizeComponent = <CountEvents sqlFilters={allSqlFilters}/>;
+    const model = useModel();
+
+    return (
+        <Async
+            defaultData={[[], []]}
+            renderData={([data, referenceData]) => (
+                <div style={{position: 'relative'}}>
+                    <OverlayTrigger overlay={<Tooltip>Download classes as CSV</Tooltip>}>
+                        <IoDownloadOutline style={{position: 'absolute', right: 0, margin: 10}} className='fs-2 cursor-pointer' onClick={() => {
+                            saveAs(new Blob(['class,precision\n', ...data.map((r) => `${r.label},${r.value}\n`)], {type: 'text/csv;charset=utf-8'}), 'classes.csv');
+                        }}/>
+                    </OverlayTrigger>
+                    <PerformanceBox
+                        data={data}
+                        subtext={sampleSizeComponent}
+                        title={title}
+                        referenceData={referenceData}
+                    />
+                </div>
+            )}
+            fetchData={[
+                () => metricsClient(metricUrl, {
+                    sql_filters: allSqlFilters,
+                    per_class: true,
+                    model_type: model.mlModelType
+                }),
+                () => metricsClient(metricUrl, {
+                    sql_filters: sqlFiltersWithModelTime,
+                    per_class: true,
+                    model_type: model.mlModelType
+                })
+            ]}
+            refetchOnChanged={[allSqlFilters, sqlFiltersWithModelTime]}
+        />
+    );
+};
+
+PerformanceMetricAnalysis.propTypes = {
+    metricUrl: PropTypes.string.isRequired,
+    title: PropTypes.string
+};
+
+const PerformancePerClass = () => {
     const model = useModel();
 
     return (
@@ -144,74 +184,22 @@ const PerformancePerClass = () => {
                 Performance per class
             </h3>
             <Row>
-                <Col lg={6}>
-                    <Async
-                        defaultData={[[], []]}
-                        renderData={([data, referenceData]) => (
-                            <div style={{position: 'relative'}}>
-                                <OverlayTrigger overlay={<Tooltip>Download classes as CSV</Tooltip>}>
-                                    <IoDownloadOutline style={{position: 'absolute', right: 0, margin: 10}} className='fs-2 cursor-pointer' onClick={() => {
-                                        saveAs(new Blob(['class,precision\n', ...data.map((r) => `${r.label},${r.value}\n`)], {type: 'text/csv;charset=utf-8'}), 'classes.csv');
-                                    }}/>
-                                </OverlayTrigger>
-                                <PerformanceBox
-                                    data={data}
-                                    performanceType='precision'
-                                    subtext={sampleSizeComponent}
-                                    title='Precision per class'
-                                    referenceData={referenceData}
-                                />
-                            </div>
-                        )}
-                        fetchData={[
-                            () => metricsClient('precision-metric', {
-                                sql_filters: allSqlFilters,
-                                per_class: true,
-                                model_type: model.mlModelType
-                            }),
-                            () => metricsClient('precision-metric', {
-                                sql_filters: sqlFiltersWithModelTime,
-                                per_class: true,
-                                model_type: model.mlModelType
-                            })
-                        ]}
-                        refetchOnChanged={[allSqlFilters, sqlFiltersWithModelTime]}
-                    />
-                </Col>
-                <Col lg={6}>
-                    <Async
-                        defaultData={[[], []]}
-                        renderData={([data, referenceData]) => {
-                            return <div style={{position: 'relative'}}>
-                                <OverlayTrigger overlay={<Tooltip>Download classes as CSV</Tooltip>}>
-                                    <IoDownloadOutline style={{position: 'absolute', right: 0, margin: 10}} className='fs-2 cursor-pointer' onClick={() => {
-                                        saveAs(new Blob(['class,recall\n', ...data.map((r) => `${r.label},${r.value}\n`)], {type: 'text/csv;charset=utf-8'}), 'classes.csv');
-                                    }}/>
-                                </OverlayTrigger>
-                                <PerformanceBox
-                                    data={data}
-                                    performanceType='recall'
-                                    subtext={sampleSizeComponent}
-                                    title='Recall per class'
-                                    referenceData={referenceData}
-                                />
-                            </div>;
-                        }}
-                        fetchData={[
-                            () => metricsClient('recall-metric', {
-                                sql_filters: allSqlFilters,
-                                per_class: true,
-                                model_type: model.mlModelType
-                            }),
-                            () => metricsClient('recall-metric', {
-                                sql_filters: sqlFiltersWithModelTime,
-                                per_class: true,
-                                model_type: model.mlModelType
-                            })
-                        ]}
-                        refetchOnChanged={[allSqlFilters, sqlFiltersWithModelTime]}
-                    />
-                </Col>
+                {
+                    model.mlModelType === 'IMAGE_CLASSIFIER' ? (
+                        <>
+                            <Col lg={6}>
+                                <PerformanceMetricAnalysis metricUrl='precision-metric' title='Precision per class'/>
+                            </Col>
+                            <Col lg={6}>
+                                <PerformanceMetricAnalysis metricUrl='recall-metric' title='Recall per class'/>
+                            </Col>
+                        </>
+                    ) : model.mlModelType === 'UNSUPERVISED_IMAGE_CLASSIFIER' ? (
+                        <Col lg={6}>
+                            <PerformanceMetricAnalysis metricUrl='confidence' title='Confidence per class'/>
+                        </Col>
+                    ) : `Unsupported model type: ${model.mlModelType}`
+                }
             </Row>
         </>
     );

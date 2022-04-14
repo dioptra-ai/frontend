@@ -37,7 +37,8 @@ const mlModelSchema = new mongoose.Schema({
             'SPEECH_TO_TEXT', // ok
             'AUTO_COMPLETION', // WIP
             'SEMANTIC_SIMILARITY',
-            'MULTIPLE_OBJECT_TRACKING'
+            'MULTIPLE_OBJECT_TRACKING',
+            'UNSUPERVISED_IMAGE_CLASSIFIER'
         ],
         required: true
     },

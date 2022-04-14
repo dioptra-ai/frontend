@@ -9,6 +9,7 @@ import UnsupervisedObjectDetection from './unsupervised-object-detection';
 import AutoCompletion from './auto-completion';
 import SemanticSimilarity from './semantic-similarity';
 import MultipleObjectTracking from './multiple-object-tracking';
+import UnsupervisedImageClassifier from './unsupervised-image-classifier';
 
 const PerformanceOverview = (props) => {
     const model = useModel();
@@ -17,6 +18,10 @@ const PerformanceOverview = (props) => {
     case 'IMAGE_CLASSIFIER':
 
         return <ImageClassifier/>;
+
+    case 'UNSUPERVISED_IMAGE_CLASSIFIER':
+
+        return <UnsupervisedImageClassifier/>;
     case 'TABULAR_CLASSIFIER':
 
         return <TabularClassifier/>;

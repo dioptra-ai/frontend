@@ -177,7 +177,8 @@ jobs:
       image-tag:
         type: string
         default: <<pipeline.git.revision>>
-    executor: aws-eks/python
+    docker:
+      - image: 'cimg/python:3.10'
     steps:
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: <<parameters.cluster-name>>
@@ -198,7 +199,7 @@ orbs:
   aws-ecs: circleci/aws-ecs@2.2.1
   node: circleci/node@4.5
   helm: circleci/helm@1.2.0
-  aws-eks: circleci/aws-eks@0.2
+  aws-eks: circleci/aws-eks@2.1.2
 
 workflows:
   Integration:

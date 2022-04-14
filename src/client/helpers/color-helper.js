@@ -8,8 +8,13 @@ const COLORS = [
 ];
 
 export const getHexColor = (fromValue) => {
-    const fromValueString = String(fromValue);
-    const sum = fromValueString.split('').reduce((agg, _, i) => fromValueString.charCodeAt(i) + agg, 0);
+    if (fromValue) {
+        const fromValueString = String(fromValue);
+        const sum = fromValueString.split('').reduce((agg, _, i) => fromValueString.charCodeAt(i) + agg, 0);
 
-    return COLORS[sum % COLORS.length];
+        return COLORS[sum % COLORS.length];
+    } else {
+
+        return '#E5E5E5';
+    }
 };

@@ -59,6 +59,7 @@ const Model = ({timeStore, filtersStore, modelStore}) => {
     switch (firstModel?.mlModelType) {
 
     case 'IMAGE_CLASSIFIER':
+    case 'UNSUPERVISED_IMAGE_CLASSIFIER':
         tabs.push({name: 'Performance Analysis', to: '/models/performance-details'});
         tabs.push({name: 'Prediction Analysis', to: '/models/prediction-analysis'});
         tabs.push({name: 'Segmentation', to: '/models/segmentation'});
@@ -81,6 +82,7 @@ const Model = ({timeStore, filtersStore, modelStore}) => {
         break;
     case 'UNSUPERVISED_OBJECT_DETECTION':
     case 'MULTIPLE_OBJECT_TRACKING':
+        tabs.push({name: 'Performance Analysis', to: '/models/performance-details'});
         tabs.push({name: 'Prediction Analysis', to: '/models/prediction-analysis'});
         break;
     case 'SPEECH_TO_TEXT':
