@@ -64,6 +64,30 @@ const PerformanceOverview = () => {
                             refetchOnChanged={[allSqlFilters, sqlFiltersWithModelTime]}
                         />
                     </Col>
+                    <Col xs={3} className='d-flex' {...metricBoxBreakpoints[comparisonTotal]}>
+                        <Async
+                            renderData={([[data], [benchmarkData]]) => (
+                                <MetricInfoBox
+                                    name='Entropy'
+                                    subtext={sampleSizeComponent}
+                                    unit='%'
+                                    value={100 * Math.abs(data?.value - 0.1703)}
+                                    difference={100 * (data?.value - benchmarkData?.value)}
+                                />
+                            )}
+                            fetchData={[
+                                () => metricsClient('confidence', {
+                                    sql_filters: allSqlFilters,
+                                    model_type: 'UNSUPERVISED_IMAGE_CLASSIFIER'
+                                }),
+                                () => metricsClient('confidence', {
+                                    sql_filters: sqlFiltersWithModelTime,
+                                    model_type: 'UNSUPERVISED_IMAGE_CLASSIFIER'
+                                })
+                            ]}
+                            refetchOnChanged={[allSqlFilters, sqlFiltersWithModelTime]}
+                        />
+                    </Col>
                 </Row>
                 <CorrelationToKPIs selectableMetrics={[
                     {value: 'CONFIDENCE', name: 'Confidence'}
