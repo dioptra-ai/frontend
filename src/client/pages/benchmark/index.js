@@ -63,6 +63,7 @@ const Benchmarks = ({filtersStore, modelStore}) => {
         tabs.push({name: 'Drift Analysis', to: '/benchmark/drift-analysis'});
         break;
     case 'IMAGE_CLASSIFIER':
+    case 'UNSUPERVISED_IMAGE_CLASSIFIER':
         tabs.push({name: 'Prediction Analysis', to: '/benchmark/predictions'});
         tabs.push({name: 'Feature Analysis', to: '/benchmark/features'});
         tabs.push({name: 'Drift Analysis', to: '/benchmark/drift-analysis'});

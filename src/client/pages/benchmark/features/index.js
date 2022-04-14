@@ -11,7 +11,7 @@ const Features = (props) => {
 
     switch (model.mlModelType) {
     case 'IMAGE_CLASSIFIER':
-
+    case 'UNSUPERVISED_IMAGE_CLASSIFIER':
         return <ImageClassifier {...props}/>;
     // case 'TABULAR_CLASSIFIER':
     // case 'DOCUMENT_PROCESSING':
