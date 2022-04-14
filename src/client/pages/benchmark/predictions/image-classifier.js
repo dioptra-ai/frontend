@@ -18,10 +18,10 @@ const ImageClassifier = () => {
                         refetchOnChanged={[allSqlFilters]}
                         renderData={(data) => (
                             <BarGraph
-                                bars={data.map(({prediction, my_percentage}) => ({
-                                    name: getName(prediction),
-                                    value: my_percentage,
-                                    fill: getHexColor(prediction)
+                                bars={data.map(({name, value}) => ({
+                                    name: getName(name),
+                                    value,
+                                    fill: getHexColor(name)
                                 }))}
                                 title='Online Class Distribution'
                                 unit='%'
@@ -35,10 +35,10 @@ const ImageClassifier = () => {
                         refetchOnChanged={[allSqlFilters]}
                         renderData={(data) => (
                             <BarGraph
-                                bars={data.map(({groundtruth, my_percentage}) => ({
-                                    name: getName(groundtruth),
-                                    value: my_percentage,
-                                    fill: getHexColor(groundtruth)
+                                bars={data.map(({name, value}) => ({
+                                    name: getName(name),
+                                    value,
+                                    fill: getHexColor(name)
                                 }))}
                                 title='Groundtruth Distribution'
                                 unit='%'
