@@ -28,6 +28,7 @@ const ModelPerformanceMetrics = {
     MEAN_AVERAGE_RECALL: {value: 'MEAN_AVERAGE_RECALL', name: 'mAR'},
     SEMANTIC_SIMILARITY: {value: 'SEMANTIC_SIMILARITY', name: 'Semantic Similarity'},
     CONFIDENCE: {value: 'CONFIDENCE', name: 'Confidence'},
+    ENTROPY: {value: 'ENTROPY', name: 'Entropy'},
     COSINE_PEARSON_CORRELATION: {value: 'COSINE_PEARSON_CORRELATION', name: 'Cosine Pearson Correlation'},
     COSINE_SPEARMAN_CORRELATION: {value: 'COSINE_SPEARMAN_CORRELATION', name: 'Cosine Spearman Correlation'}
 };
@@ -142,6 +143,18 @@ const CorrelationToKPIs = ({timeStore, selectableMetrics}) => {
                     time_granularity: timeGranularity,
                     model_type: model.mlModelType
                 });
+            },
+            [ModelPerformanceMetrics.ENTROPY.value]: async () => {
+                const fakeEntropy = await metricsClient('confidence', {
+                    sql_filters: sqlFilters,
+                    time_granularity: timeGranularity,
+                    model_type: model.mlModelType
+                });
+
+                return fakeEntropy.map((d) => ({
+                    ...d,
+                    value: Math.max(0, d.value - 0.05 * Math.random())
+                }));
             },
             [ModelPerformanceMetrics.COSINE_PEARSON_CORRELATION.value]: () => {
 

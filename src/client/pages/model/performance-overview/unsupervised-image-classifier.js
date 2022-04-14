@@ -90,7 +90,8 @@ const PerformanceOverview = () => {
                     </Col>
                 </Row>
                 <CorrelationToKPIs selectableMetrics={[
-                    {value: 'CONFIDENCE', name: 'Confidence'}
+                    {value: 'CONFIDENCE', name: 'Confidence'},
+                    {value: 'ENTROPY', name: 'Entropy'}
                 ]}/>
             </div>
         </>
