@@ -14,7 +14,6 @@ import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import metricsClient from 'clients/metrics';
 import CountEvents from 'components/count-events';
-import {TiArrowSortedDown, TiArrowSortedUp} from 'react-icons/ti';
 
 const Table = ({
     data,
@@ -22,15 +21,12 @@ const Table = ({
     onCellClick,
     classes
 }) => {
-    const [rowSortAsc, setRowSortAsc] = useState(false);
-    const [columnSortAsc, setColumnSortAsc] = useState(true);
     const [columns, setColumns] = useState([]);
     const [rows, setRows] = useState([]);
 
     useEffect(() => {
         if (classes) {
-            const proceedClasses = columnSortAsc ? classes.sort() : classes.reverse();
-            const classColumns = proceedClasses.map((c) => ({
+            const classColumns = classes.sort().map((c) => ({
                 Header: c,
                 accessor: c,
                 Cell: Object.assign(
@@ -64,13 +60,7 @@ const Table = ({
 
             setColumns(preparedColumns);
         }
-    }, [classes, columnSortAsc]);
-
-    useEffect(() => {
-        const rowEntries = rowSortAsc ? classes.sort() : classes.reverse();
-
-        setRows(prepareRows(rowEntries));
-    }, [rowSortAsc]);
+    }, [classes]);
 
     useEffect(() => {
         setRows(prepareRows(classes.sort()));
@@ -101,25 +91,19 @@ const Table = ({
         <div className='d-flex'>
             <div className='position-relative' style={{width: 30}}>
                 <p
-                    className='position-absolute text-secondary m-0 text-center bold-text cursor-pointer'
+                    className='position-absolute text-secondary m-0 text-center bold-text'
                     style={{transform: 'rotate(-90deg)', top: '50%', left: -85, width: 200, zIndex: 999}}
-                    onClick={() => setRowSortAsc(!rowSortAsc)}
                 >
                     Ground Truth
-                    <span>
-                        {rowSortAsc ? <TiArrowSortedUp/> : <TiArrowSortedDown/>}
-                    </span>
                 </p>
             </div>
             <div className='position-relative' style={{
                 overflow: 'auto', width: '100%', maxHeight: '98vh'
             }}>
                 <p
-                    className='text-secondary m-0 mb-2 text-center bold-text position-sticky cursor-pointer'
+                    className='text-secondary m-0 mb-2 text-center bold-text position-sticky'
                     style={{left: 0, zIndex: 999}}
-                    onClick={() => setColumnSortAsc(!columnSortAsc)}
                 >Prediction
-                    {columnSortAsc ? <TiArrowSortedUp/> : <TiArrowSortedDown/>}
                 </p>
                 <MatrixTable columns={columns} data={rows} onCellClick={onCellClick} />
             </div>

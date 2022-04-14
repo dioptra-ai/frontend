@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import {useTable} from 'react-table';
 import theme from '../styles/theme.module.scss';
 import PropTypes from 'prop-types';
+import {TiArrowSortedDown, TiArrowSortedUp} from 'react-icons/ti';
 
 const MatrixTable = ({columns, data, onCellClick}) => {
     const {
@@ -53,7 +54,11 @@ const MatrixTable = ({columns, data, onCellClick}) => {
                             }}
                         >
                             {
-                                column.render('Header')
+                                i !== 0 && (<div className='d-flex flex-column justify-space-between align-items-center align-content-center gap-3 cursor-pointer'>
+                                    {column.render('Header')}
+                                    {true ? <TiArrowSortedUp/> : <TiArrowSortedDown/>}
+                                </div>)
+
                             }
                         </th>
                     ))}
