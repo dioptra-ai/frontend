@@ -13,6 +13,7 @@ const PredictionAnalysis = (props) => {
 
     switch (model.mlModelType) {
     case 'IMAGE_CLASSIFIER':
+    case 'UNSUPERVISED_IMAGE_CLASSIFIER':
 
         return <ImageClassifier/>;
     case 'TABULAR_CLASSIFIER':

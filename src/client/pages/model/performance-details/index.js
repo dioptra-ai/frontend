@@ -8,6 +8,7 @@ import TextClassifier from './text-classifier';
 import UnsupervisedObjectDetection from './unsupervised-object-detection';
 import AutoCompletion from './auto-completion';
 import SemanticSimilarity from './semantic-similarity';
+import UnsupervisedImageClassifier from './unsupervised-image-classifier';
 
 const PerformanceDetails = (props) => {
     const model = useModel();
@@ -16,6 +17,10 @@ const PerformanceDetails = (props) => {
     case 'IMAGE_CLASSIFIER':
 
         return <ImageClassifier {...props}/>;
+
+    case 'UNSUPERVISED_IMAGE_CLASSIFIER':
+
+        return <UnsupervisedImageClassifier/>;
     case 'TABULAR_CLASSIFIER':
 
         return <TabularClassifier {...props}/>;

@@ -25,10 +25,10 @@ const ClassDistribution = ({timeStore}) => {
                     refetchOnChanged={[allSqlFilters, mlModelType]}
                     renderData={(data) => (
                         <BarGraph
-                            bars={data.map(({prediction, my_percentage}) => ({
-                                name: prediction,
-                                value: my_percentage,
-                                fill: getHexColor(prediction)
+                            bars={data.map(({name, value}) => ({
+                                name,
+                                value,
+                                fill: getHexColor(name)
                             }))}
                             title='Online Class Distribution'
                             unit='%'
@@ -45,10 +45,10 @@ const ClassDistribution = ({timeStore}) => {
                     refetchOnChanged={[allSqlFilters, mlModelType]}
                     renderData={(data) => (
                         <BarGraph
-                            bars={data.map(({prediction, my_percentage}) => ({
-                                name: prediction,
-                                value: my_percentage,
-                                fill: getHexColor(prediction)
+                            bars={data.map(({name, value}) => ({
+                                name,
+                                value,
+                                fill: getHexColor(name)
                             }))}
                             title='Offline Class Distribution'
                             unit='%'

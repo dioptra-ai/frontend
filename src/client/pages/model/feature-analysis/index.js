@@ -10,6 +10,7 @@ const FeatureAnalysis = () => {
     // when this gets more complicated.
     switch (model.mlModelType) {
     case 'IMAGE_CLASSIFIER':
+    case 'UNSUPERVISED_IMAGE_CLASSIFIER':
     case 'DOCUMENT_PROCESSING':
     case 'UNSUPERVISED_OBJECT_DETECTION':
     case 'MULTIPLE_OBJECT_TRACKING':

@@ -166,6 +166,7 @@ const EditModel = ({initialValue, onSubmit, errors, modelStore}) => {
                         >
                             <option disabled value=''>Select ML Model Type</option>
                             <option value='IMAGE_CLASSIFIER'>Image Classifier</option>
+                            <option value='UNSUPERVISED_IMAGE_CLASSIFIER'>Unsupervised Image Classifier</option>
                             <option value='TABULAR_CLASSIFIER'>Tabular Classifier</option>
                             <option value='DOCUMENT_PROCESSING'>Document Processing</option>
                             <option value='Q_N_A'>Question Answering</option>

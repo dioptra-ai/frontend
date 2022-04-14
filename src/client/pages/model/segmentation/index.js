@@ -12,6 +12,7 @@ const SegmentationDetails = (props) => {
         return <TextClassifier {...props}/>;
 
     case 'IMAGE_CLASSIFIER':
+    case 'UNSUPERVISED_IMAGE_CLASSIFIER':
 
         return <ImageClassifier {...props}/>;
     default:
