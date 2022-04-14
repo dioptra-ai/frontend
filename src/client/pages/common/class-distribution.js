@@ -34,7 +34,7 @@ const ClassDistribution = ({timeStore}) => {
                             unit='%'
                         />
                     )}
-                    fetchData={() => metricsClient(`queries/${(mlModelType === 'IMAGE_CLASSIFIER' ||
+                    fetchData={() => metricsClient(`queries/${(mlModelType === 'IMAGE_CLASSIFIER' || mlModelType === 'UNSUPERVISED_IMAGE_CLASSIFIER' ||
                             mlModelType === 'TEXT_CLASSIFIER') ?
                         'class-distribution-1' :
                         'class-distribution-2'}`, {sql_filters: allSqlFilters})}
@@ -54,7 +54,7 @@ const ClassDistribution = ({timeStore}) => {
                             unit='%'
                         />
                     )}
-                    fetchData={() => metricsClient(`queries/${(mlModelType === 'IMAGE_CLASSIFIER' ||
+                    fetchData={() => metricsClient(`queries/${(mlModelType === 'IMAGE_CLASSIFIER' || mlModelType === 'UNSUPERVISED_IMAGE_CLASSIFIER' ||
                             mlModelType === 'TEXT_CLASSIFIER') ?
                         'class-distribution-1' :
                         'class-distribution-2'}`, {sql_filters: allOfflineSqlFilters})}
@@ -78,8 +78,8 @@ const ClassDistribution = ({timeStore}) => {
                     )}
                     fetchData={() => metricsClient(`queries/${
                         mlModelType === 'DOCUMENT_PROCESSING' || mlModelType === 'UNSUPERVISED_OBJECT_DETECTION' ?
-                            'offline-online-distribution-distance-1' :
-                            'offline-online-distribution-distance-2'}`, {
+                            'offline-online-distribution-distance-2' :
+                            'offline-online-distribution-distance-1'}`, {
                         offline_sql_filters: allOfflineSqlFilters,
                         time_granularity: timeGranularity,
                         sql_filters: allSqlFilters

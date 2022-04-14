@@ -88,7 +88,7 @@ const PerformanceBox = ({
                             <ClassRow
                                 key={i}
                                 name={getName(c.label)}
-                                value={c.value.toFixed(4)}
+                                value={Number(c.value).toFixed(4)}
                                 difference={difference}
                             />
                         );

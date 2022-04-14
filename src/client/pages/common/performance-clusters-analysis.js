@@ -51,7 +51,7 @@ const PerformanceClustersAnalysis = () => {
     const [distributionMetricsOptions, setDistributionMetricsOptions] = useState([]);
 
     const getDistributionMetricsForModel = async (modelType) => {
-        if (modelType === 'IMAGE_CLASSIFIER' || modelType === 'TEXT_CLASSIFIER') {
+        if (modelType === 'IMAGE_CLASSIFIER' || modelType === 'UNSUPERVISED_IMAGE_CLASSIFIER' || modelType === 'TEXT_CLASSIFIER') {
             return [{
                 name: 'prediction',
                 value: 'prediction'
@@ -268,6 +268,7 @@ const PerformanceClustersAnalysis = () => {
                                                             />
                                                         )}
                                                         fetchData={() => metricsClient(`queries/${(model.mlModelType === 'IMAGE_CLASSIFIER' ||
+                                                            model.mlModelType === 'UNSUPERVISED_IMAGE_CLASSIFIER' ||
                                                                 model.mlModelType === 'TEXT_CLASSIFIER' || model.mlModelType === 'SPEECH_TO_TEXT') ?
                                                             'class-distribution-1' :
                                                             'class-distribution-2'}`, {
@@ -336,15 +337,16 @@ const PerformanceClustersAnalysis = () => {
                                                             onClick={() => setExampleInModal(sample)}
                                                         >
 
-                                                            {model.mlModelType === 'IMAGE_CLASSIFIER' ? (
-                                                                <Textfit mode='single' max={8}>
-                                                                    <span style={{border: `2px solid ${getHexColor(sample['prediction'])}`, padding: 3, borderRadius: 6}}>
-                                                                        {sample['prediction']}
-                                                                    </span>
-                                                                </Textfit>
-                                                            ) : (
-                                                                <></>
-                                                            )
+                                                            {model.mlModelType === 'IMAGE_CLASSIFIER' ||
+                                                            model.mlModelType === 'UNSUPERVISED_IMAGE_CLASSIFIER' ? (
+                                                                    <Textfit mode='single' max={8}>
+                                                                        <span style={{border: `2px solid ${getHexColor(sample['prediction'])}`, padding: 3, borderRadius: 6}}>
+                                                                            {sample['prediction']}
+                                                                        </span>
+                                                                    </Textfit>
+                                                                ) : (
+                                                                    <></>
+                                                                )
                                                             }
                                                             <SignedImage
                                                                 alt='Example'
@@ -352,15 +354,16 @@ const PerformanceClustersAnalysis = () => {
                                                                 height={200}
                                                                 rawUrl={sample['image_metadata.uri']}
                                                             />
-                                                            {model.mlModelType === 'IMAGE_CLASSIFIER' ? (
-                                                                <Textfit mode='single' max={8}>
-                                                                    <span style={{border: `2px solid ${getHexColor(sample['groundtruth'])}`, padding: 3, borderRadius: 6}}>
-                                                                        {sample['groundtruth']}
-                                                                    </span>
-                                                                </Textfit>
-                                                            ) : (
-                                                                <></>
-                                                            )
+                                                            {model.mlModelType === 'IMAGE_CLASSIFIER' ||
+                                                            model.mlModelType === 'UNSUPERVISED_IMAGE_CLASSIFIER' ? (
+                                                                    <Textfit mode='single' max={8}>
+                                                                        <span style={{border: `2px solid ${getHexColor(sample['groundtruth'])}`, padding: 3, borderRadius: 6}}>
+                                                                            {sample['groundtruth']}
+                                                                        </span>
+                                                                    </Textfit>
+                                                                ) : (
+                                                                    <></>
+                                                                )
                                                             }
                                                             {model.mlModelType !== 'IMAGE_CLASSIFIER' &&
                                                                 <div className='heat-map-box' style={{
