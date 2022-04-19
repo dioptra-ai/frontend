@@ -22,7 +22,8 @@ const _SetGroundtruthFilter = ({filtersStore, onChange}) => {
             fetchData={() => metricsClient('queries/get-suggestions-with-key', {
                 key: 'groundtruth',
                 value: '',
-                ml_model_id: model?.mlModelId
+                ml_model_id: model?.mlModelId,
+                limit: 500
             })}
             renderData={(data) => (
                 <>
