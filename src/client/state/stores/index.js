@@ -5,6 +5,7 @@ import {filtersStore} from './filters-store';
 import {authStore} from './auth-store';
 import {segmentationStore} from './segmentation';
 import {benchmarkStore} from './benchmark-store';
+import {datasetStore} from './dataset-store';
 
 const initializeStores = async () => {
     const readyStatuses = await Promise.all(Object.values(stores).map((store) => {
@@ -23,6 +24,7 @@ const stores = {
     authStore,
     segmentationStore,
     benchmarkStore,
+    datasetStore,
     initializeStores
 };
 

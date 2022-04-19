@@ -17,6 +17,12 @@ organizationSchema.virtual('mlModels', {
     foreignField: 'organization'
 });
 
+organizationSchema.virtual('datasets', {
+    ref: 'Dataset',
+    localField: '_id',
+    foreignField: 'organization'
+});
+
 organizationSchema.statics.createAndInitialize = async (orgProps, firstUserProps) => {
     const User = mongoose.model('User');
     const MlModel = mongoose.model('MlModel');

@@ -93,5 +93,6 @@ Async.defaultProps = {
 };
 
 export default Sentry.withErrorBoundary(Async, {
-    fallback: ({error}) => <Error error={error} variant='warning'/> // eslint-disable-line react/prop-types
+    fallback: ({error}) => <Error error={error} variant='warning'/>, // eslint-disable-line react/prop-types
+    onError: console.error // eslint-disable-line react/prop-types
 });
