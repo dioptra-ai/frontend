@@ -32,7 +32,7 @@ const SMALL_DOT_SIZE = 60;
 
 const inRange = (num, min, max) => num >= min && num <= max;
 
-const ScatterGraph = ({data, noveltyIsObsolete, hideNovelties}) => {
+const ScatterGraph = ({data, noveltyIsObsolete, outliersAreMislabeled}) => {
     const ref = useRef();
     const firstOutlier = useMemo(() => {
         return data.find(({outlier}) => outlier);
@@ -222,13 +222,13 @@ const ScatterGraph = ({data, noveltyIsObsolete, hideNovelties}) => {
                                 isAnimationActive={false}
                                 cursor='pointer'
                                 onClick={handlePointSelect}
-                                name='Outlier'
+                                name={outliersAreMislabeled ? 'Mislabeled' : 'Outlier'}
                                 data={outliers}
                                 fill={theme.warning}
                                 xAxisId='PCA1'
                                 yAxisId='PCA2'
                             />
-                            {!hideNovelties ? (
+                            {!outliersAreMislabeled ? (
                                 <Scatter
                                     isAnimationActive={false}
                                     cursor='pointer'
@@ -244,7 +244,7 @@ const ScatterGraph = ({data, noveltyIsObsolete, hideNovelties}) => {
                                 isAnimationActive={false}
                                 cursor='pointer'
                                 onClick={handlePointSelect}
-                                name='Inlier'
+                                name={outliersAreMislabeled ? 'Normal' : 'Inlier'}
                                 data={inliers}
                                 fill={theme.primary}
                                 xAxisId='PCA1'
@@ -363,7 +363,7 @@ const ScatterGraph = ({data, noveltyIsObsolete, hideNovelties}) => {
 ScatterGraph.propTypes = {
     data: PropTypes.array.isRequired,
     noveltyIsObsolete: PropTypes.bool,
-    hideNovelties: PropTypes.bool
+    outliersAreMislabeled: PropTypes.bool
 };
 
 export default ScatterGraph;

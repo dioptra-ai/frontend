@@ -93,7 +93,7 @@ const Mislabeling = () => {
                                             request_id
                                         }))}
                                         examplesType='image'
-                                        hideNovelties
+                                        outliersAreMislabeled
                                     />
                                 )}
                             />
