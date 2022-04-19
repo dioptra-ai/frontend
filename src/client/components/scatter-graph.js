@@ -32,7 +32,7 @@ const SMALL_DOT_SIZE = 60;
 
 const inRange = (num, min, max) => num >= min && num <= max;
 
-const ScatterGraph = ({data, noveltyIsObsolete}) => {
+const ScatterGraph = ({data, noveltyIsObsolete, hideNovelties}) => {
     const ref = useRef();
     const firstOutlier = useMemo(() => {
         return data.find(({outlier}) => outlier);
@@ -228,16 +228,18 @@ const ScatterGraph = ({data, noveltyIsObsolete}) => {
                                 xAxisId='PCA1'
                                 yAxisId='PCA2'
                             />
-                            <Scatter
-                                isAnimationActive={false}
-                                cursor='pointer'
-                                onClick={handlePointSelect}
-                                name={noveltyIsObsolete ? 'Obsolete' : 'Novelty'}
-                                data={novelty}
-                                fill={noveltyIsObsolete ? theme.dark : theme.success}
-                                xAxisId='PCA1'
-                                yAxisId='PCA2'
-                            />
+                            {!hideNovelties ? (
+                                <Scatter
+                                    isAnimationActive={false}
+                                    cursor='pointer'
+                                    onClick={handlePointSelect}
+                                    name={noveltyIsObsolete ? 'Obsolete' : 'Novelty'}
+                                    data={novelty}
+                                    fill={noveltyIsObsolete ? theme.dark : theme.success}
+                                    xAxisId='PCA1'
+                                    yAxisId='PCA2'
+                                />
+                            ) : null}
                             <Scatter
                                 isAnimationActive={false}
                                 cursor='pointer'
@@ -360,7 +362,8 @@ const ScatterGraph = ({data, noveltyIsObsolete}) => {
 
 ScatterGraph.propTypes = {
     data: PropTypes.array.isRequired,
-    noveltyIsObsolete: PropTypes.bool
+    noveltyIsObsolete: PropTypes.bool,
+    hideNovelties: PropTypes.bool
 };
 
 export default ScatterGraph;

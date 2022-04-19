@@ -16,6 +16,7 @@ import PerformanceDetails from './performance-details';
 import PredictionAnalysis from './prediction-analysis';
 import FeatureAnalysis from './feature-analysis';
 import Segmentation from './segmentation';
+import Mislabeling from './mislabeling';
 import IncidentsAndAlerts from 'pages/common/incidents-and-alerts';
 import TrafficReplay from 'pages/common/traffic-replay';
 import useSyncStoresToUrl from 'hooks/use-sync-stores-to-url';
@@ -63,6 +64,7 @@ const Model = ({timeStore, filtersStore, modelStore}) => {
         tabs.push({name: 'Performance Analysis', to: '/models/performance-details'});
         tabs.push({name: 'Prediction Analysis', to: '/models/prediction-analysis'});
         tabs.push({name: 'Segmentation', to: '/models/segmentation'});
+        tabs.push({name: 'Mislabeling', to: '/models/mislabeling'});
         break;
     case 'TABULAR_CLASSIFIER':
         tabs.push({name: 'Prediction Analysis', to: '/models/prediction-analysis'});
@@ -146,6 +148,11 @@ const Model = ({timeStore, filtersStore, modelStore}) => {
                             <Route exact path='/models/segmentation' render={() => (
                                 <SplitView>
                                     {models.map((model, i) => <Segmentation key={i}/>)}
+                                </SplitView>
+                            )}/>
+                            <Route exact path='/models/mislabeling' render={() => (
+                                <SplitView>
+                                    {models.map((model, i) => <Mislabeling key={i}/>)}
                                 </SplitView>
                             )}/>
                             <Route exact path='/models/traffic-replay' render={() => (

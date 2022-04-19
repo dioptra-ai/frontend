@@ -209,6 +209,24 @@ class FiltersStore {
         this.filters = this.filters.concat(...args);
     }
 
+    setFilter(filter) {
+        const existingFilter = this.filters.find((f) => f.left === filter.left);
+
+        if (existingFilter) {
+            existingFilter.op = filter.op;
+            existingFilter.right = filter.right;
+            this.filters = this.filters; // eslint-disable-line no-self-assign
+        } else {
+            this.addFilters(filter);
+        }
+    }
+
+    removeFilterByKey(key) {
+        const newFilters = this.filters.filter((f) => f.left !== key);
+
+        this.filters = newFilters;
+    }
+
     get models() {
         return this.m || [];
     }
