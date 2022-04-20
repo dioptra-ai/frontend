@@ -79,8 +79,9 @@ const Model = ({timeStore, filtersStore, modelStore}) => {
         break;
     case 'TEXT_CLASSIFIER':
         tabs.push({name: 'Performance Analysis', to: '/models/performance-details'});
-        tabs.push({name: 'Segmentation', to: '/models/segmentation'});
         tabs.push({name: 'Prediction Analysis', to: '/models/prediction-analysis'});
+        tabs.push({name: 'Segmentation', to: '/models/segmentation'});
+        tabs.push({name: 'Mislabeling', to: '/models/mislabeling'});
         break;
     case 'UNSUPERVISED_OBJECT_DETECTION':
     case 'MULTIPLE_OBJECT_TRACKING':
