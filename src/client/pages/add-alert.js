@@ -333,7 +333,7 @@ TagRow.propTypes = {
 
 const AddAlertPage = (props) => {
     const model = useModel();
-    const allSqlFilters = useAllSqlFilters();
+    const alertSqlFilters = useAllSqlFilters({excludeCurrentTimeFilters: true});
 
     const conditionInitialValue = {
         logicalOperator: LogicalOperators.AND.value,
@@ -366,15 +366,17 @@ const AddAlertPage = (props) => {
                 evaluation_period: evaluationPeriod,
                 conditions,
                 modelType: model.mlModelType,
-                sqlFilters: allSqlFilters,
+                sqlFilters: alertSqlFilters,
                 notification: notificationEnabled ? {
                     recipients: recipients,
                     template: JSON.parse(template ? template : '{ "text" : "$dioptra_message" }')
                 } : {}
             }
         }).then(() => {
-            setAddAlertInProgress(false);
             goToPreviousRoute();
+        }).catch(console.error)
+        .finally(() => {
+            setAddAlertInProgress(false);
         });
     };
 
