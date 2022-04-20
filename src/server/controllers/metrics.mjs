@@ -5,7 +5,9 @@ import url from 'url';
 import zlib from 'zlib';
 import {isAuthenticated} from '../middleware/authentication.mjs';
 
-const axiosClient = axios.create();
+const axiosClient = axios.create({
+    validateStatus: () => true
+});
 const {OVERRIDE_DRUID_ORG_ID} = process.env;
 const MetricsRouter = express.Router();
 
