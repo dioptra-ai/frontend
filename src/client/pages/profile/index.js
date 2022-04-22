@@ -264,8 +264,12 @@ const Profile = ({authStore}) => {
                     }
                     orgID={userData.activeOrganizationMembership.organization._id}
                 />
-                <div className='text-secondary border-top border-muted mt-5 pt-5 w-100'>
+                <div className='text-secondary border-muted mt-3 pt-3 w-100'>
                     <p className='text-dark bold-text fs-3'>Api Keys</p>
+                    <div className='text-secondary'>
+                        Dioptra uses the <b>x-api-key</b> HTTP header to authenticate its APIs.
+                    </div>
+                    <hr/>
                     {apiKeys.map((apiKey) => (
                         <div key={apiKey._id}>
                             <pre style={{display: 'inline'}}>{apiKey.awsApiKey}</pre>
