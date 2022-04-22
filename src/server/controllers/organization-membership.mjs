@@ -10,17 +10,12 @@ OrganizationMembershipRouter.get(
     '/:organizationID/members',
     async (req, res, next) => {
         try {
-            const OrganizationMembershipModel = mongoose.model(
-                'OrganizationMembership'
-            );
-
-            const result = await OrganizationMembershipModel.find({
+            const OrganizationMembershipModel = mongoose.model('OrganizationMembership');
+            const allMemberships = await OrganizationMembershipModel.find({
                 organization: req.params.organizationID
             });
 
-            res.send(
-                result.filter(({_id, user}) => user.activeOrganizationMembership.equals(_id))
-            );
+            res.send(allMemberships);
         } catch (e) {
             next(e);
         }

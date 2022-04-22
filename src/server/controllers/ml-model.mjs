@@ -49,9 +49,7 @@ MlModelRouter.get('/', async (req, res, next) => {
     try {
         await req.user.activeOrganizationMembership.organization.populate('mlModels');
 
-        const {mlModels} = req.user.activeOrganizationMembership.organization;
-
-        res.json(mlModels);
+        res.json(req.user.activeOrganizationMembership.organization.mlModels);
     } catch (e) {
         next(e);
     }

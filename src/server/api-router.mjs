@@ -1,6 +1,6 @@
 import express from 'express';
 import ApiKey from './controllers/api-key.mjs';
-import AuthRouter from './controllers/auth.controller.mjs';
+import LoginRouter from './controllers/login.mjs';
 import Metrics from './controllers/metrics.mjs';
 import MlModelRouter from './controllers/ml-model.mjs';
 import OrganizationMembershipRouter from './controllers/organization-membership.mjs';
@@ -13,7 +13,7 @@ import TasksRouter from './controllers/tasks.mjs';
 const ApiRouter = express.Router();
 
 ApiRouter.use('/user', UserRouter);
-ApiRouter.use('/auth', AuthRouter);
+ApiRouter.use('/auth', LoginRouter);
 ApiRouter.use('/ml-model', MlModelRouter);
 ApiRouter.use('/timeseries', Timeseries);
 ApiRouter.use('/metrics', Metrics);

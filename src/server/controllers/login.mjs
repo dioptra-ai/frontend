@@ -1,9 +1,9 @@
 import express from 'express';
 import passport from 'passport';
 
-const AuthRouter = express.Router();
+const LoginRouter = express.Router();
 
-AuthRouter.post('/login', (req, res, next) => {
+LoginRouter.post('/login', (req, res, next) => {
 
     if (req.user) {
 
@@ -19,14 +19,14 @@ AuthRouter.post('/login', (req, res, next) => {
             } else if (!user) {
 
                 res.status(401);
-                next(new Error('Unauthorized'));
+                next(new Error('Unauthorized.'));
             } else {
 
                 req.logIn(user, (error) => {
 
                     if (error) {
                         res.status(401);
-                        next(new Error('Unauthorized'));
+                        next(new Error('Unauthorized.'));
                     } else {
                         const safeUser = user.toObject();
 
@@ -41,11 +41,11 @@ AuthRouter.post('/login', (req, res, next) => {
 });
 
 // eslint-disable-next-line no-unused-vars
-AuthRouter.post('/logout', (req, res, next) => {
+LoginRouter.post('/logout', (req, res, next) => {
     req.session.destroy(() => {
         req.logout();
         res.redirect('/login');
     });
 });
 
-export default AuthRouter;
+export default LoginRouter;
