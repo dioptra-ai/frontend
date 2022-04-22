@@ -5,6 +5,7 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import {useHistory} from 'react-router-dom';
 import {Button, Form} from 'react-bootstrap';
+import baseJsonClient from 'clients/base-json-client';
 
 import Async from 'components/async';
 import GeneralSearchBar from 'pages/common/general-search-bar';
@@ -93,11 +94,11 @@ const BenchmarksList = ({filtersStore, modelStore, benchmarkStore}) => {
                     <Form.Group className='mb-3'>
                         <Form.Label>Dataset</Form.Label>
                         <Async
-                            fetchData={() => metricsClient('datasets', null, 'get')}
-                            renderData={(benchmarks) => (
-                                <Select options={benchmarks.map(({dataset_id, created_at}) => ({
-                                    name: `${dataset_id} @ ${new Date(created_at).toLocaleDateString()}`,
-                                    value: dataset_id
+                            fetchData={() => baseJsonClient('api/dataset', {method: 'get'})}
+                            renderData={(datasets) => (
+                                <Select options={datasets.map(({datasetId, name, createdAt}) => ({
+                                    name: `${name} @ ${new Date(createdAt).toLocaleDateString()}`,
+                                    value: datasetId
                                 }))}/>
                             )}
                         />

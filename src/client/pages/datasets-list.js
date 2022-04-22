@@ -6,6 +6,7 @@ import {AiOutlineDelete} from 'react-icons/ai';
 import Async from 'components/async';
 import GeneralSearchBar from 'pages/common/general-search-bar';
 import baseJsonClient from 'clients/base-json-client';
+import metricsClient from 'clients/metrics';
 import Menu from 'components/menu';
 import ModalComponent from 'components/modal';
 
@@ -36,34 +37,37 @@ const DatasetsList = () => {
                                     <th className='text-secondary'>Dataset Name</th>
                                     <th className='text-secondary'>Size</th>
                                     <th className='text-secondary'>Created At</th>
-                                    <th className='text-secondary d-flex justify-content-end'>
+                                    <th className='text-secondary text-end'>
                                         Delete
                                     </th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {datasets.map(({_id, name, createdAt}, i) => (
-                                    <tr className='cursor-pointer' key={i}>
-                                        <td>{_id}</td>
+                                {datasets.map(({_id, datasetId, name, createdAt}, i) => (
+                                    <tr key={i}>
+                                        <td>{datasetId}</td>
                                         <td>{name}</td>
-                                        <td>N/A</td>
-                                        <td>{new Date(createdAt).toLocaleString()}</td>
                                         <td>
-                                            <div className='d-flex justify-content-center align-content-center align-items-center'>
-                                                <OverlayTrigger overlay={
-                                                    <Tooltip>Delete this dataset</Tooltip>
-                                                }>
-                                                    <AiOutlineDelete
-                                                        className='fs-3 cursor-pointer'
-                                                        onClick={async () => {
-                                                            await baseJsonClient(`api/dataset/${_id}`, {
-                                                                method: 'delete'
-                                                            });
-                                                            window.location.reload();
-                                                        }}
-                                                    />
-                                                </OverlayTrigger>
-                                            </div>
+                                            <Async
+                                                fetchData={() => metricsClient(`datasets/details/${datasetId}`, null, 'get')}
+                                                renderData={([{size}]) => String(size).toLocaleString()}
+                                            />
+                                        </td>
+                                        <td>{new Date(createdAt).toLocaleString()}</td>
+                                        <td className='text-end'>
+                                            <OverlayTrigger overlay={
+                                                <Tooltip>Delete this dataset</Tooltip>
+                                            }>
+                                                <AiOutlineDelete
+                                                    className='fs-3 cursor-pointer'
+                                                    onClick={async () => {
+                                                        await baseJsonClient(`api/dataset/${_id}`, {
+                                                            method: 'delete'
+                                                        });
+                                                        window.location.reload();
+                                                    }}
+                                                />
+                                            </OverlayTrigger>
                                         </td>
                                     </tr>
                                 ))}
@@ -78,13 +82,16 @@ const DatasetsList = () => {
                     >
                         <Form autoComplete='off' className='w-100' enctype='multipart/form-data' method='post' action='api/dataset'>
                             <Form.Label className='mt-3 mb-0'>Name</Form.Label>
-
                             <InputGroup className='mt-1'>
                                 <Form.Control name='name' required/>
                             </InputGroup>
+                            <Form.Label className='mt-3 mb-0'>Dataset ID</Form.Label>
+                            <InputGroup className='mt-1'>
+                                <Form.Control name='datasetId' placeholder='optional'/>
+                            </InputGroup>
                             <Form.Label className='mt-3 mb-0'>File</Form.Label>
                             <InputGroup className='mt-1'>
-                                <Form.Control name='file' type='file' required/>
+                                <Form.Control name='file' type='file'/>
                             </InputGroup>
                             <Button
                                 className='w-100 text-white btn-submit mt-3'

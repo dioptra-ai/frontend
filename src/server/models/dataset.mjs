@@ -6,6 +6,13 @@ const datasetSchema = new Schema({
         type: String,
         required: true
     },
+    datasetId: {
+        type: String,
+        default() {
+
+            return this._id;
+        }
+    },
     organization: {
         type: Schema.Types.ObjectId,
         ref: 'Organization',

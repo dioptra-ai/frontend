@@ -44,30 +44,26 @@ DatasetRouter.get('/', async (req, res, next) => {
     }
 });
 
-const uploadStream = (file) => {
-    const passthrough = new PassThrough();
-
-    console.log('/Users/jacques/dioptra/services/frontend/src/server/controllers/dataset.mjs:50', file);
-    console.log('/Users/jacques/dioptra/services/frontend/src/server/controllers/dataset.mjs:50', file.newFilename);
-
-    s3Client.upload({
-        Bucket: 'dioptra-batch-output-dev',
-        Key: file.newFilename,
-        Body: passthrough
-    }, (err, data) => {
-        console.log('/Users/jacques/dioptra/services/frontend/src/server/controllers/dataset.mjs:58', JSON.stringify(err, null, 4), data);
-    });
-
-    return passthrough;
-};
-
 DatasetRouter.post('/', (req, res, next) => {
-    const form = formidable({
-        fileWriteStreamHandler: uploadStream
-    });
 
-    form.parse(req, async (err, fields, files) => {
-        console.log('/Users/jacques/dioptra/services/frontend/src/server/controllers/dataset.mjs:53', err, fields, files);
+    formidable({
+        fileWriteStreamHandler: (file) => {
+            const passthrough = new PassThrough();
+
+            console.log('/Users/jacques/dioptra/services/frontend/src/server/controllers/dataset.mjs:50', file);
+            console.log('/Users/jacques/dioptra/services/frontend/src/server/controllers/dataset.mjs:50', file.newFilename);
+
+            s3Client.upload({
+                Bucket: 'dioptra-batch-output-dev',
+                Key: file.newFilename,
+                Body: passthrough
+            }, (err, data) => {
+                console.log('/Users/jacques/dioptra/services/frontend/src/server/controllers/dataset.mjs:58', JSON.stringify(err, null, 4), data);
+            });
+
+            return passthrough;
+        }
+    }).parse(req, async (err, fields) => {
         if (err) {
             next(err);
         } else {
@@ -76,11 +72,12 @@ DatasetRouter.post('/', (req, res, next) => {
                 const Dataset = mongoose.model('Dataset');
 
                 await Dataset.create({
-                    name: req.body.name,
+                    name: fields.name,
+                    datasetId: fields.datasetId || undefined, // necessary for mongoose default
                     organization: req.user.activeOrganizationMembership.organization._id
                 });
 
-                res.redirect(req.headers.referrer);
+                res.redirect(req.headers.referer);
             } catch (e) {
                 next(e);
             }
