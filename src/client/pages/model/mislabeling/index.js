@@ -40,7 +40,7 @@ const _SetGroundtruthFilter = ({filtersStore, onChange}) => {
                             } else {
                                 filtersStore.removeFilterByKey('groundtruth');
                             }
-                            onChange?.(v);
+                            onChange(v);
                         }}
                     >
                         <option value=''>Select Class</option>
@@ -57,7 +57,7 @@ const _SetGroundtruthFilter = ({filtersStore, onChange}) => {
 _SetGroundtruthFilter.propTypes = {
     filtersStore: PropTypes.object.isRequired,
     filters: PropTypes.arrayOf(PropTypes.instanceOf(Filter)).isRequired,
-    onChange: PropTypes.func
+    onChange: PropTypes.func.isRequired
 };
 
 const SetGroundtruthFilter = setupComponent(_SetGroundtruthFilter);

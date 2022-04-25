@@ -7,6 +7,7 @@ const Spinner = ({size = 150}) => (
         {(asyncContext) => (
             (asyncContext?.loading || !asyncContext) ? (
                 <div style={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.7)',
                     position: 'absolute',
                     left: 0,
                     right: 0,

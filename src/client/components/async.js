@@ -11,7 +11,6 @@ const Async = ({
     children,
     renderData,
     renderError,
-    renderLoading,
     fetchData,
     refetchOnChanged = [],
     defaultData
@@ -19,7 +18,6 @@ const Async = ({
     const [data, setData] = useState();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [hasLoaded, setHasLoaded] = useState(false);
 
     useEffect(() => {
         (async () => {
@@ -40,7 +38,6 @@ const Async = ({
                 Sentry.captureException(err);
             } finally {
                 setLoading(false);
-                setHasLoaded(true);
             }
         })();
     }, refetchOnChanged);
@@ -50,27 +47,19 @@ const Async = ({
     if (children) {
 
         content = children({data, loading, error});
-    } else if (loading && renderLoading) {
-
-        content = renderLoading();
     } else if (error) {
 
         content = renderError(error);
     } else if (data || defaultData) {
 
         content = renderData(data || defaultData);
-    } else if (loading || !hasLoaded) {
-
-        content = (
-            <div style={{width: '100%', height: '100%'}}>
-                <SpinnerWrapper/>
-            </div>
-        );
     }
 
-    return content && (
+    return (
         <AsyncContext.Provider value={{data, loading, error}}>
-            {content}
+            <SpinnerWrapper>
+                {content}
+            </SpinnerWrapper>
         </AsyncContext.Provider>
     );
 };
@@ -79,7 +68,6 @@ Async.propTypes = {
     children: PropTypes.func,
     renderData: PropTypes.func,
     renderError: PropTypes.func,
-    renderLoading: PropTypes.func,
     fetchData: PropTypes.oneOfType([
         PropTypes.func,
         PropTypes.arrayOf(PropTypes.func)
