@@ -8,7 +8,7 @@ class BenchmarkStore {
         makeAutoObservable(this);
     }
 
-    async initialize() {
+    async fetchBenchmarks () {
         try {
             const benchmarks = await metricsClient('benchmarks', null, 'get');
 

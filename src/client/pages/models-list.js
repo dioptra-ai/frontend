@@ -10,6 +10,7 @@ import GeneralSearchBar from 'pages/common/general-search-bar';
 import {setupComponent} from 'helpers/component-helper';
 import {formatDateTime} from 'helpers/date-helper';
 import FontIcon from 'components/font-icon';
+import Async from 'components/async';
 import {IconNames} from 'constants';
 import {Area, AreaChart, Line, XAxis} from 'recharts';
 import theme from 'styles/theme.module.scss';
@@ -99,41 +100,48 @@ const _ModelRow = ({model, idx, color, filtersStore}) => {
             </td>
             <td className='fs-6 py-2 align-middle'>
                 <div className='d-flex align-items-center justify-content-center'>
-                    <AreaChart data={model.traffic.map(({throughput, time}) => ({
-                        y: throughput,
-                        x: new Date(time).getTime()
-                    }))} height={65} width={140}>
-                        <defs>
-                            <linearGradient id='areaColor' x1='0' x2='0' y1='0' y2='1'>
-                                <stop offset='5%' stopColor={color} stopOpacity={0.7} />
-                                <stop offset='95%' stopColor='#FFFFFF' stopOpacity={0.1} />
-                            </linearGradient>
-                        </defs>
-                        <Line
-                            connectNulls
-                            dataKey='y'
-                            dot={false}
-                            fill={color}
-                            stroke={color}
-                            strokeWidth={1}
-                            type='linear'
-                        />
-                        <XAxis
-                            axisLine={false}
-                            dataKey='x'
-                            domain={[TRAFFIC_START_MOMENT.valueOf(), TRAFFIC_END_MOMENT.valueOf()]}
-                            scale='time'
-                            tick={false}
-                            type='number'
-                        />
-                        <Area
-                            dataKey='y'
-                            fill='url(#areaColor)'
-                            stroke={color}
-                            strokeWidth={1}
-                            type='linear'
-                        />
-                    </AreaChart>
+                    <Async
+                        fetchData={() => metricsClient('throughput', {
+                            sql_filters: `__time >= CURRENT_TIMESTAMP - INTERVAL '30' DAY AND model_id='${model.mlModelId}'`,
+                            granularity_iso: moment.duration(6, 'hour').toISOString()
+                        })}
+                        renderData={(throughput) => (
+                            <AreaChart data={throughput.map(({value, time}) => ({
+                                y: value,
+                                x: new Date(time).getTime()
+                            }))} height={65} width={140}>
+                                <defs>
+                                    <linearGradient id='areaColor' x1='0' x2='0' y1='0' y2='1'>
+                                        <stop offset='5%' stopColor={color} stopOpacity={0.7} />
+                                        <stop offset='95%' stopColor='#FFFFFF' stopOpacity={0.1} />
+                                    </linearGradient>
+                                </defs>
+                                <Line
+                                    connectNulls
+                                    dataKey='y'
+                                    dot={false}
+                                    fill={color}
+                                    stroke={color}
+                                    strokeWidth={1}
+                                    type='linear'
+                                />
+                                <XAxis
+                                    axisLine={false}
+                                    dataKey='x'
+                                    domain={[TRAFFIC_START_MOMENT.valueOf(), TRAFFIC_END_MOMENT.valueOf()]}
+                                    scale='time'
+                                    tick={false}
+                                    type='number'
+                                />
+                                <Area
+                                    dataKey='y'
+                                    fill='url(#areaColor)'
+                                    stroke={color}
+                                    strokeWidth={1}
+                                    type='linear'
+                                />
+                            </AreaChart>)}
+                    />
                 </div>
             </td>
         </tr>
@@ -152,10 +160,8 @@ const ModelRow = setupComponent(_ModelRow);
 const Models = ({modelStore}) => {
     const [showModal, setShowModal] = useState(false);
     const [errors, setErrors] = useState([]);
-    const [formattedData, setFormattedData] = useState([]);
 
     const color = theme.primary;
-    const data = modelStore.models;
 
     const handleSubmit = (data) => {
         if (errors) {
@@ -185,21 +191,9 @@ const Models = ({modelStore}) => {
     };
 
     useEffect(() => {
-        if (data.length) {
-            metricsClient('throughput', {
-                sql_filters: '__time >= CURRENT_TIMESTAMP - INTERVAL \'1\' DAY',
-                granularity_iso: moment.duration(1, 'hour').toISOString(),
-                group_by: ['model_id']
-            }).then((trafficData) => {
-                setFormattedData(data.map((d) => {
-                    d.traffic = trafficData.filter(({model_id}) => model_id === d.mlModelId);
 
-                    return d;
-                }));
-            })
-                .catch(() => setFormattedData([]));
-        }
-    }, [data.length]);
+        modelStore.fetchModels();
+    }, []);
 
     return (
         <>
@@ -228,7 +222,7 @@ const Models = ({modelStore}) => {
                                     'Owner',
                                     'Tier',
                                     'Last Deployed',
-                                    'Traffic'
+                                    '30 Day Throughput'
                                 ].map((c, idx) => (
                                     <th
                                         className={`text-secondary border-0 fs-6 py-4 ${
@@ -242,7 +236,7 @@ const Models = ({modelStore}) => {
                             </tr>
                         </thead>
                         <tbody>
-                            {formattedData.map((model) => (
+                            {modelStore.models.map((model) => (
                                 <ModelRow color={color} key={model._id} model={model} />
                             ))}
                         </tbody>

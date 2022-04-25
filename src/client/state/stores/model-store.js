@@ -10,7 +10,7 @@ class ModelStore {
         makeAutoObservable(this);
     }
 
-    async initialize() {
+    async fetchModels() {
         try {
             const models = await baseJSONClient('/api/ml-model');
 

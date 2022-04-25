@@ -33,35 +33,39 @@ const BenchmarksList = ({filtersStore, modelStore, benchmarkStore}) => {
                             RUN NEW BENCHMARK
                     </Button>
                 </div>
-                <Table className='models-table mt-3'>
-                    <thead className='align-middle'>
-                        <tr className='border-0 border-bottom border-mercury'>
-                            <th className='text-secondary'>Benchmark ID</th>
-                            <th className='text-secondary'>Dataset ID</th>
-                            <th className='text-secondary'>Model</th>
-                            <th className='text-secondary'>Model Version</th>
-                            <th className='text-secondary'>Started At</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {benchmarkStore.benchmarks.map((benchmark, i) => (
-                            <tr className='cursor-pointer' onClick={() => {
+                <Async
+                    fetchData={() => benchmarkStore.fetchBenchmarks()}
+                    renderData={() => (
+                        <Table className='models-table mt-3'>
+                            <thead className='align-middle'>
+                                <tr className='border-0 border-bottom border-mercury'>
+                                    <th className='text-secondary'>Benchmark ID</th>
+                                    <th className='text-secondary'>Dataset ID</th>
+                                    <th className='text-secondary'>Model</th>
+                                    <th className='text-secondary'>Model Version</th>
+                                    <th className='text-secondary'>Started At</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {benchmarkStore.benchmarks.map((benchmark, i) => (
+                                    <tr className='cursor-pointer' onClick={() => {
 
-                                filtersStore.benchmarks = [benchmark];
-                                setTimeout(() => {
+                                        filtersStore.benchmarks = [benchmark];
+                                        setTimeout(() => {
 
-                                    history.push('/benchmark/performance');
-                                });
-                            }} key={i}>
-                                <td>{benchmark['benchmark_id']}</td>
-                                <td>{benchmark['dataset_id']}</td>
-                                <td>{modelStore.getModelByMlModelId(benchmark['model_id'])?.name || '<unknown>'}</td>
-                                <td>{benchmark['model_version']}</td>
-                                <td>{new Date(benchmark['started_at']).toLocaleString()}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </Table>
+                                            history.push('/benchmark/performance');
+                                        });
+                                    }} key={i}>
+                                        <td>{benchmark['benchmark_id']}</td>
+                                        <td>{benchmark['dataset_id']}</td>
+                                        <td>{modelStore.getModelByMlModelId(benchmark['model_id'])?.name || '<unknown>'}</td>
+                                        <td>{benchmark['model_version']}</td>
+                                        <td>{new Date(benchmark['started_at']).toLocaleString()}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </Table>)}
+                />
             </div>
             <ModalComponent isOpen={isRunBenchmarkOpen} onClose={() => setIsRunBenchmarkOpen(false)} title='Run New Benchmark'>
                 <Form style={{width: 500}}>

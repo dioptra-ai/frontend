@@ -41,7 +41,7 @@ const PerformanceBox = ({
         <div className='border rounded p-3 pb-0'>
             <span className='text-dark bold-text fs-5'>{title}</span>
             {subtext && (
-                <span className='text-primary mx-1'>(n={subtext})</span>
+                <span className='text-primary mx-1 d-inline-flex'>(n={subtext})</span>
             )}
             <div className='d-flex py-3 text-secondary bold-text border-bottom'>
                 <span className='w-100'>Label</span>

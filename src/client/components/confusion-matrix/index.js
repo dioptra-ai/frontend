@@ -122,7 +122,7 @@ const ConfusionMatrix = () => {
                     <Col>
                         <p className='text-dark fw-bold fs-4 flex-grow-1'>
                             Confusion Matrix
-                            <span className='text-primary mx-1'>(n={sampleSizeComponent})</span>
+                            <span className='text-primary mx-1 d-inline-flex'>(n={sampleSizeComponent})</span>
                         </p>
                     </Col>
                     {model.mlModelType === 'DOCUMENT_PROCESSING' ||
