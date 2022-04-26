@@ -10,17 +10,14 @@ class ModelStore {
         makeAutoObservable(this);
     }
 
-    async fetchModels() {
-        try {
-            const models = await baseJSONClient('/api/ml-model');
+    initialize() {
+        // Not waiting on the result.
+        baseJSONClient('/api/ml-model').then((models) => {
 
             models.forEach((model) => {
                 this.modelsById[model._id] = model;
             });
-        } catch (e) {
-            console.warn(e);
-        }
-
+        }).catch(console.warn);
     }
 
     get models() {

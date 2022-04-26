@@ -8,16 +8,13 @@ class BenchmarkStore {
         makeAutoObservable(this);
     }
 
-    async fetchBenchmarks () {
-        try {
-            const benchmarks = await metricsClient('benchmarks', null, 'get');
+    initialize() {
+        metricsClient('benchmarks', null, 'get').then((benchmarks) => {
 
             benchmarks.forEach((benchmark) => {
                 this.benchmarksById[benchmark.benchmark_id] = benchmark;
             });
-        } catch (e) {
-            console.warn(e);
-        }
+        });
     }
 
     get benchmarks() {

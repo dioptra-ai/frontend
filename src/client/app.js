@@ -39,7 +39,7 @@ const App = () => {
                         path={path}
                     />
                 ))}
-                <AuthRoute path='/models/:_id' renderLoggedIn={() => (
+                <AuthRoute path='/models/*' renderLoggedIn={() => (
                     <AppContext.Provider value={{
                         isModelView: true
                     }}>

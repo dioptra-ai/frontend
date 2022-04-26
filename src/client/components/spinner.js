@@ -33,7 +33,7 @@ Spinner.propTypes = {
 export default Spinner;
 
 export const SpinnerWrapper = ({children}) => (
-    <div style={{position: 'relative', width: '100%', height: '100%'}}>
+    <div style={{position: 'relative', width: '100%'}}>
         <Spinner/>
         {children}
     </div>

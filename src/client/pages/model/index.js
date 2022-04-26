@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {Redirect, Route, Switch} from 'react-router-dom';
+import {Route, Switch} from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -11,6 +11,7 @@ import GeneralSearchBar from 'pages/common/general-search-bar';
 import AddAlertPage from 'pages/add-alert';
 import ModelDescription from 'components/model-description';
 import Tabs from 'components/tabs';
+import Spinner from 'components/spinner';
 import PerformanceOverview from './performance-overview';
 import PerformanceDetails from './performance-details';
 import PredictionAnalysis from './prediction-analysis';
@@ -107,7 +108,7 @@ const Model = ({timeStore, filtersStore, modelStore}) => {
 
     if (!firstModel) {
 
-        return <Redirect to='/models'/>;
+        return <Spinner/>;
     } else return (
         <Menu>
             <GeneralSearchBar/>

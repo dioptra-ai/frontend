@@ -1,6 +1,6 @@
 import {useState} from 'react';
 import PropTypes from 'prop-types';
-import {Redirect, Route} from 'react-router-dom';
+import {Route} from 'react-router-dom';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
@@ -13,6 +13,7 @@ import Menu from 'components/menu';
 import Async from 'components/async';
 import metricsClient from 'clients/metrics';
 import Select from 'components/select';
+import Spinner from 'components/spinner';
 import Performance from './performance';
 import Predictions from './predictions';
 import Features from './features';
@@ -37,10 +38,7 @@ const Benchmarks = ({filtersStore, modelStore}) => {
 
     if (!benchmark) {
 
-        return <Redirect to={{
-            pathname: '/benchmark',
-            search: '?'
-        }}/>;
+        return <Spinner/>;
     } else if (!model) {
         return `No model with id ${mlModelId}`;
     }

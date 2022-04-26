@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useRef, useState} from 'react';
 import moment from 'moment';
 import Tooltip from 'react-bootstrap/Tooltip';
 import Overlay from 'react-bootstrap/Overlay';
@@ -189,11 +189,6 @@ const Models = ({modelStore}) => {
                 setErrors([e.message]);
             });
     };
-
-    useEffect(() => {
-
-        modelStore.fetchModels();
-    }, []);
 
     return (
         <>
