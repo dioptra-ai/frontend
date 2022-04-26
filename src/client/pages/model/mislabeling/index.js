@@ -12,7 +12,7 @@ import useAllSqlFilters from 'hooks/use-all-sql-filters';
 import ScatterGraph from 'components/scatter-graph';
 import metricsClient from 'clients/metrics';
 
-const _SetGroundtruthFilter = ({filtersStore, onChange}) => {
+const _SetGroundtruthFilter = ({filtersStore, onChange, defaultValue}) => {
     const allSqlFilters = useAllSqlFilters();
     const model = useModel();
 
@@ -26,29 +26,28 @@ const _SetGroundtruthFilter = ({filtersStore, onChange}) => {
                 limit: 500
             })}
             renderData={(data) => (
-                <>
-                    <Form.Control
-                        as='select'
-                        className='form-select w-100'
-                        custom
-                        required
-                        onChange={(e) => {
-                            const v = e.target.value;
+                <Form.Control
+                    as='select'
+                    className='form-select w-100'
+                    custom
+                    required
+                    defaultValue={defaultValue}
+                    onChange={(e) => {
+                        const v = e.target.value;
 
-                            if (v) {
-                                filtersStore.setFilter(new Filter({left: 'groundtruth', op: '=', right: e.target.value}));
-                            } else {
-                                filtersStore.removeFilterByKey('groundtruth');
-                            }
-                            onChange(v);
-                        }}
-                    >
-                        <option value=''>Select Class</option>
-                        {data.map(({value}, i) => (
-                            <option key={i} value={value}>{value}</option>
-                        ))}
-                    </Form.Control>
-                </>
+                        if (v) {
+                            filtersStore.setFilter(new Filter({left: 'groundtruth', op: '=', right: e.target.value}));
+                        } else {
+                            filtersStore.removeFilterByKey('groundtruth');
+                        }
+                        onChange(v);
+                    }}
+                >
+                    <option value=''>Select Class</option>
+                    {data.map(({value}, i) => (
+                        <option key={i} value={value}>{value}</option>
+                    ))}
+                </Form.Control>
             )}
         />
     );
@@ -57,20 +56,26 @@ const _SetGroundtruthFilter = ({filtersStore, onChange}) => {
 _SetGroundtruthFilter.propTypes = {
     filtersStore: PropTypes.object.isRequired,
     filters: PropTypes.arrayOf(PropTypes.instanceOf(Filter)).isRequired,
-    onChange: PropTypes.func.isRequired
+    onChange: PropTypes.func.isRequired,
+    defaultValue: PropTypes.any
 };
 
 const SetGroundtruthFilter = setupComponent(_SetGroundtruthFilter);
 
-const Mislabeling = () => {
-    const [selectedGroundTruth, setSelectedGroundTruth] = useState(null);
+const Mislabeling = ({filtersStore}) => {
+    const [selectedGroundTruth, setSelectedGroundTruth] = useState(
+        filtersStore.filters.find((f) => f.left === 'groundtruth')?.right
+    );
     const allSqlFilters = useAllSqlFilters();
     const allOfflineSqlFilters = useAllSqlFilters({useReferenceFilters: true});
     const {mlModelType} = useModel();
 
     return (
         <>
-            <SetGroundtruthFilter onChange={(cl) => setSelectedGroundTruth(cl)}/>
+            <SetGroundtruthFilter
+                onChange={(cl) => setSelectedGroundTruth(cl)}
+                defaultValue={selectedGroundTruth}
+            />
             <div className='my-3'>
                 <Row>
                     <Col>
@@ -109,4 +114,8 @@ const Mislabeling = () => {
     );
 };
 
-export default Mislabeling;
+Mislabeling.propTypes = {
+    filtersStore: PropTypes.object.isRequired
+};
+
+export default setupComponent(Mislabeling);
