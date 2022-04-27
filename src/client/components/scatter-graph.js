@@ -360,6 +360,7 @@ const ScatterGraph = ({data, noveltyIsObsolete, outliersAreMislabeled}) => {
                             boxT={exampleInModal['image_metadata.object.top']}
                             boxL={exampleInModal['image_metadata.object.left']}
                             height={600}
+                            zoomable
                         />
                     ) : examplesType === 'text' ?
                         <pre>{JSON.stringify(exampleInModal, null, 4)}</pre> :

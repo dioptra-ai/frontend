@@ -23,6 +23,12 @@
 .cursor-pointer {
     cursor: pointer;
 }
+.cursor-grab {
+    cursor: grab;
+    &:active {
+        cursor: grabbing;
+    }
+}
 
 .hover {
     &:hover {
