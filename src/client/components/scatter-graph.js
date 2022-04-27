@@ -226,7 +226,7 @@ const ScatterGraph = ({data, noveltyIsObsolete, outliersAreMislabeled}) => {
                                 isAnimationActive={false}
                                 cursor='pointer'
                                 onClick={handlePointSelect}
-                                name={outliersAreMislabeled ? 'Mislabeled' : 'Outlier'}
+                                name={outliersAreMislabeled ? 'Suspicious' : 'Outlier'}
                                 data={outliers}
                                 fill={theme.warning}
                                 xAxisId='PCA1'
