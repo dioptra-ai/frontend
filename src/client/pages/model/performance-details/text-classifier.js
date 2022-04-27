@@ -32,10 +32,10 @@ const PerformanceDetails = () => {
                         refetchOnChanged={[allSqlFilters]}
                         renderData={(data) => (
                             <BarGraph
-                                bars={data.map(({groundtruth, my_percentage}) => ({
-                                    name: getName(groundtruth),
-                                    value: my_percentage,
-                                    fill: getHexColor(groundtruth)
+                                bars={data.map((result) => ({
+                                    name: getName(result.name),
+                                    value: result.value,
+                                    fill: getHexColor(result.name)
                                 }))}
                                 title='Groundtruth Distribution'
                                 unit='%'

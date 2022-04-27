@@ -185,7 +185,7 @@ const PerformancePerClass = () => {
             </h3>
             <Row>
                 {
-                    model.mlModelType === 'IMAGE_CLASSIFIER' ? (
+                    model.mlModelType === 'IMAGE_CLASSIFIER' || model.mlModelType === 'TEXT_CLASSIFIER' ? (
                         <>
                             <Col lg={6}>
                                 <PerformanceMetricAnalysis metricUrl='precision-metric' title='Precision per class'/>
