@@ -304,7 +304,7 @@ const _PerformanceClustersAnalysis = ({clusters, onUserSelectedMetricName, onUse
                                 </div>
                             </div>
                             <div className={`d-flex p-2 overflow-auto flex-grow-0 ${samples.length ? 'justify-content-left' : 'justify-content-center align-items-center'} scatterGraph-examples`}>
-                                {samples.length ? samples.slice(0, 100).map((sample, i) => {
+                                {samples.length ? samples.slice(0, 100).map((sample) => {
                                     if (sample['image_metadata.uri']) {
                                         const width = sample['image_metadata.width'];
                                         const height = sample['image_metadata.height'];
@@ -315,7 +315,7 @@ const _PerformanceClustersAnalysis = ({clusters, onUserSelectedMetricName, onUse
 
                                         return (
                                             <div
-                                                key={i}
+                                                key={JSON.stringify(sample)}
                                                 className='m-4 heat-map-item cursor-pointer'
                                                 style={{
                                                     gap: 8,
@@ -370,7 +370,7 @@ const _PerformanceClustersAnalysis = ({clusters, onUserSelectedMetricName, onUse
 
                                         return (
                                             <div
-                                                key={i}
+                                                key={JSON.stringify(sample)}
                                                 className='d-flex cursor-pointer'
                                                 onClick={() => setExampleInModal(sample)}
                                             >
