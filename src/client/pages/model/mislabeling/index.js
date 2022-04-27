@@ -23,7 +23,7 @@ const _SetGroundtruthFilter = ({filtersStore, onChange, defaultValue}) => {
                 key: 'groundtruth',
                 value: '',
                 ml_model_id: model?.mlModelId,
-                limit: 500
+                limit: 1000000
             })}
             renderData={(data) => (
                 <Form.Control
