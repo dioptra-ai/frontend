@@ -19,16 +19,20 @@ const FrameWithBoundingBox = ({videoUrl, imageUrl, frameH, boxW, boxH, boxT, box
                 height={height}
             />
         )}
-        <div
-            className='heat-map-box'
-            style={{
-                position: 'absolute',
-                height: boxH * (height / frameH),
-                width: boxW * (height / frameH),
-                top: boxT * (height / frameH),
-                left: boxL * (height / frameH)
-            }}
-        />
+        {
+            (boxH && boxW && boxT && boxL && !isNaN(height) && frameH) ? (
+                <div
+                    className='heat-map-box'
+                    style={{
+                        position: 'absolute',
+                        height: boxH * (height / frameH),
+                        width: boxW * (height / frameH),
+                        top: boxT * (height / frameH),
+                        left: boxL * (height / frameH)
+                    }}
+                />
+            ) : null
+        }
     </div>
 );
 
@@ -36,11 +40,11 @@ FrameWithBoundingBox.propTypes = {
     videoUrl: PropTypes.string,
     videoSeekToSec: PropTypes.number,
     imageUrl: PropTypes.string,
-    frameH: PropTypes.number.isRequired,
-    boxW: PropTypes.number.isRequired,
-    boxH: PropTypes.number.isRequired,
-    boxT: PropTypes.number.isRequired,
-    boxL: PropTypes.number.isRequired,
+    frameH: PropTypes.number,
+    boxW: PropTypes.number,
+    boxH: PropTypes.number,
+    boxT: PropTypes.number,
+    boxL: PropTypes.number,
     height: PropTypes.number.isRequired,
     videoControls: PropTypes.bool,
     onClick: PropTypes.func
