@@ -98,7 +98,6 @@ const Mislabeling = ({filtersStore}) => {
                                             novelty,
                                             request_id
                                         }))}
-                                        examplesType='image'
                                         outliersAreMislabeled
                                     />
                                 )}

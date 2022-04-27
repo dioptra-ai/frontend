@@ -34,8 +34,8 @@ const DriftAnalysis = () => {
                         })}
                         renderData={(data) => (
                             <ScatterGraph
-                                data={data?.outlier_analysis?.map(({image_url, dimensions, outlier, novelty, request_id}) => ({
-                                    sample: image_url,
+                                data={data?.outlier_analysis?.map(({sample, dimensions, outlier, novelty, request_id}) => ({
+                                    sample,
                                     PCA1: dimensions[0],
                                     PCA2: dimensions[1],
                                     outlier,

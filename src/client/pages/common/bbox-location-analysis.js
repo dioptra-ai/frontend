@@ -11,8 +11,7 @@ import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import {Filter} from 'state/stores/filters-store';
 import {BsMinecartLoaded} from 'react-icons/bs';
-import SignedImage from 'components/signed-image';
-import SeekableVideo from 'components/seekable-video';
+import FrameWithBoundingBox from 'components/frame-with-bounding-box';
 import {OverlayTrigger, Tooltip} from 'react-bootstrap';
 import MinerModal from 'components/miner-modal';
 
@@ -124,39 +123,20 @@ const BBoxLocationAnalysis = () => {
                                 return (
                                     <div
                                         key={`${JSON.stringify(sample)}-${i}`}
-                                        className='m-4 heat-map-item cursor-pointer'
-                                        onClick={() => setExampleInModal(sample)}
+                                        className='m-4 heat-map-item'
                                     >
-                                        {video_frame ? (
-                                            <SeekableVideo
-                                                url={image_url}
-                                                seekToSecs={video_frame / video_frame_rate}
-                                                height={200}
-                                                width='auto'
-                                                controls
-                                            />
-                                        ) : (
-                                            <SignedImage
-                                                rawUrl={image_url}
-                                                height={200}
-                                            />
-                                        )}
-                                        <div
-                                            className='heat-map-box'
-                                            style={{
-                                                height: bounding_box.h * 200,
-                                                width:
-                                                    bounding_box.w *
-                                                    ((200 * width) / height),
-                                                top:
-                                                    (bounding_box.y -
-                                                        bounding_box.h / 2) *
-                                                    200,
-                                                left:
-                                                    (bounding_box.x -
-                                                        bounding_box.w / 2) *
-                                                    ((200 * width) / height)
-                                            }}
+                                        <FrameWithBoundingBox
+                                            videoUrl={video_frame ? image_url : null}
+                                            videoControls={false}
+                                            imageUrl={video_frame ? null : image_url}
+                                            frameW={width} frameH={height}
+                                            boxW={bounding_box.w * width}
+                                            boxH={bounding_box.h * height}
+                                            boxL={width * (bounding_box.x - bounding_box.w / 2)}
+                                            boxT={height * (bounding_box.y - bounding_box.h / 2)}
+                                            videoSeekToSec={video_frame / video_frame_rate}
+                                            height={200}
+                                            onClick={() => setExampleInModal(sample)}
                                         />
                                     </div>
                                 );
@@ -175,45 +155,19 @@ const BBoxLocationAnalysis = () => {
             </Row>
             {exampleInModal ? (
                 <Modal onClose={() => setExampleInModal(null)} title='Example'>
-                    <div style={{position: 'relative'}}>
-                        {exampleInModal.video_frame ? (
-                            <SeekableVideo
-                                url={exampleInModal.image_url}
-                                seekToSecs={exampleInModal.bounding_box.video_frame / exampleInModal.bounding_box.video_frame_rate}
-                                width='auto'
-                                height={600}
-                                controls
-                            />
-                        ) : (
-                            <SignedImage
-                                alt='Example'
-                                className='rounded modal-image'
-                                rawUrl={exampleInModal.image_url}
-                                height={200}
-                            />
-                        )}
-                        <div
-                            className='heat-map-box'
-                            style={{
-                                height: exampleInModal.bounding_box.h * 600,
-                                width:
-                                    (exampleInModal.bounding_box.w *
-                                        exampleInModal.width *
-                                        600) /
-                                    exampleInModal.height,
-                                top:
-                                    (exampleInModal.bounding_box.y -
-                                        exampleInModal.bounding_box.h / 2) *
-                                    600,
-                                left:
-                                    ((exampleInModal.bounding_box.x -
-                                        exampleInModal.bounding_box.w / 2) *
-                                        exampleInModal.width *
-                                        600) /
-                                    exampleInModal.height
-                            }}
-                        />
-                    </div>
+                    <FrameWithBoundingBox
+                        videoUrl={exampleInModal.video_frame ? exampleInModal.image_url : null}
+                        videoControls
+                        imageUrl={exampleInModal.video_frame ? null : exampleInModal.image_url}
+                        frameW={exampleInModal.width}
+                        frameH={exampleInModal.height}
+                        boxW={exampleInModal.bounding_box.w * exampleInModal.width}
+                        boxH={exampleInModal.bounding_box.h * exampleInModal.height}
+                        boxL={exampleInModal.width * (exampleInModal.bounding_box.x - exampleInModal.bounding_box.w / 2) }
+                        boxT={exampleInModal.height * (exampleInModal.bounding_box.y - exampleInModal.bounding_box.h / 2) }
+                        videoSeekToSec={exampleInModal.bounding_box.video_frame / exampleInModal.bounding_box.video_frame_rate}
+                        height={600}
+                    />
                 </Modal>
             ) : null}
         </>

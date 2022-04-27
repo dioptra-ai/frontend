@@ -8,7 +8,7 @@ class BenchmarkStore {
         makeAutoObservable(this);
     }
 
-    initialize() {
+    fetchBenchmarks() {
         metricsClient('benchmarks', null, 'get').then((benchmarks) => {
 
             benchmarks.forEach((benchmark) => {

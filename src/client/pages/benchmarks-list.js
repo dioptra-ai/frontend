@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import Table from 'react-bootstrap/Table';
 import Row from 'react-bootstrap/Row';
@@ -18,6 +18,10 @@ const BenchmarksList = ({filtersStore, modelStore, benchmarkStore}) => {
     const [isRunBenchmarkOpen, setIsRunBenchmarkOpen] = useState(false);
     const [newBenchmarkModelId, setNewBenchmarkModelId] = useState(null);
     const allModels = modelStore.models;
+
+    useEffect(() => {
+        benchmarkStore.fetchBenchmarks();
+    }, []);
 
     return (
         <>

@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import {Route} from 'react-router-dom';
 import Row from 'react-bootstrap/Row';
@@ -21,13 +21,17 @@ import FilterInput from 'pages/common/filter-input';
 import Drift from './drift';
 import useBenchmark from 'hooks/use-benchmark';
 
-const Benchmarks = ({filtersStore, modelStore}) => {
+const Benchmarks = ({filtersStore, modelStore, benchmarkStore}) => {
 
     useSyncStoresToUrl(({filtersStore, segmentationStore}) => ({
         filters: JSON.stringify(filtersStore.filters),
         benchmarks: JSON.stringify(filtersStore.benchmarks.map(({benchmark_id}) => ({benchmark_id}))),
         segmentation: JSON.stringify(segmentationStore.segmentation)
     }));
+
+    useEffect(() => {
+        benchmarkStore.fetchBenchmarks();
+    }, []);
 
     const [benchmarkFilters, setBenchmarkFilters] = useState();
     const benchmark = useBenchmark();

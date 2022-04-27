@@ -11,7 +11,6 @@ import {
     YAxis,
     ZAxis
 } from 'recharts';
-import ReactPlayer from 'react-player';
 import {useThrottle} from '@react-hook/throttle';
 import {saveAs} from 'file-saver';
 import {IoDownloadOutline} from 'react-icons/io5';
@@ -25,6 +24,7 @@ import Modal from 'components/modal';
 import AddFilters from 'components/add-filters';
 import {Filter} from 'state/stores/filters-store';
 import MinerModal from 'components/miner-modal';
+import FrameWithBoundingBox from 'components/frame-with-bounding-box';
 
 const LARGE_DOT_SIZE = 200;
 const MEDIUM_DOT_SIZE = 100;
@@ -51,7 +51,7 @@ const ScatterGraph = ({data, noveltyIsObsolete, outliersAreMislabeled}) => {
     const [minerModalOpen, setMinerModalOpen] = useModal(false);
     const samples = selectedPoints?.map(({sample}) => sample);
     const sampleRequestIds = selectedPoints?.map(({request_id}) => request_id);
-    const examplesType = samples.every((s) => (/\.mp4$/).test(s)) ? 'video' : samples.every((s) => (/^https?:\/\//).test(s)) ? 'image' : 'text';
+    const examplesType = samples.every((s) => (/\.mp4$/).test(s)) ? 'video' : samples.every((s) => (/^https?:\/\//).test(s['image_metadata.uri'])) ? 'image' : 'text';
 
     const handleKeyDown = ({keyCode}) => {
         if (keyCode === 16) setShiftPressed(true);
@@ -60,6 +60,10 @@ const ScatterGraph = ({data, noveltyIsObsolete, outliersAreMislabeled}) => {
     const handleKeyUp = ({keyCode}) => {
         if (keyCode === 16) setShiftPressed(false);
     };
+
+    useEffect(() => {
+        setSelectedPoints([firstOutlier || firstNonOutlier]);
+    }, [data]);
 
     useEffect(() => {
         window.addEventListener('keydown', handleKeyDown);
@@ -310,30 +314,31 @@ const ScatterGraph = ({data, noveltyIsObsolete, outliersAreMislabeled}) => {
                     </div>
                     <div className={`d-flex p-2 overflow-auto flex-grow-0 ${samples.length ? 'justify-content-left' : 'justify-content-center align-items-center'} scatterGraph-examples`}>
                         {samples.length ? samples.map((sample, i) => (
-                            examplesType === 'video' ?
-                                <ReactPlayer url={sample} controls width='100%' hight='auto'/> :
-                                examplesType === 'image' ?
+                            examplesType === 'video' || examplesType === 'image' ? (
+                                <FrameWithBoundingBox
+                                    videoUrl={examplesType === 'video' ? sample : null}
+                                    imageUrl={examplesType === 'image' ? sample['image_metadata.uri'] : null}
+                                    videoControls={false}
+                                    frameW={sample['image_metadata.width']}
+                                    frameH={sample['image_metadata.height']}
+                                    boxW={sample['image_metadata.object.width']}
+                                    boxH={sample['image_metadata.object.height']}
+                                    boxT={sample['image_metadata.object.top']}
+                                    boxL={sample['image_metadata.object.left']}
+                                    height={200}
+                                    onClick={() => setExampleInModal(sample)}
+                                />
+
+                            ) :
+                                examplesType === 'text' ?
                                     <div
                                         key={i}
-                                        className='d-flex justify-content-center align-items-center m-4 bg-white scatterGraph-item cursor-pointer'
+                                        className='d-flex cursor-pointer'
                                         onClick={() => setExampleInModal(sample)}
                                     >
-                                        <img
-                                            alt='Example'
-                                            className='rounded modal-image'
-                                            src={sample}
-                                            width='100%'
-                                        />
+                                        <pre>{JSON.stringify(sample, null, 4)}</pre>
                                     </div> :
-                                    examplesType === 'text' ?
-                                        <div
-                                            key={i}
-                                            className='d-flex cursor-pointer'
-                                            onClick={() => setExampleInModal(sample)}
-                                        >
-                                            <pre>{JSON.stringify(sample, null, 4)}</pre>
-                                        </div> :
-                                        null
+                                    null
 
                         )) : (
                             <h3 className='text-secondary m-0'>No Examples Available</h3>
@@ -343,16 +348,23 @@ const ScatterGraph = ({data, noveltyIsObsolete, outliersAreMislabeled}) => {
             </Row>
             {exampleInModal && (
                 <Modal isOpen={true} onClose={() => setExampleInModal(null)} title='Example'>
-                    {examplesType === 'image' ?
-                        <img
-                            alt='Example'
-                            className='rounded modal-image'
-                            src={exampleInModal}
-                            style={{maxHeight: '80vh', maxWidth: '80vw'}}
-                        /> :
-                        examplesType === 'text' ?
-                            <pre>{JSON.stringify(exampleInModal, null, 4)}</pre> :
-                            null}
+                    {examplesType === 'video' || examplesType === 'image' ? (
+                        <FrameWithBoundingBox
+                            videoUrl={examplesType === 'video' ? exampleInModal : null}
+                            imageUrl={examplesType === 'image' ? exampleInModal['image_metadata.uri'] : null}
+                            videoControls
+                            frameW={exampleInModal['image_metadata.width']}
+                            frameH={exampleInModal['image_metadata.height']}
+                            boxW={exampleInModal['image_metadata.object.width']}
+                            boxH={exampleInModal['image_metadata.object.height']}
+                            boxT={exampleInModal['image_metadata.object.top']}
+                            boxL={exampleInModal['image_metadata.object.left']}
+                            height={600}
+                        />
+                    ) : examplesType === 'text' ?
+                        <pre>{JSON.stringify(exampleInModal, null, 4)}</pre> :
+                        null
+                    }
                 </Modal>
             )}
             <MinerModal isOpen={minerModalOpen} closeCallback={() => setMinerModalOpen(false)} samples={selectedPoints}/>
