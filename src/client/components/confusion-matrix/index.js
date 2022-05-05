@@ -66,8 +66,8 @@ const Table = ({
             );
 
             cells[e.prediction] = {
-                value: e.distribution,
-                difference: e.distribution - referenceDataForCell?.distribution
+                value: e.value,
+                difference: e.value - referenceDataForCell?.value
             };
         });
 
@@ -181,13 +181,19 @@ const ConfusionMatrix = () => {
                             sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ||
                                     model.mlModelType === 'UNSUPERVISED_OBJECT_DETECTION' ?
                                 `cast("iou" as FLOAT) > ${iou} AND ${allSqlFilters}` : allSqlFilters,
-                            model_type: model.mlModelType
+                            model_type: model.mlModelType,
+                            data_selector: {
+                                limit: 101
+                            }
                         }),
                         () => metricsClient('confusion-matrix', {
                             sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ||
                                     model.mlModelType === 'UNSUPERVISED_OBJECT_DETECTION' ?
                                 `cast("iou" as FLOAT) > ${iou} AND ${sqlFiltersWithModelTime}` : sqlFiltersWithModelTime,
-                            model_type: model.mlModelType
+                            model_type: model.mlModelType,
+                            data_selector: {
+                                limit: 101
+                            }
                         })
                     ]}
                     refetchOnChanged={[iou, allSqlFilters, sqlFiltersWithModelTime]}
