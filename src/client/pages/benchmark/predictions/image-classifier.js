@@ -3,7 +3,6 @@ import Col from 'react-bootstrap/Col';
 import Async from 'components/async';
 import BarGraph from 'components/bar-graph';
 import {getHexColor} from 'helpers/color-helper';
-import {getName} from 'helpers/name-helper';
 import metricsClient from 'clients/metrics';
 import useAllSqlFilters from 'hooks/use-all-sql-filters';
 
@@ -19,7 +18,7 @@ const ImageClassifier = () => {
                         renderData={(data) => (
                             <BarGraph
                                 bars={data.map(({name, value}) => ({
-                                    name: getName(name),
+                                    name,
                                     value,
                                     fill: getHexColor(name)
                                 }))}
@@ -36,7 +35,7 @@ const ImageClassifier = () => {
                         renderData={(data) => (
                             <BarGraph
                                 bars={data.map(({name, value}) => ({
-                                    name: getName(name),
+                                    name,
                                     value,
                                     fill: getHexColor(name)
                                 }))}

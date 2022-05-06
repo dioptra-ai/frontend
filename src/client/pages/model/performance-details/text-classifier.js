@@ -5,7 +5,6 @@ import useAllSqlFilters from 'hooks/use-all-sql-filters';
 import useModel from 'hooks/use-model';
 import MetricInfoBox from 'components/metric-info-box';
 import BarGraph from 'components/bar-graph';
-import {getName} from 'helpers/name-helper';
 import Async from 'components/async';
 import metricsClient from 'clients/metrics';
 import CountEvents from 'components/count-events';
@@ -33,7 +32,7 @@ const PerformanceDetails = () => {
                         renderData={(data) => (
                             <BarGraph
                                 bars={data.map((result) => ({
-                                    name: getName(result.name),
+                                    name: result.name,
                                     value: result.value,
                                     fill: getHexColor(result.name)
                                 }))}

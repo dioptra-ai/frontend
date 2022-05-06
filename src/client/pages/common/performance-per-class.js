@@ -1,6 +1,5 @@
 import PropTypes from 'prop-types';
 import Async from 'components/async';
-import {getName} from 'helpers/name-helper';
 import {IconNames} from 'constants';
 import FontIcon from 'components/font-icon';
 import Row from 'react-bootstrap/Row';
@@ -87,7 +86,7 @@ const PerformanceBox = ({
                         return (
                             <ClassRow
                                 key={i}
-                                name={getName(c.label)}
+                                name={c.label}
                                 value={Number(c.value).toFixed(4)}
                                 difference={difference}
                             />
@@ -109,7 +108,7 @@ PerformanceBox.propTypes = {
 const ClassRow = ({name = '', value, difference = 0}) => {
     return (
         <div className='d-flex align-items-center text-dark class-row'>
-            <div className='w-100'>{name}</div>
+            <div className='w-100 text-truncate' title={name}>{name}</div>
             <div className='w-100 d-flex align-items-center'>
                 <ProgressBar completed={(value / 1) * 100} unit='%'/>
                 <DifferenceLabel

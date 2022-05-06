@@ -2,7 +2,6 @@ import BBoxLocationAnalysis from 'pages/common/bbox-location-analysis';
 
 import BarGraph from 'components/bar-graph';
 import {getHexColor} from 'helpers/color-helper';
-import {getName} from 'helpers/name-helper';
 import useAllSqlFilters from 'hooks/use-all-sql-filters';
 import metricsClient from 'clients/metrics';
 import Async from 'components/async';
@@ -18,7 +17,7 @@ const UnsupervisedObjectDetection = () => {
                     renderData={(data) => (
                         <BarGraph
                             bars={data.map(({prediction, my_percentage}) => ({
-                                name: getName(prediction),
+                                name: prediction,
                                 value: my_percentage,
                                 fill: getHexColor(prediction)
                             }))}

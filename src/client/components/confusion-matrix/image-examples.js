@@ -8,10 +8,33 @@ import metricsClient from 'clients/metrics';
 import {IoArrowBackCircleOutline, IoCloseCircleOutline} from 'react-icons/io5';
 import AddFilters from 'components/add-filters';
 import {Filter} from 'state/stores/filters-store';
-import SignedImage from 'components/signed-image';
+import FrameWithBoundingBox from 'components/frame-with-bounding-box';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+
+const getFrameWithBoundingBox = ({sample, ...rest}) => {
+    const imageUrl = sample['image_metadata.uri'].replace(/"/g, '');
+    const frameW = sample['image_metadata.width'];
+    const frameH = sample['image_metadata.height'];
+    const boxW = sample['image_metadata.object.width'];
+    const boxH = sample['image_metadata.object.height'];
+    const boxL = sample['image_metadata.object.left'];
+    const boxT = sample['image_metadata.object.top'];
+
+    return (
+        <FrameWithBoundingBox
+            imageUrl={imageUrl}
+            frameW={frameW}
+            frameH={frameH}
+            boxW={boxW}
+            boxH={boxH}
+            boxL={boxL}
+            boxT={boxT}
+            {...rest}
+        />
+    );
+};
 
 const ImageExamples = ({onClose, groundtruth, prediction, iou, model}) => {
     const [exampleInModal, setExampleInModal] = useState(false);
@@ -36,12 +59,7 @@ const ImageExamples = ({onClose, groundtruth, prediction, iou, model}) => {
         >
             <div className='d-flex flex-column align-items-end'>
                 {exampleInModal ? (
-                    <img
-                        alt='Example'
-                        className='rounded modal-image'
-                        style={{maxWidth: '80vw', maxHeight: '75vh'}}
-                        src={exampleInModal}
-                    />
+                    getFrameWithBoundingBox({sample: exampleInModal, height: 800, zoomable: true})
                 ) : (
                     <Async
                         renderData={(data) => {
@@ -63,18 +81,18 @@ const ImageExamples = ({onClose, groundtruth, prediction, iou, model}) => {
                                         />
                                         <Container>
                                             <Row>
-                                                {data.map((item, i) => (
+                                                {data.map((sample, i) => (
                                                     <Col
                                                         className='mt-2 rounded cursor-pointer'
                                                         key={i}
-                                                        onClick={() => setExampleInModal(item.signedUrl)}
                                                         xs={4}
                                                         md={2}
                                                     >
-                                                        <SignedImage
-                                                            height={200}
-                                                            rawUrl={item['image_metadata.uri'].replace(/"/g, '')}
-                                                        />
+                                                        {getFrameWithBoundingBox({
+                                                            height: 200,
+                                                            sample,
+                                                            onClick: () => setExampleInModal(sample)
+                                                        })}
                                                     </Col>
                                                 ))}
                                             </Row>
