@@ -6,7 +6,6 @@ import {Scatter, Tooltip as ScatterTooltip} from 'recharts';
 import {OverlayTrigger, Tooltip} from 'react-bootstrap';
 import {IoDownloadOutline} from 'react-icons/io5';
 import {BsMinecartLoaded} from 'react-icons/bs';
-import {Textfit} from 'react-textfit';
 import {saveAs} from 'file-saver';
 import {SpinnerWrapper} from 'components/spinner';
 import Table from 'components/table';
@@ -21,7 +20,7 @@ import Modal from 'components/modal';
 import metricsClient from 'clients/metrics';
 import AddFilters from 'components/add-filters';
 import {Filter} from 'state/stores/filters-store';
-import SignedImage from 'components/signed-image';
+import {ImageClassificationFrameWithBoundingBox} from 'components/frame-with-bounding-box';
 import MinerModal from 'components/miner-modal';
 import useModel from 'hooks/use-model';
 import Form from 'react-bootstrap/Form';
@@ -303,85 +302,40 @@ const _PerformanceClustersAnalysis = ({clusters, onUserSelectedMetricName, onUse
                                     </OverlayTrigger>
                                 </div>
                             </div>
-                            <div className={`d-flex p-2 overflow-auto flex-grow-0 ${samples.length ? 'justify-content-left' : 'justify-content-center align-items-center'} scatterGraph-examples`}>
+                            <Row className={'p-2 overflow-auto scatterGraph-examples'}>
                                 {samples.length ? samples.slice(0, 100).map((sample) => {
                                     if (sample['image_metadata.uri']) {
-                                        const width = sample['image_metadata.width'];
-                                        const height = sample['image_metadata.height'];
-                                        const bounding_box_h = sample['image_metadata.object.height'];
-                                        const bounding_box_w = sample['image_metadata.object.width'];
-                                        const bounding_box_y = sample['image_metadata.object.top'];
-                                        const bounding_box_x = sample['image_metadata.object.left'];
 
                                         return (
-                                            <div
+                                            <Col
+                                                xs={6} md={4} xl={3}
                                                 key={JSON.stringify(sample)}
-                                                className='m-4 heat-map-item cursor-pointer'
-                                                style={{
-                                                    gap: 8,
-                                                    display: 'flex',
-                                                    justifyContent: 'space-between',
-                                                    alignItems: 'center',
-                                                    alignContent: 'center',
-                                                    flexDirection: 'column'
-                                                }}
-                                                onClick={() => setExampleInModal(sample)}
+                                                className='p-4 heat-map-item cursor-pointer'
                                             >
-
-                                                {model.mlModelType === 'IMAGE_CLASSIFIER' ||
-                                                            model.mlModelType === 'UNSUPERVISED_IMAGE_CLASSIFIER' ? (
-                                                        <Textfit mode='single' max={8}>
-                                                            <span style={{border: `2px solid ${getHexColor(sample['prediction'])}`, padding: 3, borderRadius: 6}}>
-                                                                {sample['prediction']}
-                                                            </span>
-                                                        </Textfit>
-                                                    ) : (
-                                                        <></>
-                                                    )
-                                                }
-                                                <SignedImage
-                                                    alt='Example'
-                                                    className='rounded'
+                                                <ImageClassificationFrameWithBoundingBox
+                                                    sample={sample}
                                                     height={200}
-                                                    rawUrl={sample['image_metadata.uri']}
+                                                    onClick={() => setExampleInModal(sample)}
                                                 />
-                                                {model.mlModelType === 'IMAGE_CLASSIFIER' ||
-                                                            model.mlModelType === 'UNSUPERVISED_IMAGE_CLASSIFIER' ? (
-                                                        <Textfit mode='single' max={8}>
-                                                            <span style={{border: `2px solid ${getHexColor(sample['groundtruth'])}`, padding: 3, borderRadius: 6}}>
-                                                                {sample['groundtruth']}
-                                                            </span>
-                                                        </Textfit>
-                                                    ) : (
-                                                        <></>
-                                                    )
-                                                }
-                                                {model.mlModelType !== 'IMAGE_CLASSIFIER' &&
-                                                                <div className='heat-map-box' style={{
-                                                                    height: bounding_box_h * 200 / height,
-                                                                    width: bounding_box_w * 200 / width,
-                                                                    top: bounding_box_y * 200 / height,
-                                                                    left: bounding_box_x * 200 / width
-                                                                }}/>
-                                                }
-                                            </div>
+                                            </Col>
                                         );
                                     } else {
 
                                         return (
-                                            <div
+                                            <Col
+                                                xs={6} md={4} xl={3} xxl={2}
                                                 key={JSON.stringify(sample)}
                                                 className='d-flex cursor-pointer'
                                                 onClick={() => setExampleInModal(sample)}
                                             >
                                                 <pre>{JSON.stringify(sample, null, 4)}</pre>
-                                            </div>
+                                            </Col>
                                         );
                                     }
                                 }) : (
                                     <h3 className='text-secondary m-0'>No Examples Selected</h3>
                                 )}
-                            </div>
+                            </Row>
                         </div>
                     </Col>
                 </Row>
@@ -393,20 +347,11 @@ const _PerformanceClustersAnalysis = ({clusters, onUserSelectedMetricName, onUse
                             <div
                                 className='m-4 heat-map-item'
                             >
-                                <SignedImage
-                                    alt='Example'
-                                    className='rounded'
-                                    rawUrl={exampleInModal['image_metadata.uri']}
+                                <ImageClassificationFrameWithBoundingBox
+                                    sample={exampleInModal}
                                     height={600}
+                                    zoomable
                                 />
-                                {model.mlModelType !== 'IMAGE_CLASSIFIER' &&
-                                                <div className='heat-map-box' style={{
-                                                    height: exampleInModal['image_metadata.object.height'] * 600 / exampleInModal['image_metadata.height'],
-                                                    width: exampleInModal['image_metadata.object.width'] * 600 / exampleInModal['image_metadata.width'],
-                                                    top: exampleInModal['image_metadata.object.top'] * 600 / exampleInModal['image_metadata.height'],
-                                                    left: exampleInModal['image_metadata.object.left'] * 600 / exampleInModal['image_metadata.width']
-                                                }}/>
-                                }
                             </div>
                         ) : (
                             <Table

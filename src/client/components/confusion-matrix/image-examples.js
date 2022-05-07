@@ -8,33 +8,10 @@ import metricsClient from 'clients/metrics';
 import {IoArrowBackCircleOutline, IoCloseCircleOutline} from 'react-icons/io5';
 import AddFilters from 'components/add-filters';
 import {Filter} from 'state/stores/filters-store';
-import FrameWithBoundingBox from 'components/frame-with-bounding-box';
+import {ImageClassificationFrameWithBoundingBox} from 'components/frame-with-bounding-box';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-
-const getFrameWithBoundingBox = ({sample, ...rest}) => {
-    const imageUrl = sample['image_metadata.uri'].replace(/"/g, '');
-    const frameW = sample['image_metadata.width'];
-    const frameH = sample['image_metadata.height'];
-    const boxW = sample['image_metadata.object.width'];
-    const boxH = sample['image_metadata.object.height'];
-    const boxL = sample['image_metadata.object.left'];
-    const boxT = sample['image_metadata.object.top'];
-
-    return (
-        <FrameWithBoundingBox
-            imageUrl={imageUrl}
-            frameW={frameW}
-            frameH={frameH}
-            boxW={boxW}
-            boxH={boxH}
-            boxL={boxL}
-            boxT={boxT}
-            {...rest}
-        />
-    );
-};
 
 const ImageExamples = ({onClose, groundtruth, prediction, iou, model}) => {
     const [exampleInModal, setExampleInModal] = useState(false);
@@ -59,7 +36,7 @@ const ImageExamples = ({onClose, groundtruth, prediction, iou, model}) => {
         >
             <div className='d-flex flex-column align-items-end'>
                 {exampleInModal ? (
-                    getFrameWithBoundingBox({sample: exampleInModal, height: 800, zoomable: true})
+                    <ImageClassificationFrameWithBoundingBox sample={exampleInModal} height={800} zoomable/>
                 ) : (
                     <Async
                         renderData={(data) => {
@@ -88,11 +65,11 @@ const ImageExamples = ({onClose, groundtruth, prediction, iou, model}) => {
                                                         xs={4}
                                                         md={2}
                                                     >
-                                                        {getFrameWithBoundingBox({
-                                                            height: 200,
-                                                            sample,
-                                                            onClick: () => setExampleInModal(sample)
-                                                        })}
+                                                        <ImageClassificationFrameWithBoundingBox
+                                                            height={200}
+                                                            sample={sample}
+                                                            onClick={() => setExampleInModal(sample)}
+                                                        />
                                                     </Col>
                                                 ))}
                                             </Row>
