@@ -113,7 +113,7 @@ MetricsRouter.post('*', async (req, res, next) => {
     try {
         const metricsEnginePath = `${process.env.METRICS_ENGINE_URL}${req.url}`;
         const metricsResponse = await fetch(metricsEnginePath, {
-            timeout: 60000,
+            timeout: 300000,
             headers: {
                 'content-type': 'application/json;charset=UTF-8'
             },
