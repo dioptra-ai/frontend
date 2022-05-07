@@ -34,9 +34,9 @@ const ImageExamples = ({onClose, groundtruth, prediction, iou, model}) => {
                     }</button>
             )}
         >
-            <div className='d-flex flex-column align-items-end'>
+            <div className={`d-flex flex-column ${exampleInModal ? 'align-items-center' : 'align-items-end'}`} style={{width: '80vw'}}>
                 {exampleInModal ? (
-                    <ImageClassificationFrameWithBoundingBox sample={exampleInModal} height={800} zoomable/>
+                    <ImageClassificationFrameWithBoundingBox sample={exampleInModal} height={600} zoomable/>
                 ) : (
                     <Async
                         renderData={(data) => {
