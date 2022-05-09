@@ -1,6 +1,7 @@
 import metricsClient from 'clients/metrics';
 import Menu from 'components/menu';
 import Async from 'components/async';
+import MinerModal from 'components/miner-modal';
 import moment from 'moment';
 import slugify from 'slugify';
 import GeneralSearchBar from 'pages/common/general-search-bar';
@@ -10,11 +11,12 @@ import {IoDownloadOutline} from 'react-icons/io5';
 import {AiOutlineDelete} from 'react-icons/ai';
 import {BarLoader} from 'react-spinners';
 import baseJSONClient from 'clients/base-json-client';
-import {OverlayTrigger, Tooltip} from 'react-bootstrap';
+import {Button, OverlayTrigger, Tooltip} from 'react-bootstrap';
 import {saveAs} from 'file-saver';
 
 const MinersList = () => {
     const [miners, setMiners] = useState();
+    const [isMinerModalOpen, setIsMinerModalOpen] = useState(false);
 
     const downloadDatapoints = (minerId) => {
         return metricsClient(`miner/datapoints?id=${minerId}`, null, 'get');
@@ -24,13 +26,19 @@ const MinersList = () => {
 
     useEffect(fetchMiners, []);
 
-
     return (
         <Menu>
             <GeneralSearchBar shouldShowOnlySearchInput />
             <div className='p-4 mt-5'>
                 <div className='d-flex justify-content-between'>
                     <span className='h2 fs-1 text-dark bold-text'>Miners</span>
+                    <Button
+                        className='py-3 fs-6 bold-text px-5 text-white'
+                        onClick={() => setIsMinerModalOpen(true)}
+                        variant='primary'
+                    >
+                        CREATE NEW MINER
+                    </Button>
                 </div>
                 <Table className='models-table mt-3'>
                     <thead className='align-middle text-secondary'>
@@ -124,6 +132,10 @@ const MinersList = () => {
                     </tbody>
                 </Table>
             </div>
+            <MinerModal
+                isOpen={isMinerModalOpen}
+                closeCallback={() => setIsMinerModalOpen(false)}
+            />
         </Menu>
     );
 };

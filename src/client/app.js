@@ -48,7 +48,7 @@ const App = () => {
                 )}/>
                 <AuthRoute path='/benchmark' renderLoggedIn={() => (
                     <AppContext.Provider value={{
-                        isModelView: false
+                        isBenchmarkView: false
                     }}>
                         <Benchmark/>
                     </AppContext.Provider>

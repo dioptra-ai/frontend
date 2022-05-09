@@ -15,6 +15,7 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import ToggleButton from 'react-bootstrap/ToggleButton';
 import ToggleButtonGroup from 'react-bootstrap/ToggleButtonGroup';
 import Error from 'components/error';
+import {setupComponent} from 'helpers/component-helper';
 
 const IsoDurations = {
     PT30M: {value: 'PT30M', name: '30 minutes'},
@@ -26,7 +27,8 @@ const IsoDurations = {
 };
 
 
-const MinerModal = ({isOpen, closeCallback, requestIds}) => {
+const MinerModal = ({isOpen, closeCallback, requestIds, modelStore}) => {
+    const contextModel = useModel();
     const [minerDatasetSelected, setMinerDatasetSelected] = useState(false);
     const [selectedDataset, setSelectedDataset] = useState();
     const [minerName, setMinerName] = useState();
@@ -39,8 +41,7 @@ const MinerModal = ({isOpen, closeCallback, requestIds}) => {
     const [minerStrategy, setMinerStrategy] = useState('LOCAL_OUTLIER');
     const [minerMetric, setMinerMetric] = useState('euclidean');
     const [minerLimit, setMinerLimit] = useState();
-
-    const model = useModel();
+    const [minerModel, setMinerModel] = useState(contextModel);
 
     const onDatasetDateChange = ({start, end, lastMs}) => {
         let isoStart = null;
@@ -65,7 +66,7 @@ const MinerModal = ({isOpen, closeCallback, requestIds}) => {
         const payload = {
             request_ids: requestIds,
             display_name: minerName,
-            ml_model_id: model.mlModelId,
+            ml_model_id: minerModel?.mlModelId,
             strategy: minerStrategy,
             metric: minerMetric,
             limit: minerLimit
@@ -98,9 +99,13 @@ const MinerModal = ({isOpen, closeCallback, requestIds}) => {
                     title={requestIds ? 'Mine for Similar Datapoints' : 'Mine for Datapoints'}
                 >
                     <div style={{width: 500}}>
-                        Create a new miner that will search for datapoints that are
-                        close to the selected {requestIds.length} examples in the
-                        embedding space.
+                        {
+                            requestIds ? (
+                                `Create a new miner that will search for datapoints that are close to the selected ${requestIds.length} examples in the embedding space.`
+                            ) : (
+                                'Create a new miner that will search for datapoints in the embedding space.'
+                            )
+                        }
                     </div>
                     <Form
                         onSubmit={(e) => {
@@ -119,19 +124,31 @@ const MinerModal = ({isOpen, closeCallback, requestIds}) => {
                         </InputGroup>
                         <Form.Label className='mt-3 mb-0 w-100'>Strategy</Form.Label>
                         <InputGroup className='mt-1 flex-column'>
-                            <Form.Control as='select' className={'form-select bg-light w-100'}
-                                custom required defaultValue={minerStrategy}
+                            <Form.Control as='select' className='form-select bg-light w-100'
+                                custom required
                                 onChange={(e) => {
                                     setMinerStrategy(e.target.value);
                                 }}
                             >
-                                <option disabled>Select Strategy</option>
-                                <option value='LOCAL_OUTLIER'>
-                                    Local Outlier Factor
-                                </option>
-                                <option value='NEAREST_NEIGHBORS'>
-                                    Nearest Neighbors
-                                </option>
+                                <option>Select Strategy</option>
+                                {
+                                    requestIds ? (
+                                        <>
+                                            <option value='LOCAL_OUTLIER'>
+                                                Local Outlier Factor
+                                            </option>
+                                            <option value='NEAREST_NEIGHBORS'>
+                                                Nearest Neighbors
+                                            </option>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <option value='ENTROPY'>
+                                                Highest Entropy
+                                            </option>
+                                        </>
+                                    )
+                                }
                             </Form.Control>
                         </InputGroup>
                         {
@@ -154,7 +171,13 @@ const MinerModal = ({isOpen, closeCallback, requestIds}) => {
                                             </option>
                                         </Form.Control>
                                     </InputGroup>
-                                    <Form.Label className='mt-3 mb-0 w-100'>Limit</Form.Label>
+                                </>
+                            ) : null
+                        }
+                        {
+                            minerStrategy === 'NEAREST_NEIGHBORS' || minerStrategy === 'ENTROPY' ? (
+                                <>
+                                    <Form.Label className='mt-3 mb-0 w-100'>Datapoints Limit</Form.Label>
                                     <Form.Control required type='number' min={1} onChange={(e) => {
                                         setMinerLimit(Number(e.target.value));
                                     }}/>
@@ -176,84 +199,11 @@ const MinerModal = ({isOpen, closeCallback, requestIds}) => {
                             >
                                 <option disabled>Select Source</option>
                                 <option value={false}>
-                                    Live traffic of "{model.name}"
+                                    Live traffic of {minerModel ? `"${minerModel.name}"` : 'a model'}
                                 </option>
                                 <option value={true}>Dataset</option>
                             </Form.Control>
                         </InputGroup>
-                        {!minerDatasetSelected && (
-                            <div>
-                                <ToggleButtonGroup
-                                    defaultValue={liveDataType}
-                                    type='radio'
-                                    className='mt-4'
-                                    onChange={setLiveDataType}
-                                    name='benchmark-type'
-                                >
-                                    <ToggleButton
-                                        variant='outline-secondary'
-                                        id='range'
-                                        value='range'
-                                    >
-                                        &nbsp;Past Time Range
-                                    </ToggleButton>
-                                    <ToggleButton
-                                        variant='outline-secondary'
-                                        id='duration'
-                                        value='duration'
-                                    >
-                                        &nbsp;Periodic Schedule
-                                    </ToggleButton>
-                                </ToggleButtonGroup>
-                                {liveDataType === 'range' && (
-                                    <InputGroup className='mt-1'>
-                                        <Form.Label className='mt-3 mb-0 w-100'>
-                                            Date range
-                                        </Form.Label>
-                                        <DateTimeRangePicker
-                                            datePickerSettings={{
-                                                opens: 'center',
-                                                drops: 'up'
-                                            }}
-                                            end={
-                                                referencePeriod ?
-                                                    moment(referencePeriod.end) :
-                                                    null
-                                            }
-                                            onChange={onDatasetDateChange}
-                                            start={
-                                                referencePeriod ?
-                                                    moment(referencePeriod.start) :
-                                                    null
-                                            }
-                                            width='100%'
-                                        />
-                                    </InputGroup>
-                                )}
-                                {liveDataType === 'duration' && (
-                                    <InputGroup className='mt-1'>
-                                        <Form.Label className='mt-3 mb-0 w-100'>
-                                            Mine latest data every
-                                        </Form.Label>
-                                        <Select
-                                            backgroundColor='white'
-                                            initialValue={
-                                                evaluationPeriod ||
-                                                IsoDurations.PT30M.value
-                                            }
-                                            isTextBold
-                                            onChange={setEvaluationPeriod}
-                                            options={Object.values(IsoDurations)}
-                                            textColor='primary'
-                                            selectValue={
-                                                evaluationPeriod ||
-                                                IsoDurations.PT30M.value
-                                            }
-                                        />
-                                    </InputGroup>
-                                )}
-                            </div>
-                        )}
                         {minerDatasetSelected ? (
                             <>
                                 <Form.Label className='mt-3 mb-0 w-100'>
@@ -297,8 +247,103 @@ const MinerModal = ({isOpen, closeCallback, requestIds}) => {
                                     />
                                 </InputGroup>
                             </>
-                        ) : null}
-                        {requestIds.length < 2 ? (
+                        ) : (
+                            <>
+
+                                <Form.Label className='mt-3 mb-0 w-100'>Model</Form.Label>
+                                <InputGroup className='mt-1 flex-column'>
+                                    <Form.Control
+                                        as='select'
+                                        className='form-select bg-light w-100'
+                                        custom
+                                        required
+                                        onChange={(e) => {
+                                            setMinerModel(modelStore.getModelById(e.target.value));
+                                        }}
+                                        defaultValue={minerModel?._id}
+                                    >
+                                        <option>Select Model</option>
+                                        {
+                                            modelStore.models.map((model) => (
+                                                <option value={model._id} key={model._id}>{model.name}</option>
+                                            ))
+                                        }
+                                    </Form.Control>
+                                </InputGroup>
+                                <div>
+                                    <ToggleButtonGroup
+                                        defaultValue={liveDataType}
+                                        type='radio'
+                                        className='mt-4'
+                                        onChange={setLiveDataType}
+                                        name='benchmark-type'
+                                    >
+                                        <ToggleButton
+                                            variant='outline-secondary'
+                                            id='range'
+                                            value='range'
+                                        >
+                                        &nbsp;Past Time Range
+                                        </ToggleButton>
+                                        <ToggleButton
+                                            variant='outline-secondary'
+                                            id='duration'
+                                            value='duration'
+                                        >
+                                        &nbsp;Periodic Schedule
+                                        </ToggleButton>
+                                    </ToggleButtonGroup>
+                                    {liveDataType === 'range' && (
+                                        <InputGroup className='mt-1'>
+                                            <Form.Label className='mt-3 mb-0 w-100'>
+                                            Date range
+                                            </Form.Label>
+                                            <DateTimeRangePicker
+                                                datePickerSettings={{
+                                                    opens: 'center',
+                                                    drops: 'up'
+                                                }}
+                                                end={
+                                                    referencePeriod ?
+                                                        moment(referencePeriod.end) :
+                                                        null
+                                                }
+                                                onChange={onDatasetDateChange}
+                                                start={
+                                                    referencePeriod ?
+                                                        moment(referencePeriod.start) :
+                                                        null
+                                                }
+                                                width='100%'
+                                            />
+                                        </InputGroup>
+                                    )}
+                                    {liveDataType === 'duration' && (
+                                        <InputGroup className='mt-1'>
+                                            <Form.Label className='mt-3 mb-0 w-100'>
+                                            Mine latest data every
+                                            </Form.Label>
+                                            <Select
+                                                backgroundColor='white'
+                                                initialValue={
+                                                    evaluationPeriod ||
+                                                IsoDurations.PT30M.value
+                                                }
+                                                isTextBold
+                                                onChange={setEvaluationPeriod}
+                                                options={Object.values(IsoDurations)}
+                                                textColor='primary'
+                                                selectValue={
+                                                    evaluationPeriod ||
+                                                IsoDurations.PT30M.value
+                                                }
+                                            />
+                                        </InputGroup>
+                                    )}
+                                </div>
+                            </>
+                        )}
+                        {requestIds?.length < 2 ? (
                             <div className='mt-3'>
                                 <Error error={`${requestIds.length} sample(s) are selected but at least two (2) are required to run a novelty miner.`} variant='warning'/>
                             </div>
@@ -308,7 +353,7 @@ const MinerModal = ({isOpen, closeCallback, requestIds}) => {
                             variant='primary'
                             type='submit'
                             disabled={
-                                requestIds.length < 2 ||
+                                requestIds?.length < 2 ||
                                 (minerDatasetSelected && !selectedDataset) ||
                                 (!minerDatasetSelected &&
                                     liveDataType === 'range' &&
@@ -331,7 +376,8 @@ const MinerModal = ({isOpen, closeCallback, requestIds}) => {
 MinerModal.propTypes = {
     isOpen: PropTypes.bool,
     closeCallback: PropTypes.func,
-    requestIds: PropTypes.array
+    requestIds: PropTypes.array,
+    modelStore: PropTypes.object
 };
 
-export default MinerModal;
+export default setupComponent(MinerModal);
