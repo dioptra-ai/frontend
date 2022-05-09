@@ -1,3 +1,4 @@
+/* eslint-disable complexity */
 import metricsClient from 'clients/metrics';
 import Async from 'components/async';
 import DateTimeRangePicker from 'components/date-time-range-picker';
@@ -7,7 +8,7 @@ import {lastMilliseconds} from 'helpers/date-helper';
 import useModel from 'hooks/use-model';
 import {PropTypes} from 'mobx-react';
 import moment from 'moment';
-import {useEffect, useState} from 'react';
+import {useState} from 'react';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
@@ -25,7 +26,7 @@ const IsoDurations = {
 };
 
 
-const MinerModal = ({isOpen, closeCallback, samples}) => {
+const MinerModal = ({isOpen, closeCallback, requestIds}) => {
     const [minerDatasetSelected, setMinerDatasetSelected] = useState(false);
     const [selectedDataset, setSelectedDataset] = useState();
     const [minerName, setMinerName] = useState();
@@ -33,15 +34,13 @@ const MinerModal = ({isOpen, closeCallback, samples}) => {
         start: moment(),
         end: moment().add(5, 'minutes')
     });
-    const [requestIds, setRequestIds] = useState([]);
     const [evaluationPeriod, setEvaluationPeriod] = useState();
     const [liveDataType, setLiveDataType] = useState('range');
+    const [minerStrategy, setMinerStrategy] = useState('LOCAL_OUTLIER');
+    const [minerMetric, setMinerMetric] = useState('euclidean');
+    const [minerLimit, setMinerLimit] = useState();
 
     const model = useModel();
-
-    useEffect(() => {
-        setRequestIds(samples.map((selectedPoint) => selectedPoint.request_id));
-    }, [samples]);
 
     const onDatasetDateChange = ({start, end, lastMs}) => {
         let isoStart = null;
@@ -65,11 +64,14 @@ const MinerModal = ({isOpen, closeCallback, samples}) => {
     const createMiner = () => {
         const payload = {
             request_ids: requestIds,
-            display_name: minerName
+            display_name: minerName,
+            ml_model_id: model.mlModelId,
+            strategy: minerStrategy,
+            metric: minerMetric,
+            limit: minerLimit
         };
 
         if (!minerDatasetSelected) {
-            payload['ml_model_id'] = model.mlModelId;
             if (liveDataType === 'range') {
                 payload['start_time'] = referencePeriod.start;
                 payload['end_time'] = referencePeriod.end;
@@ -79,6 +81,7 @@ const MinerModal = ({isOpen, closeCallback, samples}) => {
         } else {
             payload['dataset'] = selectedDataset;
         }
+
         metricsClient('miners', payload).catch(console.error);
         setMinerDatasetSelected(false);
         setSelectedDataset(null);
@@ -92,11 +95,11 @@ const MinerModal = ({isOpen, closeCallback, samples}) => {
                 <Modal
                     isOpen
                     onClose={() => closeCallback()}
-                    title='Mine for Similar Datapoints'
+                    title={requestIds ? 'Mine for Similar Datapoints' : 'Mine for Datapoints'}
                 >
                     <div style={{width: 500}}>
                         Create a new miner that will search for datapoints that are
-                        close to the selected {samples.length} examples in the
+                        close to the selected {requestIds.length} examples in the
                         embedding space.
                     </div>
                     <Form
@@ -114,6 +117,50 @@ const MinerModal = ({isOpen, closeCallback, samples}) => {
                                 }}
                             />
                         </InputGroup>
+                        <Form.Label className='mt-3 mb-0 w-100'>Strategy</Form.Label>
+                        <InputGroup className='mt-1 flex-column'>
+                            <Form.Control as='select' className={'form-select bg-light w-100'}
+                                custom required defaultValue={minerStrategy}
+                                onChange={(e) => {
+                                    setMinerStrategy(e.target.value);
+                                }}
+                            >
+                                <option disabled>Select Strategy</option>
+                                <option value='LOCAL_OUTLIER'>
+                                    Local Outlier Factor
+                                </option>
+                                <option value='NEAREST_NEIGHBORS'>
+                                    Nearest Neighbors
+                                </option>
+                            </Form.Control>
+                        </InputGroup>
+                        {
+                            minerStrategy === 'NEAREST_NEIGHBORS' ? (
+                                <>
+                                    <Form.Label className='mt-3 mb-0 w-100'>Metric</Form.Label>
+                                    <InputGroup className='mt-1 flex-column'>
+                                        <Form.Control as='select' className={'form-select bg-light w-100'}
+                                            custom required defaultValue={minerMetric}
+                                            onChange={(e) => {
+                                                setMinerMetric(e.target.value);
+                                            }}
+                                        >
+                                            <option disabled>Select Metric</option>
+                                            <option value='euclidean'>
+                                                Euclidean
+                                            </option>
+                                            <option value='cosine'>
+                                                Cosine
+                                            </option>
+                                        </Form.Control>
+                                    </InputGroup>
+                                    <Form.Label className='mt-3 mb-0 w-100'>Limit</Form.Label>
+                                    <Form.Control required type='number' min={1} onChange={(e) => {
+                                        setMinerLimit(Number(e.target.value));
+                                    }}/>
+                                </>
+                            ) : null
+                        }
                         <Form.Label className='mt-3 mb-0 w-100'>Source</Form.Label>
                         <InputGroup className='mt-1 flex-column'>
                             <Form.Control
@@ -219,9 +266,7 @@ const MinerModal = ({isOpen, closeCallback, samples}) => {
                                         renderData={(datasets) => (
                                             <Form.Control
                                                 as='select'
-                                                className={
-                                                    'form-select bg-light w-100'
-                                                }
+                                                className='form-select bg-light w-100'
                                                 custom
                                                 required
                                                 onChange={(e) => {
@@ -286,7 +331,7 @@ const MinerModal = ({isOpen, closeCallback, samples}) => {
 MinerModal.propTypes = {
     isOpen: PropTypes.bool,
     closeCallback: PropTypes.func,
-    samples: PropTypes.array
+    requestIds: PropTypes.array
 };
 
 export default MinerModal;

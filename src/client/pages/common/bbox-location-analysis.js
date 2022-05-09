@@ -93,7 +93,7 @@ const BBoxLocationAnalysis = () => {
                                     left: 'request_id',
                                     op: 'in',
                                     right: heatMapSamples.map(
-                                        (s) => s.bounding_box.request_id
+                                        (s) => s['bounding_box']['request_id']
                                     )
                                 })
                             ]}
@@ -106,7 +106,7 @@ const BBoxLocationAnalysis = () => {
                                 <BsMinecartLoaded className='fs-2 ps-2 cursor-pointer'/>
                             </button>
                         </OverlayTrigger>
-                        <MinerModal isOpen={minerModalOpen} closeCallback={() => setMinerModalOpen(false)} samples={heatMapSamples.map((s) => s.bounding_box)}/>
+                        <MinerModal isOpen={minerModalOpen} closeCallback={() => setMinerModalOpen(false)} requestIds={heatMapSamples.map((s) => s['bounding_box']['request_id'])}/>
                     </div>
                     {heatMapSamples.length ? (
                         <div
