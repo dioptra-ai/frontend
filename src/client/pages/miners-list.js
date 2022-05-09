@@ -67,41 +67,40 @@ const MinersList = () => {
                                         </td>
                                         <td>{miner.status}</td>
                                         <td>{miner.type}</td>
-                                        <Async
-                                            fetchData={() => metricsClient(`miners/size?id=${miner._id}`, null, 'get')}
-                                            renderData={({size}) => (
-                                                <>
-                                                    <td>{Number(size).toLocaleString()}</td>
-                                                    <td>
-                                                        <div className='d-flex justify-content-center align-content-center align-items-center'>
-                                                            {miner.status === 'pending' ? (
-                                                                <BarLoader loading size={40} />
-                                                            ) : (
-                                                                miner.status !== 'error' && (
-                                                                    <OverlayTrigger overlay={
-                                                                        <Tooltip>
-                                                                            {size ? 'Download datapoints' : 'There are no datapoints to download'}
-                                                                        </Tooltip>
-                                                                    }>
-                                                                        <IoDownloadOutline
-                                                                            className={`fs-3 ${size ? 'cursor-pointer' : ''}`}
-                                                                            style={{opacity: size ? 1 : 0.2}}
-                                                                            onClick={async () => {
-                                                                                if (size) {
-                                                                                    const datapoints = await downloadDatapoints(miner._id);
+                                        <td>
+                                            <Async
+                                                fetchData={() => metricsClient(`miners/size?id=${miner._id}`, null, 'get')}
+                                                renderData={({size}) => Number(size).toLocaleString()}
+                                            />
+                                        </td>
+                                        <td>
+                                            <Async
+                                                fetchData={() => metricsClient(`miners/size?id=${miner._id}`, null, 'get')}
+                                                renderData={({size}) => miner.status === 'pending' ? (
+                                                    <BarLoader loading size={40} />
+                                                ) : (
+                                                    miner.status !== 'error' && (
+                                                        <OverlayTrigger overlay={
+                                                            <Tooltip>
+                                                                {size ? 'Download datapoints' : 'There are no datapoints to download'}
+                                                            </Tooltip>
+                                                        }>
+                                                            <IoDownloadOutline
+                                                                className={`fs-3 ${size ? 'cursor-pointer' : ''}`}
+                                                                style={{opacity: size ? 1 : 0.2}}
+                                                                onClick={async () => {
+                                                                    if (size) {
+                                                                        const datapoints = await downloadDatapoints(miner._id);
 
-                                                                                    saveAs(new Blob([datapoints], {type: 'text/csv;charset=utf-8'}), `${slugify(miner.display_name)}.csv`);
-                                                                                }
-                                                                            }}
-                                                                        />
-                                                                    </OverlayTrigger>
-                                                                )
-                                                            )}
-                                                        </div>
-                                                    </td>
-                                                </>
-                                            )}
-                                        />
+                                                                        saveAs(new Blob([datapoints], {type: 'text/csv;charset=utf-8'}), `${slugify(miner.display_name)}.csv`);
+                                                                    }
+                                                                }}
+                                                            />
+                                                        </OverlayTrigger>
+                                                    )
+                                                )}
+                                            />
+                                        </td>
                                         <td>
                                             <div className='d-flex justify-content-center align-content-center align-items-center'>
                                                 <OverlayTrigger overlay={
