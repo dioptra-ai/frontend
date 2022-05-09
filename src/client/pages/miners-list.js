@@ -37,7 +37,7 @@ const MinersList = () => {
                         <tr className='border-0 border-bottom border-mercury'>
                             <th className='text-secondary'>Name</th>
                             <th className='text-secondary'>Created At</th>
-                            <th className='text-secondary'>Updated At</th>
+                            <th className='text-secondary'>Last Run</th>
                             <th className='text-secondary'>Status</th>
                             <th className='text-secondary'>Type</th>
                             <th className='text-secondary'>Size</th>
@@ -61,8 +61,8 @@ const MinersList = () => {
                                             ).toLocaleString()}
                                         </td>
                                         <td>
-                                            {miner.updated_at && new Date(
-                                                moment(miner.updated_at)
+                                            {miner.last_run && new Date(
+                                                moment(miner.last_run)
                                             ).toLocaleString()}
                                         </td>
                                         <td>{miner.status}</td>
