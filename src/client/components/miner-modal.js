@@ -59,7 +59,6 @@ const MinerModal = ({isOpen, closeCallback, requestIds, modelStore}) => {
             isoEnd = end.toISOString();
         }
         setReferencePeriod({start: isoStart, end: isoEnd});
-        console.log({start: isoStart, end: isoEnd});
     };
 
     const createMiner = () => {
@@ -80,7 +79,7 @@ const MinerModal = ({isOpen, closeCallback, requestIds, modelStore}) => {
                 payload['evaluation_period'] = evaluationPeriod;
             }
         } else {
-            payload['dataset'] = selectedDataset;
+            payload['dataset_id'] = selectedDataset;
         }
 
         metricsClient('miners', payload).catch(console.error);
