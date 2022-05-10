@@ -102,7 +102,7 @@ const _ModelRow = ({model, idx, color, filtersStore}) => {
                 <div className='d-flex align-items-center justify-content-center'>
                     <Async
                         fetchData={() => metricsClient('throughput', {
-                            sql_filters: `__time >= CURRENT_TIMESTAMP - INTERVAL '30' DAY AND model_id='${model.mlModelId}'`,
+                            sql_filters: `__time >= CURRENT_TIMESTAMP - INTERVAL '30' DAY AND model_id='${model.mlModelId}' AND dataset_id IS NULL`,
                             granularity_iso: moment.duration(6, 'hour').toISOString()
                         })}
                         renderData={(throughput) => (
