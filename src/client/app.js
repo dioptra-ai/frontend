@@ -8,6 +8,7 @@ import Logout from 'pages/logout';
 import Register from 'pages/register';
 import AuthRoute from 'components/auth-route';
 import Benchmark from 'pages/benchmark';
+import Miner from 'pages/miner';
 import DatasetsList from 'pages/datasets-list';
 import MinersList from 'pages/miners-list';
 import AppContext from 'context/app-context';
@@ -55,6 +56,9 @@ const App = () => {
                 )}/>
                 <AuthRoute path='/dataset' renderLoggedIn={() => (
                     <DatasetsList/>
+                )}/>
+                <AuthRoute path='/miners/:minerId' renderLoggedIn={() => (
+                    <Miner/>
                 )}/>
                 <AuthRoute path='/miners' renderLoggedIn={() => (
                     <MinersList/>

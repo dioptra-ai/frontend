@@ -1,3 +1,4 @@
+import {Link} from 'react-router-dom';
 import metricsClient from 'clients/metrics';
 import Menu from 'components/menu';
 import Async from 'components/async';
@@ -73,7 +74,9 @@ const MinersList = () => {
                                                 moment(miner.last_run)
                                             ).toLocaleString()}
                                         </td>
-                                        <td>{miner.status}</td>
+                                        <td>
+                                            <Link className='text-dark' to={`/miners/${miner._id}`}>{miner.status}</Link>
+                                        </td>
                                         <td>{miner.type}</td>
                                         <td>
                                             <Async
@@ -134,7 +137,13 @@ const MinersList = () => {
             </div>
             <MinerModal
                 isOpen={isMinerModalOpen}
-                closeCallback={() => setIsMinerModalOpen(false)}
+                onMinerCreated={() => {
+                    fetchMiners();
+                    setIsMinerModalOpen(false);
+                }}
+                onClose={() => {
+                    setIsMinerModalOpen(false);
+                }}
             />
         </Menu>
     );

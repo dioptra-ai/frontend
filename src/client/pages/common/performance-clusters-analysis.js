@@ -365,7 +365,7 @@ const _PerformanceClustersAnalysis = ({clusters, onUserSelectedMetricName, onUse
                     }
                 </Modal>
             ) : null}
-            <MinerModal isOpen={minerModalOpen} closeCallback={() => setMinerModalOpen(false)} requestIds={samples.map((s) => s['request_id'])}/>
+            <MinerModal isOpen={minerModalOpen} onClose={() => setMinerModalOpen(false)} requestIds={samples.map((s) => s['request_id'])}/>
         </>
     );
 };

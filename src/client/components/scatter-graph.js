@@ -368,7 +368,7 @@ const ScatterGraph = ({data, noveltyIsObsolete, outliersAreMislabeled}) => {
                     }
                 </Modal>
             )}
-            <MinerModal isOpen={minerModalOpen} closeCallback={() => setMinerModalOpen(false)} requestIds={selectedPoints.map((p) => p['request_id'])}/>
+            <MinerModal isOpen={minerModalOpen} onClose={() => setMinerModalOpen(false)} requestIds={selectedPoints.map((p) => p['request_id'])}/>
         </>
     );
 };
