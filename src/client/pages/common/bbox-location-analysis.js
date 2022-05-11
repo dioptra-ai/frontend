@@ -11,7 +11,7 @@ import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import {Filter} from 'state/stores/filters-store';
 import {BsMinecartLoaded} from 'react-icons/bs';
-import FrameWithBoundingBox from 'components/frame-with-bounding-box';
+import FrameWithBoundingBox from 'components/preview-image-classification';
 import {OverlayTrigger, Tooltip} from 'react-bootstrap';
 import MinerModal from 'components/miner-modal';
 

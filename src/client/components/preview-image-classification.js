@@ -97,7 +97,7 @@ FrameWithBoundingBox.propTypes = {
 
 export default FrameWithBoundingBox;
 
-export const ImageClassificationFrameWithBoundingBox = ({sample, ...rest}) => {
+export const PreviewImageClassification = ({sample, ...rest}) => {
 
     return (
         <FrameWithBoundingBox
@@ -115,6 +115,6 @@ export const ImageClassificationFrameWithBoundingBox = ({sample, ...rest}) => {
     );
 };
 
-ImageClassificationFrameWithBoundingBox.propTypes = {
+PreviewImageClassification.propTypes = {
     sample: PropTypes.object.isRequired
 };

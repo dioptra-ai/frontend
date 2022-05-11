@@ -20,7 +20,7 @@ import Modal from 'components/modal';
 import metricsClient from 'clients/metrics';
 import AddFilters from 'components/add-filters';
 import {Filter} from 'state/stores/filters-store';
-import {ImageClassificationFrameWithBoundingBox} from 'components/frame-with-bounding-box';
+import {PreviewImageClassification} from 'components/preview-image-classification';
 import MinerModal from 'components/miner-modal';
 import useModel from 'hooks/use-model';
 import Form from 'react-bootstrap/Form';
@@ -312,7 +312,7 @@ const _PerformanceClustersAnalysis = ({clusters, onUserSelectedMetricName, onUse
                                                 key={JSON.stringify(sample)}
                                                 className='p-4 heat-map-item cursor-pointer'
                                             >
-                                                <ImageClassificationFrameWithBoundingBox
+                                                <PreviewImageClassification
                                                     sample={sample}
                                                     height={200}
                                                     onClick={() => setExampleInModal(sample)}
@@ -347,7 +347,7 @@ const _PerformanceClustersAnalysis = ({clusters, onUserSelectedMetricName, onUse
                             <div
                                 className='m-4 heat-map-item'
                             >
-                                <ImageClassificationFrameWithBoundingBox
+                                <PreviewImageClassification
                                     sample={exampleInModal}
                                     height={600}
                                     zoomable

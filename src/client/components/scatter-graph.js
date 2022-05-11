@@ -24,7 +24,7 @@ import Modal from 'components/modal';
 import AddFilters from 'components/add-filters';
 import {Filter} from 'state/stores/filters-store';
 import MinerModal from 'components/miner-modal';
-import FrameWithBoundingBox, {ImageClassificationFrameWithBoundingBox} from 'components/frame-with-bounding-box';
+import FrameWithBoundingBox, {PreviewImageClassification} from 'components/preview-image-classification';
 
 const LARGE_DOT_SIZE = 200;
 const MEDIUM_DOT_SIZE = 100;
@@ -328,7 +328,7 @@ const ScatterGraph = ({data, noveltyIsObsolete, outliersAreMislabeled}) => {
                                     onClick={() => setExampleInModal(sample)}
                                 />
                             ) : examplesType === 'image' ? (
-                                <ImageClassificationFrameWithBoundingBox
+                                <PreviewImageClassification
                                     sample={sample}
                                     height={200}
                                     onClick={() => setExampleInModal(sample)}
@@ -353,7 +353,7 @@ const ScatterGraph = ({data, noveltyIsObsolete, outliersAreMislabeled}) => {
             {exampleInModal && (
                 <Modal isOpen={true} onClose={() => setExampleInModal(null)} title='Example'>
                     {examplesType === 'image' ? (
-                        <ImageClassificationFrameWithBoundingBox
+                        <PreviewImageClassification
                             sample={exampleInModal}
                             height={600}
                             zoomable

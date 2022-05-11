@@ -235,7 +235,7 @@ class FiltersStore {
         this.m = m;
     }
 
-    getModelSqlFilters(forModel = 0) {
+    getSqlFilters() {
         const filtersByKey = this.f.reduce((agg, filter) => {
             const {left} = filter;
 
@@ -248,12 +248,15 @@ class FiltersStore {
             return agg;
         }, {});
 
-        const allFilters = Object.keys(filtersByKey).map((left) => {
+        return Object.keys(filtersByKey).map((left) => {
             const keyFilters = filtersByKey[left];
 
             return `(${keyFilters.map((filter) => filter.toSQLString()).join(' OR ')})`;
         });
+    }
 
+    getModelSqlFilters(forModel = 0) {
+        const allFilters = this.getSqlFilters();
         const model = this.m[forModel];
 
         allFilters.push(`"model_id"='${model.mlModelId}'`);
@@ -274,24 +277,7 @@ class FiltersStore {
     }
 
     getBenchmarkSqlFilters(forBenchmark = 0) {
-        const filtersByKey = this.f.reduce((agg, filter) => {
-            const {left} = filter;
-
-            if (!agg[left]) {
-                agg[left] = [];
-            }
-
-            agg[left].push(filter);
-
-            return agg;
-        }, {});
-
-        const allFilters = Object.keys(filtersByKey).map((left) => {
-            const keyFilters = filtersByKey[left];
-
-            return `(${keyFilters.map((filter) => filter.toSQLString()).join(' OR ')})`;
-        });
-
+        const allFilters = this.getSqlFilters();
         const benchmark = this.b[forBenchmark];
 
         allFilters.push(`"benchmark_id"='${benchmark['benchmark_id']}'`);

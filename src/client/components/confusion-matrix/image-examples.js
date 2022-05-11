@@ -8,7 +8,7 @@ import metricsClient from 'clients/metrics';
 import {IoArrowBackCircleOutline, IoCloseCircleOutline} from 'react-icons/io5';
 import AddFilters from 'components/add-filters';
 import {Filter} from 'state/stores/filters-store';
-import {ImageClassificationFrameWithBoundingBox} from 'components/frame-with-bounding-box';
+import {PreviewImageClassification} from 'components/preview-image-classification';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -36,7 +36,7 @@ const ImageExamples = ({onClose, groundtruth, prediction, iou, model}) => {
         >
             <div className={`d-flex flex-column ${exampleInModal ? 'align-items-center' : 'align-items-end'}`} style={{width: '80vw'}}>
                 {exampleInModal ? (
-                    <ImageClassificationFrameWithBoundingBox sample={exampleInModal} height={600} zoomable/>
+                    <PreviewImageClassification sample={exampleInModal} height={600} zoomable/>
                 ) : (
                     <Async
                         renderData={(data) => {
@@ -65,7 +65,7 @@ const ImageExamples = ({onClose, groundtruth, prediction, iou, model}) => {
                                                         xs={4}
                                                         md={2}
                                                     >
-                                                        <ImageClassificationFrameWithBoundingBox
+                                                        <PreviewImageClassification
                                                             height={200}
                                                             sample={sample}
                                                             onClick={() => setExampleInModal(sample)}

@@ -8,7 +8,7 @@ import comparisonContext from 'context/comparison-context';
 const {filtersStore, timeStore, modelStore, authStore} = stores;
 
 const useAllSqlFilters = ({useReferenceFilters = false, forLiveModel, excludeCurrentTimeFilters, __REMOVE_ME__excludeOrgId} = {}) => {
-    const {isModelView} = useContext(appContext);
+    const {isModelView, isBenchmarkView} = useContext(appContext);
     const comparisonContextValue = useContext(comparisonContext);
 
     let allFilters = [];
@@ -33,7 +33,7 @@ const useAllSqlFilters = ({useReferenceFilters = false, forLiveModel, excludeCur
             }
             allFilters.push('dataset_id IS NULL');
         }
-    } else {
+    } else if (isBenchmarkView) {
 
         allFilters.push(...filtersStore.getBenchmarkSqlFilters(comparisonContextValue?.index));
 
@@ -50,6 +50,8 @@ const useAllSqlFilters = ({useReferenceFilters = false, forLiveModel, excludeCur
 
             allFilters.push(`__time >= '${d.toISOString()}' AND "dataset_id" IS NULL AND "benchmark_id" IS NULL`);
         }
+    } else {
+        allFilters.push(...filtersStore.getSqlFilters());
     }
 
     return allFilters.join(' AND ');

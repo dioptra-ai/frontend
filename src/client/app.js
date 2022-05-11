@@ -11,6 +11,7 @@ import Benchmark from 'pages/benchmark';
 import Miner from 'pages/miner';
 import DatasetsList from 'pages/datasets-list';
 import MinersList from 'pages/miners-list';
+import Sandbox from 'pages/sandbox';
 import AppContext from 'context/app-context';
 import {initializeUserTracking, trackPage} from 'helpers/tracking';
 
@@ -62,6 +63,9 @@ const App = () => {
                 )}/>
                 <AuthRoute path='/miners' renderLoggedIn={() => (
                     <MinersList/>
+                )}/>
+                <AuthRoute path='/sandbox' renderLoggedIn={() => (
+                    <Sandbox/>
                 )}/>
                 <AuthRoute path='/' renderLoggedIn={() => <Redirect to='/models'/>}/>
             </Switch>

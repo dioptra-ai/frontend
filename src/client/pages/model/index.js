@@ -38,9 +38,9 @@ SplitView.propTypes = {
     children: PropTypes.node.isRequired
 };
 
-const Model = ({timeStore, filtersStore, modelStore}) => {
+const Model = ({filtersStore, modelStore}) => {
 
-    useSyncStoresToUrl(({filtersStore, segmentationStore}) => ({
+    useSyncStoresToUrl(({timeStore, filtersStore, segmentationStore}) => ({
         startTime: timeStore.start?.toISOString() || '',
         endTime: timeStore.end?.toISOString() || '',
         lastMs: timeStore.lastMs || '',
@@ -171,7 +171,6 @@ const Model = ({timeStore, filtersStore, modelStore}) => {
 };
 
 Model.propTypes = {
-    timeStore: PropTypes.object.isRequired,
     filtersStore: PropTypes.object.isRequired,
     modelStore: PropTypes.object.isRequired
 };
