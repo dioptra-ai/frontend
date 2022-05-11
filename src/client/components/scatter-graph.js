@@ -24,7 +24,7 @@ import Modal from 'components/modal';
 import AddFilters from 'components/add-filters';
 import {Filter} from 'state/stores/filters-store';
 import MinerModal from 'components/miner-modal';
-import FrameWithBoundingBox from 'components/frame-with-bounding-box';
+import FrameWithBoundingBox, {ImageClassificationFrameWithBoundingBox} from 'components/frame-with-bounding-box';
 
 const LARGE_DOT_SIZE = 200;
 const MEDIUM_DOT_SIZE = 100;
@@ -314,10 +314,9 @@ const ScatterGraph = ({data, noveltyIsObsolete, outliersAreMislabeled}) => {
                     </div>
                     <div className={`d-flex p-2 overflow-auto flex-grow-0 ${samples.length ? 'justify-content-left' : 'justify-content-center align-items-center'} scatterGraph-examples`}>
                         {samples.length ? samples.map((sample, i) => (
-                            examplesType === 'video' || examplesType === 'image' ? (
+                            examplesType === 'video' ? (
                                 <FrameWithBoundingBox
-                                    videoUrl={examplesType === 'video' ? sample : null}
-                                    imageUrl={examplesType === 'image' ? sample['image_metadata.uri'] : null}
+                                    videoUrl={sample}
                                     videoControls={false}
                                     frameW={sample['image_metadata.width']}
                                     frameH={sample['image_metadata.height']}
@@ -328,7 +327,12 @@ const ScatterGraph = ({data, noveltyIsObsolete, outliersAreMislabeled}) => {
                                     height={200}
                                     onClick={() => setExampleInModal(sample)}
                                 />
-
+                            ) : examplesType === 'image' ? (
+                                <ImageClassificationFrameWithBoundingBox
+                                    sample={sample}
+                                    height={200}
+                                    onClick={() => setExampleInModal(sample)}
+                                />
                             ) :
                                 examplesType === 'text' ?
                                     <div
@@ -348,10 +352,15 @@ const ScatterGraph = ({data, noveltyIsObsolete, outliersAreMislabeled}) => {
             </Row>
             {exampleInModal && (
                 <Modal isOpen={true} onClose={() => setExampleInModal(null)} title='Example'>
-                    {examplesType === 'video' || examplesType === 'image' ? (
+                    {examplesType === 'image' ? (
+                        <ImageClassificationFrameWithBoundingBox
+                            sample={exampleInModal}
+                            height={600}
+                            zoomable
+                        />
+                    ) : examplesType === 'video' ? (
                         <FrameWithBoundingBox
-                            videoUrl={examplesType === 'video' ? exampleInModal : null}
-                            imageUrl={examplesType === 'image' ? exampleInModal['image_metadata.uri'] : null}
+                            videoUrl={exampleInModal}
                             videoControls
                             frameW={exampleInModal['image_metadata.width']}
                             frameH={exampleInModal['image_metadata.height']}
