@@ -50,6 +50,9 @@ const Sandbox = ({filtersStore}) => {
                         refetchOnChanged={[allSqlFilters]}
                         renderData={(data) => (
                             <Container fluid>
+                                {data.length === 0 ? (
+                                    <span>No data</span>
+                                ) : null}
                                 <Row className='g-2'>
                                     {data.map((d, i) => {
                                         let preview = null;
