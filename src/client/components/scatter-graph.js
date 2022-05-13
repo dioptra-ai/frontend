@@ -32,7 +32,7 @@ const SMALL_DOT_SIZE = 60;
 
 const inRange = (num, min, max) => num >= min && num <= max;
 
-const ScatterGraph = ({data, noveltyIsObsolete, outliersAreMislabeled}) => {
+const ScatterGraph = ({data, noveltyIsObsolete, outlierDetectionOnly}) => {
     const ref = useRef();
     const firstOutlier = useMemo(() => {
         return data.find(({outlier}) => outlier);
@@ -74,22 +74,6 @@ const ScatterGraph = ({data, noveltyIsObsolete, outliersAreMislabeled}) => {
             window.removeEventListener('keyup', handleKeyUp);
         };
     }, []);
-
-    const handlePointSelect = (point) => {
-        if (shiftPressed) {
-            const pointExists = selectedPoints.find(
-                ({PCA1, PCA2}) => point.PCA1 === PCA1 && point.PCA2 === PCA2
-            );
-
-            if (!pointExists) {
-                setSelectedPoints([...selectedPoints, point]);
-            }
-        } else {
-            setSelectedPoints([point]);
-        }
-
-        setRefTopLeft(null);
-    };
 
     const handleMouseUp = () => {
         const x1 = Math.min(refTopLeft?.x, refBottomRight?.x);
@@ -154,6 +138,29 @@ const ScatterGraph = ({data, noveltyIsObsolete, outliersAreMislabeled}) => {
                 ...d
             }));
     }, [data, selectedPoints]);
+
+    const handlePointSelect = (point) => {
+        if (shiftPressed) {
+            const pointExists = selectedPoints.find(
+                ({PCA1, PCA2}) => point.PCA1 === PCA1 && point.PCA2 === PCA2
+            );
+
+            if (!pointExists) {
+                setSelectedPoints([...selectedPoints, point]);
+            } else if (point.outlier) {
+                setSelectedPoints([...outliers]);
+            } else if (point.novelty) {
+                setSelectedPoints([...novelty]);
+            } else {
+                setSelectedPoints([...inliers]);
+            }
+        } else {
+            setSelectedPoints([point]);
+        }
+
+        setRefTopLeft(null);
+    };
+
 
     return (
         <>
@@ -226,13 +233,13 @@ const ScatterGraph = ({data, noveltyIsObsolete, outliersAreMislabeled}) => {
                                 isAnimationActive={false}
                                 cursor='pointer'
                                 onClick={handlePointSelect}
-                                name={outliersAreMislabeled ? 'Suspicious' : 'Outlier'}
+                                name='Outlier'
                                 data={outliers}
                                 fill={theme.warning}
                                 xAxisId='PCA1'
                                 yAxisId='PCA2'
                             />
-                            {!outliersAreMislabeled ? (
+                            {!outlierDetectionOnly ? (
                                 <Scatter
                                     isAnimationActive={false}
                                     cursor='pointer'
@@ -248,7 +255,7 @@ const ScatterGraph = ({data, noveltyIsObsolete, outliersAreMislabeled}) => {
                                 isAnimationActive={false}
                                 cursor='pointer'
                                 onClick={handlePointSelect}
-                                name={outliersAreMislabeled ? 'Normal' : 'Inlier'}
+                                name={outlierDetectionOnly ? 'Normal' : 'Inlier'}
                                 data={inliers}
                                 fill={theme.primary}
                                 xAxisId='PCA1'
@@ -272,7 +279,7 @@ const ScatterGraph = ({data, noveltyIsObsolete, outliersAreMislabeled}) => {
                 <Col lg={8} className='rounded p-3 bg-white-blue'>
                     <div className='text-dark m-0 bold-text d-flex justify-content-between'>
                         <div>
-                            Examples
+                            Total datapoints in the view: {data.length} {samples.length ? (`- Selected samples: ${samples.length}`) : null}
                         </div>
                         <div>
                             <AddFilters
@@ -385,7 +392,7 @@ const ScatterGraph = ({data, noveltyIsObsolete, outliersAreMislabeled}) => {
 ScatterGraph.propTypes = {
     data: PropTypes.array.isRequired,
     noveltyIsObsolete: PropTypes.bool,
-    outliersAreMislabeled: PropTypes.bool
+    outlierDetectionOnly: PropTypes.bool
 };
 
 export default ScatterGraph;

@@ -17,7 +17,7 @@ import PerformanceDetails from './performance-details';
 import PredictionAnalysis from './prediction-analysis';
 import FeatureAnalysis from './feature-analysis';
 import Segmentation from './segmentation';
-import Mislabeling from './mislabeling';
+import OutlierDetection from './outlier-detection';
 import IncidentsAndAlerts from 'pages/common/incidents-and-alerts';
 import TrafficReplay from 'pages/common/traffic-replay';
 import useSyncStoresToUrl from 'hooks/use-sync-stores-to-url';
@@ -65,7 +65,7 @@ const Model = ({filtersStore, modelStore}) => {
         tabs.push({name: 'Performance Analysis', to: '/models/performance-details'});
         tabs.push({name: 'Prediction Analysis', to: '/models/prediction-analysis'});
         tabs.push({name: 'Segmentation', to: '/models/segmentation'});
-        tabs.push({name: 'Mislabeling', to: '/models/mislabeling'});
+        tabs.push({name: 'Outlier Detection', to: '/models/outlier-detection'});
         break;
     case 'TABULAR_CLASSIFIER':
         tabs.push({name: 'Prediction Analysis', to: '/models/prediction-analysis'});
@@ -82,7 +82,7 @@ const Model = ({filtersStore, modelStore}) => {
         tabs.push({name: 'Performance Analysis', to: '/models/performance-details'});
         tabs.push({name: 'Prediction Analysis', to: '/models/prediction-analysis'});
         tabs.push({name: 'Segmentation', to: '/models/segmentation'});
-        tabs.push({name: 'Mislabeling', to: '/models/mislabeling'});
+        tabs.push({name: 'Outlier Detection', to: '/models/outlier-detection'});
         break;
     case 'UNSUPERVISED_OBJECT_DETECTION':
     case 'MULTIPLE_OBJECT_TRACKING':
@@ -152,9 +152,9 @@ const Model = ({filtersStore, modelStore}) => {
                                     {models.map((model, i) => <Segmentation key={i}/>)}
                                 </SplitView>
                             )}/>
-                            <Route exact path='/models/mislabeling' render={() => (
+                            <Route exact path='/models/outlier-detection' render={() => (
                                 <SplitView>
-                                    {models.map((model, i) => <Mislabeling key={i}/>)}
+                                    {models.map((model, i) => <OutlierDetection key={i}/>)}
                                 </SplitView>
                             )}/>
                             <Route exact path='/models/traffic-replay' render={() => (
