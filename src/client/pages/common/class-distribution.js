@@ -35,7 +35,7 @@ const ClassDistribution = ({timeStore}) => {
                         />
                     )}
                     fetchData={() => metricsClient(`queries/${(mlModelType === 'IMAGE_CLASSIFIER' || mlModelType === 'UNSUPERVISED_IMAGE_CLASSIFIER' ||
-                            mlModelType === 'TEXT_CLASSIFIER') ?
+                            mlModelType === 'TEXT_CLASSIFIER' || mlModelType === 'UNSUPERVISED_TEXT_CLASSIFIER') ?
                         'class-distribution-1' :
                         'class-distribution-2'}`, {sql_filters: allSqlFilters})}
                 />
@@ -54,7 +54,7 @@ const ClassDistribution = ({timeStore}) => {
                             unit='%'
                         />
                     )}
-                    fetchData={() => metricsClient(`queries/${(mlModelType === 'IMAGE_CLASSIFIER' || mlModelType === 'UNSUPERVISED_IMAGE_CLASSIFIER' ||
+                    fetchData={() => metricsClient(`queries/${(mlModelType === 'IMAGE_CLASSIFIER' ||
                             mlModelType === 'TEXT_CLASSIFIER') ?
                         'class-distribution-1' :
                         'class-distribution-2'}`, {sql_filters: allOfflineSqlFilters})}

@@ -193,10 +193,15 @@ const PerformancePerClass = () => {
                                 <PerformanceMetricAnalysis metricUrl='recall-metric' title='Recall per class'/>
                             </Col>
                         </>
-                    ) : model.mlModelType === 'UNSUPERVISED_IMAGE_CLASSIFIER' ? (
-                        <Col lg={6}>
-                            <PerformanceMetricAnalysis metricUrl='confidence' title='Confidence per class'/>
-                        </Col>
+                    ) : model.mlModelType === 'UNSUPERVISED_IMAGE_CLASSIFIER' || model.mlModelType === 'UNSUPERVISED_TEXT_CLASSIFIER' ? (
+                        <>
+                            <Col lg={6}>
+                                <PerformanceMetricAnalysis metricUrl='confidence' title='Confidence per class'/>
+                            </Col>
+                            <Col lg={6}>
+                                <PerformanceMetricAnalysis metricUrl='entropy' title='Entropy per class'/>
+                            </Col>
+                        </>
                     ) : `Unsupported model type: ${model.mlModelType}`
                 }
             </Row>

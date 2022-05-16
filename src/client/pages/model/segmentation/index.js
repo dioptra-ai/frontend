@@ -8,6 +8,7 @@ const SegmentationDetails = (props) => {
     switch (model.mlModelType) {
 
     case 'TEXT_CLASSIFIER':
+    case 'UNSUPERVISED_TEXT_CLASSIFIER':
 
         return <TextClassifier {...props}/>;
 

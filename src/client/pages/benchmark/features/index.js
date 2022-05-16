@@ -16,7 +16,7 @@ const Features = (props) => {
     // case 'TABULAR_CLASSIFIER':
     // case 'DOCUMENT_PROCESSING':
     case 'TEXT_CLASSIFIER':
-
+    case 'UNSUPERVISED_TEXT_CLASSIFIER':
         return <TextClassifier {...props}/>;
     case 'Q_N_A':
 
