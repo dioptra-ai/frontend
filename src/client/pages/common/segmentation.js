@@ -327,7 +327,20 @@ const Segmentation = ({timeStore, segmentationStore}) => {
                                         accessor: 'value',
                                         Header: 'Sample Size'
                                     }
-                                ] : mlModelType === 'AUTO_COMPLETION' ? [{
+                                ] : mlModelType === 'UNSUPERVISED_IMAGE_CLASSIFIER' || mlModelType === 'UNSUPERVISED_TEXT_CLASSIFIER' ? [{
+                                    id: 'confidence',
+                                    Header: 'Confidence',
+                                    Cell: metricCell
+                                },
+                                {
+                                    id: 'entropy',
+                                    Header: 'Entropy',
+                                    Cell: metricCell
+                                },
+                                {
+                                    accessor: 'value',
+                                    Header: 'Sample Size'
+                                }] : mlModelType === 'AUTO_COMPLETION' ? [{
                                     id: 'exact-match',
                                     Header: 'Token Exact Match',
                                     Cell: metricCell

@@ -15,6 +15,7 @@ const Predictions = (props) => {
     // case 'DOCUMENT_PROCESSING':
     // case 'Q_N_A':
     case 'TEXT_CLASSIFIER':
+    case 'UNSUPERVISED_TEXT_CLASSIFIER':
 
         return <TextClassifier {...props}/>;
     case 'UNSUPERVISED_OBJECT_DETECTION':

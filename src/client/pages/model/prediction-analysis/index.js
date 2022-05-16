@@ -26,6 +26,7 @@ const PredictionAnalysis = (props) => {
 
         return <QNA/>;
     case 'TEXT_CLASSIFIER':
+    case 'UNSUPERVISED_TEXT_CLASSIFIER':
 
         return <TextClassifier/>;
     case 'UNSUPERVISED_OBJECT_DETECTION':

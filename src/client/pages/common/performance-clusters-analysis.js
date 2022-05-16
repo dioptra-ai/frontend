@@ -33,7 +33,8 @@ const MODEL_TYPE_TO_METRICS_NAMES = {
     'TEXT_CLASSIFIER': ['ACCURACY', 'F1_SCORE', 'PRECISION', 'RECALL'],
     'UNSUPERVISED_OBJECT_DETECTION': ['MEAN_AVERAGE_PRECISION', 'MEAN_AVERAGE_RECALL'],
     'IMAGE_CLASSIFIER': ['ACCURACY', 'PRECISION', 'F1_SCORE', 'RECALL'],
-    'UNSUPERVISED_IMAGE_CLASSIFIER': ['CONFIDENCE'],
+    'UNSUPERVISED_IMAGE_CLASSIFIER': ['CONFIDENCE', 'ENTROPY'],
+    'UNSUPERVISED_TEXT_CLASSIFIER': ['CONFIDENCE', 'ENTROPY'],
     'SEMANTIC_SIMILARITY': ['PEARSON_CONSINE', 'SPEARMAN_COSINE']
 };
 
@@ -48,13 +49,18 @@ const _PerformanceClustersAnalysis = ({clusters, onUserSelectedMetricName, onUse
     const [minerModalOpen, setMinerModalOpen] = useModal(false);
     const [distributionMetricsOptions, setDistributionMetricsOptions] = useState([]);
     const getDistributionMetricsForModel = async (modelType) => {
-        if (modelType === 'IMAGE_CLASSIFIER' || modelType === 'UNSUPERVISED_IMAGE_CLASSIFIER' || modelType === 'TEXT_CLASSIFIER') {
+        if (modelType === 'IMAGE_CLASSIFIER' || modelType === 'TEXT_CLASSIFIER') {
             return [{
                 name: 'prediction',
                 value: 'prediction'
             }, {
                 name: 'groundtruth',
                 value: 'groundtruth'
+            }];
+        } else if (modelType === 'UNSUPERVISED_IMAGE_CLASSIFIER' || modelType === 'UNSUPERVISED_TEXT_CLASSIFIER') {
+            return [{
+                name: 'prediction',
+                value: 'prediction'
             }];
         } else if (modelType === 'SPEECH_TO_TEXT') {
             const results = await metricsClient('queries/fairness-bias-columns-names-for-audio-metadata-and-tags');
@@ -258,8 +264,8 @@ const _PerformanceClustersAnalysis = ({clusters, onUserSelectedMetricName, onUse
                                                 />
                                             )}
                                             fetchData={() => metricsClient(`queries/${(model.mlModelType === 'IMAGE_CLASSIFIER' ||
-                                                            model.mlModelType === 'UNSUPERVISED_IMAGE_CLASSIFIER' ||
-                                                                model.mlModelType === 'TEXT_CLASSIFIER' || model.mlModelType === 'SPEECH_TO_TEXT') ?
+                                                            model.mlModelType === 'UNSUPERVISED_IMAGE_CLASSIFIER' || model.mlModelType === 'UNSUPERVISED_TEXT_CLASSIFIER' ||
+                                                            model.mlModelType === 'TEXT_CLASSIFIER' || model.mlModelType === 'SPEECH_TO_TEXT') ?
                                                 'class-distribution-1' :
                                                 'class-distribution-2'}`, {
                                                 sql_filters: samplesSqlFilter,

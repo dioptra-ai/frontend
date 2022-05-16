@@ -21,6 +21,7 @@ const FeatureAnalysis = () => {
     case 'SPEECH_TO_TEXT':
     case 'AUTO_COMPLETION':
     case 'SEMANTIC_SIMILARITY':
+    case 'UNSUPERVISED_TEXT_CLASSIFIER':
         return <FeatureAnalysisText/>;
     case 'TABULAR_CLASSIFIER':
 
