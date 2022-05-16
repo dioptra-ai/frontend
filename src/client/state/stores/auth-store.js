@@ -22,7 +22,7 @@ class AuthStore {
             this.userData = await authenticationClient('login');
             this.isAuthenticated = true;
         } catch (e) {
-            if (e.message === 'Unauthorized' && window.location.pathname !== '/login') {
+            if (e.message.startsWith('Unauthorized') && window.location.pathname !== '/login') {
                 window.location = '/login';
             }
         } finally {
