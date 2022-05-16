@@ -16,11 +16,11 @@ const SignedImage = ({rawUrl, ...rest}) => {
     const handleLoadError = async () => {
         if (!signedImageRequested) {
             try {
-                const signedUrl = await metricsClient('/signed-url', {
+                const s = await metricsClient('/signed-url', {
                     url: rawUrl
                 });
 
-                setSignedUrl(signedUrl[0]);
+                setSignedUrl(s[0]);
             } catch (e) {
                 if (rawUrl.includes('amazon')) {
                     setAwsS3IntegrationNotSet(true);

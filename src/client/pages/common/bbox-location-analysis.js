@@ -115,14 +115,14 @@ const BBoxLocationAnalysis = () => {
                             }
                             style={{maxHeight: 600}}
                         >
-                            {heatMapSamples.map((sample, i) => {
+                            {heatMapSamples.map((sample) => {
                                 const {image_url, width, height, bounding_box} =
                                     sample;
                                 const {video_frame, video_frame_rate} = bounding_box;
 
                                 return (
                                     <div
-                                        key={`${JSON.stringify(sample)}-${i}`}
+                                        key={JSON.stringify(sample)}
                                         className='m-4 heat-map-item'
                                     >
                                         <FrameWithBoundingBox

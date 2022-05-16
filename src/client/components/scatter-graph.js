@@ -320,9 +320,10 @@ const ScatterGraph = ({data, noveltyIsObsolete, outlierDetectionOnly}) => {
                         </div>
                     </div>
                     <div className={`d-flex p-2 overflow-auto flex-grow-0 ${samples.length ? 'justify-content-left' : 'justify-content-center align-items-center'} scatterGraph-examples`}>
-                        {samples.length ? samples.map((sample, i) => (
+                        {samples.length ? samples.map((sample) => (
                             examplesType === 'video' ? (
                                 <FrameWithBoundingBox
+                                    key={JSON.stringify(sample)}
                                     videoUrl={sample}
                                     videoControls={false}
                                     frameW={sample['image_metadata.width']}
@@ -336,6 +337,7 @@ const ScatterGraph = ({data, noveltyIsObsolete, outlierDetectionOnly}) => {
                                 />
                             ) : examplesType === 'image' ? (
                                 <PreviewImageClassification
+                                    key={JSON.stringify(sample)}
                                     sample={sample}
                                     height={200}
                                     onClick={() => setExampleInModal(sample)}
@@ -343,7 +345,7 @@ const ScatterGraph = ({data, noveltyIsObsolete, outlierDetectionOnly}) => {
                             ) :
                                 examplesType === 'text' ?
                                     <div
-                                        key={i}
+                                        key={JSON.stringify(sample)}
                                         className='d-flex cursor-pointer'
                                         onClick={() => setExampleInModal(sample)}
                                     >
