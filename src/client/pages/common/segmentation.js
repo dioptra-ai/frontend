@@ -30,6 +30,7 @@ const AddColumnModal = ({onCancel, onApply, allColumns, initiallyselected}) => {
     const featureColumns = allColumns.filter((c) => c.startsWith('features.'));
     const tagColumns = allColumns.filter((c) => c.startsWith('tags.'));
     const audioMetadataColumns = allColumns.filter((c) => c.startsWith('audio_metadata.'));
+    const textMetadataColumns = allColumns.filter((c) => c.startsWith('text_metadata.'));
     const allColumnsSet = new Set(allColumns);
     const [selectedColumns, setSelectedColumns] = useState(initiallyselected.filter((s) => allColumnsSet.has(s)));
 
@@ -90,7 +91,22 @@ const AddColumnModal = ({onCancel, onApply, allColumns, initiallyselected}) => {
                     ))}
                 </div>
             )}
-            {!tagColumns.length && !featureColumns.length && !audioMetadataColumns.length ? (
+            {textMetadataColumns.length > 0 && (
+                <div className='d-flex flex-column mb-4'>
+                    <p className='text-dark fw-bold fs-6'>TEXT METADATA</p>
+                    {textMetadataColumns.map((tag, i) => (
+                        <label className='checkbox my-2 fs-6' key={i}>
+                            <input
+                                defaultChecked={selectedColumns.includes(tag)}
+                                onChange={(e) => handleChange(e, tag)}
+                                type='checkbox'
+                            />
+                            <span className='fs-6'>{tag}</span>
+                        </label>
+                    ))}
+                </div>
+            )}
+            {!tagColumns.length && !featureColumns.length && !audioMetadataColumns.length && !textMetadataColumns.length ? (
                 <p className='text-secondary fs-6 mb-4 text-center'>No Columns Available</p>
             ) : null}
             <div className='border-top border-mercury py-3'>
@@ -338,6 +354,11 @@ const Segmentation = ({timeStore, segmentationStore}) => {
                                     Cell: metricCell
                                 },
                                 {
+                                    id: 'prediction',
+                                    Header: 'Online Predictions',
+                                    Cell: DistributionCell
+                                },
+                                {
                                     accessor: 'value',
                                     Header: 'Sample Size'
                                 }] : mlModelType === 'AUTO_COMPLETION' ? [{
@@ -418,7 +439,9 @@ const Segmentation = ({timeStore, segmentationStore}) => {
                             () => metricsClient('queries/fairness-bias-columns-names-for-features') :
                             mlModelType === 'SPEECH_TO_TEXT' ?
                                 () => metricsClient('queries/fairness-bias-columns-names-for-audio-metadata-and-tags') :
-                                () => metricsClient('queries/fairness-bias-columns-names-for-tags')
+                                (mlModelType === 'TEXT_CLASSIFIER' || mlModelType === 'UNSUPERVISED_TEXT_CLASSIFIER') ?
+                                    () => metricsClient('queries/fairness-bias-columns-names-for-text-metadata-and-tags') :
+                                    () => metricsClient('queries/fairness-bias-columns-names-for-tags')
                         }
                     />
                 )}

@@ -79,6 +79,7 @@ const Model = ({filtersStore, modelStore}) => {
         tabs.push({name: 'Performance Analysis', to: '/models/performance-details'});
         break;
     case 'TEXT_CLASSIFIER':
+    case 'UNSUPERVISED_TEXT_CLASSIFIER':
         tabs.push({name: 'Performance Analysis', to: '/models/performance-details'});
         tabs.push({name: 'Prediction Analysis', to: '/models/prediction-analysis'});
         tabs.push({name: 'Segmentation', to: '/models/segmentation'});
