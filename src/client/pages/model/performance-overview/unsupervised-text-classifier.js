@@ -71,16 +71,16 @@ const PerformanceOverview = () => {
                                     name='Entropy'
                                     subtext={sampleSizeComponent}
                                     unit='%'
-                                    value={100 * Math.abs(data?.value - 0.1703)}
+                                    value={100 * data?.value}
                                     difference={100 * (data?.value - benchmarkData?.value)}
                                 />
                             )}
                             fetchData={[
-                                () => metricsClient('confidence', {
+                                () => metricsClient('entropy', {
                                     sql_filters: allSqlFilters,
                                     model_type: 'UNSUPERVISED_TEXT_CLASSIFIER'
                                 }),
-                                () => metricsClient('confidence', {
+                                () => metricsClient('entropy', {
                                     sql_filters: sqlFiltersWithModelTime,
                                     model_type: 'UNSUPERVISED_TEXT_CLASSIFIER'
                                 })

@@ -144,17 +144,12 @@ const CorrelationToKPIs = ({timeStore, selectableMetrics}) => {
                     model_type: model.mlModelType
                 });
             },
-            [ModelPerformanceMetrics.ENTROPY.value]: async () => {
-                const fakeEntropy = await metricsClient('confidence', {
+            [ModelPerformanceMetrics.ENTROPY.value]: () => {
+                return metricsClient('entropy', {
                     sql_filters: sqlFilters,
                     time_granularity: timeGranularity,
                     model_type: model.mlModelType
                 });
-
-                return fakeEntropy.map((d) => ({
-                    ...d,
-                    value: Math.max(0, d.value - 0.05 * Math.random())
-                }));
             },
             [ModelPerformanceMetrics.COSINE_PEARSON_CORRELATION.value]: () => {
 
