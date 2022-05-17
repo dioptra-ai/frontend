@@ -1,4 +1,3 @@
-import oHash from 'object-hash';
 import PropTypes from 'prop-types';
 import {useEffect, useMemo, useRef, useState} from 'react';
 import {
@@ -13,19 +12,10 @@ import {
     ZAxis
 } from 'recharts';
 import {useThrottle} from '@react-hook/throttle';
-import {saveAs} from 'file-saver';
-import {IoDownloadOutline} from 'react-icons/io5';
-import {OverlayTrigger, Tooltip} from 'react-bootstrap';
-import {BsMinecartLoaded} from 'react-icons/bs';
 import theme from 'styles/theme.module.scss';
-import useModal from 'hooks/useModal';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
-import Modal from 'components/modal';
-import AddFilters from 'components/add-filters';
-import {Filter} from 'state/stores/filters-store';
-import MinerModal from 'components/miner-modal';
-import FrameWithBoundingBox, {PreviewImageClassification} from 'components/preview-image-classification';
+import SamplesPreview from 'components/samples-preview';
 
 const LARGE_DOT_SIZE = 200;
 const MEDIUM_DOT_SIZE = 100;
@@ -44,15 +34,11 @@ const ScatterGraph = ({data, noveltyIsObsolete, outlierDetectionOnly}) => {
     const [selectedPoints, setSelectedPoints] = useState([
         firstOutlier || firstNonOutlier
     ]);
-    const [exampleInModal, setExampleInModal] = useModal(false);
     const [shiftPressed, setShiftPressed] = useState(false);
     const [refTopLeft, setRefTopLeft] = useThrottle(null, 10, true);
     const [refBottomRight, setRefBottomRight] = useThrottle(null, 10, true);
     const [multiSelect, setMultiSelect] = useState(false);
-    const [minerModalOpen, setMinerModalOpen] = useModal(false);
     const samples = selectedPoints?.map(({sample}) => sample);
-    const sampleRequestIds = selectedPoints?.map(({request_id}) => request_id);
-    const examplesType = samples.every((s) => (/\.mp4$/).test(s)) ? 'video' : samples.every((s) => (/^https?:\/\//).test(s['image_metadata.uri'])) ? 'image' : 'text';
 
     const handleKeyDown = ({keyCode}) => {
         if (keyCode === 16) setShiftPressed(true);
@@ -278,117 +264,9 @@ const ScatterGraph = ({data, noveltyIsObsolete, outlierDetectionOnly}) => {
                 </Col>
 
                 <Col lg={8} className='rounded p-3 bg-white-blue'>
-                    <div className='text-dark m-0 bold-text d-flex justify-content-between'>
-                        <div>
-                            Total datapoints in the view: {data.length} {samples.length ? (`- Selected samples: ${samples.length}`) : null}
-                        </div>
-                        <div>
-                            <AddFilters
-                                filters={[new Filter({
-                                    left: 'request_id',
-                                    op: 'in',
-                                    right: sampleRequestIds
-                                })]}
-                                tooltipText='Filter-in these examples'
-                            />
-                            <AddFilters
-                                filters={[new Filter({
-                                    left: 'request_id',
-                                    op: 'not in',
-                                    right: sampleRequestIds
-                                })]}
-                                tooltipText='Filter-out these examples'
-                                solidIcon
-                            />
-                            <OverlayTrigger overlay={<Tooltip>Download samples as JSON</Tooltip>}>
-                                <button
-                                    className='text-dark border-0 bg-transparent click-down fs-2'
-                                    onClick={() => {
-
-                                        saveAs(new Blob([JSON.stringify(selectedPoints)], {type: 'application/json;charset=utf-8'}), 'samples.json');
-                                    }}>
-                                    <IoDownloadOutline className='fs-2 cursor-pointer'/>
-                                </button>
-                            </OverlayTrigger>
-                            <OverlayTrigger overlay={<Tooltip>Mine for Similar Datapoints</Tooltip>}>
-                                <button
-                                    className='text-dark border-0 bg-transparent click-down fs-2' onClick={() => {
-                                        setMinerModalOpen(true);
-                                    }}>
-                                    <BsMinecartLoaded className='fs-2 ps-2 cursor-pointer'/>
-                                </button>
-                            </OverlayTrigger>
-                        </div>
-                    </div>
-                    <div className={`d-flex p-2 overflow-auto flex-grow-0 ${samples.length ? 'justify-content-left' : 'justify-content-center align-items-center'} scatterGraph-examples`}>
-                        {samples.length ? samples.map((sample, i) => {
-
-                            return (
-                                examplesType === 'video' ? (
-                                    <FrameWithBoundingBox
-                                        key={`${oHash(sample)}-${i}`}
-                                        videoUrl={sample}
-                                        videoControls={false}
-                                        frameW={sample['image_metadata.width']}
-                                        frameH={sample['image_metadata.height']}
-                                        boxW={sample['image_metadata.object.width']}
-                                        boxH={sample['image_metadata.object.height']}
-                                        boxT={sample['image_metadata.object.top']}
-                                        boxL={sample['image_metadata.object.left']}
-                                        height={200}
-                                        onClick={() => setExampleInModal(sample)}
-                                    />
-                                ) : examplesType === 'image' ? (
-                                    <PreviewImageClassification
-                                        key={`${oHash(sample)}-${i}`}
-                                        sample={sample}
-                                        height={200}
-                                        onClick={() => setExampleInModal(sample)}
-                                    />
-                                ) : examplesType === 'text' ?
-                                    <div
-                                        key={`${oHash(sample)}-${i}`}
-                                        className='d-flex cursor-pointer'
-                                        onClick={() => setExampleInModal(sample)}
-                                    >
-                                        <pre>{JSON.stringify(sample, null, 4)}</pre>
-                                    </div> :
-                                    null
-                            );
-                        }) : (
-                            <h3 className='text-secondary m-0' key='nope'>No Examples Available</h3>
-                        )}
-                    </div>
+                    <SamplesPreview samples={samples}/>
                 </Col>
             </Row>
-            {exampleInModal && (
-                <Modal isOpen={true} onClose={() => setExampleInModal(null)} title='Example'>
-                    {examplesType === 'image' ? (
-                        <PreviewImageClassification
-                            sample={exampleInModal}
-                            height={600}
-                            zoomable
-                        />
-                    ) : examplesType === 'video' ? (
-                        <FrameWithBoundingBox
-                            videoUrl={exampleInModal}
-                            videoControls
-                            frameW={exampleInModal['image_metadata.width']}
-                            frameH={exampleInModal['image_metadata.height']}
-                            boxW={exampleInModal['image_metadata.object.width']}
-                            boxH={exampleInModal['image_metadata.object.height']}
-                            boxT={exampleInModal['image_metadata.object.top']}
-                            boxL={exampleInModal['image_metadata.object.left']}
-                            height={600}
-                            zoomable
-                        />
-                    ) : examplesType === 'text' ?
-                        <pre>{JSON.stringify(exampleInModal, null, 4)}</pre> :
-                        null
-                    }
-                </Modal>
-            )}
-            <MinerModal isOpen={minerModalOpen} onClose={() => setMinerModalOpen(false)} requestIds={selectedPoints.map((p) => p['request_id'])}/>
         </>
     );
 };

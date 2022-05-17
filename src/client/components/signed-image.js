@@ -1,6 +1,6 @@
 import metricsClient from 'clients/metrics';
 import PropTypes from 'prop-types';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Button from 'react-bootstrap/Button';
 import {useHistory} from 'react-router-dom';
 
@@ -12,6 +12,11 @@ const SignedImage = ({rawUrl, ...rest}) => {
     const [gcpIntegrationNotSet, setGcpIntegrationNotSet] = useState(false);
 
     const history = useHistory();
+
+    useEffect(() => {
+        setSignedUrl(rawUrl);
+        setSignedImageRequested(false);
+    }, [rawUrl]);
 
     const handleLoadError = async () => {
         if (!signedImageRequested) {

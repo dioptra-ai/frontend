@@ -17,7 +17,7 @@ const FrameWithBoundingBox = ({videoUrl, imageUrl, frameH, boxW, boxH, boxT, box
                     <div className={`${onClick ? 'cursor-pointer' : zoomable ? 'cursor-grab' : ''} d-flex flex-column align-items-center`} >
                         <div>
                             {zoomable ? (
-                                <div className='position-absolute bg-white fs-2' style={{zIndex: 1}}>
+                                <div className='position-absolute bg-white fs-2' style={{zIndex: 1, top: -1, left: -1}}>
                                     <VscZoomOut className='cursor-pointer' onClick={() => zoomOut()}/>
                                     <VscZoomIn className='cursor-pointer' onClick={() => zoomIn()}/>
                                     <VscDiscard className='cursor-pointer' onClick={() => resetTransform()}/>
@@ -82,14 +82,14 @@ FrameWithBoundingBox.propTypes = {
     videoUrl: PropTypes.string,
     videoSeekToSec: PropTypes.number,
     imageUrl: PropTypes.string,
-    frameH: PropTypes.number,
-    boxW: PropTypes.number,
-    boxH: PropTypes.number,
-    boxT: PropTypes.number,
-    boxL: PropTypes.number,
+    frameH: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    boxW: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    boxH: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    boxT: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    boxL: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     prediction: PropTypes.string,
     groundtruth: PropTypes.string,
-    height: PropTypes.number.isRequired,
+    height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
     videoControls: PropTypes.bool,
     onClick: PropTypes.func,
     zoomable: PropTypes.bool

@@ -1,4 +1,5 @@
 /* eslint-disable complexity */
+import PropTypes from 'prop-types';
 import metricsClient from 'clients/metrics';
 import Async from 'components/async';
 import DateTimeRangePicker from 'components/date-time-range-picker';
@@ -6,7 +7,6 @@ import Modal from 'components/modal';
 import Select from 'components/select';
 import {lastMilliseconds} from 'helpers/date-helper';
 import useModel from 'hooks/use-model';
-import {PropTypes} from 'mobx-react';
 import moment from 'moment';
 import {useState} from 'react';
 import Button from 'react-bootstrap/Button';
