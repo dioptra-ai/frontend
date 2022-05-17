@@ -21,7 +21,7 @@ const UnsupervisedObjectDetection = () => {
                                 value: my_percentage,
                                 fill: getHexColor(prediction)
                             }))}
-                            title='Online Class Distribution'
+                            title='Predicted Class Distribution'
                             unit='%'
                         />
                     )}

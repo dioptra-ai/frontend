@@ -1,7 +1,6 @@
 import useModel from 'hooks/use-model';
 import UnsupervisedObjectDetection from './unsupervised-object-detection';
-import TextClassifier from './text-classifier';
-import ImageClassifier from './image-classifier';
+import Classifier from './classifier';
 
 const Predictions = (props) => {
     const model = useModel();
@@ -9,15 +8,9 @@ const Predictions = (props) => {
     switch (model.mlModelType) {
     case 'IMAGE_CLASSIFIER':
     case 'UNSUPERVISED_IMAGE_CLASSIFIER':
-
-        return <ImageClassifier {...props}/>;
-    // case 'TABULAR_CLASSIFIER':
-    // case 'DOCUMENT_PROCESSING':
-    // case 'Q_N_A':
     case 'TEXT_CLASSIFIER':
     case 'UNSUPERVISED_TEXT_CLASSIFIER':
-
-        return <TextClassifier {...props}/>;
+        return <Classifier {...props}/>;
     case 'UNSUPERVISED_OBJECT_DETECTION':
 
         return <UnsupervisedObjectDetection {...props}/>;
