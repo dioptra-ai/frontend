@@ -5,25 +5,18 @@ import Col from 'react-bootstrap/Col';
 import {Scatter, Tooltip as ScatterTooltip} from 'recharts';
 import {OverlayTrigger, Tooltip} from 'react-bootstrap';
 import {IoDownloadOutline} from 'react-icons/io5';
-import {BsMinecartLoaded} from 'react-icons/bs';
 import {saveAs} from 'file-saver';
 import {SpinnerWrapper} from 'components/spinner';
-import Table from 'components/table';
 import Select from 'components/select';
 import {getHexColor} from 'helpers/color-helper';
 import BarGraph from 'components/bar-graph';
 import Async from 'components/async';
 import useAllSqlFilters from 'hooks/use-all-sql-filters';
 import ClusterGraph from 'components/cluster-graph';
-import useModal from 'hooks/useModal';
-import Modal from 'components/modal';
 import metricsClient from 'clients/metrics';
-import AddFilters from 'components/add-filters';
-import {Filter} from 'state/stores/filters-store';
-import {PreviewImageClassification} from 'components/preview-image-classification';
-import MinerModal from 'components/miner-modal';
 import useModel from 'hooks/use-model';
 import Form from 'react-bootstrap/Form';
+import SamplesPreview from 'components/samples-preview';
 
 // Keep this in sync with metrics-engine/handlers/clusters.py
 const MODEL_TYPE_TO_METRICS_NAMES = {
@@ -45,8 +38,6 @@ const _PerformanceClustersAnalysis = ({clusters, onUserSelectedMetricName, onUse
     const [userSelectedSummaryDistribution, setUserSelectedSummaryDistribution] = useState('prediction');
     const [selectedClusterIndex, setSelectedClusterIndex] = useState();
     const [selectedPoints, setSelectedPoints] = useState(null);
-    const [exampleInModal, setExampleInModal] = useModal(false);
-    const [minerModalOpen, setMinerModalOpen] = useModal(false);
     const [distributionMetricsOptions, setDistributionMetricsOptions] = useState([]);
     const getDistributionMetricsForModel = async (modelType) => {
         if (modelType === 'IMAGE_CLASSIFIER' || modelType === 'TEXT_CLASSIFIER') {
@@ -283,95 +274,11 @@ const _PerformanceClustersAnalysis = ({clusters, onUserSelectedMetricName, onUse
                 <Row>
                     <Col className='px-3'>
                         <div className='bg-white-blue rounded p-3'>
-                            <div className='text-dark bold-text d-flex align-items-center justify-content-between'>
-                                <span>Examples {samples?.length ? `(${samples.length} total)` : ''}</span>
-                                <div className='d-flex align-items-center'>
-                                    <AddFilters
-                                        disabled={!samples?.length}
-                                        filters={[new Filter({
-                                            left: 'request_id',
-                                            op: 'in',
-                                            right: samples.map((s) => s.request_id)
-                                        })]}
-                                        tooltipText='Filter-in these examples'
-                                    />
-                                    <OverlayTrigger overlay={<Tooltip>Download samples as JSON</Tooltip>}>
-                                        <IoDownloadOutline className='fs-2 cursor-pointer' onClick={() => {
-
-                                            saveAs(new Blob([JSON.stringify(samples)], {type: 'application/json;charset=utf-8'}), 'samples.json');
-                                        }}/>
-                                    </OverlayTrigger>
-                                    <OverlayTrigger overlay={<Tooltip>Mine for Similar Datapoints</Tooltip>}>
-                                        <BsMinecartLoaded className='fs-2 ps-2 cursor-pointer' onClick={() => {
-                                            setMinerModalOpen(true);
-                                        }}/>
-                                    </OverlayTrigger>
-                                </div>
-                            </div>
-                            <Row className={'p-2 overflow-auto scatterGraph-examples'}>
-                                {samples.length ? samples.slice(0, 100).map((sample) => {
-                                    if (sample['image_metadata.uri']) {
-
-                                        return (
-                                            <Col
-                                                xs={6} md={4} xl={3}
-                                                key={JSON.stringify(sample)}
-                                                className='p-4 heat-map-item cursor-pointer'
-                                            >
-                                                <PreviewImageClassification
-                                                    sample={sample}
-                                                    height={200}
-                                                    onClick={() => setExampleInModal(sample)}
-                                                />
-                                            </Col>
-                                        );
-                                    } else {
-
-                                        return (
-                                            <Col
-                                                xs={6} md={4} xl={3} xxl={2}
-                                                key={JSON.stringify(sample)}
-                                                className='d-flex cursor-pointer'
-                                                onClick={() => setExampleInModal(sample)}
-                                            >
-                                                <pre>{JSON.stringify(sample, null, 4)}</pre>
-                                            </Col>
-                                        );
-                                    }
-                                }) : (
-                                    <h3 className='text-secondary m-0'>No Examples Selected</h3>
-                                )}
-                            </Row>
+                            <SamplesPreview samples={samples} />
                         </div>
                     </Col>
                 </Row>
             </SpinnerWrapper>
-            {exampleInModal ? (
-                <Modal isOpen onClose={() => setExampleInModal(null)} title=''>
-                    {
-                        exampleInModal['image_metadata.uri'] ? (
-                            <div
-                                className='m-4 heat-map-item'
-                            >
-                                <PreviewImageClassification
-                                    sample={exampleInModal}
-                                    height={600}
-                                    zoomable
-                                />
-                            </div>
-                        ) : (
-                            <Table
-                                columns={Object.keys(exampleInModal).map((k) => ({
-                                    Header: k,
-                                    accessor: (c) => <pre style={{textAlign: 'left', whiteSpace: 'break-spaces'}}>{c[k]}</pre>
-                                }))}
-                                data={[exampleInModal]}
-                            />
-                        )
-                    }
-                </Modal>
-            ) : null}
-            <MinerModal isOpen={minerModalOpen} onClose={() => setMinerModalOpen(false)} requestIds={samples.map((s) => s['request_id'])}/>
         </>
     );
 };
