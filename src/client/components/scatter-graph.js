@@ -1,3 +1,4 @@
+import oHash from 'object-hash';
 import PropTypes from 'prop-types';
 import {useEffect, useMemo, useRef, useState} from 'react';
 import {
@@ -320,41 +321,42 @@ const ScatterGraph = ({data, noveltyIsObsolete, outlierDetectionOnly}) => {
                         </div>
                     </div>
                     <div className={`d-flex p-2 overflow-auto flex-grow-0 ${samples.length ? 'justify-content-left' : 'justify-content-center align-items-center'} scatterGraph-examples`}>
-                        {samples.length ? samples.map((sample) => (
-                            examplesType === 'video' ? (
-                                <FrameWithBoundingBox
-                                    key={JSON.stringify(sample)}
-                                    videoUrl={sample}
-                                    videoControls={false}
-                                    frameW={sample['image_metadata.width']}
-                                    frameH={sample['image_metadata.height']}
-                                    boxW={sample['image_metadata.object.width']}
-                                    boxH={sample['image_metadata.object.height']}
-                                    boxT={sample['image_metadata.object.top']}
-                                    boxL={sample['image_metadata.object.left']}
-                                    height={200}
-                                    onClick={() => setExampleInModal(sample)}
-                                />
-                            ) : examplesType === 'image' ? (
-                                <PreviewImageClassification
-                                    key={JSON.stringify(sample)}
-                                    sample={sample}
-                                    height={200}
-                                    onClick={() => setExampleInModal(sample)}
-                                />
-                            ) :
-                                examplesType === 'text' ?
+                        {samples.length ? samples.map((sample, i) => {
+
+                            return (
+                                examplesType === 'video' ? (
+                                    <FrameWithBoundingBox
+                                        key={`${oHash(sample)}-${i}`}
+                                        videoUrl={sample}
+                                        videoControls={false}
+                                        frameW={sample['image_metadata.width']}
+                                        frameH={sample['image_metadata.height']}
+                                        boxW={sample['image_metadata.object.width']}
+                                        boxH={sample['image_metadata.object.height']}
+                                        boxT={sample['image_metadata.object.top']}
+                                        boxL={sample['image_metadata.object.left']}
+                                        height={200}
+                                        onClick={() => setExampleInModal(sample)}
+                                    />
+                                ) : examplesType === 'image' ? (
+                                    <PreviewImageClassification
+                                        key={`${oHash(sample)}-${i}`}
+                                        sample={sample}
+                                        height={200}
+                                        onClick={() => setExampleInModal(sample)}
+                                    />
+                                ) : examplesType === 'text' ?
                                     <div
-                                        key={JSON.stringify(sample)}
+                                        key={`${oHash(sample)}-${i}`}
                                         className='d-flex cursor-pointer'
                                         onClick={() => setExampleInModal(sample)}
                                     >
                                         <pre>{JSON.stringify(sample, null, 4)}</pre>
                                     </div> :
                                     null
-
-                        )) : (
-                            <h3 className='text-secondary m-0'>No Examples Available</h3>
+                            );
+                        }) : (
+                            <h3 className='text-secondary m-0' key='nope'>No Examples Available</h3>
                         )}
                     </div>
                 </Col>
