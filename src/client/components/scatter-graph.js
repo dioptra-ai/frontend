@@ -220,6 +220,16 @@ const ScatterGraph = ({data, noveltyIsObsolete, outlierDetectionOnly}) => {
                                 isAnimationActive={false}
                                 cursor='pointer'
                                 onClick={handlePointSelect}
+                                name={outlierDetectionOnly ? 'Normal' : 'Inlier'}
+                                data={inliers}
+                                fill={theme.primary}
+                                xAxisId='PCA1'
+                                yAxisId='PCA2'
+                            />
+                            <Scatter
+                                isAnimationActive={false}
+                                cursor='pointer'
+                                onClick={handlePointSelect}
                                 name='Outlier'
                                 data={outliers}
                                 fill={theme.warning}
@@ -238,16 +248,6 @@ const ScatterGraph = ({data, noveltyIsObsolete, outlierDetectionOnly}) => {
                                     yAxisId='PCA2'
                                 />
                             ) : null}
-                            <Scatter
-                                isAnimationActive={false}
-                                cursor='pointer'
-                                onClick={handlePointSelect}
-                                name={outlierDetectionOnly ? 'Normal' : 'Inlier'}
-                                data={inliers}
-                                fill={theme.primary}
-                                xAxisId='PCA1'
-                                yAxisId='PCA2'
-                            />
                             {refTopLeft && refBottomRight ? (
                                 <ReferenceArea
                                     fillOpacity={0.3}

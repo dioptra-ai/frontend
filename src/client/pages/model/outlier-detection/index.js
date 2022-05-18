@@ -1,8 +1,8 @@
 import {useState} from 'react';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import Form from 'react-bootstrap/Form';
 
-import Select from 'components/select';
 import useModel from 'hooks/use-model';
 import Async from 'components/async';
 import useAllSqlFilters from 'hooks/use-all-sql-filters';
@@ -32,30 +32,36 @@ const OutlierDetection = () => {
     return (
         <>
             <div className='my-3'>
-                <Row>
-                    <Col>Parameters</Col>
-                    <Col lg={3} style={{marginRight: -12}}>
+                <Row className='my-3'>
+                    <Col></Col>
+                    <Col lg={3}>
                         Algorithm
-                        <Select
-                            options={[{
-                                name: 'Local Outlier Factor',
-                                value: 'Local Outlier Factor'
-                            }, {
-                                name: 'Isolation Forest',
-                                value: 'Isolation Forest'
-                            }]}
-                            onChange={setUserSelectedModelName}
-                        />
+                        <Form.Control as='select' className='form-select w-100'
+                            custom required
+                            onChange={(e) => {
+                                setUserSelectedModelName(e.target.value);
+                            }}
+                        >
+                            <option>Local Outlier Factor</option>
+                            <option>Isolation Forest</option>
+                        </Form.Control>
                     </Col>
-                    <Col lg={3} style={{marginRight: -12}}>
+                    <Col lg={3}>
                         Contamination
-                        <Select
-                            options={contaminationOptions}
-                            onChange={setUserSelectedContamination}
-                        />
+                        <Form.Control as='select' className='form-select w-100'
+                            custom required
+                            onChange={(e) => {
+                                setUserSelectedContamination(e.target.value);
+                            }}
+                        >
+                            <option>auto</option>
+                            {Array(25).fill().map((_, i) => (
+                                <option value={(i + 1) / 100} key={i}>{i + 1}%</option>
+                            ))}
+                        </Form.Control>
                     </Col>
                 </Row>
-                <Row>
+                <Row className='my-3'>
                     <Col>
                         <Async
                             refetchOnChanged={[allSqlFilters, userSelectedModelName, userSelectedContamination]}
