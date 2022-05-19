@@ -1,13 +1,13 @@
 import Modal from 'components/modal';
 import PropTypes from 'prop-types';
 import {useState} from 'react';
-import Table from 'components/table';
 import useAllSqlFilters from 'hooks/use-all-sql-filters';
 import Async from 'components/async';
 import metricsClient from 'clients/metrics';
 import {IoArrowBackCircleOutline, IoCloseCircleOutline} from 'react-icons/io5';
+import SamplesPreview from 'components/samples-preview';
 
-const TabularExamples = ({onClose, groundtruth, prediction, previewColumns}) => {
+const TabularExamples = ({onClose, groundtruth, prediction}) => {
     const [exampleInModal, setExampleInModal] = useState(false);
     const allSqlFilters = useAllSqlFilters();
 
@@ -40,34 +40,9 @@ const TabularExamples = ({onClose, groundtruth, prediction, previewColumns}) => 
                     )}</pre>
             ) : (
                 <Async
-                    renderData={(data) => {
-                        const allColumns = Object.keys(data[0] || {});
-                        const nonEmptyColumns = allColumns
-                            .filter((c) => {
-                                if (previewColumns) {
-                                    return previewColumns.some((p) => c.match(p));
-                                } else return true;
-                            })
-                            .filter((column) => {
-                                return (
-                                    column !== '__time' &&
-                                    data.some((d) => d[column])
-                                );
-                            });
+                    renderData={(samples) => {
 
-                        return (
-                            <Table
-                                columns={nonEmptyColumns.map((column) => ({
-                                    accessor: (c) => c[column],
-                                    Header: column
-                                }))}
-                                data={data}
-                                getRowProps={(row) => ({
-                                    onClick: setExampleInModal.bind(null, row.original),
-                                    className: 'cursor-pointer hover'
-                                })}
-                            />
-                        );
+                        return <SamplesPreview samples={samples}/>;
                     }}
                     fetchData={() => metricsClient('queries/all_tabular_examples', {
                         groundtruth,

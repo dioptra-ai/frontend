@@ -262,7 +262,6 @@ const ScatterGraph = ({data, noveltyIsObsolete, outlierDetectionOnly}) => {
                         </ScatterChart>
                     </ResponsiveContainer>
                 </Col>
-
                 <Col lg={8} className='rounded p-3 bg-white-blue'>
                     <SamplesPreview samples={samples}/>
                 </Col>

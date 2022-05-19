@@ -1,50 +1,25 @@
 import PropTypes from 'prop-types';
-import Collapsible from 'react-collapsible';
-import {BsChevronDown, BsChevronUp} from 'react-icons/bs';
+import Col from 'react-bootstrap/Col';
+import Row from 'react-bootstrap/Row';
 
-const PreviewTextClassification = ({sample, ...rest}) => { // eslint-disable-line no-unused-vars
+const PreviewTextClassification = ({sample, onClick, ...rest}) => { // eslint-disable-line no-unused-vars
 
     return (
-        <>
-            <table>
-                <tbody>
-                    <tr>
-                        <td className='fw-bold'>Text</td>
-                        <td className='ps-1'>
-                            <Collapsible
-                                transitionTime={1} classParentString='Collapsible-min-height-100'
-                                trigger={<a className='text-dark text-decoration-underline'>more... <BsChevronDown/></a>}
-                                triggerWhenOpen={<a className='text-dark text-decoration-underline'>less... <BsChevronUp/></a>}
-                            >
-                                {sample['text']}
-                            </Collapsible>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td className='fw-bold'>Prediction</td>
-                        <td className='ps-1'>{sample['prediction']}</td>
-                    </tr>
-                    <tr>
-                        <td className='fw-bold'>Ground Truth</td>
-                        <td className='ps-1'>{sample['groundtruth']}</td>
-                    </tr>
-                </tbody>
-            </table>
-            <style dangerouslySetInnerHTML={{__html: `
-                .Collapsible-min-height-100 {
-                    display: flex;
-                    flex-flow: column-reverse;
-                }
-                .Collapsible-min-height-100__contentOuter {
-                    min-height: 100px;
-                }
-        `}}/>
-        </>
+        <div className={onClick ? 'pointer' : ''} onClick={onClick}>
+            <div>
+                Text: {sample['text']}
+            </div>
+            <Row className='mt-2'>
+                <Col xs={6}><span className='text-nowrap'>Ground Truth: </span>{sample['groundtruth']}</Col>
+                <Col xs={6}><span className='text-nowrap'>Prediction: </span>{sample['prediction']}</Col>
+            </Row>
+        </div>
     );
 };
 
 PreviewTextClassification.propTypes = {
-    sample: PropTypes.object.isRequired
+    sample: PropTypes.object.isRequired,
+    onClick: PropTypes.func
 };
 
 export default PreviewTextClassification;

@@ -6,6 +6,9 @@ import {BsMinecartLoaded} from 'react-icons/bs';
 import oHash from 'object-hash';
 import {saveAs} from 'file-saver';
 import {OverlayTrigger, Tooltip} from 'react-bootstrap';
+import Col from 'react-bootstrap/Col';
+import Row from 'react-bootstrap/Row';
+import Container from 'react-bootstrap/Container';
 
 import useModal from 'hooks/useModal';
 import {Filter} from 'state/stores/filters-store';
@@ -14,6 +17,7 @@ import AddFilters from 'components/add-filters';
 import MinerModal from 'components/miner-modal';
 import FrameWithBoundingBox, {PreviewImageClassification} from 'components/preview-image-classification';
 import {mod} from 'helpers/math';
+import PreviewTextClassification from 'components/preview-text-classification';
 
 const SamplesPreview = ({samples}) => {
     const [minerModalOpen, setMinerModalOpen] = useModal(false);
@@ -92,74 +96,105 @@ const SamplesPreview = ({samples}) => {
                     </OverlayTrigger>
                 </div>
             </div>
-            <div className={`d-flex p-2 overflow-auto flex-grow-0 ${samples.length ? 'justify-content-left' : 'justify-content-center align-items-center'} scatterGraph-examples`}>
-                {samples.length ? samples.map((sample, i) => {
+            <Container fluid>
+                <Row className='g-2'>
+                    {samples.length ? samples.map((sample, i) => {
 
-                    return (
-                        examplesType === 'video' ? (
-                            <FrameWithBoundingBox
-                                key={`${oHash(sample)}-${i}`}
-                                videoUrl={sample}
-                                videoControls={false}
-                                frameW={sample['image_metadata.width']}
-                                frameH={sample['image_metadata.height']}
-                                boxW={sample['image_metadata.object.width']}
-                                boxH={sample['image_metadata.object.height']}
-                                boxT={sample['image_metadata.object.top']}
-                                boxL={sample['image_metadata.object.left']}
-                                height={200}
-                                onClick={() => setSampleIndexInModal(i)}
-                            />
-                        ) : examplesType === 'image' ? (
-                            <PreviewImageClassification
-                                key={`${oHash(sample)}-${i}`}
-                                sample={sample}
-                                height={200}
-                                onClick={() => setSampleIndexInModal(i)}
-                            />
-                        ) : examplesType === 'text' ?
-                            <div
-                                key={`${oHash(sample)}-${i}`}
-                                className='d-flex cursor-pointer'
-                                onClick={() => setSampleIndexInModal(i)}
-                            >
-                                <pre>{JSON.stringify(sample, null, 4)}</pre>
-                            </div> :
-                            null
-                    );
-                }) : (
-                    <h3 className='text-secondary m-0' key='nope'>No Examples Available</h3>
-                )}
-            </div>
+                        if (examplesType === 'video') {
+
+                            return (
+                                <Col key={`${oHash(sample)}-${i}`} xs={6} md={4} xl={3}>
+                                    <div className='p-2 bg-white-blue border rounded' >
+                                        <FrameWithBoundingBox
+                                            videoUrl={sample}
+                                            videoControls={false}
+                                            frameW={sample['image_metadata.width']}
+                                            frameH={sample['image_metadata.height']}
+                                            boxW={sample['image_metadata.object.width']}
+                                            boxH={sample['image_metadata.object.height']}
+                                            boxT={sample['image_metadata.object.top']}
+                                            boxL={sample['image_metadata.object.left']}
+                                            height={200}
+                                            onClick={() => setSampleIndexInModal(i)}
+                                        />
+                                    </div>
+                                </Col>
+                            );
+                        } else if (examplesType === 'image') {
+
+                            return (
+                                <Col key={`${oHash(sample)}-${i}`} xs={6} md={4} xl={3}>
+                                    <div className='p-2 bg-white-blue border rounded' >
+                                        <PreviewImageClassification
+                                            sample={sample}
+                                            height={200}
+                                            onClick={() => setSampleIndexInModal(i)}
+                                        />
+                                    </div>
+                                </Col>
+                            );
+                        } else if (examplesType === 'text') {
+
+                            return (
+                                <Col xs={12}>
+                                    <div className='p-2 border-bottom' >
+                                        <PreviewTextClassification
+                                            sample={sample}
+                                            onClick={() => setSampleIndexInModal(i)}
+                                        />
+                                    </div>
+                                </Col>
+                            );
+                        } else return null;
+                    }) : (
+                        <h3 className='text-secondary m-0' key='nope'>No Data</h3>
+                    )}
+                </Row>
+            </Container>
             {exampleInModal && (
                 <Modal isOpen={true} onClose={() => setSampleIndexInModal(-1)} title=''>
                     <div className='d-flex'>
                         <div className='fs-1 p-4 bg-white-blue cursor-pointer d-flex align-items-center mx-2' onClick={handlePrevious}>
                             <GrPrevious/>
                         </div>
-                        {examplesType === 'image' ? (
-                            <PreviewImageClassification
-                                sample={exampleInModal}
-                                height={600}
-                                zoomable
-                            />
-                        ) : examplesType === 'video' ? (
-                            <FrameWithBoundingBox
-                                videoUrl={exampleInModal}
-                                videoControls
-                                frameW={exampleInModal['image_metadata.width']}
-                                frameH={exampleInModal['image_metadata.height']}
-                                boxW={exampleInModal['image_metadata.object.width']}
-                                boxH={exampleInModal['image_metadata.object.height']}
-                                boxT={exampleInModal['image_metadata.object.top']}
-                                boxL={exampleInModal['image_metadata.object.left']}
-                                height={600}
-                                zoomable
-                            />
-                        ) : examplesType === 'text' ?
-                            <pre>{JSON.stringify(exampleInModal, null, 4)}</pre> :
-                            null
-                        }
+                        <div>
+                            {examplesType === 'image' ? (
+                                <>
+                                    <PreviewImageClassification
+                                        sample={exampleInModal}
+                                        height={600}
+                                        zoomable
+                                    />
+                                    <hr/>
+                                </>
+                            ) : examplesType === 'video' ? (
+                                <>
+                                    <FrameWithBoundingBox
+                                        videoUrl={exampleInModal}
+                                        videoControls
+                                        frameW={exampleInModal['image_metadata.width']}
+                                        frameH={exampleInModal['image_metadata.height']}
+                                        boxW={exampleInModal['image_metadata.object.width']}
+                                        boxH={exampleInModal['image_metadata.object.height']}
+                                        boxT={exampleInModal['image_metadata.object.top']}
+                                        boxL={exampleInModal['image_metadata.object.left']}
+                                        height={600}
+                                        zoomable
+                                    />
+                                    <hr/>
+                                </>
+                            ) : null}
+                            <Container fluid>
+                                {
+                                    Object.keys(exampleInModal).map((k) => (
+                                        <Row key={k}>
+                                            <Col xs={4}>{k}</Col>
+                                            <Col className='text-break'>{exampleInModal[k]}</Col>
+                                        </Row>
+                                    ))
+                                }
+                            </Container>
+                        </div>
                         <div className='fs-1 p-4 bg-white-blue cursor-pointer d-flex align-items-center mx-2' onClick={handleNext}>
                             <GrNext/>
                         </div>

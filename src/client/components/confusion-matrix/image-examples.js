@@ -2,16 +2,11 @@ import PropTypes from 'prop-types';
 import {useState} from 'react';
 import Modal from 'components/modal';
 import useAllSqlFilters from 'hooks/use-all-sql-filters';
-import TabularExamples from './tabular-examples';
 import Async from 'components/async';
 import metricsClient from 'clients/metrics';
 import {IoArrowBackCircleOutline, IoCloseCircleOutline} from 'react-icons/io5';
-import AddFilters from 'components/add-filters';
-import {Filter} from 'state/stores/filters-store';
 import {PreviewImageClassification} from 'components/preview-image-classification';
-import Container from 'react-bootstrap/Container';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
+import SamplesPreview from 'components/samples-preview';
 
 const ImageExamples = ({onClose, groundtruth, prediction, iou, model}) => {
     const [exampleInModal, setExampleInModal] = useState(false);
@@ -39,61 +34,11 @@ const ImageExamples = ({onClose, groundtruth, prediction, iou, model}) => {
                     <PreviewImageClassification sample={exampleInModal} height={600} zoomable/>
                 ) : (
                     <Async
-                        renderData={(data) => {
+                        renderData={(samples) => {
 
-                            if (data.every((d) => d['image_metadata.uri'].replace(/"/g, '').match(/^https?:\/\//))) {
-
-                                return (
-                                    <>
-                                        <AddFilters
-                                            filters={[
-                                                new Filter({
-                                                    left: 'request_id',
-                                                    op: 'in',
-                                                    right: data.map(
-                                                        (d) => d['request_id']
-                                                    )
-                                                })
-                                            ]}
-                                        />
-                                        <Container>
-                                            <Row>
-                                                {data.map((sample, i) => (
-                                                    <Col
-                                                        className='mt-2 rounded cursor-pointer'
-                                                        key={i}
-                                                        xs={4}
-                                                        md={2}
-                                                    >
-                                                        <PreviewImageClassification
-                                                            height={200}
-                                                            sample={sample}
-                                                            onClick={() => setExampleInModal(sample)}
-                                                        />
-                                                    </Col>
-                                                ))}
-                                            </Row>
-                                        </Container>
-                                    </>
-                                );
-                            } else {
-
-                                return (
-                                    <>
-                                        <AddFilters filters={[new Filter({
-                                            left: 'request_id',
-                                            op: 'in',
-                                            right: data.map((d) => d['request_id'])
-                                        })]}/>
-                                        <TabularExamples
-                                            groundtruth={groundtruth}
-                                            onClose={onClose}
-                                            prediction={prediction}
-                                            previewColumns={['confidence', 'groundtruth', 'prediction', 'tags', /^text$/, 'features']}
-                                        />
-                                    </>
-                                );
-                            }
+                            return (
+                                <SamplesPreview samples={samples}/>
+                            );
                         }}
                         refetchOnChanged={[groundtruth, prediction, iou, allSqlFilters, model.mlModelType]}
                         fetchData={() => metricsClient(`queries/${model.mlModelType === 'DOCUMENT_PROCESSING' || model.mlModelType === 'UNSUPERVISED_OBJECT_DETECTION' ?
