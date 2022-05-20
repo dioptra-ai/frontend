@@ -4,14 +4,14 @@ import PropTypes from 'prop-types';
 
 import {setupComponent} from 'helpers/component-helper';
 
-const Logout = ({authStore}) => {
+const Logout = ({userStore}) => {
 
     useEffect(() => {
-        authStore.tryLogout();
+        userStore.tryLogout();
         localStorage.clear();
     });
 
-    if (authStore.isAuthenticated) {
+    if (userStore.isAuthenticated) {
 
         return 'Securely logging you out...';
     } else {
@@ -21,7 +21,7 @@ const Logout = ({authStore}) => {
 };
 
 Logout.propTypes = {
-    authStore: PropTypes.object.isRequired
+    userStore: PropTypes.object.isRequired
 };
 
 export default setupComponent(Logout);

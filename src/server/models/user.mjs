@@ -20,6 +20,12 @@ const userSchema = new Schema({
         ref: 'OrganizationMembership',
         required: true,
         autopopulate: true // This makes a loop with organizationMembershipSchema.user - use {select: '-user'} and fix all issues arising
+    },
+    cart: {
+        type: [String],
+        set (cart) {
+            return Array.from(new Set(cart));
+        }
     }
 }, {timestamps: true, toJSON: {virtuals: true}, toObject: {virtuals: true}});
 

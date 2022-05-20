@@ -2,7 +2,7 @@ import {makeAutoObservable} from 'mobx';
 import authenticationClient from 'clients/authentication';
 import userClient from 'clients/user';
 
-class AuthStore {
+class UserStore {
     _isAuthenticated = false;
 
     _userData = null;
@@ -125,4 +125,4 @@ class AuthStore {
     }
 }
 
-export const authStore = new AuthStore();
+export const userStore = new UserStore();

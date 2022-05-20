@@ -12,7 +12,7 @@ import {setupComponent} from '../helpers/component-helper';
 import {IconNames} from '../constants';
 import Spinner from 'components/spinner';
 
-const Login = ({authStore}) => {
+const Login = ({userStore}) => {
     const [loginData, setLoginData] = useState({email: '', password: ''});
     const [emailError, setEmailError] = useState('');
     const [passwordError, setPasswordError] = useState('');
@@ -27,20 +27,20 @@ const Login = ({authStore}) => {
         } else if (loginData.password === '') {
             setPasswordError('Please enter your password.');
         } else {
-            authStore.tryLogin({username: loginData.email, password: loginData.password});
+            userStore.tryLogin({username: loginData.email, password: loginData.password});
         }
     };
 
     useEffect(() => {
-        if (authStore.error) {
-            setEmailError(authStore.error);
-            setPasswordError(authStore.error);
+        if (userStore.error) {
+            setEmailError(userStore.error);
+            setPasswordError(userStore.error);
         }
-    }, [authStore.error]);
+    }, [userStore.error]);
 
-    return authStore.loading ? (
+    return userStore.loading ? (
         <Spinner/>
-    ) : authStore.isAuthenticated ? (
+    ) : userStore.isAuthenticated ? (
         <Redirect to={initialLocation} />
     ) : (
         <Container
@@ -129,7 +129,7 @@ const Login = ({authStore}) => {
 };
 
 Login.propTypes = {
-    authStore: PropTypes.object
+    userStore: PropTypes.object
 };
 
 export default setupComponent(Login);

@@ -2,13 +2,15 @@ import React, {useEffect, useState} from 'react';
 import {Button} from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import {IoRefreshSharp, IoSearchOutline} from 'react-icons/io5';
+import {BsCart4} from 'react-icons/bs';
+import {Link} from 'react-router-dom';
 
 import DateTimeRangePicker from 'components/date-time-range-picker';
 import TextInput from 'components/text-input';
 import {setupComponent} from 'helpers/component-helper';
 import baseJsonClient from 'clients/base-json-client';
 
-const GeneralSearchBar = ({shouldShowOnlySearchInput, timeStore}) => {
+const GeneralSearchBar = ({shouldShowOnlySearchInput, timeStore, userStore}) => {
     const [searchString, setSearchString] = useState('');
     const [results, setResults] = useState([]);
     const [selectedResultIndex, setSelectedResultIndex] = useState(-1);
@@ -109,22 +111,35 @@ const GeneralSearchBar = ({shouldShowOnlySearchInput, timeStore}) => {
                         start={timeStore.start}
                     />
                     <Button
-                        className='text-white d-flex align-items-center justify-content-between px-2 py-2 ms-1 btn-secondary'
+                        className='d-flex align-items-center justify-content-between px-2 py-2 ms-1 me-3 btn-secondary'
                         disabled={!timeStore.lastMs}
                         onClick={() => timeStore.refreshTimeRange()}
                         variant='primary'
                     >
-                        <IoRefreshSharp className='fs-4'/>
+                        <IoRefreshSharp className='fs-4 text-dark'/>
                     </Button>
                 </>
             )}
+            <div className='position-relative click-down'>
+                {
+                    userStore.userData.cart.length ? (
+                        <div className='position-absolute fs-5 w-100 text-center text-dark' style={{top: -16}}>
+                            {userStore.userData.cart.length}
+                        </div>
+                    ) : null
+                }
+                <Link to='/cart'>
+                    <BsCart4 className='fs-3 text-dark'/>
+                </Link>
+            </div>
         </div>
     );
 };
 
 GeneralSearchBar.propTypes = {
     shouldShowOnlySearchInput: PropTypes.bool,
-    timeStore: PropTypes.object
+    timeStore: PropTypes.object,
+    userStore: PropTypes.object
 };
 
 export default setupComponent(GeneralSearchBar);

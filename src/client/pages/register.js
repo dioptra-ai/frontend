@@ -12,7 +12,7 @@ import {setupComponent} from '../helpers/component-helper';
 import {IconNames} from '../constants';
 import {Paths} from '../configs/route-config';
 
-const Register = ({authStore}) => {
+const Register = ({userStore}) => {
     const [loginData, setLoginData] = useState({email: '', password: ''});
     const [emailError, setEmailError] = useState('');
     const [passwordError, setPasswordError] = useState('');
@@ -28,20 +28,20 @@ const Register = ({authStore}) => {
         } else if (loginData.password !== loginData.confirmPassword) {
             setConfirmPasswordError('Your password does not match.');
         } else {
-            authStore.tryRegister({username: loginData.email, password: loginData.password});
+            userStore.tryRegister({username: loginData.email, password: loginData.password});
         }
     };
 
     useEffect(() => {
-        if (authStore.error) {
-            setEmailError(authStore.error);
-            setPasswordError(authStore.error);
+        if (userStore.error) {
+            setEmailError(userStore.error);
+            setPasswordError(userStore.error);
         }
-    }, [authStore.error]);
+    }, [userStore.error]);
 
     return _WEBPACK_DEF_FLAG_DISABLE_REGISTER_ ? (
         <Redirect to='/login'/>
-    ) : authStore.isAuthenticated ? (
+    ) : userStore.isAuthenticated ? (
         <Redirect to={Paths().MODELS} />
     ) : (
         <Container
@@ -154,7 +154,7 @@ const Register = ({authStore}) => {
 };
 
 Register.propTypes = {
-    authStore: PropTypes.object
+    userStore: PropTypes.object
 };
 
 export default setupComponent(Register);

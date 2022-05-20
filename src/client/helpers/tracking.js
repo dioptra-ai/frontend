@@ -1,4 +1,4 @@
-import {authStore} from 'state/stores/auth-store';
+import {userStore} from 'state/stores/user-store';
 
 /* eslint-disable */
 !(function() {
@@ -30,8 +30,8 @@ import {authStore} from 'state/stores/auth-store';
 
 export const initializeUserTracking = () => {
     if (window.analytics) {
-        if (authStore.userData && authStore.userData.id) {
-            window.analytics.identify(authStore.userData.username);
+        if (userStore.userData && userStore.userData.id) {
+            window.analytics.identify(userStore.userData.username);
         }
 
         ['button', '.btn', 'a', '.tab', 'input', 'select', 'li[data-range-key]'].forEach((selector) => {

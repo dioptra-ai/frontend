@@ -18,8 +18,8 @@ const apiKeyClient = (method, id = '') => {
     return baseJSONClient(`/api/api-key/${id}`, {method});
 };
 
-const Profile = ({authStore}) => {
-    const {userData} = authStore;
+const Profile = ({userStore}) => {
+    const {userData} = userStore;
     const [profileData, setProfileData] = useState({
         email: userData.username,
         password: '',
@@ -42,7 +42,7 @@ const Profile = ({authStore}) => {
         } else if (profileData.password !== profileData.confirmPassword) {
             setConfirmPasswordError("Your password doesn't match");
         } else {
-            authStore.tryUpdate({
+            userStore.tryUpdate({
                 ...(profileData.email ? {username: profileData.email} : {}),
                 ...(profileData.password && profileData.confirmPassword ?
                     {password: profileData.password} :
@@ -72,7 +72,7 @@ const Profile = ({authStore}) => {
             .then((res) => {
                 setError('');
                 if (res) {
-                    authStore.tryLogin();
+                    userStore.tryLogin();
                 }
                 setOpenEditModal(false);
             })
@@ -87,7 +87,7 @@ const Profile = ({authStore}) => {
             .then((res) => {
                 setError('');
                 if (res) {
-                    authStore.tryLogin();
+                    userStore.tryLogin();
                 }
                 setOpenSwitchModal(false);
             })
@@ -95,10 +95,10 @@ const Profile = ({authStore}) => {
     };
 
     useEffect(() => {
-        if (authStore.error) {
-            setEmailError(authStore.error);
+        if (userStore.error) {
+            setEmailError(userStore.error);
         }
-    }, [authStore.error]);
+    }, [userStore.error]);
 
     useEffect(() => {
         apiKeyClient('get').then(setApiKeys);
@@ -127,7 +127,7 @@ const Profile = ({authStore}) => {
                                         ['email']: e.target.value
                                     });
                                     setEmailError('');
-                                    authStore.error = null;
+                                    userStore.error = null;
                                 }}
                                 type='email'
                                 value={profileData.email}
@@ -210,11 +210,11 @@ const Profile = ({authStore}) => {
                     </Form.Group>
                     <Button
                         className='w-100 text-white btn-submit mt-3'
-                        disabled={authStore.loading}
+                        disabled={userStore.loading}
                         type='submit'
                         variant='primary'
                     >
-                        {authStore.loading ? 'Loading...' : 'Update'}
+                        {userStore.loading ? 'Loading...' : 'Update'}
                     </Button>
                 </Form>
                 <p className='text-secondary text-center border-top border-muted mt-5 w-100'>
@@ -313,7 +313,7 @@ const Profile = ({authStore}) => {
 };
 
 Profile.propTypes = {
-    authStore: PropTypes.object
+    userStore: PropTypes.object
 };
 
 export default setupComponent(Profile);

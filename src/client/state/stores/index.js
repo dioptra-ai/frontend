@@ -2,7 +2,7 @@ import {modelStore} from './model-store';
 import {errorStore} from './error-store';
 import {timeStore} from './time-store';
 import {filtersStore} from './filters-store';
-import {authStore} from './auth-store';
+import {userStore} from './user-store';
 import {segmentationStore} from './segmentation';
 import {benchmarkStore} from './benchmark-store';
 
@@ -20,7 +20,7 @@ const stores = {
     errorStore,
     timeStore,
     filtersStore,
-    authStore,
+    userStore,
     segmentationStore,
     benchmarkStore,
     initializeStores

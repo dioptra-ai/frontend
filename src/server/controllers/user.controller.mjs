@@ -9,22 +9,29 @@ const UserRouter = express.Router();
 
 UserRouter.put('/', isAuthenticated, async (req, res, next) => {
     const UserModel = mongoose.model('User');
-    const {username, password} = req.body;
+    const {username, password, cart} = req.body;
     const authUser = req.user;
-    const existingUser = await UserModel.findOne({username});
 
     try {
-        if (existingUser && !existingUser._id.equals(authUser._id)) {
-            res.status(400);
-            throw new Error('Username already taken.');
-        } else {
-            authUser.username = username;
-            if (password) {
-                authUser.password = password;
-            }
+        if (username) {
+            const existingUser = await UserModel.findOne({username});
 
-            res.json(await authUser.save());
+            if (existingUser && !existingUser._id.equals(authUser._id)) {
+                res.status(400);
+                throw new Error('Username already taken.');
+            } else {
+                authUser.username = username;
+            }
         }
+
+        if (password) {
+            authUser.password = password;
+        }
+        if (cart) {
+            authUser.cart = cart;
+        }
+
+        res.json(await authUser.save());
     } catch (e) {
         next(e);
     }
