@@ -2,3 +2,4 @@ node_modules
 src/client/build/
 .vscode
 helm
+circleci

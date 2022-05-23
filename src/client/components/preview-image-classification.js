@@ -1,3 +1,4 @@
+import {useState} from 'react';
 import PropTypes from 'prop-types';
 import {Tooltip as BootstrapTooltip, OverlayTrigger} from 'react-bootstrap';
 import {TransformComponent, TransformWrapper} from 'react-zoom-pan-pinch';
@@ -9,13 +10,18 @@ import SignedImage from 'components/signed-image';
 import SeekableVideo from 'components/seekable-video';
 import {getHexColor} from 'helpers/color-helper';
 
-const FrameWithBoundingBox = ({videoUrl, imageUrl, frameH, boxW, boxH, boxT, boxL, prediction, groundtruth, videoSeekToSec, videoControls, height, onClick, zoomable}) => (
-    <div onClick={onClick} style={{position: 'relative'}}>
-        <TransformWrapper disabled={!zoomable}>
-            {({zoomIn, zoomOut, resetTransform}) => (
-                <>
-                    <div className={`${onClick ? 'cursor-pointer' : zoomable ? 'cursor-grab' : ''} d-flex flex-column align-items-center`} >
-                        <div>
+const FrameWithBoundingBox = ({videoUrl, imageUrl, frameH, boxW, boxH, boxT, boxL, prediction, groundtruth, videoSeekToSec, videoControls, onClick, zoomable, maxHeight}) => {
+    const [height, setHeight] = useState();
+    const handleLoad = ({target}) => {
+        setHeight(target.offsetHeight);
+    };
+
+    return (
+        <div onClick={onClick} style={{position: 'relative'}}>
+            <TransformWrapper disabled={!zoomable}>
+                {({zoomIn, zoomOut, resetTransform}) => (
+                    <>
+                        <div className={`${onClick ? 'cursor-pointer' : zoomable ? 'cursor-grab' : ''} d-flex flex-column align-items-center`} >
                             {zoomable ? (
                                 <div className='position-absolute bg-white fs-2' style={{zIndex: 1, top: -1, left: -1}}>
                                     <VscZoomOut className='cursor-pointer' onClick={() => zoomOut()}/>
@@ -28,14 +34,16 @@ const FrameWithBoundingBox = ({videoUrl, imageUrl, frameH, boxW, boxH, boxT, box
                                     <SeekableVideo
                                         url={videoUrl}
                                         seekToSecs={videoSeekToSec}
-                                        height={height}
+                                        onLoad={handleLoad}
                                         width='auto'
                                         controls={videoControls}
+                                        style={{maxHeight: maxHeight || '100%', maxWidth: '100%'}}
                                     />
                                 ) : (
                                     <SignedImage
                                         rawUrl={imageUrl}
-                                        height={height}
+                                        onLoad={handleLoad}
+                                        style={{maxHeight: maxHeight || '100%', maxWidth: '100%'}}
                                     />
                                 )}
                                 {
@@ -55,28 +63,28 @@ const FrameWithBoundingBox = ({videoUrl, imageUrl, frameH, boxW, boxH, boxT, box
                                 }
                             </TransformComponent>
                         </div>
-                    </div>
-                    <div>
-                        {prediction ? (
-                            <div className='text-dark'>
-                                <OverlayTrigger overlay={<BootstrapTooltip>Predicted: {prediction}</BootstrapTooltip>}>
-                                    <div className='text-truncate'><MdOutlineOnlinePrediction className='fs-3' style={{color: getHexColor(prediction)}}/> {prediction}</div>
-                                </OverlayTrigger>
-                            </div>
-                        ) : null}
-                        {groundtruth ? (
-                            <div className='text-dark'>
-                                <OverlayTrigger overlay={<BootstrapTooltip>Ground Truth: {groundtruth}</BootstrapTooltip>}>
-                                    <div className='text-truncate'><IoPricetagSharp className='fs-3' style={{color: getHexColor(groundtruth)}}/> {groundtruth}</div>
-                                </OverlayTrigger>
-                            </div>
-                        ) : null}
-                    </div>
-                </>
-            )}
-        </TransformWrapper>
-    </div>
-);
+                        <div>
+                            {prediction ? (
+                                <div className='text-dark'>
+                                    <OverlayTrigger overlay={<BootstrapTooltip>Predicted: {prediction}</BootstrapTooltip>}>
+                                        <div className='text-truncate'><MdOutlineOnlinePrediction className='fs-3' style={{color: getHexColor(prediction)}}/> {prediction}</div>
+                                    </OverlayTrigger>
+                                </div>
+                            ) : null}
+                            {groundtruth ? (
+                                <div className='text-dark'>
+                                    <OverlayTrigger overlay={<BootstrapTooltip>Ground Truth: {groundtruth}</BootstrapTooltip>}>
+                                        <div className='text-truncate'><IoPricetagSharp className='fs-3' style={{color: getHexColor(groundtruth)}}/> {groundtruth}</div>
+                                    </OverlayTrigger>
+                                </div>
+                            ) : null}
+                        </div>
+                    </>
+                )}
+            </TransformWrapper>
+        </div>
+    );
+};
 
 FrameWithBoundingBox.propTypes = {
     videoUrl: PropTypes.string,
@@ -89,7 +97,7 @@ FrameWithBoundingBox.propTypes = {
     boxL: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     prediction: PropTypes.string,
     groundtruth: PropTypes.string,
-    height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
+    maxHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
     videoControls: PropTypes.bool,
     onClick: PropTypes.func,
     zoomable: PropTypes.bool

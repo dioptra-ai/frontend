@@ -99,7 +99,7 @@ const DatapointsViewer = ({datapoints, onSelectedChange}) => {
                                             boxH={datapoint['image_metadata.object.height']}
                                             boxT={datapoint['image_metadata.object.top']}
                                             boxL={datapoint['image_metadata.object.left']}
-                                            height={200}
+                                            maxHeight={200}
                                             onClick={() => setSampleIndexInModal(i)}
                                         />
                                     </div>
@@ -113,7 +113,7 @@ const DatapointsViewer = ({datapoints, onSelectedChange}) => {
                                         <Form.Check type='checkbox' onChange={(e) => handleSelectDatapoint(i, e.target.checked)} checked={selectedDatapoints.has(i)}/>
                                         <PreviewImageClassification
                                             sample={datapoint}
-                                            height={200}
+                                            maxHeight={200}
                                             onClick={() => setSampleIndexInModal(i)}
                                         />
                                     </div>
@@ -163,7 +163,7 @@ const DatapointsViewer = ({datapoints, onSelectedChange}) => {
                                 <>
                                     <PreviewImageClassification
                                         sample={exampleInModal}
-                                        height={600}
+                                        maxHeight={600}
                                         zoomable
                                     />
                                     <hr/>
@@ -179,7 +179,7 @@ const DatapointsViewer = ({datapoints, onSelectedChange}) => {
                                         boxH={exampleInModal['image_metadata.object.height']}
                                         boxT={exampleInModal['image_metadata.object.top']}
                                         boxL={exampleInModal['image_metadata.object.left']}
-                                        height={600}
+                                        maxHeight={600}
                                         zoomable
                                     />
                                     <hr/>

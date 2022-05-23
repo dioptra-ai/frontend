@@ -135,7 +135,7 @@ const BBoxLocationAnalysis = () => {
                                             boxL={width * (bounding_box.x - bounding_box.w / 2)}
                                             boxT={height * (bounding_box.y - bounding_box.h / 2)}
                                             videoSeekToSec={video_frame / video_frame_rate}
-                                            height={200}
+                                            maxHeight={200}
                                             onClick={() => setExampleInModal(sample)}
                                         />
                                     </div>
@@ -166,7 +166,7 @@ const BBoxLocationAnalysis = () => {
                         boxL={exampleInModal.width * (exampleInModal.bounding_box.x - exampleInModal.bounding_box.w / 2) }
                         boxT={exampleInModal.height * (exampleInModal.bounding_box.y - exampleInModal.bounding_box.h / 2) }
                         videoSeekToSec={exampleInModal.bounding_box.video_frame / exampleInModal.bounding_box.video_frame_rate}
-                        height={600}
+                        maxHeight={600}
                     />
                 </Modal>
             ) : null}
