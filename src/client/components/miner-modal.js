@@ -354,13 +354,9 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, requestIds, modelStore}) =
                                     </div>
                                 </>
                             )}
-                            {minerStrategy === 'LOCAL_OUTLIER' && requestIds?.length < 2 ? (
+                            {minerStrategy === 'LOCAL_OUTLIER' && requestIds?.length < 50 ? (
                                 <div className='mt-3'>
-                                    <Error error={`${requestIds.length} sample is selected but at least two (2) are required to run a Local Outlier Factor miner.`} variant='warning'/>
-                                </div>
-                            ) : minerStrategy === 'NEAREST_NEIGHBORS' && requestIds?.length < 1 ? (
-                                <div className='mt-3'>
-                                    <Error error={`${requestIds.length} samples are selected but at least one (1) is required to run a Nearest Neighbor miner.`} variant='warning'/>
+                                    <Error error={`${requestIds.length} samples are selected but at least fifty (50) are required to run a Local Outlier Factor miner.`} variant='warning'/>
                                 </div>
                             ) : null}
                         </Col>
@@ -370,7 +366,7 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, requestIds, modelStore}) =
                         variant='primary'
                         type='submit'
                         disabled={
-                            requestIds?.length < 2 ||
+                            (minerStrategy === 'LOCAL_OUTLIER' && requestIds?.length < 50) ||
                                 (minerDatasetSelected && !selectedDataset) ||
                                 (!minerDatasetSelected &&
                                     liveDataType === 'range' &&
