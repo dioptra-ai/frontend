@@ -83,7 +83,7 @@ const FilterInput = ({
             } else if (newFilter.isLeftComplete) {
 
                 setShowSuggestions(true);
-                setSuggestions(['=', '<', '>', 'in', 'not in']);
+                setSuggestions(['=', '<>', '<', '>', 'like', 'not like', 'in', 'not in']);
             } else if (key) {
 
                 setShowSuggestions(true);

@@ -50,6 +50,7 @@ export class Filter {
                 case null:
                     break;
                 case '=':
+                case '<>':
                 case '>':
                 case '<':
                 case 'like':
@@ -80,6 +81,7 @@ export class Filter {
         switch (this.op) {
 
         case '=':
+        case '<>':
         case 'like':
         case 'not like':
 
@@ -105,6 +107,7 @@ export class Filter {
 
             return this.left || '';
         case '=':
+        case '<>':
         case '>':
         case '<':
         case 'like':
@@ -153,7 +156,7 @@ export class Filter {
 
     get isOpValid() {
 
-        return ['=', 'in', 'not in', '<', '>', 'like', 'not like'].includes(this.op?.toLowerCase());
+        return ['=', '<>', 'in', 'not in', '<', '>', 'like', 'not like'].includes(this.op?.toLowerCase());
     }
 
     get isLeftComplete() {
