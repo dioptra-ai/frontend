@@ -33,7 +33,7 @@ export class Filter {
     }
 
     static parse(str) {
-        const match = (/([^\s]+)(\s+(((=|in|not in|>|<)|([^\s]+))\s*)?)?([^\s]+)?/gim).exec(str);
+        const match = (/([^\s]+)(\s+(((=|in|not in|>|<|like|not like)|([^\s]+))\s*)?)?([^\s]+)?/gim).exec(str);
 
         if (match) {
             const [, left, opStart,,, validOp, /*invalidOp*/, rightStr] = match;
@@ -52,6 +52,8 @@ export class Filter {
                 case '=':
                 case '>':
                 case '<':
+                case 'like':
+                case 'not like':
                     if (rightStr) {
                         right = rightStr;
                     }
@@ -78,6 +80,8 @@ export class Filter {
         switch (this.op) {
 
         case '=':
+        case 'like':
+        case 'not like':
 
             return `"${this.left}" ${this.op} '${this.right}'`;
         case '>':
@@ -103,6 +107,8 @@ export class Filter {
         case '=':
         case '>':
         case '<':
+        case 'like':
+        case 'not like':
 
             if (this.right) {
 
@@ -147,7 +153,7 @@ export class Filter {
 
     get isOpValid() {
 
-        return ['=', 'in', 'not in', '<', '>'].includes(this.op?.toLowerCase());
+        return ['=', 'in', 'not in', '<', '>', 'like', 'not like'].includes(this.op?.toLowerCase());
     }
 
     get isLeftComplete() {
