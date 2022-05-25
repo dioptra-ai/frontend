@@ -99,11 +99,10 @@
   },
   "scripts": {
     "start": "node index.mjs",
-    "dev-server": "nodemon --watch index.mjs --watch src/server index.mjs",
-    "dev-client": "webpack --watch --mode=development",
+    "dev-server": "NODE_ENV=development nodemon --watch index.mjs --watch src/server index.mjs",
+    "dev-client": "NODE_ENV=development webpack --watch",
     "dev-lint": "esw --color --watch --cache --fix --ext .js --ext .mjs ./src",
-    "start:frontend": "webpack serve --mode=development --open --hot",
-    "build:frontend": "webpack --mode=production",
+    "build": "NODE_ENV=production webpack",
     "lint": "eslint ./src --cache --fix --ext .js --ext .mjs",
     "prepare": "husky install",
     "dev": "NODE_ENV=development npm-run-all -p dev-server dev-client dev-lint"

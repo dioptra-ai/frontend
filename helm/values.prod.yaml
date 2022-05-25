@@ -1,4 +1,5 @@
 environment: prod
+nodeEnv: production
 app:
   awsLoadBalancerSubnets:
   awsApiGatewayPlanId: 'ujyzsg'

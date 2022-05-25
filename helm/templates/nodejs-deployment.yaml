@@ -26,6 +26,8 @@ spec:
     spec:
       containers:
         - env:
+            - name: NODE_ENV
+              value: "{{ .Values.nodeEnv }}"
             - name: COOKIE_SECRET
               value: "12345"
             - name: COOKIE_DURATION_HRS

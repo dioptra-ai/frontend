@@ -1,10 +1,10 @@
 import {makeAutoObservable} from 'mobx';
+
 import authenticationClient from 'clients/authentication';
 import userClient from 'clients/user';
+import {identify, resetTracking} from 'helpers/tracking';
 
 class UserStore {
-    _isAuthenticated = false;
-
     _userData = null;
 
     _error = null;
@@ -20,18 +20,20 @@ class UserStore {
 
         try {
             this.userData = await authenticationClient('login');
-            this.isAuthenticated = true;
         } catch (e) {
             if (e.message.startsWith('Unauthorized') && window.location.pathname !== '/login') {
                 window.location = '/login';
             }
+
+            this.userData = null;
         } finally {
             this.loading = false;
         }
     }
 
     get isAuthenticated() {
-        return this._isAuthenticated;
+
+        return Boolean(this.userData);
     }
 
     get userData() {
@@ -50,11 +52,16 @@ class UserStore {
         return !this._error;
     }
 
-    set isAuthenticated(status) {
-        this._isAuthenticated = status;
-    }
-
     set userData(data) {
+
+        if (data !== this._userData) {
+            if (data) {
+                identify(data.username);
+            } else {
+                resetTracking();
+            }
+        }
+
         this._userData = data;
     }
 
@@ -75,7 +82,6 @@ class UserStore {
             window.location.reload();
         } catch (e) {
             this.userData = null;
-            this.isAuthenticated = false;
             this.error = e;
         } finally {
             this.loading = false;
@@ -89,7 +95,6 @@ class UserStore {
         try {
             await authenticationClient('logout');
             this.userData = null;
-            this.isAuthenticated = false;
         } catch (e) {
             this.error = e;
         } finally {

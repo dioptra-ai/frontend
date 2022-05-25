@@ -13,7 +13,7 @@ const jsonFetch = async (...args) => {
 
     if (responseBody.error) {
 
-        throw new Error(responseBody.error);
+        throw new Error(responseBody.error.message);
     } else if (res.ok) {
 
         return responseBody;

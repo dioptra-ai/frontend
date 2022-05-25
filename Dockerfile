@@ -16,7 +16,7 @@ COPY . .
 
 RUN PYTHONPATH=submodules/collector-py-private mkdocs build
 
-RUN npm run build:frontend
+RUN npm run build
 
 EXPOSE 4004
 

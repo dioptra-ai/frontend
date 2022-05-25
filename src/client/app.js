@@ -13,13 +13,13 @@ import DatasetsList from 'pages/datasets-list';
 import MinersList from 'pages/miners-list';
 import Cart from 'pages/cart';
 import AppContext from 'context/app-context';
-import {initializeUserTracking, trackPage} from 'helpers/tracking';
+import {initializeClickTracking, trackPage} from 'helpers/tracking';
 
 const App = () => {
     const location = useLocation();
 
     useEffect(() => {
-        initializeUserTracking();
+        initializeClickTracking();
     }, []);
 
     useEffect(() => {
