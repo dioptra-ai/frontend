@@ -25,7 +25,7 @@ const userClient = async (method, data = {}) => {
         return body;
     } else if (body.error) {
 
-        throw new Error(body.error);
+        throw new Error(body.error.message);
     } else {
 
         throw new Error(body || res.statusText);

@@ -34,8 +34,8 @@ const Register = ({userStore}) => {
 
     useEffect(() => {
         if (userStore.error) {
-            setEmailError(userStore.error);
-            setPasswordError(userStore.error);
+            setEmailError(userStore.error.message);
+            setPasswordError(userStore.error.message);
         }
     }, [userStore.error]);
 
@@ -84,6 +84,7 @@ const Register = ({userStore}) => {
                             <Form.Control
                                 className={`bg-light text-secondary ${passwordError ? 'error' : ''}`}
                                 name='password'
+                                minLength={5}
                                 onChange={(e) => {
                                     setLoginData({...loginData, ['password']: e.target.value});
                                     setPasswordError('');
@@ -92,14 +93,10 @@ const Register = ({userStore}) => {
                                 type='password'
                                 value={loginData.password}
                             />
-                            {passwordError && (
-                                <FontIcon
-                                    className='text-warning error-icon'
-                                    icon={IconNames.WARNING}
-                                    size={20}
-                                />
-                            )}
                         </InputGroup>
+                        <Form.Text muted>
+                            Your password must be 5+ characters long.
+                        </Form.Text>
                         {passwordError && (
                             <Tooltip className='p-3 mt-2' color='warning' text={passwordError} />
                         )}

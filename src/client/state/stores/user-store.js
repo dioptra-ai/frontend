@@ -76,7 +76,7 @@ class UserStore {
         } catch (e) {
             this.userData = null;
             this.isAuthenticated = false;
-            this.error = e.message;
+            this.error = e;
         } finally {
             this.loading = false;
         }

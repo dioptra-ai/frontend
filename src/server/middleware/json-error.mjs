@@ -6,7 +6,9 @@ const jsonError = (err, req, res, next) => { // eslint-disable-line no-unused-va
     }
 
     res.json({
-        error: err.message
+        error: {
+            message: err.message
+        }
     });
 };
 

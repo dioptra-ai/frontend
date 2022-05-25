@@ -72,7 +72,7 @@ module.exports = {
             template: './src/client/public/index.html'
         }),
         new webpack.DefinePlugin({
-            _WEBPACK_DEF_FLAG_DISABLE_REGISTER_: true,
+            _WEBPACK_DEF_FLAG_DISABLE_REGISTER_: false,
             _WEBPACK_DEF_OVERRIDE_ORG_ID_: process.env.OVERRIDE_DRUID_ORG_ID ? JSON.stringify(process.env.OVERRIDE_DRUID_ORG_ID) : 'false',
             _WEBPACK_DEF_ENV_: JSON.stringify(process.env.NODE_ENV)
         })
