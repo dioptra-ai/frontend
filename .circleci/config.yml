@@ -209,7 +209,7 @@ workflows:
           version: 16.4.0 # This to be kept in sync with Dockerfile
           run-command: lint
       - build_and_push_image:
-          name: build-image
+          name: build-dev-image
           account-url: AWS_ECR_ACCOUNT_URL
           aws-access-key-id: AWS_ACCESS_KEY_ID
           aws-secret-access-key: AWS_SECRET_ACCESS_KEY
@@ -238,7 +238,7 @@ workflows:
           context:
             - aws-creds
           requires:
-            - build-image
+            - build-dev-image
           filters:
             branches:
               only:
@@ -256,7 +256,7 @@ workflows:
             branches:
               ignore: /.*/
       - build_and_push_image:
-          name: build-image
+          name: build-prod-image
           account-url: AWS_ECR_ACCOUNT_URL
           aws-access-key-id: AWS_ACCESS_KEY_ID
           aws-secret-access-key: AWS_SECRET_ACCESS_KEY
@@ -287,7 +287,7 @@ workflows:
           context:
             - aws-creds
           requires:
-            - build-image
+            - build-prod-image
           filters:
             tags:
               only: /^v.*/
