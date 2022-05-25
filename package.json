@@ -102,7 +102,7 @@
     "dev-server": "NODE_ENV=development nodemon --watch index.mjs --watch src/server index.mjs",
     "dev-client": "NODE_ENV=development webpack --watch",
     "dev-lint": "esw --color --watch --cache --fix --ext .js --ext .mjs ./src",
-    "build": "NODE_ENV=production webpack",
+    "build": "webpack",
     "lint": "eslint ./src --cache --fix --ext .js --ext .mjs",
     "prepare": "husky install",
     "dev": "NODE_ENV=development npm-run-all -p dev-server dev-client dev-lint"

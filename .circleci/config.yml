@@ -262,6 +262,7 @@ workflows:
           aws-secret-access-key: AWS_SECRET_ACCESS_KEY
           create-repo: true
           dockerfile: Dockerfile
+          extra-build-args: "--build-arg NODE_ENV=production"
           executor:
             name: aws-ecr/default
             use-docker-layer-caching: true

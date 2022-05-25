@@ -16,6 +16,10 @@ COPY . .
 
 RUN PYTHONPATH=submodules/collector-py-private mkdocs build
 
+ARG NODE_ENV
+
+ENV NODE_ENV=$NODE_ENV
+
 RUN npm run build
 
 EXPOSE 4004
