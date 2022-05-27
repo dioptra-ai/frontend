@@ -5,14 +5,11 @@ import {useLocation} from 'react-router-dom';
 import {Integrations} from '../enums/integrations';
 import AwsS3Integration from './integrations/aws-s3';
 import GoogleCloudStorageIntegration from './integrations/google-cloud-storage';
-import RedashIntegration from './integrations/redash';
 
 const Settings = () => {
     const [updated, setUpdated] = useState(false);
     const [error, setError] = useState('');
-    const [selectedIntegration, setSelectedIntegration] = useState(
-        Integrations.REDASH.value
-    );
+    const [selectedIntegration, setSelectedIntegration] = useState(Integrations.AWS_S3.value);
     const [formData, setFormData] = useState();
     const location = useLocation();
 
@@ -131,13 +128,6 @@ const Settings = () => {
                     <Alert className='mt-3' variant='warning'>
                         {error}
                     </Alert>
-                )}
-
-                {selectedIntegration === Integrations.REDASH.value && (
-                    <RedashIntegration
-                        formData={formData}
-                        handleSubmit={handleSubmit}
-                    />
                 )}
                 {selectedIntegration === Integrations.AWS_S3.value && (
                     <AwsS3Integration

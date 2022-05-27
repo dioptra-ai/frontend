@@ -5,7 +5,7 @@ import Async from 'components/async';
 import MinerModal from 'components/miner-modal';
 import moment from 'moment';
 import slugify from 'slugify';
-import GeneralSearchBar from 'pages/common/general-search-bar';
+import TopBar from 'pages/common/top-bar';
 import {useEffect, useState} from 'react';
 import Table from 'react-bootstrap/Table';
 import {IoDownloadOutline} from 'react-icons/io5';
@@ -29,7 +29,7 @@ const MinersList = () => {
 
     return (
         <Menu>
-            <GeneralSearchBar shouldShowOnlySearchInput />
+            <TopBar showTimePicker />
             <div className='p-4 mt-5'>
                 <div className='d-flex justify-content-between'>
                     <span className='h2 fs-1 text-dark bold-text'>Miners</span>

@@ -84,7 +84,7 @@ const RowActions = ({row, data, fetchAgain, fetch}) => {
                                 </Form.Label>
                                 <Form.Control
                                     as='select'
-                                    className={'form-select bg-light w-100'}
+                                    className={'form-select w-100'}
                                     value={type}
                                     onChange={({target}) => setType(target.value)}
                                     custom

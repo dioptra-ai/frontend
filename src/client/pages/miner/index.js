@@ -3,7 +3,7 @@ import {useParams} from 'react-router-dom';
 
 import Menu from 'components/menu';
 import Async from 'components/async';
-import GeneralSearchBar from 'pages/common/general-search-bar';
+import TopBar from 'pages/common/top-bar';
 import baseJSONClient from 'clients/base-json-client';
 
 const Miner = () => {
@@ -11,7 +11,7 @@ const Miner = () => {
 
     return (
         <Menu>
-            <GeneralSearchBar shouldShowOnlySearchInput/>
+            <TopBar showTimePicker/>
             <Container className='bg-white-blue text-dark py-2' fluid>
                 <Async
                     fetchData={() => baseJSONClient(`/api/tasks/miners/inspect/${minerId}`, {memoized: false})}

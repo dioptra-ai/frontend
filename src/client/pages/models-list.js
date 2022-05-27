@@ -6,7 +6,7 @@ import Table from 'react-bootstrap/Table';
 import PropTypes from 'prop-types';
 import {Button} from 'react-bootstrap';
 import {Link, useHistory} from 'react-router-dom';
-import GeneralSearchBar from 'pages/common/general-search-bar';
+import TopBar from 'pages/common/top-bar';
 import {setupComponent} from 'helpers/component-helper';
 import {formatDateTime} from 'helpers/date-helper';
 import FontIcon from 'components/font-icon';
@@ -51,7 +51,7 @@ const _ModelRow = ({model, idx, color, filtersStore}) => {
             <td className='fs-6 py-2 align-middle'>
                 <Link
                     className='cursor-pointer'
-                    to='/models/performance-overview'
+                    to='/models/performance'
                     onClick={() => {
 
                         filtersStore.models = [model];
@@ -192,7 +192,7 @@ const Models = ({modelStore}) => {
 
     return (
         <>
-            <GeneralSearchBar shouldShowOnlySearchInput={true} />
+            <TopBar showTimePicker={true} />
             <div className='p-4 mt-5'>
                 <div className='d-flex justify-content-between'>
                     <span className='h2 fs-1 text-dark bold-text'>Models</span>

@@ -102,11 +102,10 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, requestIds, modelStore}) =
                 onClose={() => onClose()}
                 title={requestIds ? 'Mine for Similar Datapoints' : 'Mine for Datapoints'}
             >
-                <Form style={{minWidth: 900}}
-                    onSubmit={(e) => {
-                        e.preventDefault();
-                        createMiner();
-                    }}
+                <Form style={{minWidth: 900}} onSubmit={(e) => {
+                    e.preventDefault();
+                    createMiner();
+                }}
                 >
                     <div>
                         {
@@ -130,13 +129,11 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, requestIds, modelStore}) =
                             </InputGroup>
                             <Form.Label className='mt-3 mb-0 w-100'>Strategy</Form.Label>
                             <InputGroup className='mt-1 flex-column'>
-                                <Form.Control as='select' className='form-select bg-light w-100'
-                                    custom required
+                                <Form.Control as='select' className='form-select w-100' required
                                     onChange={(e) => {
                                         setMinerStrategy(e.target.value);
                                     }}
                                 >
-                                    <option>Select Strategy</option>
                                     {
                                         requestIds ? (
                                             <>
@@ -162,8 +159,7 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, requestIds, modelStore}) =
                                     <>
                                         <Form.Label className='mt-3 mb-0 w-100'>Metric</Form.Label>
                                         <InputGroup className='mt-1 flex-column'>
-                                            <Form.Control as='select' className={'form-select bg-light w-100'}
-                                                custom required defaultValue={minerMetric}
+                                            <Form.Control as='select' className={'form-select w-100'} required defaultValue={minerMetric}
                                                 onChange={(e) => {
                                                     setMinerMetric(e.target.value);
                                                 }}
@@ -199,7 +195,7 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, requestIds, modelStore}) =
                             <InputGroup className='mt-1 flex-column'>
                                 <Form.Control
                                     as='select'
-                                    className={'form-select bg-light w-100'}
+                                    className={'form-select w-100'}
                                     custom
                                     required
                                     onChange={(e) => {
@@ -208,7 +204,6 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, requestIds, modelStore}) =
                                         );
                                     }}
                                 >
-                                    <option disabled>Select Source</option>
                                     <option value={false}>
                                     Live traffic of {minerModel ? `"${minerModel.name}"` : 'a model'}
                                     </option>
@@ -227,7 +222,7 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, requestIds, modelStore}) =
                                             renderData={(datasets) => (
                                                 <Form.Control
                                                     as='select'
-                                                    className='form-select bg-light w-100'
+                                                    className='form-select w-100'
                                                     custom
                                                     required
                                                     onChange={(e) => {
@@ -265,7 +260,7 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, requestIds, modelStore}) =
                                     <InputGroup className='mt-1 flex-column'>
                                         <Form.Control
                                             as='select'
-                                            className='form-select bg-light w-100'
+                                            className='form-select w-100'
                                             custom
                                             required
                                             onChange={(e) => {
@@ -273,7 +268,6 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, requestIds, modelStore}) =
                                             }}
                                             defaultValue={minerModel?._id}
                                         >
-                                            <option>Select Model</option>
                                             {
                                                 modelStore.models.map((model) => (
                                                     <option value={model._id} key={model._id}>{model.name}</option>
@@ -290,14 +284,14 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, requestIds, modelStore}) =
                                             name='benchmark-type'
                                         >
                                             <ToggleButton
-                                                variant='outline-secondary'
+                                                variant='light'
                                                 id='range'
                                                 value='range'
                                             >
                                         &nbsp;Past Time Range
                                             </ToggleButton>
                                             <ToggleButton
-                                                variant='outline-secondary'
+                                                variant='light'
                                                 id='duration'
                                                 value='duration'
                                             >
@@ -365,19 +359,9 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, requestIds, modelStore}) =
                         className='w-100 text-white btn-submit mt-3'
                         variant='primary'
                         type='submit'
-                        disabled={
-                            (minerStrategy === 'LOCAL_OUTLIER' && requestIds?.length < 50) ||
-                                (minerDatasetSelected && !selectedDataset) ||
-                                (!minerDatasetSelected &&
-                                    liveDataType === 'range' &&
-                                    !referencePeriod) ||
-                                (!minerDatasetSelected &&
-                                    liveDataType === 'duration' &&
-                                    !evaluationPeriod)
-                        }
-                        onClick={() => createMiner()}
+                        disabled={minerStrategy === 'LOCAL_OUTLIER' && requestIds?.length < 50}
                     >
-                            Create Miner
+                        Create Miner
                     </Button>
                 </Form>
             </Modal>

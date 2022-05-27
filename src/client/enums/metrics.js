@@ -1,4 +1,4 @@
-const Metrics = {
+export const Metrics = {
     ACCURACY: {
         name: 'Accuracy',
         value: 'ACCURACY'
@@ -38,6 +38,22 @@ const Metrics = {
     MAR: {
         name: 'mAR',
         value: 'MAR'
+    },
+    ENTROPY: {
+        name: 'Entropy',
+        value: 'ENTROPY'
+    },
+    COSINE_PEARSON_CORRELATION: {
+        name: 'Cosine Pearson Correlation',
+        value: 'COSINE_PEARSON_CORRELATION'
+    },
+    COSINE_SPEARMAN_CORRELATION: {
+        name: 'Cosine Spearman Correlation',
+        value: 'COSINE_SPEARMAN_CORRELATION'
+    },
+    THROUGHPUT: {
+        name: 'Throughput',
+        value: 'THROUGHPUT'
     }
 };
 

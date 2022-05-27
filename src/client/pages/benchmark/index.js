@@ -5,7 +5,7 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
 import {setupComponent} from 'helpers/component-helper';
-import GeneralSearchBar from 'pages/common/general-search-bar';
+import TopBar from 'pages/common/top-bar';
 import useSyncStoresToUrl from 'hooks/use-sync-stores-to-url';
 import Container from 'react-bootstrap/Container';
 import Tabs from 'components/tabs';
@@ -88,7 +88,7 @@ const Benchmarks = ({filtersStore, modelStore, benchmarkStore}) => {
 
     return (
         <Menu>
-            <GeneralSearchBar shouldShowOnlySearchInput/>
+            <TopBar showTimePicker/>
             <Container className='bg-white-blue text-secondary py-2' fluid>
                 <Row className='align-items-center my-3 px-3'>
                     <Col className='d-flex align-items-center'>

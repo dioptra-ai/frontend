@@ -13,7 +13,7 @@ import MinerModal from 'components/miner-modal';
 import {setupComponent} from 'helpers/component-helper';
 import Menu from 'components/menu';
 import Async from 'components/async';
-import GeneralSearchBar from 'pages/common/general-search-bar';
+import TopBar from 'pages/common/top-bar';
 import metricsClient from 'clients/metrics';
 import DatapointsViewer from 'components/datapoints-viewer';
 import useModal from 'hooks/useModal';
@@ -25,7 +25,7 @@ const Cart = ({userStore}) => {
 
     return (
         <Menu>
-            <GeneralSearchBar shouldShowOnlySearchInput/>
+            <TopBar showTimePicker/>
             <div className='text-dark p-2'>
                 <div className='mb-5' style={{fontSize: 24}}>
                     Data Cart

@@ -21,14 +21,14 @@ import {formatDateTime} from 'helpers/date-helper';
 import {setupComponent} from 'helpers/component-helper';
 import fontSizes from 'styles/font-sizes.module.scss';
 
-export const CustomTooltip = ({payload, label, precisionDigits = 4}) => {
+export const CustomTooltip = ({payload, label, formatValue}) => {
     if (payload && payload.length) {
         const [{value, unit}] = payload;
 
         return (
             <div className='line-graph-tooltip bg-white p-3'>
                 <p className='text-dark bold-text fs-5 m-0'>
-                    {Number(value).toFixed(precisionDigits)}
+                    {formatValue(value)}
                     {unit}
                 </p>
                 <p
@@ -52,7 +52,7 @@ export const CustomTooltip = ({payload, label, precisionDigits = 4}) => {
 CustomTooltip.propTypes = {
     label: PropTypes.any,
     payload: PropTypes.array,
-    precisionDigits: PropTypes.number
+    formatValue: PropTypes.func
 };
 
 const AreaGraph = ({
@@ -72,7 +72,8 @@ const AreaGraph = ({
     unit,
     timeStore,
     xDataKey = 'x',
-    yDataKey = 'y'
+    yDataKey = 'y',
+    formatValue = String
 }) => {
     const granularityMs = useTimeGranularity().asMilliseconds();
     const domain = timeStore.rangeMillisec;
@@ -258,8 +259,9 @@ const AreaGraph = ({
                                 tickCount={6}
                                 yAxisId='1'
                                 unit={unit}
+                                tickFormatter={formatValue}
                             />
-                            <Tooltip content={CustomTooltip} />
+                            <Tooltip content={<CustomTooltip formatValue={formatValue}/>} />
                             <Area
                                 animationDuration={300}
                                 dataKey={yDataKey}
@@ -302,7 +304,8 @@ AreaGraph.propTypes = {
     yAxisDomain: PropTypes.array,
     yAxisName: PropTypes.string,
     xDataKey: PropTypes.string,
-    yDataKey: PropTypes.string
+    yDataKey: PropTypes.string,
+    formatValue: PropTypes.func
 };
 
 export default setupComponent(AreaGraph);

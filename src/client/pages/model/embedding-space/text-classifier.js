@@ -1,7 +1,7 @@
-import PerformanceClustersAnalysis from 'pages/common/performance-clusters-analysis';
 import Segmentation from 'pages/common/segmentation';
+import PerformanceClustersAnalysis from 'pages/common/performance-clusters-analysis';
 
-const PerformanceDetails = () => {
+const TextClassifier = () => {
 
     return (
         <div className='pb-5'>
@@ -11,4 +11,4 @@ const PerformanceDetails = () => {
     );
 };
 
-export default PerformanceDetails;
+export default TextClassifier;

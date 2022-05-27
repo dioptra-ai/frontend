@@ -1,8 +1,8 @@
 /* eslint-disable */
+import Form from 'react-bootstrap/Form';
 import baseJSONClient from 'clients/base-json-client';
 import FontIcon from 'components/font-icon';
 import Select from 'components/select';
-import TextInput from 'components/text-input';
 import TextArea from 'components/text-area';
 import { IconNames } from 'constants';
 import useModel from 'hooks/use-model';
@@ -181,7 +181,7 @@ const ConditionRow = ({
                 </Col>
                 <Col className='d-flex' xl={2}>
                     {rowState.comparator !== 'HAS_NO_VALUE' && (
-                        <TextInput
+                        <Form.Control
                             type='number'
                             className='form-control py-3 mt-0 bg-white-blue'
                             initialValue={rowState.valueToCompare}
@@ -235,7 +235,7 @@ const RecipientRow = ({
             </Col>
             }
             <Col xl={11}>
-                <TextInput
+                <Form.Control
                     className={inputStyling}
                     initialValue={rowState.address}
                     onChange={handleAddressChange}
@@ -288,7 +288,7 @@ const TagRow = ({
             <Row className='my-3'>
                 <Col xl={1}>{isFirst ? <LabelBox text='TAGS' /> : null}</Col>
                 <Col xl={5}>
-                    <TextInput
+                    <Form.Control
                         className={inputStyling}
                         initialValue={rowState.name}
                         onChange={handleNameChange}
@@ -297,7 +297,7 @@ const TagRow = ({
                 </Col>
                 <Col className='d-flex' xl={6}>
                     <div className='flex-grow-1'>
-                        <TextInput
+                        <Form.Control
                             className={inputStyling}
                             initialValue={rowState.value}
                             onChange={handleValueChange}
@@ -426,7 +426,7 @@ const AddAlertPage = (props) => {
                         }
                     </div>
                     <div className='flex-grow-1 ms-3'>
-                        <TextInput
+                        <Form.Control
                             className={inputStyling}
                             value={alertName}
                             onChange={setAlertName}

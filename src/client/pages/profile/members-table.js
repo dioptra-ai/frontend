@@ -186,7 +186,7 @@ const MembersTable = ({isAdmin, orgID}) => {
                                 </Form.Label>
                                 <Form.Control
                                     as='select'
-                                    className={'form-select bg-light w-100'}
+                                    className={'form-select w-100'}
                                     name='type'
                                     value={newMemberForm.type}
                                     onChange={handleChange}

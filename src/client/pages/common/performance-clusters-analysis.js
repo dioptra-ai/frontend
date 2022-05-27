@@ -237,7 +237,7 @@ const _PerformanceClustersAnalysis = ({clusters, onUserSelectedMetricName, onUse
                                                             <Col style={{marginRight: -12}}>
                                                                 <Form.Control
                                                                     as='select'
-                                                                    className='form-select bg-light w-100'
+                                                                    className='form-select w-100'
                                                                     custom
                                                                     required
                                                                     onChange={(e) => {
