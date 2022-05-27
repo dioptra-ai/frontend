@@ -164,7 +164,7 @@ const _PerformanceClustersAnalysis = ({clusters, onUserSelectedMetricName, onUse
                                     data={cluster.elements.filter(() => Math.random() < 500 / cluster.elements.length).map((e) => ({
                                         clusterSize: cluster.elements.length,
                                         metricValue: cluster.metric.value,
-                                        size: selectedClusterIndex === index ? 50 : 25,
+                                        size: selectedClusterIndex === index ? 100 : 50,
                                         clusterLabel: cluster.label,
                                         ...e
                                     }))}
