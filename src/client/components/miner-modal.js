@@ -143,11 +143,17 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, requestIds, modelStore}) =
                                                 <option value='NEAREST_NEIGHBORS'>
                                                 Top N Nearest Neighbors
                                                 </option>
+                                                <option value='CORESET'>
+                                                Coreset
+                                                </option>
                                             </>
                                         ) : (
                                             <>
                                                 <option value='ENTROPY'>
                                                 Top N Highest Entropy
+                                                </option>
+                                                <option value='CORESET'>
+                                                Coreset
                                                 </option>
                                             </>
                                         )
@@ -155,7 +161,7 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, requestIds, modelStore}) =
                                 </Form.Control>
                             </InputGroup>
                             {
-                                minerStrategy === 'NEAREST_NEIGHBORS' ? (
+                                minerStrategy === 'NEAREST_NEIGHBORS' || minerStrategy === 'CORESET' ? (
                                     <>
                                         <Form.Label className='mt-3 mb-0 w-100'>Metric</Form.Label>
                                         <InputGroup className='mt-1 flex-column'>
@@ -177,7 +183,7 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, requestIds, modelStore}) =
                                 ) : null
                             }
                             {
-                                minerStrategy === 'NEAREST_NEIGHBORS' || minerStrategy === 'ENTROPY' ? (
+                                minerStrategy === 'NEAREST_NEIGHBORS' || minerStrategy === 'ENTROPY' || minerStrategy === 'CORESET' ? (
                                     <>
                                         <Form.Label className='mt-3 mb-0 w-100'>N</Form.Label>
                                         <Form.Control required type='number' min={1} onChange={(e) => {
