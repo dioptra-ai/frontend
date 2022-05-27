@@ -85,6 +85,18 @@ const Performance = () => {
         break;
     }
 
+    const widgets = [];
+
+    switch (model.mlModelType) {
+    case 'UNSUPERVISED_TEXT_CLASSIFIER':
+    case 'UNSUPERVISED_IMAGE_CLASSIFIER':
+    case 'UNSUPERVISED_OBJECT_DETECTION':
+        widgets.push(<PerformancePerClass/>);
+        break;
+    default:
+        widgets.push(<GroundTruthDistribution/>, <PerformancePerClass/>, <ConfusionMatrix />);
+    }
+
     return (
         <div className='pb-5'>
             <div className='my-3'>
@@ -105,13 +117,13 @@ const Performance = () => {
                     selectableMetrics={metrics.concat('EMBEDDING_DRIFT')}
                 />
             </div>
-            <div className='my-3'>
-                <GroundTruthDistribution/>
-            </div>
-            <div className='my-3'>
-                <PerformancePerClass/>
-            </div>
-            <ConfusionMatrix />
+            {
+                widgets.map((w, i) => (
+                    <div className='my-3' key={i}>
+                        {w}
+                    </div>
+                ))
+            }
         </div>
     );
 };

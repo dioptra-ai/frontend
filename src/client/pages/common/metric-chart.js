@@ -275,7 +275,8 @@ const useMetric = (metric, timeGranularity) => {
                     model_type: model.mlModelType
                 });
             },
-            unit: ''
+            formatValue: formatPercent,
+            unit: '%'
         },
         COSINE_PEARSON_CORRELATION: {
             fetchData: () => {
@@ -286,7 +287,8 @@ const useMetric = (metric, timeGranularity) => {
                     model_type: model.mlModelType
                 });
             },
-            unit: ''
+            formatValue: formatPercent,
+            unit: '%'
         },
         COSINE_SPEARMAN_CORRELATION: {
             fetchData: () => {
@@ -297,7 +299,8 @@ const useMetric = (metric, timeGranularity) => {
                     model_type: model.mlModelType
                 });
             },
-            unit: ''
+            formatValue: formatPercent,
+            unit: '%'
         }
     }[metric];
 

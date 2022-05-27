@@ -12,9 +12,7 @@ const GroundTruthDistribution = () => {
     });
     const model = useModel();
 
-
     return (
-
         <Async
             refetchOnChanged={[allSqlFilters]}
             renderData={(data) => (
