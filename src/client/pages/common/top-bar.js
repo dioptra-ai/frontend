@@ -34,18 +34,18 @@ const TopBar = ({showTimePicker, timeStore, userStore}) => {
                     </Button>
                 </>
             )}
-            <div className='position-relative click-down'>
-                {
-                    userStore.userData.cart.length ? (
-                        <div className='position-absolute fs-5 w-100 text-center text-dark' style={{top: -16}}>
-                            {userStore.userData.cart.length}
-                        </div>
-                    ) : null
-                }
-                <Link to='/cart'>
+            <Link to='/cart'>
+                <div className='position-relative click-down'>
+                    {
+                        userStore.userData.cart.length ? (
+                            <div className='position-absolute fs-5 w-100 text-center text-dark' style={{top: -16}}>
+                                {userStore.userData.cart.length}
+                            </div>
+                        ) : null
+                    }
                     <BsCart4 className='fs-3 text-dark'/>
-                </Link>
-            </div>
+                </div>
+            </Link>
         </div>
     );
 };
