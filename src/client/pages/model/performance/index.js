@@ -8,6 +8,7 @@ import MetricChart from 'pages/common/metric-chart';
 import PerformancePerClass from 'pages/common/performance-per-class';
 import ConfusionMatrix from 'components/confusion-matrix';
 import GroundTruthDistribution from 'pages/common/groundtruth-distribution';
+import Segmentation from 'pages/common/segmentation';
 
 const Performance = () => {
     const model = useModel();
@@ -91,10 +92,10 @@ const Performance = () => {
     case 'UNSUPERVISED_TEXT_CLASSIFIER':
     case 'UNSUPERVISED_IMAGE_CLASSIFIER':
     case 'UNSUPERVISED_OBJECT_DETECTION':
-        widgets.push(<PerformancePerClass/>);
+        widgets.push(<PerformancePerClass/>, <Segmentation />);
         break;
     default:
-        widgets.push(<GroundTruthDistribution/>, <PerformancePerClass/>, <ConfusionMatrix />);
+        widgets.push(<GroundTruthDistribution/>, <PerformancePerClass/>, <ConfusionMatrix />, <Segmentation />);
     }
 
     return (

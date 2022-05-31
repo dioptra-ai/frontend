@@ -1,11 +1,11 @@
 import Segmentation from 'pages/common/segmentation';
-import PerformanceClustersAnalysis from 'pages/common/performance-clusters-analysis';
+import ClustersAnalysis from 'pages/common/clusters-analysis';
 
 const TextClassifier = () => {
 
     return (
         <div className='pb-5'>
-            <PerformanceClustersAnalysis/>
+            <ClustersAnalysis/>
             <Segmentation />
         </div>
     );

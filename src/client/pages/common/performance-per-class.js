@@ -178,34 +178,29 @@ const PerformancePerClass = () => {
     const model = useModel();
 
     return (
-        <>
-            <h3 className='text-dark bold-text fs-3 mb-3'>
-                Performance per class
-            </h3>
-            <Row>
-                {
-                    model.mlModelType === 'IMAGE_CLASSIFIER' || model.mlModelType === 'TEXT_CLASSIFIER' ? (
-                        <>
-                            <Col lg={6}>
-                                <PerformanceMetricAnalysis metricUrl='precision-metric' title='Precision per class'/>
-                            </Col>
-                            <Col lg={6}>
-                                <PerformanceMetricAnalysis metricUrl='recall-metric' title='Recall per class'/>
-                            </Col>
-                        </>
-                    ) : model.mlModelType === 'UNSUPERVISED_IMAGE_CLASSIFIER' || model.mlModelType === 'UNSUPERVISED_TEXT_CLASSIFIER' ? (
-                        <>
-                            <Col lg={6}>
-                                <PerformanceMetricAnalysis metricUrl='confidence' title='Confidence per predicted class'/>
-                            </Col>
-                            <Col lg={6}>
-                                <PerformanceMetricAnalysis metricUrl='entropy' title='Entropy per predicted class'/>
-                            </Col>
-                        </>
-                    ) : `Unsupported model type: ${model.mlModelType}`
-                }
-            </Row>
-        </>
+        <Row>
+            {
+                model.mlModelType === 'IMAGE_CLASSIFIER' || model.mlModelType === 'TEXT_CLASSIFIER' ? (
+                    <>
+                        <Col lg={6}>
+                            <PerformanceMetricAnalysis metricUrl='precision-metric' title='Precision per class'/>
+                        </Col>
+                        <Col lg={6}>
+                            <PerformanceMetricAnalysis metricUrl='recall-metric' title='Recall per class'/>
+                        </Col>
+                    </>
+                ) : model.mlModelType === 'UNSUPERVISED_IMAGE_CLASSIFIER' || model.mlModelType === 'UNSUPERVISED_TEXT_CLASSIFIER' ? (
+                    <>
+                        <Col lg={6}>
+                            <PerformanceMetricAnalysis metricUrl='confidence' title='Confidence per predicted class'/>
+                        </Col>
+                        <Col lg={6}>
+                            <PerformanceMetricAnalysis metricUrl='entropy' title='Entropy per predicted class'/>
+                        </Col>
+                    </>
+                ) : `Unsupported model type: ${model.mlModelType}`
+            }
+        </Row>
     );
 };
 

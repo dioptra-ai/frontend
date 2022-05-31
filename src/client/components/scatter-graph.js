@@ -23,16 +23,16 @@ const SMALL_DOT_SIZE = 60;
 
 const inRange = (num, min, max) => num >= min && num <= max;
 
-const ScatterGraph = ({data, noveltyIsObsolete, outlierDetectionOnly}) => {
+const ScatterGraph = ({data, noveltyIsObsolete, isDrift}) => {
     const ref = useRef();
-    const firstOutlier = useMemo(() => {
-        return data.find(({outlier}) => outlier);
+    const firstAnomaly = useMemo(() => {
+        return data.find(({anomaly}) => anomaly);
     }, [data]);
-    const firstNonOutlier = useMemo(() => {
-        return data.find(({outlier}) => !outlier);
+    const firstInlier = useMemo(() => {
+        return data.find(({anomaly}) => !anomaly);
     }, [data]);
     const [selectedPoints, setSelectedPoints] = useState([
-        firstOutlier || firstNonOutlier
+        firstAnomaly || firstInlier
     ]);
     const [shiftPressed, setShiftPressed] = useState(false);
     const [refTopLeft, setRefTopLeft] = useThrottle(null, 10, true);
@@ -49,7 +49,7 @@ const ScatterGraph = ({data, noveltyIsObsolete, outlierDetectionOnly}) => {
     };
 
     useEffect(() => {
-        setSelectedPoints([firstOutlier || firstNonOutlier]);
+        setSelectedPoints([firstAnomaly || firstInlier]);
     }, [data]);
 
     useEffect(() => {
@@ -86,23 +86,10 @@ const ScatterGraph = ({data, noveltyIsObsolete, outlierDetectionOnly}) => {
         setRefBottomRight(null);
     };
 
-    const outliers = useMemo(() => {
+    const anomalies = useMemo(() => {
 
         return data
-            .filter(({outlier}) => outlier)
-            .map((d) => ({
-                size:
-                      selectedPoints.find(({PCA1}) => d.PCA1 === PCA1) &&
-                      selectedPoints.find(({PCA2}) => d.PCA2 === PCA2) ?
-                          LARGE_DOT_SIZE :
-                          MEDIUM_DOT_SIZE,
-                ...d
-            }));
-    }, [data, selectedPoints]);
-
-    const novelty = useMemo(() => {
-
-        return data.filter(({outlier, novelty}) => !outlier && novelty)
+            .filter(({anomaly}) => anomaly)
             .map((d) => ({
                 size:
                       selectedPoints.find(({PCA1}) => d.PCA1 === PCA1) &&
@@ -115,7 +102,7 @@ const ScatterGraph = ({data, noveltyIsObsolete, outlierDetectionOnly}) => {
 
     const inliers = useMemo(() => {
 
-        return data.filter(({outlier, novelty}) => !outlier && !novelty)
+        return data.filter(({anomaly}) => !anomaly)
             .map((d) => ({
                 size:
                       selectedPoints.find(({PCA1}) => d.PCA1 === PCA1) &&
@@ -134,10 +121,8 @@ const ScatterGraph = ({data, noveltyIsObsolete, outlierDetectionOnly}) => {
 
             if (!pointExists) {
                 setSelectedPoints([...selectedPoints, point]);
-            } else if (point.outlier) {
-                setSelectedPoints([...outliers]);
-            } else if (point.novelty) {
-                setSelectedPoints([...novelty]);
+            } else if (point.anomaly) {
+                setSelectedPoints([...anomalies]);
             } else {
                 setSelectedPoints([...inliers]);
             }
@@ -209,7 +194,7 @@ const ScatterGraph = ({data, noveltyIsObsolete, outlierDetectionOnly}) => {
                                 range={[SMALL_DOT_SIZE, LARGE_DOT_SIZE]}
                                 scale='linear'
                             />
-                            <Legend wrapperStyle={{bottom: '10px'}} fill='black' />
+                            <Legend wrapperStyle={{bottom: -10}} fill='black' />
                             <defs>
                                 <linearGradient id='colorGrad' x1='0' y1='0' x2='1' y2='0'>
                                     <stop offset='50%' stopColor={theme.warning} stopOpacity={1} />
@@ -220,34 +205,36 @@ const ScatterGraph = ({data, noveltyIsObsolete, outlierDetectionOnly}) => {
                                 isAnimationActive={false}
                                 cursor='pointer'
                                 onClick={handlePointSelect}
-                                name={outlierDetectionOnly ? 'Normal' : 'Inlier'}
+                                name={isDrift ? 'Normal' : 'Inlier'}
                                 data={inliers}
                                 fill={theme.primary}
                                 xAxisId='PCA1'
                                 yAxisId='PCA2'
                             />
-                            <Scatter
-                                isAnimationActive={false}
-                                cursor='pointer'
-                                onClick={handlePointSelect}
-                                name='Outlier'
-                                data={outliers}
-                                fill={theme.warning}
-                                xAxisId='PCA1'
-                                yAxisId='PCA2'
-                            />
-                            {!outlierDetectionOnly ? (
+
+                            {isDrift ? (
                                 <Scatter
                                     isAnimationActive={false}
                                     cursor='pointer'
                                     onClick={handlePointSelect}
-                                    name={noveltyIsObsolete ? 'Obsolete' : 'Novelty'}
-                                    data={novelty}
+                                    name={noveltyIsObsolete ? 'Obsolete' : 'Drift'}
+                                    data={anomalies}
                                     fill={noveltyIsObsolete ? theme.dark : theme.success}
                                     xAxisId='PCA1'
                                     yAxisId='PCA2'
                                 />
-                            ) : null}
+                            ) : (
+                                <Scatter
+                                    isAnimationActive={false}
+                                    cursor='pointer'
+                                    onClick={handlePointSelect}
+                                    name='Outlier'
+                                    data={anomalies}
+                                    fill={theme.warning}
+                                    xAxisId='PCA1'
+                                    yAxisId='PCA2'
+                                />
+                            )}
                             {refTopLeft && refBottomRight ? (
                                 <ReferenceArea
                                     fillOpacity={0.3}
@@ -273,7 +260,7 @@ const ScatterGraph = ({data, noveltyIsObsolete, outlierDetectionOnly}) => {
 ScatterGraph.propTypes = {
     data: PropTypes.array.isRequired,
     noveltyIsObsolete: PropTypes.bool,
-    outlierDetectionOnly: PropTypes.bool
+    isDrift: PropTypes.bool
 };
 
 export default ScatterGraph;

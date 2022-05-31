@@ -1,11 +1,12 @@
 /* eslint-disable max-lines */
 import {useInView} from 'react-intersection-observer';
 import PropTypes from 'prop-types';
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
     Bar,
     BarChart,
     Cell,
+    ResponsiveContainer,
     Tooltip,
     XAxis
 } from 'recharts';
@@ -22,11 +23,11 @@ import useModal from 'hooks/useModal';
 import {getHexColor} from 'helpers/color-helper';
 import useAllSqlFilters from 'hooks/use-all-sql-filters';
 import Async from 'components/async';
+import AsyncSegmentationFields from 'components/async-segmentation-fields';
 import metricsClient from 'clients/metrics';
 import {Tooltip as BarTooltip} from 'components/bar-graph';
-import appContext from 'context/app-context';
 
-const AddColumnModal = ({onCancel, onApply, allColumns, initiallyselected}) => {
+const AddColumnModal = ({onApply, allColumns, initiallyselected}) => {
     const featureColumns = allColumns.filter((c) => c.startsWith('features.'));
     const tagColumns = allColumns.filter((c) => c.startsWith('tags.'));
     const audioMetadataColumns = allColumns.filter((c) => c.startsWith('audio_metadata.'));
@@ -45,7 +46,7 @@ const AddColumnModal = ({onCancel, onApply, allColumns, initiallyselected}) => {
     };
 
     return (
-        <Modal isOpen onClose={onCancel} title='Add or remove columns from the table'>
+        <>
             {featureColumns.length > 0 && (
                 <div className='d-flex flex-column mb-4'>
                     <p className='text-dark fw-bold fs-6'>FEATURES</p>
@@ -117,22 +118,14 @@ const AddColumnModal = ({onCancel, onApply, allColumns, initiallyselected}) => {
                 >
           APPLY
                 </Button>
-                <Button
-                    className='text-secondary fw-bold fs-6 px-5 py-2 mx-3'
-                    onClick={onCancel}
-                    variant='light-blue'
-                >
-          CANCEL
-                </Button>
             </div>
-        </Modal>
+        </>
     );
 };
 
 AddColumnModal.propTypes = {
     allColumns: PropTypes.array,
     onApply: PropTypes.func,
-    onCancel: PropTypes.func,
     initiallyselected: PropTypes.array
 };
 
@@ -158,21 +151,23 @@ const _DistributionCell = ({row, segmentationStore}) => {
     }, [inView, allSqlFilters, groupByColumns.join()]);
 
     return (
-        <div ref={ref}>
-            {distributionData.length > 25 ? (
+        <div ref={ref} className='d-flex justify-content-center'>
+            {distributionData.length > 100 ? (
                 <Alert variant='secondary'>
-                    Too many classes.
+                    {distributionData.length} classes
                 </Alert>
             ) : (
-                <BarChart data={distributionData.map((d) => ({...d, value: 100 * d.value}))} height={150} width={150}>
-                    <Tooltip content={<BarTooltip unit='%'/>}/>
-                    <Bar background={false} dataKey='value' minPointSize={2}>
-                        {distributionData.map((d, i) => (
-                            <Cell accentHeight='0px' fill={getHexColor(d.name, 0.65)} key={i} />
-                        ))}
-                    </Bar>
-                    <XAxis dataKey='name' tick={false}/>
-                </BarChart>
+                <ResponsiveContainer height={150} width='100%'>
+                    <BarChart data={distributionData.map((d) => ({...d, value: 100 * d.value}))}>
+                        <Tooltip content={<BarTooltip unit='%'/>}/>
+                        <Bar background={false} dataKey='value' minPointSize={2}>
+                            {distributionData.map((d, i) => (
+                                <Cell accentHeight='0px' fill={getHexColor(d.name, 0.65)} key={i} />
+                            ))}
+                        </Bar>
+                        <XAxis dataKey='name' tick={false}/>
+                    </BarChart>
+                </ResponsiveContainer>
             )
             }
         </div>
@@ -228,12 +223,11 @@ _metricCell.propTypes = {
 
 const metricCell = setupComponent(_metricCell);
 
-const Segmentation = ({timeStore, segmentationStore}) => {
+const Segmentation = ({segmentationStore}) => {
     const allSqlFilters = useAllSqlFilters();
     const [addColModal, setAddColModal] = useModal(false);
     const groupByColumns = segmentationStore.segmentation;
-    const {mlModelType, mlModelId} = useModel();
-    const {isModelView} = useContext(appContext);
+    const {mlModelType} = useModel();
     const handleApply = (cols) => {
         segmentationStore.segmentation = cols;
         setAddColModal(false);
@@ -413,37 +407,15 @@ const Segmentation = ({timeStore, segmentationStore}) => {
                     }) : Promise.resolve([])}
                 />
                 {addColModal && (
-                    <Async
-                        renderData={(featuresAndTags) => featuresAndTags.length ? (
-                            <Async
-                                renderData={([data]) => (
-                                    <AddColumnModal
-                                        allColumns={featuresAndTags
-                                            .filter((_, i) => data && data[i] > 0)
-                                            .map((d) => d.column)}
-                                        onApply={handleApply}
-                                        onCancel={() => setAddColModal(false)}
-                                        initiallyselected={groupByColumns}
-                                    />
-                                )}
-                                resultFormat='array'
-                                fetchData={() => metricsClient('queries/fairness-bias-columns-counts', {
-                                    counts: featuresAndTags.map(({column}) => `COUNT("${column}")`).join(', '),
-                                    sql_time_filter: isModelView ? timeStore.sqlTimeFilter : 'TRUE',
-                                    ml_model_id: mlModelId
-                                })}
+                    <Modal isOpen onClose={() => setAddColModal(false)} title='Choose Segmentation Columns'>
+                        <AsyncSegmentationFields renderData={([data]) => (
+                            <AddColumnModal
+                                allColumns={Object.keys(data).filter((k) => data[k] > 0)}
+                                onApply={handleApply}
+                                initiallyselected={groupByColumns}
                             />
-                        ) : null
-                        }
-                        fetchData={mlModelType === 'TABULAR_CLASSIFIER' ?
-                            () => metricsClient('queries/fairness-bias-columns-names-for-features') :
-                            mlModelType === 'SPEECH_TO_TEXT' ?
-                                () => metricsClient('queries/fairness-bias-columns-names-for-audio-metadata-and-tags') :
-                                (mlModelType === 'TEXT_CLASSIFIER' || mlModelType === 'UNSUPERVISED_TEXT_CLASSIFIER') ?
-                                    () => metricsClient('queries/fairness-bias-columns-names-for-text-metadata-and-tags') :
-                                    () => metricsClient('queries/fairness-bias-columns-names-for-tags')
-                        }
-                    />
+                        )}/>
+                    </Modal>
                 )}
             </div>
         </div>

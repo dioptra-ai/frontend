@@ -1,14 +1,14 @@
 import PropTypes from 'prop-types';
 import Form from 'react-bootstrap/Form';
 
-const Select = ({options = [], onChange, ...rest}) => {
+const Select = ({options = [], onChange, children, ...rest}) => {
 
     return (
         <Form.Control as='select' className='form-select'{...rest} onChange={(e) => {
             onChange?.(e.target.value);
         }}>
             {
-                options.map(({name, value}) => (
+                children || options.map(({name, value}) => (
                     <option value={value} key={value}>{name || value}</option>
                 ))
             }
@@ -21,7 +21,8 @@ Select.propTypes = {
         name: PropTypes.node,
         value: PropTypes.any
     })),
-    onChange: PropTypes.func
+    onChange: PropTypes.func,
+    children: PropTypes.node
 };
 
 export default Select;

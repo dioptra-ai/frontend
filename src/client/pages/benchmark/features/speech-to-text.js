@@ -1,9 +1,9 @@
-import PerformanceClustersAnalysis from 'pages/common/performance-clusters-analysis';
+import ClustersAnalysis from 'pages/common/clusters-analysis';
 
 const SpeechToText = () => {
 
     return (
-        <PerformanceClustersAnalysis/>
+        <ClustersAnalysis/>
     );
 };
 

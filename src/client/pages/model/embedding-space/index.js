@@ -1,25 +1,37 @@
-import useModel from 'hooks/use-model';
-import TextClassifier from './text-classifier';
-import ImageClassifier from './image-classifier';
+import {useState} from 'react';
 
-const SegmentationDetails = (props) => {
-    const model = useModel();
+import Select from 'components/select';
+import OutliersOrDrift from 'pages/common/outliers-or-drift';
+import ClustersAnalysis from 'pages/common/clusters-analysis';
 
-    switch (model.mlModelType) {
-
-    case 'TEXT_CLASSIFIER':
-    case 'UNSUPERVISED_TEXT_CLASSIFIER':
-
-        return <TextClassifier {...props}/>;
-
-    case 'IMAGE_CLASSIFIER':
-    case 'UNSUPERVISED_IMAGE_CLASSIFIER':
-
-        return <ImageClassifier {...props}/>;
-    default:
-
-        return null;
-    }
+const ANALYSES = {
+    CLUSTERING: 'Clustering',
+    OUTLIER: 'Outlier Detection',
+    DRIFT: 'Drift Detection'
 };
 
-export default SegmentationDetails;
+const EmbeddingSpace = () => {
+    const analysesKeys = Object.keys(ANALYSES);
+    const [selectedAnalysis, setSelectedAnalysis] = useState(analysesKeys[0]);
+
+    return (
+        <>
+            <Select required defaultValue={selectedAnalysis} onChange={setSelectedAnalysis}>
+                {
+                    analysesKeys.map((k) => (
+                        <option value={k} key={k}>{ANALYSES[k]}</option>
+                    ))
+                }
+            </Select>
+            <div className='my-3'>
+                {
+                    selectedAnalysis === 'DRIFT' ? <OutliersOrDrift isDrift/> :
+                        selectedAnalysis === 'OUTLIER' ? <OutliersOrDrift/> :
+                            selectedAnalysis === 'CLUSTERING' ? <ClustersAnalysis /> : null
+                }
+            </div>
+        </>
+    );
+};
+
+export default EmbeddingSpace;

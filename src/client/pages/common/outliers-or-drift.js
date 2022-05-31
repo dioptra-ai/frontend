@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import {useState} from 'react';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -9,13 +10,12 @@ import useAllSqlFilters from 'hooks/use-all-sql-filters';
 import ScatterGraph from 'components/scatter-graph';
 import metricsClient from 'clients/metrics';
 
-const OutlierDetection = () => {
+const OutliersOrDrift = ({isDrift}) => {
     const {mlModelType} = useModel();
     const allSqlFilters = useAllSqlFilters();
-    // const allOfflineSqlFilters = useAllSqlFilters({useReferenceFilters: true});
-
     const [userSelectedModelName, setUserSelectedModelName] = useState('Local Outlier Factor');
     const [userSelectedContamination, setUserSelectedContamination] = useState('auto');
+    const referenceFilters = isDrift && useAllSqlFilters({useReferenceFilters: true});
 
     const contaminationOptions = [{
         name: 'auto',
@@ -64,26 +64,25 @@ const OutlierDetection = () => {
                 <Row className='my-3'>
                     <Col>
                         <Async
-                            refetchOnChanged={[allSqlFilters, userSelectedModelName, userSelectedContamination]}
+                            refetchOnChanged={[allSqlFilters, userSelectedModelName, userSelectedContamination, referenceFilters]}
                             fetchData={() => metricsClient('compute', {
                                 metrics_type: 'outlier_detection',
                                 current_filters: allSqlFilters,
-                                reference_filters: 'False',
+                                reference_filters: referenceFilters,
                                 outlier_algorithm: userSelectedModelName,
                                 contamination: userSelectedContamination,
                                 model_type: mlModelType
                             })}
                             renderData={(data) => (
                                 <ScatterGraph
-                                    data={data?.outlier_analysis?.map(({sample, dimensions, outlier, novelty, request_id}) => ({
+                                    data={data?.outlier_analysis?.map(({sample, dimensions, anomaly, request_id}) => ({
                                         sample,
                                         PCA1: dimensions[0],
                                         PCA2: dimensions[1],
-                                        outlier,
-                                        novelty,
+                                        anomaly,
                                         request_id
                                     }))}
-                                    outlierDetectionOnly
+                                    isDrift={isDrift}
                                 />
                             )}
                         />
@@ -94,4 +93,8 @@ const OutlierDetection = () => {
     );
 };
 
-export default OutlierDetection;
+OutliersOrDrift.propTypes = {
+    isDrift: PropTypes.bool
+};
+
+export default OutliersOrDrift;
