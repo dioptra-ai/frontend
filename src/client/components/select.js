@@ -4,7 +4,7 @@ import Form from 'react-bootstrap/Form';
 const Select = ({options = [], onChange, children, ...rest}) => {
 
     return (
-        <Form.Control as='select' className='form-select'{...rest} onChange={(e) => {
+        <Form.Control as='select' className='form-select w-100' {...rest} onChange={(e) => {
             onChange?.(e.target.value);
         }}>
             {

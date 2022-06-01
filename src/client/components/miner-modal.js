@@ -40,7 +40,7 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, requestIds, modelStore}) =
     });
     const [evaluationPeriod, setEvaluationPeriod] = useState();
     const [liveDataType, setLiveDataType] = useState('range');
-    const [minerStrategy, setMinerStrategy] = useState();
+    const [minerStrategy, setMinerStrategy] = useState(requestIds ? 'LOCAL_OUTLIER' : 'ENTROPY');
     const [minerMetric, setMinerMetric] = useState('euclidean');
     const [minerLimit, setMinerLimit] = useState();
     const [minerModel, setMinerModel] = useState(contextModel);
@@ -129,11 +129,7 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, requestIds, modelStore}) =
                             </InputGroup>
                             <Form.Label className='mt-3 mb-0 w-100'>Strategy</Form.Label>
                             <InputGroup className='mt-1 flex-column'>
-                                <Form.Control as='select' className='form-select w-100' required
-                                    onChange={(e) => {
-                                        setMinerStrategy(e.target.value);
-                                    }}
-                                >
+                                <Select onChange={setMinerStrategy}>
                                     {
                                         requestIds ? (
                                             <>
@@ -158,7 +154,7 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, requestIds, modelStore}) =
                                             </>
                                         )
                                     }
-                                </Form.Control>
+                                </Select>
                             </InputGroup>
                             {
                                 minerStrategy === 'NEAREST_NEIGHBORS' || minerStrategy === 'CORESET' ? (
