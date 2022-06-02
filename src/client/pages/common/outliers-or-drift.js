@@ -7,7 +7,7 @@ import Form from 'react-bootstrap/Form';
 import useModel from 'hooks/use-model';
 import Async from 'components/async';
 import useAllSqlFilters from 'hooks/use-all-sql-filters';
-import ScatterGraph from 'components/scatter-graph';
+import ScatterGraphWithSamples from 'components/scatter-graph-with-samples';
 import metricsClient from 'clients/metrics';
 
 const OutliersOrDrift = ({isDrift}) => {
@@ -74,7 +74,7 @@ const OutliersOrDrift = ({isDrift}) => {
                                 model_type: mlModelType
                             })}
                             renderData={(data) => (
-                                <ScatterGraph
+                                <ScatterGraphWithSamples
                                     data={data?.outlier_analysis?.map(({sample, dimensions, anomaly, request_id}) => ({
                                         sample,
                                         PCA1: dimensions[0],
