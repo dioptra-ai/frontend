@@ -12,7 +12,7 @@ import {formatDateTime} from 'helpers/date-helper';
 import FontIcon from 'components/font-icon';
 import Async from 'components/async';
 import {IconNames} from 'constants';
-import {Area, AreaChart, Line, XAxis} from 'recharts';
+import {Area, AreaChart, Line, ResponsiveContainer, XAxis} from 'recharts';
 import theme from 'styles/theme.module.scss';
 import ModalComponent from 'components/modal';
 import EditModel from 'pages/model/edit-model';
@@ -106,41 +106,45 @@ const _ModelRow = ({model, idx, color, filtersStore}) => {
                             granularity_iso: moment.duration(6, 'hour').toISOString()
                         })}
                         renderData={(throughput) => (
-                            <AreaChart data={throughput.map(({value, time}) => ({
-                                y: value,
-                                x: new Date(time).getTime()
-                            }))} height={65} width={140}>
-                                <defs>
-                                    <linearGradient id='areaColor' x1='0' x2='0' y1='0' y2='1'>
-                                        <stop offset='5%' stopColor={color} stopOpacity={0.7} />
-                                        <stop offset='95%' stopColor='#FFFFFF' stopOpacity={0.1} />
-                                    </linearGradient>
-                                </defs>
-                                <Line
-                                    connectNulls
-                                    dataKey='y'
-                                    dot={false}
-                                    fill={color}
-                                    stroke={color}
-                                    strokeWidth={1}
-                                    type='linear'
-                                />
-                                <XAxis
-                                    axisLine={false}
-                                    dataKey='x'
-                                    domain={[TRAFFIC_START_MOMENT.valueOf(), TRAFFIC_END_MOMENT.valueOf()]}
-                                    scale='time'
-                                    tick={false}
-                                    type='number'
-                                />
-                                <Area
-                                    dataKey='y'
-                                    fill='url(#areaColor)'
-                                    stroke={color}
-                                    strokeWidth={1}
-                                    type='linear'
-                                />
-                            </AreaChart>)}
+
+                            <ResponsiveContainer height={65} width='100%'>
+                                <AreaChart data={throughput.map(({value, time}) => ({
+                                    y: value,
+                                    x: new Date(time).getTime()
+                                }))}>
+                                    <defs>
+                                        <linearGradient id='areaColor' x1='0' x2='0' y1='0' y2='1'>
+                                            <stop offset='5%' stopColor={color} stopOpacity={0.7} />
+                                            <stop offset='95%' stopColor='#FFFFFF' stopOpacity={0.1} />
+                                        </linearGradient>
+                                    </defs>
+                                    <Line
+                                        connectNulls
+                                        dataKey='y'
+                                        dot={false}
+                                        fill={color}
+                                        stroke={color}
+                                        strokeWidth={1}
+                                        type='linear'
+                                    />
+                                    <XAxis
+                                        axisLine={false}
+                                        dataKey='x'
+                                        domain={[TRAFFIC_START_MOMENT.valueOf(), TRAFFIC_END_MOMENT.valueOf()]}
+                                        scale='time'
+                                        tick={false}
+                                        type='number'
+                                    />
+                                    <Area
+                                        dataKey='y'
+                                        fill='url(#areaColor)'
+                                        stroke={color}
+                                        strokeWidth={1}
+                                        type='linear'
+                                    />
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        )}
                     />
                 </div>
             </td>
