@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import {useEffect, useRef, useState} from 'react';
 import oHash from 'object-hash';
+import Alert from 'react-bootstrap/Alert';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import Form from 'react-bootstrap/Form';
@@ -74,6 +75,17 @@ const DatapointsViewer = ({datapoints, onSelectedChange}) => {
     return (
         <>
             <Container fluid>
+                {
+                    datapoints.length >= 500 ? (
+                        <Row>
+                            <Col>
+                                <Alert variant='warning'>
+                                Only the first 500 datapoints are shown. Try filtering down and/or chosing different parameters.
+                                </Alert>
+                            </Col>
+                        </Row>
+                    ) : null
+                }
                 <Row className='ps-2'>
                     <Col>
                         <Form.Check id='select-all' ref={selectAllRef} type='checkbox' onChange={(e) => {
@@ -82,7 +94,7 @@ const DatapointsViewer = ({datapoints, onSelectedChange}) => {
                     </Col>
                 </Row>
                 <Row className='g-2'>
-                    {datapoints.length ? datapoints.map((datapoint, i) => {
+                    {datapoints.length ? datapoints.slice(0, 500).map((datapoint, i) => {
 
                         if (examplesType === 'video') {
 

@@ -56,7 +56,7 @@ const ModelDescription = ({_id, name, description, team, tier, lastDeployed, mlM
 
     return (
         <Container className='bg-white-blue model-desc' fluid >
-            <Row className='align-items-center py-2 px-3'>
+            <Row className='align-items-center py-2'>
                 <Col className='d-flex align-items-center' xs={11}>
                     <div style={{fontSize: 24}}>
                         <Textfit mode='multi' min={2} max={24} forceSingleModeWidth={false}>

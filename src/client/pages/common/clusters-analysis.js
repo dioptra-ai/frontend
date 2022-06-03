@@ -80,10 +80,10 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
         return c2.metric.value - c1.metric.value;
     }), [clusters]);
     const samples = selectedPoints.map((p) => p.sample);
-    // SQL Filter for samples is sampled if there are more than 500 samples.
-    const samplesSqlFilter = useMemo(() => `${allSqlFilters} AND request_id in (${
-        samples.filter(() => Math.random() < 500 / samples.length).map((s) => `'${s['request_id']}'`).join(',')
-    })`, [samples]);
+    // SQL Filter for samples is sliced if there are more than 500 samples.
+    const samplesSqlFilter = `${allSqlFilters} AND request_id in (${
+        samples.slice(0, 500).map((s) => `'${s['request_id']}'`).join(',')
+    })`;
     const samplesCsvClassNames = Array.from(new Set(samples.map((s) => s['prediction'] || s['prediction.class_name']))).join(',');
     const handleUserSelectedAlgorithm = (value) => {
         setUserSelectedAlgorithm(value);
@@ -171,11 +171,11 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
         </Row>
         <SpinnerWrapper>
             <Row className='my-3'>
-                <Col style={{minHeight: 440}}>
+                <Col lg={8} style={{minHeight: 440}}>
                     <SelectableScatterGraph
-                        scatters={useMemo(() => sortedClusters.map((cluster) => ({
+                        scatters={sortedClusters.map((cluster) => ({
                             name: cluster.name,
-                            data: cluster.elements.filter(() => Math.random() < 500 / cluster.elements.length).map((e) => ({
+                            data: cluster.elements.slice(0, 500).map((e) => ({
                                 clusterSize: cluster.elements.length,
                                 metricValue: cluster.metric.value,
                                 clusterLabel: cluster.label,
@@ -184,7 +184,7 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
                             fill: getHexColor(cluster.label === -1 ? '' : cluster.name),
                             xAxisId: 'PCA1',
                             yAxisId: 'PCA2'
-                        })), [sortedClusters])}
+                        }))}
                         onSelectedDataChange={setSelectedPoints}
                         isDatapointSelected={getCartesianPointSelected}
                     />
