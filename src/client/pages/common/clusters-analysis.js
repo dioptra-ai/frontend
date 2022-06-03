@@ -1,9 +1,8 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import PropTypes from 'prop-types';
 import Alert from 'react-bootstrap/Alert';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import {Scatter, Tooltip as ScatterTooltip} from 'recharts';
 import {OverlayTrigger, Tooltip} from 'react-bootstrap';
 import {IoDownloadOutline} from 'react-icons/io5';
 import {saveAs} from 'file-saver';
@@ -14,11 +13,12 @@ import BarGraph from 'components/bar-graph';
 import Async from 'components/async';
 import AsyncSegmentationFields from 'components/async-segmentation-fields';
 import useAllSqlFilters from 'hooks/use-all-sql-filters';
-import ClusterGraph from 'components/cluster-graph';
+import SelectableScatterGraph from 'components/selectable-scatter-graph';
 import metricsClient from 'clients/metrics';
 import useModel from 'hooks/use-model';
 import Form from 'react-bootstrap/Form';
 import SamplesPreview from 'components/samples-preview';
+import useCartesianPoints from 'hooks/use-cartesian-points';
 
 // Keep this in sync with metrics-engine/handlers/clusters.py
 const MODEL_TYPE_TO_METRICS_NAMES = {
@@ -39,10 +39,10 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
     const {mlModelType} = model;
     const metricNames = MODEL_TYPE_TO_METRICS_NAMES[mlModelType];
     const [userSelectedSummaryDistribution, setUserSelectedSummaryDistribution] = useState('prediction');
-    const [selectedClusterIndex, setSelectedClusterIndex] = useState();
-    const [selectedPoints, setSelectedPoints] = useState(null);
+    const [selectedPoints, setSelectedPoints] = useState([]);
     const [distributionMetricsOptions, setDistributionMetricsOptions] = useState([]);
     const [userSelectedAlgorithm, setUserSelectedAlgorithm] = useState('GROUPBY');
+    const getCartesianPointSelected = useCartesianPoints({points: selectedPoints, xLabel: 'PCA1', yLabel: 'PCA2'});
 
     const getDistributionMetricsForModel = async (modelType) => {
         if (modelType === 'IMAGE_CLASSIFIER' || modelType === 'TEXT_CLASSIFIER') {
@@ -71,39 +71,20 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
             return [];
         }
     };
-    const sortedClusters = clusters.map((c) => ({
+    const sortedClusters = useMemo(() => clusters.map((c) => ({
         name: c.label === -1 ? '[noise]' : `[${c.label}]`,
         size: c.elements.length,
         ...c
     })).sort((c1, c2) => {
 
         return c2.metric.value - c1.metric.value;
-    });
-    const selectedMetric = sortedClusters.map((cluster) => {
-
-        return {
-            name: cluster.name,
-            value: cluster.metric.value,
-            fill: getHexColor(cluster.label === -1 ? '' : cluster.name),
-            size: cluster.size
-        };
-    });
-    const samples = (selectedPoints || sortedClusters[selectedClusterIndex]?.elements || []).map((p) => p.sample).flat();
+    }), [clusters]);
+    const samples = selectedPoints.map((p) => p.sample);
     // SQL Filter for samples is sampled if there are more than 500 samples.
-    const samplesSqlFilter = `${allSqlFilters} AND request_id in (${
+    const samplesSqlFilter = useMemo(() => `${allSqlFilters} AND request_id in (${
         samples.filter(() => Math.random() < 500 / samples.length).map((s) => `'${s['request_id']}'`).join(',')
-    })`;
+    })`, [samples]);
     const samplesCsvClassNames = Array.from(new Set(samples.map((s) => s['prediction'] || s['prediction.class_name']))).join(',');
-    const handleClusterClick = (i) => {
-        if (selectedClusterIndex !== i) {
-            setSelectedClusterIndex(i);
-            setSelectedPoints(sortedClusters[i].elements);
-        } else {
-            setSelectedClusterIndex(null);
-            setSelectedPoints(null);
-        }
-
-    };
     const handleUserSelectedAlgorithm = (value) => {
         setUserSelectedAlgorithm(value);
         onUserSelectedAlgorithm(value);
@@ -116,7 +97,7 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
     }, [mlModelType]);
 
     useEffect(() => {
-        setSelectedPoints(null);
+        setSelectedPoints([]);
     }, [clusters]);
 
     return (
@@ -130,7 +111,12 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
         <Row>
             <Col>
                 <BarGraph
-                    bars={selectedMetric}
+                    bars={sortedClusters.map((cluster) => ({
+                        name: cluster.name,
+                        value: cluster.metric.value,
+                        fill: getHexColor(cluster.label === -1 ? '' : cluster.name),
+                        size: cluster.size
+                    }))}
                     title={(
                         <Row className='g-2'>
                             <Col>Performance per Cluster</Col>
@@ -176,71 +162,38 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
                             </Col>
                         </Row>
                     )}
-                    onClick={(_, index) => handleClusterClick(index)}
+                    onClick={(_, index) => {
+                        setSelectedPoints(sortedClusters[index].elements);
+                    }}
                     yAxisDomain={[0, 1]}
                 />
             </Col>
         </Row>
         <SpinnerWrapper>
             <Row className='my-3'>
-                <Col lg={distributionMetricsOptions?.length ? 8 : 12} style={{minHeight: 440}}>
-                    <ClusterGraph>
-                        {sortedClusters.map((cluster, index) => (
-                            <Scatter
-                                key={index}
-                                isAnimationActive={false}
-                                cursor='pointer'
-                                onClick={() => handleClusterClick(index)}
-                                name={cluster.name}
-                                // Samples are filtered if there are more than 500 samples.
-                                data={cluster.elements.filter(() => Math.random() < 500 / cluster.elements.length).map((e) => ({
-                                    clusterSize: cluster.elements.length,
-                                    metricValue: cluster.metric.value,
-                                    size: selectedClusterIndex === index ? 100 : 50,
-                                    clusterLabel: cluster.label,
-                                    ...e
-                                }))}
-                                fill={getHexColor(cluster.label === -1 ? '' : cluster.name)}
-                                xAxisId='PCA1'
-                                yAxisId='PCA2'
-                            />
-                        ))}
-                        <ScatterTooltip animationDuration={200} content={({payload}) => {
-                            const cluster = payload.find((p) => p.dataKey === 'size')?.payload;
-                            const label = cluster?.clusterLabel;
-
-                            return (
-                                <div className='line-graph-tooltip bg-white p-3'>
-                                    <p className='text-dark bold-text fs-5 m-0'>{Number(cluster?.metricValue).toFixed(4)}</p>
-                                    <p className='text-secondary m-0 fs-7' style={{
-                                        textOverflow: 'ellipsis',
-                                        overflow: 'hidden',
-                                        whiteSpace: 'nowrap',
-                                        maxWidth: 200
-                                    }}>
-                                                        [{label === -1 ? 'noise' : String(label)}]
-                                    </p>
-
-                                    {cluster?.clusterSize ?
-                                        <p className='text-secondary m-0 fs-7' style={{
-                                            textOverflow: 'ellipsis',
-                                            overflow: 'hidden',
-                                            whiteSpace: 'nowrap',
-                                            maxWidth: 200
-                                        }}>
-                                                        Size: {cluster?.clusterSize}
-                                        </p> :
-                                        null}
-                                </div>
-                            );
-                        }}/>
-                    </ClusterGraph>
+                <Col style={{minHeight: 440}}>
+                    <SelectableScatterGraph
+                        scatters={useMemo(() => sortedClusters.map((cluster) => ({
+                            name: cluster.name,
+                            data: cluster.elements.filter(() => Math.random() < 500 / cluster.elements.length).map((e) => ({
+                                clusterSize: cluster.elements.length,
+                                metricValue: cluster.metric.value,
+                                clusterLabel: cluster.label,
+                                ...e
+                            })),
+                            fill: getHexColor(cluster.label === -1 ? '' : cluster.name),
+                            xAxisId: 'PCA1',
+                            yAxisId: 'PCA2'
+                        })), [sortedClusters])}
+                        onSelectedDataChange={setSelectedPoints}
+                        isDatapointSelected={getCartesianPointSelected}
+                    />
                 </Col>
                 {distributionMetricsOptions?.length ? (
                     <Col lg={4} className='px-3'>
                         <div className='bg-white-blue rounded p-3'>
                             <div className='text-dark bold-text d-flex align-items-center justify-content-between'>
-                                <span>Summary {(selectedClusterIndex && sortedClusters[selectedClusterIndex]) ? ` - ${sortedClusters[selectedClusterIndex].name}` : ''} {samples?.length ? `(${samples.length} total)` : ''}</span>
+                                <span>Summary ({samples.length} total)</span>
                                 <div className='d-flex align-items-center'>
                                     {samplesCsvClassNames ? (
                                         <OverlayTrigger overlay={<Tooltip>Download classes as CSV</Tooltip>}>

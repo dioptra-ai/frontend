@@ -7,14 +7,17 @@ import Form from 'react-bootstrap/Form';
 import useModel from 'hooks/use-model';
 import Async from 'components/async';
 import useAllSqlFilters from 'hooks/use-all-sql-filters';
-import ScatterGraphWithSamples from 'components/scatter-graph-with-samples';
+import SelectableScatterGraph from 'components/selectable-scatter-graph';
 import metricsClient from 'clients/metrics';
+import theme from 'styles/theme.module.scss';
+import SamplesPreview from 'components/samples-preview';
 
 const OutliersOrDrift = ({isDrift}) => {
     const {mlModelType} = useModel();
     const allSqlFilters = useAllSqlFilters();
     const [userSelectedModelName, setUserSelectedModelName] = useState('Local Outlier Factor');
     const [userSelectedContamination, setUserSelectedContamination] = useState('auto');
+    const [selectedPoints, setSelectedPoints] = useState([]);
     const referenceFilters = isDrift && useAllSqlFilters({useReferenceFilters: true});
 
     const contaminationOptions = [{
@@ -61,8 +64,8 @@ const OutliersOrDrift = ({isDrift}) => {
                         </Form.Control>
                     </Col>
                 </Row>
-                <Row className='my-3'>
-                    <Col>
+                <Row className='border rounded p-3 w-100 scatterGraph'>
+                    <Col lg={4}>
                         <Async
                             refetchOnChanged={[allSqlFilters, userSelectedModelName, userSelectedContamination, referenceFilters]}
                             fetchData={() => metricsClient('compute', {
@@ -73,19 +76,40 @@ const OutliersOrDrift = ({isDrift}) => {
                                 contamination: userSelectedContamination,
                                 model_type: mlModelType
                             })}
-                            renderData={(data) => (
-                                <ScatterGraphWithSamples
-                                    data={data?.outlier_analysis?.map(({sample, dimensions, anomaly, request_id}) => ({
-                                        sample,
-                                        PCA1: dimensions[0],
-                                        PCA2: dimensions[1],
-                                        anomaly,
-                                        request_id
-                                    }))}
-                                    isDrift={isDrift}
-                                />
-                            )}
+                            renderData={(data) => {
+                                const formattedData = data?.outlier_analysis?.map(({sample, dimensions, anomaly, request_id}) => ({
+                                    sample,
+                                    PCA1: dimensions[0],
+                                    PCA2: dimensions[1],
+                                    anomaly,
+                                    request_id
+                                }));
+
+                                return (
+                                    <div className='scatterGraph-leftBox'>
+                                        <SelectableScatterGraph
+                                            scatters={[{
+                                                name: isDrift ? 'Normal' : 'Inlier',
+                                                data: formattedData.filter(({anomaly}) => !anomaly),
+                                                fill: theme.secondary,
+                                                xAxisId: 'PCA1',
+                                                yAxisId: 'PCA2'
+                                            }, {
+                                                name: isDrift ? 'Drift' : 'Outliers',
+                                                data: formattedData.filter(({anomaly}) => anomaly),
+                                                fill: isDrift ? theme.dark : theme.success,
+                                                xAxisId: 'PCA1',
+                                                yAxisId: 'PCA2'
+                                            }]}
+                                            onSelectedDataChange={setSelectedPoints}
+                                        />
+                                    </div>
+                                );
+                            }}
                         />
+                    </Col>
+                    <Col className='rounded p-3 bg-white-blue'>
+                        <SamplesPreview samples={selectedPoints?.map(({sample}) => sample)}/>
                     </Col>
                 </Row>
             </div>
