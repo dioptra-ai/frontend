@@ -1,9 +1,6 @@
 import PropTypes from 'prop-types';
 import {useEffect, useState} from 'react';
-import {
-    ResponsiveContainer,
-    Scatter
-} from 'recharts';
+import {Scatter} from 'recharts';
 import oHash from 'object-hash';
 
 import ScatterGraph from 'components/scatter-graph';
@@ -55,46 +52,44 @@ const SelectableScatterGraph = ({scatters, onSelectedDataChange, isDatapointSele
 
 
     return (
-        <ResponsiveContainer width='100%' height='100%'>
-            <ScatterGraph
-                onAreaSelected={({left, right, top, bottom}) => {
-                    if (left && top && right && bottom) {
-                        const data = [].concat(...scatters.map((s) => s.data));
-                        const filteredData = data.filter(
-                            ({PCA1, PCA2}) => inRange(PCA1, left, right) && inRange(PCA2, top, bottom)
-                        );
+        <ScatterGraph
+            onAreaSelected={({left, right, top, bottom}) => {
+                if (left && top && right && bottom) {
+                    const data = [].concat(...scatters.map((s) => s.data));
+                    const filteredData = data.filter(
+                        ({PCA1, PCA2}) => inRange(PCA1, left, right) && inRange(PCA2, top, bottom)
+                    );
 
-                        if (shiftPressed) {
-                            handlePointsSelected([...selectedPoints, ...filteredData]);
-                        } else {
-                            handlePointsSelected([...filteredData]);
-                        }
-                    } else if (!shiftPressed) {
-                        handlePointsSelected([]);
+                    if (shiftPressed) {
+                        handlePointsSelected([...selectedPoints, ...filteredData]);
+                    } else {
+                        handlePointsSelected([...filteredData]);
                     }
-                }}
-            >
-                {
-                    scatters.map((s) => (
-                        <Scatter key={oHash(s)}
-                            isAnimationActive={false}
-                            cursor='pointer'
-                            onClick={handleScatterClick}
-                            {...s}
-                            data={s.data.map((point) => {
-                                const isSelected = isDatapointSelected ? isDatapointSelected(point) : getCartesianPointSelected(point);
-
-                                return {
-                                    size: isSelected ? LARGE_DOT_SIZE : SMALL_DOT_SIZE,
-                                    ...point
-                                };
-                            })}
-                        />
-                    ))
+                } else if (!shiftPressed) {
+                    handlePointsSelected([]);
                 }
-                {children}
-            </ScatterGraph>
-        </ResponsiveContainer>
+            }}
+        >
+            {
+                scatters.map((s) => (
+                    <Scatter key={oHash(s)}
+                        isAnimationActive={false}
+                        cursor='pointer'
+                        onClick={handleScatterClick}
+                        {...s}
+                        data={s.data.map((point) => {
+                            const isSelected = isDatapointSelected ? isDatapointSelected(point) : getCartesianPointSelected(point);
+
+                            return {
+                                size: isSelected ? LARGE_DOT_SIZE : SMALL_DOT_SIZE,
+                                ...point
+                            };
+                        })}
+                    />
+                ))
+            }
+            {children}
+        </ScatterGraph>
     );
 };
 
