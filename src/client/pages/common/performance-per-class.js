@@ -178,7 +178,7 @@ const PerformancePerClass = () => {
     const model = useModel();
 
     return (
-        <Row>
+        <Row className='g-2'>
             {
                 model.mlModelType === 'IMAGE_CLASSIFIER' || model.mlModelType === 'TEXT_CLASSIFIER' ? (
                     <>

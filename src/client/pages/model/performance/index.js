@@ -101,7 +101,7 @@ const Performance = () => {
     return (
         <div className='pb-5'>
             <div className='my-3'>
-                <Row className='mb-3 align-items-stretch'>
+                <Row className='mb-3 g-2'>
                     {
                         metrics.map((m) => (
                             <Col key={m} className='d-flex' {...metricBoxBreakpoints[comparisonTotal]}>
