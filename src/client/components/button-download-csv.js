@@ -5,7 +5,7 @@ import Button from 'react-bootstrap/Button';
 
 import metricsClient from 'clients/metrics';
 
-const ButtonDownloadCSV = ({requestIds, filename = 'data.csv'}) => {
+const ButtonDownloadCSV = ({uuids, filename = 'data.csv'}) => {
 
     return (
         <Button
@@ -13,7 +13,7 @@ const ButtonDownloadCSV = ({requestIds, filename = 'data.csv'}) => {
             variant='secondary'
             onClick={async () => {
                 const data = await metricsClient('datapoints', {
-                    request_ids: requestIds,
+                    uuids,
                     as_csv: true
                 });
 
@@ -25,7 +25,7 @@ const ButtonDownloadCSV = ({requestIds, filename = 'data.csv'}) => {
 };
 
 ButtonDownloadCSV.propTypes = {
-    requestIds: PropTypes.array.isRequired,
+    uuids: PropTypes.array.isRequired,
     filename: PropTypes.string
 };
 

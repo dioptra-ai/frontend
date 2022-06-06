@@ -20,7 +20,6 @@ import ButtonDownloadCSV from 'components/button-download-csv';
 const Cart = ({userStore}) => {
     const [selectedDatapoints, setSelectedDatapoints] = useState(new Set());
     const [minerModalOpen, setMinerModalOpen] = useModal(false);
-    const selectedRequestIds = userStore.userData.cart.filter((_, i) => selectedDatapoints.has(i));
 
     return (
         <Menu>
@@ -31,7 +30,7 @@ const Cart = ({userStore}) => {
                 </div>
                 <Async
                     fetchData={() => metricsClient('datapoints', {
-                        request_ids: userStore.userData.cart
+                        uuids: userStore.userData.cart
                     })}
                     refetchOnChanged={[userStore.userData.cart]}
                     renderData={(datapoints) => (
@@ -53,7 +52,7 @@ const Cart = ({userStore}) => {
                                                             setSelectedDatapoints(new Set());
                                                         }}
                                                     >
-                                                            (remove from cart)
+                                                        (remove from cart)
                                                     </a>
                                                 ) : null
                                             }
@@ -77,8 +76,8 @@ const Cart = ({userStore}) => {
                                         }}>
                                         <BsMinecartLoaded className='fs-2 ps-2 cursor-pointer'/> Create Miner
                                     </Button>
-                                    <ButtonDownloadCSV requestIds={userStore.userData.cart} filename='data-cart.csv'/>
-                                    <MinerModal isOpen={minerModalOpen} onClose={() => setMinerModalOpen(false)} requestIds={selectedRequestIds}/>
+                                    <ButtonDownloadCSV uuids={userStore.userData.cart} filename='data-cart.csv'/>
+                                    <MinerModal isOpen={minerModalOpen} onClose={() => setMinerModalOpen(false)} uuids={userStore.userData.cart}/>
                                 </div>
                             </Col>
                         </Row>

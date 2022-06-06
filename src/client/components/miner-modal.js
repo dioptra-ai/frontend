@@ -29,7 +29,7 @@ const IsoDurations = {
 };
 
 
-const MinerModal = ({isOpen, onClose, onMinerCreated, requestIds, modelStore}) => {
+const MinerModal = ({isOpen, onClose, onMinerCreated, uuids, modelStore}) => {
     const contextModel = useModel();
     const [minerDatasetSelected, setMinerDatasetSelected] = useState(false);
     const [selectedDataset, setSelectedDataset] = useState();
@@ -40,7 +40,7 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, requestIds, modelStore}) =
     });
     const [evaluationPeriod, setEvaluationPeriod] = useState();
     const [liveDataType, setLiveDataType] = useState('range');
-    const [minerStrategy, setMinerStrategy] = useState(requestIds ? 'LOCAL_OUTLIER' : 'ENTROPY');
+    const [minerStrategy, setMinerStrategy] = useState(uuids ? 'LOCAL_OUTLIER' : 'ENTROPY');
     const [minerMetric, setMinerMetric] = useState('euclidean');
     const [minerLimit, setMinerLimit] = useState();
     const [minerModel, setMinerModel] = useState(contextModel);
@@ -65,7 +65,7 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, requestIds, modelStore}) =
 
     const createMiner = async () => {
         const payload = {
-            request_ids: requestIds,
+            uuids,
             display_name: minerName,
             ml_model_id: minerModel?.mlModelId,
             strategy: minerStrategy,
@@ -100,7 +100,7 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, requestIds, modelStore}) =
             <Modal
                 isOpen={isOpen}
                 onClose={() => onClose()}
-                title={requestIds ? 'Mine for Similar Datapoints' : 'Mine for Datapoints'}
+                title={uuids ? 'Mine for Similar Datapoints' : 'Mine for Datapoints'}
             >
                 <Form style={{minWidth: 900}} onSubmit={(e) => {
                     e.preventDefault();
@@ -109,8 +109,8 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, requestIds, modelStore}) =
                 >
                     <div>
                         {
-                            requestIds ? (
-                                `Create a new miner that will search for datapoints that are close to the selected ${requestIds.length} examples in the embedding space.`
+                            uuids ? (
+                                `Create a new miner that will search for datapoints that are close to the selected ${uuids.length} examples in the embedding space.`
                             ) : (
                                 'Create a new miner that will search for datapoints in the embedding space.'
                             )
@@ -131,7 +131,7 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, requestIds, modelStore}) =
                             <InputGroup className='mt-1 flex-column'>
                                 <Select onChange={setMinerStrategy}>
                                     {
-                                        requestIds ? (
+                                        uuids ? (
                                             <>
                                                 <option value='LOCAL_OUTLIER'>
                                                 Local Outlier Factor
@@ -350,9 +350,9 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, requestIds, modelStore}) =
                                     </div>
                                 </>
                             )}
-                            {minerStrategy === 'LOCAL_OUTLIER' && requestIds?.length < 50 ? (
+                            {minerStrategy === 'LOCAL_OUTLIER' && uuids?.length < 50 ? (
                                 <div className='mt-3'>
-                                    <Error error={`${requestIds.length} samples are selected but at least fifty (50) are required to run a Local Outlier Factor miner.`} variant='warning'/>
+                                    <Error error={`${uuids.length} samples are selected but at least fifty (50) are required to run a Local Outlier Factor miner.`} variant='warning'/>
                                 </div>
                             ) : null}
                         </Col>
@@ -361,7 +361,7 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, requestIds, modelStore}) =
                         className='w-100 text-white btn-submit mt-3'
                         variant='primary'
                         type='submit'
-                        disabled={minerStrategy === 'LOCAL_OUTLIER' && requestIds?.length < 50}
+                        disabled={minerStrategy === 'LOCAL_OUTLIER' && uuids?.length < 50}
                     >
                         Create Miner
                     </Button>
@@ -375,7 +375,7 @@ MinerModal.propTypes = {
     isOpen: PropTypes.bool,
     onClose: PropTypes.func,
     onMinerCreated: PropTypes.func,
-    requestIds: PropTypes.array,
+    uuids: PropTypes.array,
     modelStore: PropTypes.object
 };
 

@@ -13,7 +13,7 @@ const useCartesianPoints = ({points, xLabel, yLabel}) => {
 
             return agg;
         }, {});
-    }, oHash(points));
+    }, [oHash(points)]);
 
     return (point) => cartesianPoints[point[xLabel]]?.[point[yLabel]];
 };

@@ -11,7 +11,7 @@ import {setupComponent} from 'helpers/component-helper';
 
 const SamplesPreview = ({samples, userStore}) => {
     const [selectedSamples, setSelectedSamples] = useState(new Set());
-    const sampleRequestIds = samples.filter((_, i) => selectedSamples.has(i)).map(({request_id}) => request_id);
+    const sampleUUIDs = samples.filter((_, i) => selectedSamples.has(i)).map(({uuid}) => uuid);
 
     return (
         <>
@@ -23,18 +23,18 @@ const SamplesPreview = ({samples, userStore}) => {
                     <AddFilters
                         disabled={!selectedSamples.size}
                         filters={[new Filter({
-                            left: 'request_id',
+                            left: 'uuid',
                             op: 'in',
-                            right: sampleRequestIds
+                            right: sampleUUIDs
                         })]}
                         tooltipText={`Filter ${selectedSamples.size} In`}
                     />
                     <AddFilters
                         disabled={!selectedSamples.size}
                         filters={[new Filter({
-                            left: 'request_id',
+                            left: 'uuid',
                             op: 'not in',
-                            right: sampleRequestIds
+                            right: sampleUUIDs
                         })]}
                         tooltipText={`Filter ${selectedSamples.size} Out`}
                         solidIcon
@@ -45,7 +45,7 @@ const SamplesPreview = ({samples, userStore}) => {
                             className='text-dark border-0 bg-transparent click-down fs-2' onClick={() => {
 
                                 userStore.tryUpdate({
-                                    cart: userStore.userData.cart.concat(...sampleRequestIds)
+                                    cart: userStore.userData.cart.concat(...sampleUUIDs)
                                 });
                             }}>
                             <BsCartPlus className='fs-2 ps-2 cursor-pointer'/>

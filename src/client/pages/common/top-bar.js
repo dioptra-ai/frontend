@@ -35,10 +35,10 @@ const TopBar = ({showTimePicker, timeStore, userStore}) => {
                 </>
             )}
             <Link to='/cart'>
-                <div className='position-relative click-down'>
+                <div className='position-relative click-down btn px-2'>
                     {
                         userStore.userData.cart.length ? (
-                            <div className='position-absolute fs-5 w-100 text-center text-dark' style={{top: -16}}>
+                            <div className='position-absolute fs-5 w-100 text-center text-dark' style={{top: -8, left: 0}}>
                                 {userStore.userData.cart.length}
                             </div>
                         ) : null
