@@ -25,7 +25,7 @@ const SignedImage = ({rawUrl, ...rest}) => {
                     url: rawUrl
                 });
 
-                setSignedUrl(s[0]);
+                setSignedUrl(s);
             } catch (e) {
                 if (rawUrl.includes('amazon')) {
                     setAwsS3IntegrationNotSet(true);

@@ -9,14 +9,18 @@ import Container from 'react-bootstrap/Container';
 import {GrNext, GrPrevious} from 'react-icons/gr';
 
 import {mod} from 'helpers/math';
+import {datapointIsImage, datapointIsText, datapointIsVideo} from 'helpers/datapoint';
 import Modal from 'components/modal';
 import FrameWithBoundingBox, {PreviewImageClassification} from 'components/preview-image-classification';
 import PreviewTextClassification from 'components/preview-text-classification';
+import PreviewDetails from 'components/preview-details';
 
 const DatapointsViewer = ({datapoints, onSelectedChange}) => {
     const selectAllRef = useRef();
     const [sampleIndexInModal, setSampleIndexInModal] = useState(-1);
     const [selectedDatapoints, setSelectedDatapoints] = useState(new Set());
+    const exampleInModal = datapoints[sampleIndexInModal];
+
     const handleSelectDatapoint = (i, selected) => {
         const newSet = new Set(selectedDatapoints);
 
@@ -39,10 +43,6 @@ const DatapointsViewer = ({datapoints, onSelectedChange}) => {
         setSelectedDatapoints(newSet);
         onSelectedChange?.(newSet);
     };
-
-    const exampleInModal = datapoints[sampleIndexInModal];
-    const examplesType = datapoints.every((s) => (/\.mp4$/).test(s)) ? 'video' : datapoints.every((s) => (/^https?:\/\//).test(s['image_metadata.uri'])) ? 'image' : 'text';
-
     const handleKeyDown = (e) => {
         if (e.key === 'ArrowLeft') {
             e.preventDefault();
@@ -52,7 +52,6 @@ const DatapointsViewer = ({datapoints, onSelectedChange}) => {
             handleNext();
         }
     };
-
     const handlePrevious = () => {
         setSampleIndexInModal(mod(sampleIndexInModal - 1, datapoints.length));
     };
@@ -96,7 +95,7 @@ const DatapointsViewer = ({datapoints, onSelectedChange}) => {
                 <Row className='g-2'>
                     {datapoints.length ? datapoints.slice(0, 500).map((datapoint, i) => {
 
-                        if (examplesType === 'video') {
+                        if (datapointIsVideo(datapoint)) {
 
                             return (
                                 <Col key={`${oHash(datapoint)}-${i}`} xs={6} md={4} xl={3}>
@@ -117,7 +116,7 @@ const DatapointsViewer = ({datapoints, onSelectedChange}) => {
                                     </div>
                                 </Col>
                             );
-                        } else if (examplesType === 'image') {
+                        } else if (datapointIsImage(datapoint)) {
 
                             return (
                                 <Col key={`${oHash(datapoint)}-${i}`} xs={6} md={4} xl={3}>
@@ -131,7 +130,7 @@ const DatapointsViewer = ({datapoints, onSelectedChange}) => {
                                     </div>
                                 </Col>
                             );
-                        } else if (examplesType === 'text') {
+                        } else if (datapointIsText(datapoint)) {
 
                             return (
                                 <Col key={`${oHash(datapoint)}-${i}`} xs={12}>
@@ -148,7 +147,7 @@ const DatapointsViewer = ({datapoints, onSelectedChange}) => {
                             <Col key={`${oHash(datapoint)}-${i}`} xs={12}>
                                 <div className='p-2 border-bottom' >
                                     <Form.Check type='checkbox' onChange={(e) => handleSelectDatapoint(i, e.target.checked)} checked={selectedDatapoints.has(i)}/>
-                                    {JSON.stringify(datapoint)}
+                                    <PreviewDetails sample={datapoint}/>
                                 </div>
                             </Col>
                         );
@@ -171,7 +170,7 @@ const DatapointsViewer = ({datapoints, onSelectedChange}) => {
                             <GrPrevious/>
                         </div>
                         <div>
-                            {examplesType === 'image' ? (
+                            {datapointIsImage(exampleInModal) ? (
                                 <>
                                     <PreviewImageClassification
                                         sample={exampleInModal}
@@ -180,7 +179,7 @@ const DatapointsViewer = ({datapoints, onSelectedChange}) => {
                                     />
                                     <hr/>
                                 </>
-                            ) : examplesType === 'video' ? (
+                            ) : datapointIsVideo(exampleInModal) ? (
                                 <>
                                     <FrameWithBoundingBox
                                         videoUrl={exampleInModal}
@@ -196,17 +195,15 @@ const DatapointsViewer = ({datapoints, onSelectedChange}) => {
                                     />
                                     <hr/>
                                 </>
+                            ) : datapointIsText(exampleInModal) ? (
+                                <>
+                                    <PreviewTextClassification
+                                        sample={exampleInModal}
+                                    />
+                                    <hr/>
+                                </>
                             ) : null}
-                            <Container fluid>
-                                {
-                                    Object.keys(exampleInModal).map((k) => (
-                                        <Row key={k}>
-                                            <Col xs={4}>{k}</Col>
-                                            <Col className='text-break'>{exampleInModal[k]}</Col>
-                                        </Row>
-                                    ))
-                                }
-                            </Container>
+                            <PreviewDetails sample={exampleInModal}/>
                         </div>
                         <div className='fs-1 p-4 bg-white-blue cursor-pointer d-flex align-items-center mx-2' onClick={handleNext}>
                             <GrNext/>
