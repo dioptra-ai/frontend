@@ -1,4 +1,4 @@
-import {Link} from 'react-router-dom';
+import {useHistory} from 'react-router-dom';
 import metricsClient from 'clients/metrics';
 import Menu from 'components/menu';
 import Async from 'components/async';
@@ -18,9 +18,10 @@ import {saveAs} from 'file-saver';
 const MinersList = () => {
     const [miners, setMiners] = useState();
     const [isMinerModalOpen, setIsMinerModalOpen] = useState(false);
+    const history = useHistory();
 
     const downloadDatapoints = (minerId) => {
-        return metricsClient(`miner/datapoints?id=${minerId}`, null, 'get');
+        return metricsClient(`miner/datapoints?id=${minerId}&as_csv=true`, null, 'get');
     };
 
     const fetchMiners = () => baseJSONClient('/api/metrics/miners', {memoized: false}).then((miners) => setMiners(miners));
@@ -62,7 +63,7 @@ const MinersList = () => {
                         {miners &&
                             miners.map((miner) => {
                                 return (
-                                    <tr key={miner._id}>
+                                    <tr key={miner._id} className='cursor-pointer' onClick={() => history.push(`/miners/${miner._id}`)}>
                                         <td>{miner.display_name}</td>
                                         <td>
                                             {new Date(
@@ -74,9 +75,7 @@ const MinersList = () => {
                                                 moment(miner.last_run)
                                             ).toLocaleString()}
                                         </td>
-                                        <td>
-                                            <Link className='text-dark' to={`/miners/${miner._id}`}>{miner.status}</Link>
-                                        </td>
+                                        <td>{miner.status}</td>
                                         <td>{miner.type}</td>
                                         <td>
                                             <Async
@@ -85,32 +84,36 @@ const MinersList = () => {
                                             />
                                         </td>
                                         <td>
-                                            <Async
-                                                fetchData={() => metricsClient(`miners/size?id=${miner._id}`, null, 'get')}
-                                                renderData={({size}) => miner.status === 'pending' ? (
+                                            {
+                                                miner.status === 'pending' ? (
                                                     <BarLoader loading size={40} />
-                                                ) : (
-                                                    miner.status !== 'error' && (
-                                                        <OverlayTrigger overlay={
-                                                            <Tooltip>
-                                                                {size ? 'Download datapoints' : 'There are no datapoints to download'}
-                                                            </Tooltip>
-                                                        }>
-                                                            <IoDownloadOutline
-                                                                className={`fs-3 ${size ? 'cursor-pointer' : ''}`}
-                                                                style={{opacity: size ? 1 : 0.2}}
-                                                                onClick={async () => {
-                                                                    if (size) {
-                                                                        const datapoints = await downloadDatapoints(miner._id);
+                                                ) : miner.status !== 'error' ? (
+                                                    <Async
+                                                        fetchData={() => metricsClient(`miners/size?id=${miner._id}`, null, 'get')}
+                                                        renderData={({size}) => (
+                                                            <OverlayTrigger overlay={
+                                                                <Tooltip>
+                                                                    {size ? 'Download datapoints' : 'There are no datapoints to download'}
+                                                                </Tooltip>
+                                                            }>
+                                                                <IoDownloadOutline
+                                                                    className={`fs-3 ${size ? 'cursor-pointer' : ''}`}
+                                                                    style={{opacity: size ? 1 : 0.2}}
+                                                                    onClick={async (e) => {
+                                                                        e.stopPropagation();
 
-                                                                        saveAs(new Blob([datapoints], {type: 'text/csv;charset=utf-8'}), `${slugify(miner.display_name)}.csv`);
-                                                                    }
-                                                                }}
-                                                            />
-                                                        </OverlayTrigger>
-                                                    )
-                                                )}
-                                            />
+                                                                        if (size) {
+                                                                            const datapoints = await downloadDatapoints(miner._id);
+
+                                                                            saveAs(new Blob([datapoints], {type: 'text/csv;charset=utf-8'}), `${slugify(miner.display_name)}.csv`);
+                                                                        }
+                                                                    }}
+                                                                />
+                                                            </OverlayTrigger>
+                                                        )}
+                                                    />
+                                                ) : null
+                                            }
                                         </td>
                                         <td>
                                             <div className='d-flex justify-content-center align-content-center align-items-center'>
@@ -119,7 +122,9 @@ const MinersList = () => {
                                                 }>
                                                     <AiOutlineDelete
                                                         className='fs-3 cursor-pointer'
-                                                        onClick={async () => {
+                                                        onClick={async (e) => {
+                                                            e.stopPropagation();
+
                                                             await metricsClient('miners/delete', {
                                                                 miner_id: miner._id
                                                             });

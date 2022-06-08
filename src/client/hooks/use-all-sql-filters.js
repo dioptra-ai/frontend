@@ -8,7 +8,13 @@ import comparisonContext from 'context/comparison-context';
 const {filtersStore, timeStore, modelStore, userStore} = stores;
 
 const useAllSqlFilters = ({useReferenceFilters = false, forLiveModel, excludeCurrentTimeFilters, __REMOVE_ME__excludeOrgId} = {}) => {
-    const {isModelView, isBenchmarkView} = useContext(appContext);
+    const {isModelView, isBenchmarkView, getAllSqlFiltersFromAppContext} = useContext(appContext);
+
+    if (getAllSqlFiltersFromAppContext) {
+
+        return getAllSqlFiltersFromAppContext();
+    }
+
     const comparisonContextValue = useContext(comparisonContext);
 
     let allFilters = [];

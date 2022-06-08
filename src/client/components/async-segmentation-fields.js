@@ -4,11 +4,13 @@ import PropTypes from 'prop-types';
 import {setupComponent} from 'helpers/component-helper';
 import Async from 'components/async';
 import useModel from 'hooks/use-model';
+import useAllSqlFilters from 'hooks/use-all-sql-filters';
 import metricsClient from 'clients/metrics';
 import appContext from 'context/app-context';
 
 const AsyncSegmentationFields = ({timeStore, ...props}) => {
     const model = useModel();
+    const allSqlFilters = useAllSqlFilters();
     const {isModelView} = useContext(appContext);
 
     return (
@@ -16,7 +18,7 @@ const AsyncSegmentationFields = ({timeStore, ...props}) => {
             fetchData={async () => {
                 let columns = null;
 
-                switch (model.mlModelType) {
+                switch (model?.mlModelType) {
                 case 'TABULAR_CLASSIFIER':
 
                     columns = await metricsClient('queries/columns-names-for-features');
@@ -44,8 +46,8 @@ const AsyncSegmentationFields = ({timeStore, ...props}) => {
 
                 return metricsClient('queries/fairness-bias-columns-counts', {
                     fields: columns.map((c) => c.column),
-                    sql_time_filter: isModelView ? timeStore.sqlTimeFilter : 'TRUE',
-                    ml_model_id: model.mlModelId
+                    sql_filters: isModelView ? timeStore.sqlTimeFilter : allSqlFilters,
+                    ml_model_id: model?.mlModelId
                 });
             }}
             {...props}

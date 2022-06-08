@@ -6,7 +6,6 @@ import Col from 'react-bootstrap/Col';
 import {OverlayTrigger, Tooltip} from 'react-bootstrap';
 import {IoDownloadOutline} from 'react-icons/io5';
 import {saveAs} from 'file-saver';
-import {SpinnerWrapper} from 'components/spinner';
 import Select from 'components/select';
 import {getHexColor} from 'helpers/color-helper';
 import BarGraph from 'components/bar-graph';
@@ -36,7 +35,7 @@ const MODEL_TYPE_TO_METRICS_NAMES = {
 const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDistanceName, onUserSelectedAlgorithm, onUserSelectedGroupbyField}) => {
     const allSqlFilters = useAllSqlFilters();
     const model = useModel();
-    const {mlModelType} = model;
+    const mlModelType = model?.mlModelType;
     const metricNames = MODEL_TYPE_TO_METRICS_NAMES[mlModelType];
     const [userSelectedSummaryDistribution, setUserSelectedSummaryDistribution] = useState('prediction');
     const [selectedPoints, setSelectedPoints] = useState([]);
@@ -108,162 +107,166 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
                 </Alert>
             ) : null
         }
-        <Row>
-            <Col>
-                <BarGraph
-                    bars={sortedClusters.map((cluster) => ({
-                        name: cluster.name,
-                        value: cluster.metric.value,
-                        fill: getHexColor(cluster.label === -1 ? '' : cluster.name),
-                        size: cluster.size
-                    }))}
-                    title={(
-                        <Row className='g-2'>
-                            <Col>Performance per Cluster</Col>
-                            <Col lg={3}>
-                                <Select onChange={handleUserSelectedAlgorithm}>
-                                    <option value='GROUPBY'>Metadata</option>
-                                    <option value='HDBSCAN'>HDBSCAN</option>
-                                </Select>
-                            </Col>
-                            <Col lg={3}>
+        <Row className='g-2 my-3'>
+            {
+                metricNames ? (
+                    <Col lg={3}>
+                        <Select onChange={onUserSelectedMetricName}>
+                            {
+                                metricNames.map((m) => <option key={m}>{m}</option>)
+                            }
+                        </Select>
+                    </Col>
+                ) : null
+            }
+            <Col/>
+            <Col lg={3}>
+                <Select onChange={handleUserSelectedAlgorithm}>
+                    <option value='GROUPBY'>Metadata</option>
+                    <option value='HDBSCAN'>HDBSCAN</option>
+                </Select>
+            </Col>
+            <Col lg={3}>
+                {
+                    userSelectedAlgorithm === 'HDBSCAN' ? (
+                        <Select
+                            options={[{
+                                name: 'HDBSCAN Distance: Euclidean',
+                                value: 'euclidean'
+                            }, {
+                                name: 'HDBSCAN Distance: Cosine',
+                                value: 'cosine'
+                            }]}
+                            onChange={onUserSelectedDistanceName}
+                        />
+                    ) : userSelectedAlgorithm === 'GROUPBY' ? (
+                        <AsyncSegmentationFields renderData={([data]) => (
+                            <Select onChange={onUserSelectedGroupbyField} defaultValue=''>
+                                <option value=''>No Metadata Field Selected</option>
                                 {
-                                    userSelectedAlgorithm === 'HDBSCAN' ? (
-                                        <Select
-                                            options={[{
-                                                name: 'HDBSCAN Distance: Euclidean',
-                                                value: 'euclidean'
-                                            }, {
-                                                name: 'HDBSCAN Distance: Cosine',
-                                                value: 'cosine'
-                                            }]}
-                                            onChange={onUserSelectedDistanceName}
-                                        />
-                                    ) : userSelectedAlgorithm === 'GROUPBY' ? (
-                                        <AsyncSegmentationFields renderData={([data]) => (
-                                            <Select onChange={onUserSelectedGroupbyField} defaultValue=''>
-                                                <option value=''>No Metadata Field Selected</option>
-                                                {
-                                                    Object.keys(data).filter((k) => data[k] > 0).map((k) => (
-                                                        <option key={k} value={k}>{k}</option>
-                                                    ))
-                                                }
-                                            </Select>
-                                        )}/>
-                                    ) : null
+                                    Object.keys(data).filter((k) => data[k] > 0).map((k) => (
+                                        <option key={k} value={k}>{k}</option>
+                                    ))
                                 }
-                            </Col>
-                            <Col lg={3}>
-                                <Select onChange={onUserSelectedMetricName}>
-                                    {
-                                        metricNames.map((m) => <option key={m}>{m}</option>)
-                                    }
-                                </Select>
-                            </Col>
-                        </Row>
-                    )}
-                    onClick={(_, index) => {
-                        setSelectedPoints(sortedClusters[index].elements);
-                    }}
-                    yAxisDomain={[0, 1]}
-                />
+                            </Select>
+                        )}/>
+                    ) : null
+                }
             </Col>
         </Row>
-        <SpinnerWrapper>
-            <Row className='my-3'>
-                <Col lg={8} style={{minHeight: 440}}>
-                    <SelectableScatterGraph
-                        scatters={sortedClusters.map((cluster) => ({
-                            name: cluster.name,
-                            data: cluster.elements.slice(0, 500).map((e) => ({
-                                clusterSize: cluster.elements.length,
-                                metricValue: cluster.metric.value,
-                                clusterLabel: cluster.label,
-                                ...e
-                            })),
-                            fill: getHexColor(cluster.label === -1 ? '' : cluster.name),
-                            xAxisId: 'PCA1',
-                            yAxisId: 'PCA2'
-                        }))}
-                        onSelectedDataChange={setSelectedPoints}
-                        isDatapointSelected={getCartesianPointSelected}
-                    />
-                </Col>
-                {distributionMetricsOptions?.length ? (
-                    <Col lg={4} className='px-3'>
-                        <div className='bg-white-blue rounded p-3'>
-                            <div className='text-dark bold-text d-flex align-items-center justify-content-between'>
-                                <span>Summary ({samples.length} total)</span>
-                                <div className='d-flex align-items-center'>
-                                    {samplesCsvClassNames ? (
-                                        <OverlayTrigger overlay={<Tooltip>Download classes as CSV</Tooltip>}>
-                                            <IoDownloadOutline className='fs-2 cursor-pointer' onClick={() => {
+        {
+            sortedClusters.some((c) => c.metric) ? (
+                <Row className='my-3'>
+                    <Col>
+                        <BarGraph
+                            bars={sortedClusters.map((cluster) => ({
+                                name: cluster.name,
+                                value: cluster.metric?.value,
+                                fill: getHexColor(cluster.label === -1 ? '' : cluster.name),
+                                size: cluster.size
+                            }))}
+                            onClick={(_, index) => {
+                                setSelectedPoints(sortedClusters[index].elements);
+                            }}
+                            yAxisDomain={[0, 1]}
+                        />
+                    </Col>
+                </Row>
+            ) : null
+        }
+        <Row className='my-3'>
+            <Col lg={8} style={{minHeight: 440}}>
+                <SelectableScatterGraph
+                    scatters={sortedClusters.map((cluster) => ({
+                        name: cluster.name,
+                        data: cluster.elements.slice(0, 500).map((e) => ({
+                            clusterSize: cluster.elements.length,
+                            metricValue: cluster.metric?.value,
+                            clusterLabel: cluster.label,
+                            ...e
+                        })),
+                        fill: getHexColor(cluster.label === -1 ? '' : cluster.name),
+                        xAxisId: 'PCA1',
+                        yAxisId: 'PCA2'
+                    }))}
+                    onSelectedDataChange={setSelectedPoints}
+                    isDatapointSelected={getCartesianPointSelected}
+                />
+            </Col>
+            {distributionMetricsOptions?.length ? (
+                <Col lg={4} className='px-3'>
+                    <div className='bg-white-blue rounded p-3'>
+                        <div className='text-dark bold-text d-flex align-items-center justify-content-between'>
+                            <span>Summary ({samples.length} total)</span>
+                            <div className='d-flex align-items-center'>
+                                {samplesCsvClassNames ? (
+                                    <OverlayTrigger overlay={<Tooltip>Download classes as CSV</Tooltip>}>
+                                        <IoDownloadOutline className='fs-2 cursor-pointer' onClick={() => {
 
-                                                saveAs(new Blob([samplesCsvClassNames], {type: 'text/csv;charset=utf-8'}), 'classes.csv');
-                                            }}/>
-                                        </OverlayTrigger>
-                                    ) : null}
-                                </div>
-                            </div>
-                            <div className={`d-flex p-2 overflow-auto flex-grow-0 ${samples.length ? 'justify-content-left' : 'justify-content-center align-items-center'} scatterGraph-examples`}>
-                                {samples.length ? (
-                                    <Async
-                                        refetchOnChanged={[samplesSqlFilter, samples, mlModelType]}
-                                        renderData={(data) => (
-                                            <BarGraph
-                                                bars={data.map(({name, value}) => ({
-                                                    name,
-                                                    value,
-                                                    fill: getHexColor(name)
-                                                }))}
-                                                title={(
-                                                    <Row className='g-2'>
-                                                        <Col>Class Distribution</Col>
-                                                        <Col>
-                                                            <Form.Control
-                                                                as='select'
-                                                                className='form-select w-100'
-                                                                custom
-                                                                required
-                                                                onChange={(e) => {
-                                                                    setUserSelectedSummaryDistribution(e.target.value);
-                                                                }}
-                                                            >
-                                                                {distributionMetricsOptions.map((o, i) => (
-                                                                    <option key={i} value={o.value}>{o.name}</option>
-                                                                ))}
-                                                            </Form.Control>
-                                                        </Col>
-                                                    </Row>
-                                                )}
-                                                unit='%'
-                                            />
-                                        )}
-                                        fetchData={() => metricsClient(`queries/${(mlModelType === 'IMAGE_CLASSIFIER' ||
-                                                            mlModelType === 'UNSUPERVISED_IMAGE_CLASSIFIER' || mlModelType === 'UNSUPERVISED_TEXT_CLASSIFIER' ||
-                                                            mlModelType === 'TEXT_CLASSIFIER' || mlModelType === 'SPEECH_TO_TEXT') ?
-                                            'class-distribution-1' :
-                                            'class-distribution-2'}`, {
-                                            sql_filters: samplesSqlFilter,
-                                            distribution_field: userSelectedSummaryDistribution
-                                        })}
-                                    />
-                                ) : (
-                                    <h3 className='text-secondary m-0'>No Examples Selected</h3>
-                                )}
+                                            saveAs(new Blob([samplesCsvClassNames], {type: 'text/csv;charset=utf-8'}), 'classes.csv');
+                                        }}/>
+                                    </OverlayTrigger>
+                                ) : null}
                             </div>
                         </div>
-                    </Col>
-                ) : null}
-            </Row>
-            <Row>
-                <Col className='px-3'>
-                    <div className='bg-white-blue rounded p-3'>
-                        <SamplesPreview samples={samples} />
+                        <div className={`d-flex p-2 overflow-auto flex-grow-0 ${samples.length ? 'justify-content-left' : 'justify-content-center align-items-center'} scatterGraph-examples`}>
+                            {samples.length ? (
+                                <Async
+                                    refetchOnChanged={[samplesSqlFilter, samples, mlModelType]}
+                                    renderData={(data) => (
+                                        <BarGraph
+                                            bars={data.map(({name, value}) => ({
+                                                name,
+                                                value,
+                                                fill: getHexColor(name)
+                                            }))}
+                                            title={(
+                                                <Row className='g-2'>
+                                                    <Col>Class Distribution</Col>
+                                                    <Col>
+                                                        <Form.Control
+                                                            as='select'
+                                                            className='form-select w-100'
+                                                            custom
+                                                            required
+                                                            onChange={(e) => {
+                                                                setUserSelectedSummaryDistribution(e.target.value);
+                                                            }}
+                                                        >
+                                                            {distributionMetricsOptions.map((o, i) => (
+                                                                <option key={i} value={o.value}>{o.name}</option>
+                                                            ))}
+                                                        </Form.Control>
+                                                    </Col>
+                                                </Row>
+                                            )}
+                                            unit='%'
+                                        />
+                                    )}
+                                    fetchData={() => metricsClient(`queries/${(mlModelType === 'IMAGE_CLASSIFIER' ||
+                                                            mlModelType === 'UNSUPERVISED_IMAGE_CLASSIFIER' || mlModelType === 'UNSUPERVISED_TEXT_CLASSIFIER' ||
+                                                            mlModelType === 'TEXT_CLASSIFIER' || mlModelType === 'SPEECH_TO_TEXT') ?
+                                        'class-distribution-1' :
+                                        'class-distribution-2'}`, {
+                                        sql_filters: samplesSqlFilter,
+                                        distribution_field: userSelectedSummaryDistribution
+                                    })}
+                                />
+                            ) : (
+                                <h3 className='text-secondary m-0'>No Examples Selected</h3>
+                            )}
+                        </div>
                     </div>
                 </Col>
-            </Row>
-        </SpinnerWrapper>
+            ) : null}
+        </Row>
+        <Row>
+            <Col className='px-3'>
+                <div className='bg-white-blue rounded p-3'>
+                    <SamplesPreview samples={samples} />
+                </div>
+            </Col>
+        </Row>
         </>
     );
 };
@@ -279,8 +282,8 @@ _ClustersAnalysis.propTypes = {
 const ClustersAnalysis = () => {
     const allSqlFilters = useAllSqlFilters();
     const model = useModel();
-    const metricNames = MODEL_TYPE_TO_METRICS_NAMES[model.mlModelType];
-    const [userSelectedMetricName, setUserSelectedMetricName] = useState(metricNames[0]);
+    const metricNames = MODEL_TYPE_TO_METRICS_NAMES[model?.mlModelType];
+    const [userSelectedMetricName, setUserSelectedMetricName] = useState(metricNames?.[0]);
     const [userSelectedAlgorithm, setUserSelectedAlgorithm] = useState('GROUPBY');
     const [userSelectedDistanceName, setUserSelectedDistanceName] = useState('euclidean');
     const [userSelectedGroupbyField, setUserSelectedGroupbyField] = useState();
@@ -295,7 +298,7 @@ const ClustersAnalysis = () => {
                 userSelectedGroupbyField
             ]}
             fetchData={() => metricsClient('clusters', {
-                model_type: model.mlModelType,
+                model_type: model?.mlModelType,
                 sql_filters: allSqlFilters,
                 distance: userSelectedDistanceName,
                 metric: userSelectedMetricName,

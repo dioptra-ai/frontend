@@ -4,7 +4,6 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 
-import useModel from 'hooks/use-model';
 import Async from 'components/async';
 import useAllSqlFilters from 'hooks/use-all-sql-filters';
 import SelectableScatterGraph from 'components/selectable-scatter-graph';
@@ -13,9 +12,8 @@ import theme from 'styles/theme.module.scss';
 import SamplesPreview from 'components/samples-preview';
 
 const OutliersOrDrift = ({isDrift}) => {
-    const {mlModelType} = useModel();
     const allSqlFilters = useAllSqlFilters();
-    const [userSelectedModelName, setUserSelectedModelName] = useState('Local Outlier Factor');
+    const [userSelectedAlgorithm, setUserSelectedAlgorithm] = useState('Local Outlier Factor');
     const [userSelectedContamination, setUserSelectedContamination] = useState('auto');
     const [selectedPoints, setSelectedPoints] = useState([]);
     const referenceFilters = isDrift && useAllSqlFilters({useReferenceFilters: true});
@@ -42,7 +40,7 @@ const OutliersOrDrift = ({isDrift}) => {
                         <Form.Control as='select' className='form-select w-100'
                             custom required
                             onChange={(e) => {
-                                setUserSelectedModelName(e.target.value);
+                                setUserSelectedAlgorithm(e.target.value);
                             }}
                         >
                             <option>Local Outlier Factor</option>
@@ -67,14 +65,13 @@ const OutliersOrDrift = ({isDrift}) => {
                 <Row className='border rounded p-3 w-100 scatterGraph'>
                     <Col lg={4}>
                         <Async
-                            refetchOnChanged={[allSqlFilters, userSelectedModelName, userSelectedContamination, referenceFilters]}
+                            refetchOnChanged={[allSqlFilters, userSelectedAlgorithm, userSelectedContamination, referenceFilters]}
                             fetchData={() => metricsClient('compute', {
                                 metrics_type: 'outlier_detection',
                                 current_filters: allSqlFilters,
                                 reference_filters: referenceFilters,
-                                outlier_algorithm: userSelectedModelName,
-                                contamination: userSelectedContamination,
-                                model_type: mlModelType
+                                outlier_algorithm: userSelectedAlgorithm,
+                                contamination: userSelectedContamination
                             })}
                             renderData={(data) => {
                                 const formattedData = data?.outlier_analysis?.map(({sample, dimensions, anomaly, request_id}) => ({
