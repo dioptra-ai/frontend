@@ -66,7 +66,7 @@ const Cart = ({userStore}) => {
                                 />
                             </Col>
                             <Col xs={2}>
-                                <h5>Total Datapoints: {userStore.userData.cart.length}</h5>
+                                <h5>With Datapoints {userStore.userData.cart.length}:</h5>
                                 <div className='text-center'>
                                     <Button
                                         className='w-100 text-white btn-submit click-down mb-3'

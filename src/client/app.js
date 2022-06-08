@@ -1,5 +1,7 @@
 import React, {useEffect} from 'react';
 import {Redirect, Route, Switch, useLocation} from 'react-router-dom';
+import {Helmet} from 'react-helmet';
+
 import {AuthorizedRouteConfigs} from './configs/route-config';
 import Model from 'pages/model';
 import Menu from 'components/menu';
@@ -14,6 +16,7 @@ import MinersList from 'pages/miners-list';
 import Cart from 'pages/cart';
 import AppContext from 'context/app-context';
 import {initializeClickTracking, trackPage} from 'helpers/tracking';
+import {getName} from 'helpers/name-helper';
 
 const App = () => {
     const location = useLocation();
@@ -28,6 +31,13 @@ const App = () => {
 
     return (
         <>
+            <Route>
+                {({location}) => (
+                    <Helmet>
+                        <title>Dioptra | {getName(location.pathname.split('/')[1])}</title>
+                    </Helmet>
+                )}
+            </Route>
             <Switch>
                 <Route component={Login} exact path='/login' />
                 <Route component={Logout} exact path='/logout' />
