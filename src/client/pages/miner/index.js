@@ -70,7 +70,7 @@ const Miner = () => {
                                     />
                                 </div>
                                 {
-                                    miner['mined_uuids'] ? (
+                                    miner['mined_uuids'] && miner['mined_uuids'].length ? (
                                         <AppContext.Provider value={{
                                             getAllSqlFiltersFromAppContext: () => `"uuid" IN (${miner['mined_uuids'].map((u) => `'${u}'`).join(',')})`
                                         }}>
