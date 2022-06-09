@@ -19,7 +19,7 @@ const ButtonDownloadCSV = ({uuids, filename = 'data.csv'}) => {
 
                 saveAs(new Blob([data], {type: 'text/csv;charset=utf-8'}), filename);
             }}>
-            <IoDownloadOutline className='fs-2 cursor-pointer'/> Download as CSV
+            <IoDownloadOutline className='fs-3 cursor-pointer'/> Download as CSV
         </Button>
     );
 };
