@@ -89,7 +89,7 @@ const DatapointsViewer = ({datapoints, onSelectedChange}) => {
                     <Col>
                         <Form.Check id='select-all' ref={selectAllRef} type='checkbox' onChange={(e) => {
                             handleSelectAll(e.target.checked);
-                        }} label='Select All'/>
+                        }} label={<span className='cursor-pointer text-decoration-underline'>Select All</span>}/>
                     </Col>
                 </Row>
                 <Row className='g-2'>

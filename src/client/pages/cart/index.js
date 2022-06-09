@@ -20,6 +20,19 @@ import ButtonDownloadCSV from 'components/button-download-csv';
 const Cart = ({userStore}) => {
     const [selectedDatapoints, setSelectedDatapoints] = useState(new Set());
     const [minerModalOpen, setMinerModalOpen] = useModal(false);
+    const removeDatapointsFromCart = async (uuids) => {
+        if (uuids) {
+            await userStore.tryUpdate({
+                cart: userStore.userData.cart.filter((_, i) => !uuids.has(i))
+            });
+        } else {
+            await userStore.tryUpdate({
+                cart: []
+            });
+        }
+
+        setSelectedDatapoints(new Set());
+    };
 
     return (
         <Menu>
@@ -42,15 +55,8 @@ const Cart = ({userStore}) => {
                                                 Selected Datapoints: {selectedDatapoints.size}&nbsp;
                                             {
                                                 selectedDatapoints.size ? (
-                                                    <a
-                                                        className='text-dark border-0 bg-transparent click-down'
-                                                        onClick={async () => {
-
-                                                            await userStore.tryUpdate({
-                                                                cart: userStore.userData.cart.filter((_, i) => !selectedDatapoints.has(i))
-                                                            });
-                                                            setSelectedDatapoints(new Set());
-                                                        }}
+                                                    <a className='text-dark border-0 bg-transparent click-down'
+                                                        onClick={() => removeDatapointsFromCart(selectedDatapoints)}
                                                     >
                                                         (remove from cart)
                                                     </a>
@@ -66,7 +72,7 @@ const Cart = ({userStore}) => {
                                 />
                             </Col>
                             <Col xs={2}>
-                                <h5>With Datapoints {userStore.userData.cart.length}:</h5>
+                                <h5>With {userStore.userData.cart.length} datapoints :</h5>
                                 <div className='text-center'>
                                     <Button
                                         className='w-100 text-white btn-submit click-down mb-3'
@@ -78,6 +84,13 @@ const Cart = ({userStore}) => {
                                     </Button>
                                     <ButtonDownloadCSV uuids={userStore.userData.cart} filename='data-cart.csv'/>
                                     <MinerModal isOpen={minerModalOpen} onClose={() => setMinerModalOpen(false)} uuids={userStore.userData.cart}/>
+                                    <hr/>
+                                    <Button
+                                        className='w-100 click-down my-3' variant='secondary'
+                                        onClick={() => removeDatapointsFromCart()}
+                                    >
+                                        Empty Data Cart
+                                    </Button>
                                 </div>
                             </Col>
                         </Row>
