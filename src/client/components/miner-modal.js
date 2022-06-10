@@ -43,8 +43,7 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, uuids, modelStore}) => {
     const [minerStrategy, setMinerStrategy] = useState(uuids ? 'LOCAL_OUTLIER' : 'ENTROPY');
     const [minerMetric, setMinerMetric] = useState('euclidean');
     const [minerLimit, setMinerLimit] = useState();
-    const [minerDiversify, setMinerDiversify] = useState();
-    const [minerDiversityFactor, setMinerDiversityFactor] = useState();
+    const [minerDuplicationFactor, setMinerDuplicationFactor] = useState(1);
     const [minerModel, setMinerModel] = useState(contextModel);
 
     const onDatasetDateChange = ({start, end, lastMs}) => {
@@ -71,8 +70,7 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, uuids, modelStore}) => {
             display_name: minerName,
             ml_model_id: minerModel?.mlModelId,
             strategy: minerStrategy,
-            diversify: minerDiversify,
-            diversityFactor: minerDiversityFactor,
+            duplication_factor: minerDuplicationFactor,
             metric: minerMetric,
             limit: minerLimit
         };
@@ -183,7 +181,7 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, uuids, modelStore}) => {
                                 ) : null
                             }
                             {
-                                minerStrategy === 'NEAREST_NEIGHBORS' || minerStrategy === 'ENTROPY' ? (
+                                minerStrategy === 'NEAREST_NEIGHBORS' ? (
                                     <>
                                         <Form.Label className='mt-3 mb-0 w-100'>N</Form.Label>
                                         <Form.Control required type='number' min={1} onChange={(e) => {
@@ -192,19 +190,15 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, uuids, modelStore}) => {
                                         <Form.Text className='text-muted'>
                                         The miner will select up to {minerLimit || '-'} datapoints.
                                         </Form.Text>
-                                        <Form.Label className='mt-3 mb-0 w-100'>Diversify</Form.Label>
-                                        <Form.Check type='switch' onChange={(e) => {
-                                            setMinerDiversify(Boolean(e.target.value));
-                                        }}/>
-                                        <Form.Label className='mt-3 mb-0 w-100'>Diversity Factor</Form.Label>
-                                        <Form.Control type='number' onChange={(e) => {
-                                            setMinerDiversityFactor(Number(e.target.value));
+                                        <Form.Label className='mt-3 mb-0 w-100'>Duplication Factor</Form.Label>
+                                        <Form.Control type='number' step='0.01' defaultValue={1} onChange={(e) => {
+                                            setMinerDuplicationFactor(Number(e.target.value));
                                         }}/>
                                         <Form.Text className='text-muted'>
-                                        The miner will first over sample by this factor and then reduce to {minerLimit || '-'} datapoints.
+                                        The estimated number of near duplicates per datapoint.
                                         </Form.Text>
                                     </>
-                                ) : minerStrategy === 'CORESET' ? (
+                                ) : minerStrategy === 'ENTROPY' || minerStrategy === 'CORESET' ? (
                                     <>
                                         <Form.Label className='mt-3 mb-0 w-100'>N</Form.Label>
                                         <Form.Control required type='number' min={1} onChange={(e) => {
