@@ -6,30 +6,6 @@ const MlModelRouter = express.Router();
 
 MlModelRouter.all('*', isAuthenticated);
 
-MlModelRouter.get('/search', async (req, res, next) => {
-    try {
-        const {queryString} = req.query;
-        const MlModel = mongoose.model('MlModel');
-
-        let query = {};
-
-        if (queryString) {
-            query = {
-                $or: [
-                    {name: {$regex: queryString, $options: 'i'}},
-                    {description: {$regex: queryString, $options: 'i'}},
-                    {mlModelId: {$regex: queryString, $options: 'i'}},
-                    {mlModelType: {$regex: queryString, $options: 'i'}}
-                ]
-            };
-        }
-
-        res.json(await MlModel.find(query));
-    } catch (e) {
-        next(e);
-    }
-});
-
 MlModelRouter.get('/:_id', async (req, res, next) => {
     try {
         const MlModel = mongoose.model('MlModel');
