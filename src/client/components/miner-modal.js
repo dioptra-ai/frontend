@@ -43,6 +43,7 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, uuids, modelStore}) => {
     const [minerStrategy, setMinerStrategy] = useState(uuids ? 'LOCAL_OUTLIER' : 'ENTROPY');
     const [minerMetric, setMinerMetric] = useState('euclidean');
     const [minerLimit, setMinerLimit] = useState();
+    const [minerDuplicationFactor, setMinerDuplicationFactor] = useState(1);
     const [minerModel, setMinerModel] = useState(contextModel);
 
     const onDatasetDateChange = ({start, end, lastMs}) => {
@@ -69,6 +70,7 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, uuids, modelStore}) => {
             display_name: minerName,
             ml_model_id: minerModel?.mlModelId,
             strategy: minerStrategy,
+            duplication_factor: minerDuplicationFactor,
             metric: minerMetric,
             limit: minerLimit
         };
@@ -179,7 +181,24 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, uuids, modelStore}) => {
                                 ) : null
                             }
                             {
-                                minerStrategy === 'NEAREST_NEIGHBORS' || minerStrategy === 'ENTROPY' || minerStrategy === 'CORESET' ? (
+                                minerStrategy === 'NEAREST_NEIGHBORS' ? (
+                                    <>
+                                        <Form.Label className='mt-3 mb-0 w-100'>N</Form.Label>
+                                        <Form.Control required type='number' min={1} onChange={(e) => {
+                                            setMinerLimit(Number(e.target.value));
+                                        }}/>
+                                        <Form.Text className='text-muted'>
+                                        The miner will select up to {minerLimit || '-'} datapoints.
+                                        </Form.Text>
+                                        <Form.Label className='mt-3 mb-0 w-100'>Duplication Factor</Form.Label>
+                                        <Form.Control type='number' step='0.01' defaultValue={1} onChange={(e) => {
+                                            setMinerDuplicationFactor(Number(e.target.value));
+                                        }}/>
+                                        <Form.Text className='text-muted'>
+                                        The estimated number of near duplicates per datapoint.
+                                        </Form.Text>
+                                    </>
+                                ) : minerStrategy === 'ENTROPY' || minerStrategy === 'CORESET' ? (
                                     <>
                                         <Form.Label className='mt-3 mb-0 w-100'>N</Form.Label>
                                         <Form.Control required type='number' min={1} onChange={(e) => {
