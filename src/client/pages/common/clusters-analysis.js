@@ -33,6 +33,8 @@ const MODEL_TYPE_TO_METRICS_NAMES = {
 };
 
 const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDistanceName, onUserSelectedAlgorithm, onUserSelectedGroupbyField}) => {
+
+    const samplingLimit = 10000;
     const allSqlFilters = useAllSqlFilters();
     const model = useModel();
     const mlModelType = model?.mlModelType;
@@ -79,9 +81,9 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
         return c2.metric.value - c1.metric.value;
     }), [clusters]);
     const samples = selectedPoints.map((p) => p.sample);
-    // SQL Filter for samples is sliced if there are more than 500 samples.
+    // SQL Filter for samples is sliced if there are more than samplingLimit samples.
     const samplesSqlFilter = `${allSqlFilters} AND request_id in (${
-        samples.slice(0, 500).map((s) => `'${s['request_id']}'`).join(',')
+        samples.slice(0, samplingLimit).map((s) => `'${s['request_id']}'`).join(',')
     })`;
     const samplesCsvClassNames = Array.from(new Set(samples.map((s) => s['prediction'] || s['prediction.class_name']))).join(',');
     const handleUserSelectedAlgorithm = (value) => {
@@ -179,7 +181,7 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
                 <SelectableScatterGraph
                     scatters={sortedClusters.map((cluster) => ({
                         name: cluster.name,
-                        data: cluster.elements.slice(0, 500).map((e) => ({
+                        data: cluster.elements.slice(0, samplingLimit).map((e) => ({
                             clusterSize: cluster.elements.length,
                             metricValue: cluster.metric?.value,
                             clusterLabel: cluster.label,

@@ -16,6 +16,8 @@ import PreviewTextClassification from 'components/preview-text-classification';
 import PreviewDetails from 'components/preview-details';
 
 const DatapointsViewer = ({datapoints, onSelectedChange}) => {
+
+    const samplingLimit = 10000;
     const selectAllRef = useRef();
     const [sampleIndexInModal, setSampleIndexInModal] = useState(-1);
     const [selectedDatapoints, setSelectedDatapoints] = useState(new Set());
@@ -75,11 +77,11 @@ const DatapointsViewer = ({datapoints, onSelectedChange}) => {
         <>
             <Container fluid>
                 {
-                    datapoints.length >= 500 ? (
+                    datapoints.length >= samplingLimit ? (
                         <Row>
                             <Col>
                                 <Alert variant='warning'>
-                                Only the first 500 datapoints are shown. Try filtering down and/or chosing different parameters.
+                                Only the first samplingLimit datapoints are shown. Try filtering down and/or chosing different parameters.
                                 </Alert>
                             </Col>
                         </Row>
@@ -93,7 +95,7 @@ const DatapointsViewer = ({datapoints, onSelectedChange}) => {
                     </Col>
                 </Row>
                 <Row className='g-2'>
-                    {datapoints.length ? datapoints.slice(0, 500).map((datapoint, i) => {
+                    {datapoints.length ? datapoints.slice(0, samplingLimit).map((datapoint, i) => {
 
                         if (datapointIsVideo(datapoint)) {
 
