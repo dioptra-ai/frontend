@@ -21,7 +21,7 @@ class UserStore {
         try {
             this.userData = await authenticationClient('login');
         } catch (e) {
-            if (e.message.startsWith('Unauthorized') && window.location.pathname !== '/login') {
+            if (e.message.startsWith('Unauthorized') && !['/login', '/register'].includes(window.location.pathname)) {
                 window.location = '/login';
             }
 
