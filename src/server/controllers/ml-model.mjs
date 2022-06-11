@@ -75,4 +75,16 @@ MlModelRouter.put('/:id', async (req, res, next) => {
     }
 });
 
+MlModelRouter.delete('/:id', async (req, res, next) => {
+    try {
+        const MlModel = mongoose.model('MlModel');
+
+        await MlModel.findByIdAndDelete(req.params.id);
+
+        res.sendStatus(204);
+    } catch (e) {
+        next(e);
+    }
+});
+
 export default MlModelRouter;

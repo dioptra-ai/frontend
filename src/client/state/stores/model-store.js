@@ -12,12 +12,7 @@ class ModelStore {
 
     initialize() {
         // Not waiting on the result.
-        baseJSONClient('/api/ml-model').then((models) => {
-
-            models.forEach((model) => {
-                this.modelsById[model._id] = model;
-            });
-        }).catch(console.warn);
+        this.tryFetchModels();
     }
 
     get models() {
@@ -52,6 +47,26 @@ class ModelStore {
 
             return 'benchmark_id IS NULL AND dataset_id IS NULL';
         }
+    }
+
+    async tryFetchModels() {
+        try {
+            const models = await baseJSONClient('/api/ml-model');
+
+            this.modelsById = models.reduce((agg, m) => ({
+                ...agg,
+                [m._id]: m
+            }), {});
+        } catch (e) {
+            console.warn(e);
+        }
+    }
+
+    async tryDeleteModel(_id) {
+
+        await baseJSONClient(`/api/ml-model/${_id}`, {method: 'delete'});
+        this.modelsById = {};
+        await this.tryFetchModels();
     }
 }
 

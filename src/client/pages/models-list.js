@@ -1,11 +1,11 @@
 import React, {useRef, useState} from 'react';
 import moment from 'moment';
-import Tooltip from 'react-bootstrap/Tooltip';
-import Overlay from 'react-bootstrap/Overlay';
+import {Button, Overlay, OverlayTrigger, Tooltip} from 'react-bootstrap';
 import Table from 'react-bootstrap/Table';
+import {AiOutlineDelete} from 'react-icons/ai';
 import PropTypes from 'prop-types';
-import {Button} from 'react-bootstrap';
 import {Link, useHistory} from 'react-router-dom';
+
 import TopBar from 'pages/common/top-bar';
 import {setupComponent} from 'helpers/component-helper';
 import {formatDateTime} from 'helpers/date-helper';
@@ -40,7 +40,7 @@ IncidentsTooltipContent.propTypes = {
     incidents: PropTypes.array
 };
 
-const _ModelRow = ({model, idx, color, filtersStore}) => {
+const _ModelRow = ({model, idx, color, filtersStore, onDeleteModelClick}) => {
     const incidentsRef = useRef(null);
     const hasIncidents = false;
     const [shouldShowTooltip, setShouldShowTooltip] = useState(false);
@@ -148,6 +148,22 @@ const _ModelRow = ({model, idx, color, filtersStore}) => {
                     />
                 </div>
             </td>
+            <td className='fs-6 py-2 align-middle'>
+
+                <div className='d-flex justify-content-center align-content-center align-items-center'>
+                    <OverlayTrigger overlay={
+                        <Tooltip>Delete this model</Tooltip>
+                    }>
+                        <AiOutlineDelete
+                            className='fs-3 cursor-pointer'
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onDeleteModelClick();
+                            }}
+                        />
+                    </OverlayTrigger>
+                </div>
+            </td>
         </tr>
     );
 };
@@ -156,7 +172,8 @@ _ModelRow.propTypes = {
     color: PropTypes.string,
     idx: PropTypes.number,
     model: PropTypes.object,
-    filtersStore: PropTypes.object.isRequired
+    filtersStore: PropTypes.object.isRequired,
+    onDeleteModelClick: PropTypes.func.isRequired
 };
 
 const ModelRow = setupComponent(_ModelRow);
@@ -221,7 +238,8 @@ const Models = ({modelStore}) => {
                                     'Owner',
                                     'Tier',
                                     'Last Deployed',
-                                    '30 Day Throughput'
+                                    '30 Day Throughput',
+                                    'Delete'
                                 ].map((c, idx) => (
                                     <th
                                         className={`text-secondary border-0 fs-6 py-4 ${
@@ -236,7 +254,7 @@ const Models = ({modelStore}) => {
                         </thead>
                         <tbody>
                             {modelStore.models.map((model) => (
-                                <ModelRow color={color} key={model._id} model={model} />
+                                <ModelRow color={color} key={model._id} model={model} onDeleteModelClick={() => modelStore.tryDeleteModel(model._id)}/>
                             ))}
                         </tbody>
                     </Table>

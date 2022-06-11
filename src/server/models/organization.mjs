@@ -1,5 +1,11 @@
 import mongoose from 'mongoose';
 
+const precannedOrgId = '62a3d35de4033b5fcdfac0be'; // process.env['PRECANNED_ORG_ID'];
+
+if (!precannedOrgId) {
+    console.error('No PRECANNED_ORG_ID in the environment - new orgs will be empty!');
+}
+
 const Schema = mongoose.Schema;
 const organizationSchema = new Schema({
     name: {type: String, required: true}
@@ -15,6 +21,31 @@ organizationSchema.virtual('mlModels', {
     ref: 'MlModel',
     localField: '_id',
     foreignField: 'organization'
+});
+
+organizationSchema.pre('save', async function () {
+
+    try {
+        if (this.isNew && precannedOrgId) { // eslint-disable-line no-invalid-this
+            const MlModel = mongoose.model('MlModel');
+            const precannedMlModels = await MlModel.find({
+                organization: precannedOrgId
+            }).select('-_id').lean();
+
+            return precannedMlModels.map((precannedMlModel) => {
+
+                return MlModel.create({
+                    ...precannedMlModel,
+                    organization: this._id, // eslint-disable-line no-invalid-this
+                    precanned: true
+                });
+            });
+        } else return null;
+    } catch (e) {
+        console.error(e);
+
+        return null;
+    }
 });
 
 organizationSchema.statics.createAndInitialize = async (orgProps, firstUserProps) => {
