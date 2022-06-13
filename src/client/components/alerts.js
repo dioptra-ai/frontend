@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import React, {useState} from 'react';
 import Button from 'react-bootstrap/Button';
 import {Link} from 'react-router-dom';
-import BarLoader from 'react-spinners/BarLoader';
 import {IconNames} from '../constants';
 import useModal from '../hooks/useModal';
 import FontIcon from './font-icon';
@@ -44,10 +43,10 @@ Alert.propTypes = {
     onDelete: PropTypes.func
 };
 
-const Alerts = ({alerts, refreshCallback, onDeleteRefreshCallback, loading}) => {
+const Alerts = ({alerts, onPageChange, onDeleteRefreshCallback}) => {
     const [selectedAlert, setSelectedAlert] = useState(null);
-    const [deleteAlertModal, setDeleteAlertModal] = useModal(null);
-    const [page, setPage] = useState(1);
+    const [deleteAlertModal, setDeleteAlertModal] = useModal(false);
+    const [page, setPage] = useState(0);
 
     const closeModal = () => {
         setDeleteAlertModal(false);
@@ -57,7 +56,7 @@ const Alerts = ({alerts, refreshCallback, onDeleteRefreshCallback, loading}) => 
         baseJSONClient(`/api/tasks/alert?id=${selectedAlert._id}`, {
             method: 'delete'
         }).then(() => {
-            onDeleteRefreshCallback(page);
+            onDeleteRefreshCallback();
             setDeleteAlertModal(false);
         });
     };
@@ -86,16 +85,6 @@ const Alerts = ({alerts, refreshCallback, onDeleteRefreshCallback, loading}) => 
                         </div>
                         <div className='actions-cell fs-6 col'>Action</div>
                     </div>
-                    <div
-                        style={{
-                            position: 'relative',
-                            display: 'flex',
-                            justifyContent: 'center',
-                            zIndex: 10
-                        }}
-                    >
-                        <BarLoader loading={loading} size={150} />
-                    </div>
                     {alerts.data?.map((alert) => (
                         <Alert
                             key={alert._id}
@@ -111,7 +100,7 @@ const Alerts = ({alerts, refreshCallback, onDeleteRefreshCallback, loading}) => 
                 <Pagination
                     onPageChange={(page) => {
                         setPage(page);
-                        refreshCallback(page);
+                        onPageChange(page);
                     }}
                     totalPages={alerts.total_pages}
                     overrideSelectedPage={page}
@@ -144,9 +133,8 @@ const Alerts = ({alerts, refreshCallback, onDeleteRefreshCallback, loading}) => 
 
 Alerts.propTypes = {
     alerts: PropTypes.object,
-    refreshCallback: PropTypes.func,
-    onDeleteRefreshCallback: PropTypes.func,
-    loading: PropTypes.bool
+    onPageChange: PropTypes.func,
+    onDeleteRefreshCallback: PropTypes.func
 };
 
 export default Alerts;

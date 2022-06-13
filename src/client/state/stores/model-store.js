@@ -1,4 +1,4 @@
-import {makeAutoObservable} from 'mobx';
+import {makeAutoObservable, runInAction} from 'mobx';
 import baseJSONClient from 'clients/base-json-client';
 
 class ModelStore {
@@ -53,10 +53,12 @@ class ModelStore {
         try {
             const models = await baseJSONClient('/api/ml-model');
 
-            this.modelsById = models.reduce((agg, m) => ({
-                ...agg,
-                [m._id]: m
-            }), {});
+            runInAction(() => {
+                this.modelsById = models.reduce((agg, m) => ({
+                    ...agg,
+                    [m._id]: m
+                }), {});
+            });
         } catch (e) {
             console.warn(e);
         }

@@ -4,7 +4,6 @@ import moment from 'moment';
 import PropTypes from 'prop-types';
 import React, {useEffect, useState} from 'react';
 import Button from 'react-bootstrap/Button';
-import BarLoader from 'react-spinners/BarLoader';
 import {IconNames} from '../constants';
 import useModal from '../hooks/useModal';
 import FontIcon from './font-icon';
@@ -72,12 +71,12 @@ IncidentRow.propTypes = {
     id: PropTypes.string
 };
 
-const Incidents = ({incidents, refreshCallback, loading}) => {
+const Incidents = ({incidents, onPageChange}) => {
     const [allEventsSelected, setAllEventsSelected] = useState(false);
     const [selectedEventIds, setSelectedEventIds] = useState([]);
     const [resolvingInProgress, setResolvingInProgress] = useState(false);
     const [resolveIncidentModal, setResolveIncidentModal] = useModal(false);
-    const [page, setPage] = useState(1);
+    const [page, setPage] = useState(0);
 
     useEffect(() => {
         if (selectedEventIds.length !== 0) {
@@ -126,7 +125,7 @@ const Incidents = ({incidents, refreshCallback, loading}) => {
             setResolveIncidentModal(false);
             setAllEventsSelected(false);
             setSelectedEventIds([]);
-            refreshCallback(page);
+            onPageChange(page);
         });
     };
 
@@ -135,13 +134,6 @@ const Incidents = ({incidents, refreshCallback, loading}) => {
             <div className='header mb-3'>
                 <p className='bold-text fs-3 text-dark'>Incidents</p>
                 <div className='d-flex justify-content-center align-items-center align-content-center gap-4'>
-                    <FontIcon
-                        disabled={loading}
-                        className='text-dark'
-                        icon={IconNames.REFRESH}
-                        onClick={() => refreshCallback(page)}
-                        size={20}
-                    />
                     <Button
                         className='bold-text fs-6'
                         variant='outline-secondary'
@@ -172,16 +164,6 @@ const Incidents = ({incidents, refreshCallback, loading}) => {
                         </label>
                     </div>
                 </div>
-                <div
-                    style={{
-                        position: 'relative',
-                        display: 'flex',
-                        justifyContent: 'center',
-                        zIndex: 10
-                    }}
-                >
-                    <BarLoader loading={loading} size={150} />
-                </div>
                 {incidents.data?.map((incident, i) => (
                     <IncidentRow
                         selectCallback={handleSelectEvent}
@@ -197,7 +179,7 @@ const Incidents = ({incidents, refreshCallback, loading}) => {
             <Pagination
                 onPageChange={(page) => {
                     setPage(page);
-                    refreshCallback(page);
+                    onPageChange(page);
                 }}
                 totalPages={incidents.total_pages}
                 overrideSelectedPage={page}
@@ -232,8 +214,7 @@ const Incidents = ({incidents, refreshCallback, loading}) => {
 
 Incidents.propTypes = {
     incidents: PropTypes.object,
-    refreshCallback: PropTypes.func,
-    loading: PropTypes.bool
+    onPageChange: PropTypes.func
 };
 
 export default Incidents;

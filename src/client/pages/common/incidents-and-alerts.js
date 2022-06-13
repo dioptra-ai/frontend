@@ -1,58 +1,49 @@
-import baseJSONClient from 'clients/base-json-client';
-import Alerts from 'components/alerts';
-import Incidents from 'components/incidents';
-import {setupComponent} from 'helpers/component-helper';
-import React from 'react';
+import {useState} from 'react';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import useModel from 'hooks/use-model';
 
+import baseJSONClient from 'clients/base-json-client';
+import Alerts from 'components/alerts';
+import Incidents from 'components/incidents';
+import {setupComponent} from 'helpers/component-helper';
+import Async from 'components/async';
+
 const IncidentsAndAlerts = () => {
     const model = useModel();
-
-    const [alerts, setAlerts] = React.useState([]);
-    const [alertsLoading, setAlertsLoading] = React.useState(false);
-    const [incidents, setIncidents] = React.useState([]);
-    const [incidentsLoading, setIncidentsLoading] = React.useState(false);
-
-    const fetchAlerts = (page = 1) => {
-        setAlertsLoading(true);
-        baseJSONClient(
-            `/api/tasks/alerts?page=${page}&model_type=${model.mlModelType}&per_page=10`
-        ).then((response) => {
-            setAlerts(response.alerts);
-            setAlertsLoading(false);
-        });
-    };
-
-    const fetchIncidents = (page = 1) => {
-        setIncidentsLoading(true);
-        baseJSONClient(
-            `/api/tasks/alert/events?page=${page}&model_type=${model.mlModelType}&per_page=10`
-        ).then((response) => {
-            setIncidents(response.alert_events);
-            setIncidentsLoading(false);
-        });
-    };
+    const [alertsPage, setAlertsPage] = useState(0);
+    const [incidentsPage, setIncidentsPage] = useState(0);
+    const [lastAlertDeleteEvent, setLastAlertDeleteEvent] = useState(new Date());
 
     return (
-        <Row className='my-3'>
+        <Row className='my-3 g-2'>
             <Col lg={6}>
-                <Incidents
-                    incidents={incidents}
-                    refreshCallback={fetchIncidents}
-                    loading={incidentsLoading}
+                <Async
+                    fetchData={() => baseJSONClient(
+                        `/api/tasks/alert/events?page=${incidentsPage}&model_type=${model.mlModelType}&per_page=10`
+                    )}
+                    refetchOnChanged={[incidentsPage, model.mlModelType, lastAlertDeleteEvent]}
+                    renderData={(data) => (
+                        <Incidents
+                            incidents={data['alert_events']}
+                            onPageChange={setIncidentsPage}
+                        />
+                    )}
                 />
             </Col>
             <Col lg={6}>
-                <Alerts
-                    alerts={alerts}
-                    refreshCallback={fetchAlerts}
-                    onDeleteRefreshCallback={(page) => {
-                        fetchIncidents();
-                        fetchAlerts(page);
-                    }}
-                    loading={alertsLoading}
+                <Async
+                    fetchData={() => baseJSONClient(
+                        `/api/tasks/alerts?page=${alertsPage}&model_type=${model.mlModelType}&per_page=10`
+                    )}
+                    refetchOnChanged={[alertsPage, model.mlModelType, lastAlertDeleteEvent]}
+                    renderData={(data) => (
+                        <Alerts
+                            alerts={data['alerts']}
+                            onPageChange={setAlertsPage}
+                            onDeleteRefreshCallback={setLastAlertDeleteEvent}
+                        />
+                    )}
                 />
             </Col>
         </Row>
