@@ -23,7 +23,7 @@ import useAllSqlFilters from 'hooks/use-all-sql-filters';
 import { IsoDurations } from '../enums/iso-durations';
 import { getMetricsForModel } from '../enums/metrics';
 
-const inputStyling = 'form-control py-3 bg-white-blue mt-0';
+const inputStyling = 'form-control bg-white-blue';
 const BinButton = ({onClick = noop, className}) => (
     <button
         className={`border border-1 border-mercury h-100 d-flex align-items-center p-3 bg-white rounded-3 ${className}`}
@@ -143,11 +143,9 @@ const ConditionRow = ({
 
     return (
         <span key={idx}>
-            <Row className='mt-3 align-items-center'>
+            <Row className='mt-3 align-items-center g-1'>
                 <Col xl={1}>
-                    {isFirst ? (
-                        <LabelBox text='WHEN' />
-                    ) : (
+                    {isFirst ? 'WHEN' : (
                         <Select
                             initialValue={rowState.logicalOperator}
                             isTextBold
@@ -180,9 +178,9 @@ const ConditionRow = ({
                     {rowState.comparator !== 'HAS_NO_VALUE' && (
                         <Form.Control
                             type='number'
-                            className='form-control py-3 mt-0 bg-white-blue'
+                            className='form-control bg-white-blue'
                             initialValue={rowState.valueToCompare}
-                            onChange={handleValueToCompareChange}
+                            onChange={(e) => handleValueToCompareChange(e.target.value)}
                         />
                     )}
                     {isFirst ? null : (
@@ -211,7 +209,6 @@ const RecipientRow = ({
     handleDeleteRow,
     handleAddRow,
     isFirst,
-    idx,
     rowState
 }) => {
     const handleTypeChange = (newType) => handleRowDataChange({type: newType});
@@ -219,17 +216,8 @@ const RecipientRow = ({
         handleRowDataChange({address: newAddress});
 
     return (
-        <Row className='my-3 align-items-center' key={idx}>
-            <Col xl={1}>{isFirst ? <LabelBox text='SEND TO' /> : null}</Col>
-            {false &&
-            <Col xl={3}>
-                 <Select
-                    initialValue={rowState.type}
-                    onChange={handleTypeChange}
-                    options={Object.values(NotificationTypes)}
-                />
-            </Col>
-            }
+        <>
+            <Form.Label column>{isFirst ? 'POST' : null}</Form.Label>
             <Col xl={11}>
                 <Form.Control
                     className={inputStyling}
@@ -238,7 +226,7 @@ const RecipientRow = ({
                     placeholder='Enter webhook URL (ex. Slack webhook URL)'
                 />
             </Col>
-        </Row>
+        </>
     );
 };
 
@@ -246,7 +234,6 @@ RecipientRow.propTypes = {
     handleAddRow: PropTypes.func,
     handleDeleteRow: PropTypes.func,
     handleRowDataChange: PropTypes.func,
-    idx: PropTypes.number,
     isFirst: PropTypes.bool,
     rowState: PropTypes.object
 };
@@ -343,7 +330,7 @@ const AddAlertPage = (props) => {
     const [alertName, setAlertName] = useState('');
     const [conditions, setConditions] = useState([conditionInitialValue]);
     const [notificationEnabled, setNotificationEnabled] = useState(true);
-    const [evaluationPeriod, setEvaluationPeriod] = useState();
+    const [evaluationPeriod, setEvaluationPeriod] = useState(IsoDurations.PT5M.value);
     const [alertId, setAlertId] = useState('');
     const [alertType, setAlertType] = useState(AlertTypes.THRESHOLD.value);
     const [addAlertInProgress, setAddAlertInProgress] = useState(false);
@@ -442,12 +429,10 @@ const AddAlertPage = (props) => {
                     </div>
                     <div className='flex-grow-1 ms-3'>
                         <Select
-                            initialValue={evaluationPeriod || IsoDurations.PT5M.value}
-                            isTextBold
+                            value={evaluationPeriod}
                             onChange={setEvaluationPeriod}
                             options={Object.values(IsoDurations)}
                             textColor='primary'
-                            selectValue={evaluationPeriod || IsoDurations.PT5M.value}
                         />
                     </div>
                 </Col>
@@ -473,19 +458,17 @@ const AddAlertPage = (props) => {
             </label>
             { notificationEnabled && <div>
                 <FormSection name='Notifications'>
-                    <Col className='mt-2' xl={12}>
+                    <Form.Group as={Row}>
                         <DynamicArray data={recipients} newRowInitialState={recipientInitialValue} onChange={setRecipients} renderRow={RecipientRow} />
-                        <Row className='my-3'>
-                            <Col xl={1}><LabelBox text='TEMPLATE'/></Col>
-                            <Col xl={11}><TextArea className={inputStyling} inputValue={template} onChange={setTemplate} placeholder='Enter webhook template (a handlebar template) or leave it empty to use default: { "text" : "$dioptra_message" }' rows={9} /></Col>
-                        </Row>
-                    </Col>
-                    <Col className='mt-2' xl={12}>
-                        <Row>
-                            <Col xl={1}></Col>
-                            <Col xl={11} style={{fontSize: 12}}>Please use <strong>$dioptra_message</strong> key in webhook template to use original Dioptra alert message</Col>
-                        </Row>
-                    </Col>
+                    </Form.Group>
+                    <Form.Group as={Row}>
+                            <Form.Label column xl={1}>BODY</Form.Label>
+                            <Col xl={11}><TextArea className={inputStyling} inputValue={template} onChange={setTemplate} placeholder='Enter webhook body or leave it empty to use default: { "text" : "$dioptra_message" }' rows={9} />
+                                <Form.Text muted>
+                                    Use <strong>$dioptra_message</strong> key in webhook template to use original Dioptra alert message
+                                </Form.Text>
+                            </Col>
+                        </Form.Group>
                 </FormSection>
             </div> }
             <div className='border-bottom border-bottom-2'></div>
