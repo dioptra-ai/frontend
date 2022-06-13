@@ -88,7 +88,7 @@ const Benchmarks = ({filtersStore, modelStore, benchmarkStore}) => {
 
     return (
         <Menu>
-            <TopBar showTimePicker/>
+            <TopBar hideTimePicker/>
             <Container className='bg-white-blue text-secondary py-2' fluid>
                 <Row className='align-items-center my-3 px-3'>
                     <Col className='d-flex align-items-center'>

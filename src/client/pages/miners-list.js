@@ -30,7 +30,7 @@ const MinersList = () => {
 
     return (
         <Menu>
-            <TopBar showTimePicker />
+            <TopBar hideTimePicker />
             <div className='p-4 mt-5'>
                 <div className='d-flex justify-content-between'>
                     <span className='h2 fs-1 text-dark bold-text'>Miners</span>

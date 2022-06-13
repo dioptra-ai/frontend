@@ -213,7 +213,7 @@ const Models = ({modelStore}) => {
 
     return (
         <>
-            <TopBar showTimePicker={true} />
+            <TopBar hideTimePicker={true} />
             <div className='p-4 mt-5'>
                 <div className='d-flex justify-content-between'>
                     <span className='h2 fs-1 text-dark bold-text'>Models</span>

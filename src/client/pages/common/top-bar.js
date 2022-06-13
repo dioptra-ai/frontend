@@ -7,11 +7,11 @@ import {Link} from 'react-router-dom';
 import DateTimeRangePicker from 'components/date-time-range-picker';
 import {setupComponent} from 'helpers/component-helper';
 
-const TopBar = ({showTimePicker, timeStore, userStore}) => {
+const TopBar = ({hideTimePicker, timeStore, userStore}) => {
 
     return (
         <div className='py-2 px-3 d-flex align-items-center justify-content-end border-bottom'>
-            {showTimePicker ? null : (
+            {hideTimePicker ? null : (
                 <>
                     <DateTimeRangePicker
                         end={timeStore.end}
@@ -51,7 +51,7 @@ const TopBar = ({showTimePicker, timeStore, userStore}) => {
 };
 
 TopBar.propTypes = {
-    showTimePicker: PropTypes.bool,
+    hideTimePicker: PropTypes.bool,
     timeStore: PropTypes.object,
     userStore: PropTypes.object
 };

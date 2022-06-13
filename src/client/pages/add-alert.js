@@ -102,7 +102,6 @@ const ErrorHandlingRow = ({errorCondition, initialValue, onChange}) => {
             </Col>
             <Col xl={2}>
                 <Select
-                    backgroundColor='white-blue'
                     initialValue={initialValue}
                     onChange={onChange}
                     options={Object.values(AlertErrorHandlingStatuses)}
@@ -150,7 +149,6 @@ const ConditionRow = ({
                         <LabelBox text='WHEN' />
                     ) : (
                         <Select
-                            backgroundColor='white'
                             initialValue={rowState.logicalOperator}
                             isTextBold
                             onChange={handleLogicalChange}
@@ -171,7 +169,6 @@ const ConditionRow = ({
                 </Col>
                 <Col xl={2}>
                     <Select
-                        backgroundColor='white'
                         initialValue={rowState.comparator}
                         isTextBold
                         onChange={handleComparatorChange}
@@ -227,7 +224,6 @@ const RecipientRow = ({
             {false &&
             <Col xl={3}>
                  <Select
-                    backgroundColor='white-blue'
                     initialValue={rowState.type}
                     onChange={handleTypeChange}
                     options={Object.values(NotificationTypes)}
@@ -352,6 +348,8 @@ const AddAlertPage = (props) => {
     const [alertType, setAlertType] = useState(AlertTypes.THRESHOLD.value);
     const [addAlertInProgress, setAddAlertInProgress] = useState(false);
 
+    // TODO: create button isn't enabled because evaluationPeriod isnt set AND conditions[0] has no valueToCompare
+
     const goToPreviousRoute = useCallback(() => {
         history.goBack();
     }, []);
@@ -429,7 +427,7 @@ const AddAlertPage = (props) => {
                         <Form.Control
                             className={inputStyling}
                             value={alertName}
-                            onChange={setAlertName}
+                            onChange={(e) => setAlertName(e.target.value)}
                             placeholder='Enter Alert Name'
                         />{' '}
                     </div>
@@ -444,7 +442,6 @@ const AddAlertPage = (props) => {
                     </div>
                     <div className='flex-grow-1 ms-3'>
                         <Select
-                            backgroundColor='white'
                             initialValue={evaluationPeriod || IsoDurations.PT5M.value}
                             isTextBold
                             onChange={setEvaluationPeriod}

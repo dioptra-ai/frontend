@@ -6,18 +6,21 @@ import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import Container from 'react-bootstrap/Container';
+import {useHistory} from 'react-router-dom';
 
+import {IconNames} from 'constants';
+import BtnIcon from 'components/btn-icon';
 import MinerModal from 'components/miner-modal';
 import {setupComponent} from 'helpers/component-helper';
 import Menu from 'components/menu';
 import Async from 'components/async';
-import TopBar from 'pages/common/top-bar';
 import metricsClient from 'clients/metrics';
 import DatapointsViewer from 'components/datapoints-viewer';
 import useModal from 'hooks/useModal';
 import ButtonDownloadCSV from 'components/button-download-csv';
 
 const Cart = ({userStore}) => {
+    const history = useHistory();
     const [selectedDatapoints, setSelectedDatapoints] = useState(new Set());
     const [minerModalOpen, setMinerModalOpen] = useModal(false);
     const removeDatapointsFromCart = async (uuids) => {
@@ -36,10 +39,15 @@ const Cart = ({userStore}) => {
 
     return (
         <Menu>
-            <TopBar showTimePicker/>
-            <div className='text-dark p-2'>
-                <div className='mb-5' style={{fontSize: 24}}>
-                    Data Cart
+            <div className='text-dark px-3'>
+                <div className='my-3 d-flex justify-content-between'>
+                    <h3>Data Cart</h3>
+                    <BtnIcon
+                        className='text-dark border-0'
+                        icon={IconNames.CLOSE}
+                        onClick={() => history.goBack()}
+                        size={20}
+                    />
                 </div>
                 <Async
                     fetchData={() => metricsClient('datapoints', {

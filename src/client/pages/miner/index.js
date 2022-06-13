@@ -25,7 +25,7 @@ const Miner = () => {
 
     return (
         <Menu>
-            <TopBar showTimePicker/>
+            <TopBar hideTimePicker/>
             <Async
                 fetchData={() => metricsClient(`miners/${minerId}`, null, 'get')}
                 renderData={(miner) => (
