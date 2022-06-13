@@ -32,13 +32,12 @@ organizationSchema.pre('save', async function () {
                 organization: precannedOrgId
             }).select('-_id').lean();
 
-            return precannedMlModels.map((precannedMlModel) => {
-
-                return MlModel.create({
+            return Promise.all(
+                precannedMlModels.map((precannedMlModel) => MlModel.create({
                     ...precannedMlModel,
                     organization: this._id // eslint-disable-line no-invalid-this
-                });
-            });
+                }))
+            );
         } else return null;
     } catch (e) {
         console.error(e);
