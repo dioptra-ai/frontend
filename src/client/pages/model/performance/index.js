@@ -99,18 +99,16 @@ const Performance = () => {
     }
 
     return (
-        <div className='pb-5'>
-            <div className='my-3'>
-                <Row className='mb-3 g-2'>
-                    {
-                        metrics.map((m) => (
-                            <Col key={m} className='d-flex' {...metricBoxBreakpoints[comparisonTotal]}>
-                                <MetricChart type='stat' selectedMetric={m}/>
-                            </Col>
-                        ))
-                    }
-                </Row>
-            </div>
+        <>
+            <Row className='mb-3 g-2'>
+                {
+                    metrics.map((m) => (
+                        <Col key={m} className='d-flex' {...metricBoxBreakpoints[comparisonTotal]}>
+                            <MetricChart type='stat' selectedMetric={m}/>
+                        </Col>
+                    ))
+                }
+            </Row>
             <div className='my-3'>
                 <MetricChart
                     type='timeseries'
@@ -125,7 +123,7 @@ const Performance = () => {
                     </div>
                 ))
             }
-        </div>
+        </>
     );
 };
 
