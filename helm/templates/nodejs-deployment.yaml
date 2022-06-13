@@ -42,6 +42,8 @@ spec:
               value: "http://task-engine:8001"
             - name: PORT
               value: "4004"
+            - name: PRECANNED_ORG_ID
+              value: {{ .Values.precannedOrgId }}
             - name: AWS_API_GATEWAY_PLAN_ID
               value: "{{ .Values.app.awsApiGatewayPlanId }}"
             - name: AWS_ACCESS_KEY_ID

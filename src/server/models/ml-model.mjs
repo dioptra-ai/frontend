@@ -47,8 +47,7 @@ const mlModelSchema = new mongoose.Schema({
         start: Date,
         end: Date
     },
-    referenceBenchmarkId: String,
-    precanned: Boolean
+    referenceBenchmarkId: String
 }, {timestamps: true});
 
 const MlModel = mongoose.model('MlModel', mlModelSchema);

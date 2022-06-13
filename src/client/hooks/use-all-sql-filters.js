@@ -5,9 +5,9 @@ import useModel from 'hooks/use-model';
 import appContext from 'context/app-context';
 import comparisonContext from 'context/comparison-context';
 
-const {filtersStore, timeStore, modelStore, userStore} = stores;
+const {filtersStore, timeStore, modelStore} = stores;
 
-const useAllSqlFilters = ({useReferenceFilters = false, forLiveModel, excludeCurrentTimeFilters, __REMOVE_ME__excludeOrgId} = {}) => {
+const useAllSqlFilters = ({useReferenceFilters = false, forLiveModel, excludeCurrentTimeFilters} = {}) => {
     const {isModelView, isBenchmarkView, getAllSqlFiltersFromAppContext} = useContext(appContext);
 
     if (getAllSqlFiltersFromAppContext) {
@@ -18,10 +18,6 @@ const useAllSqlFilters = ({useReferenceFilters = false, forLiveModel, excludeCur
     const comparisonContextValue = useContext(comparisonContext);
 
     let allFilters = [];
-
-    if (!__REMOVE_ME__excludeOrgId) {
-        allFilters.push(`organization_id='${_WEBPACK_DEF_OVERRIDE_ORG_ID_ || userStore.userData.activeOrganizationMembership.organization._id}'`);
-    }
 
     if (isModelView) {
 

@@ -8,7 +8,6 @@ import {isAuthenticated} from '../middleware/authentication.mjs';
 const axiosClient = axios.create({
     validateStatus: () => true
 });
-const {OVERRIDE_DRUID_ORG_ID} = process.env;
 const MetricsRouter = express.Router();
 
 MetricsRouter.all('*', isAuthenticated);
@@ -83,9 +82,7 @@ MetricsRouter.get('*', async (req, res, next) => {
         const originalQS = new url.URLSearchParams(originalUrl.query);
 
         originalQS.set(
-            'organization_id',
-            OVERRIDE_DRUID_ORG_ID ||
-                req.user.activeOrganizationMembership.organization._id
+            'organization_id', req.user.activeOrganizationMembership.organization._id
         );
 
         const newurl = {...originalUrl, search: originalQS.toString()};
@@ -120,9 +117,7 @@ MetricsRouter.post('*', async (req, res, next) => {
             body: JSON.stringify({
                 ...req.body,
                 user_id: req.user.id,
-                organization_id:
-                    OVERRIDE_DRUID_ORG_ID ||
-                    req.user.activeOrganizationMembership.organization._id
+                organization_id: req.user.activeOrganizationMembership.organization._id
             }),
             method: 'post'
         });

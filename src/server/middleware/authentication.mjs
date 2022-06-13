@@ -27,8 +27,7 @@ const isAuthenticated = [
             next();
         } else {
 
-            res.status(401);
-            next(new Error('Not authenticated.'));
+            res.sendStatus(401);
         }
     }
 ];
@@ -37,8 +36,7 @@ const isAdmin = (req, res, next) => {
     if (req.user && req?.user?.activeOrganizationMembership?.type === 'ADMIN') {
         next();
     } else {
-        res.status(403);
-        next(new Error('Not Authorized.'));
+        res.sendStatus(403);
     }
 };
 

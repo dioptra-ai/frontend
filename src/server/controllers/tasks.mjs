@@ -4,7 +4,7 @@ import express from 'express';
 import {isAuthenticated} from '../middleware/authentication.mjs';
 
 const axiosClient = axios.create();
-const {OVERRIDE_DRUID_ORG_ID, TASK_ENGINE_URL} = process.env;
+const {TASK_ENGINE_URL} = process.env;
 const TasksRouter = express.Router();
 
 TasksRouter.all('*', isAuthenticated);
@@ -42,7 +42,7 @@ TasksRouter.put('*', async (req, res, next) => {
             },
             body: JSON.stringify({
                 ...req.body,
-                organization_id: OVERRIDE_DRUID_ORG_ID || organizationId
+                organization_id: organizationId
             }),
             method: 'put'
         });
@@ -72,7 +72,7 @@ TasksRouter.post('*', async (req, res, next) => {
             },
             body: JSON.stringify({
                 ...req.body,
-                organization_id: OVERRIDE_DRUID_ORG_ID || organizationId
+                organization_id: organizationId
             }),
             method: 'post'
         });

@@ -63,9 +63,7 @@ class ModelStore {
     }
 
     async tryDeleteModel(_id) {
-
         await baseJSONClient(`/api/ml-model/${_id}`, {method: 'delete'});
-        this.modelsById = {};
         await this.tryFetchModels();
     }
 }

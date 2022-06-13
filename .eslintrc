@@ -28,7 +28,6 @@
   "globals": {
       "window": true,
       "_WEBPACK_DEF_FLAG_DISABLE_REGISTER_": true,
-      "_WEBPACK_DEF_OVERRIDE_ORG_ID_": true,
       "_WEBPACK_DEF_ENV_": true
   },
     "ignorePatterns": ["**/__tests__/**"],
