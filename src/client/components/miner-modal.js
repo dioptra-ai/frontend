@@ -6,7 +6,6 @@ import DateTimeRangePicker from 'components/date-time-range-picker';
 import Modal from 'components/modal';
 import Select from 'components/select';
 import {lastMilliseconds} from 'helpers/date-helper';
-import useModel from 'hooks/use-model';
 import moment from 'moment';
 import {useState} from 'react';
 import Button from 'react-bootstrap/Button';
@@ -30,7 +29,6 @@ const IsoDurations = {
 
 
 const MinerModal = ({isOpen, onClose, onMinerCreated, uuids, modelStore}) => {
-    const contextModel = useModel();
     const [minerDatasetSelected, setMinerDatasetSelected] = useState(false);
     const [selectedDataset, setSelectedDataset] = useState();
     const [minerName, setMinerName] = useState();
@@ -44,7 +42,7 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, uuids, modelStore}) => {
     const [minerMetric, setMinerMetric] = useState('euclidean');
     const [minerLimit, setMinerLimit] = useState();
     const [minerDuplicationFactor, setMinerDuplicationFactor] = useState(1);
-    const [minerModel, setMinerModel] = useState(contextModel);
+    const [minerModel, setMinerModel] = useState(modelStore.models[0]);
 
     const onDatasetDateChange = ({start, end, lastMs}) => {
         let isoStart = null;
@@ -191,11 +189,11 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, uuids, modelStore}) => {
                                         The miner will select up to {minerLimit || '-'} datapoints.
                                         </Form.Text>
                                         <Form.Label className='mt-3 mb-0 w-100'>Duplication Factor</Form.Label>
-                                        <Form.Control type='number' step='0.01' defaultValue={1} onChange={(e) => {
+                                        <Form.Control type='number' step='0.01' min={1} defaultValue={1} onChange={(e) => {
                                             setMinerDuplicationFactor(Number(e.target.value));
                                         }}/>
                                         <Form.Text className='text-muted'>
-                                        The estimated number of near duplicates per datapoint.
+                                        The estimated number of near duplicates per datapoint (including itself).
                                         </Form.Text>
                                     </>
                                 ) : minerStrategy === 'ENTROPY' || minerStrategy === 'CORESET' ? (
@@ -226,7 +224,7 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, uuids, modelStore}) => {
                                     }}
                                 >
                                     <option value={false}>
-                                    Live traffic of {minerModel ? `"${minerModel.name}"` : 'a model'}
+                                        Datasource
                                     </option>
                                     <option value={true}>Dataset</option>
                                 </Form.Control>
@@ -279,11 +277,7 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, uuids, modelStore}) => {
 
                                     <Form.Label className='mt-3 mb-0 w-100'>Model</Form.Label>
                                     <InputGroup className='mt-1 flex-column'>
-                                        <Form.Control
-                                            as='select'
-                                            className='form-select w-100'
-                                            custom
-                                            required
+                                        <Select required
                                             onChange={(e) => {
                                                 setMinerModel(modelStore.getModelById(e.target.value));
                                             }}
@@ -294,7 +288,7 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, uuids, modelStore}) => {
                                                     <option value={model._id} key={model._id}>{model.name}</option>
                                                 ))
                                             }
-                                        </Form.Control>
+                                        </Select>
                                     </InputGroup>
                                     <div>
                                         <ToggleButtonGroup
