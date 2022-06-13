@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {useHistory} from 'react-router';
 import {Link} from 'react-router-dom';
 import PropTypes from 'prop-types';
+import Alert from 'react-bootstrap/Alert';
 import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
@@ -50,18 +51,11 @@ const Profile = ({userStore}) => {
             }).then(() => setProfileData({...profileData, password: '', confirmPassword: ''}));
         }
     };
-
-    const handleCreateApiKey = async () => {
-        await apiKeyClient('post');
-
-        return apiKeyClient('get').then(setApiKeys);
-    };
     const handleDeleteApiKey = async (_id) => {
         await apiKeyClient('delete', _id);
 
         return apiKeyClient('get').then(setApiKeys);
     };
-
     const handleOrgRename = (e) => {
         e.preventDefault();
 
@@ -78,7 +72,6 @@ const Profile = ({userStore}) => {
             })
             .catch(() => setError('Something went wrong! Try again.'));
     };
-
     const handleOrgChange = ({original}) => {
         baseJSONClient('/api/user/change-membership', {
             method: 'PUT',
@@ -258,13 +251,15 @@ const Profile = ({userStore}) => {
                         </div>
                     </div>
                 </div>
-                <MembersTable
-                    isAdmin={
-                        userData.activeOrganizationMembership.type === 'ADMIN'
-                    }
-                    orgID={userData.activeOrganizationMembership.organization._id}
-                />
-                <div className='text-secondary border-muted mt-3 pt-3 w-100'>
+                <div className='my-3'>
+                    <MembersTable
+                        isAdmin={
+                            userData.activeOrganizationMembership.type === 'ADMIN'
+                        }
+                        orgID={userData.activeOrganizationMembership.organization._id}
+                    />
+                </div>
+                <div className='text-secondary border-muted my-3 pt-3 w-100'>
                     <p className='text-dark bold-text fs-3'>Api Keys</p>
                     <div className='text-secondary'>
                         Dioptra uses the <b>x-api-key</b> HTTP header to authenticate its APIs.
@@ -283,12 +278,20 @@ const Profile = ({userStore}) => {
                             </Link>
                         </div>
                     ))}
-                    <Button
-                        className='w-100 text-white btn-submit mt-5'
-                        onClick={handleCreateApiKey}
-                    >
-                        Create Api Key
-                    </Button>
+                    <Alert variant='primary'>
+                        Please reach out to <a className='text-secondary' href={`mailto:hello@dioptra.ai?subject=New API Key request&body=Hello, I would like a new Api key for the organization "${userStore.userData.activeOrganizationMembership.organization.name}". Thank you!`}>hello@dioptra.ai</a> to create an API key.
+                    </Alert>
+                    {/* TODO: Reenable for superusers */}
+                    {/*                     <Button */}
+                    {/*                         className='w-100 text-white btn-submit mt-5' */}
+                    {/*                         onClick={async () => { */}
+                    {/*                             await apiKeyClient('post'); */}
+                    {/*  */}
+                    {/*                             return apiKeyClient('get').then(setApiKeys); */}
+                    {/*                         }} */}
+                    {/*                     > */}
+                    {/*                         Create Api Key */}
+                    {/*                     </Button> */}
                 </div>
             </div>
             <OrganizationUpdateModal
