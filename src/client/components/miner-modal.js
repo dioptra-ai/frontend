@@ -274,7 +274,6 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, uuids, modelStore}) => {
                                 </>
                             ) : (
                                 <>
-
                                     <Form.Label className='mt-3 mb-0 w-100'>Model</Form.Label>
                                     <InputGroup className='mt-1 flex-column'>
                                         <Select required
