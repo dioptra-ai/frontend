@@ -45,25 +45,27 @@ const Miner = () => {
                                         renderData={(task) => (
                                             <>
                                                 <table>
-                                                    <tr>
-                                                        <td>
-                                                            <p>Execution Status: {task.status}</p>
-                                                        </td>
-                                                    </tr>
-                                                    {
-                                                        task.executions.map((e, i) => (
-                                                            <tr key={i}>
-                                                                <td>
-                                                                    <p>Started at: {new Date(e['time_started'] * 1000).toString()}</p>
-                                                                    <p>Failed at: {new Date(e['time_failed'] * 1000).toString()}</p>
-                                                                    <hr/>
-                                                                    <pre style={{whiteSpace: 'pre-wrap'}}>
-                                                                        {e.traceback}
-                                                                    </pre>
-                                                                </td>
-                                                            </tr>
-                                                        ))
-                                                    }
+                                                    <tbody>
+                                                        <tr>
+                                                            <td>
+                                                                <p>Execution Status: {task.status}</p>
+                                                            </td>
+                                                        </tr>
+                                                        {
+                                                            task.executions.map((e, i) => (
+                                                                <tr key={i}>
+                                                                    <td>
+                                                                        <p>Started at: {new Date(e['time_started'] * 1000).toString()}</p>
+                                                                        <p>Failed at: {new Date(e['time_failed'] * 1000).toString()}</p>
+                                                                        <hr/>
+                                                                        <pre style={{whiteSpace: 'pre-wrap'}}>
+                                                                            {e.traceback}
+                                                                        </pre>
+                                                                    </td>
+                                                                </tr>
+                                                            ))
+                                                        }
+                                                    </tbody>
                                                 </table>
                                             </>
                                         )}

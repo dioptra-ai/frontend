@@ -69,7 +69,7 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
         ...c
     })).sort((c1, c2) => {
 
-        return c2.metric.value - c1.metric.value;
+        return c2.metric?.value - c1.metric?.value;
     }), [clusters]);
     const samples = selectedPoints.map((p) => p.sample);
     // SQL Filter for samples is sliced if there are more than samplingLimit samples.

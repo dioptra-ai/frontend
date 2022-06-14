@@ -32,7 +32,7 @@ const PreviewDetails = ({sample}) => {
 };
 
 PreviewDetails.propTypes = {
-    sample: PropTypes.object.isRequired
+    sample: PropTypes.any
 };
 
 export default PreviewDetails;
