@@ -278,8 +278,8 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, uuids, modelStore}) => {
                                     <Form.Label className='mt-3 mb-0 w-100'>Model</Form.Label>
                                     <InputGroup className='mt-1 flex-column'>
                                         <Select required
-                                            onChange={(e) => {
-                                                setMinerModel(modelStore.getModelById(e.target.value));
+                                            onChange={(id) => {
+                                                setMinerModel(modelStore.getModelById(id));
                                             }}
                                             defaultValue={minerModel?._id}
                                         >
