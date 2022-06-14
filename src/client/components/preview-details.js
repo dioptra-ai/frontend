@@ -10,7 +10,11 @@ const PreviewDetails = ({sample}) => (
             Object.keys(sample).map((k) => (
                 <Row key={k}>
                     <Col xs={4}>{k}</Col>
-                    <Col className='text-break'>{sample[k]}</Col>
+                    <Col className='text-break'>{
+                        typeof sample[k] === 'object' ? (
+                            <PreviewDetails sample={sample[k]}/>
+                        ) : String(sample[k])
+                    }</Col>
                 </Row>
             ))
         }
