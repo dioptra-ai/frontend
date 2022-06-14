@@ -7,13 +7,13 @@ const PreviewDetails = ({sample}) => (
 
     <Container fluid>
         {
-            Object.keys(sample).map((k) => (
+            Object.entries(sample).map(([k, v]) => (
                 <Row key={k}>
                     <Col xs={4}>{k}</Col>
                     <Col className='text-break'>{
-                        typeof sample[k] === 'object' ? (
-                            <PreviewDetails sample={sample[k]}/>
-                        ) : String(sample[k])
+                        v && typeof v === 'object' ? (
+                            <PreviewDetails sample={v}/>
+                        ) : String(v)
                     }</Col>
                 </Row>
             ))
