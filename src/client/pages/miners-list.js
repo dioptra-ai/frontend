@@ -11,14 +11,13 @@ import Table from 'react-bootstrap/Table';
 import {IoDownloadOutline} from 'react-icons/io5';
 import {AiOutlineDelete} from 'react-icons/ai';
 import {BarLoader} from 'react-spinners';
-import baseJSONClient from 'clients/base-json-client';
 import {Button, OverlayTrigger, Tooltip} from 'react-bootstrap';
 import {saveAs} from 'file-saver';
 
 const MinersList = () => {
     const [isMinerModalOpen, setIsMinerModalOpen] = useState(false);
     const history = useHistory();
-    const fetchMiners = () => baseJSONClient('/api/metrics/miners', {memoized: false});
+    const fetchMiners = () => metricsClient('miners', null, false);
 
     useEffect(fetchMiners, []);
 
@@ -76,7 +75,7 @@ const MinersList = () => {
                                                 <td>{miner.type}</td>
                                                 <td>
                                                     <Async
-                                                        fetchData={() => metricsClient(`miners/size?id=${miner._id}`)}
+                                                        fetchData={() => metricsClient(`miners/size?id=${miner._id}`, null, false)}
                                                         renderData={({size}) => Number(size).toLocaleString()}
                                                     />
                                                 </td>
@@ -86,7 +85,7 @@ const MinersList = () => {
                                                             <BarLoader loading size={40} />
                                                         ) : miner.status !== 'error' ? (
                                                             <Async
-                                                                fetchData={() => metricsClient(`miners/size?id=${miner._id}`)}
+                                                                fetchData={() => metricsClient(`miners/size?id=${miner._id}`, null, false)}
                                                                 renderData={({size}) => (
                                                                     <OverlayTrigger overlay={
                                                                         <Tooltip>
@@ -100,7 +99,7 @@ const MinersList = () => {
                                                                                 e.stopPropagation();
 
                                                                                 if (size) {
-                                                                                    const datapoints = await metricsClient(`miner/datapoints?id=${miner._id}&as_csv=true`);
+                                                                                    const datapoints = await metricsClient(`miner/datapoints?id=${miner._id}&as_csv=true`, null, false);
 
                                                                                     saveAs(new Blob([datapoints], {type: 'text/csv;charset=utf-8'}), `${slugify(miner.display_name)}.csv`);
                                                                                 }
