@@ -97,7 +97,7 @@ const BenchmarksList = ({filtersStore, modelStore, benchmarkStore}) => {
                     <Form.Group className='mb-3'>
                         <Form.Label>Dataset</Form.Label>
                         <Async
-                            fetchData={() => metricsClient('datasets', null, 'get')}
+                            fetchData={() => metricsClient('datasets')}
                             renderData={(benchmarks) => (
                                 <Select options={benchmarks.map(({dataset_id, created_at}) => ({
                                     name: `${dataset_id} @ ${new Date(created_at).toLocaleDateString()}`,

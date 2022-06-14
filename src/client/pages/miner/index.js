@@ -27,7 +27,7 @@ const Miner = () => {
         <Menu>
             <TopBar hideTimePicker/>
             <Async
-                fetchData={() => metricsClient(`miners/${minerId}`, null, 'get')}
+                fetchData={() => metricsClient(`miners/${minerId}`)}
                 renderData={(miner) => (
                     <>
                         <div className='bg-white-blue text-dark p-3'>

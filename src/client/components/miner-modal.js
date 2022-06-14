@@ -236,7 +236,7 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, uuids, modelStore}) => {
                                     </Form.Label>
                                     <InputGroup className='mt-1'>
                                         <Async
-                                            fetchData={() => metricsClient('datasets', null, 'get')
+                                            fetchData={() => metricsClient('datasets')
                                             }
                                             renderData={(datasets) => (
                                                 <Form.Control

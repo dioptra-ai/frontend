@@ -104,7 +104,7 @@ const Benchmarks = ({filtersStore, modelStore, benchmarkStore}) => {
                         <Async
                             fetchData={() => metricsClient(`benchmarks?sql_filters=${encodeURI(
                                 `dataset_id='${datasetId}'`
-                            )}`, null, 'get')}
+                            )}`)}
                             renderData={(benchmarks) => (
                                 <Select
                                     options={

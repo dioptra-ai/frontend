@@ -76,7 +76,7 @@ const MinersList = () => {
                                                 <td>{miner.type}</td>
                                                 <td>
                                                     <Async
-                                                        fetchData={() => metricsClient(`miners/size?id=${miner._id}`, null, 'get')}
+                                                        fetchData={() => metricsClient(`miners/size?id=${miner._id}`)}
                                                         renderData={({size}) => Number(size).toLocaleString()}
                                                     />
                                                 </td>
@@ -86,7 +86,7 @@ const MinersList = () => {
                                                             <BarLoader loading size={40} />
                                                         ) : miner.status !== 'error' ? (
                                                             <Async
-                                                                fetchData={() => metricsClient(`miners/size?id=${miner._id}`, null, 'get')}
+                                                                fetchData={() => metricsClient(`miners/size?id=${miner._id}`)}
                                                                 renderData={({size}) => (
                                                                     <OverlayTrigger overlay={
                                                                         <Tooltip>
@@ -100,7 +100,7 @@ const MinersList = () => {
                                                                                 e.stopPropagation();
 
                                                                                 if (size) {
-                                                                                    const datapoints = await metricsClient(`miner/datapoints?id=${miner._id}&as_csv=true`, null, 'get');
+                                                                                    const datapoints = await metricsClient(`miner/datapoints?id=${miner._id}&as_csv=true`);
 
                                                                                     saveAs(new Blob([datapoints], {type: 'text/csv;charset=utf-8'}), `${slugify(miner.display_name)}.csv`);
                                                                                 }

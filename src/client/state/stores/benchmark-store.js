@@ -9,7 +9,7 @@ class BenchmarkStore {
     }
 
     fetchBenchmarks() {
-        metricsClient('benchmarks', null, 'get').then((benchmarks) => {
+        metricsClient('benchmarks').then((benchmarks) => {
 
             benchmarks.forEach((benchmark) => {
                 this.benchmarksById[benchmark.benchmark_id] = benchmark;

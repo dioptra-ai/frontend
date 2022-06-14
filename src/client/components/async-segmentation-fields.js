@@ -15,41 +15,11 @@ const AsyncSegmentationFields = ({timeStore, ...props}) => {
 
     return (
         <Async
-            fetchData={async () => {
-                let columns = null;
-
-                switch (model?.mlModelType) {
-                case 'TABULAR_CLASSIFIER':
-
-                    columns = await metricsClient('queries/columns-names-for-features');
-                    break;
-                case 'SPEECH_TO_TEXT':
-
-                    columns = await metricsClient('queries/columns-names-for-audio');
-                    break;
-                case 'TEXT_CLASSIFIER':
-                case 'UNSUPERVISED_TEXT_CLASSIFIER':
-
-                    columns = await metricsClient('queries/columns-names-for-text');
-                    break;
-                case 'IMAGE_CLASSIFIER':
-                case 'UNSUPERVISED_IMAGE_CLASSIFIER':
-                case 'UNSUPERVISED_OBJECT_DETECTION':
-
-                    columns = await metricsClient('queries/columns-names-for-image');
-                    break;
-                default:
-
-                    columns = await metricsClient('queries/columns-names-for-tags');
-                    break;
-                }
-
-                return metricsClient('queries/fairness-bias-columns-counts', {
-                    fields: columns.map((c) => c.column),
-                    sql_filters: isModelView ? timeStore.sqlTimeFilter : allSqlFilters,
-                    ml_model_id: model?.mlModelId
-                });
-            }}
+            fetchData={() => metricsClient('queries/fairness-bias-columns-counts', {
+                sql_filters: isModelView ? timeStore.sqlTimeFilter : allSqlFilters,
+                ml_model_id: model?.mlModelId,
+                model_type: model?.mlModelType
+            })}
             {...props}
         />
     );

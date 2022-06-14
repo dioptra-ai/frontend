@@ -23,7 +23,7 @@ const DatasetsList = () => {
                     </Button>
                 </div>
                 <Async
-                    fetchData={() => metricsClient('datasets', null, 'get')}
+                    fetchData={() => metricsClient('datasets')}
                     renderData={(benchmarks) => (
                         <Table className='models-table mt-3'>
                             <thead className='align-middle text-secondary'>

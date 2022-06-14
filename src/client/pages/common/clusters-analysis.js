@@ -45,7 +45,7 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
     const [userSelectedAlgorithm, setUserSelectedAlgorithm] = useState('GROUPBY');
     const getCartesianPointSelected = useCartesianPoints({points: selectedPoints, xLabel: 'PCA1', yLabel: 'PCA2'});
 
-    const getDistributionMetricsForModel = async (modelType) => {
+    const getDistributionMetricsForModel = (modelType) => {
         if (modelType === 'IMAGE_CLASSIFIER' || modelType === 'TEXT_CLASSIFIER') {
             return [{
                 name: 'prediction',
@@ -59,15 +59,6 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
                 name: 'prediction',
                 value: 'prediction'
             }];
-        } else if (modelType === 'SPEECH_TO_TEXT') {
-            const results = await metricsClient('queries/columns-names-for-audio');
-
-            return results.map((p) => {
-                return {
-                    name: p.column,
-                    value: p.column
-                };
-            });
         } else {
             return [];
         }

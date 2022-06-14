@@ -82,7 +82,7 @@ const EditModel = ({initialValue, onSubmit, errors, modelStore}) => {
                                     <Async
                                         fetchData={() => metricsClient(`benchmarks?sql_filters=${encodeURI(
                                             `model_id='${formData.mlModelId}'`
-                                        )}`, null, 'get')}
+                                        )}`)}
                                         renderData={(benchmarks) => (
                                             <Form.Control
                                                 as='select'
