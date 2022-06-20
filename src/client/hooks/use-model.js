@@ -14,7 +14,13 @@ const useModel = () => {
         const comparisonIndex = comparisonContextValue?.index || 0;
         const currentModelFilter = filtersStore.models[comparisonIndex];
 
-        return modelStore.getModelById(currentModelFilter._id);
+        if (currentModelFilter.mlModelId) {
+
+            return modelStore.getModelByMlModelId(currentModelFilter.mlModelId);
+        } else {
+
+            return modelStore.getModelById(currentModelFilter._id);
+        }
     } else if (isBenchmarkView) {
 
         const {modelStore} = stores;

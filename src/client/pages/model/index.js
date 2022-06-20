@@ -44,9 +44,15 @@ const Model = ({filtersStore, modelStore}) => {
         segmentation: JSON.stringify(segmentationStore.segmentation)
     }));
 
-    const models = filtersStore.models.map(({_id}) => {
+    const models = filtersStore.models.map(({_id, mlModelId}) => {
 
-        return modelStore.getModelById(_id);
+        if (mlModelId) {
+
+            return modelStore.getModelByMlModelId(mlModelId);
+        } else {
+
+            return modelStore.getModelById(_id);
+        }
     });
     const firstModel = models[0];
     const tabs = [
