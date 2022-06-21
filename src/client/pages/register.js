@@ -34,8 +34,8 @@ const Register = ({userStore}) => {
 
     useEffect(() => {
         if (userStore.error) {
-            setEmailError(userStore.error.message);
-            setPasswordError(userStore.error.message);
+            setEmailError(String(userStore.error));
+            setPasswordError(String(userStore.error));
         }
     }, [userStore.error]);
 

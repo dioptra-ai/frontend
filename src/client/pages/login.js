@@ -33,8 +33,8 @@ const Login = ({userStore}) => {
 
     useEffect(() => {
         if (userStore.error) {
-            setEmailError(userStore.error);
-            setPasswordError(userStore.error);
+            setEmailError(String(userStore.error));
+            setPasswordError(String(userStore.error));
         }
     }, [userStore.error]);
 
