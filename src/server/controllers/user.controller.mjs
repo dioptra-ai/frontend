@@ -8,20 +8,12 @@ import validate from '../middleware/validate.mjs';
 const UserRouter = express.Router();
 
 UserRouter.put('/', isAuthenticated, async (req, res, next) => {
-    const UserModel = mongoose.model('User');
     const {username, password, cart} = req.body;
     const authUser = req.user;
 
     try {
         if (username) {
-            const existingUser = await UserModel.findOne({username});
-
-            if (existingUser && !existingUser._id.equals(authUser._id)) {
-                res.status(400);
-                throw new Error('Username already taken.');
-            } else {
-                authUser.username = username;
-            }
+            authUser.username = username;
         }
 
         if (password) {
@@ -33,7 +25,11 @@ UserRouter.put('/', isAuthenticated, async (req, res, next) => {
 
         res.json(await authUser.save());
     } catch (e) {
-        next(e);
+        if (e.code === 11000) {
+            next(new Error(`${JSON.stringify(e.keyValue)} already exists.`));
+        } else {
+            next(e);
+        }
     }
 });
 
@@ -42,26 +38,12 @@ UserRouter.post('/',
     body('password').isLength({min: 5}),
     validate,
     async (req, res, next) => {
+
         try {
             const UserModel = mongoose.model('User');
             const {username, password} = req.body;
 
-            if (await UserModel.exists({username})) {
-                res.status(400);
-                throw new Error('Username already taken.');
-            } else {
-                const Organization = mongoose.model('Organization');
-
-                res.json(
-                    await UserModel.createAsMemberOf(
-                        {
-                            username,
-                            password
-                        },
-                        await new Organization({name: `Organization of ${username}`}).save()
-                    )
-                );
-            }
+            res.json(await UserModel.createWithinOrganization({username, password}));
         } catch (e) {
             next(e);
         }

@@ -50,7 +50,7 @@ organizationSchema.statics.createAndInitialize = async (orgProps, firstUserProps
     const User = mongoose.model('User');
     const org = await Organization.create(orgProps);
 
-    await User.createAsMemberOf(firstUserProps, org);
+    await User.createWithinOrganization(firstUserProps, org);
 
     return org;
 };

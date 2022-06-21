@@ -89,7 +89,7 @@ const Profile = ({userStore}) => {
 
     useEffect(() => {
         if (userStore.error) {
-            setEmailError(userStore.error);
+            setEmailError(String(userStore.error));
         }
     }, [userStore.error]);
 

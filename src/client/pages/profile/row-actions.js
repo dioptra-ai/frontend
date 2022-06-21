@@ -103,7 +103,7 @@ const RowActions = ({row, data, fetchAgain, fetch}) => {
                                     variant='secondary'
                                     onClick={handleDelete}
                                 >
-                                    Delete Member
+                                    Remove Member
                                 </Button>
                                 <Button
                                     className='text-white btn-submit delete-button'
