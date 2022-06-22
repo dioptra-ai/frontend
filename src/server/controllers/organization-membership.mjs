@@ -108,7 +108,7 @@ OrganizationMembershipRouter.delete('/:organizationMembershipID', isAdmin,
                 organizationMembershipID
             );
 
-            if (user._id.equals(req.user._id)) {
+            if (req.user._id.equals(user?._id)) {
 
                 throw new Error('Operation not permitted. Please contact an admin of your organization.');
             }
@@ -118,7 +118,8 @@ OrganizationMembershipRouter.delete('/:organizationMembershipID', isAdmin,
                 organization: {$nin: organization}
             });
 
-            if (allOtherOrgsOfUser.length === 0) {
+            // Until we implement transactions, it's possible to add a membership for an invalid user
+            if (user && allOtherOrgsOfUser.length === 0) {
 
                 throw new Error('Operation not permitted. This organization is the only one the user is a member of.');
             }

@@ -13,7 +13,7 @@ const RowActions = ({row, data, fetchAgain, fetch}) => {
     const [error, setError] = useState(null);
     const [type, setType] = useState('');
 
-    const {user, type: userAccessType} = data[row.index];
+    const {_id, user, type: userAccessType} = data[row.index];
 
     useEffect(() => {
         setError(null);
@@ -26,7 +26,7 @@ const RowActions = ({row, data, fetchAgain, fetch}) => {
 
     const handleUpdate = () => {
         baseJSONClient(
-            `/api/organization-membership/${user.activeOrganizationMembership._id}/member`,
+            `/api/organization-membership/${_id}/member`,
             {
                 method: 'put',
                 body: {type}
@@ -42,7 +42,7 @@ const RowActions = ({row, data, fetchAgain, fetch}) => {
 
     const handleDelete = () => {
         baseJSONClient(
-            `/api/organization-membership/${user.activeOrganizationMembership._id}`,
+            `/api/organization-membership/${_id}`,
             {
                 method: 'delete'
             }
@@ -65,7 +65,7 @@ const RowActions = ({row, data, fetchAgain, fetch}) => {
             <ModalComponent
                 isOpen={openEditModal}
                 onClose={() => setOpenEditModal(false)}
-                title={`Edit Member: ${user.username}`}
+                title={`Edit Member: ${user?.username}`}
             >
                 <Container
                     className='model fs-6 d-flex align-items-center justify-content-center edit-modal'

@@ -14,7 +14,6 @@ import Badge from 'react-bootstrap/Badge';
 const OrganizationUpdateModal = ({
     isOpen,
     value,
-    error,
     handleClose,
     handleChange,
     handleSubmit
@@ -26,9 +25,6 @@ const OrganizationUpdateModal = ({
                 fluid
             >
                 <div className='model-form d-flex flex-column align-items-center'>
-                    {error ? (
-                        <div className='bg-warning text-white p-3 mt-2'>{error}</div>
-                    ) : null}
                     <Form
                         autoComplete='off'
                         className='w-100'
@@ -64,9 +60,8 @@ const OrganizationUpdateModal = ({
 };
 
 OrganizationUpdateModal.propTypes = {
-    isOpen: PropTypes.string.isRequired,
+    isOpen: PropTypes.bool.isRequired,
     value: PropTypes.string.isRequired,
-    error: PropTypes.string.isRequired,
     handleClose: PropTypes.func.isRequired,
     handleChange: PropTypes.func.isRequired,
     handleSubmit: PropTypes.func.isRequired
@@ -75,7 +70,6 @@ OrganizationUpdateModal.propTypes = {
 const OrganizationSwitchModel = ({
     isOpen,
     currentMembership,
-    error,
     handleClose,
     handleChange
 }) => {
@@ -88,9 +82,6 @@ const OrganizationSwitchModel = ({
                 fluid
             >
                 <div className='model-form d-flex flex-column align-items-center'>
-                    {error ? (
-                        <div className='bg-warning text-white p-3 mt-2'>{error}</div>
-                    ) : null}
                     <Async
                         refetchOnChanged={[]}
                         fetchData={() => baseJSONClient('/api/user/my-memberships')}
@@ -142,12 +133,10 @@ const OrganizationSwitchModel = ({
 };
 
 OrganizationSwitchModel.propTypes = {
-    isOpen: PropTypes.string.isRequired,
+    isOpen: PropTypes.bool.isRequired,
     currentMembership: PropTypes.string.isRequired,
-    error: PropTypes.string.isRequired,
     handleClose: PropTypes.func.isRequired,
-    handleChange: PropTypes.func.isRequired,
-    handleSubmit: PropTypes.func.isRequired
+    handleChange: PropTypes.func.isRequired
 };
 
 export {OrganizationUpdateModal, OrganizationSwitchModel};

@@ -10,6 +10,7 @@ import Table from 'components/table';
 import Async from 'components/async';
 import RowActions from './row-actions';
 import {Link} from 'react-router-dom';
+import LoadingForm from 'components/loading-form';
 
 import moment from 'moment';
 
@@ -28,8 +29,6 @@ const MembersTable = ({isAdmin, orgID}) => {
         password: '',
         type: ''
     });
-    const [error, setError] = useState(null);
-    const [successMsg, setSuccessMsg] = useState(null);
     const [refetch, setRefetch] = useState(true);
 
     const handleChange = (event) => setNewMemberForm({
@@ -43,27 +42,16 @@ const MembersTable = ({isAdmin, orgID}) => {
             password: '',
             type: ''
         });
-        setError(null);
     }, [openMemberModal, orgID]);
 
-    useEffect(() => {
-        if (successMsg) {
-            setTimeout(() => setSuccessMsg(null), 5000);
-        }
-    }, [successMsg]);
-
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        setError(null);
-        baseJSONClient(`/api/organization-membership/${orgID}/members`, {
+
+        await baseJSONClient(`/api/organization-membership/${orgID}/members`, {
             method: 'post',
             body: newMemberForm
-        })
-            .then((res) => {
-                setSuccessMsg(res);
-                setOpenMemberModal(false);
-            })
-            .catch((e) => setError(e.message));
+        });
+        setOpenMemberModal(false);
     };
 
     return (
@@ -82,7 +70,6 @@ const MembersTable = ({isAdmin, orgID}) => {
                     )}
                 </p>
             </div>
-            {successMsg && <p>{successMsg}</p>}
             <Async
                 refetchOnChanged={[orgID, openMemberModal, refetch]}
                 fetchData={() => baseJSONClient(`/api/organization-membership/${orgID}/members`)}
@@ -140,17 +127,12 @@ const MembersTable = ({isAdmin, orgID}) => {
                     fluid
                 >
                     <div className='model-form d-flex flex-column align-items-center'>
-                        {error && (
-                            <div className='bg-warning text-white p-3 mt-2'>
-                                {error}
-                            </div>
-                        )}
-                        <Form
+                        <LoadingForm
                             autoComplete='off'
                             className='w-100'
                             onSubmit={handleSubmit}
                         >
-                            <InputGroup className='mt-1 flex-column px-1'>
+                            <InputGroup className='mb-3 flex-column px-1'>
                                 <Form.Label className='mt-3 mb-0 w-100'>
                                     Member Name
                                 </Form.Label>
@@ -163,7 +145,7 @@ const MembersTable = ({isAdmin, orgID}) => {
                                     value={newMemberForm.username}
                                     required
                                 />
-                                <Form.Label className='mt-3 mb-0 w-100'>
+                                <Form.Label className='mb-3 mb-0 w-100'>
                                     Member Password
                                 </Form.Label>
                                 <Form.Control
@@ -175,12 +157,12 @@ const MembersTable = ({isAdmin, orgID}) => {
                                     value={newMemberForm.password}
                                     required
                                 />
-                                <Form.Label className='mt-3 mb-0 w-100'>
+                                <Form.Label className='mb-0 w-100'>
                                     Share the link - <Link to={`${window.location.origin}/login`}>{window.location.origin}/login </Link>
                                     with the new user to login with credentials that have been set
                                 </Form.Label>
                             </InputGroup>
-                            <InputGroup className='mt-1 flex-column px-1'>
+                            <InputGroup className='mb-3 flex-column px-1'>
                                 <Form.Label className='mt-3 mb-0 w-100'>
                                     Membership Type
                                 </Form.Label>
@@ -200,14 +182,15 @@ const MembersTable = ({isAdmin, orgID}) => {
                                     <option value='MEMBER'>Member</option>
                                 </Form.Control>
                             </InputGroup>
-                            <Button
-                                className='w-100 text-white btn-submit mt-5'
+                            <LoadingForm.Error/>
+                            <LoadingForm.Button
+                                className='w-100 text-white btn-submit mt-3'
                                 variant='primary'
                                 type='submit'
                             >
                                 Add Member
-                            </Button>
-                        </Form>
+                            </LoadingForm.Button>
+                        </LoadingForm>
                     </div>
                 </Container>
             </ModalComponent>

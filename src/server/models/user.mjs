@@ -58,15 +58,17 @@ userSchema.statics.validatePassword = async (username, password) => {
 userSchema.statics.createAsMemberOf = async (userProps, organization) => {
     const OrganizationMembership = mongoose.model('OrganizationMembership');
     const newUser = new User(userProps);
-
-    const newOrgMembership = await OrganizationMembership.create({
+    const newMembership = new OrganizationMembership({
         user: newUser._id,
         organization: organization._id
     });
 
-    newUser.activeOrganizationMembership = newOrgMembership;
+    newUser.activeOrganizationMembership = newMembership;
 
-    return newUser.save();
+    await newUser.save();
+    await newMembership.save();
+
+    return newUser;
 };
 
 userSchema.pre('save', async function () {
@@ -78,9 +80,19 @@ userSchema.pre('save', async function () {
             const response = await fetch(`https://api.hunter.io/v2/email-verifier?email=${this['username']}&api_key=29073794876a97a92ba2b8a1b45291305a2350af`); // eslint-disable-line no-invalid-this
             const jsonResponse = await response.json();
 
-            status = jsonResponse['data']['status'];
+            if (response.ok) {
+                status = jsonResponse['data']['status'];
+            } else {
+                const error = jsonResponse['errors'][0];
+
+                if (error.code === 400) {
+                    status = 'invalid';
+                }
+
+                throw new Error(error['details']);
+            }
         } catch (e) {
-            console.warn(`API Error when verifying email address: ${e.message}`);
+            console.warn(`Error when verifying email address: ${e.message}`);
         }
 
         // see: https://hunter.io/api-documentation/v2#email-verifier

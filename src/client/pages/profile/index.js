@@ -7,13 +7,11 @@ import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Button from 'react-bootstrap/Button';
-import Tooltip from '../../components/tooltip';
-import FontIcon from '../../components/font-icon';
 import {setupComponent} from '../../helpers/component-helper';
-import {IconNames} from '../../constants';
 import baseJSONClient from 'clients/base-json-client';
 import {OrganizationSwitchModel, OrganizationUpdateModal} from './profile-modals';
 import MembersTable from './members-table';
+import LoadingForm from 'components/loading-form';
 
 const apiKeyClient = (method, id = '') => {
     return baseJSONClient(`/api/api-key/${id}`, {method});
@@ -26,72 +24,58 @@ const Profile = ({userStore}) => {
         password: '',
         confirmPassword: ''
     });
-    const [emailError, setEmailError] = useState('');
-    const [confirmPasswordError, setConfirmPasswordError] = useState('');
     const [apiKeys, setApiKeys] = useState([]);
     const [openEditModal, setOpenEditModal] = useState(false);
     const [openSwitchModal, setOpenSwitchModal] = useState(false);
     const [orgName, setOrgName] = useState('');
-    const [error, setError] = useState(null);
     const history = useHistory();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (profileData.email === '') {
-            setEmailError('Please enter your email address.');
-        } else if (profileData.password !== profileData.confirmPassword) {
-            setConfirmPasswordError("Your password doesn't match");
-        } else {
-            userStore.tryUpdate({
-                ...(profileData.email ? {username: profileData.email} : {}),
-                ...(profileData.password && profileData.confirmPassword ?
-                    {password: profileData.password} :
-                    {})
-            }).then(() => setProfileData({...profileData, password: '', confirmPassword: ''}));
+        if (profileData.password !== profileData.confirmPassword) {
+            throw new Error("Your password doesn't match");
         }
+        await userStore.tryUpdate({
+            ...(profileData.email ? {username: profileData.email} : {}),
+            ...(profileData.password && profileData.confirmPassword ?
+                {password: profileData.password} : {}
+            )
+        });
     };
     const handleDeleteApiKey = async (_id) => {
         await apiKeyClient('delete', _id);
 
-        return apiKeyClient('get').then(setApiKeys);
+        const apiKeys = await apiKeyClient('get');
+
+        setApiKeys(apiKeys);
     };
-    const handleOrgRename = (e) => {
+    const handleOrgRename = async (e) => {
         e.preventDefault();
 
-        baseJSONClient('/api/organization/rename', {
+        const res = await baseJSONClient('/api/organization/rename', {
             method: 'POST',
             body: {name: orgName}
-        })
-            .then((res) => {
-                setError('');
-                if (res) {
-                    userStore.tryLogin();
-                }
-                setOpenEditModal(false);
-            })
-            .catch(() => setError('Something went wrong! Try again.'));
+        });
+
+        if (res) {
+            await userStore.tryLogin();
+        }
+
+        setOpenEditModal(false);
     };
-    const handleOrgChange = ({original}) => {
-        baseJSONClient('/api/user/change-membership', {
+    const handleOrgChange = async ({original}) => {
+        const res = await baseJSONClient('/api/user/change-membership', {
             method: 'PUT',
             body: {organizationMembershipID: original._id}
-        })
-            .then((res) => {
-                setError('');
-                if (res) {
-                    userStore.tryLogin();
-                }
-                setOpenSwitchModal(false);
-            })
-            .catch(() => setError('Something went wrong! Try again.'));
-    };
+        });
 
-    useEffect(() => {
-        if (userStore.error) {
-            setEmailError(String(userStore.error));
+        if (res) {
+            await userStore.tryLogin();
         }
-    }, [userStore.error]);
+
+        setOpenSwitchModal(false);
+    };
 
     useEffect(() => {
         apiKeyClient('get').then(setApiKeys);
@@ -107,47 +91,29 @@ const Profile = ({userStore}) => {
         <Container className='login fs-6 d-flex px-4 profile' fluid>
             <div className='login-form d-flex flex-column m-4'>
                 <p className='text-dark bold-text fs-3'>Profile</p>
-                <Form autoComplete='off' className='w-100' onSubmit={handleSubmit}>
+                <LoadingForm autoComplete='off' className='w-100' onSubmit={handleSubmit}>
                     <Form.Group className='mb-3'>
                         <Form.Label>Email</Form.Label>
                         <InputGroup>
                             <Form.Control
-                                className={`bg-light ${emailError ? 'error' : ''}`}
+                                className={'bg-light'}
                                 name='email'
                                 onChange={(e) => {
                                     setProfileData({
                                         ...profileData,
                                         ['email']: e.target.value
                                     });
-                                    setEmailError('');
-                                    userStore.error = null;
                                 }}
                                 type='email'
                                 value={profileData.email}
                             />
-                            {emailError && (
-                                <FontIcon
-                                    className='text-warning error-icon'
-                                    icon={IconNames.WARNING}
-                                    size={20}
-                                />
-                            )}
                         </InputGroup>
-                        {emailError && (
-                            <Tooltip
-                                className='p-3 mt-2'
-                                color='warning'
-                                text={emailError}
-                            />
-                        )}
                     </Form.Group>
                     <Form.Group className='mb-3'>
                         <Form.Label>New Password</Form.Label>
                         <InputGroup>
                             <Form.Control
-                                className={`bg-light ${
-                                    confirmPasswordError ? 'error' : ''
-                                }`}
+                                className={'bg-light'}
                                 name='password'
                                 onChange={(e) => {
                                     setProfileData({
@@ -158,58 +124,34 @@ const Profile = ({userStore}) => {
                                 type='password'
                                 value={profileData.password}
                             />
-                            {confirmPasswordError && (
-                                <FontIcon
-                                    className='text-warning error-icon'
-                                    icon={IconNames.WARNING}
-                                    size={20}
-                                />
-                            )}
                         </InputGroup>
                     </Form.Group>
                     <Form.Group className='mb-3'>
                         <Form.Label>Confirm New Password</Form.Label>
                         <InputGroup>
                             <Form.Control
-                                className={`bg-light ${
-                                    confirmPasswordError ? 'error' : ''
-                                }`}
+                                className={'bg-light'}
                                 name='confirmPassword'
                                 onChange={(e) => {
                                     setProfileData({
                                         ...profileData,
                                         ['confirmPassword']: e.target.value
                                     });
-                                    setConfirmPasswordError('');
                                 }}
                                 type='password'
                                 value={profileData.confirmPassword}
                             />
-                            {confirmPasswordError && (
-                                <FontIcon
-                                    className='text-warning error-icon'
-                                    icon={IconNames.WARNING}
-                                    size={20}
-                                />
-                            )}
                         </InputGroup>
-                        {confirmPasswordError && (
-                            <Tooltip
-                                className='p-3 mt-2'
-                                color='warning'
-                                text={confirmPasswordError}
-                            />
-                        )}
                     </Form.Group>
-                    <Button
+                    <LoadingForm.Error/>
+                    <LoadingForm.Button
                         className='w-100 text-white btn-submit mt-3'
-                        disabled={userStore.loading}
                         type='submit'
                         variant='primary'
                     >
-                        {userStore.loading ? 'Loading...' : 'Update'}
-                    </Button>
-                </Form>
+                        Update
+                    </LoadingForm.Button>
+                </LoadingForm>
                 <p className='text-secondary text-center border-top border-muted mt-5 w-100'>
                     <Button
                         className='w-100 text-white btn-submit mt-5'
@@ -290,14 +232,13 @@ const Profile = ({userStore}) => {
                     {/*                             return apiKeyClient('get').then(setApiKeys); */}
                     {/*                         }} */}
                     {/*                     > */}
-                    {/*                         Create Api Key */}
+                    {/*                                             Create Api Key */}
                     {/*                     </Button> */}
                 </div>
             </div>
             <OrganizationUpdateModal
                 isOpen={openEditModal}
                 value={orgName}
-                error={error}
                 handleClose={setOpenEditModal}
                 handleChange={setOrgName}
                 handleSubmit={handleOrgRename}
@@ -307,7 +248,6 @@ const Profile = ({userStore}) => {
                 currentMembership={
                     userData.activeOrganizationMembership._id
                 }
-                error={error}
                 handleClose={setOpenSwitchModal}
                 handleChange={handleOrgChange}
             />
