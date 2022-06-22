@@ -7,16 +7,11 @@ import {identify, resetTracking} from 'helpers/tracking';
 class UserStore {
     _userData = null;
 
-    _error = null;
-
-    _loading = false;
-
     constructor() {
         makeAutoObservable(this);
     }
 
     async initialize() {
-        this.loading = true;
 
         try {
             this.userData = await authenticationClient('login');
@@ -26,8 +21,6 @@ class UserStore {
             }
 
             this.userData = null;
-        } finally {
-            this.loading = false;
         }
     }
 
@@ -38,18 +31,6 @@ class UserStore {
 
     get userData() {
         return this._userData;
-    }
-
-    get error() {
-        return this._error;
-    }
-
-    get loading() {
-        return this._loading;
-    }
-
-    get success() {
-        return !this._error;
     }
 
     set userData(data) {
@@ -65,68 +46,23 @@ class UserStore {
         this._userData = data;
     }
 
-    set error(err) {
-        this._error = err;
-    }
-
-    set loading(status) {
-        this._loading = status;
-    }
-
     async tryLogin(data) {
-        this.loading = true;
-        this.error = null;
-
-        try {
-            this.userData = await authenticationClient('login', data);
-            window.location.reload();
-        } catch (e) {
-            this.userData = null;
-            this.error = e;
-        } finally {
-            this.loading = false;
-        }
+        this.userData = await authenticationClient('login', data);
+        window.location.reload();
     }
 
     async tryLogout() {
-        this.loading = true;
-        this.error = null;
-
-        try {
-            await authenticationClient('logout');
-            this.userData = null;
-        } catch (e) {
-            this.error = e;
-        } finally {
-            this.loading = false;
-        }
+        await authenticationClient('logout');
+        this.userData = null;
     }
 
     async tryUpdate(data) {
-        this.loading = true;
-        this.error = null;
-
-        try {
-            this.userData = await userClient('put', data);
-        } catch (e) {
-            this.error = e;
-        } finally {
-            this.loading = false;
-        }
+        this.userData = await userClient('put', data);
     }
 
     async tryRegister(data) {
-        this.loading = true;
-        this.error = null;
-
-        try {
-            this.userData = await userClient('post', data);
-            this.tryLogin(data);
-        } catch (e) {
-            this.error = e;
-        } finally {
-            this.loading = false;
-        }
+        this.userData = await userClient('post', data);
+        this.tryLogin(data);
     }
 }
 

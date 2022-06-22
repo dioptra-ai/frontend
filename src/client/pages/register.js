@@ -1,43 +1,26 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import PropTypes from 'prop-types';
 import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
-import Button from 'react-bootstrap/Button';
 import Logo from '../components/logo';
 import {Link, Redirect} from 'react-router-dom';
-import Tooltip from '../components/tooltip';
-import FontIcon from '../components/font-icon';
 import {setupComponent} from '../helpers/component-helper';
-import {IconNames} from '../constants';
 import {Paths} from '../configs/route-config';
+import LoadingForm from 'components/loading-form';
 
 const Register = ({userStore}) => {
     const [loginData, setLoginData] = useState({email: '', password: ''});
-    const [emailError, setEmailError] = useState('');
-    const [passwordError, setPasswordError] = useState('');
-    const [confirmPasswordError, setConfirmPasswordError] = useState('');
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (loginData.email === '') {
-            setEmailError('Please enter your email address.');
-        } else if (loginData.password === '') {
-            setPasswordError('Please enter your password.');
-        } else if (loginData.password !== loginData.confirmPassword) {
-            setConfirmPasswordError('Your password does not match.');
-        } else {
-            userStore.tryRegister({username: loginData.email, password: loginData.password});
+        if (loginData.confirmPassword !== loginData.password) {
+            throw new Error('Passwords do not match.');
         }
-    };
 
-    useEffect(() => {
-        if (userStore.error) {
-            setEmailError(String(userStore.error));
-            setPasswordError(String(userStore.error));
-        }
-    }, [userStore.error]);
+        await userStore.tryRegister({username: loginData.email, password: loginData.password});
+    };
 
     return _WEBPACK_DEF_FLAG_DISABLE_REGISTER_ ? (
         <Redirect to='/login'/>
@@ -51,43 +34,31 @@ const Register = ({userStore}) => {
             <div className='login-form d-flex flex-column align-items-center'>
                 <Logo className='mb-5' height={177} width={270} />
                 <p className='text-dark bold-text fs-3 mb-4'>Register</p>
-                <Form autoComplete='off' className='w-100' onSubmit={handleSubmit}>
+                <LoadingForm autoComplete='off' className='w-100' onSubmit={handleSubmit}>
                     <Form.Group className='mb-3'>
                         <Form.Label>Email</Form.Label>
                         <InputGroup>
                             <Form.Control
-                                className={`bg-light text-secondary ${emailError ? 'error' : ''}`}
+                                className='bg-light'
                                 name='email'
                                 onChange={(e) => {
                                     setLoginData({...loginData, ['email']: e.target.value});
-                                    setEmailError('');
                                 }}
                                 required
                                 type='email'
                                 value={loginData.email}
                             />
-                            {emailError && (
-                                <FontIcon
-                                    className='text-warning error-icon'
-                                    icon={IconNames.WARNING}
-                                    size={20}
-                                />
-                            )}
                         </InputGroup>
-                        {emailError && (
-                            <Tooltip className='p-3 mt-2' color='warning' text={emailError} />
-                        )}
                     </Form.Group>
                     <Form.Group className='mb-3'>
                         <Form.Label>New Password</Form.Label>
                         <InputGroup>
                             <Form.Control
-                                className={`bg-light text-secondary ${passwordError ? 'error' : ''}`}
+                                className='bg-light'
                                 name='password'
                                 minLength={5}
                                 onChange={(e) => {
                                     setLoginData({...loginData, ['password']: e.target.value});
-                                    setPasswordError('');
                                 }}
                                 required
                                 type='password'
@@ -97,44 +68,31 @@ const Register = ({userStore}) => {
                         <Form.Text muted>
                             Your password must be 5+ characters long.
                         </Form.Text>
-                        {passwordError && (
-                            <Tooltip className='p-3 mt-2' color='warning' text={passwordError} />
-                        )}
                     </Form.Group>
                     <Form.Group className='mb-3'>
                         <Form.Label>Confirm New Password</Form.Label>
                         <InputGroup>
                             <Form.Control
-                                className={`bg-light text-secondary ${confirmPasswordError ? 'error' : ''}`}
+                                className='bg-light'
                                 name='confirmPassword'
                                 onChange={(e) => {
                                     setLoginData({...loginData, ['confirmPassword']: e.target.value});
-                                    setConfirmPasswordError('');
                                 }}
                                 required
                                 type='password'
                                 value={loginData.confirmPassword}
                             />
-                            {confirmPasswordError && (
-                                <FontIcon
-                                    className='text-warning error-icon'
-                                    icon={IconNames.WARNING}
-                                    size={20}
-                                />
-                            )}
                         </InputGroup>
-                        {confirmPasswordError && (
-                            <Tooltip className='p-3 mt-2' color='warning' text={confirmPasswordError} />
-                        )}
                     </Form.Group>
-                    <Button
+                    <LoadingForm.Error/>
+                    <LoadingForm.Button
                         className='w-100 text-white btn-submit mt-3'
                         type='submit'
                         variant='primary'
                     >
                         REGISTER
-                    </Button>
-                </Form>
+                    </LoadingForm.Button>
+                </LoadingForm>
                 <Link className='text-dark mt-3' to='/login'>
                     Login
                 </Link>

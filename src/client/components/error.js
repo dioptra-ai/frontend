@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import Alert from 'react-bootstrap/Alert';
 
 const Error = ({error, children, ...rest}) => (
-    <Alert variant='danger' {...rest} className='overflow-hidden'>
+    <Alert variant='warning' {...rest} className='overflow-hidden'>
         {error ? String(error) : children}
     </Alert>
 );

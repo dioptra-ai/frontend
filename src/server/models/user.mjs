@@ -42,13 +42,13 @@ userSchema.statics.validatePassword = async (username, password) => {
     const foundUser = await User.findOne({username}).select('+password');
 
     if (!foundUser) {
-        throw new Error('Unauthenticated');
+        throw new Error('Incorrect username or password.');
     }
 
     const valid = await bcrypt.compare(password, foundUser.password);
 
     if (!valid) {
-        throw new Error('Unauthenticated');
+        throw new Error('Incorrect username or password.');
     } else {
 
         return foundUser;
