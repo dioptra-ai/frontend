@@ -82,7 +82,7 @@ const Model = ({filtersStore, modelStore}) => {
                 }
             }
         })();
-    }, []);
+    }, [firstModel, timeStore.isModified, allSqlFiltersWithoutTime]);
 
     if (!firstModel) {
 
