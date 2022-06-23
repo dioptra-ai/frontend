@@ -13,7 +13,8 @@ const Async = ({
     renderError,
     fetchData,
     refetchOnChanged = [],
-    defaultData
+    defaultData,
+    spinner = true
 }) => {
     const [data, setData] = useState();
     const [loading, setLoading] = useState(false);
@@ -57,9 +58,13 @@ const Async = ({
 
     return (
         <AsyncContext.Provider value={{data, loading, error}}>
-            <SpinnerWrapper>
-                {content}
-            </SpinnerWrapper>
+            {
+                spinner ? (
+                    <SpinnerWrapper>
+                        {content}
+                    </SpinnerWrapper>
+                ) : content
+            }
         </AsyncContext.Provider>
     );
 };
@@ -73,7 +78,8 @@ Async.propTypes = {
         PropTypes.arrayOf(PropTypes.func)
     ]),
     refetchOnChanged: PropTypes.array,
-    defaultData: PropTypes.any
+    defaultData: PropTypes.any,
+    spinner: PropTypes.bool
 };
 
 Async.defaultProps = {

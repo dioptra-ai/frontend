@@ -68,7 +68,7 @@ const Model = ({filtersStore, modelStore}) => {
 
     useEffect(() => {
         (async () => {
-            if (firstModel && !timeStore.isModified) {
+            if (!timeStore.isModified) {
                 const [c] = await metricsClient('queries/count-events', {sql_filters: allSqlFilters});
 
                 if (c?.value === 0) {
@@ -82,7 +82,7 @@ const Model = ({filtersStore, modelStore}) => {
                 }
             }
         })();
-    }, [firstModel, timeStore.isModified, allSqlFiltersWithoutTime]);
+    }, [timeStore.isModified, allSqlFiltersWithoutTime]);
 
     if (!firstModel) {
 
