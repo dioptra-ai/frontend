@@ -16,7 +16,11 @@ const OutliersOrDrift = ({isDrift}) => {
     const [userSelectedAlgorithm, setUserSelectedAlgorithm] = useState('Local Outlier Factor');
     const [userSelectedContamination, setUserSelectedContamination] = useState('auto');
     const [selectedPoints, setSelectedPoints] = useState([]);
+    const uniqueSampleUUIDs = new Set(selectedPoints.map(({sample}) => sample['uuid']));
     const referenceFilters = isDrift && useAllSqlFilters({useReferenceFilters: true});
+    const handleClearSample = (i) => {
+        setSelectedPoints(selectedPoints.filter((_, index) => index !== i));
+    };
 
     const contaminationOptions = [{
         name: 'auto',
@@ -99,6 +103,7 @@ const OutliersOrDrift = ({isDrift}) => {
                                                 yAxisId: 'PCA2'
                                             }]}
                                             onSelectedDataChange={setSelectedPoints}
+                                            isDatapointSelected={(p) => uniqueSampleUUIDs.has(p.sample['uuid'])}
                                         />
                                     </div>
                                 );
@@ -106,7 +111,7 @@ const OutliersOrDrift = ({isDrift}) => {
                         />
                     </Col>
                     <Col className='rounded p-3 bg-white-blue'>
-                        <SamplesPreview samples={selectedPoints?.map(({sample}) => sample)}/>
+                        <SamplesPreview samples={selectedPoints?.map(({sample}) => sample)} onClearSample={handleClearSample}/>
                     </Col>
                 </Row>
             </div>

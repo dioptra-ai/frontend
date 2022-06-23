@@ -13,7 +13,7 @@ const inRange = (num, min, max) => num >= min && num <= max;
 
 const SelectableScatterGraph = ({scatters, onSelectedDataChange, isDatapointSelected, children}) => {
     const [shiftPressed, setShiftPressed] = useState(false);
-    const [selectedPoints, setSelectedPoints] = useState([]);
+    const selectedPoints = scatters.map((scatter) => scatter.data.filter(isDatapointSelected)).flat();
     const getCartesianPointSelected = useCartesianPoints({points: selectedPoints, xLabel: 'PCA1', yLabel: 'PCA2'});
 
     const handleKeyDown = ({keyCode}) => {
@@ -54,8 +54,7 @@ const SelectableScatterGraph = ({scatters, onSelectedDataChange, isDatapointSele
     const handlePointsSelected = (points) => {
         const deduplicatedPoints = points.filter((point, index, self) => self.findIndex((p) => p['sample']['uuid'] === point['sample']['uuid']) === index);
 
-        setSelectedPoints(deduplicatedPoints);
-        onSelectedDataChange?.(deduplicatedPoints);
+        onSelectedDataChange(deduplicatedPoints);
     };
 
     return (
@@ -109,7 +108,7 @@ const SelectableScatterGraph = ({scatters, onSelectedDataChange, isDatapointSele
 
 SelectableScatterGraph.propTypes = {
     scatters: PropTypes.array.isRequired,
-    onSelectedDataChange: PropTypes.func,
+    onSelectedDataChange: PropTypes.func.isRequired,
     isDatapointSelected: PropTypes.func,
     children: PropTypes.node
 };

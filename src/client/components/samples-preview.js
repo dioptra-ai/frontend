@@ -9,7 +9,7 @@ import AddFilters from 'components/add-filters';
 import DatapointsViewer from 'components/datapoints-viewer';
 import {setupComponent} from 'helpers/component-helper';
 
-const SamplesPreview = ({samples, userStore}) => {
+const SamplesPreview = ({samples, userStore, onClearSample}) => {
     const [selectedSamples, setSelectedSamples] = useState(new Set());
     const sampleUUIDs = samples.filter((_, i) => selectedSamples.has(i)).map(({uuid}) => uuid);
 
@@ -57,6 +57,7 @@ const SamplesPreview = ({samples, userStore}) => {
                 datapoints={samples}
                 onSelectedChange={setSelectedSamples}
                 key={oHash(samples)}
+                onClearDatapoint={onClearSample}
             />
         </>
     );
@@ -64,7 +65,8 @@ const SamplesPreview = ({samples, userStore}) => {
 
 SamplesPreview.propTypes = {
     samples: PropTypes.arrayOf(PropTypes.object).isRequired,
-    userStore: PropTypes.object.isRequired
+    userStore: PropTypes.object.isRequired,
+    onClearSample: PropTypes.func
 };
 
 export default setupComponent(SamplesPreview);

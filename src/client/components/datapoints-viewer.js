@@ -7,6 +7,7 @@ import Row from 'react-bootstrap/Row';
 import Form from 'react-bootstrap/Form';
 import Container from 'react-bootstrap/Container';
 import {GrNext, GrPrevious} from 'react-icons/gr';
+import {IoCloseOutline} from 'react-icons/io5';
 
 import {mod} from 'helpers/math';
 import {datapointIsImage, datapointIsText, datapointIsVideo} from 'helpers/datapoint';
@@ -15,7 +16,7 @@ import FrameWithBoundingBox, {PreviewImageClassification} from 'components/previ
 import PreviewTextClassification from 'components/preview-text-classification';
 import PreviewDetails from 'components/preview-details';
 
-const DatapointsViewer = ({datapoints, onSelectedChange}) => {
+const DatapointsViewer = ({datapoints, onSelectedChange, onClearDatapoint}) => {
 
     const samplingLimit = 10000;
     const selectAllRef = useRef();
@@ -96,13 +97,21 @@ const DatapointsViewer = ({datapoints, onSelectedChange}) => {
                 </Row>
                 <Row className='g-2'>
                     {datapoints.length ? datapoints.slice(0, samplingLimit).map((datapoint, i) => {
+                        const selectOrClearBar = (
+                            <div className='d-flex justify-content-between'>
+                                <Form.Check type='checkbox' onChange={(e) => handleSelectDatapoint(i, e.target.checked)} checked={selectedDatapoints.has(i)}/>
+                                {onClearDatapoint ?
+                                    <IoCloseOutline className='cursor-pointer fs-4' onClick={() => onClearDatapoint(i)}/> :
+                                    null}
+                            </div>
+                        );
 
                         if (datapointIsVideo(datapoint)) {
 
                             return (
                                 <Col key={`${oHash(datapoint)}-${i}`} xs={6} md={4} xl={3}>
                                     <div className='p-2 bg-white-blue border rounded' >
-                                        <Form.Check type='checkbox' onChange={(e) => handleSelectDatapoint(i, e.target.checked)} checked={selectedDatapoints.has(i)}/>
+                                        {selectOrClearBar}
                                         <FrameWithBoundingBox
                                             videoUrl={datapoint}
                                             videoControls={false}
@@ -123,7 +132,7 @@ const DatapointsViewer = ({datapoints, onSelectedChange}) => {
                             return (
                                 <Col key={`${oHash(datapoint)}-${i}`} xs={6} md={4} xl={3}>
                                     <div className='p-2 bg-white-blue border rounded' >
-                                        <Form.Check type='checkbox' onChange={(e) => handleSelectDatapoint(i, e.target.checked)} checked={selectedDatapoints.has(i)}/>
+                                        {selectOrClearBar}
                                         <PreviewImageClassification
                                             sample={datapoint}
                                             maxHeight={200}
@@ -137,7 +146,7 @@ const DatapointsViewer = ({datapoints, onSelectedChange}) => {
                             return (
                                 <Col key={`${oHash(datapoint)}-${i}`} xs={12}>
                                     <div className='p-2 border-bottom' >
-                                        <Form.Check type='checkbox' onChange={(e) => handleSelectDatapoint(i, e.target.checked)} checked={selectedDatapoints.has(i)}/>
+                                        {selectOrClearBar}
                                         <PreviewTextClassification
                                             sample={datapoint}
                                             onClick={() => setSampleIndexInModal(i)}
@@ -148,7 +157,7 @@ const DatapointsViewer = ({datapoints, onSelectedChange}) => {
                         } else return (
                             <Col key={`${oHash(datapoint)}-${i}`} xs={12}>
                                 <div className='p-2 border-bottom' >
-                                    <Form.Check type='checkbox' onChange={(e) => handleSelectDatapoint(i, e.target.checked)} checked={selectedDatapoints.has(i)}/>
+                                    {selectOrClearBar}
                                     <PreviewDetails sample={datapoint}/>
                                 </div>
                             </Col>
@@ -219,7 +228,8 @@ const DatapointsViewer = ({datapoints, onSelectedChange}) => {
 
 DatapointsViewer.propTypes = {
     datapoints: PropTypes.array.isRequired,
-    onSelectedChange: PropTypes.func
+    onSelectedChange: PropTypes.func,
+    onClearDatapoint: PropTypes.func
 };
 
 export default DatapointsViewer;
