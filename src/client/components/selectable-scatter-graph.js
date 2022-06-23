@@ -37,7 +37,14 @@ const SelectableScatterGraph = ({scatters, onSelectedDataChange, isDatapointSele
         let newSelectedPoints = [];
 
         if (shiftPressed) {
-            newSelectedPoints = [...selectedPoints, point];
+            const existingUUIDS = new Set(selectedPoints.map(({sample}) => sample['uuid']));
+
+            // Toggle the point if it's already selected.
+            if (existingUUIDS.has(point.sample['uuid'])) {
+                newSelectedPoints = selectedPoints.filter(({sample}) => sample['uuid'] !== point.sample['uuid']);
+            } else {
+                newSelectedPoints = [...selectedPoints, point];
+            }
         } else {
             newSelectedPoints = [point];
         }
@@ -45,11 +52,11 @@ const SelectableScatterGraph = ({scatters, onSelectedDataChange, isDatapointSele
         handlePointsSelected(newSelectedPoints);
     };
     const handlePointsSelected = (points) => {
+        const deduplicatedPoints = points.filter((point, index, self) => self.findIndex((p) => p['sample']['uuid'] === point['sample']['uuid']) === index);
 
-        setSelectedPoints(points);
-        onSelectedDataChange?.(points);
+        setSelectedPoints(deduplicatedPoints);
+        onSelectedDataChange?.(deduplicatedPoints);
     };
-
 
     return (
         <ScatterGraph
