@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import PropTypes from 'prop-types';
 import {Route, Switch} from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
@@ -18,6 +18,9 @@ import IncidentsAndAlerts from 'pages/common/incidents-and-alerts';
 import useSyncStoresToUrl from 'hooks/use-sync-stores-to-url';
 import Menu from 'components/menu';
 import comparisonContext from 'context/comparison-context';
+import {timeStore} from 'state/stores/time-store';
+import useAllSqlFilters from 'hooks/use-all-sql-filters';
+import metricsClient from 'clients/metrics';
 
 const SplitView = ({children}) => (
     <Row>
@@ -34,6 +37,8 @@ SplitView.propTypes = {
 };
 
 const Model = ({filtersStore, modelStore}) => {
+    const allSqlFiltersWithoutTime = useAllSqlFilters({excludeCurrentTimeFilters: true});
+    const allSqlFilters = useAllSqlFilters();
 
     useSyncStoresToUrl(({timeStore, filtersStore, segmentationStore}) => ({
         startTime: timeStore.start?.toISOString() || '',
@@ -54,12 +59,30 @@ const Model = ({filtersStore, modelStore}) => {
             return modelStore.getModelById(_id);
         }
     });
-    const firstModel = models[0];
     const tabs = [
         {name: 'Performance', to: '/models/performance'},
         {name: 'Embedding Space', to: '/models/embedding-space'},
         {name: 'Incidents & Alerts', to: '/models/incidents-and-alerts'}
     ];
+    const firstModel = models[0];
+
+    useEffect(() => {
+        (async () => {
+            if (firstModel && !timeStore.isModified) {
+                const [c] = await metricsClient('queries/count-events', {sql_filters: allSqlFilters});
+
+                if (c?.value === 0) {
+                    const [d] = await metricsClient('default-time-range', {
+                        sql_filters: allSqlFiltersWithoutTime
+                    });
+
+                    if (d) {
+                        timeStore.setTimeRange(d);
+                    }
+                }
+            }
+        })();
+    }, []);
 
     if (!firstModel) {
 

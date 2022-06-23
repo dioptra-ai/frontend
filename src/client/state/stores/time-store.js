@@ -26,6 +26,8 @@ class TimeStore {
 
     _lastMs = null;
 
+    _isModified = false;
+
     get start() {
         return this._start;
     }
@@ -36,6 +38,10 @@ class TimeStore {
 
     get lastMs() {
         return this._lastMs;
+    }
+
+    get isModified() {
+        return this._isModified;
     }
 
     constructor(initialValue) {
@@ -60,6 +66,8 @@ class TimeStore {
             });
         }
 
+        this._isModified = false;
+
         makeAutoObservable(this);
     }
 
@@ -78,6 +86,7 @@ class TimeStore {
         this._lastMs = null;
         this._start = moment(start);
         this._end = moment(end);
+        this._isModified = true;
     }
 
     setLastMs(number) {
@@ -87,6 +96,7 @@ class TimeStore {
 
         this._start = moment(start);
         this._end = moment(end);
+        this._isModified = true;
     }
 
     refreshTimeRange() {
