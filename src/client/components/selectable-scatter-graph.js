@@ -76,6 +76,13 @@ const SelectableScatterGraph = ({scatters, onSelectedDataChange, isDatapointSele
                     handlePointsSelected([]);
                 }
             }}
+            onLegendClick={({payload}) => {
+                if (shiftPressed) {
+                    handlePointsSelected([...selectedPoints, ...payload['data']]);
+                } else {
+                    handlePointsSelected(payload['data']);
+                }
+            }}
         >
             {
                 scatters.map((s) => (

@@ -15,7 +15,7 @@ import theme from 'styles/theme.module.scss';
 const LARGE_DOT_SIZE = 200;
 const SMALL_DOT_SIZE = 60;
 
-const ScatterGraph = ({onAreaSelected, children}) => {
+const ScatterGraph = ({onAreaSelected, children, onLegendClick}) => {
     const [refTopLeft, setRefTopLeft] = useThrottle(null, 10, true);
     const [refBottomRight, setRefBottomRight] = useThrottle(null, 10, true);
 
@@ -90,7 +90,17 @@ const ScatterGraph = ({onAreaSelected, children}) => {
                         range={[SMALL_DOT_SIZE, LARGE_DOT_SIZE]}
                         scale='linear'
                     />
-                    <Legend wrapperStyle={{bottom: -10}} fill='black' />
+                    {onLegendClick ? (
+                        <style jsx>{`
+                        .recharts-legend-item {
+                            cursor: pointer;
+                        }
+                        .recharts-legend-item-text {
+                            text-decoration: underline;
+                        }
+                        `}</style>
+                    ) : null}
+                    <Legend align='center' verticalAlign='bottom' fill='black' onClick={onLegendClick}/>
                     <defs>
                         <linearGradient id='colorGrad' x1='0' y1='0' x2='1' y2='0'>
                             <stop offset='50%' stopColor={theme.warning} stopOpacity={1} />
@@ -117,7 +127,8 @@ const ScatterGraph = ({onAreaSelected, children}) => {
 
 ScatterGraph.propTypes = {
     onAreaSelected: PropTypes.func,
-    children: PropTypes.node
+    children: PropTypes.node,
+    onLegendClick: PropTypes.func
 };
 
 export default ScatterGraph;
