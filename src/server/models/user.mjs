@@ -102,7 +102,7 @@ userSchema.pre('save', async function () {
         // "webmail": the email address comes from an email service provider such as Gmail or Outlook.
         // "disposable": the email address comes from a disposable email service provider.
         // "unknown": we failed to verify the email address.
-        if (status === 'invalid' || status === 'disposable') {
+        if (status === 'invalid' || status === 'disposable' || status === 'webmail') {
 
             throw new Error('We could not verify your email. Please use a valid work email.');
         }
