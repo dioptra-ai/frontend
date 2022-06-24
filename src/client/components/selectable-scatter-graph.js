@@ -50,9 +50,13 @@ const SelectableScatterGraph = ({scatters, onSelectedDataChange, isDatapointSele
         handlePointsSelected(newSelectedPoints);
     };
     const handlePointsSelected = (points) => {
-        const deduplicatedPoints = points.filter((point, index, self) => self.findIndex((p) => p['sample']['uuid'] === point['sample']['uuid']) === index);
+        const pointsMap = points.reduce((acc, point) => {
+            acc[point['sample']['uuid']] = point;
 
-        onSelectedDataChange(deduplicatedPoints);
+            return acc;
+        }, {});
+
+        onSelectedDataChange(Object.values(pointsMap));
     };
 
     return (
