@@ -17,7 +17,6 @@ import PreviewTextClassification from 'components/preview-text-classification';
 import PreviewDetails from 'components/preview-details';
 
 const DatapointsViewer = ({datapoints, onSelectedChange, onClearDatapoint}) => {
-
     const samplingLimit = 10000;
     const selectAllRef = useRef();
     const [sampleIndexInModal, setSampleIndexInModal] = useState(-1);

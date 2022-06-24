@@ -4,7 +4,6 @@ import {Scatter} from 'recharts';
 import oHash from 'object-hash';
 
 import ScatterGraph from 'components/scatter-graph';
-import useCartesianPoints from 'hooks/use-cartesian-points';
 
 const LARGE_DOT_SIZE = 200;
 const SMALL_DOT_SIZE = 60;
@@ -14,7 +13,6 @@ const inRange = (num, min, max) => num >= min && num <= max;
 const SelectableScatterGraph = ({scatters, onSelectedDataChange, isDatapointSelected, children}) => {
     const [shiftPressed, setShiftPressed] = useState(false);
     const selectedPoints = scatters.map((scatter) => scatter.data.filter(isDatapointSelected)).flat();
-    const getCartesianPointSelected = useCartesianPoints({points: selectedPoints, xLabel: 'PCA1', yLabel: 'PCA2'});
 
     const handleKeyDown = ({keyCode}) => {
         if (keyCode === 16) setShiftPressed(true);
@@ -90,14 +88,10 @@ const SelectableScatterGraph = ({scatters, onSelectedDataChange, isDatapointSele
                         cursor='pointer'
                         onClick={handleScatterClick}
                         {...s}
-                        data={s.data.map((point) => {
-                            const isSelected = isDatapointSelected ? isDatapointSelected(point) : getCartesianPointSelected(point);
-
-                            return {
-                                size: isSelected ? LARGE_DOT_SIZE : SMALL_DOT_SIZE,
-                                ...point
-                            };
-                        })}
+                        data={s.data.map((point) => ({
+                            size: isDatapointSelected(point) ? LARGE_DOT_SIZE : SMALL_DOT_SIZE,
+                            ...point
+                        }))}
                     />
                 ))
             }
@@ -109,7 +103,7 @@ const SelectableScatterGraph = ({scatters, onSelectedDataChange, isDatapointSele
 SelectableScatterGraph.propTypes = {
     scatters: PropTypes.array.isRequired,
     onSelectedDataChange: PropTypes.func.isRequired,
-    isDatapointSelected: PropTypes.func,
+    isDatapointSelected: PropTypes.func.isRequired,
     children: PropTypes.node
 };
 

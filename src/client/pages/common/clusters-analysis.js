@@ -17,7 +17,6 @@ import metricsClient from 'clients/metrics';
 import useModel from 'hooks/use-model';
 import Form from 'react-bootstrap/Form';
 import SamplesPreview from 'components/samples-preview';
-import useCartesianPoints from 'hooks/use-cartesian-points';
 
 // Keep this in sync with metrics-engine/handlers/clusters.py
 const MODEL_TYPE_TO_METRICS_NAMES = {
@@ -33,7 +32,6 @@ const MODEL_TYPE_TO_METRICS_NAMES = {
 };
 
 const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDistanceName, onUserSelectedAlgorithm, onUserSelectedGroupbyField}) => {
-
     const samplingLimit = 10000;
     const allSqlFilters = useAllSqlFilters();
     const model = useModel();
@@ -43,8 +41,7 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
     const [selectedPoints, setSelectedPoints] = useState([]);
     const [distributionMetricsOptions, setDistributionMetricsOptions] = useState([]);
     const [userSelectedAlgorithm, setUserSelectedAlgorithm] = useState('GROUPBY');
-    const getCartesianPointSelected = useCartesianPoints({points: selectedPoints, xLabel: 'PCA1', yLabel: 'PCA2'});
-
+    const uniqueSampleUUIDs = new Set(selectedPoints.map(({sample}) => sample['uuid']));
     const getDistributionMetricsForModel = (modelType) => {
         if (modelType === 'IMAGE_CLASSIFIER' || modelType === 'TEXT_CLASSIFIER') {
             return [{
@@ -80,6 +77,9 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
     const handleUserSelectedAlgorithm = (value) => {
         setUserSelectedAlgorithm(value);
         onUserSelectedAlgorithm(value);
+    };
+    const handleClearSample = (i) => {
+        setSelectedPoints(selectedPoints.filter((_, index) => index !== i));
     };
 
     useEffect(async () => {
@@ -183,7 +183,7 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
                         yAxisId: 'PCA2'
                     }))}
                     onSelectedDataChange={setSelectedPoints}
-                    isDatapointSelected={getCartesianPointSelected}
+                    isDatapointSelected={(p) => uniqueSampleUUIDs.has(p.sample['uuid'])}
                 />
             </Col>
             {distributionMetricsOptions?.length ? (
@@ -256,7 +256,7 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
         <Row>
             <Col className='px-3'>
                 <div className='bg-white-blue rounded p-3'>
-                    <SamplesPreview samples={samples} />
+                    <SamplesPreview samples={samples} onClearSample={handleClearSample}/>
                 </div>
             </Col>
         </Row>
