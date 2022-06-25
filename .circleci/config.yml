@@ -2,6 +2,7 @@
 version: 2.1
 
 jobs:
+  # We had to redefine this to include pulling of submodules which is used to generate documentation
   build_and_push_image:
     description: >
       Install AWS CLI, if needed, and configure. Log into Amazon ECR and push image
