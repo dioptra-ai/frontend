@@ -46,12 +46,14 @@ const DatapointsViewer = ({datapoints, onSelectedChange, onClearDatapoint}) => {
         onSelectedChange?.(newSet);
     };
     const handleKeyDown = (e) => {
-        if (e.key === 'ArrowLeft') {
+        if (exampleInModal) {
             e.preventDefault();
-            handlePrevious();
-        } else if (e.key === 'ArrowRight') {
-            e.preventDefault();
-            handleNext();
+
+            if (e.key === 'ArrowLeft') {
+                handlePrevious();
+            } else if (e.key === 'ArrowRight') {
+                handleNext();
+            }
         }
     };
     const handlePrevious = () => {
