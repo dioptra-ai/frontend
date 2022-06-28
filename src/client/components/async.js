@@ -14,7 +14,8 @@ const Async = ({
     fetchData,
     refetchOnChanged = [],
     defaultData,
-    spinner = true
+    spinner = true,
+    ...rest
 }) => {
     const [data, setData] = useState();
     const [loading, setLoading] = useState(false);
@@ -60,7 +61,7 @@ const Async = ({
         <AsyncContext.Provider value={{data, loading, error}}>
             {
                 spinner ? (
-                    <SpinnerWrapper>
+                    <SpinnerWrapper {...rest}>
                         {content}
                     </SpinnerWrapper>
                 ) : content

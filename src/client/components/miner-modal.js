@@ -5,7 +5,6 @@ import Async from 'components/async';
 import DateTimeRangePicker from 'components/date-time-range-picker';
 import Modal from 'components/modal';
 import Select from 'components/select';
-import {lastMilliseconds} from 'helpers/date-helper';
 import moment from 'moment';
 import {useState} from 'react';
 import Button from 'react-bootstrap/Button';
@@ -19,6 +18,7 @@ import Error from 'components/error';
 import {setupComponent} from 'helpers/component-helper';
 import FilterInput from 'pages/common/filter-input';
 import {Filter} from 'state/stores/filters-store';
+import CountEvents from './count-events';
 
 const IsoDurations = {
     PT30M: {value: 'PT30M', name: '30 minutes'},
@@ -48,21 +48,13 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, uuids, modelStore}) => {
     const [minerFilters, setMinerFilters] = useState([]);
 
     const onDatasetDateChange = ({start, end, lastMs}) => {
-        let isoStart = null;
-
-        let isoEnd = null;
 
         if (lastMs) {
-            const e = moment();
-            const s = lastMilliseconds(lastMs)[0];
-
-            isoStart = s.toISOString();
-            isoEnd = e.toISOString();
-        } else {
-            isoStart = start.toISOString();
-            isoEnd = end.toISOString();
+            start = moment().subtract(lastMs, 'milliseconds');
+            end = moment();
         }
-        setReferencePeriod({start: isoStart, end: isoEnd});
+
+        setReferencePeriod({start, end});
     };
 
     const createMiner = async () => {
@@ -78,8 +70,8 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, uuids, modelStore}) => {
 
         if (!minerDatasetSelected) {
             if (liveDataType === 'range') {
-                payload['start_time'] = referencePeriod.start;
-                payload['end_time'] = referencePeriod.end;
+                payload['start_time'] = referencePeriod.start.toISOString();
+                payload['end_time'] = referencePeriod.end.toISOString();
             } else {
                 payload['evaluation_period'] = evaluationPeriod;
             }
@@ -88,7 +80,7 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, uuids, modelStore}) => {
         }
 
         if (minerFilters.length > 0) {
-            payload['sql_filters'] = Filter.filtersToSqlString(minerFilters).join(' AND');
+            payload['sql_filters'] = Filter.filtersToSqlStrings(minerFilters).join(' AND');
         }
 
         await metricsClient('miners', payload).catch(console.error);
@@ -329,17 +321,9 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, uuids, modelStore}) => {
                                                         opens: 'center',
                                                         drops: 'up'
                                                     }}
-                                                    end={
-                                                        referencePeriod ?
-                                                            moment(referencePeriod.end) :
-                                                            null
-                                                    }
+                                                    end={referencePeriod?.end}
                                                     onChange={onDatasetDateChange}
-                                                    start={
-                                                        referencePeriod ?
-                                                            moment(referencePeriod.start) :
-                                                            null
-                                                    }
+                                                    start={referencePeriod?.start}
                                                     width='100%'
                                                 />
                                             </InputGroup>
@@ -366,7 +350,6 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, uuids, modelStore}) => {
                                     </div>
                                 </>
                             )}
-
                             <InputGroup className='mt-1'>
                                 <Form.Label className='mt-3 mb-0 w-100'>
                                     Filter Miner Input
@@ -375,6 +358,16 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, uuids, modelStore}) => {
                                     <FilterInput onChange={setMinerFilters} value={minerFilters}/>
                                 </div>
                             </InputGroup>
+                            <div className='my-3'>
+                                Miner Input: <CountEvents className='d-inline' sqlFilters={
+                                    Filter.filtersToSqlStrings(minerFilters)
+                                        .concat(minerModel ? ` model_id = '${minerModel.mlModelId}'` : '')
+                                        .concat(`"__time" >= TIME_PARSE('${referencePeriod.start.toISOString()}')`)
+                                        .concat(`"__time" < TIME_PARSE('${referencePeriod.end.toISOString()}')`)
+                                        .filter(Boolean)
+                                        .join(' AND ')
+                                }/> datapoints.
+                            </div>
                         </Col>
                     </Row>
                     {minerStrategy === 'LOCAL_OUTLIER' && uuids?.length < 50 ? (

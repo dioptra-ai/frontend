@@ -154,7 +154,7 @@ export class Filter {
         }
     }
 
-    static filtersToSqlString(filters) {
+    static filtersToSqlStrings(filters) {
         const filtersByKey = filters.reduce((agg, filter) => {
             const {left} = filter;
 
@@ -267,7 +267,7 @@ class FiltersStore {
 
     getSqlFilters() {
 
-        return Filter.filtersToSqlString(this.f);
+        return Filter.filtersToSqlStrings(this.f);
     }
 
     getModelSqlFilters(forModel = 0) {
