@@ -133,10 +133,12 @@ const Benchmarks = ({filtersStore, modelStore, benchmarkStore}) => {
             </Container>
             <Container fluid>
                 <Tabs tabs={tabs} />
-                <FilterInput
-                    defaultFilters={filtersStore.filters}
-                    onChange={(filters) => (filtersStore.filters = filters)}
-                />
+                <div className='m-3'>
+                    <FilterInput
+                        defaultFilters={filtersStore.filters}
+                        onChange={(filters) => (filtersStore.filters = filters)}
+                    />
+                </div>
                 <div className='px-3'>
                     <Route exact path='/benchmark/performance' render={() => {
 

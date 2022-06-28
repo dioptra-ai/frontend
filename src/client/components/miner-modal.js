@@ -17,6 +17,8 @@ import ToggleButton from 'react-bootstrap/ToggleButton';
 import ToggleButtonGroup from 'react-bootstrap/ToggleButtonGroup';
 import Error from 'components/error';
 import {setupComponent} from 'helpers/component-helper';
+import FilterInput from 'pages/common/filter-input';
+import {Filter} from 'state/stores/filters-store';
 
 const IsoDurations = {
     PT30M: {value: 'PT30M', name: '30 minutes'},
@@ -29,7 +31,7 @@ const IsoDurations = {
 
 
 const MinerModal = ({isOpen, onClose, onMinerCreated, uuids, modelStore}) => {
-    const [minerDatasetSelected, setMinerDatasetSelected] = useState(false);
+    const [minerDatasetSelected] = useState(false);
     const [selectedDataset, setSelectedDataset] = useState();
     const [minerName, setMinerName] = useState();
     const [referencePeriod, setReferencePeriod] = useState({
@@ -43,6 +45,7 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, uuids, modelStore}) => {
     const [minerLimit, setMinerLimit] = useState();
     const [minerDuplicationFactor, setMinerDuplicationFactor] = useState(1);
     const [minerModel, setMinerModel] = useState(modelStore.models[0]);
+    const [minerFilters, setMinerFilters] = useState([]);
 
     const onDatasetDateChange = ({start, end, lastMs}) => {
         let isoStart = null;
@@ -82,6 +85,10 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, uuids, modelStore}) => {
             }
         } else {
             payload['dataset_id'] = selectedDataset;
+        }
+
+        if (minerFilters.length > 0) {
+            payload['sql_filters'] = Filter.filtersToSqlString(minerFilters).join(' AND');
         }
 
         await metricsClient('miners', payload).catch(console.error);
@@ -210,7 +217,7 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, uuids, modelStore}) => {
                             }
                         </Col>
                         <Col>
-                            <Form.Label className='mt-3 mb-0 w-100'>Source</Form.Label>
+                            {/* <Form.Label className='mt-3 mb-0 w-100'>Source</Form.Label>
                             <InputGroup className='mt-1 flex-column'>
                                 <Form.Control
                                     as='select'
@@ -224,11 +231,11 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, uuids, modelStore}) => {
                                     }}
                                 >
                                     <option value={false}>
-                                        Datasource
+                                        Live Model
                                     </option>
-                                    <option value={true}>Dataset</option>
+                                    <option value={true} disabled>Dataset</option>
                                 </Form.Control>
-                            </InputGroup>
+                            </InputGroup> */}
                             {minerDatasetSelected ? (
                                 <>
                                     <Form.Label className='mt-3 mb-0 w-100'>
@@ -344,10 +351,7 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, uuids, modelStore}) => {
                                                 </Form.Label>
                                                 <Select
                                                     backgroundColor='white'
-                                                    initialValue={
-                                                        evaluationPeriod ||
-                                                IsoDurations.PT30M.value
-                                                    }
+                                                    initialValue={evaluationPeriod || IsoDurations.PT30M.value}
                                                     isTextBold
                                                     onChange={setEvaluationPeriod}
                                                     options={Object.values(IsoDurations)}
@@ -362,13 +366,22 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, uuids, modelStore}) => {
                                     </div>
                                 </>
                             )}
-                            {minerStrategy === 'LOCAL_OUTLIER' && uuids?.length < 50 ? (
-                                <div className='mt-3'>
-                                    <Error error={`${uuids.length} samples are selected but at least fifty (50) are required to run a Local Outlier Factor miner.`} variant='warning'/>
+
+                            <InputGroup className='mt-1'>
+                                <Form.Label className='mt-3 mb-0 w-100'>
+                                    Filter Miner Input
+                                </Form.Label>
+                                <div className='w-100'>
+                                    <FilterInput onChange={setMinerFilters} value={minerFilters}/>
                                 </div>
-                            ) : null}
+                            </InputGroup>
                         </Col>
                     </Row>
+                    {minerStrategy === 'LOCAL_OUTLIER' && uuids?.length < 50 ? (
+                        <div className='mt-3'>
+                            <Error error={`${uuids.length} samples are selected but at least fifty (50) are required to run a Local Outlier Factor miner.`} variant='warning'/>
+                        </div>
+                    ) : null}
                     <Button
                         className='w-100 text-white btn-submit mt-3'
                         variant='primary'

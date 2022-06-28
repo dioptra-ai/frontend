@@ -154,6 +154,26 @@ export class Filter {
         }
     }
 
+    static filtersToSqlString(filters) {
+        const filtersByKey = filters.reduce((agg, filter) => {
+            const {left} = filter;
+
+            if (!agg[left]) {
+                agg[left] = [];
+            }
+
+            agg[left].push(filter);
+
+            return agg;
+        }, {});
+
+        return Object.keys(filtersByKey).map((left) => {
+            const keyFilters = filtersByKey[left];
+
+            return `(${keyFilters.map((filter) => filter.toSQLString()).join(' OR ')})`;
+        });
+    }
+
     get isOpValid() {
 
         return ['=', '<>', 'in', 'not in', '<', '>', 'like', 'not like'].includes(this.op?.toLowerCase());
@@ -244,24 +264,10 @@ class FiltersStore {
         this.m = m;
     }
 
+
     getSqlFilters() {
-        const filtersByKey = this.f.reduce((agg, filter) => {
-            const {left} = filter;
 
-            if (!agg[left]) {
-                agg[left] = [];
-            }
-
-            agg[left].push(filter);
-
-            return agg;
-        }, {});
-
-        return Object.keys(filtersByKey).map((left) => {
-            const keyFilters = filtersByKey[left];
-
-            return `(${keyFilters.map((filter) => filter.toSQLString()).join(' OR ')})`;
-        });
+        return Filter.filtersToSqlString(this.f);
     }
 
     getModelSqlFilters(forModel = 0) {

@@ -48,6 +48,7 @@ RenderedFilter.propTypes = {
 const FilterInput = ({
     inputPlaceholder = 'filter1 = foo   filter2 in a,b,c',
     onChange,
+    value,
     filtersStore
 }) => {
     const [newFilter, setNewFilter] = useState(new Filter());
@@ -58,7 +59,7 @@ const FilterInput = ({
     const [suggestionsLoading, setSuggestionsLoading] = useState(false);
     const inFilterTooltipTarget = useRef(null);
 
-    const appliedFilters = filtersStore.filters;
+    const appliedFilters = value || filtersStore.filters;
 
     const model = useModel();
 
@@ -145,14 +146,17 @@ const FilterInput = ({
             setSuggestionIndex(suggestionIndex + 1);
         } else if (e.key === 'Escape') {
             //escape
+            e.preventDefault();
             setSuggestions([]);
             setSuggestionIndex(-1);
         } else if ((e.keyCode === 13 || e.keyCode === 9) && suggestionIndex !== -1) {
             // on enter to select the suggestion
+            e.preventDefault();
             handleSuggestionSelected(suggestions[suggestionIndex]);
             setSuggestionIndex(-1);
         } else if (e.keyCode === 13 && !e.target.value.trim() && filters.length) {
             // on enter to apply all
+            e.preventDefault();
             onChange([...appliedFilters, ...filters]);
             setFilters([]);
             setNewFilter(new Filter());
@@ -201,7 +205,7 @@ const FilterInput = ({
     };
 
     return (
-        <div className='m-3'>
+        <>
             <OutsideClickHandler useCapture onOutsideClick={() => {
                 setShowSuggestions(false);
             }}>
@@ -283,14 +287,15 @@ const FilterInput = ({
                     </>
                 ) : <div/>}
             </div>
-        </div>
+        </>
     );
 };
 
 FilterInput.propTypes = {
     inputPlaceholder: PropTypes.string,
     filtersStore: PropTypes.object.isRequired,
-    onChange: PropTypes.func.isRequired
+    onChange: PropTypes.func.isRequired,
+    value: PropTypes.array
 };
 
 export default setupComponent(FilterInput);

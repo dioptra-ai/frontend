@@ -100,10 +100,12 @@ const Model = ({filtersStore, modelStore}) => {
                     <Route exact path='/models/edit-alert/:id' component={AddAlertPage}/>
                     <Route exact path='/models/incidents-and-alerts' component={IncidentsAndAlerts}/>
                     <Route>
-                        <FilterInput
-                            defaultFilters={filtersStore.filters}
-                            onChange={(filters) => (filtersStore.filters = filters)}
-                        />
+                        <div className='m-3'>
+                            <FilterInput
+                                defaultFilters={filtersStore.filters}
+                                onChange={(filters) => (filtersStore.filters = filters)}
+                            />
+                        </div>
                         <div className='px-3'>
                             <Route exact path='/models/performance' render={() => (
                                 <SplitView>
