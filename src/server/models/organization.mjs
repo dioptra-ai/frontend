@@ -62,7 +62,7 @@ organizationSchema.statics.initializeCollection = async () => {
         await Organization.createAndInitialize({
             name: 'Admin Organization'
         }, {
-            username: 'admin', password: 'admin'
+            username: 'admin@dioptra.ai', password: 'admin'
         });
 
         console.log('Admin Organization Created');
