@@ -1,3 +1,4 @@
+import {useHistory} from 'react-router-dom';
 import metricsClient from 'clients/metrics';
 import AddFilters from 'components/add-filters';
 import Async from 'components/async';
@@ -16,6 +17,7 @@ import {OverlayTrigger, Tooltip} from 'react-bootstrap';
 import MinerModal from 'components/miner-modal';
 
 const BBoxLocationAnalysis = () => {
+    const history = useHistory();
     const allSqlFiltersWithoutOrgId = useAllSqlFilters({
         __REMOVE_ME__excludeOrgId: true
     });
@@ -106,7 +108,16 @@ const BBoxLocationAnalysis = () => {
                                 <BsMinecartLoaded className='fs-2 ps-2 cursor-pointer'/>
                             </button>
                         </OverlayTrigger>
-                        <MinerModal isOpen={minerModalOpen} onClose={() => setMinerModalOpen(false)} requestIds={heatMapSamples.map((s) => s['bounding_box']['request_id'])}/>
+                        <MinerModal
+                            isOpen={minerModalOpen}
+                            onClose={() => setMinerModalOpen(false)}
+                            onMinerCreated={(minerId) => {
+                                metricsClient('miners', null, false);
+                                setMinerModalOpen(false);
+                                history.push(`/miners/${minerId}`);
+                            }}
+                            requestIds={heatMapSamples.map((s) => s['bounding_box']['request_id'])}
+                        />
                     </div>
                     {heatMapSamples.length ? (
                         <div

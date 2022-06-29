@@ -91,7 +91,16 @@ const Cart = ({userStore}) => {
                                         <BsMinecartLoaded className='fs-2 ps-2 cursor-pointer'/> Create Miner
                                     </Button>
                                     <ButtonDownloadCSV uuids={userStore.userData.cart} filename='data-cart.csv'/>
-                                    <MinerModal isOpen={minerModalOpen} onClose={() => setMinerModalOpen(false)} uuids={userStore.userData.cart}/>
+                                    <MinerModal
+                                        isOpen={minerModalOpen}
+                                        onMinerCreated={(minerId) => {
+                                            metricsClient('miners', null, false);
+                                            setMinerModalOpen(false);
+                                            history.push(`/miners/${minerId}`);
+                                        }}
+                                        onClose={() => setMinerModalOpen(false)}
+                                        uuids={userStore.userData.cart}
+                                    />
                                     <hr/>
                                     <Button
                                         className='w-100 click-down my-3' variant='secondary'

@@ -138,13 +138,12 @@ const MinersList = () => {
                     </div>
                     <MinerModal
                         isOpen={isMinerModalOpen}
-                        onMinerCreated={() => {
+                        onMinerCreated={(minerId) => {
                             fetchMiners();
                             setIsMinerModalOpen(false);
+                            history.push(`/miners/${minerId}`);
                         }}
-                        onClose={() => {
-                            setIsMinerModalOpen(false);
-                        }}
+                        onClose={() => setIsMinerModalOpen(false)}
                     />
                 </Menu>
             )}

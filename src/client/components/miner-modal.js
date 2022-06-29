@@ -83,14 +83,11 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, uuids, modelStore}) => {
             payload['sql_filters'] = Filter.filtersToSqlStrings(minerFilters).join(' AND');
         }
 
-        await metricsClient('miners', payload).catch(console.error);
+        const miner = await metricsClient('miners', payload).catch(console.error);
 
         if (onMinerCreated) {
 
-            onMinerCreated();
-        } else {
-
-            onClose();
+            onMinerCreated(miner['miner_id']);
         }
     };
 
