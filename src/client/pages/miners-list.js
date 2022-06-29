@@ -6,7 +6,7 @@ import MinerModal from 'components/miner-modal';
 import moment from 'moment';
 import slugify from 'slugify';
 import TopBar from 'pages/common/top-bar';
-import {useEffect, useState} from 'react';
+import {useState} from 'react';
 import Table from 'react-bootstrap/Table';
 import {IoDownloadOutline} from 'react-icons/io5';
 import {AiOutlineDelete} from 'react-icons/ai';
@@ -15,15 +15,14 @@ import {Button, OverlayTrigger, Tooltip} from 'react-bootstrap';
 import {saveAs} from 'file-saver';
 
 const MinersList = () => {
+    const [lastUpdateRequested, setLastUpdateRequested] = useState(null); // Change this and create a miner store.
     const [isMinerModalOpen, setIsMinerModalOpen] = useState(false);
     const history = useHistory();
-    const fetchMiners = () => metricsClient('miners', null, false);
-
-    useEffect(fetchMiners, []);
 
     return (
         <Async
-            fetchData={fetchMiners}
+            fetchData={() => metricsClient('miners', null, false)}
+            refetchOnChanged={[lastUpdateRequested]}
             renderData={(miners) => (
                 <Menu>
                     <TopBar hideTimePicker />
@@ -119,12 +118,13 @@ const MinersList = () => {
                                                             <AiOutlineDelete
                                                                 className='fs-3 cursor-pointer'
                                                                 onClick={async (e) => {
+                                                                    e.preventDefault();
                                                                     e.stopPropagation();
 
                                                                     await metricsClient('miners/delete', {
                                                                         miner_id: miner._id
                                                                     });
-                                                                    await fetchMiners();
+                                                                    setLastUpdateRequested(Date.now());
                                                                 }}
                                                             />
                                                         </OverlayTrigger>
@@ -139,7 +139,6 @@ const MinersList = () => {
                     <MinerModal
                         isOpen={isMinerModalOpen}
                         onMinerCreated={(minerId) => {
-                            fetchMiners();
                             setIsMinerModalOpen(false);
                             history.push(`/miners/${minerId}`);
                         }}

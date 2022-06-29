@@ -20,6 +20,7 @@ const ANALYSES = {
 
 const Miner = () => {
     const {minerId} = useParams();
+    const [lastRequestedRefresh, setLastRequestedRefresh] = useState(0);
     const analysesKeys = Object.keys(ANALYSES);
     const [selectedAnalysis, setSelectedAnalysis] = useState(analysesKeys[0]);
 
@@ -27,7 +28,8 @@ const Miner = () => {
         <Menu>
             <TopBar hideTimePicker/>
             <Async
-                fetchData={() => metricsClient(`miners/${minerId}`)}
+                fetchData={() => metricsClient(`miners/${minerId}`, null, false)}
+                refetchOnChanged={[minerId, lastRequestedRefresh]}
                 renderData={(miner) => (
                     <>
                         <div className='bg-white-blue text-dark p-3'>
@@ -37,18 +39,27 @@ const Miner = () => {
                             <div className='text-dark p-3'>
                                 <PreviewDetails sample={Object.fromEntries(Object.entries(miner).filter(([key]) => ![
                                     '_id', 'organization_id', 'mined_uuids', 'user_id', 'task_id', 'display_name'
-                                ].includes(key)))}/>
+                                ].includes(key)).map(([key, value]) => {
+                                    if (key === 'status') {
+
+                                        return [key, value === 'pending' ? (
+                                            <div>
+                                                {value} <a className='text-decoration-underline cursor-pointer' onClick={() => setLastRequestedRefresh(Date.now())}>(refresh)</a>
+                                            </div>
+                                        ) : value];
+                                    } else return [key, value];
+                                }))}/>
                                 <div className='my-3'>
                                     <Async
                                         fetchData={() => baseJSONClient(`/api/tasks/miners/inspect/${minerId}`, {memoized: false})}
-                                        refetchOnChanged={[minerId]}
+                                        refetchOnChanged={[minerId, lastRequestedRefresh]}
                                         renderData={(task) => (
                                             <>
                                                 <table>
                                                     <tbody>
                                                         <tr>
                                                             <td>
-                                                                <p>Execution Status: {task.status}</p>
+                                                                <p>Execution Errors: {task.status}</p>
                                                             </td>
                                                         </tr>
                                                         {

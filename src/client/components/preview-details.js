@@ -6,7 +6,10 @@ import Container from 'react-bootstrap/Container';
 
 const PreviewDetails = ({sample}) => {
 
-    if (Array.isArray(sample)) {
+    if (React.isValidElement(sample)) {
+
+        return sample;
+    } else if (Array.isArray(sample)) {
 
         return (
             <Row className='g-1'>
@@ -29,9 +32,6 @@ const PreviewDetails = ({sample}) => {
                 }
             </Container>
         );
-    } else if (React.isValidElement(sample)) {
-
-        return sample;
     } else return String(sample);
 };
 
