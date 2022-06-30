@@ -1,19 +1,16 @@
 import PropTypes from 'prop-types';
 import {useEffect, useState} from 'react';
-import {Scatter} from 'recharts';
-import oHash from 'object-hash';
 
-import ScatterGraph from 'components/scatter-graph';
+import ScatterChart from 'components/scatter-chart';
 
 const LARGE_DOT_SIZE = 200;
 const SMALL_DOT_SIZE = 60;
 
 const inRange = (num, min, max) => num >= min && num <= max;
 
-const SelectableScatterGraph = ({scatters, onSelectedDataChange, isDatapointSelected, children}) => {
+const SelectableScatterGraph = ({data, onSelectedDataChange, isDatapointSelected, getX, getY, getColor}) => {
     const [shiftPressed, setShiftPressed] = useState(false);
-    const selectedPoints = scatters.map((scatter) => scatter.data.filter(isDatapointSelected)).flat();
-
+    const selectedPoints = data.filter(isDatapointSelected);
     const handleKeyDown = ({keyCode}) => {
         if (keyCode === 16) setShiftPressed(true);
     };
@@ -60,10 +57,9 @@ const SelectableScatterGraph = ({scatters, onSelectedDataChange, isDatapointSele
     };
 
     return (
-        <ScatterGraph
+        <ScatterChart
             onAreaSelected={({left, right, top, bottom}) => {
                 if (left && top && right && bottom) {
-                    const data = [].concat(...scatters.map((s) => s.data));
                     const filteredData = data.filter(
                         ({PCA1, PCA2}) => inRange(PCA1, left, right) && inRange(PCA2, top, bottom)
                     );
@@ -84,31 +80,25 @@ const SelectableScatterGraph = ({scatters, onSelectedDataChange, isDatapointSele
                     handlePointsSelected(payload['data']);
                 }
             }}
-        >
-            {
-                scatters.map((s) => (
-                    <Scatter key={oHash(s)}
-                        isAnimationActive={false}
-                        cursor='pointer'
-                        onClick={handleScatterClick}
-                        {...s}
-                        data={s.data.map((point) => ({
-                            size: isDatapointSelected(point) ? LARGE_DOT_SIZE : SMALL_DOT_SIZE,
-                            ...point
-                        }))}
-                    />
-                ))
-            }
-            {children}
-        </ScatterGraph>
+            onScatterClick={handleScatterClick}
+            data={data.map((point) => ({
+                size: isDatapointSelected(point) ? LARGE_DOT_SIZE : SMALL_DOT_SIZE,
+                ...point
+            }))}
+            getX={getX}
+            getY={getY}
+            getColor={getColor}
+        />
     );
 };
 
 SelectableScatterGraph.propTypes = {
-    scatters: PropTypes.array.isRequired,
+    data: PropTypes.array.isRequired,
     onSelectedDataChange: PropTypes.func.isRequired,
     isDatapointSelected: PropTypes.func.isRequired,
-    children: PropTypes.node
+    getX: PropTypes.func.isRequired,
+    getY: PropTypes.func.isRequired,
+    getColor: PropTypes.func
 };
 
 export default SelectableScatterGraph;

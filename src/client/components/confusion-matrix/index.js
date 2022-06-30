@@ -120,10 +120,10 @@ const ConfusionMatrix = () => {
             <div className='border rounded p-3'>
                 <Row>
                     <Col>
-                        <p className='text-dark fw-bold fs-4 flex-grow-1'>
+                        <div className='text-dark fw-bold fs-4 flex-grow-1'>
                             Confusion Matrix
                             <span className='text-primary mx-1 d-inline-flex'>(n={sampleSizeComponent})</span>
-                        </p>
+                        </div>
                     </Col>
                     {model.mlModelType === 'DOCUMENT_PROCESSING' ||
                         model.mlModelType === 'UNSUPERVISED_OBJECT_DETECTION' ? (

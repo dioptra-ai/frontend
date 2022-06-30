@@ -8,7 +8,7 @@ import useAllSqlFilters from 'hooks/use-all-sql-filters';
 import metricsClient from 'clients/metrics';
 import appContext from 'context/app-context';
 
-const AsyncSegmentationFields = ({timeStore, ...props}) => {
+const AsyncSegmentationFields = ({timeStore, renderData}) => {
     const model = useModel();
     const allSqlFilters = useAllSqlFilters();
     const {isModelView} = useContext(appContext);
@@ -20,13 +20,14 @@ const AsyncSegmentationFields = ({timeStore, ...props}) => {
                 ml_model_id: model?.mlModelId,
                 model_type: model?.mlModelType
             })}
-            {...props}
+            renderData={renderData}
         />
     );
 };
 
 AsyncSegmentationFields.propTypes = {
-    timeStore: PropTypes.object.isRequired
+    timeStore: PropTypes.object.isRequired,
+    renderData: PropTypes.func.isRequired
 };
 
 export default setupComponent(AsyncSegmentationFields);

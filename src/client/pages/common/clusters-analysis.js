@@ -61,7 +61,7 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
         }
     };
     const sortedClusters = useMemo(() => clusters.map((c) => ({
-        name: c.label === -1 ? '[noise]' : `[${c.label}]`,
+        name: c.label === -1 ? '[noise]' : `[${c.label || '<empty>'}]`,
         size: c.elements.length,
         ...c
     })).sort((c1, c2) => {
@@ -155,7 +155,7 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
                             bars={sortedClusters.map((cluster) => ({
                                 name: cluster.name,
                                 value: cluster.metric?.value,
-                                fill: getHexColor(cluster.label === -1 ? '' : cluster.name),
+                                fill: getHexColor(cluster.label),
                                 size: cluster.size
                             }))}
                             onClick={(_, index) => {
@@ -170,18 +170,13 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
         <Row className='my-3'>
             <Col lg={8} style={{minHeight: 440}}>
                 <SelectableScatterGraph
-                    scatters={sortedClusters.map((cluster) => ({
-                        name: cluster.name,
-                        data: cluster.elements.slice(0, samplingLimit).map((e) => ({
-                            clusterSize: cluster.elements.length,
-                            metricValue: cluster.metric?.value,
-                            clusterLabel: cluster.label,
-                            ...e
-                        })),
-                        fill: getHexColor(cluster.label === -1 ? '' : cluster.name),
-                        xAxisId: 'PCA1',
-                        yAxisId: 'PCA2'
-                    }))}
+                    data={sortedClusters.map((cluster) => cluster.elements.map((e) => ({
+                        ...e,
+                        color: getHexColor(cluster.label)
+                    }))).flat()}
+                    getX={(p) => p['PCA1']}
+                    getY={(p) => p['PCA2']}
+                    getColor={(p) => p.color}
                     onSelectedDataChange={setSelectedPoints}
                     isDatapointSelected={(p) => uniqueSampleUUIDs.has(p.sample['uuid'])}
                 />
