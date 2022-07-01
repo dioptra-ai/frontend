@@ -30,7 +30,11 @@ const SplitView = ({children}) => children.length > 1 ? (
             </comparisonContext.Provider>
         ))}
     </Row>
-) : children;
+) : (
+    <comparisonContext.Provider value={{index: 0, total: children.length}}>
+        {children}
+    </comparisonContext.Provider>
+);
 
 SplitView.propTypes = {
     children: PropTypes.node.isRequired
