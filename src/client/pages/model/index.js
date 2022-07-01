@@ -22,7 +22,7 @@ import {timeStore} from 'state/stores/time-store';
 import useAllSqlFilters from 'hooks/use-all-sql-filters';
 import metricsClient from 'clients/metrics';
 
-const SplitView = ({children}) => (
+const SplitView = ({children}) => children.length > 1 ? (
     <Row>
         {children.map((c, i) => (
             <comparisonContext.Provider value={{index: i, total: children.length}} key={i}>
@@ -30,7 +30,7 @@ const SplitView = ({children}) => (
             </comparisonContext.Provider>
         ))}
     </Row>
-);
+) : children;
 
 SplitView.propTypes = {
     children: PropTypes.node.isRequired

@@ -21,13 +21,13 @@ const DatapointsViewer = ({datapoints, onSelectedChange, onClearDatapoint}) => {
     const [selectedDatapoints, setSelectedDatapoints] = useState(new Set());
     const exampleInModal = datapoints[sampleIndexInModal];
 
-    const handleSelectDatapoint = (i, selected) => {
+    const handleSelectDatapoint = (uuid, selected) => {
         const newSet = new Set(selectedDatapoints);
 
         if (selected) {
-            newSet.add(i);
+            newSet.add(uuid);
         } else {
-            newSet.delete(i);
+            newSet.delete(uuid);
         }
         setSelectedDatapoints(newSet);
         onSelectedChange?.(newSet);
@@ -36,7 +36,7 @@ const DatapointsViewer = ({datapoints, onSelectedChange, onClearDatapoint}) => {
         let newSet = null;
 
         if (selected) {
-            newSet = new Set(Array(datapoints.length).fill().map((_, i) => i));
+            newSet = new Set(datapoints.map(({uuid}) => uuid));
         } else {
             newSet = new Set();
         }
@@ -70,8 +70,13 @@ const DatapointsViewer = ({datapoints, onSelectedChange, onClearDatapoint}) => {
     }, [sampleIndexInModal]);
 
     useEffect(() => {
-        selectAllRef.current.indeterminate = (selectedDatapoints.size !== 0 && selectedDatapoints.size !== datapoints.length);
-    }, [selectedDatapoints.size]);
+        setSelectedDatapoints(new Set(datapoints.filter((d) => selectedDatapoints.has(d['uuid'])).map((d) => d['uuid'])));
+    }, [datapoints]);
+
+    useEffect(() => {
+        selectAllRef.current.indeterminate = (selectedDatapoints.size && selectedDatapoints.size !== datapoints.length);
+        selectAllRef.current.checked = (datapoints.length && selectedDatapoints.size === datapoints.length);
+    }, [selectedDatapoints, datapoints]);
 
     return (
         <>
@@ -98,7 +103,10 @@ const DatapointsViewer = ({datapoints, onSelectedChange, onClearDatapoint}) => {
                     {datapoints.length ? datapoints.slice(0, samplingLimit).map((datapoint, i) => {
                         const selectOrClearBar = (
                             <div className='d-flex justify-content-between'>
-                                <Form.Check type='checkbox' onChange={(e) => handleSelectDatapoint(i, e.target.checked)} checked={selectedDatapoints.has(i)}/>
+                                <Form.Check type='checkbox'
+                                    onChange={(e) => handleSelectDatapoint(datapoint['uuid'], e.target.checked)}
+                                    checked={selectedDatapoints.has(datapoint['uuid'])}
+                                />
                                 {onClearDatapoint ?
                                     <IoCloseOutline className='cursor-pointer fs-4' onClick={() => onClearDatapoint(i)}/> :
                                     null}
@@ -170,8 +178,8 @@ const DatapointsViewer = ({datapoints, onSelectedChange, onClearDatapoint}) => {
                 <Modal isOpen={true} onClose={() => setSampleIndexInModal(-1)} title={
                     <div className='ps-2'>
                         <Form.Check type='checkbox'
-                            onChange={(e) => handleSelectDatapoint(sampleIndexInModal, e.target.checked)}
-                            checked={selectedDatapoints.has(sampleIndexInModal)}
+                            onChange={(e) => handleSelectDatapoint(exampleInModal['uuid'], e.target.checked)}
+                            checked={selectedDatapoints.has(exampleInModal['uuid'])}
                         />
                     </div>
                 }>

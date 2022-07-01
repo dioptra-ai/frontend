@@ -1,4 +1,3 @@
-import oHash from 'object-hash';
 import PropTypes from 'prop-types';
 import {useState} from 'react';
 import {BsMinecartLoaded} from 'react-icons/bs';
@@ -76,7 +75,6 @@ const Cart = ({userStore}) => {
                                 <DatapointsViewer
                                     datapoints={datapoints}
                                     onSelectedChange={setSelectedDatapoints}
-                                    key={oHash(datapoints)} // Resets selected state when datapoints change.
                                 />
                             </Col>
                             <Col xs={2}>
