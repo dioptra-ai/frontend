@@ -1,4 +1,3 @@
-import oHash from 'object-hash';
 import {useState} from 'react';
 import PropTypes from 'prop-types';
 import {BsCartPlus} from 'react-icons/bs';
@@ -56,7 +55,6 @@ const SamplesPreview = ({samples, userStore, onClearSample}) => {
             <DatapointsViewer
                 datapoints={samples}
                 onSelectedChange={setSelectedSamples}
-                key={oHash(samples)}
                 onClearDatapoint={onClearSample}
             />
         </>

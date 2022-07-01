@@ -1,6 +1,5 @@
 import PropTypes from 'prop-types';
 import {useEffect, useRef, useState} from 'react';
-import oHash from 'object-hash';
 import Alert from 'react-bootstrap/Alert';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
@@ -8,7 +7,6 @@ import Form from 'react-bootstrap/Form';
 import Container from 'react-bootstrap/Container';
 import {GrNext, GrPrevious} from 'react-icons/gr';
 import {IoCloseOutline} from 'react-icons/io5';
-
 import {mod} from 'helpers/math';
 import {datapointIsImage, datapointIsText, datapointIsVideo} from 'helpers/datapoint';
 import Modal from 'components/modal';
@@ -110,7 +108,7 @@ const DatapointsViewer = ({datapoints, onSelectedChange, onClearDatapoint}) => {
                         if (datapointIsVideo(datapoint)) {
 
                             return (
-                                <Col key={`${oHash(datapoint)}-${i}`} xs={6} md={4} xl={3}>
+                                <Col key={`${JSON.stringify(datapoint)}-${i}`} xs={6} md={4} xl={3}>
                                     <div className='p-2 bg-white-blue border rounded' >
                                         {selectOrClearBar}
                                         <FrameWithBoundingBox
@@ -131,7 +129,7 @@ const DatapointsViewer = ({datapoints, onSelectedChange, onClearDatapoint}) => {
                         } else if (datapointIsImage(datapoint)) {
 
                             return (
-                                <Col key={`${oHash(datapoint)}-${i}`} xs={6} md={4} xl={3}>
+                                <Col key={`${JSON.stringify(datapoint)}-${i}`} xs={6} md={4} xl={3}>
                                     <div className='p-2 bg-white-blue border rounded' >
                                         {selectOrClearBar}
                                         <PreviewImageClassification
@@ -145,7 +143,7 @@ const DatapointsViewer = ({datapoints, onSelectedChange, onClearDatapoint}) => {
                         } else if (datapointIsText(datapoint)) {
 
                             return (
-                                <Col key={`${oHash(datapoint)}-${i}`} xs={12}>
+                                <Col key={`${JSON.stringify(datapoint)}-${i}`} xs={12}>
                                     <div className='p-2 border-bottom' >
                                         {selectOrClearBar}
                                         <PreviewTextClassification
@@ -156,7 +154,7 @@ const DatapointsViewer = ({datapoints, onSelectedChange, onClearDatapoint}) => {
                                 </Col>
                             );
                         } else return (
-                            <Col key={`${oHash(datapoint)}-${i}`} xs={12}>
+                            <Col key={`${JSON.stringify(datapoint)}-${i}`} xs={12}>
                                 <div className='p-2 border-bottom' >
                                     {selectOrClearBar}
                                     <PreviewDetails sample={datapoint}/>
