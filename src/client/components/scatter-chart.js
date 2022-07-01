@@ -91,6 +91,12 @@ const ScatterChart = ({
                 .point:hover {
                     cursor: pointer;
                 }
+                .x-axis {
+                    height: 0 !important;
+                }
+                .y-axis {
+                    width: 0 !important;
+                }
             `}</style>
         </>
     );
