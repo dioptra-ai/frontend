@@ -3,9 +3,6 @@ import {useEffect, useState} from 'react';
 
 import ScatterChart from 'components/scatter-chart';
 
-const LARGE_DOT_SIZE = 200;
-const SMALL_DOT_SIZE = 60;
-
 const inRange = (num, min, max) => num >= min && num <= max;
 
 const SelectableScatterGraph = ({data, onSelectedDataChange, isDatapointSelected, getX, getY, getColor}) => {
@@ -31,17 +28,19 @@ const SelectableScatterGraph = ({data, onSelectedDataChange, isDatapointSelected
     const handleScatterClick = (point) => {
         let newSelectedPoints = [];
 
-        if (shiftPressed) {
-            const existingUUIDS = new Set(selectedPoints.map(({sample}) => sample['uuid']));
+        if (point) {
+            if (shiftPressed) {
+                const existingUUIDS = new Set(selectedPoints.map(({sample}) => sample['uuid']));
 
-            // Toggle the point if it's already selected.
-            if (existingUUIDS.has(point.sample['uuid'])) {
-                newSelectedPoints = selectedPoints.filter(({sample}) => sample['uuid'] !== point.sample['uuid']);
+                // Toggle the point if it's already selected.
+                if (existingUUIDS.has(point.sample['uuid'])) {
+                    newSelectedPoints = selectedPoints.filter(({sample}) => sample['uuid'] !== point.sample['uuid']);
+                } else {
+                    newSelectedPoints = [...selectedPoints, point];
+                }
             } else {
-                newSelectedPoints = [...selectedPoints, point];
+                newSelectedPoints = [point];
             }
-        } else {
-            newSelectedPoints = [point];
         }
 
         handlePointsSelected(newSelectedPoints);
@@ -59,18 +58,14 @@ const SelectableScatterGraph = ({data, onSelectedDataChange, isDatapointSelected
     return (
         <ScatterChart
             onAreaSelected={({left, right, top, bottom}) => {
-                if (left && top && right && bottom) {
-                    const filteredData = data.filter(
-                        ({PCA1, PCA2}) => inRange(PCA1, left, right) && inRange(PCA2, top, bottom)
-                    );
+                const filteredData = data.filter(
+                    ({PCA1, PCA2}) => inRange(PCA1, left, right) && inRange(PCA2, top, bottom)
+                );
 
-                    if (shiftPressed) {
-                        handlePointsSelected([...selectedPoints, ...filteredData]);
-                    } else {
-                        handlePointsSelected([...filteredData]);
-                    }
-                } else if (!shiftPressed) {
-                    handlePointsSelected([]);
+                if (shiftPressed) {
+                    handlePointsSelected([...selectedPoints, ...filteredData]);
+                } else {
+                    handlePointsSelected([...filteredData]);
                 }
             }}
             onLegendClick={({payload}) => {
@@ -82,12 +77,13 @@ const SelectableScatterGraph = ({data, onSelectedDataChange, isDatapointSelected
             }}
             onScatterClick={handleScatterClick}
             data={data.map((point) => ({
-                size: isDatapointSelected(point) ? LARGE_DOT_SIZE : SMALL_DOT_SIZE,
+                selected: isDatapointSelected(point),
                 ...point
             }))}
             getX={getX}
             getY={getY}
             getColor={getColor}
+            isProminent={(p) => p.selected}
         />
     );
 };

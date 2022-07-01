@@ -15,6 +15,6 @@ export const getHexColor = (fromValue) => {
         return COLORS[sum % COLORS.length];
     } else {
 
-        return '#E5E5E5';
+        return '#A5A5A5';
     }
 };
