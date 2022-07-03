@@ -18,7 +18,7 @@ import Performance from './performance';
 import Predictions from './predictions';
 import Features from './features';
 import FilterInput from 'pages/common/filter-input';
-import Drift from './drift';
+import OutliersOrDrift from 'pages/common/outliers-or-drift';
 import useBenchmark from 'hooks/use-benchmark';
 
 const Benchmarks = ({filtersStore, modelStore, benchmarkStore}) => {
@@ -148,7 +148,7 @@ const Benchmarks = ({filtersStore, modelStore, benchmarkStore}) => {
                     }}/>
                     <Route exact path='/benchmark/predictions' component={Predictions}/>
                     <Route exact path='/benchmark/features' component={Features}/>
-                    <Route exact path='/benchmark/drift-analysis' component={Drift}/>
+                    <Route exact path='/benchmark/drift-analysis' render={<OutliersOrDrift isDrift={false}/>}/>
                 </div>
             </Container>
         </Menu>
