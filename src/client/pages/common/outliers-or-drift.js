@@ -21,6 +21,26 @@ const OutliersOrDrift = ({isDrift}) => {
     const handleClearSample = (i) => {
         setSelectedPoints(selectedPoints.filter((_, index) => index !== i));
     };
+    const handleSelectedDataChange = (points, e) => {
+        if (points.length === 1) {
+            const uuidToRemove = points[0]['sample']['uuid'];
+            const pointIndex = selectedPoints.findIndex(({sample}) => sample['uuid'] === uuidToRemove);
+
+            if (pointIndex > -1) {
+                handleClearSample(pointIndex);
+
+                return;
+            }
+        }
+
+        const newSelectedPoints = e?.shiftKey ? selectedPoints.concat(points) : points;
+        const uniquePointsByUUID = newSelectedPoints.reduce((agg, p) => ({
+            ...agg,
+            [p['sample']['uuid']]: p
+        }), {});
+
+        setSelectedPoints(Object.values(uniquePointsByUUID));
+    };
 
     const contaminationOptions = [{
         name: 'auto',
@@ -87,8 +107,8 @@ const OutliersOrDrift = ({isDrift}) => {
                                         }))}
                                         getX={(p) => p.dimensions[0]}
                                         getY={(p) => p.dimensions[1]}
-                                        getColor={(p) => p.anomaly ? (isDrift ? theme.dark : theme.success) : theme.secondary}
-                                        onSelectedDataChange={setSelectedPoints}
+                                        getColor={(p) => p.anomaly ? (isDrift ? theme.dark : theme.warning) : theme.secondary}
+                                        onSelectedDataChange={handleSelectedDataChange}
                                         isDatapointSelected={(p) => uniqueSampleUUIDs.has(p.sample['uuid'])}
                                     />
                                 </div>

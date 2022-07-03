@@ -5,6 +5,8 @@ import * as fc from 'd3fc';
 import * as d3 from 'd3';
 import {nanoid} from 'nanoid';
 
+import theme from 'styles/theme.module.scss';
+
 const inRange = (num, min, max) => num >= min && num <= max;
 
 // See: https://github.com/d3fc/d3fc/blob/master/packages/d3fc-brush/src/brush.js
@@ -33,7 +35,7 @@ const tranformBrushSelection = (selection, xScale, yScale) => {
 const ScatterChart = ({
     data, onSelectedDataChange,
     getX = (d) => d.x, getY = (d) => d.y, getColor, isDatapointSelected,
-    chartId = `chart-${nanoid()}`, width = '100%', height = '95vh'
+    chartId = `chart-${nanoid()}`, width = '100%', height = '100%'
 }) => {
     const brushRef = useRef(null);
     const brush = d3.brush().keyModifiers(false)
@@ -75,7 +77,9 @@ const ScatterChart = ({
                 onSelectedDataChange([Array(points).flat()[0]], e);
             });
         });
-    const svgGridSeries = fc.annotationSvgGridline();
+    const svgGridSeries = fc.annotationSvgGridline()
+        .xDecorate((s) => s.attr('pointer-events', 'none').attr('stroke', theme.light))
+        .yDecorate((s) => s.attr('pointer-events', 'none').attr('stroke', theme.light));
     const svgSeries = fc.seriesSvgMulti().series([svgGridSeries, svgPointSeries]);
     const renderData = () => {
         const chart = fc.chartCartesian(xScale, yScale).svgPlotArea(svgSeries);
