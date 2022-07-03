@@ -175,7 +175,7 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
                                 fill: getHexColor(cluster.label),
                                 size: cluster.size
                             }))}
-                            onClick={(e, index) => {
+                            onClick={(_, index, e) => {
                                 handleSelectedDataChange(sortedClusters[index].elements, e);
                             }}
                             yAxisDomain={[0, 1]}
