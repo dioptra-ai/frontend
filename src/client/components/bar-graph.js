@@ -16,7 +16,7 @@ const CustomTooltip = ({payload, label, unit}) => {
                     whiteSpace: 'nowrap',
                     maxWidth: 200
                 }}>
-                    {label === '' ? '<empty>' : label}
+                    {label}
                 </p>
                 {payload[0]?.payload?.size ?
                     <p className='text-secondary m-0 fs-7' style={{

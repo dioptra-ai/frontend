@@ -6,7 +6,7 @@ import Form from 'react-bootstrap/Form';
 
 import Async from 'components/async';
 import useAllSqlFilters from 'hooks/use-all-sql-filters';
-import SelectableScatterGraph from 'components/selectable-scatter-graph';
+import ScatterChart from 'components/scatter-chart';
 import metricsClient from 'clients/metrics';
 import theme from 'styles/theme.module.scss';
 import SamplesPreview from 'components/samples-preview';
@@ -77,37 +77,22 @@ const OutliersOrDrift = ({isDrift}) => {
                                 outlier_algorithm: userSelectedAlgorithm,
                                 contamination: userSelectedContamination
                             })}
-                            renderData={(data) => {
-                                const formattedData = data?.outlier_analysis?.map(({sample, dimensions, anomaly, request_id}) => ({
-                                    sample,
-                                    PCA1: dimensions[0],
-                                    PCA2: dimensions[1],
-                                    anomaly,
-                                    request_id
-                                }));
-
-                                return (
-                                    <div className='scatterGraph-leftBox'>
-                                        <SelectableScatterGraph
-                                            scatters={[{
-                                                name: isDrift ? 'Normal' : 'Inlier',
-                                                data: formattedData.filter(({anomaly}) => !anomaly),
-                                                fill: theme.secondary,
-                                                xAxisId: 'PCA1',
-                                                yAxisId: 'PCA2'
-                                            }, {
-                                                name: isDrift ? 'Drift' : 'Outliers',
-                                                data: formattedData.filter(({anomaly}) => anomaly),
-                                                fill: isDrift ? theme.dark : theme.success,
-                                                xAxisId: 'PCA1',
-                                                yAxisId: 'PCA2'
-                                            }]}
-                                            onSelectedDataChange={setSelectedPoints}
-                                            isDatapointSelected={(p) => uniqueSampleUUIDs.has(p.sample['uuid'])}
-                                        />
-                                    </div>
-                                );
-                            }}
+                            renderData={(data) => (
+                                <div className='scatterGraph-leftBox'>
+                                    <ScatterChart
+                                        data={data?.outlier_analysis?.map(({
+                                            sample, dimensions, anomaly
+                                        }) => ({
+                                            sample, anomaly, dimensions
+                                        }))}
+                                        getX={(p) => p.dimensions[0]}
+                                        getY={(p) => p.dimensions[1]}
+                                        getColor={(p) => p.anomaly ? (isDrift ? theme.dark : theme.success) : theme.secondary}
+                                        onSelectedDataChange={setSelectedPoints}
+                                        isDatapointSelected={(p) => uniqueSampleUUIDs.has(p.sample['uuid'])}
+                                    />
+                                </div>
+                            )}
                         />
                     </Col>
                     <Col className='rounded p-3 bg-white-blue'>

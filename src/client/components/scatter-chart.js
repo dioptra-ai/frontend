@@ -5,6 +5,8 @@ import * as fc from 'd3fc';
 import * as d3 from 'd3';
 import {nanoid} from 'nanoid';
 
+const inRange = (num, min, max) => num >= min && num <= max;
+
 // See: https://github.com/d3fc/d3fc/blob/master/packages/d3fc-brush/src/brush.js
 const tranformBrushSelection = (selection, xScale, yScale) => {
     const invertRange = (range) => [range[1], range[0]];
@@ -29,12 +31,11 @@ const tranformBrushSelection = (selection, xScale, yScale) => {
     return {xDomain, yDomain};
 };
 const ScatterChart = ({
-    data, onAreaSelected, onScatterClick,
-    getX = (d) => d.x, getY = (d) => d.y, getColor, isProminent,
+    data, onSelectedDataChange,
+    getX = (d) => d.x, getY = (d) => d.y, getColor, isDatapointSelected,
     chartId = `chart-${nanoid()}`, width = '100%', height = '95vh'
 }) => {
     const brushRef = useRef(null);
-    const svgGridSeries = fc.annotationSvgGridline();
     const brush = d3.brush().keyModifiers(false)
         .on('start', function () {
             if (brushRef.current !== this) {
@@ -44,14 +45,17 @@ const ScatterChart = ({
         })
         .on('end', function(e) {
             if (e.selection) {
-                const {xDomain, yDomain} = tranformBrushSelection(e.selection, xScale, yScale);
+                const {
+                    xDomain: [left, right],
+                    yDomain: [top, bottom]
+                } = tranformBrushSelection(e.selection, xScale, yScale);
+                const filteredData = data.filter((p) => {
 
-                onAreaSelected({
-                    left: xDomain[0],
-                    right: xDomain[1],
-                    top: yDomain[0],
-                    bottom: yDomain[1]
+                    return inRange(getX(p), left, right) && inRange(getY(p), top, bottom);
                 });
+
+                onSelectedDataChange([...filteredData], e.sourceEvent);
+
                 d3.select(brushRef.current).call(brush.move, null);
             }
         });
@@ -59,19 +63,20 @@ const ScatterChart = ({
     const yExtent = fc.extentLinear().pad([0.05, 0.05]).accessors([getY]);
     const xScale = d3.scaleLinear().domain(xExtent(data));
     const yScale = d3.scaleLinear().domain(yExtent(data));
-    const svnPointSeries = fc.seriesSvgPoint()
+    const svgPointSeries = fc.seriesSvgPoint()
         .crossValue(getX)
         .mainValue(getY)
-        .size((d) => isProminent?.(d) ? 100 : 30)
+        .size((d) => isDatapointSelected?.(d) ? 100 : 30)
         .decorate((selection) => {
             selection.style('fill', (d) => getColor?.(d) || '#000');
             selection.style('stroke', (d) => getColor ? d3.color(getColor(d)).darker() : '#000');
             selection.on('click', (e, points) => {
                 e.stopPropagation();
-                onScatterClick(Array(points).flat()[0]);
+                onSelectedDataChange([Array(points).flat()[0]], e);
             });
         });
-    const svgSeries = fc.seriesSvgMulti().series([svgGridSeries, svnPointSeries]);
+    const svgGridSeries = fc.annotationSvgGridline();
+    const svgSeries = fc.seriesSvgMulti().series([svgGridSeries, svgPointSeries]);
     const renderData = () => {
         const chart = fc.chartCartesian(xScale, yScale).svgPlotArea(svgSeries);
 
@@ -86,7 +91,7 @@ const ScatterChart = ({
 
     return (
         <>
-            <div id={chartId} style={{width, height}} onClick={() => onScatterClick()}/>
+            <div id={chartId} style={{width, height}} onClick={(e) => onSelectedDataChange([], e)}/>
             <style>{`
                 .point:hover {
                     cursor: pointer;
@@ -107,12 +112,11 @@ ScatterChart.propTypes = {
     getX: PropTypes.func,
     getY: PropTypes.func,
     getColor: PropTypes.func,
-    isProminent: PropTypes.func,
+    isDatapointSelected: PropTypes.func,
     chartId: PropTypes.string,
     width: PropTypes.string,
     height: PropTypes.string,
-    onAreaSelected: PropTypes.func.isRequired,
-    onScatterClick: PropTypes.func.isRequired
+    onSelectedDataChange: PropTypes.func.isRequired
 };
 
 export default ScatterChart;

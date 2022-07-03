@@ -12,7 +12,7 @@ import BarGraph from 'components/bar-graph';
 import Async from 'components/async';
 import AsyncSegmentationFields from 'components/async-segmentation-fields';
 import useAllSqlFilters from 'hooks/use-all-sql-filters';
-import SelectableScatterGraph from 'components/selectable-scatter-graph';
+import ScatterChart from 'components/scatter-chart';
 import metricsClient from 'clients/metrics';
 import useModel from 'hooks/use-model';
 import Form from 'react-bootstrap/Form';
@@ -30,6 +30,24 @@ const MODEL_TYPE_TO_METRICS_NAMES = {
     'UNSUPERVISED_TEXT_CLASSIFIER': ['CONFIDENCE', 'ENTROPY'],
     'SEMANTIC_SIMILARITY': ['PEARSON_CONSINE', 'SPEARMAN_COSINE']
 };
+const getDistributionMetricsForModel = (modelType) => {
+    if (modelType === 'IMAGE_CLASSIFIER' || modelType === 'TEXT_CLASSIFIER') {
+        return [{
+            name: 'prediction',
+            value: 'prediction'
+        }, {
+            name: 'groundtruth',
+            value: 'groundtruth'
+        }];
+    } else if (modelType === 'UNSUPERVISED_IMAGE_CLASSIFIER' || modelType === 'UNSUPERVISED_TEXT_CLASSIFIER') {
+        return [{
+            name: 'prediction',
+            value: 'prediction'
+        }];
+    } else {
+        return [];
+    }
+};
 
 const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDistanceName, onUserSelectedAlgorithm, onUserSelectedGroupbyField}) => {
     const samplingLimit = 10000;
@@ -42,32 +60,11 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
     const [distributionMetricsOptions, setDistributionMetricsOptions] = useState([]);
     const [userSelectedAlgorithm, setUserSelectedAlgorithm] = useState('GROUPBY');
     const uniqueSampleUUIDs = new Set(selectedPoints.map(({sample}) => sample['uuid']));
-    const getDistributionMetricsForModel = (modelType) => {
-        if (modelType === 'IMAGE_CLASSIFIER' || modelType === 'TEXT_CLASSIFIER') {
-            return [{
-                name: 'prediction',
-                value: 'prediction'
-            }, {
-                name: 'groundtruth',
-                value: 'groundtruth'
-            }];
-        } else if (modelType === 'UNSUPERVISED_IMAGE_CLASSIFIER' || modelType === 'UNSUPERVISED_TEXT_CLASSIFIER') {
-            return [{
-                name: 'prediction',
-                value: 'prediction'
-            }];
-        } else {
-            return [];
-        }
-    };
     const sortedClusters = useMemo(() => clusters.map((c) => ({
-        name: c.label === -1 ? '[noise]' : `[${c.label || '<empty>'}]`,
+        name: c.label === -1 ? '[noise]' : c.label ? `[${c.label}]` : '',
         size: c.elements.length,
         ...c
-    })).sort((c1, c2) => {
-
-        return c2.metric?.value - c1.metric?.value;
-    }), [clusters]);
+    })).sort((c1, c2) => c2.metric?.value - c1.metric?.value), [clusters]);
     const samples = selectedPoints.map((p) => p.sample);
     // SQL Filter for samples is sliced if there are more than samplingLimit samples.
     const samplesSqlFilter = `${allSqlFilters} AND request_id in (${
@@ -80,6 +77,26 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
     };
     const handleClearSample = (i) => {
         setSelectedPoints(selectedPoints.filter((_, index) => index !== i));
+    };
+    const handleSelectedDataChange = (points, e) => {
+        if (points.length === 1) {
+            const uuidToRemove = points[0]['sample']['uuid'];
+            const pointIndex = selectedPoints.findIndex(({sample}) => sample['uuid'] === uuidToRemove);
+
+            if (pointIndex > -1) {
+                handleClearSample(pointIndex);
+
+                return;
+            }
+        }
+
+        const newSelectedPoints = e?.shiftKey ? selectedPoints.concat(points) : points;
+        const uniquePointsByUUID = newSelectedPoints.reduce((agg, p) => ({
+            ...agg,
+            [p['sample']['uuid']]: p
+        }), {});
+
+        setSelectedPoints(Object.values(uniquePointsByUUID));
     };
 
     useEffect(async () => {
@@ -158,8 +175,8 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
                                 fill: getHexColor(cluster.label),
                                 size: cluster.size
                             }))}
-                            onClick={(_, index) => {
-                                setSelectedPoints(sortedClusters[index].elements);
+                            onClick={(e, index) => {
+                                handleSelectedDataChange(sortedClusters[index].elements, e);
                             }}
                             yAxisDomain={[0, 1]}
                         />
@@ -169,7 +186,7 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
         }
         <Row className='my-3'>
             <Col lg={8} style={{minHeight: 440}}>
-                <SelectableScatterGraph
+                <ScatterChart
                     data={sortedClusters.map((cluster) => cluster.elements.map((e) => ({
                         ...e,
                         color: getHexColor(cluster.label)
@@ -177,7 +194,7 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
                     getX={(p) => p['PCA1']}
                     getY={(p) => p['PCA2']}
                     getColor={(p) => p.color}
-                    onSelectedDataChange={setSelectedPoints}
+                    onSelectedDataChange={handleSelectedDataChange}
                     isDatapointSelected={(p) => uniqueSampleUUIDs.has(p.sample['uuid'])}
                 />
             </Col>
@@ -204,19 +221,14 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
                                     renderData={(data) => (
                                         <BarGraph
                                             bars={data.map(({name, value}) => ({
-                                                name,
-                                                value,
+                                                name, value,
                                                 fill: getHexColor(name)
                                             }))}
                                             title={(
                                                 <Row className='g-2'>
                                                     <Col>Class Distribution</Col>
                                                     <Col>
-                                                        <Form.Control
-                                                            as='select'
-                                                            className='form-select w-100'
-                                                            custom
-                                                            required
+                                                        <Form.Control as='select' className='form-select w-100' custom required
                                                             onChange={(e) => {
                                                                 setUserSelectedSummaryDistribution(e.target.value);
                                                             }}
@@ -231,11 +243,13 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
                                             unit='%'
                                         />
                                     )}
-                                    fetchData={() => metricsClient(`queries/${(mlModelType === 'IMAGE_CLASSIFIER' ||
-                                                            mlModelType === 'UNSUPERVISED_IMAGE_CLASSIFIER' || mlModelType === 'UNSUPERVISED_TEXT_CLASSIFIER' ||
-                                                            mlModelType === 'TEXT_CLASSIFIER' || mlModelType === 'SPEECH_TO_TEXT') ?
+                                    fetchData={() => metricsClient(`queries/${(
+                                        mlModelType === 'IMAGE_CLASSIFIER' ||
+                                        mlModelType === 'UNSUPERVISED_IMAGE_CLASSIFIER' || mlModelType === 'UNSUPERVISED_TEXT_CLASSIFIER' ||
+                                        mlModelType === 'TEXT_CLASSIFIER' || mlModelType === 'SPEECH_TO_TEXT') ?
                                         'class-distribution-1' :
-                                        'class-distribution-2'}`, {
+                                        'class-distribution-2'
+                                    }`, {
                                         sql_filters: samplesSqlFilter,
                                         distribution_field: userSelectedSummaryDistribution
                                     })}
