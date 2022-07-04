@@ -121,6 +121,7 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
             {
                 metricNames ? (
                     <Col lg={3}>
+                        Performance Metric
                         <Select onChange={onUserSelectedMetricName}>
                             {
                                 metricNames.map((m) => <option key={m}>{m}</option>)
@@ -131,28 +132,33 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
             }
             <Col/>
             <Col lg={3}>
+                Cluster Grouping
                 <Select onChange={handleUserSelectedAlgorithm}>
                     <option value='GROUPBY'>Metadata</option>
                     <option value='HDBSCAN'>HDBSCAN</option>
                 </Select>
             </Col>
-            <Col lg={3}>
-                {
-                    userSelectedAlgorithm === 'HDBSCAN' ? (
+            {
+                userSelectedAlgorithm === 'HDBSCAN' ? (
+                    <Col lg={3}>
+                        Distance Metric
                         <Select
                             options={[{
-                                name: 'HDBSCAN Distance: Euclidean',
+                                name: 'Euclidean',
                                 value: 'euclidean'
                             }, {
-                                name: 'HDBSCAN Distance: Cosine',
+                                name: 'Cosine',
                                 value: 'cosine'
                             }]}
                             onChange={onUserSelectedDistanceName}
                         />
-                    ) : userSelectedAlgorithm === 'GROUPBY' ? (
+                    </Col>
+                ) : userSelectedAlgorithm === 'GROUPBY' ? (
+                    <Col lg={3}>
+                        Group By Field
                         <AsyncSegmentationFields renderData={([data]) => (
                             <Select onChange={onUserSelectedGroupbyField} defaultValue=''>
-                                <option value=''>No Metadata Field Selected</option>
+                                <option value=''>No Field Selected</option>
                                 {
                                     Object.keys(data).filter((k) => data[k] > 0).map((k) => (
                                         <option key={k} value={k}>{k}</option>
@@ -160,9 +166,9 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
                                 }
                             </Select>
                         )}/>
-                    ) : null
-                }
-            </Col>
+                    </Col>
+                ) : null
+            }
         </Row>
         {
             sortedClusters.some((c) => c.metric) ? (
