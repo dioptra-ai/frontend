@@ -14,7 +14,7 @@ const CountEvents = ({sqlFilters, ...rest}) => (
 );
 
 CountEvents.propTypes = {
-    sqlFilters: PropTypes.string
+    sqlFilters: PropTypes.string.isRequired
 };
 
 export default CountEvents;

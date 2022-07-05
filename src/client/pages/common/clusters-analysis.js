@@ -191,7 +191,7 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
             ) : null
         }
         <Row className='my-3'>
-            <Col lg={8} style={{minHeight: 440}}>
+            <Col lg={8}>
                 <ScatterChart
                     data={sortedClusters.map((cluster) => cluster.elements.map((e) => ({
                         ...e,

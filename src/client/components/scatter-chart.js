@@ -95,6 +95,13 @@ const ScatterChart = ({
 
     return (
         <>
+            <div className='position-relative'>
+                <div className='position-absolute text-primary fs-6 p-3' style={{
+                    top: 0, left: 0, width: '100%', height: '100%', zIndex: 1, pointerEvents: 'none'
+                }}>
+                    (n={Number(data.length).toLocaleString()})
+                </div>
+            </div>
             <div id={chartId} style={{width, height}} onClick={(e) => onSelectedDataChange([], e)}/>
             <style>{`
                 .point:hover {
