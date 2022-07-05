@@ -6,6 +6,8 @@ import Col from 'react-bootstrap/Col';
 import {OverlayTrigger, Tooltip} from 'react-bootstrap';
 import {IoDownloadOutline} from 'react-icons/io5';
 import {saveAs} from 'file-saver';
+import {useDebounce} from '@react-hook/debounce';
+
 import Select from 'components/select';
 import {getHexColor} from 'helpers/color-helper';
 import BarGraph from 'components/bar-graph';
@@ -17,6 +19,7 @@ import metricsClient from 'clients/metrics';
 import useModel from 'hooks/use-model';
 import Form from 'react-bootstrap/Form';
 import SamplesPreview from 'components/samples-preview';
+import theme from 'styles/theme.module.scss';
 
 // Keep this in sync with metrics-engine/handlers/clusters.py
 const MODEL_TYPE_TO_METRICS_NAMES = {
@@ -49,7 +52,7 @@ const getDistributionMetricsForModel = (modelType) => {
     }
 };
 
-const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDistanceName, onUserSelectedAlgorithm, onUserSelectedGroupbyField}) => {
+const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDistanceName, onUserSelectedAlgorithm, onUserSelectedGroupbyField, onUserSelectedMinClusterSize}) => {
     const samplingLimit = 10000;
     const allSqlFilters = useAllSqlFilters();
     const model = useModel();
@@ -59,9 +62,10 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
     const [selectedPoints, setSelectedPoints] = useState([]);
     const [distributionMetricsOptions, setDistributionMetricsOptions] = useState([]);
     const [userSelectedAlgorithm, setUserSelectedAlgorithm] = useState('GROUPBY');
+    const [userSelectedMinClusterSize, setUserSelectedMinClusterSize] = useState('GROUPBY');
     const uniqueSampleUUIDs = new Set(selectedPoints.map(({sample}) => sample['uuid']));
     const sortedClusters = useMemo(() => clusters.map((c) => ({
-        name: c.label === -1 ? '[noise]' : c.label ? `[${c.label}]` : '',
+        name: c.label === -1 ? 'noise' : c.label,
         size: c.elements.length,
         ...c
     })).sort((c1, c2) => c2.metric?.value - c1.metric?.value), [clusters]);
@@ -74,6 +78,10 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
     const handleUserSelectedAlgorithm = (value) => {
         setUserSelectedAlgorithm(value);
         onUserSelectedAlgorithm(value);
+    };
+    const handleUserSelectedMinClusterSize = (e) => {
+        setUserSelectedMinClusterSize(Number(e.target.value));
+        onUserSelectedMinClusterSize(Number(e.target.value));
     };
     const handleClearSample = (i) => {
         setSelectedPoints(selectedPoints.filter((_, index) => index !== i));
@@ -120,7 +128,7 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
         <Row className='g-2 my-3'>
             {
                 metricNames ? (
-                    <Col lg={3}>
+                    <Col lg={2}>
                         Performance Metric
                         <Select onChange={onUserSelectedMetricName}>
                             {
@@ -131,7 +139,7 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
                 ) : null
             }
             <Col/>
-            <Col lg={3}>
+            <Col lg={2}>
                 Cluster Grouping
                 <Select onChange={handleUserSelectedAlgorithm}>
                     <option value='GROUPBY'>Metadata</option>
@@ -140,21 +148,27 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
             </Col>
             {
                 userSelectedAlgorithm === 'HDBSCAN' ? (
-                    <Col lg={3}>
+                    <>
+                        <Col lg={2}>
                         Distance Metric
-                        <Select
-                            options={[{
-                                name: 'Euclidean',
-                                value: 'euclidean'
-                            }, {
-                                name: 'Cosine',
-                                value: 'cosine'
-                            }]}
-                            onChange={onUserSelectedDistanceName}
-                        />
-                    </Col>
+                            <Select
+                                options={[{
+                                    name: 'Euclidean',
+                                    value: 'euclidean'
+                                }, {
+                                    name: 'Cosine',
+                                    value: 'cosine'
+                                }]}
+                                onChange={onUserSelectedDistanceName}
+                            />
+                        </Col>
+                        <Col lg={2}>
+                            Min. Cluster Size
+                            <Form.Control type='number' min={2} step={1} value={userSelectedMinClusterSize} onChange={handleUserSelectedMinClusterSize}/>
+                        </Col>
+                    </>
                 ) : userSelectedAlgorithm === 'GROUPBY' ? (
-                    <Col lg={3}>
+                    <Col lg={4}>
                         Group By Field
                         <AsyncSegmentationFields renderData={([data]) => (
                             <Select onChange={onUserSelectedGroupbyField} defaultValue=''>
@@ -178,7 +192,7 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
                             bars={sortedClusters.map((cluster) => ({
                                 name: cluster.name,
                                 value: cluster.metric?.value,
-                                fill: getHexColor(cluster.label),
+                                fill: cluster.label === -1 ? theme.secondary : getHexColor(cluster.label),
                                 size: cluster.size
                             }))}
                             onClick={(_, index, e) => {
@@ -195,7 +209,7 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
                 <ScatterChart
                     data={sortedClusters.map((cluster) => cluster.elements.map((e) => ({
                         ...e,
-                        color: getHexColor(cluster.label)
+                        color: cluster.label === -1 ? theme.secondary : getHexColor(cluster.label)
                     }))).flat()}
                     getX={(p) => p['PCA1']}
                     getY={(p) => p['PCA2']}
@@ -284,7 +298,8 @@ _ClustersAnalysis.propTypes = {
     onUserSelectedMetricName: PropTypes.func.isRequired,
     onUserSelectedDistanceName: PropTypes.func.isRequired,
     onUserSelectedAlgorithm: PropTypes.func.isRequired,
-    onUserSelectedGroupbyField: PropTypes.func.isRequired
+    onUserSelectedGroupbyField: PropTypes.func.isRequired,
+    onUserSelectedMinClusterSize: PropTypes.func.isRequired
 };
 
 const ClustersAnalysis = () => {
@@ -295,6 +310,7 @@ const ClustersAnalysis = () => {
     const [userSelectedAlgorithm, setUserSelectedAlgorithm] = useState('GROUPBY');
     const [userSelectedDistanceName, setUserSelectedDistanceName] = useState('euclidean');
     const [userSelectedGroupbyField, setUserSelectedGroupbyField] = useState();
+    const [userSelectedMinClusterSize, setUserSelectedMinClusterSize] = useDebounce(undefined, 500);
 
     return (
         <Async
@@ -303,7 +319,8 @@ const ClustersAnalysis = () => {
                 userSelectedDistanceName,
                 userSelectedMetricName,
                 userSelectedAlgorithm,
-                userSelectedGroupbyField
+                userSelectedGroupbyField,
+                userSelectedMinClusterSize
             ]}
             fetchData={() => metricsClient('clusters', {
                 model_type: model?.mlModelType,
@@ -311,7 +328,8 @@ const ClustersAnalysis = () => {
                 distance: userSelectedDistanceName,
                 metric: userSelectedMetricName,
                 clustering_algorithm: userSelectedAlgorithm,
-                groupby_field: userSelectedGroupbyField
+                groupby_field: userSelectedGroupbyField,
+                min_cluster_size: userSelectedMinClusterSize > 1 ? userSelectedMinClusterSize : undefined
             })}
             renderData={(clusters = []) => (
                 <_ClustersAnalysis
@@ -320,6 +338,7 @@ const ClustersAnalysis = () => {
                     onUserSelectedDistanceName={setUserSelectedDistanceName}
                     onUserSelectedAlgorithm={setUserSelectedAlgorithm}
                     onUserSelectedGroupbyField={setUserSelectedGroupbyField}
+                    onUserSelectedMinClusterSize={setUserSelectedMinClusterSize}
                 />
             )}
         />
