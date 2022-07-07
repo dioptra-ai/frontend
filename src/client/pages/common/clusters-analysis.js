@@ -14,7 +14,7 @@ import BarGraph from 'components/bar-graph';
 import Async from 'components/async';
 import AsyncSegmentationFields from 'components/async-segmentation-fields';
 import useAllSqlFilters from 'hooks/use-all-sql-filters';
-import ScatterChart from 'components/scatter-chart';
+import ScatterChart, {ScatterSearch} from 'components/scatter-chart';
 import metricsClient from 'clients/metrics';
 import useModel from 'hooks/use-model';
 import Form from 'react-bootstrap/Form';
@@ -204,19 +204,32 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
                 </Row>
             ) : null
         }
-        <Row className='my-3'>
-            <Col lg={8}>
-                <ScatterChart
-                    data={sortedClusters.map((cluster) => cluster.elements.map((e) => ({
-                        ...e,
-                        color: cluster.label === -1 ? theme.secondary : getHexColor(cluster.label)
-                    }))).flat()}
-                    getX={(p) => p['PCA1']}
-                    getY={(p) => p['PCA2']}
-                    getColor={(p) => p.color}
-                    onSelectedDataChange={handleSelectedDataChange}
-                    isDatapointSelected={(p) => uniqueSampleUUIDs.has(p.sample['uuid'])}
-                />
+        <Row className='g-2 my-3'>
+            <Col lg={8} className='d-flex flex-column'>
+                <Row className='flex-grow-1'>
+                    <Col>
+                        <ScatterChart
+                            data={sortedClusters.map((cluster) => cluster.elements.map((e) => ({
+                                ...e,
+                                color: cluster.label === -1 ? theme.secondary : getHexColor(cluster.label)
+                            }))).flat()}
+                            getX={(p) => p['PCA1']}
+                            getY={(p) => p['PCA2']}
+                            getColor={(p) => p.color}
+                            onSelectedDataChange={handleSelectedDataChange}
+                            isDatapointSelected={(p) => uniqueSampleUUIDs.has(p.sample['uuid'])}
+                            isSearchMatch={(p, searchTerm) => Object.values(p.sample).some((v) => v?.toString()?.toLowerCase()?.includes(searchTerm?.toLowerCase()))}
+                        />
+                    </Col>
+                </Row>
+                <Row>
+                    <Col>
+                        <ScatterSearch
+                            data={sortedClusters.map((c) => c.elements).flat()} onSelectedDataChange={handleSelectedDataChange}
+                            isSearchMatch={(p, searchTerm) => Object.values(p.sample).some((v) => v?.toString()?.toLowerCase()?.includes(searchTerm?.toLowerCase()))}
+                        />
+                    </Col>
+                </Row>
             </Col>
             {distributionMetricsOptions?.length ? (
                 <Col lg={4} className='px-3'>
@@ -285,7 +298,7 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
         <Row>
             <Col className='px-3'>
                 <div className='bg-white-blue rounded p-3'>
-                    <SamplesPreview samples={samples} onClearSample={handleClearSample}/>
+                    <SamplesPreview samples={samples} onClearSample={handleClearSample} onClearAllSamples={() => setSelectedPoints([])}/>
                 </div>
             </Col>
         </Row>

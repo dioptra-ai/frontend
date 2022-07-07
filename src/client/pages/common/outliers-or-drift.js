@@ -7,7 +7,7 @@ import {BsCircleFill} from 'react-icons/bs';
 
 import Async from 'components/async';
 import useAllSqlFilters from 'hooks/use-all-sql-filters';
-import ScatterChart from 'components/scatter-chart';
+import ScatterChart, {ScatterSearch} from 'components/scatter-chart';
 import metricsClient from 'clients/metrics';
 import theme from 'styles/theme.module.scss';
 import SamplesPreview from 'components/samples-preview';
@@ -96,7 +96,7 @@ const OutliersOrDrift = ({isDrift}) => {
                     contamination: userSelectedContamination
                 })}
                 renderData={(data) => (
-                    <Row className='border rounded p-3 w-100 scatterGraph'>
+                    <Row className='g-2 border rounded p-3 w-100 scatterGraph'>
                         <Col lg={4}>
                             <div className='scatterGraph-leftBox'>
                                 <ScatterChart
@@ -110,6 +110,7 @@ const OutliersOrDrift = ({isDrift}) => {
                                     getColor={(p) => p.anomaly ? (isDrift ? theme.primary : theme.danger) : theme.secondary}
                                     onSelectedDataChange={handleSelectedDataChange}
                                     isDatapointSelected={(p) => uniqueSampleUUIDs.has(p.sample['uuid'])}
+                                    isSearchMatch={(p, searchTerm) => Object.values(p.sample).some((v) => v?.toString()?.toLowerCase()?.includes(searchTerm?.toLowerCase()))}
                                 />
                             </div>
                             <Row className='g-2 my-3'>
@@ -132,9 +133,17 @@ const OutliersOrDrift = ({isDrift}) => {
                                     </div>
                                 </Col>
                             </Row>
+                            <Row className='g-2'>
+                                <Col>
+                                    <ScatterSearch
+                                        data={data?.outlier_analysis} onSelectedDataChange={handleSelectedDataChange}
+                                        isSearchMatch={(p, searchTerm) => Object.values(p.sample).some((v) => v?.toString()?.toLowerCase()?.includes(searchTerm?.toLowerCase()))}
+                                    />
+                                </Col>
+                            </Row>
                         </Col>
                         <Col className='rounded p-3 bg-white-blue'>
-                            <SamplesPreview samples={selectedPoints?.map(({sample}) => sample)} onClearSample={handleClearSample}/>
+                            <SamplesPreview samples={selectedPoints?.map(({sample}) => sample)} onClearSample={handleClearSample} onClearAllSamples={() => setSelectedPoints([])}/>
                         </Col>
                     </Row>
                 )}

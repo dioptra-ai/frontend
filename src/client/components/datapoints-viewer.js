@@ -45,11 +45,12 @@ const DatapointsViewer = ({datapoints, onSelectedChange, onClearDatapoint}) => {
     };
     const handleKeyDown = (e) => {
         if (exampleInModal) {
-            e.preventDefault();
 
             if (e.key === 'ArrowLeft') {
+                e.preventDefault();
                 handlePrevious();
             } else if (e.key === 'ArrowRight') {
+                e.preventDefault();
                 handleNext();
             }
         }

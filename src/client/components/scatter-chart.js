@@ -4,6 +4,11 @@ import React, {useRef} from 'react';
 import * as fc from 'd3fc';
 import * as d3 from 'd3';
 import {nanoid} from 'nanoid';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+import Form from 'react-bootstrap/Form';
+import {IoChevronForwardSharp, IoCloseCircleOutline} from 'react-icons/io5';
+
 
 import theme from 'styles/theme.module.scss';
 
@@ -102,7 +107,7 @@ const ScatterChart = ({
                     (n={Number(data.length).toLocaleString()})
                 </div>
             </div>
-            <div id={chartId} style={{width, height}} onClick={(e) => onSelectedDataChange([], e)}/>
+            <div id={chartId} style={{width, height, minHeight: 400}} onClick={(e) => onSelectedDataChange([], e)}/>
             <style>{`
                 .point:hover {
                     cursor: pointer;
@@ -131,3 +136,34 @@ ScatterChart.propTypes = {
 };
 
 export default ScatterChart;
+
+export const ScatterSearch = ({isSearchMatch, data, onSelectedDataChange}) => {
+    const [search, setSearch] = React.useState('');
+    const searchData = search ? data.filter((d) => isSearchMatch(d, search)) : [];
+
+    return (
+        <Row>
+            <Col className='position-relative' sm={9}>
+                <IoCloseCircleOutline
+                    className='position-absolute fs-5 text-dark me-4 cursor-pointer'
+                    style={{top: '50%', transform: 'translateY(-50%)', right: 0}}
+                    onClick={() => setSearch('')}
+                />
+                <Form.Control placeholder='Search datapoints' value={search} onChange={(e) => setSearch(e.target.value)}/>
+            </Col>
+            <Col className='text-dark d-flex align-items-center'>
+                {searchData.length ? (
+                    <div className='cursor-pointer' onClick={(e) => onSelectedDataChange(searchData, e)}>
+                        <IoChevronForwardSharp/>&nbsp;<span className='text-decoration-underline'>{searchData.length.toLocaleString()} results</span>
+                    </div>
+                ) : null}
+            </Col>
+        </Row>
+    );
+};
+
+ScatterSearch.propTypes = {
+    data: PropTypes.array.isRequired,
+    isSearchMatch: PropTypes.func.isRequired,
+    onSelectedDataChange: PropTypes.func.isRequired
+};
