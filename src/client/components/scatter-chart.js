@@ -149,7 +149,7 @@ export const ScatterSearch = ({isSearchMatch, data, onSelectedDataChange}) => {
                     style={{top: '50%', transform: 'translateY(-50%)', right: 0}}
                     onClick={() => setSearch('')}
                 />
-                <Form.Control placeholder='Search datapoints' value={search} onChange={(e) => setSearch(e.target.value)}/>
+                <Form.Control placeholder='Find datapoints' value={search} onChange={(e) => setSearch(e.target.value)}/>
             </Col>
             <Col className='text-dark d-flex align-items-center'>
                 {searchData.length ? (
