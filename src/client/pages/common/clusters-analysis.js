@@ -19,7 +19,6 @@ import metricsClient from 'clients/metrics';
 import useModel from 'hooks/use-model';
 import Form from 'react-bootstrap/Form';
 import SamplesPreview from 'components/samples-preview';
-import theme from 'styles/theme.module.scss';
 
 // Keep this in sync with metrics-engine/handlers/clusters.py
 const MODEL_TYPE_TO_METRICS_NAMES = {
@@ -192,7 +191,7 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
                             bars={sortedClusters.map((cluster) => ({
                                 name: cluster.name,
                                 value: cluster.metric?.value,
-                                fill: cluster.label === -1 ? theme.secondary : getHexColor(cluster.label),
+                                fill: cluster.label === -1 ? getHexColor('') : getHexColor(cluster.label),
                                 size: cluster.size
                             }))}
                             onClick={(_, index, e) => {
@@ -211,7 +210,7 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
                         <ScatterChart
                             data={sortedClusters.map((cluster) => cluster.elements.map((e) => ({
                                 ...e,
-                                color: cluster.label === -1 ? theme.secondary : getHexColor(cluster.label)
+                                color: cluster.label === -1 ? getHexColor('') : getHexColor(cluster.label)
                             }))).flat()}
                             getX={(p) => p['PCA1']}
                             getY={(p) => p['PCA2']}

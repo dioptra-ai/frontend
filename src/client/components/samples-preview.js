@@ -11,7 +11,7 @@ import {setupComponent} from 'helpers/component-helper';
 
 const SamplesPreview = ({samples, userStore, onClearSample, onClearAllSamples}) => {
     const [selectedSamples, setSelectedSamples] = useState(new Set());
-    const sampleUUIDs = samples.filter((_, i) => selectedSamples.has(i)).map(({uuid}) => uuid);
+    const selectedUUIDs = samples.map(({uuid}) => uuid).filter((u) => selectedSamples.has(u));
 
     return (
         <>
@@ -34,7 +34,7 @@ const SamplesPreview = ({samples, userStore, onClearSample, onClearAllSamples}) 
                         filters={[new Filter({
                             left: 'uuid',
                             op: 'in',
-                            right: sampleUUIDs
+                            right: selectedUUIDs
                         })]}
                         tooltipText={`Filter ${selectedSamples.size} In`}
                     />
@@ -43,7 +43,7 @@ const SamplesPreview = ({samples, userStore, onClearSample, onClearAllSamples}) 
                         filters={[new Filter({
                             left: 'uuid',
                             op: 'not in',
-                            right: sampleUUIDs
+                            right: selectedUUIDs
                         })]}
                         tooltipText={`Filter ${selectedSamples.size} Out`}
                         solidIcon
@@ -54,7 +54,7 @@ const SamplesPreview = ({samples, userStore, onClearSample, onClearAllSamples}) 
                             className='d-flex text-dark border-0 bg-transparent click-down fs-2' onClick={() => {
 
                                 userStore.tryUpdate({
-                                    cart: userStore.userData.cart.concat(...sampleUUIDs)
+                                    cart: userStore.userData.cart.concat(...selectedUUIDs)
                                 });
                             }}>
                             <BsCartPlus className='fs-2 ps-2 cursor-pointer'/>
