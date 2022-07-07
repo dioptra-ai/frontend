@@ -256,7 +256,7 @@ const Segmentation = ({segmentationStore}) => {
                 <Async
                     renderData={(data) => (
                         <Table
-                            columns={(mlModelType === 'DOCUMENT_PROCESSING' || mlModelType === 'UNSUPERVISED_OBJECT_DETECTION' ?
+                            columns={(mlModelType === 'DOCUMENT_PROCESSING' ?
                                 [
                                     {
                                         id: 'map',
@@ -337,7 +337,7 @@ const Segmentation = ({segmentationStore}) => {
                                         accessor: 'value',
                                         Header: 'Sample Size'
                                     }
-                                ] : mlModelType === 'UNSUPERVISED_IMAGE_CLASSIFIER' || mlModelType === 'UNSUPERVISED_TEXT_CLASSIFIER' ? [{
+                                ] : mlModelType === 'UNSUPERVISED_IMAGE_CLASSIFIER' || mlModelType === 'UNSUPERVISED_TEXT_CLASSIFIER' || mlModelType === 'UNSUPERVISED_OBJECT_DETECTION' ? [{
                                     id: 'confidence',
                                     Header: 'Confidence',
                                     Cell: metricCell
