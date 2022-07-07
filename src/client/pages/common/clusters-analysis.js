@@ -1,5 +1,6 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import PropTypes from 'prop-types';
+import * as d3 from 'd3';
 import Alert from 'react-bootstrap/Alert';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -214,7 +215,15 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
                             }))).flat()}
                             getX={(p) => p['PCA1']}
                             getY={(p) => p['PCA2']}
-                            getColor={(p) => p.color}
+                            getColor={(p) => {
+                                if (uniqueSampleUUIDs.size && !uniqueSampleUUIDs.has(p.sample['uuid'])) {
+
+                                    return d3.hsl(p.color).copy({l: 0.9});
+                                } else {
+
+                                    return p.color;
+                                }
+                            }}
                             onSelectedDataChange={handleSelectedDataChange}
                             isDatapointSelected={(p) => uniqueSampleUUIDs.has(p.sample['uuid'])}
                             isSearchMatch={(p, searchTerm) => Object.values(p.sample).some((v) => v?.toString()?.toLowerCase()?.includes(searchTerm?.toLowerCase()))}

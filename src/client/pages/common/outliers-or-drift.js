@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import {useState} from 'react';
+import * as d3 from 'd3';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
@@ -107,7 +108,17 @@ const OutliersOrDrift = ({isDrift}) => {
                                     }))}
                                     getX={(p) => p.dimensions[0]}
                                     getY={(p) => p.dimensions[1]}
-                                    getColor={(p) => p.anomaly ? (isDrift ? theme.primary : theme.danger) : theme.secondary}
+                                    getColor={(p) => {
+                                        const color = p.anomaly ? (isDrift ? theme.primary : theme.danger) : theme.secondary;
+
+                                        if (uniqueSampleUUIDs.size && !uniqueSampleUUIDs.has(p.sample['uuid'])) {
+
+                                            return d3.hsl(color).copy({l: 0.9});
+                                        } else {
+
+                                            return color;
+                                        }
+                                    }}
                                     onSelectedDataChange={handleSelectedDataChange}
                                     isDatapointSelected={(p) => uniqueSampleUUIDs.has(p.sample['uuid'])}
                                     isSearchMatch={(p, searchTerm) => Object.values(p.sample).some((v) => v?.toString()?.toLowerCase()?.includes(searchTerm?.toLowerCase()))}

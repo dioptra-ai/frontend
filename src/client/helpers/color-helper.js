@@ -1,11 +1,3 @@
-// const COLORS = [
-//     '#1FA9C8',
-//     '#8ED4E3',
-//     '#F8C86C',
-//     '#62BD6C',
-//     '#B1EAB7',
-//     '#F8886C'
-// ];
 
 const COLORS = [
     '#11C8BD',
