@@ -113,7 +113,7 @@ const OutliersOrDrift = ({isDrift}) => {
                                     isSearchMatch={(p, searchTerm) => Object.values(p.sample).some((v) => v?.toString()?.toLowerCase()?.includes(searchTerm?.toLowerCase()))}
                                 />
                             </div>
-                            <Row className='g-2 my-3'>
+                            <Row className='g-2 mb-3'>
                                 <Col className='text-center'>
                                     <div
                                         className='cursor-pointer d-inline-block'
