@@ -9,7 +9,7 @@ import AddFilters from 'components/add-filters';
 import DatapointsViewer from 'components/datapoints-viewer';
 import {setupComponent} from 'helpers/component-helper';
 
-const SamplesPreview = ({samples, userStore, onClearSample, onClearAllSamples}) => {
+const SamplesPreview = ({samples, userStore, onClearSamples}) => {
     const [selectedSamples, setSelectedSamples] = useState(new Set());
     const selectedUUIDs = samples.map(({uuid}) => uuid).filter((u) => selectedSamples.has(u));
 
@@ -20,15 +20,13 @@ const SamplesPreview = ({samples, userStore, onClearSample, onClearAllSamples}) 
                     {samples.length ? `Samples: ${samples.length}` : null}
                 </div>
                 <div className='d-flex'>
-                    {onClearAllSamples ? (
-                        <OverlayTrigger overlay={<Tooltip>Clear Samples</Tooltip>}>
-                            <button
-                                disabled={!samples.length}
-                                className='d-flex text-dark border-0 bg-transparent click-down' onClick={onClearAllSamples}>
-                                <IoCloseOutline className='fs-2 cursor-pointer'/>
-                            </button>
-                        </OverlayTrigger>
-                    ) : null}
+                    <OverlayTrigger overlay={<Tooltip>Clear Selected Samples</Tooltip>}>
+                        <button
+                            disabled={!selectedSamples.size}
+                            className='d-flex text-dark border-0 bg-transparent click-down' onClick={() => onClearSamples(selectedUUIDs)}>
+                            <IoCloseOutline className='fs-2 cursor-pointer'/>
+                        </button>
+                    </OverlayTrigger>
                     <AddFilters
                         disabled={!selectedSamples.size}
                         filters={[new Filter({
@@ -65,7 +63,7 @@ const SamplesPreview = ({samples, userStore, onClearSample, onClearAllSamples}) 
             <DatapointsViewer
                 datapoints={samples}
                 onSelectedChange={setSelectedSamples}
-                onClearDatapoint={onClearSample}
+                onClearDatapoint={(uuid) => onClearSamples([uuid])}
             />
         </>
     );
@@ -74,8 +72,7 @@ const SamplesPreview = ({samples, userStore, onClearSample, onClearAllSamples}) 
 SamplesPreview.propTypes = {
     samples: PropTypes.arrayOf(PropTypes.object).isRequired,
     userStore: PropTypes.object.isRequired,
-    onClearSample: PropTypes.func,
-    onClearAllSamples: PropTypes.func
+    onClearSamples: PropTypes.func
 };
 
 export default setupComponent(SamplesPreview);

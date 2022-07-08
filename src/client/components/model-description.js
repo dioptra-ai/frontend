@@ -55,7 +55,7 @@ const ModelDescription = ({_id, name, description, team, tier, lastDeployed, mlM
     };
 
     return (
-        <Container className='bg-white-blue model-desc' fluid >
+        <Container className='model-desc' fluid >
             <Row className='align-items-center py-2'>
                 <Col className='d-flex align-items-center' xs={11}>
                     <div style={{fontSize: 24}}>

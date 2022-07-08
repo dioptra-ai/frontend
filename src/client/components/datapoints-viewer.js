@@ -109,7 +109,7 @@ const DatapointsViewer = ({datapoints, onSelectedChange, onClearDatapoint}) => {
                                     checked={selectedDatapoints.has(datapoint['uuid'])}
                                 />
                                 {onClearDatapoint ?
-                                    <IoCloseOutline className='cursor-pointer fs-4' onClick={() => onClearDatapoint(i)}/> :
+                                    <IoCloseOutline className='cursor-pointer fs-4' onClick={() => onClearDatapoint(datapoint['uuid'])}/> :
                                     null}
                             </div>
                         );
@@ -117,7 +117,7 @@ const DatapointsViewer = ({datapoints, onSelectedChange, onClearDatapoint}) => {
                         if (datapointIsVideo(datapoint)) {
 
                             return (
-                                <Col key={`${JSON.stringify(datapoint)}-${i}`} xs={6} md={4} xl={3}>
+                                <Col key={`${JSON.stringify(datapoint)}-${i}`} xs={6} md={4} lg={3}>
                                     <div className='p-2 bg-white-blue border rounded' >
                                         {selectOrClearBar}
                                         <FrameWithBoundingBox
@@ -138,7 +138,7 @@ const DatapointsViewer = ({datapoints, onSelectedChange, onClearDatapoint}) => {
                         } else if (datapointIsImage(datapoint)) {
 
                             return (
-                                <Col key={`${JSON.stringify(datapoint)}-${i}`} xs={6} md={4} xl={3}>
+                                <Col key={`${JSON.stringify(datapoint)}-${i}`} xs={6} md={4} lg={3}>
                                     <div className='p-2 bg-white-blue border rounded' >
                                         {selectOrClearBar}
                                         <PreviewImageClassification

@@ -23,13 +23,11 @@ const EmbeddingSpace = () => {
                     ))
                 }
             </Select>
-            <div className='my-3'>
-                {
-                    selectedAnalysis === 'DRIFT' ? <OutliersOrDrift isDrift/> :
-                        selectedAnalysis === 'OUTLIER' ? <OutliersOrDrift/> :
-                            selectedAnalysis === 'CLUSTERING' ? <ClustersAnalysis /> : null
-                }
-            </div>
+            {
+                selectedAnalysis === 'DRIFT' ? <OutliersOrDrift isDrift/> :
+                    selectedAnalysis === 'OUTLIER' ? <OutliersOrDrift/> :
+                        selectedAnalysis === 'CLUSTERING' ? <ClustersAnalysis /> : null
+            }
         </>
     );
 };

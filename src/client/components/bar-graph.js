@@ -40,13 +40,13 @@ CustomTooltip.propTypes = {
     payload: PropTypes.array,
     unit: PropTypes.string
 };
-const BarGraph = ({title, bars, unit, yAxisName, xAxisName, yAxisDomain, className = '', onClick, children, ...rest}) => {
+const BarGraph = ({title, bars, unit, yAxisName, xAxisName, yAxisDomain, className = '', onClick, children, height, ...rest}) => {
 
     return (
         <div className={`border rounded p-3 pe-5 w-100 ${className}`}>
             <SpinnerWrapper>
                 <div className='text-dark bold-text fs-4 px-3 mb-3'>{title}</div>
-                <div style={{height: '300px'}}>
+                <div style={{height: height || '300px'}}>
                     <ResponsiveContainer height='100%' width='100%'>
                         <BarChart data={bars} height={250} width={730} {...rest}>
                             <CartesianGrid strokeDasharray='3 3' />
@@ -95,6 +95,7 @@ BarGraph.propTypes = {
     yAxisDomain: PropTypes.array,
     yAxisName: PropTypes.string,
     onClick: PropTypes.func,
+    height: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     children: PropTypes.node
 };
 

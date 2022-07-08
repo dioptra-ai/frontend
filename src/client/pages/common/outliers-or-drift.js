@@ -49,16 +49,18 @@ const OutliersOrDrift = ({isDrift}) => {
     const [selectedPoints, setSelectedPoints] = useState([]);
     const uniqueSampleUUIDs = new Set(selectedPoints.map(({sample}) => sample['uuid']));
     const referenceFilters = isDrift && useAllSqlFilters({useReferenceFilters: true});
-    const handleClearSample = (i) => {
-        setSelectedPoints(selectedPoints.filter((_, index) => index !== i));
+    const handleClearSamples = (uuids) => {
+        const uuidsSet = new Set(uuids);
+
+        setSelectedPoints(selectedPoints.filter((p) => !uuidsSet.has(p.sample['uuid'])));
     };
     const handleSelectedDataChange = (points, e) => {
         if (points.length === 1) {
             const uuidToRemove = points[0]['sample']['uuid'];
-            const pointIndex = selectedPoints.findIndex(({sample}) => sample['uuid'] === uuidToRemove);
+            const point = selectedPoints.find(({sample}) => sample['uuid'] === uuidToRemove);
 
-            if (pointIndex > -1) {
-                handleClearSample(pointIndex);
+            if (point) {
+                handleClearSamples([point.sample['uuid']]);
 
                 return;
             }
@@ -87,7 +89,7 @@ const OutliersOrDrift = ({isDrift}) => {
 
     return (
         <>
-            <Row className='g-2 my-3'>
+            <Row className='g-2 my-2'>
                 <Col></Col>
                 <Col lg={3}>
                     Analysis Space
@@ -141,7 +143,7 @@ const OutliersOrDrift = ({isDrift}) => {
                     embeddings_field: userSelectedEmbeddings
                 })}
                 renderData={(data) => (
-                    <Row className='g-2 border rounded p-3 w-100 scatterGraph'>
+                    <Row className='g-2 mb-3 w-100 scatterGraph'>
                         <Col lg={4}>
                             <div className='scatterGraph-leftBox'>
                                 <ScatterChart
@@ -198,7 +200,7 @@ const OutliersOrDrift = ({isDrift}) => {
                             </Row>
                         </Col>
                         <Col className='rounded p-3 bg-white-blue'>
-                            <SamplesPreview samples={selectedPoints?.map(({sample}) => sample)} onClearSample={handleClearSample} onClearAllSamples={() => setSelectedPoints([])}/>
+                            <SamplesPreview samples={selectedPoints?.map(({sample}) => sample)} onClearSamples={handleClearSamples}/>
                         </Col>
                     </Row>
                 )}

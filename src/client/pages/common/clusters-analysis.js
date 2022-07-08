@@ -121,16 +121,18 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
         setUserSelectedMinClusterSize(Number(e.target.value));
         onUserSelectedMinClusterSize(Number(e.target.value));
     };
-    const handleClearSample = (i) => {
-        setSelectedPoints(selectedPoints.filter((_, index) => index !== i));
+    const handleClearSamples = (uuids) => {
+        const uuidsSet = new Set(uuids);
+
+        setSelectedPoints(selectedPoints.filter((p) => !uuidsSet.has(p.sample['uuid'])));
     };
     const handleSelectedDataChange = (points, e) => {
         if (points.length === 1) {
             const uuidToRemove = points[0]['sample']['uuid'];
-            const pointIndex = selectedPoints.findIndex(({sample}) => sample['uuid'] === uuidToRemove);
+            const point = selectedPoints.find(({sample}) => sample['uuid'] === uuidToRemove);
 
-            if (pointIndex > -1) {
-                handleClearSample(pointIndex);
+            if (point) {
+                handleClearSamples([point.sample['uuid']]);
 
                 return;
             }
@@ -163,7 +165,7 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
                 </Alert>
             ) : null
         }
-        <Row className='g-2 my-3'>
+        <Row className='g-2 my-2'>
             {
                 metricNames ? (
                     <Col lg={2}>
@@ -232,9 +234,10 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
         </Row>
         {
             sortedClusters.some((c) => c.metric) ? (
-                <Row className='my-3'>
+                <Row>
                     <Col>
                         <BarGraph
+                            className='border-0'
                             bars={sortedClusters.map((cluster) => ({
                                 name: cluster.name,
                                 value: cluster.metric?.value,
@@ -250,7 +253,7 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
                 </Row>
             ) : null
         }
-        <Row className='g-2 my-3'>
+        <Row className='g-2 mb-3' style={{minHeight: '75vh'}}>
             <Col lg={8} className='d-flex flex-column'>
                 <Row className='flex-grow-1'>
                     <Col>
@@ -286,74 +289,71 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
                 </Row>
             </Col>
             {distributionMetricsOptions?.length ? (
-                <Col lg={4} className='px-3'>
-                    <div className='bg-white-blue rounded p-3'>
-                        <div className='text-dark bold-text d-flex align-items-center justify-content-between'>
-                            <span>Summary ({samples.length} total)</span>
-                            <div className='d-flex align-items-center'>
-                                {samplesCsvClassNames ? (
-                                    <OverlayTrigger overlay={<Tooltip>Download classes as CSV</Tooltip>}>
-                                        <IoDownloadOutline className='fs-2 cursor-pointer' onClick={() => {
+                <Col lg={4} className='p-3 bg-white-blue rounded'>
+                    <div className='text-dark bold-text d-flex align-items-center justify-content-between'>
+                        <span>Summary ({samples.length} total)</span>
+                        <div className='d-flex align-items-center'>
+                            {samplesCsvClassNames ? (
+                                <OverlayTrigger overlay={<Tooltip>Download classes as CSV</Tooltip>}>
+                                    <IoDownloadOutline className='fs-2 cursor-pointer' onClick={() => {
 
-                                            saveAs(new Blob([samplesCsvClassNames], {type: 'text/csv;charset=utf-8'}), 'classes.csv');
-                                        }}/>
-                                    </OverlayTrigger>
-                                ) : null}
-                            </div>
+                                        saveAs(new Blob([samplesCsvClassNames], {type: 'text/csv;charset=utf-8'}), 'classes.csv');
+                                    }}/>
+                                </OverlayTrigger>
+                            ) : null}
                         </div>
-                        <div className={`d-flex p-2 overflow-auto flex-grow-0 ${samples.length ? 'justify-content-left' : 'justify-content-center align-items-center'} scatterGraph-examples`}>
-                            {samples.length ? (
-                                <Async
-                                    refetchOnChanged={[samplesSqlFilter, samples, mlModelType]}
-                                    renderData={(data) => (
-                                        <BarGraph
-                                            bars={data.map(({name, value}) => ({
-                                                name, value,
-                                                fill: getHexColor(name)
-                                            }))}
-                                            title={(
-                                                <Row className='g-2'>
-                                                    <Col>Class Distribution</Col>
-                                                    <Col>
-                                                        <Form.Control as='select' className='form-select w-100' custom required
-                                                            onChange={(e) => {
-                                                                setUserSelectedSummaryDistribution(e.target.value);
-                                                            }}
-                                                        >
-                                                            {distributionMetricsOptions.map((o, i) => (
-                                                                <option key={i} value={o.value}>{o.name}</option>
-                                                            ))}
-                                                        </Form.Control>
-                                                    </Col>
-                                                </Row>
-                                            )}
-                                            unit='%'
-                                        />
-                                    )}
-                                    fetchData={() => metricsClient(`queries/${(
-                                        mlModelType === 'IMAGE_CLASSIFIER' ||
+                    </div>
+                    <div className={`d-flex p-2 overflow-auto flex-grow-0 ${samples.length ? 'justify-content-left' : 'justify-content-center align-items-center'} scatterGraph-examples`}>
+                        {samples.length ? (
+                            <Async
+                                refetchOnChanged={[samplesSqlFilter, samples, mlModelType]}
+                                renderData={(data) => (
+                                    <BarGraph
+                                        className='border-0' height='50vh'
+                                        bars={data.map(({name, value}) => ({
+                                            name, value,
+                                            fill: getHexColor(name)
+                                        }))}
+                                        title={(
+                                            <Row className='g-2'>
+                                                <Col>Class Distribution</Col>
+                                                <Col>
+                                                    <Form.Control as='select' className='form-select w-100' custom required
+                                                        onChange={(e) => {
+                                                            setUserSelectedSummaryDistribution(e.target.value);
+                                                        }}
+                                                    >
+                                                        {distributionMetricsOptions.map((o, i) => (
+                                                            <option key={i} value={o.value}>{o.name}</option>
+                                                        ))}
+                                                    </Form.Control>
+                                                </Col>
+                                            </Row>
+                                        )}
+                                        unit='%'
+                                    />
+                                )}
+                                fetchData={() => metricsClient(`queries/${(
+                                    mlModelType === 'IMAGE_CLASSIFIER' ||
                                         mlModelType === 'UNSUPERVISED_IMAGE_CLASSIFIER' || mlModelType === 'UNSUPERVISED_TEXT_CLASSIFIER' ||
                                         mlModelType === 'TEXT_CLASSIFIER' || mlModelType === 'SPEECH_TO_TEXT') ?
-                                        'class-distribution-1' :
-                                        'class-distribution-2'
-                                    }`, {
-                                        sql_filters: samplesSqlFilter,
-                                        distribution_field: userSelectedSummaryDistribution
-                                    })}
-                                />
-                            ) : (
-                                <h3 className='text-secondary m-0'>No Examples Selected</h3>
-                            )}
-                        </div>
+                                    'class-distribution-1' :
+                                    'class-distribution-2'
+                                }`, {
+                                    sql_filters: samplesSqlFilter,
+                                    distribution_field: userSelectedSummaryDistribution
+                                })}
+                            />
+                        ) : (
+                            <h3 className='text-secondary m-0'>No Examples Selected</h3>
+                        )}
                     </div>
                 </Col>
             ) : null}
         </Row>
-        <Row>
-            <Col className='px-3'>
-                <div className='bg-white-blue rounded p-3'>
-                    <SamplesPreview samples={samples} onClearSample={handleClearSample} onClearAllSamples={() => setSelectedPoints([])}/>
-                </div>
+        <Row className='g-2 mb-3'>
+            <Col className='bg-white-blue rounded p-3'>
+                <SamplesPreview samples={samples} onClearSamples={handleClearSamples}/>
             </Col>
         </Row>
         </>
