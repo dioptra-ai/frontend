@@ -102,14 +102,12 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
     const [userSelectedAlgorithm, setUserSelectedAlgorithm] = useState('GROUPBY');
     const [userSelectedMinClusterSize, setUserSelectedMinClusterSize] = useState('GROUPBY');
     const uniqueSampleUUIDs = new Set(selectedPoints.map(({sample}) => sample['uuid']));
-    const uniqueClusterLabels = new Set(clusters.filter((c) => {
-
-        return c.elements.some((e) => uniqueSampleUUIDs.has(e.sample['uuid']));
-    }).map((c) => c.label));
+    const uniqueClusterLabels = new Set(selectedPoints.map((p) => p.clusterLabel));
     const sortedClusters = useMemo(() => clusters.map((c) => ({
         name: c.label === -1 ? 'noise' : c.label,
         size: c.elements.length,
-        ...c
+        ...c,
+        elements: c.elements.map((e) => ({clusterLabel: c.label, ...e}))
     })).sort((c1, c2) => c2.metric?.value - c1.metric?.value), [clusters]);
     const samples = selectedPoints.map((p) => p.sample);
     // SQL Filter for samples is sliced if there are more than samplingLimit samples.
