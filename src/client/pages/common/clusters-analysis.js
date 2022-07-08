@@ -68,23 +68,21 @@ const getDistributionMetricsForModel = (modelType) => {
 
 const getEmbeddingsFieldsForModel = (modelType) => {
     const results = [{
-        name: 'image embeddings',
+        name: 'Image Embeddings',
         value: 'embeddings'
     }];
 
     if (modelType === 'UNSUPERVISED_OBJECT_DETECTION') {
         results.push({
-            name: 'prediction box embeddings',
+            name: 'Prediction Box Embeddings',
             value: 'prediction.embeddings'
         });
-    }
-    if (modelType === 'OBJECT_DETECTION') {
+    } else if (modelType === 'OBJECT_DETECTION') {
         results.push({
-            name: 'prediction box embeddings',
+            name: 'Prediction Box Embeddings',
             value: 'prediction.embeddings'
-        });
-        results.push({
-            name: 'groundtruth box embeddings',
+        }, {
+            name: 'Ground Truth Box Embeddings',
             value: 'groundtruth.embeddings'
         });
     }
@@ -100,7 +98,6 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
     const metricNames = MODEL_TYPE_TO_METRICS_NAMES[mlModelType];
     const [userSelectedSummaryDistribution, setUserSelectedSummaryDistribution] = useState('prediction');
     const [selectedPoints, setSelectedPoints] = useState([]);
-    const [embeddingsFieldOptions, setEmbeddingsFieldOptions] = useState([]);
     const [distributionMetricsOptions, setDistributionMetricsOptions] = useState([]);
     const [userSelectedAlgorithm, setUserSelectedAlgorithm] = useState('GROUPBY');
     const [userSelectedMinClusterSize, setUserSelectedMinClusterSize] = useState('GROUPBY');
@@ -154,12 +151,6 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
         setDistributionMetricsOptions(result);
     }, [mlModelType]);
 
-    useEffect(async () => {
-        const result = await getEmbeddingsFieldsForModel(mlModelType);
-
-        setEmbeddingsFieldOptions(result);
-    }, [mlModelType]);
-
     useEffect(() => {
         setSelectedPoints([]);
     }, [clusters]);
@@ -173,14 +164,6 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
             ) : null
         }
         <Row className='g-2 my-3'>
-            <Col lg={2}>
-                Embeddings vectors
-                <Select onChange={onUserSelectedEmbeddings}>
-                    {embeddingsFieldOptions.map((o, i) => (
-                        <option key={i} value={o.value}>{o.name}</option>
-                    ))}
-                </Select>
-            </Col>
             {
                 metricNames ? (
                     <Col lg={2}>
@@ -191,9 +174,17 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
                             }
                         </Select>
                     </Col>
-                ) : null
+                ) : <Col lg={2}></Col>
             }
             <Col/>
+            <Col lg={2}>
+                Analysis Space
+                <Select onChange={onUserSelectedEmbeddings}>
+                    {getEmbeddingsFieldsForModel(mlModelType).map((o, i) => (
+                        <option key={i} value={o.value}>{o.name}</option>
+                    ))}
+                </Select>
+            </Col>
             <Col lg={2}>
                 Cluster Grouping
                 <Select onChange={handleUserSelectedAlgorithm}>
@@ -386,7 +377,7 @@ const ClustersAnalysis = () => {
     const [userSelectedMetricName, setUserSelectedMetricName] = useState(metricNames?.[0]);
     const [userSelectedAlgorithm, setUserSelectedAlgorithm] = useState('GROUPBY');
     const [userSelectedDistanceName, setUserSelectedDistanceName] = useState('euclidean');
-    const [userSelectedEmbeddings, setUserSelectedEmbeddings] = useState('embeddings');
+    const [userSelectedEmbeddings, setUserSelectedEmbeddings] = useState(getEmbeddingsFieldsForModel(model?.mlModelType)[0].value);
     const [userSelectedGroupbyField, setUserSelectedGroupbyField] = useState();
     const [userSelectedMinClusterSize, setUserSelectedMinClusterSize] = useDebounce(undefined, 500);
 
