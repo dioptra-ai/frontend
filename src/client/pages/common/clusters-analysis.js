@@ -102,6 +102,10 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
     const [userSelectedAlgorithm, setUserSelectedAlgorithm] = useState('GROUPBY');
     const [userSelectedMinClusterSize, setUserSelectedMinClusterSize] = useState('GROUPBY');
     const uniqueSampleUUIDs = new Set(selectedPoints.map(({sample}) => sample['uuid']));
+    const uniqueClusterLabels = new Set(clusters.filter((c) => {
+
+        return c.elements.some((e) => uniqueSampleUUIDs.has(e.sample['uuid']));
+    }).map((c) => c.label));
     const sortedClusters = useMemo(() => clusters.map((c) => ({
         name: c.label === -1 ? 'noise' : c.label,
         size: c.elements.length,
@@ -238,12 +242,16 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
                     <Col>
                         <BarGraph
                             className='border-0'
-                            bars={sortedClusters.map((cluster) => ({
-                                name: cluster.name,
-                                value: cluster.metric?.value,
-                                fill: cluster.label === -1 ? getHexColor('') : getHexColor(cluster.label),
-                                size: cluster.size
-                            }))}
+                            bars={sortedClusters.map((cluster) => {
+                                const color = cluster.label === -1 ? getHexColor('') : getHexColor(cluster.label);
+
+                                return ({
+                                    name: cluster.name,
+                                    value: cluster.metric?.value,
+                                    fill: uniqueClusterLabels.size && !uniqueClusterLabels.has(cluster.label) ? d3.hsl(color).copy({l: 0.9}) : color,
+                                    size: cluster.size
+                                });
+                            })}
                             onClick={(_, index, e) => {
                                 handleSelectedDataChange(sortedClusters[index].elements, e);
                             }}

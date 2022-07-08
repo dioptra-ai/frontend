@@ -90,7 +90,7 @@ const ScatterChart = ({
         const chart = fc.chartCartesian(xScale, yScale).svgPlotArea(svgSeries);
 
         d3.select(`#${chartId}`)
-            .datum(data)
+            .datum(data.sort((p1) => isDatapointSelected?.(p1) ? 1 : -1)) // Selected => on top.
             .call(chart);
 
         d3.select(`#${chartId} svg`).call(brush);
