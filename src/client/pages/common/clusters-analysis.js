@@ -27,7 +27,8 @@ const MODEL_TYPE_TO_METRICS_NAMES = {
     'AUTO_COMPLETION': ['EXACT_MATCH', 'F1_SCORE'],
     'SPEECH_TO_TEXT': ['EXACT_MATCH', 'WORD_ERROR_RATE'],
     'TEXT_CLASSIFIER': ['ACCURACY', 'F1_SCORE', 'PRECISION', 'RECALL'],
-    'UNSUPERVISED_OBJECT_DETECTION': ['MEAN_AVERAGE_PRECISION', 'MEAN_AVERAGE_RECALL'],
+    'UNSUPERVISED_OBJECT_DETECTION': ['CONFIDENCE', 'ENTROPY'],
+    'OBJECT_DETECTION': ['MEAN_AVERAGE_PRECISION', 'MEAN_AVERAGE_RECALL'],
     'IMAGE_CLASSIFIER': ['ACCURACY', 'PRECISION', 'F1_SCORE', 'RECALL'],
     'UNSUPERVISED_IMAGE_CLASSIFIER': ['CONFIDENCE', 'ENTROPY'],
     'UNSUPERVISED_TEXT_CLASSIFIER': ['CONFIDENCE', 'ENTROPY'],
@@ -47,12 +48,51 @@ const getDistributionMetricsForModel = (modelType) => {
             name: 'prediction',
             value: 'prediction'
         }];
+    } else if (modelType === 'OBJECT_DETECTION') {
+        return [{
+            name: 'prediction.class_name',
+            value: 'prediction.class_name'
+        }, {
+            name: 'groundtruth.class_name',
+            value: 'groundtruth.class_name'
+        }];
+    } else if (modelType === 'UNSUPERVISED_OBJECT_DETECTION') {
+        return [{
+            name: 'prediction.class_name',
+            value: 'prediction.class_name'
+        }];
     } else {
         return [];
     }
 };
 
-const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDistanceName, onUserSelectedAlgorithm, onUserSelectedGroupbyField, onUserSelectedMinClusterSize}) => {
+const getEmbeddingsFieldsForModel = (modelType) => {
+    const results = [{
+        name: 'image embeddings',
+        value: 'embeddings'
+    }];
+
+    if (modelType === 'UNSUPERVISED_OBJECT_DETECTION') {
+        results.push({
+            name: 'prediction box embeddings',
+            value: 'prediction.embeddings'
+        });
+    }
+    if (modelType === 'OBJECT_DETECTION') {
+        results.push({
+            name: 'prediction box embeddings',
+            value: 'prediction.embeddings'
+        });
+        results.push({
+            name: 'groundtruth box embeddings',
+            value: 'groundtruth.embeddings'
+        });
+    }
+
+    return results;
+};
+
+const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDistanceName, onUserSelectedEmbeddings, onUserSelectedAlgorithm, onUserSelectedGroupbyField, onUserSelectedMinClusterSize}) => {
     const samplingLimit = 10000;
     const allSqlFilters = useAllSqlFilters();
     const model = useModel();
@@ -60,6 +100,7 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
     const metricNames = MODEL_TYPE_TO_METRICS_NAMES[mlModelType];
     const [userSelectedSummaryDistribution, setUserSelectedSummaryDistribution] = useState('prediction');
     const [selectedPoints, setSelectedPoints] = useState([]);
+    const [embeddingsFieldOptions, setEmbeddingsFieldOptions] = useState([]);
     const [distributionMetricsOptions, setDistributionMetricsOptions] = useState([]);
     const [userSelectedAlgorithm, setUserSelectedAlgorithm] = useState('GROUPBY');
     const [userSelectedMinClusterSize, setUserSelectedMinClusterSize] = useState('GROUPBY');
@@ -113,6 +154,12 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
         setDistributionMetricsOptions(result);
     }, [mlModelType]);
 
+    useEffect(async () => {
+        const result = await getEmbeddingsFieldsForModel(mlModelType);
+
+        setEmbeddingsFieldOptions(result);
+    }, [mlModelType]);
+
     useEffect(() => {
         setSelectedPoints([]);
     }, [clusters]);
@@ -126,6 +173,14 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
             ) : null
         }
         <Row className='g-2 my-3'>
+            <Col lg={2}>
+                Embeddings vectors
+                <Select onChange={onUserSelectedEmbeddings}>
+                    {embeddingsFieldOptions.map((o, i) => (
+                        <option key={i} value={o.value}>{o.name}</option>
+                    ))}
+                </Select>
+            </Col>
             {
                 metricNames ? (
                     <Col lg={2}>
@@ -318,6 +373,7 @@ _ClustersAnalysis.propTypes = {
     clusters: PropTypes.array.isRequired,
     onUserSelectedMetricName: PropTypes.func.isRequired,
     onUserSelectedDistanceName: PropTypes.func.isRequired,
+    onUserSelectedEmbeddings: PropTypes.func.isRequired,
     onUserSelectedAlgorithm: PropTypes.func.isRequired,
     onUserSelectedGroupbyField: PropTypes.func.isRequired,
     onUserSelectedMinClusterSize: PropTypes.func.isRequired
@@ -330,6 +386,7 @@ const ClustersAnalysis = () => {
     const [userSelectedMetricName, setUserSelectedMetricName] = useState(metricNames?.[0]);
     const [userSelectedAlgorithm, setUserSelectedAlgorithm] = useState('GROUPBY');
     const [userSelectedDistanceName, setUserSelectedDistanceName] = useState('euclidean');
+    const [userSelectedEmbeddings, setUserSelectedEmbeddings] = useState('embeddings');
     const [userSelectedGroupbyField, setUserSelectedGroupbyField] = useState();
     const [userSelectedMinClusterSize, setUserSelectedMinClusterSize] = useDebounce(undefined, 500);
 
@@ -340,6 +397,7 @@ const ClustersAnalysis = () => {
                 userSelectedDistanceName,
                 userSelectedMetricName,
                 userSelectedAlgorithm,
+                userSelectedEmbeddings,
                 userSelectedGroupbyField,
                 userSelectedMinClusterSize
             ]}
@@ -350,6 +408,7 @@ const ClustersAnalysis = () => {
                 metric: userSelectedMetricName,
                 clustering_algorithm: userSelectedAlgorithm,
                 groupby_field: userSelectedGroupbyField,
+                embeddings_field: userSelectedEmbeddings,
                 min_cluster_size: userSelectedMinClusterSize > 1 ? userSelectedMinClusterSize : undefined
             })}
             renderData={(clusters = []) => (
@@ -358,6 +417,7 @@ const ClustersAnalysis = () => {
                     onUserSelectedMetricName={setUserSelectedMetricName}
                     onUserSelectedDistanceName={setUserSelectedDistanceName}
                     onUserSelectedAlgorithm={setUserSelectedAlgorithm}
+                    onUserSelectedEmbeddings={setUserSelectedEmbeddings}
                     onUserSelectedGroupbyField={setUserSelectedGroupbyField}
                     onUserSelectedMinClusterSize={setUserSelectedMinClusterSize}
                 />

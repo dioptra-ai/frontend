@@ -1,22 +1,29 @@
 import PropTypes from 'prop-types';
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import * as d3 from 'd3';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import {BsCircleFill} from 'react-icons/bs';
 
+import Select from 'components/select';
 import Async from 'components/async';
 import useAllSqlFilters from 'hooks/use-all-sql-filters';
 import ScatterChart, {ScatterSearch} from 'components/scatter-chart';
 import metricsClient from 'clients/metrics';
 import theme from 'styles/theme.module.scss';
 import SamplesPreview from 'components/samples-preview';
+import useModel from 'hooks/use-model';
+
 
 const OutliersOrDrift = ({isDrift}) => {
+    const model = useModel();
+    const mlModelType = model?.mlModelType;
     const allSqlFilters = useAllSqlFilters();
     const [userSelectedAlgorithm, setUserSelectedAlgorithm] = useState('Local Outlier Factor');
     const [userSelectedContamination, setUserSelectedContamination] = useState('auto');
+    const [userSelectedEmbeddings, setUserSelectedEmbeddings] = useState('embeddings');
+    const [embeddingsFieldOptions, setEmbeddingsFieldOptions] = useState([]);
     const [selectedPoints, setSelectedPoints] = useState([]);
     const uniqueSampleUUIDs = new Set(selectedPoints.map(({sample}) => sample['uuid']));
     const referenceFilters = isDrift && useAllSqlFilters({useReferenceFilters: true});
@@ -49,6 +56,38 @@ const OutliersOrDrift = ({isDrift}) => {
         value: 'auto'
     }];
 
+    const getEmbeddingsFieldsForModel = (modelType) => {
+        const results = [{
+            name: 'image embeddings',
+            value: 'embeddings'
+        }];
+
+        if (modelType === 'UNSUPERVISED_OBJECT_DETECTION') {
+            results.push({
+                name: 'prediction box embeddings',
+                value: 'prediction.embeddings'
+            });
+        }
+        if (modelType === 'OBJECT_DETECTION') {
+            results.push({
+                name: 'prediction box embeddings',
+                value: 'prediction.embeddings'
+            });
+            results.push({
+                name: 'groundtruth box embeddings',
+                value: 'groundtruth.embeddings'
+            });
+        }
+
+        return results;
+    };
+
+    useEffect(async () => {
+        const result = await getEmbeddingsFieldsForModel(mlModelType);
+
+        setEmbeddingsFieldOptions(result);
+    }, [mlModelType]);
+
     for (let i = 1; i <= 25; i++) {
         contaminationOptions.push({
             name: `${i} %`,
@@ -59,6 +98,14 @@ const OutliersOrDrift = ({isDrift}) => {
     return (
         <>
             <Row className='g-2 my-3'>
+                <Col lg={2}>
+                    Embeddings vectors
+                    <Select onChange={setUserSelectedEmbeddings}>
+                        {embeddingsFieldOptions.map((o, i) => (
+                            <option key={i} value={o.value}>{o.name}</option>
+                        ))}
+                    </Select>
+                </Col>
                 <Col></Col>
                 <Col lg={3}>
                         Algorithm
@@ -88,13 +135,20 @@ const OutliersOrDrift = ({isDrift}) => {
                 </Col>
             </Row>
             <Async
-                refetchOnChanged={[allSqlFilters, userSelectedAlgorithm, userSelectedContamination, referenceFilters]}
+                refetchOnChanged={[
+                    allSqlFilters,
+                    userSelectedAlgorithm,
+                    userSelectedContamination,
+                    referenceFilters,
+                    userSelectedEmbeddings
+                ]}
                 fetchData={() => metricsClient('compute', {
                     metrics_type: 'outlier_detection',
                     current_filters: allSqlFilters,
                     reference_filters: referenceFilters,
                     outlier_algorithm: userSelectedAlgorithm,
-                    contamination: userSelectedContamination
+                    contamination: userSelectedContamination,
+                    embeddings_field: userSelectedEmbeddings
                 })}
                 renderData={(data) => (
                     <Row className='g-2 border rounded p-3 w-100 scatterGraph'>
