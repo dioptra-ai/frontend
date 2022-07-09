@@ -5,7 +5,7 @@ import useAllSqlFilters from 'hooks/use-all-sql-filters';
 import Async from 'components/async';
 import metricsClient from 'clients/metrics';
 import {IoArrowBackCircleOutline, IoCloseCircleOutline} from 'react-icons/io5';
-import {PreviewImageClassification} from 'components/preview-image-classification';
+import {PreviewImageClassification} from 'components/preview-image';
 import SamplesPreview from 'components/samples-preview';
 
 const ImageExamples = ({onClose, groundtruth, prediction, iou, model}) => {

@@ -168,7 +168,7 @@ const EditModel = ({initialValue, onSubmit, errors, modelStore}) => {
                             <option value='IMAGE_CLASSIFIER'>Image Classifier</option>
                             <option value='UNSUPERVISED_IMAGE_CLASSIFIER'>Unsupervised Image Classifier</option>
                             {/* <option value='TABULAR_CLASSIFIER'>Tabular Classifier</option> */}
-                            {/* <option value='DOCUMENT_PROCESSING'>Document Processing</option> */}
+                            { <option value='DOCUMENT_PROCESSING'>Document Processing</option> }
                             {/* <option value='Q_N_A'>Question Answering</option> */}
                             <option value='TEXT_CLASSIFIER'>Text Classifier</option>
                             <option value='UNSUPERVISED_TEXT_CLASSIFIER'>Unsupervised Text Classifier</option>
