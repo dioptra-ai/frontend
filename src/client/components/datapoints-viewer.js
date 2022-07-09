@@ -8,10 +8,9 @@ import Container from 'react-bootstrap/Container';
 import {GrNext, GrPrevious} from 'react-icons/gr';
 import {IoCloseOutline} from 'react-icons/io5';
 import {mod} from 'helpers/math';
-import {datapointIsClassifier, datapointIsImage, datapointIsObjectDetection, datapointIsText, datapointIsVideo} from 'helpers/datapoint';
+import {datapointIsImage, datapointIsObjectDetection, datapointIsText, datapointIsVideo} from 'helpers/datapoint';
 import Modal from 'components/modal';
-import FrameWithBoundingBox, {PreviewImageClassification} from 'components/preview-image-classification';
-import PreviewObjectDetection from 'components/preview-object-detection';
+import FrameWithBoundingBox, {PreviewImageClassification, PreviewObjectDetection} from 'components/preview-image';
 import PreviewTextClassification from 'components/preview-text-classification';
 import PreviewDetails from 'components/preview-details';
 
@@ -126,10 +125,10 @@ const DatapointsViewer = ({datapoints, onSelectedChange, onClearDatapoint}) => {
                                             videoControls={false}
                                             frameW={datapoint['image_metadata.width']}
                                             frameH={datapoint['image_metadata.height']}
-                                            boxW={datapoint['image_metadata.object.width']}
-                                            boxH={datapoint['image_metadata.object.height']}
-                                            boxT={datapoint['image_metadata.object.top']}
-                                            boxL={datapoint['image_metadata.object.left']}
+                                            predBoxW={datapoint['image_metadata.object.width']}
+                                            predBoxH={datapoint['image_metadata.object.height']}
+                                            predBoxT={datapoint['image_metadata.object.top']}
+                                            predBoxL={datapoint['image_metadata.object.left']}
                                             maxHeight={200}
                                             onClick={() => setSampleIndexInModal(i)}
                                         />
@@ -208,16 +207,16 @@ const DatapointsViewer = ({datapoints, onSelectedChange, onClearDatapoint}) => {
                             <GrPrevious/>
                         </div>
                         <div>
-                            {datapointIsImage(exampleInModal) && datapointIsClassifier(exampleInModal) ? (
+                            {datapointIsImage(exampleInModal) && datapointIsObjectDetection(exampleInModal) ? (
                                 <>
-                                    <PreviewImageClassification
+                                    <PreviewObjectDetection
                                         sample={exampleInModal}
                                         maxHeight={600}
                                         zoomable
                                     />
                                     <hr/>
                                 </>
-                            ) : datapointIsImage(exampleInModal) && datapointIsObjectDetection(exampleInModal) ? (
+                            ) : datapointIsImage(exampleInModal) ? (
                                 <>
                                     <PreviewObjectDetection
                                         sample={exampleInModal}
@@ -233,10 +232,10 @@ const DatapointsViewer = ({datapoints, onSelectedChange, onClearDatapoint}) => {
                                         videoControls
                                         frameW={exampleInModal['image_metadata.width']}
                                         frameH={exampleInModal['image_metadata.height']}
-                                        boxW={exampleInModal['image_metadata.object.width']}
-                                        boxH={exampleInModal['image_metadata.object.height']}
-                                        boxT={exampleInModal['image_metadata.object.top']}
-                                        boxL={exampleInModal['image_metadata.object.left']}
+                                        predBoxW={exampleInModal['image_metadata.object.width']}
+                                        predBoxH={exampleInModal['image_metadata.object.height']}
+                                        predBoxT={exampleInModal['image_metadata.object.top']}
+                                        predBoxL={exampleInModal['image_metadata.object.left']}
                                         maxHeight={600}
                                         zoomable
                                     />
