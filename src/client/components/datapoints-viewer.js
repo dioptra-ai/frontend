@@ -8,9 +8,10 @@ import Container from 'react-bootstrap/Container';
 import {GrNext, GrPrevious} from 'react-icons/gr';
 import {IoCloseOutline} from 'react-icons/io5';
 import {mod} from 'helpers/math';
-import {datapointIsImage, datapointIsText, datapointIsVideo} from 'helpers/datapoint';
+import {datapointIsClassifier, datapointIsImage, datapointIsObjectDetection, datapointIsText, datapointIsVideo} from 'helpers/datapoint';
 import Modal from 'components/modal';
 import FrameWithBoundingBox, {PreviewImageClassification} from 'components/preview-image-classification';
+import PreviewObjectDetection from 'components/preview-object-detection';
 import PreviewTextClassification from 'components/preview-text-classification';
 import PreviewDetails from 'components/preview-details';
 
@@ -137,18 +138,36 @@ const DatapointsViewer = ({datapoints, onSelectedChange, onClearDatapoint}) => {
                             );
                         } else if (datapointIsImage(datapoint)) {
 
-                            return (
-                                <Col key={`${JSON.stringify(datapoint)}-${i}`} xs={6} md={4} lg={3}>
-                                    <div className='p-2 bg-white-blue border rounded' >
-                                        {selectOrClearBar}
-                                        <PreviewImageClassification
-                                            sample={datapoint}
-                                            maxHeight={200}
-                                            onClick={() => setSampleIndexInModal(i)}
-                                        />
-                                    </div>
-                                </Col>
-                            );
+                            if (datapointIsObjectDetection(datapoint)) {
+
+                                return (
+                                    <Col key={`${JSON.stringify(datapoint)}-${i}`} xs={6} md={4} xl={3}>
+                                        <div className='p-2 bg-white-blue border rounded' >
+                                            {selectOrClearBar}
+                                            <PreviewObjectDetection
+                                                sample={datapoint}
+                                                maxHeight={200}
+                                                onClick={() => setSampleIndexInModal(i)}
+                                            />
+                                        </div>
+                                    </Col>
+                                );
+
+                            } else {
+
+                                return (
+                                    <Col key={`${JSON.stringify(datapoint)}-${i}`} xs={6} md={4} xl={3}>
+                                        <div className='p-2 bg-white-blue border rounded' >
+                                            {selectOrClearBar}
+                                            <PreviewImageClassification
+                                                sample={datapoint}
+                                                maxHeight={200}
+                                                onClick={() => setSampleIndexInModal(i)}
+                                            />
+                                        </div>
+                                    </Col>
+                                );
+                            }
                         } else if (datapointIsText(datapoint)) {
 
                             return (
@@ -189,9 +208,18 @@ const DatapointsViewer = ({datapoints, onSelectedChange, onClearDatapoint}) => {
                             <GrPrevious/>
                         </div>
                         <div>
-                            {datapointIsImage(exampleInModal) ? (
+                            {datapointIsImage(exampleInModal) && datapointIsClassifier(exampleInModal) ? (
                                 <>
                                     <PreviewImageClassification
+                                        sample={exampleInModal}
+                                        maxHeight={600}
+                                        zoomable
+                                    />
+                                    <hr/>
+                                </>
+                            ) : datapointIsImage(exampleInModal) && datapointIsObjectDetection(exampleInModal) ? (
+                                <>
+                                    <PreviewObjectDetection
                                         sample={exampleInModal}
                                         maxHeight={600}
                                         zoomable
