@@ -376,14 +376,14 @@ _ClustersAnalysis.propTypes = {
     onUserSelectedMinClusterSize: PropTypes.func.isRequired
 };
 
-const ClustersAnalysis = ({sqlFilters}) => {
+const ClustersAnalysis = ({sqlFilters, embeddingsField}) => {
     const allSqlFilters = sqlFilters || useAllSqlFilters();
     const model = useModel();
     const metricNames = MODEL_TYPE_TO_METRICS_NAMES[model?.mlModelType];
     const [userSelectedMetricName, setUserSelectedMetricName] = useState(metricNames?.[0]);
     const [userSelectedAlgorithm, setUserSelectedAlgorithm] = useState('GROUPBY');
     const [userSelectedDistanceName, setUserSelectedDistanceName] = useState('euclidean');
-    const [userSelectedEmbeddings, setUserSelectedEmbeddings] = useState(getEmbeddingsFieldsForModel(model?.mlModelType)[0].value);
+    const [userSelectedEmbeddings, setUserSelectedEmbeddings] = useState(embeddingsField || getEmbeddingsFieldsForModel(model?.mlModelType)[0].value);
     const [userSelectedGroupbyField, setUserSelectedGroupbyField] = useState();
     const [userSelectedMinClusterSize, setUserSelectedMinClusterSize] = useDebounce(undefined, 500);
 
@@ -424,7 +424,8 @@ const ClustersAnalysis = ({sqlFilters}) => {
 };
 
 ClustersAnalysis.propTypes = {
-    sqlFilters: PropTypes.string
+    sqlFilters: PropTypes.string,
+    embeddingsField: PropTypes.string
 };
 
 export default ClustersAnalysis;

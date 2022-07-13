@@ -95,7 +95,12 @@ const Miner = () => {
                                                 {
                                                     selectedAnalysis === 'DRIFT' ? <OutliersOrDrift isDrift/> :
                                                         selectedAnalysis === 'OUTLIER' ? <OutliersOrDrift/> :
-                                                            selectedAnalysis === 'CLUSTERING' ? <ClustersAnalysis sqlFilters={`"uuid" IN (${miner['mined_uuids'].map((u) => `'${u}'`).join(',')})`}/> : null
+                                                            selectedAnalysis === 'CLUSTERING' ? (
+                                                                <ClustersAnalysis
+                                                                    sqlFilters={`"uuid" IN (${miner['mined_uuids'].map((u) => `'${u}'`).join(',')})`}
+                                                                    embeddingsField={miner['embeddings_field']}
+                                                                />
+                                                            ) : null
                                                 }
                                             </div>
                                         </>
