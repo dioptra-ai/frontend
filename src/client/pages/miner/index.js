@@ -11,8 +11,10 @@ import PreviewDetails from 'components/preview-details';
 import TopBar from 'pages/common/top-bar';
 import baseJSONClient from 'clients/base-json-client';
 import metricsClient from 'clients/metrics';
+import SamplesPreview from 'components/samples-preview';
 
 const ANALYSES = {
+    DATA_VIEWER: 'Data Viewer',
     CLUSTERING: 'Clustering',
     OUTLIER: 'Outlier Detection'
 };
@@ -100,7 +102,17 @@ const Miner = () => {
                                                                     sqlFilters={`"uuid" IN (${miner['mined_uuids'].map((u) => `'${u}'`).join(',')})`}
                                                                     embeddingsField={miner['embeddings_field']}
                                                                 />
-                                                            ) : null
+                                                            ) : (
+                                                                <div className='my-3'>
+                                                                    <Async
+                                                                        fetchData={() => metricsClient('/select', {
+                                                                            select: '"uuid", "image_metadata.uri"',
+                                                                            where: `"uuid" IN (${miner['mined_uuids'].map((u) => `'${u}'`).join(',')})`
+                                                                        })}
+                                                                        renderData={(datapoints) => <SamplesPreview samples={datapoints}/>}
+                                                                    />
+                                                                </div>
+                                                            )
                                                 }
                                             </div>
                                         </>
