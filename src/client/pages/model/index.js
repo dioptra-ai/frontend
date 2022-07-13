@@ -13,7 +13,7 @@ import ModelDescription from 'components/model-description';
 import Tabs from 'components/tabs';
 import Spinner from 'components/spinner';
 import Performance from './performance';
-import EmbeddingSpace from './embedding-space';
+import Explorer from './explorer';
 import IncidentsAndAlerts from 'pages/common/incidents-and-alerts';
 import useSyncStoresToUrl from 'hooks/use-sync-stores-to-url';
 import Menu from 'components/menu';
@@ -65,7 +65,7 @@ const Model = ({filtersStore, modelStore}) => {
     });
     const tabs = [
         {name: 'Performance', to: '/models/performance'},
-        {name: 'Embedding Space', to: '/models/embedding-space'},
+        {name: 'Explorer', to: '/models/explorer'},
         {name: 'Incidents & Alerts', to: '/models/incidents-and-alerts'}
     ];
     const firstModel = models[0];
@@ -116,9 +116,9 @@ const Model = ({filtersStore, modelStore}) => {
                                     {models.map((model, i) => <Performance key={i}/>)}
                                 </SplitView>
                             )}/>
-                            <Route exact path='/models/embedding-space' render={() => (
+                            <Route exact path='/models/explorer' render={() => (
                                 <SplitView>
-                                    {models.map((model, i) => <EmbeddingSpace key={i}/>)}
+                                    {models.map((model, i) => <Explorer key={i}/>)}
                                 </SplitView>
                             )}/>
                         </div>

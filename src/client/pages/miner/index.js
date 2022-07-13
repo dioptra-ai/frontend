@@ -5,7 +5,6 @@ import Container from 'react-bootstrap/Container';
 import Select from 'components/select';
 import OutliersOrDrift from 'pages/common/outliers-or-drift';
 import ClustersAnalysis from 'pages/common/clusters-analysis';
-import AppContext from 'context/app-context';
 import Menu from 'components/menu';
 import Async from 'components/async';
 import PreviewDetails from 'components/preview-details';
@@ -84,10 +83,7 @@ const Miner = () => {
                                 </div>
                                 {
                                     miner['mined_uuids'] && miner['mined_uuids'].length ? (
-                                        <AppContext.Provider value={{
-                                            getAllSqlFiltersFromAppContext: () => `"uuid" IN (${miner['mined_uuids'].map((u) => `'${u}'`).join(',')})`
-                                        }}>
-
+                                        <>
                                             <Select required defaultValue={selectedAnalysis} onChange={setSelectedAnalysis}>
                                                 {
                                                     analysesKeys.map((k) => (
@@ -99,10 +95,10 @@ const Miner = () => {
                                                 {
                                                     selectedAnalysis === 'DRIFT' ? <OutliersOrDrift isDrift/> :
                                                         selectedAnalysis === 'OUTLIER' ? <OutliersOrDrift/> :
-                                                            selectedAnalysis === 'CLUSTERING' ? <ClustersAnalysis /> : null
+                                                            selectedAnalysis === 'CLUSTERING' ? <ClustersAnalysis sqlFilters={`"uuid" IN (${miner['mined_uuids'].map((u) => `'${u}'`).join(',')})`}/> : null
                                                 }
                                             </div>
-                                        </AppContext.Provider>
+                                        </>
                                     ) : (
                                         <h3>No Mined Data</h3>
                                     )

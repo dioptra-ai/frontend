@@ -376,8 +376,8 @@ _ClustersAnalysis.propTypes = {
     onUserSelectedMinClusterSize: PropTypes.func.isRequired
 };
 
-const ClustersAnalysis = () => {
-    const allSqlFilters = useAllSqlFilters();
+const ClustersAnalysis = ({sqlFilters}) => {
+    const allSqlFilters = sqlFilters || useAllSqlFilters();
     const model = useModel();
     const metricNames = MODEL_TYPE_TO_METRICS_NAMES[model?.mlModelType];
     const [userSelectedMetricName, setUserSelectedMetricName] = useState(metricNames?.[0]);
@@ -423,5 +423,8 @@ const ClustersAnalysis = () => {
     );
 };
 
+ClustersAnalysis.propTypes = {
+    sqlFilters: PropTypes.string
+};
 
 export default ClustersAnalysis;

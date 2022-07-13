@@ -17,16 +17,18 @@ const SamplesPreview = ({samples, userStore, onClearSamples}) => {
         <>
             <div className='text-dark m-0 bold-text d-flex justify-content-between'>
                 <div>
-                    {samples.length ? `Samples: ${samples.length}` : null}
+                    {samples.length ? `Datapoints: ${samples.length}` : null}
                 </div>
                 <div className='d-flex'>
-                    <OverlayTrigger overlay={<Tooltip>Clear Selected Samples</Tooltip>}>
-                        <button
-                            disabled={!selectedSamples.size}
-                            className='d-flex text-dark border-0 bg-transparent click-down' onClick={() => onClearSamples(selectedUUIDs)}>
-                            <IoCloseOutline className='fs-2 cursor-pointer'/>
-                        </button>
-                    </OverlayTrigger>
+                    {onClearSamples ? (
+                        <OverlayTrigger overlay={<Tooltip>Clear Selected Samples</Tooltip>}>
+                            <button
+                                disabled={!selectedSamples.size}
+                                className='d-flex text-dark border-0 bg-transparent click-down' onClick={() => onClearSamples(selectedUUIDs)}>
+                                <IoCloseOutline className='fs-2 cursor-pointer'/>
+                            </button>
+                        </OverlayTrigger>
+                    ) : null}
                     <AddFilters
                         disabled={!selectedSamples.size}
                         filters={[new Filter({
@@ -63,7 +65,7 @@ const SamplesPreview = ({samples, userStore, onClearSamples}) => {
             <DatapointsViewer
                 datapoints={samples}
                 onSelectedChange={setSelectedSamples}
-                onClearDatapoint={(uuid) => onClearSamples([uuid])}
+                onClearDatapoint={onClearSamples ? (uuid) => onClearSamples([uuid]) : null}
             />
         </>
     );
