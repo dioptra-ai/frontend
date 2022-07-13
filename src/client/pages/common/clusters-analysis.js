@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useContext, useEffect, useMemo, useState} from 'react';
 import PropTypes from 'prop-types';
 import * as d3 from 'd3';
 import Alert from 'react-bootstrap/Alert';
@@ -9,6 +9,7 @@ import {IoDownloadOutline} from 'react-icons/io5';
 import {saveAs} from 'file-saver';
 import {useDebounce} from '@react-hook/debounce';
 
+import appContext from 'context/app-context';
 import Select from 'components/select';
 import {getHexColor} from 'helpers/color-helper';
 import BarGraph from 'components/bar-graph';
@@ -379,11 +380,12 @@ _ClustersAnalysis.propTypes = {
 const ClustersAnalysis = () => {
     const allSqlFilters = useAllSqlFilters();
     const model = useModel();
+    const {getEmbeddingsFieldFromAppContext} = useContext(appContext);
     const metricNames = MODEL_TYPE_TO_METRICS_NAMES[model?.mlModelType];
     const [userSelectedMetricName, setUserSelectedMetricName] = useState(metricNames?.[0]);
     const [userSelectedAlgorithm, setUserSelectedAlgorithm] = useState('GROUPBY');
     const [userSelectedDistanceName, setUserSelectedDistanceName] = useState('euclidean');
-    const [userSelectedEmbeddings, setUserSelectedEmbeddings] = useState(getEmbeddingsFieldsForModel(model?.mlModelType)[0].value);
+    const [userSelectedEmbeddings, setUserSelectedEmbeddings] = useState(model ? getEmbeddingsFieldsForModel(model.mlModelType)[0].value : getEmbeddingsFieldFromAppContext?.());
     const [userSelectedGroupbyField, setUserSelectedGroupbyField] = useState();
     const [userSelectedMinClusterSize, setUserSelectedMinClusterSize] = useDebounce(undefined, 500);
 

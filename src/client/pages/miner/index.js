@@ -59,7 +59,7 @@ const Miner = () => {
                                                     <tbody>
                                                         <tr>
                                                             <td>
-                                                                <p>Execution Errors: {task.status}</p>
+                                                                <p>Execution Status: {task.status}</p>
                                                             </td>
                                                         </tr>
                                                         {
@@ -85,7 +85,8 @@ const Miner = () => {
                                 {
                                     miner['mined_uuids'] && miner['mined_uuids'].length ? (
                                         <AppContext.Provider value={{
-                                            getAllSqlFiltersFromAppContext: () => `"uuid" IN (${miner['mined_uuids'].map((u) => `'${u}'`).join(',')})`
+                                            getAllSqlFiltersFromAppContext: () => `"uuid" IN (${miner['mined_uuids'].map((u) => `'${u}'`).join(',')})`,
+                                            getEmbeddingsFieldFromAppContext: () => miner['embeddings_field']
                                         }}>
 
                                             <Select required defaultValue={selectedAnalysis} onChange={setSelectedAnalysis}>
