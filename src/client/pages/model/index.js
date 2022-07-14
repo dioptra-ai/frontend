@@ -65,7 +65,7 @@ const Model = ({filtersStore, modelStore}) => {
     });
     const tabs = [
         {name: 'Performance', to: '/models/performance'},
-        {name: 'Explorer', to: '/models/explorer'},
+        {name: 'Data Explorer', to: '/models/explorer'},
         {name: 'Incidents & Alerts', to: '/models/incidents-and-alerts'}
     ];
     const firstModel = models[0];

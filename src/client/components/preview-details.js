@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
+import isUrl from 'is-url';
+import {FiExternalLink} from 'react-icons/fi';
 
 const PreviewDetails = ({sample}) => {
 
@@ -31,6 +33,11 @@ const PreviewDetails = ({sample}) => {
                     ))
                 }
             </Container>
+        );
+    } else if (isUrl(sample)) {
+
+        return (
+            <a href={sample} target='_blank' rel='noreferrer'>{sample}&nbsp;<sup><FiExternalLink className='fs-7'/></sup></a>
         );
     } else return String(sample);
 };

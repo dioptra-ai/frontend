@@ -111,8 +111,8 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
     })).sort((c1, c2) => c2.metric?.value - c1.metric?.value), [clusters]);
     const samples = selectedPoints.map((p) => p.sample);
     // SQL Filter for samples is sliced if there are more than samplingLimit samples.
-    const samplesSqlFilter = `${allSqlFilters} AND request_id in (${
-        samples.slice(0, samplingLimit).map((s) => `'${s['request_id']}'`).join(',')
+    const samplesSqlFilter = `${allSqlFilters} AND uuid in (${
+        samples.slice(0, samplingLimit).map((s) => `'${s['uuid']}'`).join(',')
     })`;
     const samplesCsvClassNames = Array.from(new Set(samples.map((s) => s['prediction'] || s['prediction.class_name']))).join(',');
     const handleUserSelectedAlgorithm = (value) => {
