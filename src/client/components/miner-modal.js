@@ -42,6 +42,7 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, uuids, modelStore}) => {
     const [liveDataType, setLiveDataType] = useState('range');
     const [minerStrategy, setMinerStrategy] = useState(uuids ? 'LOCAL_OUTLIER' : 'ENTROPY');
     const [minerMetric, setMinerMetric] = useState('euclidean');
+    const [minerAnalysisSpace, setMinerAnalysisSpace] = useState('embeddings');
     const [minerLimit, setMinerLimit] = useState();
     const [minerDuplicationFactor, setMinerDuplicationFactor] = useState(1);
     const [minerModel, setMinerModel] = useState(modelStore.models[0]);
@@ -65,7 +66,8 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, uuids, modelStore}) => {
             strategy: minerStrategy,
             duplication_factor: minerDuplicationFactor,
             metric: minerMetric,
-            limit: minerLimit
+            limit: minerLimit,
+            embeddings_field: minerAnalysisSpace
         };
 
         if (!minerDatasetSelected) {
@@ -147,6 +149,9 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, uuids, modelStore}) => {
                                                 <option value='CORESET'>
                                                 Coreset
                                                 </option>
+                                                <option value='ACTIVATION'>
+                                                Activation
+                                                </option>
                                             </>
                                         )
                                     }
@@ -175,6 +180,34 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, uuids, modelStore}) => {
                                 ) : null
                             }
                             {
+                                minerStrategy === 'NEAREST_NEIGHBORS' || minerStrategy === 'ACTIVATION' ? (
+                                    <>
+                                        <Form.Label className='mt-3 mb-0 w-100'>Analysis Space</Form.Label>
+                                        <InputGroup className='mt-1 flex-column'>
+                                            <Form.Control as='select' className={'form-select w-100'} required defaultValue={minerMetric}
+                                                onChange={(e) => {
+                                                    setMinerAnalysisSpace(e.target.value);
+                                                }}
+                                            >
+                                                <option disabled>Select Analysis Space</option>
+                                                <option value='embeddings'>
+                                                Embeddings
+                                                </option>
+                                                <option value='prediction.embeddings'>
+                                                Prediction Embeddings
+                                                </option>
+                                                <option value='groundtruth.embeddings'>
+                                                Groundtruth Embeddings
+                                                </option>
+                                                <option value='prediction.logits'>
+                                                Prediction Logits
+                                                </option>
+                                            </Form.Control>
+                                        </InputGroup>
+                                    </>
+                                ) : null
+                            }
+                            {
                                 minerStrategy === 'NEAREST_NEIGHBORS' ? (
                                     <>
                                         <Form.Label className='mt-3 mb-0 w-100'>N</Form.Label>
@@ -192,7 +225,7 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, uuids, modelStore}) => {
                                         The estimated number of near duplicates per datapoint (including itself).
                                         </Form.Text>
                                     </>
-                                ) : minerStrategy === 'ENTROPY' || minerStrategy === 'CORESET' ? (
+                                ) : minerStrategy === 'ENTROPY' || minerStrategy === 'CORESET' || minerStrategy === 'ACTIVATION' ? (
                                     <>
                                         <Form.Label className='mt-3 mb-0 w-100'>N</Form.Label>
                                         <Form.Control required type='number' min={1} onChange={(e) => {
