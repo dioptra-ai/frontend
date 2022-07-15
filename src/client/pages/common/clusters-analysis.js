@@ -214,7 +214,7 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
                         </Col>
                         <Col lg={2}>
                             Min. Cluster Size
-                            <Form.Control type='number' min={2} step={1} value={userSelectedMinClusterSize} onChange={handleUserSelectedMinClusterSize}/>
+                            <Form.Control type='number' placeholder='Default: auto' min={2} step={1} value={userSelectedMinClusterSize} onChange={handleUserSelectedMinClusterSize}/>
                         </Col>
                     </>
                 ) : userSelectedAlgorithm === 'GROUPBY' ? (
