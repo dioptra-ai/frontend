@@ -58,13 +58,21 @@ const FilterInput = ({
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [suggestionsLoading, setSuggestionsLoading] = useState(false);
     const inFilterTooltipTarget = useRef(null);
-
+    const inFlightRequest = useRef(null);
     const appliedFilters = value || filtersStore.filters;
 
     const model = useModel();
 
     const getSuggestions = async () => {
         const {left: key, isOpValid, right: value} = newFilter;
+        const setSuggestionsIfInFlight = (suggestions) => {
+            if (inFlightRequest.current === newFilter) {
+                setSuggestions(suggestions);
+                setSuggestionsLoading(false);
+            }
+        };
+
+        inFlightRequest.current = newFilter;
 
         try {
             if (key && isOpValid) {
@@ -80,11 +88,11 @@ const FilterInput = ({
 
                 const allSuggestionValues = allSuggestions.map(({value}) => value);
 
-                setSuggestions(allSuggestionValues);
+                setSuggestionsIfInFlight(allSuggestionValues);
             } else if (newFilter.isLeftComplete) {
 
                 setShowSuggestions(true);
-                setSuggestions(['=', '<>', '<', '>', 'like', 'not like', 'in', 'not in']);
+                setSuggestionsIfInFlight(['=', '<>', '<', '>', 'like', 'not like', 'in', 'not in']);
             } else if (key) {
 
                 setShowSuggestions(true);
@@ -103,16 +111,14 @@ const FilterInput = ({
                     });
                     const filteredKeys = allSuggestionValues.filter((v) => non1Options[v] > 0);
 
-                    setSuggestions([...filteredKeys]);
+                    setSuggestionsIfInFlight([...filteredKeys]);
                 } else {
-                    setSuggestions([]);
+                    setSuggestionsIfInFlight([]);
                 }
 
             }
         } catch (e) {
-            setSuggestions([]);
-        } finally {
-            setSuggestionsLoading(false);
+            setSuggestionsIfInFlight([]);
         }
     };
 
