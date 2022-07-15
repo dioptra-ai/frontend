@@ -90,17 +90,14 @@ const getEmbeddingsFieldsForModel = (modelType) => {
     return results;
 };
 
-const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDistanceName, onUserSelectedEmbeddings, onUserSelectedAlgorithm, onUserSelectedGroupbyField, onUserSelectedMinClusterSize}) => {
+const _ClustersAnalysis = ({clusters}) => {
     const samplingLimit = 10000;
     const allSqlFilters = useAllSqlFilters();
     const model = useModel();
     const mlModelType = model?.mlModelType;
-    const metricNames = MODEL_TYPE_TO_METRICS_NAMES[mlModelType];
     const [userSelectedSummaryDistribution, setUserSelectedSummaryDistribution] = useState('prediction');
     const [selectedPoints, setSelectedPoints] = useState([]);
     const [distributionMetricsOptions, setDistributionMetricsOptions] = useState([]);
-    const [userSelectedAlgorithm, setUserSelectedAlgorithm] = useState('GROUPBY');
-    const [userSelectedMinClusterSize, setUserSelectedMinClusterSize] = useState('GROUPBY');
     const uniqueSampleUUIDs = new Set(selectedPoints.map(({sample}) => sample['uuid']));
     const uniqueClusterLabels = new Set(selectedPoints.map((p) => p.clusterLabel));
     const sortedClusters = useMemo(() => clusters.map((c) => ({
@@ -115,14 +112,6 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
         samples.slice(0, samplingLimit).map((s) => `'${s['uuid']}'`).join(',')
     })`;
     const samplesCsvClassNames = Array.from(new Set(samples.map((s) => s['prediction'] || s['prediction.class_name']))).join(',');
-    const handleUserSelectedAlgorithm = (value) => {
-        setUserSelectedAlgorithm(value);
-        onUserSelectedAlgorithm(value);
-    };
-    const handleUserSelectedMinClusterSize = (e) => {
-        setUserSelectedMinClusterSize(Number(e.target.value));
-        onUserSelectedMinClusterSize(Number(e.target.value));
-    };
     const handleClearSamples = (uuids) => {
         const uuidsSet = new Set(uuids);
 
@@ -167,73 +156,6 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
                 </Alert>
             ) : null
         }
-        <Row className='g-2 my-2'>
-            {
-                metricNames ? (
-                    <Col lg={2}>
-                        Performance Metric
-                        <Select onChange={onUserSelectedMetricName}>
-                            {
-                                metricNames.map((m) => <option key={m}>{m}</option>)
-                            }
-                        </Select>
-                    </Col>
-                ) : <Col lg={2}></Col>
-            }
-            <Col/>
-            <Col lg={2}>
-                Analysis Space
-                <Select onChange={onUserSelectedEmbeddings}>
-                    {getEmbeddingsFieldsForModel(mlModelType).map((o, i) => (
-                        <option key={i} value={o.value}>{o.name}</option>
-                    ))}
-                </Select>
-            </Col>
-            <Col lg={2}>
-                Cluster Grouping
-                <Select onChange={handleUserSelectedAlgorithm}>
-                    <option value='GROUPBY'>Metadata</option>
-                    <option value='HDBSCAN'>HDBSCAN</option>
-                </Select>
-            </Col>
-            {
-                userSelectedAlgorithm === 'HDBSCAN' ? (
-                    <>
-                        <Col lg={2}>
-                        Distance Metric
-                            <Select
-                                options={[{
-                                    name: 'Euclidean',
-                                    value: 'euclidean'
-                                }, {
-                                    name: 'Cosine',
-                                    value: 'cosine'
-                                }]}
-                                onChange={onUserSelectedDistanceName}
-                            />
-                        </Col>
-                        <Col lg={2}>
-                            Min. Cluster Size
-                            <Form.Control type='number' placeholder='Default: auto' min={2} step={1} value={userSelectedMinClusterSize} onChange={handleUserSelectedMinClusterSize}/>
-                        </Col>
-                    </>
-                ) : userSelectedAlgorithm === 'GROUPBY' ? (
-                    <Col lg={4}>
-                        Group By Field
-                        <AsyncSegmentationFields renderData={([data]) => (
-                            <Select onChange={onUserSelectedGroupbyField} defaultValue=''>
-                                <option value=''>No Field Selected</option>
-                                {
-                                    Object.keys(data).filter((k) => data[k] > 0).map((k) => (
-                                        <option key={k} value={k}>{k}</option>
-                                    ))
-                                }
-                            </Select>
-                        )}/>
-                    </Col>
-                ) : null
-            }
-        </Row>
         {
             sortedClusters.some((c) => c.metric) ? (
                 <Row>
@@ -367,59 +289,119 @@ const _ClustersAnalysis = ({clusters, onUserSelectedMetricName, onUserSelectedDi
 };
 
 _ClustersAnalysis.propTypes = {
-    clusters: PropTypes.array.isRequired,
-    onUserSelectedMetricName: PropTypes.func.isRequired,
-    onUserSelectedDistanceName: PropTypes.func.isRequired,
-    onUserSelectedEmbeddings: PropTypes.func.isRequired,
-    onUserSelectedAlgorithm: PropTypes.func.isRequired,
-    onUserSelectedGroupbyField: PropTypes.func.isRequired,
-    onUserSelectedMinClusterSize: PropTypes.func.isRequired
+    clusters: PropTypes.array.isRequired
 };
 
 const ClustersAnalysis = ({sqlFilters, embeddingsField}) => {
     const allSqlFilters = sqlFilters || useAllSqlFilters();
     const model = useModel();
-    const metricNames = MODEL_TYPE_TO_METRICS_NAMES[model?.mlModelType];
+    const mlModelType = model?.mlModelType;
+    const metricNames = MODEL_TYPE_TO_METRICS_NAMES[mlModelType];
     const [userSelectedMetricName, setUserSelectedMetricName] = useState(metricNames?.[0]);
     const [userSelectedAlgorithm, setUserSelectedAlgorithm] = useState('GROUPBY');
     const [userSelectedDistanceName, setUserSelectedDistanceName] = useState('euclidean');
-    const [userSelectedEmbeddings, setUserSelectedEmbeddings] = useState(embeddingsField || getEmbeddingsFieldsForModel(model?.mlModelType)[0].value);
+    const [userSelectedEmbeddings, setUserSelectedEmbeddings] = useState(embeddingsField || getEmbeddingsFieldsForModel(mlModelType)[0].value);
     const [userSelectedGroupbyField, setUserSelectedGroupbyField] = useState();
     const [userSelectedMinClusterSize, setUserSelectedMinClusterSize] = useDebounce(undefined, 500);
 
     return (
-        <Async
-            refetchOnChanged={[
-                allSqlFilters,
-                userSelectedDistanceName,
-                userSelectedMetricName,
-                userSelectedAlgorithm,
-                userSelectedEmbeddings,
-                userSelectedGroupbyField,
-                userSelectedMinClusterSize
-            ]}
-            fetchData={() => metricsClient('clusters', {
-                model_type: model?.mlModelType,
-                sql_filters: allSqlFilters,
-                distance: userSelectedDistanceName,
-                metric: userSelectedMetricName,
-                clustering_algorithm: userSelectedAlgorithm,
-                groupby_field: userSelectedGroupbyField,
-                embeddings_field: userSelectedEmbeddings,
-                min_cluster_size: userSelectedMinClusterSize > 1 ? userSelectedMinClusterSize : undefined
-            })}
-            renderData={(clusters = []) => (
-                <_ClustersAnalysis
-                    clusters={clusters}
-                    onUserSelectedMetricName={setUserSelectedMetricName}
-                    onUserSelectedDistanceName={setUserSelectedDistanceName}
-                    onUserSelectedAlgorithm={setUserSelectedAlgorithm}
-                    onUserSelectedEmbeddings={setUserSelectedEmbeddings}
-                    onUserSelectedGroupbyField={setUserSelectedGroupbyField}
-                    onUserSelectedMinClusterSize={setUserSelectedMinClusterSize}
-                />
-            )}
-        />
+        <>
+            <Row className='g-2 my-2'>
+                {
+                    metricNames ? (
+                        <Col lg={2}>
+                            Performance Metric
+                            <Select onChange={setUserSelectedMetricName}>
+                                {
+                                    metricNames.map((m) => <option key={m}>{m}</option>)
+                                }
+                            </Select>
+                        </Col>
+                    ) : <Col lg={2}></Col>
+                }
+                <Col/>
+                <Col lg={2}>
+                    Analysis Space
+                    <Select onChange={setUserSelectedEmbeddings}>
+                        {getEmbeddingsFieldsForModel(model?.mlModelType).map((o, i) => (
+                            <option key={i} value={o.value}>{o.name}</option>
+                        ))}
+                    </Select>
+                </Col>
+                <Col lg={2}>
+                    Cluster Grouping
+                    <Select onChange={setUserSelectedAlgorithm}>
+                        <option value='GROUPBY'>Metadata</option>
+                        <option value='HDBSCAN'>HDBSCAN</option>
+                    </Select>
+                </Col>
+                {
+                    userSelectedAlgorithm === 'HDBSCAN' ? (
+                        <>
+                            <Col lg={2}>
+                            Distance Metric
+                                <Select
+                                    options={[{
+                                        name: 'Euclidean',
+                                        value: 'euclidean'
+                                    }, {
+                                        name: 'Cosine',
+                                        value: 'cosine'
+                                    }]}
+                                    onChange={setUserSelectedDistanceName}
+                                />
+                            </Col>
+                            <Col lg={2}>
+                                Min. Cluster Size
+                                <Form.Control type='number' placeholder='Default: auto' min={2} step={1} value={userSelectedMinClusterSize} onChange={setUserSelectedMinClusterSize}/>
+                            </Col>
+                        </>
+                    ) : userSelectedAlgorithm === 'GROUPBY' ? (
+                        <Col lg={4}>
+                            Group By Field
+                            <AsyncSegmentationFields renderData={([data]) => (
+                                <Select onChange={setUserSelectedGroupbyField} defaultValue=''>
+                                    <option value=''>No Field Selected</option>
+                                    {
+                                        Object.keys(data).filter((k) => data[k] > 0).map((k) => (
+                                            <option key={k} value={k}>{k}</option>
+                                        ))
+                                    }
+                                </Select>
+                            )}/>
+                        </Col>
+                    ) : null
+                }
+            </Row>
+            <Async
+                refetchOnChanged={[
+                    allSqlFilters,
+                    userSelectedDistanceName,
+                    userSelectedMetricName,
+                    userSelectedAlgorithm,
+                    userSelectedEmbeddings,
+                    userSelectedGroupbyField,
+                    userSelectedMinClusterSize
+                ]}
+                fetchData={() => metricsClient('clusters', {
+                    model_type: model?.mlModelType,
+                    sql_filters: allSqlFilters,
+                    distance: userSelectedDistanceName,
+                    metric: userSelectedMetricName,
+                    clustering_algorithm: userSelectedAlgorithm,
+                    groupby_field: userSelectedGroupbyField,
+                    embeddings_field: userSelectedEmbeddings,
+                    min_cluster_size: userSelectedMinClusterSize > 1 ? userSelectedMinClusterSize : undefined
+                })}
+                renderData={(clusters = []) => (
+                    <_ClustersAnalysis
+                        clusters={clusters}
+                        onUserSelectedAlgorithm={setUserSelectedAlgorithm}
+                        onUserSelectedMinClusterSize={setUserSelectedMinClusterSize}
+                    />
+                )}
+            />
+        </>
     );
 };
 
