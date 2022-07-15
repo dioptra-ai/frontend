@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import * as Sentry from '@sentry/react';
 import PropTypes from 'prop-types';
 
@@ -20,9 +20,14 @@ const Async = ({
     const [data, setData] = useState();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const inFlightRequest = useRef(null);
 
     useEffect(() => {
         (async () => {
+            const requestId = Date.now();
+
+            inFlightRequest.current = requestId;
+
             setError(null);
             setLoading(true);
 
@@ -32,14 +37,20 @@ const Async = ({
                     fetchData();
                 const data = await fetchAllData;
 
-                setData(data);
+                if (requestId === inFlightRequest.current) {
+                    setData(data);
+                }
             } catch (err) {
-                setData(null);
-                setError(err);
+                if (requestId === inFlightRequest.current) {
+                    setData(null);
+                    setError(err);
+                }
 
                 Sentry.captureException(err);
             } finally {
-                setLoading(false);
+                if (requestId === inFlightRequest.current) {
+                    setLoading(false);
+                }
             }
         })();
     }, refetchOnChanged);
