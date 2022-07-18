@@ -7,7 +7,6 @@ import Col from 'react-bootstrap/Col';
 import {OverlayTrigger, Tooltip} from 'react-bootstrap';
 import {IoDownloadOutline} from 'react-icons/io5';
 import {saveAs} from 'file-saver';
-import {useDebounce} from '@react-hook/debounce';
 
 import Select from 'components/select';
 import {getHexColor} from 'helpers/color-helper';
@@ -302,7 +301,7 @@ const ClustersAnalysis = ({sqlFilters, embeddingsField}) => {
     const [userSelectedDistanceName, setUserSelectedDistanceName] = useState('euclidean');
     const [userSelectedEmbeddings, setUserSelectedEmbeddings] = useState(embeddingsField || getEmbeddingsFieldsForModel(mlModelType)[0].value);
     const [userSelectedGroupbyField, setUserSelectedGroupbyField] = useState();
-    const [userSelectedMinClusterSize, setUserSelectedMinClusterSize] = useDebounce(undefined, 500);
+    const [userSelectedMinClusterSize, setUserSelectedMinClusterSize] = useState(undefined);
 
     return (
         <>
@@ -353,7 +352,11 @@ const ClustersAnalysis = ({sqlFilters, embeddingsField}) => {
                             </Col>
                             <Col lg={2}>
                                 Min. Cluster Size
-                                <Form.Control type='number' placeholder='Default: auto' min={2} step={1} value={userSelectedMinClusterSize} onChange={setUserSelectedMinClusterSize}/>
+                                <Form.Control
+                                    type='number' placeholder='Default: auto'
+                                    min={2} step={1}
+                                    onBlur={(e) => setUserSelectedMinClusterSize(Number(e.target.value))}
+                                />
                             </Col>
                         </>
                     ) : userSelectedAlgorithm === 'GROUPBY' ? (
