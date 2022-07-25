@@ -6,12 +6,10 @@ const PreviewTextClassification = ({sample, onClick, ...rest}) => { // eslint-di
 
     return (
         <div className={onClick ? 'cursor-pointer' : ''} onClick={onClick}>
-            <div>
-                Text: {sample['text']}
-            </div>
+            <i>{sample['text']}</i>
             <Row className='mt-2'>
-                <Col xl={6}><span className='text-nowrap'>Ground Truth: </span>{sample['groundtruth']}</Col>
-                <Col xl={6}><span className='text-nowrap'>Prediction: </span>{sample['prediction']}</Col>
+                {sample['groundtruth'] ? <Col xl={6}><span className='text-nowrap'>Ground Truth: </span><i>{sample['groundtruth']}</i></Col> : null}
+                <Col xl={6}><span className='text-nowrap'>Prediction: </span><i>{sample['prediction']}</i></Col>
             </Row>
         </div>
     );

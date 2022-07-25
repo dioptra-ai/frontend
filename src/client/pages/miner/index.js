@@ -125,7 +125,8 @@ const Miner = () => {
                                                                                 "groundtruth.height",
                                                                                 "groundtruth.left",
                                                                                 "groundtruth.top",
-                                                                                "groundtruth.class_name"`,
+                                                                                "groundtruth.class_name",
+                                                                                "text"`,
                                                                             where: `"uuid" IN (${miner['mined_uuids'].map((u) => `'${u}'`).join(',')})`
                                                                         })}
                                                                         renderData={(datapoints) => <SamplesPreview samples={datapoints}/>}

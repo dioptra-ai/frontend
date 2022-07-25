@@ -55,7 +55,8 @@ const Explorer = () => {
                                             "groundtruth.height",
                                             "groundtruth.left",
                                             "groundtruth.top",
-                                            "groundtruth.class_name"`,
+                                            "groundtruth.class_name",
+                                            "text"`,
                                         where: allSqlFilters
                                     })}
                                     renderData={(datapoints) => <SamplesPreview samples={datapoints}/>}
