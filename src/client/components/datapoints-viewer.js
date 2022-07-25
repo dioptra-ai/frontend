@@ -218,7 +218,7 @@ const DatapointsViewer = ({datapoints, onSelectedChange, onClearDatapoint}) => {
                                 </>
                             ) : datapointIsImage(exampleInModal) ? (
                                 <>
-                                    <PreviewObjectDetection
+                                    <PreviewImageClassification
                                         sample={exampleInModal}
                                         maxHeight={600}
                                         zoomable

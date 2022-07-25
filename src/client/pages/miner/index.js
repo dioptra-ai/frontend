@@ -105,8 +105,27 @@ const Miner = () => {
                                                             ) : (
                                                                 <div className='my-3'>
                                                                     <Async
-                                                                        fetchData={() => metricsClient('/select', {
-                                                                            select: '"uuid", "image_metadata.uri"',
+                                                                        fetchData={() => metricsClient('select', {
+                                                                            select: `"uuid", 
+                                                                                "groundtruth",
+                                                                                "prediction",
+                                                                                "image_metadata.uri",
+                                                                                "image_metadata.width",
+                                                                                "image_metadata.height",
+                                                                                "image_metadata.object.width",
+                                                                                "image_metadata.object.height",
+                                                                                "image_metadata.object.left",
+                                                                                "image_metadata.object.top",
+                                                                                "prediction.width",
+                                                                                "prediction.height",
+                                                                                "prediction.left",
+                                                                                "prediction.top",
+                                                                                "prediction.class_name",
+                                                                                "groundtruth.width",
+                                                                                "groundtruth.height",
+                                                                                "groundtruth.left",
+                                                                                "groundtruth.top",
+                                                                                "groundtruth.class_name"`,
                                                                             where: `"uuid" IN (${miner['mined_uuids'].map((u) => `'${u}'`).join(',')})`
                                                                         })}
                                                                         renderData={(datapoints) => <SamplesPreview samples={datapoints}/>}
