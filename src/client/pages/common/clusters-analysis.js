@@ -67,7 +67,7 @@ const getDistributionMetricsForModel = (modelType) => {
 
 const getEmbeddingsFieldsForModel = (modelType) => {
     const results = [{
-        name: 'Image Embeddings',
+        name: 'Embeddings',
         value: 'embeddings'
     }];
 

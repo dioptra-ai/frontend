@@ -17,7 +17,7 @@ import useModel from 'hooks/use-model';
 
 const getEmbeddingsFieldsForModel = (modelType) => {
     const results = [{
-        name: 'Image Embeddings',
+        name: 'Embeddings',
         value: 'embeddings'
     }];
 
