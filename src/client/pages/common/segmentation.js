@@ -408,9 +408,9 @@ const Segmentation = ({segmentationStore}) => {
                 />
                 {addColModal && (
                     <Modal isOpen onClose={() => setAddColModal(false)} title='Choose Segmentation Columns'>
-                        <AsyncSegmentationFields renderData={([data]) => (
+                        <AsyncSegmentationFields renderData={(fields) => (
                             <AddColumnModal
-                                allColumns={Object.keys(data).filter((k) => data[k] > 0)}
+                                allColumns={fields}
                                 onApply={handleApply}
                                 initiallyselected={groupByColumns}
                             />

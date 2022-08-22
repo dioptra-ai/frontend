@@ -362,12 +362,12 @@ const ClustersAnalysis = ({sqlFilters, embeddingsField}) => {
                     ) : userSelectedAlgorithm === 'GROUPBY' ? (
                         <Col lg={4}>
                             Group By Field
-                            <AsyncSegmentationFields renderData={([data]) => (
+                            <AsyncSegmentationFields renderData={(fields) => (
                                 <Select onChange={setUserSelectedGroupbyField} defaultValue=''>
                                     <option value=''>No Field Selected</option>
                                     {
-                                        Object.keys(data).filter((k) => data[k] > 0).map((k) => (
-                                            <option key={k} value={k}>{k}</option>
+                                        fields.map((f) => (
+                                            <option key={f} value={f}>{f}</option>
                                         ))
                                     }
                                 </Select>

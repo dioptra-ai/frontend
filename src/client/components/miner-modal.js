@@ -392,8 +392,8 @@ const MinerModal = ({isOpen, onClose, onMinerCreated, uuids, modelStore}) => {
                                 Miner Input: <CountEvents className='d-inline' sqlFilters={
                                     Filter.filtersToSqlStrings(minerFilters)
                                         .concat(minerModel ? ` model_id = '${minerModel.mlModelId}'` : '')
-                                        .concat(`"__time" >= TIME_PARSE('${referencePeriod.start.toISOString()}')`)
-                                        .concat(`"__time" < TIME_PARSE('${referencePeriod.end.toISOString()}')`)
+                                        .concat(`"__time" >= TIMESTAMPTZ('${referencePeriod.start.toISOString()}')`)
+                                        .concat(`"__time" < TIMESTAMPTZ('${referencePeriod.end.toISOString()}')`)
                                         .filter(Boolean)
                                         .join(' AND ')
                                 }/> datapoints.

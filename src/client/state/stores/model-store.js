@@ -42,7 +42,7 @@ class ModelStore {
             return `benchmark_id = '${referenceBenchmarkId}'`;
         } else if (referencePeriod) {
 
-            return `"__time" >= TIME_PARSE('${referencePeriod.start}') AND "__time" < TIME_PARSE('${referencePeriod.end}') AND benchmark_id IS NULL AND dataset_id IS NULL`;
+            return `"__time" >= TIMESTAMPTZ('${referencePeriod.start}') AND "__time" < TIMESTAMPTZ('${referencePeriod.end}') AND benchmark_id IS NULL AND dataset_id IS NULL`;
         } else {
 
             return 'benchmark_id IS NULL AND dataset_id IS NULL';
