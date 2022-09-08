@@ -83,10 +83,16 @@ class TimeStore {
     }
 
     setTimeRange({start, end}) {
-        this._lastMs = null;
-        this._start = moment(start);
-        this._end = moment(end);
-        this._isModified = true;
+        if (start || end) {
+            if (start) {
+                this._start = moment(start);
+            }
+            if (end) {
+                this._end = moment(end);
+            }
+            this._lastMs = null;
+            this._isModified = true;
+        }
     }
 
     setLastMs(number) {
