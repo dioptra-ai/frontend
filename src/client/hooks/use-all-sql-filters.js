@@ -44,7 +44,7 @@ const useAllSqlFilters = ({useReferenceFilters = false, forLiveModel, excludeCur
             d.setSeconds(0);
             d.setMilliseconds(0);
 
-            allFilters.push(`__time >= '${d.toISOString()}' AND "dataset_id" IS NULL AND "benchmark_id" IS NULL`);
+            allFilters.push(`timestamp >= '${d.toISOString()}' AND "dataset_id" IS NULL AND "benchmark_id" IS NULL`);
         }
     } else {
         allFilters.push(timeStore.sqlTimeFilter);

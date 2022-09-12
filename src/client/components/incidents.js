@@ -171,7 +171,7 @@ const Incidents = ({incidents, onPageChange}) => {
                         id={incident.alert_id}
                         key={i}
                         message={incident.message}
-                        creationDate={incident.__time}
+                        creationDate={incident.timestamp}
                         resolved={incident.state === 'resolved'}
                     />
                 ))}
