@@ -57,9 +57,10 @@ const Explorer = () => {
                                             "groundtruth.top",
                                             "groundtruth.class_name",
                                             "text"`,
-                                        where: allSqlFilters
+                                        where: allSqlFilters,
+                                        limit: 1000
                                     })}
-                                    renderData={(datapoints) => <SamplesPreview samples={datapoints}/>}
+                                    renderData={(datapoints) => <SamplesPreview samples={datapoints} limit={1000}/>}
                                 />
                             </div>
                         )

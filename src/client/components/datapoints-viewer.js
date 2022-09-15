@@ -14,8 +14,7 @@ import FrameWithBoundingBox, {PreviewImageClassification, PreviewObjectDetection
 import PreviewTextClassification from 'components/preview-text-classification';
 import PreviewDetails from 'components/preview-details';
 
-const DatapointsViewer = ({datapoints, onSelectedChange, onClearDatapoint}) => {
-    const samplingLimit = 10000;
+const DatapointsViewer = ({datapoints, onSelectedChange, onClearDatapoint, limit = Infinity}) => {
     const selectAllRef = useRef();
     const [sampleIndexInModal, setSampleIndexInModal] = useState(-1);
     const [selectedDatapoints, setSelectedDatapoints] = useState(new Set());
@@ -83,11 +82,11 @@ const DatapointsViewer = ({datapoints, onSelectedChange, onClearDatapoint}) => {
         <>
             <Container fluid>
                 {
-                    datapoints.length >= samplingLimit ? (
+                    datapoints.length >= limit ? (
                         <Row>
                             <Col>
                                 <Alert variant='warning'>
-                                Only the first samplingLimit datapoints are shown. Try filtering down and/or chosing different parameters.
+                                Only the first {limit.toLocaleString()} datapoints are shown. Try filtering down or choosing different parameters.
                                 </Alert>
                             </Col>
                         </Row>
@@ -101,7 +100,7 @@ const DatapointsViewer = ({datapoints, onSelectedChange, onClearDatapoint}) => {
                     </Col>
                 </Row>
                 <Row className='g-2'>
-                    {datapoints.length ? datapoints.slice(0, samplingLimit).map((datapoint, i) => {
+                    {datapoints.length ? datapoints.slice(0, limit).map((datapoint, i) => {
                         const selectOrClearBar = (
                             <div className='d-flex justify-content-between'>
                                 <Form.Check type='checkbox'
@@ -264,7 +263,8 @@ const DatapointsViewer = ({datapoints, onSelectedChange, onClearDatapoint}) => {
 DatapointsViewer.propTypes = {
     datapoints: PropTypes.array.isRequired,
     onSelectedChange: PropTypes.func,
-    onClearDatapoint: PropTypes.func
+    onClearDatapoint: PropTypes.func,
+    limit: PropTypes.number
 };
 
 export default DatapointsViewer;

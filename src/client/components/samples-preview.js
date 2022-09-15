@@ -9,15 +9,15 @@ import AddFilters from 'components/add-filters';
 import DatapointsViewer from 'components/datapoints-viewer';
 import {setupComponent} from 'helpers/component-helper';
 
-const SamplesPreview = ({samples, userStore, onClearSamples}) => {
+const SamplesPreview = ({samples, userStore, onClearSamples, limit}) => {
     const [selectedSamples, setSelectedSamples] = useState(new Set());
     const selectedUUIDs = samples.map(({uuid}) => uuid).filter((u) => selectedSamples.has(u));
 
     return (
         <>
-            <div className='text-dark m-0 bold-text d-flex justify-content-between'>
+            <div className='text-dark m-3 bold-text d-flex justify-content-between'>
                 <div>
-                    {samples.length ? `Datapoints: ${samples.length}` : null}
+                    Datapoints: {samples.length >= limit ? `${limit.toLocaleString()}+` : samples.length.toLocaleString()}
                 </div>
                 <div className='d-flex'>
                     {onClearSamples ? (
@@ -66,6 +66,7 @@ const SamplesPreview = ({samples, userStore, onClearSamples}) => {
                 datapoints={samples}
                 onSelectedChange={setSelectedSamples}
                 onClearDatapoint={onClearSamples ? (uuid) => onClearSamples([uuid]) : null}
+                limit={limit}
             />
         </>
     );
@@ -74,7 +75,8 @@ const SamplesPreview = ({samples, userStore, onClearSamples}) => {
 SamplesPreview.propTypes = {
     samples: PropTypes.arrayOf(PropTypes.object).isRequired,
     userStore: PropTypes.object.isRequired,
-    onClearSamples: PropTypes.func
+    onClearSamples: PropTypes.func,
+    limit: PropTypes.number
 };
 
 export default setupComponent(SamplesPreview);
