@@ -131,13 +131,13 @@ export const PreviewImageClassification = ({sample, ...rest}) => {
 
     return (
         <FrameWithBoundingBox
-            imageUrl={sample['image_metadata.uri'].replace(/"/g, '')}
-            frameW={sample['image_metadata.width']}
-            frameH={sample['image_metadata.height']}
-            predBoxW={sample['image_metadata.object.width']}
-            predBoxH={sample['image_metadata.object.height']}
-            predBoxL={sample['image_metadata.object.left']}
-            predBoxT={sample['image_metadata.object.top']}
+            imageUrl={sample['image_metadata']['uri'].replace(/"/g, '')}
+            frameW={sample['image_metadata']['width']}
+            frameH={sample['image_metadata']['height']}
+            predBoxW={sample['image_metadata']['object.width']}
+            predBoxH={sample['image_metadata']['object.height']}
+            predBoxL={sample['image_metadata']['object.left']}
+            predBoxT={sample['image_metadata']['object.top']}
             prediction={sample['prediction']}
             groundtruth={sample['groundtruth']}
             {...rest}
@@ -149,19 +149,19 @@ export const PreviewObjectDetection = ({sample, ...rest}) => {
 
     return (
         <FrameWithBoundingBox
-            imageUrl={sample['image_metadata.uri'].replace(/"/g, '')}
-            frameW={sample['image_metadata.width']}
-            frameH={sample['image_metadata.height']}
-            predBoxW={sample['prediction.width']}
-            predBoxH={sample['prediction.height']}
-            predBoxL={sample['prediction.left']}
-            predBoxT={sample['prediction.top']}
-            gtBoxW={sample['groundtruth.width']}
-            gtBoxH={sample['groundtruth.height']}
-            gtBoxL={sample['groundtruth.left']}
-            gtBoxT={sample['groundtruth.top']}
-            prediction={sample['prediction.class_name']}
-            groundtruth={sample['groundtruth.class_name']}
+            imageUrl={sample['image_metadata']['uri'].replace(/"/g, '')}
+            frameW={sample['image_metadata']['width']}
+            frameH={sample['image_metadata']['height']}
+            predBoxW={sample['prediction']['width']}
+            predBoxH={sample['prediction']['height']}
+            predBoxL={sample['prediction']['left']}
+            predBoxT={sample['prediction']['top']}
+            gtBoxW={sample['groundtruth']['width']}
+            gtBoxH={sample['groundtruth']['height']}
+            gtBoxL={sample['groundtruth']['left']}
+            gtBoxT={sample['groundtruth']['top']}
+            prediction={sample['prediction']['class_name']}
+            groundtruth={sample['groundtruth']['class_name']}
             {...rest}
         />
     );
