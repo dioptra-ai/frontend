@@ -1,12 +1,12 @@
 
 export const datapointIsImage = (datapoint) => {
 
-    return Boolean(datapoint['image_metadata']?.['uri']);
+    return Boolean(datapoint['image_metadata.uri']);
 };
 
 export const datapointIsVideo = (datapoint) => {
 
-    return Boolean(datapoint['video_metadata']?.['uri']);
+    return Boolean(datapoint['video_metadata.uri']);
 };
 
 export const datapointIsText = (datapoint) => {
@@ -16,7 +16,7 @@ export const datapointIsText = (datapoint) => {
 
 export const datapointIsAudio = (datapoint) => {
 
-    return Boolean(datapoint['audio_metadata']?.['uri']);
+    return Boolean(datapoint['audio_metadata.uri']);
 };
 
 export const datapointIsClassifier = (datapoint) => {
@@ -26,5 +26,5 @@ export const datapointIsClassifier = (datapoint) => {
 
 export const datapointIsObjectDetection = (datapoint) => {
 
-    return Boolean(datapoint['prediction']?.['top']) || Boolean(datapoint['groundtruth']?.['top']);
+    return Boolean(datapoint['prediction.top']) || Boolean(datapoint['groundtruth.top']);
 };
