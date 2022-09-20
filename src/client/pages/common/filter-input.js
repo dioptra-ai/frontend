@@ -83,7 +83,7 @@ const FilterInput = ({
                 const allSuggestions = await metricsClient('queries/get-values-suggestions', {
                     key,
                     value: Array.isArray(value) ? value[value.length - 1] : value,
-                    ml_model_id: model?.mlModelId
+                    model_id: model?.mlModelId
                 });
 
                 const allSuggestionValues = allSuggestions.map(({value}) => value);
@@ -98,7 +98,10 @@ const FilterInput = ({
                 setShowSuggestions(true);
                 setSuggestionsLoading(true);
 
-                const allSuggestions = await metricsClient('queries/get-keys-suggestions', {key});
+                const allSuggestions = await metricsClient('queries/get-keys-suggestions', {
+                    key,
+                    model_id: model?.mlModelId
+                });
 
                 setSuggestionsIfInFlight(allSuggestions.map((s) => s['value']));
             }
