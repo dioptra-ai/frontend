@@ -80,7 +80,7 @@ const FilterInput = ({
                 setShowSuggestions(true);
                 setSuggestionsLoading(true);
 
-                const allSuggestions = await metricsClient('queries/get-suggestions-with-key', {
+                const allSuggestions = await metricsClient('queries/get-values-suggestions', {
                     key,
                     value: Array.isArray(value) ? value[value.length - 1] : value,
                     ml_model_id: model?.mlModelId
@@ -98,24 +98,9 @@ const FilterInput = ({
                 setShowSuggestions(true);
                 setSuggestionsLoading(true);
 
-                const allSuggestions = await metricsClient('queries/get-suggestions-without-key', {
-                    key
-                });
+                const allSuggestions = await metricsClient('queries/get-keys-suggestions', {key});
 
-                if (allSuggestions.length) {
-                    const allSuggestionValues = allSuggestions.map(({value}) => value);
-                    const non1Options = await metricsClient('queries/all-key-options', {
-                        // COUNT DISTINCT required here otherwise COUNT() returns weird results for model_id
-                        keys_calc: allSuggestionValues.map((value) => `COUNT(DISTINCT "${value}") FILTER(WHERE "${value}" IS NOT NULL) as "${value}"`).join(', '),
-                        ml_model_id: model?.mlModelId
-                    });
-                    const filteredKeys = allSuggestionValues.filter((v) => non1Options[v] > 0);
-
-                    setSuggestionsIfInFlight([...filteredKeys]);
-                } else {
-                    setSuggestionsIfInFlight([]);
-                }
-
+                setSuggestionsIfInFlight(allSuggestions.map((s) => s['value']));
             }
         } catch (e) {
             setSuggestionsIfInFlight([]);
