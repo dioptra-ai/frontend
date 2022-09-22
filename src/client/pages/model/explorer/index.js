@@ -61,6 +61,7 @@ const Explorer = () => {
                                         limit: 1000
                                     })}
                                     renderData={(datapoints) => <SamplesPreview samples={datapoints} limit={1000}/>}
+                                    refetchOnChanged={allSqlFilters}
                                 />
                             </div>
                         )
