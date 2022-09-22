@@ -1,3 +1,4 @@
+import {useDebounceCallback} from '@react-hook/debounce';
 import {Overlay, OverlayTrigger, Tooltip} from 'react-bootstrap';
 import React, {useEffect, useRef, useState} from 'react';
 import OutsideClickHandler from 'react-outside-click-handler';
@@ -63,7 +64,7 @@ const FilterInput = ({
 
     const model = useModel();
 
-    const getSuggestions = async () => {
+    const getSuggestions = useDebounceCallback(async () => {
         const {left: key, isOpValid, right: value} = newFilter;
         const setSuggestionsIfInFlight = (suggestions) => {
             if (inFlightRequest.current === newFilter) {
@@ -108,7 +109,7 @@ const FilterInput = ({
         } catch (e) {
             setSuggestionsIfInFlight([]);
         }
-    };
+    }, 500);
 
     useEffect(() => {
         try {
