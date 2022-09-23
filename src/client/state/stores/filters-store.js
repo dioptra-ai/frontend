@@ -85,15 +85,15 @@ export class Filter {
         case 'like':
         case 'not like':
 
-            return `"${this.left}" ${this.op} '${this.right}'`;
+            return `"${this.left}"::text ${this.op} '${this.right}'`;
         case '>':
         case '<':
 
-            return `CAST("${this.left}" AS FLOAT) ${this.op} ${this.right}`;
+            return `CAST("${this.left}"::text AS FLOAT) ${this.op} ${this.right}`;
         case 'in':
         case 'not in':
 
-            return `"${this.left}" ${this.op} (${this.right.map((v) => `'${v}'`).join(',')})`;
+            return `"${this.left}"::text ${this.op} (${this.right.map((v) => `'${v}'`).join(',')})`;
         default:
             throw new Error(`Unknown filter operator: "${this.op}"`);
         }
