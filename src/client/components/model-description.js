@@ -165,8 +165,8 @@ const ModelDescription = ({_id, name, description, team, tier, lastDeployed, mlM
                                 <Select
                                     onChange={setAddedModelVersion}
                                     options={data.map((d) => ({
-                                        name: d.mlModelVersion,
-                                        value: d.mlModelVersion
+                                        name: d['value'],
+                                        value: d['value']
                                     }))}
                                 />
                             )}
