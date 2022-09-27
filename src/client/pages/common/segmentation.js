@@ -16,7 +16,7 @@ import useModel from 'hooks/use-model';
 import {setupComponent} from 'helpers/component-helper';
 import Button from 'react-bootstrap/Button';
 import FontIcon from 'components/font-icon';
-import {IconNames} from 'constants';
+import {IconNames, isNaN} from 'constants';
 import Table from 'components/table';
 import Modal from 'components/modal';
 import useModal from 'hooks/useModal';
@@ -209,8 +209,8 @@ const _metricCell = ({cell}) => {
                     }
                 }}
 
-                renderData={(data) => (
-                    !isNaN(data[0]?.value) ? data[0]?.value.toFixed(2) : '-'
+                renderData={([data]) => (
+                    !isNaN(data?.value) ? data?.value.toFixed(2) : '-'
                 )}
             />
         </>
