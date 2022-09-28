@@ -16,7 +16,7 @@ const granularityLadderMs = [
     moment.duration(6, 'hour'),
     moment.duration(1, 'day'),
     moment.duration(5, 'day'),
-    moment.duration(1, 'month')
+    moment.duration(30, 'day')
 ];
 
 class TimeStore {
