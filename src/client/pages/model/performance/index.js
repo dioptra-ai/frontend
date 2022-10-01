@@ -30,6 +30,7 @@ const Performance = () => {
     case 'IMAGE_CLASSIFIER':
     case 'TABULAR_CLASSIFIER':
     case 'TEXT_CLASSIFIER':
+    case 'NER':
 
         metrics.push(
             'ACCURACY',

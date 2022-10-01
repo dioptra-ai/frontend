@@ -39,7 +39,8 @@ const mlModelSchema = new mongoose.Schema({
             'SEMANTIC_SIMILARITY',
             'MULTIPLE_OBJECT_TRACKING',
             'UNSUPERVISED_IMAGE_CLASSIFIER',
-            'UNSUPERVISED_TEXT_CLASSIFIER'
+            'UNSUPERVISED_TEXT_CLASSIFIER',
+            'NER'
         ],
         required: true
     },

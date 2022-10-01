@@ -20,4 +20,4 @@ export const IconNames = {
 };
 
 export const noop = () => {};
-export const isNaN = (n) => isNaN(Number.parseFloat(n));
+export const isNaN = (n) => window.isNaN(Number.parseFloat(n));
