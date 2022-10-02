@@ -6,6 +6,7 @@ import MatrixTable from 'components/matrix-table';
 import useAllSqlFilters from 'hooks/use-all-sql-filters';
 import ImageExamples from './image-examples';
 import TabularExamples from './tabular-examples';
+import ArrayLabelsExamples from './array-labels-examples';
 import useModel from 'hooks/use-model';
 import DifferenceLabel from 'components/difference-labels';
 import Async from 'components/async';
@@ -222,6 +223,12 @@ const ConfusionMatrix = () => {
                                 onClose={() => setSelectedCell(null)}
                                 prediction={selectedCell.prediction}
                                 previewColumns={['confidence', 'groundtruth', 'prediction', 'tags', /^text$/, 'features']}
+                            />
+                        ) : model.mlModelType === 'NER' ? (
+                            <ArrayLabelsExamples
+                                groundtruth={selectedCell.groundtruth}
+                                prediction={selectedCell.prediction}
+                                onClose={() => setSelectedCell(null)}
                             />
                         ) : null
                 ) : null}

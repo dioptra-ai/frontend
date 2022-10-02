@@ -180,7 +180,7 @@ const PerformancePerClass = () => {
     return (
         <Row className='g-2'>
             {
-                model.mlModelType === 'IMAGE_CLASSIFIER' || model.mlModelType === 'TEXT_CLASSIFIER' ? (
+                model.mlModelType === 'IMAGE_CLASSIFIER' || model.mlModelType === 'TEXT_CLASSIFIER' || model.mlModelType === 'NER' ? (
                     <>
                         <Col lg={6}>
                             <PerformanceMetricAnalysis metricUrl='precision-metric' title='Precision per class'/>

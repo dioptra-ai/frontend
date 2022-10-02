@@ -8,11 +8,12 @@ import Container from 'react-bootstrap/Container';
 import {GrNext, GrPrevious} from 'react-icons/gr';
 import {IoCloseOutline} from 'react-icons/io5';
 import {mod} from 'helpers/math';
-import {datapointIsImage, datapointIsObjectDetection, datapointIsText, datapointIsVideo} from 'helpers/datapoint';
+import {datapointIsImage, datapointIsNER, datapointIsObjectDetection, datapointIsText, datapointIsVideo} from 'helpers/datapoint';
 import Modal from 'components/modal';
 import FrameWithBoundingBox, {PreviewImageClassification, PreviewObjectDetection} from 'components/preview-image';
 import PreviewTextClassification from 'components/preview-text-classification';
 import PreviewDetails from 'components/preview-details';
+import PreviewNER from './preview-ner';
 
 const DatapointsViewer = ({datapoints, onSelectedChange, onClearDatapoint, limit = Infinity}) => {
     const selectAllRef = useRef();
@@ -168,17 +169,33 @@ const DatapointsViewer = ({datapoints, onSelectedChange, onClearDatapoint, limit
                             }
                         } else if (datapointIsText(datapoint)) {
 
-                            return (
-                                <Col key={`${JSON.stringify(datapoint)}-${i}`} xs={12}>
-                                    <div className='p-2 border-bottom' >
-                                        {selectOrClearBar}
-                                        <PreviewTextClassification
-                                            sample={datapoint}
-                                            onClick={() => setSampleIndexInModal(i)}
-                                        />
-                                    </div>
-                                </Col>
-                            );
+                            if (datapointIsNER(datapoint)) {
+
+                                return (
+                                    <Col key={`${JSON.stringify(datapoint)}-${i}`} xs={6} md={4} xl={3}>
+                                        <div className='p-2 bg-white-blue border rounded' >
+                                            {selectOrClearBar}
+                                            <PreviewNER
+                                                sample={datapoint}
+                                                onClick={() => setSampleIndexInModal(i)}
+                                            />
+                                        </div>
+                                    </Col>
+                                );
+                            } else {
+
+                                return (
+                                    <Col key={`${JSON.stringify(datapoint)}-${i}`} xs={12}>
+                                        <div className='p-2 border-bottom' >
+                                            {selectOrClearBar}
+                                            <PreviewTextClassification
+                                                sample={datapoint}
+                                                onClick={() => setSampleIndexInModal(i)}
+                                            />
+                                        </div>
+                                    </Col>
+                                );
+                            }
                         } else return (
                             <Col key={`${JSON.stringify(datapoint)}-${i}`} xs={12}>
                                 <div className='p-2 border-bottom' >
@@ -237,6 +254,13 @@ const DatapointsViewer = ({datapoints, onSelectedChange, onClearDatapoint, limit
                                         predBoxL={exampleInModal['image_metadata.object.left']}
                                         maxHeight={600}
                                         zoomable
+                                    />
+                                    <hr/>
+                                </>
+                            ) : datapointIsText(exampleInModal) && datapointIsNER(exampleInModal) ? (
+                                <>
+                                    <PreviewNER
+                                        sample={exampleInModal}
                                     />
                                     <hr/>
                                 </>

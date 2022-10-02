@@ -25,7 +25,7 @@ const PreviewDetails = ({sample}) => {
                 {
                     Object.entries(sample).map(([k, v], i) => (
                         <Row key={k} className={i % 2 ? 'bg-white-blue' : ''}>
-                            <Col xs={3}>{k}</Col>
+                            <Col>{k}</Col>
                             <Col className='text-break'>
                                 <PreviewDetails sample={v}/>
                             </Col>
