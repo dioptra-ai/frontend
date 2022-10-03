@@ -85,7 +85,7 @@ export class Filter {
         case 'like':
         case 'not like':
 
-            return `"${this.left}"::text::jsonb ${this.op} '"${this.right}"'`;
+            return `"${this.left}"::text ${this.op} '${this.right}'`;
         case '>':
         case '<':
 
@@ -93,7 +93,7 @@ export class Filter {
         case 'in':
         case 'not in':
 
-            return `"${this.left}"::text::jsonb ${this.op} (${this.right.map((v) => `'"${v}"'`).join(',')})`;
+            return `"${this.left}"::text ${this.op} (${this.right.map((v) => `'${v}'`).join(',')})`;
         default:
             throw new Error(`Unknown filter operator: "${this.op}"`);
         }
