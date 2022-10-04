@@ -19,7 +19,7 @@ const Throughput = ({sqlFilters, timeStore}) => (
         )}
         fetchData={() => metricsClient('throughput', {
             sql_filters: sqlFilters,
-            granularity_iso: timeStore
+            time_granularity: timeStore
                 .getTimeGranularity()
                 .toISOString()
         })}

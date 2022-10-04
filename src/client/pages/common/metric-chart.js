@@ -125,7 +125,7 @@ const useMetric = (metric, timeGranularity) => {
 
                 return metricsClient('throughput', {
                     sql_filters: allSqlFilters,
-                    granularity_iso: timeGranularity
+                    time_granularity: timeGranularity
                 });
             },
             formatValue: formatNumber,

@@ -103,7 +103,7 @@ const _ModelRow = ({model, idx, color, filtersStore, onDeleteModelClick}) => {
                     <Async
                         fetchData={() => metricsClient('throughput', {
                             sql_filters: `timestamp >= NOW() - INTERVAL '30' DAY AND model_id='${model.mlModelId}' AND dataset_id IS NULL`,
-                            granularity_iso: moment.duration(6, 'hour').toISOString()
+                            time_granularity: moment.duration(6, 'hour').toISOString()
                         })}
                         renderData={(throughput) => (
 
