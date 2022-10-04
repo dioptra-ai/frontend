@@ -42,7 +42,7 @@ const initialSettings = {
     applyButtonClasses: 'btn-primary px-4 py-2 text-white m-2',
     cancelButtonClasses: 'btn-light px-4 py-2 text-secondary m-2'
 };
-const DateTimeRangePicker = ({onChange, start, end, className, datePickerSettings, width, timeStore}) => {
+const DateTimeRangePicker = ({onChange, start, end, className, datePickerSettings, width, timeStore, jumpToLatestDataPopup}) => {
     const overlayTarget = React.useRef(null);
     const [isCalendarVisible, setIsCalendarVisible] = useState(false);
     const allSqlFilters = useAllSqlFilters();
@@ -61,33 +61,38 @@ const DateTimeRangePicker = ({onChange, start, end, className, datePickerSetting
 
     return (
         <>
-            <Async
-                spinner={false}
-                fetchData={() => metricsClient('queries/count-events', {sql_filters: allSqlFilters})}
-                refetchOnChanged={[allSqlFilters]}
-                renderData={([d]) => (
-                    <Overlay target={overlayTarget.current} placement='bottom-end' show={d?.value === 0}>
-                        {(props) => (
-                            <Tooltip className='text-center' {...props}>
-                                No datapoints could be found within the selected time range.
-                                <Button className='btn-primary text-white m-2' onClick={async () => {
-                                    const [d] = await metricsClient('default-time-range', {
-                                        sql_filters: allSqlFiltersWithoutTime
-                                    });
+            {
+                jumpToLatestDataPopup ? (
+                    <Async
+                        spinner={false}
+                        fetchData={() => metricsClient('queries/count-events', {sql_filters: allSqlFilters})}
+                        refetchOnChanged={[allSqlFilters]}
+                        renderData={([d]) => (
+                            <Overlay target={overlayTarget.current} placement='bottom-end' show={d?.value === 0}>
+                                {(props) => (
+                                    <Tooltip className='text-center' {...props}>
+                                        No datapoints could be found within the selected time range.
+                                        <Button className='btn-primary text-white m-2' onClick={async () => {
+                                            const [d] = await metricsClient('default-time-range', {
+                                                sql_filters: allSqlFiltersWithoutTime
+                                            });
 
-                                    if (d) {
-                                        timeStore.setTimeRange(d);
-                                    } else {
-                                        alert('Sorry, we could not find any data. Please see the documentation for information about sending data into Dioptra.');
-                                    }
-                                }}>
-                                    Go to Latest Data
-                                </Button>
-                            </Tooltip>
+                                            if (d) {
+                                                timeStore.setTimeRange(d);
+                                            } else {
+                                                alert('Sorry, we could not find any data. Please see the documentation for information about sending data into Dioptra.');
+                                            }
+                                        }}>
+                                            Go to Latest Data
+                                        </Button>
+                                    </Tooltip>
+                                )}
+                            </Overlay>
                         )}
-                    </Overlay>
-                )}
-            />
+                    />
+
+                ) : null
+            }
             <div ref={overlayTarget} style={{
                 width,
                 minWidth: 300
@@ -138,7 +143,8 @@ DateTimeRangePicker.propTypes = {
     onChange: PropTypes.func.isRequired,
     start: PropTypes.object,
     width: PropTypes.string,
-    timeStore: PropTypes.object.isRequired
+    timeStore: PropTypes.object.isRequired,
+    jumpToLatestDataPopup: PropTypes.bool
 };
 
 export default setupComponent(DateTimeRangePicker);

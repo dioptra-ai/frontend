@@ -14,6 +14,7 @@ const TopBar = ({hideTimePicker, timeStore, userStore}) => {
             {hideTimePicker ? null : (
                 <>
                     <DateTimeRangePicker
+                        jumpToLatestDataPopup
                         end={timeStore.end}
                         onChange={({start, end, lastMs}) => {
                             if (lastMs) {
