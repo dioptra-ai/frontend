@@ -1,10 +1,11 @@
 site_name: Dioptra
 nav:
   - Home: index.md
-  - Getting started: getting_started.md
-  - Supported types and schemas: supported_types.md
-  - Real-time Ingestion api: collector.md
-  - Data Mapping: data_mapping.md
+  - Getting Started: getting-started.md
+  - Supported Types and Schemas: supported-types.md
+  - Real-time Ingestion Api: real-time-ingestion.md
+  - Batch Ingestion Api: batch-ingestion.md
+  - Data Mapping: data-mapping.md
   - Segment.com: segment.md
 
 site_dir: build/documentation
