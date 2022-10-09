@@ -189,7 +189,7 @@ const PerformancePerClass = () => {
                             <PerformanceMetricAnalysis metricUrl='recall-metric' title='Recall per class'/>
                         </Col>
                     </>
-                ) : model.mlModelType === 'UNSUPERVISED_IMAGE_CLASSIFIER' || model.mlModelType === 'UNSUPERVISED_TEXT_CLASSIFIER' ? (
+                ) : model.mlModelType === 'UNSUPERVISED_IMAGE_CLASSIFIER' || model.mlModelType === 'UNSUPERVISED_TEXT_CLASSIFIER' || model.mlModelType === 'UNSUPERVISED_OBJECT_DETECTION' ? (
                     <>
                         <Col lg={6}>
                             <PerformanceMetricAnalysis metricUrl='confidence' title='Confidence per predicted class'/>
