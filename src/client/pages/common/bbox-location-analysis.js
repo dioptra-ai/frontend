@@ -12,7 +12,7 @@ import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import {Filter} from 'state/stores/filters-store';
 import {BsMinecartLoaded} from 'react-icons/bs';
-import FrameWithBoundingBox from 'components/preview-image';
+import PreviewImage from 'components/preview-image';
 import {OverlayTrigger, Tooltip} from 'react-bootstrap';
 import MinerModal from 'components/miner-modal';
 
@@ -136,7 +136,7 @@ const BBoxLocationAnalysis = () => {
                                         key={JSON.stringify(sample)}
                                         className='m-4 heat-map-item'
                                     >
-                                        <FrameWithBoundingBox
+                                        <PreviewImage
                                             videoUrl={video_frame ? image_url : null}
                                             videoControls={false}
                                             imageUrl={video_frame ? null : image_url}
@@ -166,7 +166,7 @@ const BBoxLocationAnalysis = () => {
             </Row>
             {exampleInModal ? (
                 <Modal onClose={() => setExampleInModal(null)} title='Example'>
-                    <FrameWithBoundingBox
+                    <PreviewImage
                         videoUrl={exampleInModal.video_frame ? exampleInModal.image_url : null}
                         videoControls
                         imageUrl={exampleInModal.video_frame ? null : exampleInModal.image_url}

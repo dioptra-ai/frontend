@@ -28,7 +28,7 @@ const Classifier = () => {
                                 unit='%'
                             />
                         )}
-                        fetchData={() => metricsClient('queries/class-distribution-1', {sql_filters: allSqlFilters})}
+                        fetchData={() => metricsClient('queries/class-distribution', {sql_filters: allSqlFilters})}
                     />
                 </Col>
                 {(model.mlModelType === 'UNSUPERVISED_TEXT_CLASSIFIER' || model.mlModelType === 'UNSUPERVISED_IMAGE_CLASSIFIER') ? (

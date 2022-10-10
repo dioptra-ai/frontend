@@ -35,13 +35,6 @@
     position: relative;
   }
 
-  &-box {
-    border: 2px solid red;
-    box-sizing: border-box;
-    border-radius: 5px;
-    position: absolute;
-  }
-
   &-refArea {
     position: absolute;
     opacity: 0.75;

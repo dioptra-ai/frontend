@@ -35,7 +35,14 @@ const MODEL_TYPE_TO_METRICS_NAMES = {
     'NER': ['COUNT', 'ACCURACY', 'F1_SCORE', 'PRECISION', 'RECALL']
 };
 const getDistributionMetricsForModel = (modelType) => {
-    if (modelType === 'IMAGE_CLASSIFIER' || modelType === 'TEXT_CLASSIFIER') {
+    if (modelType.startsWith('UNSUPERVISED_')) {
+
+        return [{
+            name: 'prediction',
+            value: 'prediction'
+        }];
+    } else {
+
         return [{
             name: 'prediction',
             value: 'prediction'
@@ -43,26 +50,6 @@ const getDistributionMetricsForModel = (modelType) => {
             name: 'groundtruth',
             value: 'groundtruth'
         }];
-    } else if (modelType === 'UNSUPERVISED_IMAGE_CLASSIFIER' || modelType === 'UNSUPERVISED_TEXT_CLASSIFIER') {
-        return [{
-            name: 'prediction',
-            value: 'prediction'
-        }];
-    } else if (modelType === 'OBJECT_DETECTION') {
-        return [{
-            name: 'prediction.class_name',
-            value: 'prediction.class_name'
-        }, {
-            name: 'groundtruth.class_name',
-            value: 'groundtruth.class_name'
-        }];
-    } else if (modelType === 'UNSUPERVISED_OBJECT_DETECTION') {
-        return [{
-            name: 'prediction.class_name',
-            value: 'prediction.class_name'
-        }];
-    } else {
-        return [];
     }
 };
 
@@ -203,15 +190,15 @@ const _ClustersAnalysis = ({clusters}) => {
                             }}
                             onSelectedDataChange={handleSelectedDataChange}
                             isDatapointSelected={(p) => uniqueSampleUUIDs.has(p.sample['uuid'])}
-                            isSearchMatch={(p, searchTerm) => Object.values(p.sample).some((v) => v?.toString()?.toLowerCase()?.includes(searchTerm?.toLowerCase()))}
                         />
                     </Col>
                 </Row>
                 <Row>
                     <Col>
                         <ScatterSearch
-                            data={sortedClusters.map((c) => c.elements).flat()} onSelectedDataChange={handleSelectedDataChange}
-                            isSearchMatch={(p, searchTerm) => Object.values(p.sample).some((v) => v?.toString()?.toLowerCase()?.includes(searchTerm?.toLowerCase()))}
+                            data={sortedClusters.map((c) => c.elements).flat()}
+                            onSelectedDataChange={handleSelectedDataChange}
+                            isSearchMatch={(p, searchTerm) => JSON.stringify(p.sample).includes(searchTerm)}
                         />
                     </Col>
                 </Row>
@@ -234,13 +221,14 @@ const _ClustersAnalysis = ({clusters}) => {
                     <div className={`d-flex p-2 overflow-auto flex-grow-0 ${samples.length ? 'justify-content-left' : 'justify-content-center align-items-center'} scatterGraph-examples`}>
                         {samples.length ? (
                             <Async
-                                refetchOnChanged={[samplesSqlFilter, samples, mlModelType]}
+                                refetchOnChanged={[samplesSqlFilter, userSelectedSummaryDistribution]}
                                 renderData={(data) => (
                                     <BarGraph
                                         className='border-0' height='50vh'
-                                        bars={data.map(({name, value}) => ({
-                                            name, value,
-                                            fill: getHexColor(name)
+                                        bars={data.map(({label, value}) => ({
+                                            name: label,
+                                            value,
+                                            fill: getHexColor(label)
                                         }))}
                                         title={(
                                             <Row className='g-2'>
@@ -250,6 +238,7 @@ const _ClustersAnalysis = ({clusters}) => {
                                                         onChange={(e) => {
                                                             setUserSelectedSummaryDistribution(e.target.value);
                                                         }}
+                                                        value={userSelectedSummaryDistribution}
                                                     >
                                                         {distributionMetricsOptions.map((o, i) => (
                                                             <option key={i} value={o.value}>{o.name}</option>
@@ -261,13 +250,7 @@ const _ClustersAnalysis = ({clusters}) => {
                                         unit='%'
                                     />
                                 )}
-                                fetchData={() => metricsClient(`queries/${(
-                                    mlModelType === 'IMAGE_CLASSIFIER' ||
-                                        mlModelType === 'UNSUPERVISED_IMAGE_CLASSIFIER' || mlModelType === 'UNSUPERVISED_TEXT_CLASSIFIER' ||
-                                        mlModelType === 'TEXT_CLASSIFIER' || mlModelType === 'SPEECH_TO_TEXT') ?
-                                    'class-distribution-1' :
-                                    'class-distribution-2'
-                                }`, {
+                                fetchData={() => metricsClient('queries/class-distribution', {
                                     sql_filters: samplesSqlFilter,
                                     distribution_field: userSelectedSummaryDistribution
                                 })}

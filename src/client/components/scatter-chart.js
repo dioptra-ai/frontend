@@ -100,13 +100,6 @@ const ScatterChart = ({
 
     return (
         <>
-            <div className='position-relative'>
-                <div className='position-absolute text-primary fs-6 p-3' style={{
-                    top: 0, left: 0, width: '100%', height: '100%', zIndex: 1, pointerEvents: 'none'
-                }}>
-                    (n={Number(data.length).toLocaleString()})
-                </div>
-            </div>
             <div id={chartId} style={{width, height, minHeight: 400}} onClick={(e) => onSelectedDataChange([], e)}/>
             <style>{`
                 .point:hover {
@@ -152,7 +145,7 @@ export const ScatterSearch = ({isSearchMatch, data, onSelectedDataChange}) => {
                 <Form.Control placeholder='Find datapoints' value={search} onChange={(e) => setSearch(e.target.value)}/>
             </Col>
             <Col className='text-dark d-flex align-items-center'>
-                {searchData.length ? (
+                {search ? (
                     <div className='cursor-pointer' onClick={(e) => onSelectedDataChange(searchData, e)}>
                         <IoChevronForwardSharp/>&nbsp;<span className='text-decoration-underline'>{searchData.length.toLocaleString()} results</span>
                     </div>

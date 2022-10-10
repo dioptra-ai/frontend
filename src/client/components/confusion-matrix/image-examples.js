@@ -5,7 +5,7 @@ import useAllSqlFilters from 'hooks/use-all-sql-filters';
 import Async from 'components/async';
 import metricsClient from 'clients/metrics';
 import {IoArrowBackCircleOutline, IoCloseCircleOutline} from 'react-icons/io5';
-import {PreviewImageClassification} from 'components/preview-image';
+import PreviewImage from 'components/preview-image';
 import SamplesPreview from 'components/samples-preview';
 
 const ImageExamples = ({onClose, groundtruth, prediction, iou, model}) => {
@@ -31,7 +31,7 @@ const ImageExamples = ({onClose, groundtruth, prediction, iou, model}) => {
         >
             <div className={`d-flex flex-column ${exampleInModal ? 'align-items-center' : 'align-items-end'}`} style={{width: '80vw'}}>
                 {exampleInModal ? (
-                    <PreviewImageClassification sample={exampleInModal} height={600} zoomable/>
+                    <PreviewImage sample={exampleInModal} height={600} zoomable/>
                 ) : (
                     <Async
                         renderData={(samples) => {

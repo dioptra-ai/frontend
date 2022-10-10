@@ -8,9 +8,9 @@ import Container from 'react-bootstrap/Container';
 import {GrNext, GrPrevious} from 'react-icons/gr';
 import {IoCloseOutline} from 'react-icons/io5';
 import {mod} from 'helpers/math';
-import {datapointIsImage, datapointIsNER, datapointIsObjectDetection, datapointIsText, datapointIsVideo} from 'helpers/datapoint';
+import {datapointIsImage, datapointIsNER, datapointIsText, datapointIsVideo} from 'helpers/datapoint';
 import Modal from 'components/modal';
-import FrameWithBoundingBox, {PreviewImageClassification, PreviewObjectDetection} from 'components/preview-image';
+import PreviewImage from 'components/preview-image';
 import PreviewTextClassification from 'components/preview-text-classification';
 import PreviewDetails from 'components/preview-details';
 import PreviewNER from './preview-ner';
@@ -114,59 +114,21 @@ const DatapointsViewer = ({datapoints, onSelectedChange, onClearDatapoint, limit
                             </div>
                         );
 
-                        if (datapointIsVideo(datapoint)) {
+                        if (datapointIsVideo(datapoint) || datapointIsImage(datapoint)) {
 
                             return (
                                 <Col key={`${JSON.stringify(datapoint)}-${i}`} xs={6} md={4} lg={3}>
                                     <div className='p-2 bg-white-blue border rounded' >
                                         {selectOrClearBar}
-                                        <FrameWithBoundingBox
-                                            videoUrl={datapoint}
+                                        <PreviewImage
+                                            datapoint={datapoint}
                                             videoControls={false}
-                                            frameW={datapoint['image_metadata.width']}
-                                            frameH={datapoint['image_metadata.height']}
-                                            predBoxW={datapoint['image_metadata.object.width']}
-                                            predBoxH={datapoint['image_metadata.object.height']}
-                                            predBoxT={datapoint['image_metadata.object.top']}
-                                            predBoxL={datapoint['image_metadata.object.left']}
                                             maxHeight={200}
                                             onClick={() => setSampleIndexInModal(i)}
                                         />
                                     </div>
                                 </Col>
                             );
-                        } else if (datapointIsImage(datapoint)) {
-
-                            if (datapointIsObjectDetection(datapoint)) {
-
-                                return (
-                                    <Col key={`${JSON.stringify(datapoint)}-${i}`} xs={6} md={4} xl={3}>
-                                        <div className='p-2 bg-white-blue border rounded' >
-                                            {selectOrClearBar}
-                                            <PreviewObjectDetection
-                                                sample={datapoint}
-                                                maxHeight={200}
-                                                onClick={() => setSampleIndexInModal(i)}
-                                            />
-                                        </div>
-                                    </Col>
-                                );
-
-                            } else {
-
-                                return (
-                                    <Col key={`${JSON.stringify(datapoint)}-${i}`} xs={6} md={4} xl={3}>
-                                        <div className='p-2 bg-white-blue border rounded' >
-                                            {selectOrClearBar}
-                                            <PreviewImageClassification
-                                                sample={datapoint}
-                                                maxHeight={200}
-                                                onClick={() => setSampleIndexInModal(i)}
-                                            />
-                                        </div>
-                                    </Col>
-                                );
-                            }
                         } else if (datapointIsText(datapoint)) {
 
                             if (datapointIsNER(datapoint)) {
@@ -223,35 +185,11 @@ const DatapointsViewer = ({datapoints, onSelectedChange, onClearDatapoint, limit
                             <GrPrevious/>
                         </div>
                         <div>
-                            {datapointIsImage(exampleInModal) && datapointIsObjectDetection(exampleInModal) ? (
+                            {datapointIsImage(exampleInModal) || datapointIsVideo(exampleInModal) ? (
                                 <>
-                                    <PreviewObjectDetection
-                                        sample={exampleInModal}
-                                        maxHeight={600}
-                                        zoomable
-                                    />
-                                    <hr/>
-                                </>
-                            ) : datapointIsImage(exampleInModal) ? (
-                                <>
-                                    <PreviewImageClassification
-                                        sample={exampleInModal}
-                                        maxHeight={600}
-                                        zoomable
-                                    />
-                                    <hr/>
-                                </>
-                            ) : datapointIsVideo(exampleInModal) ? (
-                                <>
-                                    <FrameWithBoundingBox
-                                        videoUrl={exampleInModal}
+                                    <PreviewImage
+                                        datapoint={exampleInModal}
                                         videoControls
-                                        frameW={exampleInModal['image_metadata.width']}
-                                        frameH={exampleInModal['image_metadata.height']}
-                                        predBoxW={exampleInModal['image_metadata.object.width']}
-                                        predBoxH={exampleInModal['image_metadata.object.height']}
-                                        predBoxT={exampleInModal['image_metadata.object.top']}
-                                        predBoxL={exampleInModal['image_metadata.object.left']}
                                         maxHeight={600}
                                         zoomable
                                     />

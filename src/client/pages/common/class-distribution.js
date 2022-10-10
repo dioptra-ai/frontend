@@ -34,10 +34,7 @@ const ClassDistribution = ({timeStore}) => {
                             unit='%'
                         />
                     )}
-                    fetchData={() => metricsClient(`queries/${(mlModelType === 'IMAGE_CLASSIFIER' || mlModelType === 'UNSUPERVISED_IMAGE_CLASSIFIER' ||
-                            mlModelType === 'TEXT_CLASSIFIER' || mlModelType === 'UNSUPERVISED_TEXT_CLASSIFIER') ?
-                        'class-distribution-1' :
-                        'class-distribution-2'}`, {sql_filters: allSqlFilters})}
+                    fetchData={() => metricsClient('queries/class-distribution', {sql_filters: allSqlFilters})}
                 />
             </Col>
             <Col className='d-flex' lg={4}>
@@ -54,10 +51,7 @@ const ClassDistribution = ({timeStore}) => {
                             unit='%'
                         />
                     )}
-                    fetchData={() => metricsClient(`queries/${(mlModelType === 'IMAGE_CLASSIFIER' || mlModelType === 'UNSUPERVISED_IMAGE_CLASSIFIER' ||
-                            mlModelType === 'TEXT_CLASSIFIER' || mlModelType === 'UNSUPERVISED_TEXT_CLASSIFIER') ?
-                        'class-distribution-1' :
-                        'class-distribution-2'}`, {sql_filters: allOfflineSqlFilters})}
+                    fetchData={() => metricsClient('queries/class-distribution', {sql_filters: allOfflineSqlFilters})}
                 />
             </Col>
             <Col className='d-flex' lg={4}>
