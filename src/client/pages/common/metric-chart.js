@@ -273,8 +273,7 @@ const useMetric = (metric, timeGranularity) => {
             fetchData: () => {
                 return metricsClient('entropy', {
                     filters: allFilters,
-                    time_granularity: timeGranularity,
-                    model_type: model.mlModelType
+                    time_granularity: timeGranularity
                 });
             },
             formatValue: formatPercent,

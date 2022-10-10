@@ -19,6 +19,7 @@ import metricsClient from 'clients/metrics';
 import useModel from 'hooks/use-model';
 import Form from 'react-bootstrap/Form';
 import SamplesPreview from 'components/samples-preview';
+import useAllFilters from 'hooks/use-all-filters';
 
 // Keep this in sync with metrics-engine/handlers/clusters.py
 const MODEL_TYPE_TO_METRICS_NAMES = {
@@ -275,8 +276,8 @@ _ClustersAnalysis.propTypes = {
     clusters: PropTypes.array.isRequired
 };
 
-const ClustersAnalysis = ({sqlFilters, embeddingsField}) => {
-    const allSqlFilters = sqlFilters || useAllSqlFilters();
+const ClustersAnalysis = ({filters, embeddingsField}) => {
+    const allFilters = filters || useAllFilters();
     const model = useModel();
     const mlModelType = model?.mlModelType;
     const metricNames = MODEL_TYPE_TO_METRICS_NAMES[mlModelType];
@@ -362,7 +363,7 @@ const ClustersAnalysis = ({sqlFilters, embeddingsField}) => {
             </Row>
             <Async
                 refetchOnChanged={[
-                    allSqlFilters,
+                    allFilters,
                     userSelectedDistanceName,
                     userSelectedMetricName,
                     userSelectedAlgorithm,
@@ -372,7 +373,7 @@ const ClustersAnalysis = ({sqlFilters, embeddingsField}) => {
                 ]}
                 fetchData={() => metricsClient('clusters', {
                     model_type: model?.mlModelType,
-                    sql_filters: allSqlFilters,
+                    filters: allFilters,
                     distance: userSelectedDistanceName,
                     metric: userSelectedMetricName,
                     clustering_algorithm: userSelectedAlgorithm,
@@ -393,8 +394,8 @@ const ClustersAnalysis = ({sqlFilters, embeddingsField}) => {
 };
 
 ClustersAnalysis.propTypes = {
-    sqlFilters: PropTypes.string,
-    embeddingsField: PropTypes.string
+    embeddingsField: PropTypes.string,
+    filters: PropTypes.func
 };
 
 export default ClustersAnalysis;

@@ -99,7 +99,11 @@ const Miner = () => {
                                                         selectedAnalysis === 'OUTLIER' ? <OutliersOrDrift/> :
                                                             selectedAnalysis === 'CLUSTERING' ? (
                                                                 <ClustersAnalysis
-                                                                    sqlFilters={`"uuid" IN (${miner['mined_uuids'].map((u) => `'${u}'`).join(',')})`}
+                                                                    filters={[{
+                                                                        left: 'uuid',
+                                                                        op: 'in',
+                                                                        right: miner['mined_uuids']
+                                                                    }]}
                                                                     embeddingsField={miner['embeddings_field']}
                                                                 />
                                                             ) : (

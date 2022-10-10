@@ -49,7 +49,7 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
                                 />
                             )}
                             {
-                                prediction ? prediction.map((p, i) => (
+                                prediction?.map?.((p, i) => (
                                     <div key={i}
                                         className='position-absolute'
                                         style={{
@@ -67,11 +67,11 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
                                         }}
                                         >{p['class_name']}</span>
                                     </div>
-                                )) : null
+                                ))
 
                             }
                             {
-                                groundtruth ? groundtruth.map((g, i) => (
+                                groundtruth?.map?.((g, i) => (
                                     <div key={i}
                                         className='position-absolute'
                                         style={{
@@ -89,7 +89,7 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
                                         }}
                                         >{g['class_name']} <IoPricetagSharp /></span>
                                     </div>
-                                )) : null
+                                ))
                             }
                         </TransformComponent>
                     </div>

@@ -14,6 +14,7 @@ import useModel from 'hooks/use-model';
 import {OverlayTrigger, Tooltip} from 'react-bootstrap';
 import {IoDownloadOutline} from 'react-icons/io5';
 import {saveAs} from 'file-saver';
+import useAllFilters from 'hooks/use-all-filters';
 
 const PerformanceBox = ({
     title = '',
@@ -130,14 +131,14 @@ ClassRow.propTypes = {
 
 const PerformanceMetricAnalysis = ({metricUrl, title}) => {
     const allSqlFilters = useAllSqlFilters();
-    const sqlFiltersWithModelTime = useAllSqlFilters({useReferenceFilters: true});
+    const allFilters = useAllFilters();
     const sampleSizeComponent = <CountEvents sqlFilters={allSqlFilters}/>;
     const model = useModel();
 
     return (
         <Async
             defaultData={[[], []]}
-            renderData={([data, referenceData]) => (
+            renderData={(data) => (
                 <div style={{position: 'relative'}}>
                     <OverlayTrigger overlay={<Tooltip>Download classes as CSV</Tooltip>}>
                         <IoDownloadOutline style={{position: 'absolute', right: 0, margin: 10}} className='fs-2 cursor-pointer' onClick={() => {
@@ -148,23 +149,14 @@ const PerformanceMetricAnalysis = ({metricUrl, title}) => {
                         data={data}
                         subtext={sampleSizeComponent}
                         title={title}
-                        referenceData={referenceData}
                     />
                 </div>
             )}
-            fetchData={[
-                () => metricsClient(metricUrl, {
-                    sql_filters: allSqlFilters,
-                    per_class: true,
-                    model_type: model.mlModelType
-                }),
-                () => metricsClient(metricUrl, {
-                    sql_filters: sqlFiltersWithModelTime,
-                    per_class: true,
-                    model_type: model.mlModelType
-                })
-            ]}
-            refetchOnChanged={[allSqlFilters, sqlFiltersWithModelTime]}
+            fetchData={() => metricsClient(metricUrl, {
+                filters: allFilters,
+                per_class: true
+            })}
+            refetchOnChanged={[allFilters]}
         />
     );
 };
