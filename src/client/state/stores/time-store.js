@@ -120,6 +120,23 @@ class TimeStore {
         return `"timestamp" >= TIMESTAMPTZ('${this._start.toISOString()}') AND "timestamp" < TIMESTAMPTZ('${this._end.toISOString()}')`;
     }
 
+    get timeFilter() {
+
+        return {
+            left: {
+                left: 'timestamp',
+                op: '>=',
+                right: this._start.toISOString()
+            },
+            op: 'and',
+            right: {
+                left: 'timestamp',
+                op: '<',
+                right: this._end.toISOString()
+            }
+        };
+    }
+
     getTimeGranularity(maxTicks = SQL_OUTER_LIMIT) {
         const rangeSeconds = this._end.diff(this._start) / 1000;
         const DURATION_MAX_SEC_TO_GRANULARITY = granularityLadderMs.map((duration) => {

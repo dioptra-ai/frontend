@@ -13,6 +13,7 @@ import useTimeGranularity from 'hooks/use-time-granularity';
 import metricsClient from 'clients/metrics';
 import useModel from 'hooks/use-model';
 import useAllSqlFilters from 'hooks/use-all-sql-filters';
+import useAllFilters from 'hooks/use-all-filters';
 
 const MetricChart = ({selectableMetrics, selectedMetric, type}) => {
     const [userSelectedMetric, setUserSelectedMetric] = useState(selectedMetric || selectableMetrics[0]);
@@ -118,13 +119,14 @@ const useMetric = (metric, timeGranularity) => {
     const allSqlFilters = useAllSqlFilters({
         __REMOVE_ME__excludeOrgId: true
     });
+    const allFilters = useAllFilters();
     const allOfflineSqlFilters = useAllSqlFilters({useReferenceFilters: true});
     const result = {
         THROUGHPUT: {
             fetchData: () => {
 
                 return metricsClient('throughput', {
-                    sql_filters: allSqlFilters,
+                    filters: allFilters,
                     time_granularity: timeGranularity
                 });
             },
@@ -147,7 +149,7 @@ const useMetric = (metric, timeGranularity) => {
             fetchData: () => {
 
                 return metricsClient('accuracy-metric', {
-                    sql_filters: allSqlFilters,
+                    filters: allFilters,
                     time_granularity: timeGranularity,
                     model_type: model.mlModelType
                 });
@@ -159,7 +161,7 @@ const useMetric = (metric, timeGranularity) => {
             fetchData: () => {
 
                 return metricsClient('precision-metric', {
-                    sql_filters: allSqlFilters,
+                    filters: allFilters,
                     time_granularity: timeGranularity,
                     model_type: model.mlModelType
                 });
@@ -171,7 +173,7 @@ const useMetric = (metric, timeGranularity) => {
             fetchData: () => {
 
                 return metricsClient('recall-metric', {
-                    sql_filters: allSqlFilters,
+                    filters: allFilters,
                     time_granularity: timeGranularity,
                     model_type: model.mlModelType
                 });
@@ -183,7 +185,7 @@ const useMetric = (metric, timeGranularity) => {
             fetchData: () => {
 
                 return metricsClient('f1-score-metric', {
-                    sql_filters: allSqlFilters,
+                    filters: allFilters,
                     time_granularity: timeGranularity,
                     model_type: model.mlModelType
                 });
@@ -259,7 +261,7 @@ const useMetric = (metric, timeGranularity) => {
             fetchData: () => {
 
                 return metricsClient('confidence', {
-                    sql_filters: allSqlFilters,
+                    filters: allFilters,
                     time_granularity: timeGranularity,
                     model_type: model.mlModelType
                 });
@@ -270,7 +272,7 @@ const useMetric = (metric, timeGranularity) => {
         ENTROPY: {
             fetchData: () => {
                 return metricsClient('entropy', {
-                    sql_filters: allSqlFilters,
+                    filters: allFilters,
                     time_granularity: timeGranularity,
                     model_type: model.mlModelType
                 });

@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import {useState} from 'react';
 
 import Select from 'components/select';
@@ -6,7 +7,7 @@ import ClustersAnalysis from 'pages/common/clusters-analysis';
 import SamplesPreview from 'components/samples-preview';
 import Async from 'components/async';
 import metricsClient from 'clients/metrics';
-import useAllSqlFilters from 'hooks/use-all-sql-filters';
+import useAllFilters from 'hooks/use-all-filters';
 
 const ANALYSES = {
     DATA_VIEWER: 'Data Viewer',
@@ -16,7 +17,7 @@ const ANALYSES = {
 };
 
 const Explorer = () => {
-    const allSqlFilters = useAllSqlFilters();
+    const allFilters = useAllFilters();
     const analysesKeys = Object.keys(ANALYSES);
     const [selectedAnalysis, setSelectedAnalysis] = useState(analysesKeys[0]);
 
@@ -57,17 +58,23 @@ const Explorer = () => {
                                             "groundtruth.top",
                                             "groundtruth.class_name",
                                             "text"`,
-                                        where: allSqlFilters,
+                                        filters: allFilters,
                                         limit: 1000
                                     })}
                                     renderData={(datapoints) => <SamplesPreview samples={datapoints} limit={1000}/>}
-                                    refetchOnChanged={[allSqlFilters]}
+                                    refetchOnChanged={[JSON.stringify(allFilters)]}
                                 />
                             </div>
                         )
             }
         </>
     );
+};
+
+Explorer.propTypes = {
+    filtersStore: PropTypes.shape({
+        filters: PropTypes.any
+    })
 };
 
 export default Explorer;

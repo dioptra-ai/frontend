@@ -264,7 +264,6 @@ class FiltersStore {
         this.m = m;
     }
 
-
     getSqlFilters() {
 
         return Filter.filtersToSqlStrings(this.f);
@@ -281,6 +280,16 @@ class FiltersStore {
         }
 
         return allFilters;
+    }
+
+    getModelFilters(forModel = 0) {
+        const model = this.m[forModel];
+
+        return {
+            left: 'model_id',
+            op: '=',
+            right: model.mlModelId
+        };
     }
 
     get benchmarks() {
