@@ -4,11 +4,11 @@ import Async from 'components/async';
 import BarGraph from 'components/bar-graph';
 import {getHexColor} from 'helpers/color-helper';
 import metricsClient from 'clients/metrics';
-import useAllSqlFilters from 'hooks/use-all-sql-filters';
+import useAllFilters from 'hooks/use-all-filters';
 import useModel from 'hooks/use-model';
 
 const Classifier = () => {
-    const allSqlFilters = useAllSqlFilters();
+    const allFilters = useAllFilters();
     const model = useModel();
 
     return (
@@ -16,7 +16,7 @@ const Classifier = () => {
             <Row className='my-3'>
                 <Col className='d-flex' lg={6}>
                     <Async
-                        refetchOnChanged={[allSqlFilters]}
+                        refetchOnChanged={[allFilters]}
                         renderData={(data) => (
                             <BarGraph
                                 bars={data.map(({name, value}) => ({
@@ -28,7 +28,10 @@ const Classifier = () => {
                                 unit='%'
                             />
                         )}
-                        fetchData={() => metricsClient('queries/class-distribution', {sql_filters: allSqlFilters})}
+                        fetchData={() => metricsClient('queries/class-distribution', {
+                            filters: allFilters,
+                            distribution_field: 'prediction'
+                        })}
                     />
                 </Col>
                 {(model.mlModelType === 'UNSUPERVISED_TEXT_CLASSIFIER' || model.mlModelType === 'UNSUPERVISED_IMAGE_CLASSIFIER') ? (
@@ -36,7 +39,7 @@ const Classifier = () => {
                 ) : (
                     <Col lg={6}>
                         <Async
-                            refetchOnChanged={[allSqlFilters]}
+                            refetchOnChanged={[allFilters]}
                             renderData={(data) => (
                                 <BarGraph
                                     bars={data.map(({groundtruth, my_percentage}) => ({
@@ -48,9 +51,9 @@ const Classifier = () => {
                                     unit='%'
                                 />
                             )}
-                            fetchData={() => metricsClient('gt-distribution', {
-                                sql_filters: allSqlFilters,
-                                model_type: 'TEXT_CLASSIFIER'
+                            fetchData={() => metricsClient('queries/class-distribution', {
+                                filters: allFilters,
+                                distribution_field: 'groundtruth'
                             })}
                         />
                     </Col>

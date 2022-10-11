@@ -13,7 +13,6 @@ import useTimeGranularity from 'hooks/use-time-granularity';
 const AutoCompletion = () => {
     const allSqlFilters = useAllSqlFilters();
     const {mlModelType} = useModel();
-    const sampleSizeComponent = <CountEvents sqlFilters={allSqlFilters}/>;
     const timeGranularity = useTimeGranularity()?.toISOString();
 
     return (
@@ -23,7 +22,7 @@ const AutoCompletion = () => {
                     <MetricInfoBox
                         name='Datapoints'
                     >
-                        {sampleSizeComponent}
+                        <CountEvents/>
                     </MetricInfoBox>
                 </Col>
                 <Col className='d-flex' lg={3}>

@@ -26,6 +26,7 @@ import Async from 'components/async';
 import AsyncSegmentationFields from 'components/async-segmentation-fields';
 import metricsClient from 'clients/metrics';
 import {Tooltip as BarTooltip} from 'components/bar-graph';
+import useAllFilters from 'hooks/use-all-filters';
 
 const AddColumnModal = ({onApply, allColumns, initiallyselected}) => {
     const featureColumns = allColumns.filter((c) => c.startsWith('features.'));
@@ -134,6 +135,7 @@ const _DistributionCell = ({row, segmentationStore}) => {
     const {ref, inView} = useInView();
     const {mlModelType} = useModel();
     const allSqlFilters = useAllSqlFilters();
+    const allFilters = useAllFilters();
     const [distributionData, setDistributionData] = useState([]);
     const sqlColumns = groupByColumns.map((c) => `"${c}"`).join(', ');
 
@@ -141,7 +143,7 @@ const _DistributionCell = ({row, segmentationStore}) => {
         if (inView) {
             metricsClient('queries/distribution-data', {
                 sql_columns: sqlColumns,
-                sql_filters: `${allSqlFilters} AND ${groupByColumns.map((c) => `"${c}"='${row.original[c]}'`).join(' AND ')}`,
+                filters: [...allFilters, ...groupByColumns.map((c) => ({left: c, op: '=', right: row.original[c]}))],
                 columns: groupByColumns.map((column) => `my_sub_table."${column}" = my_sub_count_table."${column}"`).join(' AND '),
                 model_type: mlModelType
             }).then((data) => {

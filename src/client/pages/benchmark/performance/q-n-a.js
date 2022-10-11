@@ -10,7 +10,6 @@ import CountEvents from 'components/count-events';
 
 const QnA = () => {
     const allSqlFilters = useAllSqlFilters();
-    const sampleSizeComponent = <CountEvents sqlFilters={allSqlFilters}/>;
 
     return (
         <div className='pb-3'>
@@ -19,7 +18,7 @@ const QnA = () => {
                     <MetricInfoBox
                         name='Datapoints'
                     >
-                        {sampleSizeComponent}
+                        <CountEvents/>
                     </MetricInfoBox>
                 </Col>
             </Row>
@@ -34,7 +33,7 @@ const QnA = () => {
                         renderData={([d]) => (
                             <MetricInfoBox
                                 name='EM'
-                                subtext={sampleSizeComponent}
+                                subtext={<CountEvents/>}
                                 unit='%'
                                 value={100 * d?.value}
                             />
@@ -51,7 +50,7 @@ const QnA = () => {
                         renderData={([d]) => (
                             <MetricInfoBox
                                 name='F1 Score'
-                                subtext={sampleSizeComponent}
+                                subtext={<CountEvents/>}
                                 unit='%'
                                 value={100 * d?.value}
                             />
@@ -68,7 +67,7 @@ const QnA = () => {
                         renderData={([d]) => (
                             <MetricInfoBox
                                 name='Semantic Similarity'
-                                sampleSize={sampleSizeComponent}
+                                sampleSize={<CountEvents/>}
                                 unit='%'
                                 value={100 * d?.value}
                             />

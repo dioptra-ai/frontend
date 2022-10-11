@@ -15,6 +15,7 @@ import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import metricsClient from 'clients/metrics';
 import CountEvents from 'components/count-events';
+import useAllFilters from 'hooks/use-all-filters';
 
 const Table = ({
     data,
@@ -109,11 +110,11 @@ const ConfusionMatrix = () => {
     const [selectedCell, setSelectedCell] = useState(null);
     const model = useModel();
     const allSqlFilters = useAllSqlFilters({__REMOVE_ME__excludeOrgId: true});
+    const allFilters = useAllFilters();
     const sqlFiltersWithModelTime = useAllSqlFilters({
         useReferenceFilters: true,
         __REMOVE_ME__excludeOrgId: true
     });
-    const sampleSizeComponent = (<CountEvents sqlFilters={allSqlFilters}/>); // Use this component to get # of events
     const [iou, setIou] = useState('0.5');
 
     return (
@@ -123,7 +124,7 @@ const ConfusionMatrix = () => {
                     <Col>
                         <div className='text-dark fw-bold fs-4 flex-grow-1'>
                             Confusion Matrix
-                            <span className='text-primary mx-1 d-inline-flex'>(n={sampleSizeComponent})</span>
+                            <span className='text-primary mx-1 d-inline-flex'>(n=<CountEvents />)</span>
                         </div>
                     </Col>
                     {model.mlModelType === 'DOCUMENT_PROCESSING' ||
@@ -179,22 +180,16 @@ const ConfusionMatrix = () => {
                     }}
                     fetchData={[
                         () => metricsClient('confusion-matrix', {
-                            sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ||
-                                    model.mlModelType === 'UNSUPERVISED_OBJECT_DETECTION' ?
-                                `cast("iou" as FLOAT) > ${iou} AND ${allSqlFilters}` : allSqlFilters,
+                            iou,
+                            filters: allFilters,
                             model_type: model.mlModelType,
-                            data_selector: {
-                                limit: 101
-                            }
+                            limit: 101
                         }),
                         () => metricsClient('confusion-matrix', {
-                            sql_filters: model.mlModelType === 'DOCUMENT_PROCESSING' ||
-                                    model.mlModelType === 'UNSUPERVISED_OBJECT_DETECTION' ?
-                                `cast("iou" as FLOAT) > ${iou} AND ${sqlFiltersWithModelTime}` : sqlFiltersWithModelTime,
+                            iou,
+                            filters: allFilters, // TODO: implement useAllFilters({useReferenceFilters: true})
                             model_type: model.mlModelType,
-                            data_selector: {
-                                limit: 101
-                            }
+                            limit: 101
                         })
                     ]}
                     refetchOnChanged={[iou, allSqlFilters, sqlFiltersWithModelTime]}

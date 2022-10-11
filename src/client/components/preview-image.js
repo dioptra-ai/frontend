@@ -57,7 +57,8 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
                                             width: p['width'] * (height / frameH),
                                             top: p['top'] * (height / frameH),
                                             left: p['left'] * (height / frameH),
-                                            border: `1px solid ${getHexColor(p['class_name'])}`
+                                            border: '1px solid',
+                                            borderColor: getHexColor(p['class_name'])
                                         }}
                                     >
                                         <span className='position-absolute fs-7 px-1 text-nowrap' style={{
@@ -79,7 +80,8 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
                                             width: g['width'] * (height / frameH),
                                             top: g['top'] * (height / frameH),
                                             left: g['left'] * (height / frameH),
-                                            border: `1px solid ${getHexColor(g['class_name'])}`
+                                            border: '1px solid',
+                                            borderColor: getHexColor(g['class_name'])
                                         }}
                                     >
                                         <span className='position-absolute fs-7 px-1 text-nowrap' style={{

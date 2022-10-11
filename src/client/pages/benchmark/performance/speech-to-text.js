@@ -12,7 +12,6 @@ import CountEvents from 'components/count-events';
 const SpeechToText = ({benchmarkFilters}) => {
     const allSqlFilters = useAllSqlFilters();
     const {mlModelType} = useModel();
-    const sampleSizeComponent = <CountEvents sqlFilters={allSqlFilters}/>;
 
     return (
         <div className='pb-3'>
@@ -21,7 +20,7 @@ const SpeechToText = ({benchmarkFilters}) => {
                     <MetricInfoBox
                         name='Datapoints'
                     >
-                        {sampleSizeComponent}
+                        <CountEvents/>
                     </MetricInfoBox>
                 </Col>
                 <Col className='d-flex' lg={3}>

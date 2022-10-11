@@ -36,7 +36,7 @@ class DruidClient {
     }
 
     getTimeSeriesClassDistribution(model, classSource, from, to, period) {
-        return this.execute(`select my_table.my_time as "time", cast(my_table.my_count as float) / cast(my_count_table.total_count as float) as "value", 
+        return this.execute(`select my_table.my_time as "timestamp", cast(my_table.my_count as float) / cast(my_count_table.total_count as float) as "value", 
                 my_table.${classSource}
             from (
                 SELECT floor(__time to ${period}) as my_time, count(1) as my_count, ${classSource}

@@ -2,19 +2,14 @@ import Async from 'components/async';
 import BarGraph from 'components/bar-graph';
 import metricsClient from 'clients/metrics';
 import {getHexColor} from 'helpers/color-helper';
-import useModel from 'hooks/use-model';
-import useAllSqlFilters from 'hooks/use-all-sql-filters';
+import useAllFilters from 'hooks/use-all-filters';
 
 const GroundTruthDistribution = () => {
-
-    const allSqlFilters = useAllSqlFilters({
-        __REMOVE_ME__excludeOrgId: true
-    });
-    const model = useModel();
+    const allFilters = useAllFilters();
 
     return (
         <Async
-            refetchOnChanged={[allSqlFilters]}
+            refetchOnChanged={[allFilters]}
             renderData={(data) => (
                 <BarGraph
                     bars={data.map((result) => ({
@@ -26,9 +21,9 @@ const GroundTruthDistribution = () => {
                     unit='%'
                 />
             )}
-            fetchData={() => metricsClient('gt-distribution', {
-                sql_filters: allSqlFilters,
-                model_type: model.mlModelType
+            fetchData={() => metricsClient('queries/class-distribution', {
+                filters: allFilters,
+                distribution_field: 'groundtruth'
             })}
         />
     );

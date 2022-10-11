@@ -2,18 +2,18 @@ import BBoxLocationAnalysis from 'pages/common/bbox-location-analysis';
 
 import BarGraph from 'components/bar-graph';
 import {getHexColor} from 'helpers/color-helper';
-import useAllSqlFilters from 'hooks/use-all-sql-filters';
+import useAllFilters from 'hooks/use-all-filters';
 import metricsClient from 'clients/metrics';
 import Async from 'components/async';
 
 const UnsupervisedObjectDetection = () => {
-    const allSqlFilters = useAllSqlFilters();
+    const allFilters = useAllFilters();
 
     return (
         <>
             <div className='my-3'>
                 <Async
-                    refetchOnChanged={[allSqlFilters]}
+                    refetchOnChanged={[allFilters]}
                     renderData={(data) => (
                         <BarGraph
                             bars={data.map(({prediction, my_percentage}) => ({
@@ -25,7 +25,10 @@ const UnsupervisedObjectDetection = () => {
                             unit='%'
                         />
                     )}
-                    fetchData={() => metricsClient('queries/class-distribution', {sql_filters: allSqlFilters})}
+                    fetchData={() => metricsClient('queries/class-distribution', {
+                        filters: allFilters,
+                        distribution_field: 'prediction'
+                    })}
                 />
             </div>
             <div className='my-3'>

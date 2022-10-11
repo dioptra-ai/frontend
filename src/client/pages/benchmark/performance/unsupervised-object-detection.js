@@ -14,7 +14,6 @@ import Segmentation from 'pages/common/segmentation';
 const UnsupervisedObjectDetection = ({benchmarkFilters}) => {
     const allSqlFilters = useAllSqlFilters();
     const {mlModelType} = useModel();
-    const sampleSizeComponent = <CountEvents sqlFilters={allSqlFilters}/>;
 
     return (
         <div className='pb-5'>
@@ -24,7 +23,7 @@ const UnsupervisedObjectDetection = ({benchmarkFilters}) => {
                         <MetricInfoBox
                             name='Datapoints'
                         >
-                            {sampleSizeComponent}
+                            <CountEvents/>
                         </MetricInfoBox>
                     </Col>
                     <Col className='d-flex' lg={3}>

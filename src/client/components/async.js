@@ -53,7 +53,7 @@ const Async = ({
                 }
             }
         })();
-    }, refetchOnChanged);
+    }, refetchOnChanged.map((r) => JSON.stringify(r) || r));
 
     let content = null;
 

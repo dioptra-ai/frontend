@@ -1,20 +1,25 @@
 import PropTypes from 'prop-types';
 import metricsClient from 'clients/metrics';
 import Async from 'components/async';
+import useAllFilters from 'hooks/use-all-filters';
 
-const CountEvents = ({sqlFilters, ...rest}) => (
-    <Async
-        renderData={([d]) => (
-            <span>{Number(d?.value).toLocaleString()}</span>
-        )}
-        fetchData={() => metricsClient('queries/count-events', {sql_filters: sqlFilters})}
-        refetchOnChanged={[sqlFilters]}
-        {...rest}
-    />
-);
+const CountEvents = ({filters, ...rest}) => {
+    filters = filters || useAllFilters();
+
+    return (
+        <Async
+            renderData={([d]) => (
+                <span>{Number(d?.value).toLocaleString()}</span>
+            )}
+            fetchData={() => metricsClient('throughput', {filters})}
+            refetchOnChanged={[JSON.stringify(filters)]}
+            {...rest}
+        />
+    );
+};
 
 CountEvents.propTypes = {
-    sqlFilters: PropTypes.string.isRequired
+    filters: PropTypes.string
 };
 
 export default CountEvents;

@@ -21,6 +21,7 @@ import comparisonContext from 'context/comparison-context';
 import {timeStore} from 'state/stores/time-store';
 import useAllSqlFilters from 'hooks/use-all-sql-filters';
 import metricsClient from 'clients/metrics';
+import useAllFilters from 'hooks/use-all-filters';
 
 const SplitView = ({children}) => children.length > 1 ? (
     <Row>
@@ -42,7 +43,7 @@ SplitView.propTypes = {
 
 const Model = ({filtersStore, modelStore}) => {
     const allSqlFiltersWithoutTime = useAllSqlFilters({excludeCurrentTimeFilters: true});
-    const allSqlFilters = useAllSqlFilters();
+    const allFilters = useAllFilters();
 
     useSyncStoresToUrl(({timeStore, filtersStore, segmentationStore}) => ({
         startTime: timeStore.start?.toISOString() || '',
@@ -73,7 +74,7 @@ const Model = ({filtersStore, modelStore}) => {
     useEffect(() => {
         (async () => {
             if (!timeStore.isModified) {
-                const [c] = await metricsClient('queries/count-events', {sql_filters: allSqlFilters});
+                const [c] = await metricsClient('throughput', {filters: allFilters});
 
                 if (c?.value === 0) {
                     const [d] = await metricsClient('default-time-range', {

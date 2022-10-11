@@ -6,7 +6,6 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import {useEffect, useState} from 'react';
 import ProgressBar from 'components/progress-bar';
-import useAllSqlFilters from 'hooks/use-all-sql-filters';
 import DifferenceLabel from 'components/difference-labels';
 import CountEvents from 'components/count-events';
 import metricsClient from 'clients/metrics';
@@ -130,9 +129,7 @@ ClassRow.propTypes = {
 };
 
 const PerformanceMetricAnalysis = ({metricUrl, title}) => {
-    const allSqlFilters = useAllSqlFilters();
     const allFilters = useAllFilters();
-    const sampleSizeComponent = <CountEvents sqlFilters={allSqlFilters}/>;
     const model = useModel();
 
     return (
@@ -147,14 +144,15 @@ const PerformanceMetricAnalysis = ({metricUrl, title}) => {
                     </OverlayTrigger>
                     <PerformanceBox
                         data={data}
-                        subtext={sampleSizeComponent}
+                        subtext={<CountEvents/>}
                         title={title}
                     />
                 </div>
             )}
             fetchData={() => metricsClient(metricUrl, {
                 filters: allFilters,
-                per_class: true
+                per_class: true,
+                model_type: model.mlModelType
             })}
             refetchOnChanged={[allFilters]}
         />

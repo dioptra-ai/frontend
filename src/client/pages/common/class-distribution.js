@@ -10,10 +10,12 @@ import BarGraph from 'components/bar-graph';
 import metricsClient from 'clients/metrics';
 import useTimeGranularity from 'hooks/use-time-granularity';
 import {setupComponent} from 'helpers/component-helper';
+import useAllFilters from 'hooks/use-all-filters';
 
 const ClassDistribution = ({timeStore}) => {
     const {mlModelType} = useModel();
     const allSqlFilters = useAllSqlFilters();
+    const allFilters = useAllFilters();
     const allOfflineSqlFilters = useAllSqlFilters({useReferenceFilters: true});
     const timeGranularity = useTimeGranularity()?.toISOString();
 
@@ -34,7 +36,10 @@ const ClassDistribution = ({timeStore}) => {
                             unit='%'
                         />
                     )}
-                    fetchData={() => metricsClient('queries/class-distribution', {sql_filters: allSqlFilters})}
+                    fetchData={() => metricsClient('queries/class-distribution', {
+                        filters: allFilters,
+                        distribution_field: 'prediction'
+                    })}
                 />
             </Col>
             <Col className='d-flex' lg={4}>
@@ -51,7 +56,10 @@ const ClassDistribution = ({timeStore}) => {
                             unit='%'
                         />
                     )}
-                    fetchData={() => metricsClient('queries/class-distribution', {sql_filters: allOfflineSqlFilters})}
+                    fetchData={() => metricsClient('queries/class-distribution', {
+                        filters: allFilters,
+                        distribution_field: 'prediction'
+                    })}
                 />
             </Col>
             <Col className='d-flex' lg={4}>

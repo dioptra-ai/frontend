@@ -7,6 +7,7 @@ import {Button, Overlay, Tooltip} from 'react-bootstrap';
 
 import {formatDateTimeRange, last} from 'helpers/date-helper';
 import useAllSqlFilters from 'hooks/use-all-sql-filters';
+import useAllFilters from 'hooks/use-all-filters';
 import metricsClient from 'clients/metrics';
 import {setupComponent} from 'helpers/component-helper';
 import Async from 'components/async';
@@ -45,7 +46,7 @@ const initialSettings = {
 const DateTimeRangePicker = ({onChange, start, end, className, datePickerSettings, width, timeStore, jumpToLatestDataPopup}) => {
     const overlayTarget = React.useRef(null);
     const [isCalendarVisible, setIsCalendarVisible] = useState(false);
-    const allSqlFilters = useAllSqlFilters();
+    const allFilters = useAllFilters();
     const allSqlFiltersWithoutTime = useAllSqlFilters({excludeCurrentTimeFilters: true});
     const handleChange = ({startDate, endDate, chosenLabel}) => {
         if (chosenLabel) {
@@ -65,8 +66,8 @@ const DateTimeRangePicker = ({onChange, start, end, className, datePickerSetting
                 jumpToLatestDataPopup ? (
                     <Async
                         spinner={false}
-                        fetchData={() => metricsClient('queries/count-events', {sql_filters: allSqlFilters})}
-                        refetchOnChanged={[allSqlFilters]}
+                        fetchData={() => metricsClient('throughput', {filters: allFilters})}
+                        refetchOnChanged={[JSON.stringify(allFilters)]}
                         renderData={([d]) => (
                             <Overlay target={overlayTarget.current} placement='bottom-end' show={d?.value === 0}>
                                 {(props) => (

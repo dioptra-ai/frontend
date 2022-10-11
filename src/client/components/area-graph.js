@@ -71,8 +71,8 @@ const AreaGraph = ({
     },
     unit,
     timeStore,
-    xDataKey = 'x',
-    yDataKey = 'y',
+    xDataKey = 'timestamp',
+    yDataKey = 'value',
     formatValue = String
 }) => {
     const granularityMs = useTimeGranularity().asMilliseconds();
@@ -311,7 +311,7 @@ AreaGraph.propTypes = {
 export default setupComponent(AreaGraph);
 
 export const SmallChart = setupComponent(({
-    timeStore, data, unit, xDataKey = 'x', yDataKey = 'y', hasTooltip = false
+    timeStore, data, unit, xDataKey, yDataKey, hasTooltip = false
 }) => (
     <ResponsiveContainer height='100%' width='100%'>
         <AreaChart data={data.map((d) => ({

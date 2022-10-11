@@ -60,8 +60,6 @@ const MetricChart = ({selectableMetrics, selectedMetric, type}) => {
                                     (userSelectedMetric === 'COSINE_SPEARMAN_CORRELATION' ||
                                         userSelectedMetric === 'COSINE_PEARSON_CORRELATION') ? [-1, 1] : [0, 1]
                                 }
-                                xDataKey='time'
-                                yDataKey='value'
                                 title={
                                     <Row>
                                         <Col>{metricName}</Col>

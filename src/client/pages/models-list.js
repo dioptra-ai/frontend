@@ -102,7 +102,11 @@ const _ModelRow = ({model, idx, color, filtersStore, onDeleteModelClick}) => {
                 <div className='d-flex align-items-center justify-content-center'>
                     <Async
                         fetchData={() => metricsClient('throughput', {
-                            sql_filters: `timestamp >= NOW() - INTERVAL '30' DAY AND model_id='${model.mlModelId}' AND dataset_id IS NULL`,
+                            filters: [{
+                                left: {left: 'timestamp', op: '>=', right: new Date(new Date().setDate(new Date().getDate() - 5))},
+                                op: 'and',
+                                right: {left: 'model_id', op: '=', right: model.mlModelId}
+                            }],
                             time_granularity: moment.duration(6, 'hour').toISOString()
                         })}
                         renderData={(throughput) => (

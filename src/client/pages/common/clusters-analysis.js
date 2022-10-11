@@ -81,6 +81,7 @@ const getEmbeddingsFieldsForModel = (modelType) => {
 const _ClustersAnalysis = ({clusters}) => {
     const samplingLimit = 10000;
     const allSqlFilters = useAllSqlFilters();
+    const allFilters = useAllFilters();
     const model = useModel();
     const mlModelType = model?.mlModelType;
     const [userSelectedSummaryDistribution, setUserSelectedSummaryDistribution] = useState('prediction');
@@ -252,7 +253,7 @@ const _ClustersAnalysis = ({clusters}) => {
                                     />
                                 )}
                                 fetchData={() => metricsClient('queries/class-distribution', {
-                                    sql_filters: samplesSqlFilter,
+                                    filters: allFilters,
                                     distribution_field: userSelectedSummaryDistribution
                                 })}
                             />
