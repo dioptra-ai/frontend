@@ -179,6 +179,7 @@ const EditModel = ({initialValue, onSubmit, errors, modelStore}) => {
                                     <option value='UNSUPERVISED_TEXT_CLASSIFIER'>Unsupervised Text Classifier</option>
                                     <option value='UNSUPERVISED_OBJECT_DETECTION'>Unsupervised Object Detection</option>
                                     <option value='NER'>Named Entity Recognition</option>
+                                    <option value='LEARNING_TO_RANK'>Learning to Rank</option>
                                     {/* <option value='SPEECH_TO_TEXT'>Speech to Text</option> */}
                                     {/* <option value='AUTO_COMPLETION'>Auto Completion</option> */}
                                     {/* <option value='SEMANTIC_SIMILARITY'>Semantic Similarity</option> */}

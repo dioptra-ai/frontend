@@ -189,6 +189,7 @@ const _metricCell = ({cell}) => {
     const cellFields = Object.keys(cellValues).filter((f) => f !== 'value');
     const {mlModelType} = useModel();
     const allSqlFilters = useAllSqlFilters();
+    const allFilters = useAllFilters();
     const {ref, inView} = useInView();
 
     return (
@@ -202,6 +203,7 @@ const _metricCell = ({cell}) => {
 
                         return metricsClient(cellId, {
                             sql_filters: `${allSqlFilters} AND ${cellFields.map((f) => `"${f}"='${cellValues[f]}'`).join(' AND ')}`,
+                            filters: [...allFilters, ...cellFields.map((f) => ({left: f, op: '=', right: cellValues[f]}))],
                             model_type: mlModelType,
                             iou_threshold: 0.5
                         });
@@ -376,6 +378,17 @@ const Segmentation = ({segmentationStore}) => {
                                     id: 'spearman-cosine',
                                     Header: 'Cosine Spearman Correlation',
                                     Cell: metricCell
+                                }] : mlModelType === 'LEARNING_TO_RANK' ? [{
+                                    id: 'mrr',
+                                    Header: 'Mean Reciprocal Rank',
+                                    Cell: metricCell
+                                }, {
+                                    id: 'mean-ndcg',
+                                    Header: 'Mean NDCG',
+                                    Cell: metricCell
+                                }, {
+                                    accessor: 'value',
+                                    Header: 'Sample Size'
                                 }] : [
                                     {
                                         id: 'accuracy-metric',

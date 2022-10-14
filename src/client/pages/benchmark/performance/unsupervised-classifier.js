@@ -8,7 +8,7 @@ import MetricInfoBox from 'components/metric-info-box';
 import Async from 'components/async';
 import metricsClient from 'clients/metrics';
 import CountEvents from 'components/count-events';
-import PerformancePerClass from 'pages/common/performance-per-class';
+import PerformancePerGroup from 'pages/common/performance-per-class';
 import Segmentation from 'pages/common/segmentation';
 
 const ImageClassifier = ({benchmarkFilters}) => {
@@ -89,7 +89,7 @@ const ImageClassifier = ({benchmarkFilters}) => {
                 </Row>
             </div>
             <div className='my-3'>
-                <PerformancePerClass/>
+                <PerformancePerGroup/>
             </div>
             <Segmentation />
         </div>

@@ -15,7 +15,10 @@ Hit `Create Model`
 ### Logging your first event
 
 ```python
+import os
 import requests
+
+DIOPTRA_API_KEY = os.environ.get('DIOPTRA_API_KEY')
 
 r = requests.post('https://api.dioptra.ai/events', headers={
     'content-type': 'application/json',
@@ -24,9 +27,13 @@ r = requests.post('https://api.dioptra.ai/events', headers={
     'records': [
         {
             'model_id': 'cat_dog_classifier',
-            'prediction': 'DOG',
-            'confidence': 0.9,
-            'groundtruth': 'CAT',
+            'prediction': {
+                'class_name': 'DOG',
+                'confidence': 0.9
+            },
+            'groundtruth': {
+                'class_name': 'CAT'
+            },
             'tags': {
                 'ApertureValue': '45/8',
                 'DateTimeOriginal': '2008:05:30 15:56:01'
@@ -40,7 +47,6 @@ r = requests.post('https://api.dioptra.ai/events', headers={
         }
     ]
 })
-
 ```
 
 Congrats, you logged your first event!

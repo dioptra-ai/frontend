@@ -5,7 +5,7 @@ import Row from 'react-bootstrap/Row';
 import useModel from 'hooks/use-model';
 import comparisonContext from 'context/comparison-context';
 import MetricChart from 'pages/common/metric-chart';
-import PerformancePerClass from 'pages/common/performance-per-class';
+import PerformancePerGroup from 'pages/common/performance-per-class';
 import ConfusionMatrix from 'components/confusion-matrix';
 import GroundTruthDistribution from 'pages/common/groundtruth-distribution';
 import Segmentation from 'pages/common/segmentation';
@@ -83,6 +83,12 @@ const Performance = () => {
         break;
     case 'MULTIPLE_OBJECT_TRACKING':
         break;
+    case 'LEARNING_TO_RANK':
+        metrics.push(
+            'MRR',
+            'MEAN_NDCG'
+        );
+        break;
     default:
         break;
     }
@@ -93,10 +99,11 @@ const Performance = () => {
     case 'UNSUPERVISED_TEXT_CLASSIFIER':
     case 'UNSUPERVISED_IMAGE_CLASSIFIER':
     case 'UNSUPERVISED_OBJECT_DETECTION':
-        widgets.push(<PerformancePerClass/>, <Segmentation />);
+    case 'LEARNING_TO_RANK':
+        widgets.push(<PerformancePerGroup/>, <Segmentation />);
         break;
     default:
-        widgets.push(<GroundTruthDistribution/>, <PerformancePerClass/>, <ConfusionMatrix />, <Segmentation />);
+        widgets.push(<GroundTruthDistribution/>, <PerformancePerGroup/>, <ConfusionMatrix />, <Segmentation />);
     }
 
     return (

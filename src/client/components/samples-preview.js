@@ -17,7 +17,7 @@ const SamplesPreview = ({samples, userStore, onClearSamples, limit}) => {
         <>
             <div className='text-dark m-3 bold-text d-flex justify-content-between'>
                 <div>
-                    Datapoints: {samples.length >= limit ? `${limit.toLocaleString()}+` : samples.length.toLocaleString()}
+                    Total: {samples.length >= limit ? `${limit.toLocaleString()}+` : samples.length.toLocaleString()}
                 </div>
                 <div className='d-flex'>
                     {onClearSamples ? (

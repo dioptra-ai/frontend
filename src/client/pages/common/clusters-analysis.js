@@ -13,7 +13,6 @@ import {getHexColor} from 'helpers/color-helper';
 import BarGraph from 'components/bar-graph';
 import Async from 'components/async';
 import AsyncSegmentationFields from 'components/async-segmentation-fields';
-import useAllSqlFilters from 'hooks/use-all-sql-filters';
 import ScatterChart, {ScatterSearch} from 'components/scatter-chart';
 import metricsClient from 'clients/metrics';
 import useModel from 'hooks/use-model';
@@ -33,60 +32,83 @@ const MODEL_TYPE_TO_METRICS_NAMES = {
     'UNSUPERVISED_IMAGE_CLASSIFIER': ['COUNT', 'CONFIDENCE', 'ENTROPY'],
     'UNSUPERVISED_TEXT_CLASSIFIER': ['COUNT', 'CONFIDENCE', 'ENTROPY'],
     'SEMANTIC_SIMILARITY': ['COUNT', 'PEARSON_CONSINE', 'SPEARMAN_COSINE'],
-    'NER': ['COUNT', 'ACCURACY', 'F1_SCORE', 'PRECISION', 'RECALL']
+    'NER': ['COUNT', 'ACCURACY', 'F1_SCORE', 'PRECISION', 'RECALL'],
+    'LEARNING_TO_RANK': ['COUNT', 'MEAN_NDCG', 'MRR']
 };
-const getDistributionMetricsForModel = (modelType) => {
+const getDistributionFieldForModel = (modelType) => {
     if (modelType.startsWith('UNSUPERVISED_')) {
 
         return [{
-            name: 'prediction',
-            value: 'prediction'
+            name: 'Prediction',
+            value: '"prediction"->\'class_name\''
+        }];
+    } else if (modelType.startsWith('LEARNING_TO_RANK')) {
+
+        return [{
+            name: 'Relevance',
+            value: '"groundtruth"->\'relevance\''
+        }, {
+            name: 'Pred. Score',
+            value: '"prediction"->\'score\''
         }];
     } else {
 
         return [{
-            name: 'prediction',
-            value: 'prediction'
+            name: 'Prediction',
+            value: '"prediction"->\'class_name\''
         }, {
-            name: 'groundtruth',
-            value: 'groundtruth'
+            name: 'Ground truth',
+            value: '"groundtruth"->\'class_name\''
         }];
     }
 };
 
 const getEmbeddingsFieldsForModel = (modelType) => {
-    const results = [{
-        name: 'Embeddings',
-        value: 'embeddings'
-    }];
 
     if (modelType === 'UNSUPERVISED_OBJECT_DETECTION') {
-        results.push({
+
+        return [{
+            name: 'Embeddings',
+            value: 'embeddings'
+        }, {
             name: 'Prediction Box Embeddings',
             value: 'prediction.embeddings'
-        });
+        }];
     } else if (modelType === 'OBJECT_DETECTION') {
-        results.push({
+
+        return [{
+            name: 'Embeddings',
+            value: 'embeddings'
+        }, {
             name: 'Prediction Box Embeddings',
             value: 'prediction.embeddings'
         }, {
             name: 'Ground Truth Box Embeddings',
             value: 'groundtruth.embeddings'
-        });
-    }
+        }];
+    } else if (modelType === 'LEARNING_TO_RANK') {
 
-    return results;
+        return [{
+            name: 'Query Embeddings',
+            value: 'embeddings'
+        }, {
+            name: 'Features',
+            value: 'features'
+        }];
+    } else return [{
+        name: 'Embeddings',
+        value: 'embeddings'
+    }];
 };
 
 const _ClustersAnalysis = ({clusters}) => {
     const samplingLimit = 10000;
-    const allSqlFilters = useAllSqlFilters();
     const allFilters = useAllFilters();
     const model = useModel();
     const mlModelType = model?.mlModelType;
-    const [userSelectedSummaryDistribution, setUserSelectedSummaryDistribution] = useState('prediction');
+    const distributionMetricsOptions = getDistributionFieldForModel(mlModelType);
+    const [userSelectedSummaryDistribution, setUserSelectedSummaryDistribution] = useState(distributionMetricsOptions[0].value);
     const [selectedPoints, setSelectedPoints] = useState([]);
-    const [distributionMetricsOptions, setDistributionMetricsOptions] = useState([]);
     const uniqueSampleUUIDs = new Set(selectedPoints.map(({sample}) => sample['uuid']));
     const uniqueClusterLabels = new Set(selectedPoints.map((p) => p.clusterLabel));
     const sortedClusters = useMemo(() => clusters.map((c) => ({
@@ -97,9 +119,11 @@ const _ClustersAnalysis = ({clusters}) => {
     })).sort((c1, c2) => c2.metric?.value - c1.metric?.value), [clusters]);
     const samples = selectedPoints.map((p) => p.sample);
     // SQL Filter for samples is sliced if there are more than samplingLimit samples.
-    const samplesSqlFilter = `${allSqlFilters} AND uuid in (${
-        samples.slice(0, samplingLimit).map((s) => `'${s['uuid']}'`).join(',')
-    })`;
+    const samplesFilters = uniqueSampleUUIDs.size ? [...allFilters, {
+        left: 'uuid',
+        op: 'in',
+        right: Array.from(uniqueSampleUUIDs).slice(0, samplingLimit)
+    }] : null;
     const samplesCsvClassNames = Array.from(new Set(samples.map((s) => s['prediction'] || s['prediction.class_name']))).join(',');
     const handleClearSamples = (uuids) => {
         const uuidsSet = new Set(uuids);
@@ -126,12 +150,6 @@ const _ClustersAnalysis = ({clusters}) => {
 
         setSelectedPoints(Object.values(uniquePointsByUUID));
     };
-
-    useEffect(async () => {
-        const result = await getDistributionMetricsForModel(mlModelType);
-
-        setDistributionMetricsOptions(result);
-    }, [mlModelType]);
 
     useEffect(() => {
         setSelectedPoints([]);
@@ -223,7 +241,7 @@ const _ClustersAnalysis = ({clusters}) => {
                     <div className={`d-flex p-2 overflow-auto flex-grow-0 ${samples.length ? 'justify-content-left' : 'justify-content-center align-items-center'} scatterGraph-examples`}>
                         {samples.length ? (
                             <Async
-                                refetchOnChanged={[samplesSqlFilter, userSelectedSummaryDistribution]}
+                                refetchOnChanged={[JSON.stringify(samplesFilters), userSelectedSummaryDistribution]}
                                 renderData={(data) => (
                                     <BarGraph
                                         className='border-0' height='50vh'
@@ -266,7 +284,16 @@ const _ClustersAnalysis = ({clusters}) => {
         </Row>
         <Row className='g-2 mb-3'>
             <Col className='bg-white-blue rounded p-3'>
-                <SamplesPreview samples={samples} onClearSamples={handleClearSamples}/>
+                <Async
+                    fetchData={() => samplesFilters ? metricsClient('select', {
+                        select: '"uuid", "groundtruth", "prediction", "image_metadata", "text"',
+                        filters: samplesFilters,
+                        limit: 1000,
+                        model_type: mlModelType
+                    }) : null}
+                    renderData={(datapoints) => <SamplesPreview samples={datapoints} limit={1000} />}
+                    refetchOnChanged={[JSON.stringify(samplesFilters)]}
+                />
             </Col>
         </Row>
         </>

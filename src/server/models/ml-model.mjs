@@ -40,7 +40,8 @@ const mlModelSchema = new mongoose.Schema({
             'MULTIPLE_OBJECT_TRACKING',
             'UNSUPERVISED_IMAGE_CLASSIFIER',
             'UNSUPERVISED_TEXT_CLASSIFIER',
-            'NER'
+            'NER',
+            'LEARNING_TO_RANK'
         ],
         required: true
     },
