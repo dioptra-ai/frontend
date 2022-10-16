@@ -10,7 +10,7 @@ const MapMarAnalysis = () => {
 
     return (
         <>
-            <div className='d-flex my-3' lg={12}>
+            <div className='d-flex my-3'>
                 <Async
                     renderData={([iou05, iou075, iou09]) => {
                         const classNames = iou05.map((d) => {
@@ -70,7 +70,7 @@ const MapMarAnalysis = () => {
                     ]}
                 />
             </div>
-            <div className='d-flex my-3' lg={12}>
+            <div className='d-flex my-3'>
                 <Async
                     renderData={([iou05, iou075, iou09]) => {
                         const classNames = iou05.map((d) => {
