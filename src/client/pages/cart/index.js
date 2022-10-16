@@ -59,7 +59,7 @@ const Cart = ({userStore}) => {
                                 <Container fluid>
                                     <Row>
                                         <Col className='ps-3'>
-                                                Selected Datapoints: {selectedDatapoints.size}&nbsp;
+                                                Selected: {selectedDatapoints.size}&nbsp;
                                             {
                                                 selectedDatapoints.size ? (
                                                     <a className='text-dark border-0 bg-transparent click-down'

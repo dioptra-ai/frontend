@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import Container from 'react-bootstrap/Container';
 import isUrl from 'is-url';
 import {FiExternalLink} from 'react-icons/fi';
 
@@ -15,24 +14,28 @@ const PreviewDetails = ({sample}) => {
 
         return (
             <Row className='g-1'>
-                {sample.map((v, i) => <Col key={i} xs={12} className={i % 2 ? 'bg-white-blue' : ''}><PreviewDetails sample={v}/></Col>)}
+                {
+                    sample.map((v, i) => (
+                        <Col key={i} xs={12} className={i % 2 ? 'my-1 py-1 bg-white-blue' : 'my-1 py-1 bg-white'} style={{borderBottom: '1px solid silver'}}><PreviewDetails sample={v}/></Col>
+                    ))
+                }
             </Row>
         );
     } else if (sample && typeof sample === 'object') {
 
         return (
-            <Container fluid>
+            <>
                 {
                     Object.entries(sample).map(([k, v], i) => (
-                        <Row key={k} className={i % 2 ? 'bg-white-blue' : ''}>
-                            <Col>{k}</Col>
+                        <Row key={k} className={i % 2 ? 'my-1 bg-white-blue' : 'my-1 bg-white'}>
+                            <Col xs={2} style={{borderRight: '1px solid silver'}}>{k}</Col>
                             <Col className='text-break'>
                                 <PreviewDetails sample={v}/>
                             </Col>
                         </Row>
                     ))
                 }
-            </Container>
+            </>
         );
     } else if (isUrl(sample)) {
 

@@ -108,7 +108,7 @@ const formatNumber = (v) => {
         return '-';
     } else {
 
-        return v.toLocaleString(2);
+        return Number(v).toLocaleString(2);
     }
 };
 
@@ -300,6 +300,30 @@ const useMetric = (metric, timeGranularity) => {
             },
             formatValue: formatPercent,
             unit: '%'
+        },
+        MRR: {
+            fetchData: () => {
+
+                return metricsClient('mrr', {
+                    filters: allFilters,
+                    time_granularity: timeGranularity,
+                    model_type: model.mlModelType
+                });
+            },
+            formatValue: formatNumber
+        },
+        MEAN_NDCG: {
+            fetchData: () => {
+
+                return metricsClient('mean-ndcg', {
+                    filters: allFilters,
+                    time_granularity: timeGranularity,
+                    model_type: model.mlModelType
+                });
+            },
+            formatValue: formatPercent,
+            unit: '%',
+            name: 'Mean NDCG'
         }
     }[metric];
 

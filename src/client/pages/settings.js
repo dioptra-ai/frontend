@@ -86,7 +86,6 @@ const Settings = () => {
                                     (integration, index) => {
                                         return (
                                             <span
-                                                activeClassName='active'
                                                 className={`tab fs-5 ${
                                                     integration.value ===
                                                     selectedIntegration ?

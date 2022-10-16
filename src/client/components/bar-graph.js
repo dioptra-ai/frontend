@@ -66,6 +66,7 @@ const BarGraph = ({title, bars, unit, yAxisName, xAxisName, yAxisDomain, classNa
                                     dx: -20,
                                     fontSize: fontSizes.fs_7
                                 }}
+                                tickFormatter={(value) => Number(value).toFixed?.(2) || '-'}
                                 tick={{fontSize: fontSizes.fs_7}}
                                 unit={unit}
                             />
