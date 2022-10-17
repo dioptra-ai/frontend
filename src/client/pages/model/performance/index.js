@@ -93,14 +93,19 @@ const Performance = () => {
         break;
     }
 
+    // EMBEDDING_DRIFT not yet implemented when not over time, so we add it only for the chart.
+    const timeMetrics = [...metrics, 'EMBEDDING_DRIFT'];
     const widgets = [];
 
     switch (model.mlModelType) {
     case 'UNSUPERVISED_TEXT_CLASSIFIER':
     case 'UNSUPERVISED_IMAGE_CLASSIFIER':
     case 'UNSUPERVISED_OBJECT_DETECTION':
+        widgets.push(<PerformancePerGroup />, <Segmentation />);
+        break;
     case 'LEARNING_TO_RANK':
-        widgets.push(<PerformancePerGroup/>, <Segmentation />);
+        widgets.push(<PerformancePerGroup />, <Segmentation />);
+        timeMetrics.push('FEATURES_DRIFT');
         break;
     default:
         widgets.push(<GroundTruthDistribution/>, <PerformancePerGroup/>, <ConfusionMatrix />, <Segmentation />);
@@ -120,8 +125,7 @@ const Performance = () => {
             <div className='my-3'>
                 <MetricChart
                     type='timeseries'
-                    // EMBEDDING_DRIFT not yet implemented when not over time, so we add it only for the chart.
-                    selectableMetrics={metrics.concat('EMBEDDING_DRIFT')}
+                    selectableMetrics={timeMetrics}
                 />
             </div>
             {

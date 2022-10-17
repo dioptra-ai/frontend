@@ -143,6 +143,19 @@ const useMetric = (metric, timeGranularity) => {
             },
             formatValue: formatNumber
         },
+        FEATURES_DRIFT: {
+            fetchData: () => {
+
+                // TODO: implement this
+                return metricsClient('compute', {
+                    metrics_type: 'bi_non_cat_distance',
+                    reference_filters: allOfflineSqlFilters,
+                    current_filters: allSqlFilters,
+                    time_granularity: timeGranularity
+                });
+            },
+            formatValue: formatNumber
+        },
         ACCURACY: {
             fetchData: () => {
 
