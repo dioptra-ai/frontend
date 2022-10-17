@@ -190,11 +190,8 @@ const PerformancePerGroup = () => {
                     </>
                 ) : model.mlModelType === 'LEARNING_TO_RANK' ? (
                     <>
-                        <Col lg={6}>
-                            <PerformanceMetricAnalysis metricUrl='mrr' title='Reciprocal Rank per Query' />
-                        </Col>
-                        <Col lg={6}>
-                            <PerformanceMetricAnalysis metricUrl='mean-ndcg' title='NDCG per Query' />
+                        <Col lg={12}>
+                            <PerformanceMetricAnalysis metricUrl='mean-ndcg' title='NDCG per Document' />
                         </Col>
                     </>
                 ) : `Unsupported model type: ${model.mlModelType}`
