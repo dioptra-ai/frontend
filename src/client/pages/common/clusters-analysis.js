@@ -287,10 +287,9 @@ const _ClustersAnalysis = ({clusters}) => {
             <Col className='bg-white-blue rounded p-3'>
                 <Async
                     fetchData={() => samplesFilters ? metricsClient('select', {
-                        select: '"uuid", "groundtruth", "prediction", "image_metadata", "text"',
+                        select: '"uuid", "groundtruth", prediction, "image_metadata", "text", "request_id"',
                         filters: samplesFilters,
-                        limit: 1000,
-                        model_type: mlModelType
+                        limit: 1000
                     }) : null}
                     renderData={(datapoints) => <SamplesPreview samples={datapoints} limit={1000} />}
                     refetchOnChanged={[JSON.stringify(samplesFilters)]}

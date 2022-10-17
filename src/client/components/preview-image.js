@@ -1,26 +1,57 @@
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import {TransformComponent, TransformWrapper} from 'react-zoom-pan-pinch';
 import {VscDiscard, VscZoomIn, VscZoomOut} from 'react-icons/vsc';
 import {IoPricetagSharp} from 'react-icons/io5';
+import {useInView} from 'react-intersection-observer';
 
 import SignedImage from 'components/signed-image';
 import SeekableVideo from 'components/seekable-video';
 import {getHexColor} from 'helpers/color-helper';
+import metricsClient from 'clients/metrics';
 
 /* eslint-disable complexity */
 const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomable, maxHeight}) => {
     const [height, setHeight] = useState();
+    const {ref, inView} = useInView();
     const handleLoad = ({target}) => {
         setHeight(target.offsetHeight);
     };
-    const videoUrl = datapoint['video_metatada.uri'];
-    const imageUrl = datapoint['image_metadata.uri'];
-    const frameH = datapoint['image_metadata.height'] || datapoint['video_metadata.height'];
+    const videoUrl = datapoint.video_metatada?.uri;
+    const imageUrl = datapoint.image_metadata?.uri;
+    const frameH = datapoint.image_metadata?.height || datapoint.video_metadata?.height;
     const {prediction, groundtruth} = datapoint;
+    const [predictions, setPredictions] = useState(Array.isArray(prediction) ? prediction : prediction ? [prediction] : null);
+    const [groundtruths, setGroundtruths] = useState(Array.isArray(groundtruth) ? groundtruth : groundtruth ? [groundtruth] : null);
+
+    useEffect(() => {
+        if (inView && !predictions && !groundtruths) {
+            metricsClient('select', {
+                select: '"prediction", "groundtruth"',
+                filters: [{
+                    left: 'request_id',
+                    op: '=',
+                    right: datapoint.request_id
+                }, {
+                    left: {
+                        left: 'prediction',
+                        op: 'is not null'
+                    },
+                    op: 'or',
+                    right: {
+                        left: 'groundtruth',
+                        op: 'is not null'
+                    }
+                }]
+            }).then((datapoints) => {
+                setPredictions(datapoints.map((d) => d.prediction));
+                setGroundtruths(datapoints.map((d) => d.groundtruth));
+            });
+        }
+    }, [inView, datapoint.request_id]);
 
     return (
-        <div onClick={onClick} style={{position: 'relative'}}>
+        <div ref={ref} onClick={onClick} style={{position: 'relative'}}>
             <TransformWrapper disabled={!zoomable}>
                 {({zoomIn, zoomOut, resetTransform}) => (
                     <div className={`${onClick ? 'cursor-pointer' : zoomable ? 'cursor-grab' : ''} d-flex flex-column align-items-center`} >
@@ -49,7 +80,7 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
                                 />
                             )}
                             {
-                                prediction?.map?.((p, i) => (
+                                predictions?.filter(Boolean).map((p, i) => (
                                     <div key={i}
                                         className='position-absolute'
                                         style={{
@@ -72,7 +103,7 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
 
                             }
                             {
-                                groundtruth?.map?.((g, i) => (
+                                groundtruths?.filter(Boolean).map((g, i) => (
                                     <div key={i}
                                         className='position-absolute'
                                         style={{
