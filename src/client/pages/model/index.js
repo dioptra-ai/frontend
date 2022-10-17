@@ -13,6 +13,7 @@ import ModelDescription from 'components/model-description';
 import Tabs from 'components/tabs';
 import Spinner from 'components/spinner';
 import Performance from './performance';
+import Features from './features';
 import Explorer from './explorer';
 import IncidentsAndAlerts from 'pages/common/incidents-and-alerts';
 import useSyncStoresToUrl from 'hooks/use-sync-stores-to-url';
@@ -66,6 +67,7 @@ const Model = ({filtersStore, modelStore}) => {
     });
     const tabs = [
         {name: 'Performance', to: '/models/performance'},
+        {name: 'Features', to: '/models/features'},
         {name: 'Data Explorer', to: '/models/explorer'},
         {name: 'Incidents & Alerts', to: '/models/incidents-and-alerts'}
     ];
@@ -116,7 +118,12 @@ const Model = ({filtersStore, modelStore}) => {
                                 <SplitView>
                                     {models.map((model, i) => <Performance key={i}/>)}
                                 </SplitView>
-                            )}/>
+                            )} />
+                            <Route exact path='/models/features' render={() => (
+                                <SplitView>
+                                    {models.map((model, i) => <Features key={i} />)}
+                                </SplitView>
+                            )} />
                             <Route exact path='/models/explorer' render={() => (
                                 <SplitView>
                                     {models.map((model, i) => <Explorer key={i}/>)}

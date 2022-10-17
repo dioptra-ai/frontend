@@ -380,7 +380,7 @@ const Segmentation = ({segmentationStore}) => {
                                     Cell: metricCell
                                 }] : mlModelType === 'LEARNING_TO_RANK' ? [{
                                     id: 'mrr',
-                                    Header: 'Mean Reciprocal Rank',
+                                    Header: 'MRR',
                                     Cell: metricCell
                                 }, {
                                     id: 'mean-ndcg',

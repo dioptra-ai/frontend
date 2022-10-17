@@ -323,7 +323,8 @@ const useMetric = (metric, timeGranularity) => {
                     model_type: model.mlModelType
                 });
             },
-            formatValue: formatNumber
+            formatValue: formatNumber,
+            name: 'MRR'
         },
         MEAN_NDCG: {
             fetchData: () => {
