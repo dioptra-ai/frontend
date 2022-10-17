@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import {AiOutlineCheckCircle} from 'react-icons/ai';
 import hash from 'string-hash';
 import {Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis} from 'recharts';
 import metricsClient from 'clients/metrics';
@@ -38,6 +39,9 @@ const Features = () => {
                         }, {
                             Header: 'Prediction Drift Impact',
                             accessor: 'pdi'
+                        }, {
+                            Header: 'Quality',
+                            Cell: QualityCell
                         }]}
                         data={data.map((feature) => {
                             const {label, value: histogram} = feature;
@@ -86,4 +90,11 @@ const HistogramCell = ({cell}) => {
 
 HistogramCell.propTypes = {
     cell: PropTypes.object
+};
+
+const QualityCell = () => {
+
+    return (
+        <AiOutlineCheckCircle color={theme.success} size={20} />
+    );
 };
