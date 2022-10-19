@@ -38,25 +38,29 @@ const Explorer = () => {
                         selectedAnalysis === 'CLUSTERING' ? <ClustersAnalysis /> : (
                             <div className='my-3'>
                                 <Async
-                                    fetchData={() => metricsClient('select', {
-                                        select: `"uuid", 
-                                            "request_id",
-                                            "groundtruth",
-                                            "prediction",
-                                            "image_metadata",
-                                            "prediction",
-                                            "groundtruth",
-                                            "text"`,
-                                        filters: [...allFilters, {
-                                            left: 'prediction',
-                                            op: 'is null'
-                                        }, {
-                                            left: 'groundtruth',
-                                            op: 'is null'
-                                        }],
-                                        limit: 1000,
-                                        model_type: model.mlModelType
-                                    })}
+                                    fetchData={async () => {
+                                        const requestDatapoints = await metricsClient('select', {
+                                            select: '"uuid", "request_id", "image_metadata", "text_metadata", "video_metadata","text"',
+                                            filters: [...allFilters, {
+                                                left: 'prediction',
+                                                op: 'is null'
+                                            }, {
+                                                left: 'groundtruth',
+                                                op: 'is null'
+                                            }],
+                                            limit: 1000,
+                                            model_type: model.mlModelType
+                                        });
+
+                                        if (requestDatapoints.length) {
+
+                                            return requestDatapoints;
+                                        } else return metricsClient('select', {
+                                            select: '"uuid", "request_id", "image_metadata", "text_metadata", "video_metadata", "text", "prediction", "groundtruth"',
+                                            filters: allFilters,
+                                            limit: 1000
+                                        });
+                                    }}
                                     renderData={(datapoints) => <SamplesPreview samples={datapoints} limit={1000}/>}
                                     refetchOnChanged={[JSON.stringify(allFilters)]}
                                 />

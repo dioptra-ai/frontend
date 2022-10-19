@@ -39,14 +39,12 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
                 }, {
                     left: {
                         left: 'prediction',
-                        op: '!=',
-                        right: 'null'
+                        op: 'is not null'
                     },
                     op: 'or',
                     right: {
                         left: 'groundtruth',
-                        op: '!=',
-                        right: 'null'
+                        op: 'is not null'
                     }
                 }]
             }).then((datapoints) => {
@@ -85,10 +83,16 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
                                     style={{maxHeight: maxHeight || '100%', maxWidth: '100%'}}
                                 />
                             )}
+                            {/* eslint-disable-next-line react/no-unknown-property */}
+                            <style jsx>{`
+                                .hover-z100:hover {
+                                    z-index: 100;
+                                }
+                            `}</style>
                             {
                                 predictions?.filter(Boolean).map((p, i) => (
                                     <div key={i}
-                                        className='position-absolute'
+                                        className='position-absolute hover-z100'
                                         style={{
                                             height: p['height'] * (height / frameH),
                                             width: p['width'] * (height / frameH),
@@ -111,7 +115,7 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
                             {
                                 groundtruths?.filter(Boolean).map((g, i) => (
                                     <div key={i}
-                                        className='position-absolute'
+                                        className='position-absolute hover-z100'
                                         style={{
                                             height: g['height'] * (height / frameH),
                                             width: g['width'] * (height / frameH),
