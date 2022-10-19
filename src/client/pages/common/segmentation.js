@@ -108,7 +108,7 @@ const _DistributionCell = ({row, segmentationStore}) => {
             ) : (
                 <ResponsiveContainer height={150} width='100%'>
                     <BarChart data={distributionData.map((d) => ({...d, value: 100 * d.value}))}>
-                        <Tooltip content={<BarTooltip unit='%'/>}/>
+                        <Tooltip content={<BarTooltip/>}/>
                         <Bar background={false} dataKey='value' minPointSize={2}>
                             {distributionData.map((d, i) => (
                                 <Cell accentHeight='0px' fill={getHexColor(d.name, 0.65)} key={i} />
