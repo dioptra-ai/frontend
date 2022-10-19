@@ -28,6 +28,8 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
 
     useEffect(() => {
         if (inView && !prediction && !groundtruth) {
+            setRequestPredictions([]);
+            setRequestGroundtruths([]);
             metricsClient('select', {
                 select: '"prediction", "groundtruth"',
                 filters: [{
