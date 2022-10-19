@@ -29,12 +29,7 @@ import {Tooltip as BarTooltip} from 'components/bar-graph';
 import useAllFilters from 'hooks/use-all-filters';
 
 const AddColumnModal = ({onApply, allColumns, initiallyselected}) => {
-    const featureColumns = allColumns.filter((c) => c.startsWith('features.'));
-    const tagColumns = allColumns.filter((c) => c.startsWith('tags.'));
-    const audioMetadataColumns = allColumns.filter((c) => c.startsWith('audio_metadata.'));
-    const textMetadataColumns = allColumns.filter((c) => c.startsWith('text_metadata.'));
-    const allColumnsSet = new Set(allColumns);
-    const [selectedColumns, setSelectedColumns] = useState(initiallyselected.filter((s) => allColumnsSet.has(s)));
+    const [selectedColumns, setSelectedColumns] = useState(initiallyselected.filter((c) => allColumns.includes(c)));
 
     const handleChange = (e, col) => {
         if (e.target.checked) {
@@ -48,69 +43,21 @@ const AddColumnModal = ({onApply, allColumns, initiallyselected}) => {
 
     return (
         <>
-            {featureColumns.length > 0 && (
+            {allColumns.length > 0 && (
                 <div className='d-flex flex-column mb-4'>
-                    <p className='text-dark fw-bold fs-6'>FEATURES</p>
-                    {featureColumns.map((feature, i) => (
+                    <p className='text-dark fw-bold fs-6'>Available Columns</p>
+                    {allColumns.map((column, i) => (
                         <label className='checkbox my-2 fs-6' key={i}>
                             <input
-                                defaultChecked={selectedColumns.includes(feature)}
-                                onChange={(e) => handleChange(e, feature)}
+                                defaultChecked={selectedColumns.includes(column)}
+                                onChange={(e) => handleChange(e, column)}
                                 type='checkbox'
                             />
-                            <span className='fs-6'>{feature}</span>
+                            <span className='fs-6'>{column}</span>
                         </label>
                     ))}
                 </div>
             )}
-            {tagColumns.length > 0 && (
-                <div className='d-flex flex-column mb-4'>
-                    <p className='text-dark fw-bold fs-6'>TAGS</p>
-                    {tagColumns.map((tag, i) => (
-                        <label className='checkbox my-2 fs-6' key={i}>
-                            <input
-                                defaultChecked={selectedColumns.includes(tag)}
-                                onChange={(e) => handleChange(e, tag)}
-                                type='checkbox'
-                            />
-                            <span className='fs-6'>{tag}</span>
-                        </label>
-                    ))}
-                </div>
-            )}
-            {audioMetadataColumns.length > 0 && (
-                <div className='d-flex flex-column mb-4'>
-                    <p className='text-dark fw-bold fs-6'>AUDIO METADATA</p>
-                    {audioMetadataColumns.map((tag, i) => (
-                        <label className='checkbox my-2 fs-6' key={i}>
-                            <input
-                                defaultChecked={selectedColumns.includes(tag)}
-                                onChange={(e) => handleChange(e, tag)}
-                                type='checkbox'
-                            />
-                            <span className='fs-6'>{tag}</span>
-                        </label>
-                    ))}
-                </div>
-            )}
-            {textMetadataColumns.length > 0 && (
-                <div className='d-flex flex-column mb-4'>
-                    <p className='text-dark fw-bold fs-6'>TEXT METADATA</p>
-                    {textMetadataColumns.map((tag, i) => (
-                        <label className='checkbox my-2 fs-6' key={i}>
-                            <input
-                                defaultChecked={selectedColumns.includes(tag)}
-                                onChange={(e) => handleChange(e, tag)}
-                                type='checkbox'
-                            />
-                            <span className='fs-6'>{tag}</span>
-                        </label>
-                    ))}
-                </div>
-            )}
-            {!tagColumns.length && !featureColumns.length && !audioMetadataColumns.length && !textMetadataColumns.length ? (
-                <p className='text-secondary fs-6 mb-4 text-center'>No Columns Available</p>
-            ) : null}
             <div className='border-top border-mercury py-3'>
                 <Button
                     className='text-white fw-bold fs-6 px-5 py-2'
