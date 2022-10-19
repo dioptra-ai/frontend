@@ -271,7 +271,7 @@ const _ClustersAnalysis = ({clusters}) => {
                                     />
                                 )}
                                 fetchData={() => metricsClient('queries/class-distribution', {
-                                    filters: allFilters,
+                                    filters: samplesFilters,
                                     distribution_field: userSelectedSummaryDistribution,
                                     bins: userSelectedSummaryDistribution === '"prediction"->\'score\'' ? 10 : null
                                 })}
