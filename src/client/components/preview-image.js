@@ -21,11 +21,13 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
     const imageUrl = datapoint.image_metadata?.uri;
     const frameH = datapoint.image_metadata?.height || datapoint.video_metadata?.height;
     const {prediction, groundtruth} = datapoint;
-    const [predictions, setPredictions] = useState(Array.isArray(prediction) ? prediction : prediction ? [prediction] : null);
-    const [groundtruths, setGroundtruths] = useState(Array.isArray(groundtruth) ? groundtruth : groundtruth ? [groundtruth] : null);
+    const [requestPredictions, setRequestPredictions] = useState([]);
+    const [requestGroundtruths, setRequestGroundtruths] = useState([]);
+    const predictions = prediction ? [prediction] : requestPredictions;
+    const groundtruths = groundtruth ? [groundtruth] : requestGroundtruths;
 
     useEffect(() => {
-        if (inView && !predictions && !groundtruths) {
+        if (inView && !prediction && !groundtruth) {
             metricsClient('select', {
                 select: '"prediction", "groundtruth"',
                 filters: [{
@@ -35,17 +37,19 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
                 }, {
                     left: {
                         left: 'prediction',
-                        op: 'is not null'
+                        op: '!=',
+                        right: 'null'
                     },
                     op: 'or',
                     right: {
                         left: 'groundtruth',
-                        op: 'is not null'
+                        op: '!=',
+                        right: 'null'
                     }
                 }]
             }).then((datapoints) => {
-                setPredictions(datapoints.map((d) => d.prediction));
-                setGroundtruths(datapoints.map((d) => d.groundtruth));
+                setRequestPredictions(datapoints.map((d) => d.prediction));
+                setRequestGroundtruths(datapoints.map((d) => d.groundtruth));
             });
         }
     }, [inView, datapoint.request_id]);
