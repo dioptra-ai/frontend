@@ -8,7 +8,6 @@ import SamplesPreview from 'components/samples-preview';
 import Async from 'components/async';
 import metricsClient from 'clients/metrics';
 import useAllFilters from 'hooks/use-all-filters';
-import useModel from 'hooks/use-model';
 
 const ANALYSES = {
     DATA_VIEWER: 'Data Viewer',
@@ -19,7 +18,6 @@ const ANALYSES = {
 
 const Explorer = () => {
     const allFilters = useAllFilters();
-    const model = useModel();
     const analysesKeys = Object.keys(ANALYSES);
     const [selectedAnalysis, setSelectedAnalysis] = useState(analysesKeys[0]);
 
@@ -48,8 +46,7 @@ const Explorer = () => {
                                                 left: 'groundtruth',
                                                 op: 'is null'
                                             }],
-                                            limit: 1000,
-                                            model_type: model.mlModelType
+                                            limit: 1000
                                         });
 
                                         if (requestDatapoints.length) {

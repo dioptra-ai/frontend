@@ -101,7 +101,7 @@ const getEmbeddingsFieldsForModel = (modelType) => {
     }];
 };
 
-const _ClustersAnalysis = ({clusters}) => {
+const _ClustersAnalysis = ({clusters, clustersAreOfRequests}) => {
     const samplingLimit = 10000;
     const allFilters = useAllFilters();
     const model = useModel();
@@ -110,6 +110,18 @@ const _ClustersAnalysis = ({clusters}) => {
     const [userSelectedSummaryDistribution, setUserSelectedSummaryDistribution] = useState(distributionMetricsOptions[0].value);
     const [selectedPoints, setSelectedPoints] = useState([]);
     const uniqueSampleUUIDs = new Set(selectedPoints.map(({sample}) => sample['uuid']));
+    const uniqueSampleRequestIds = new Set(selectedPoints.map(({sample}) => sample['request_id']));
+    // Filters for fetching the class_names: if we have clusters of requests, fetch their corresponding matches
+    // otherwise, fetch the class_names of the matches we already have.
+    const matchFilter = clustersAreOfRequests ? {
+        left: 'request_id',
+        op: 'in',
+        right: Array.from(uniqueSampleRequestIds)
+    } : {
+        left: 'uuid',
+        op: 'in',
+        right: Array.from(uniqueSampleUUIDs)
+    };
     const uniqueClusterLabels = new Set(selectedPoints.map((p) => p.clusterLabel));
     const sortedClusters = useMemo(() => clusters.map((c) => ({
         name: c.label === -1 ? 'noise' : c.label,
@@ -241,7 +253,7 @@ const _ClustersAnalysis = ({clusters}) => {
                     <div className={`d-flex p-2 overflow-auto flex-grow-0 ${samples.length ? 'justify-content-left' : 'justify-content-center align-items-center'} scatterGraph-examples`}>
                         {samples.length ? (
                             <Async
-                                refetchOnChanged={[JSON.stringify(samplesFilters), userSelectedSummaryDistribution]}
+                                refetchOnChanged={[JSON.stringify(matchFilter), userSelectedSummaryDistribution]}
                                 renderData={(data) => (
                                     <BarGraph
                                         className='border-0' height='50vh'
@@ -271,7 +283,7 @@ const _ClustersAnalysis = ({clusters}) => {
                                     />
                                 )}
                                 fetchData={() => metricsClient('queries/class-distribution', {
-                                    filters: samplesFilters,
+                                    filters: [matchFilter],
                                     distribution_field: userSelectedSummaryDistribution,
                                     bins: userSelectedSummaryDistribution === '"prediction"->\'score\'' ? 10 : null
                                 })}
@@ -301,7 +313,8 @@ const _ClustersAnalysis = ({clusters}) => {
 };
 
 _ClustersAnalysis.propTypes = {
-    clusters: PropTypes.array.isRequired
+    clusters: PropTypes.array.isRequired,
+    clustersAreOfRequests: PropTypes.bool.isRequired
 };
 
 const ClustersAnalysis = ({filters, embeddingsField}) => {
@@ -412,8 +425,7 @@ const ClustersAnalysis = ({filters, embeddingsField}) => {
                 renderData={(clusters = []) => (
                     <_ClustersAnalysis
                         clusters={clusters}
-                        onUserSelectedAlgorithm={setUserSelectedAlgorithm}
-                        onUserSelectedMinClusterSize={setUserSelectedMinClusterSize}
+                        clustersAreOfRequests={['embeddings', 'features'].includes(userSelectedEmbeddings)}
                     />
                 )}
             />
