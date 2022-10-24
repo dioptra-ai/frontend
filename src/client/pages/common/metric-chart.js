@@ -339,11 +339,11 @@ const useMetric = (metric, timeGranularity) => {
             unit: '%',
             name: 'Mean NDCG'
         },
-        BLUR: {
+        SHARPNESS: {
             fetchData: () => {
 
                 return metricsClient('metadata-metric', {
-                    metric: 'blur',
+                    metric: 'sharpness',
                     filters: allFilters,
                     time_granularity: timeGranularity,
                     model_type: model.mlModelType
@@ -363,6 +363,18 @@ const useMetric = (metric, timeGranularity) => {
             },
             formatValue: formatPercent,
             unit: '%'
+        },
+        CONTRAST: {
+            fetchData: () => {
+
+                return metricsClient('metadata-metric', {
+                    metric: 'contrast',
+                    filters: allFilters,
+                    time_granularity: timeGranularity,
+                    model_type: model.mlModelType
+                });
+            },
+            formatValue: formatNumber
         }
     }[metric];
 

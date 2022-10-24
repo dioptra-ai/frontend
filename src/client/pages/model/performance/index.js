@@ -94,19 +94,6 @@ const Performance = () => {
         break;
     }
 
-    switch (model.mlModelType) {
-    case 'IMAGE_CLASSIFIER':
-    case 'OBJECT_DETECTION':
-    case 'UNSUPERVISED_OBJECT_DETECTION':
-        metrics.push(
-            'BLUR',
-            'BRIGHTNESS'
-        );
-        break;
-    default:
-        break;
-    }
-
 
     // EMBEDDING_DRIFT not yet implemented when not over time, so we add it only for the chart.
     const timeMetrics = [...metrics, 'EMBEDDING_DRIFT'];
@@ -114,9 +101,12 @@ const Performance = () => {
 
     switch (model.mlModelType) {
     case 'UNSUPERVISED_TEXT_CLASSIFIER':
+        widgets.push(<PerformancePerGroup />, <Segmentation />);
+        break;
     case 'UNSUPERVISED_IMAGE_CLASSIFIER':
     case 'UNSUPERVISED_OBJECT_DETECTION':
         widgets.push(<PerformancePerGroup />, <Segmentation />);
+        timeMetrics.push('BRIGHTNESS', 'SHARPNESS', 'CONTRAST');
         break;
     case 'LEARNING_TO_RANK':
         widgets.push(<PerformancePerGroup />, <Segmentation />);
