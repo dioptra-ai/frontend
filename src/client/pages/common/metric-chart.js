@@ -361,8 +361,7 @@ const useMetric = (metric, timeGranularity) => {
                     model_type: model.mlModelType
                 });
             },
-            formatValue: formatPercent,
-            unit: '%'
+            formatValue: formatNumber
         },
         CONTRAST: {
             fetchData: () => {
