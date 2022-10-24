@@ -1,3 +1,4 @@
+/* eslint-disable complexity */
 import {useContext} from 'react';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
@@ -92,6 +93,20 @@ const Performance = () => {
     default:
         break;
     }
+
+    switch (model.mlModelType) {
+    case 'IMAGE_CLASSIFIER':
+    case 'OBJECT_DETECTION':
+    case 'UNSUPERVISED_OBJECT_DETECTION':
+        metrics.push(
+            'BLUR',
+            'BRIGHTNESS'
+        );
+        break;
+    default:
+        break;
+    }
+
 
     // EMBEDDING_DRIFT not yet implemented when not over time, so we add it only for the chart.
     const timeMetrics = [...metrics, 'EMBEDDING_DRIFT'];

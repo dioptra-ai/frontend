@@ -103,7 +103,6 @@ const getEmbeddingsFieldsForModel = (modelType) => {
 
 const _ClustersAnalysis = ({clusters, clustersAreOfRequests}) => {
     const samplingLimit = 10000;
-    const allFilters = useAllFilters();
     const model = useModel();
     const mlModelType = model?.mlModelType;
     const distributionMetricsOptions = getDistributionFieldForModel(mlModelType);
@@ -131,7 +130,7 @@ const _ClustersAnalysis = ({clusters, clustersAreOfRequests}) => {
     })).sort((c1, c2) => c2.metric?.value - c1.metric?.value), [clusters]);
     const samples = selectedPoints.map((p) => p.sample);
     // SQL Filter for samples is sliced if there are more than samplingLimit samples.
-    const samplesFilters = uniqueSampleUUIDs.size ? [...allFilters, {
+    const samplesFilters = uniqueSampleUUIDs.size ? [{
         left: 'uuid',
         op: 'in',
         right: Array.from(uniqueSampleUUIDs).slice(0, samplingLimit)
