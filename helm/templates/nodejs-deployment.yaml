@@ -28,6 +28,8 @@ spec:
         - env:
             - name: NODE_ENV
               value: "{{ .Values.nodeEnv }}"
+            - name: ENVIRONMENT
+              value: "{{ .Values.environment }}"
             - name: COOKIE_SECRET
               value: "12345"
             - name: COOKIE_DURATION_HRS
@@ -42,6 +44,8 @@ spec:
               value: "http://task-engine:8001"
             - name: INGESTION_URL
               value: "http://ingestion:8082"
+            - name: AWS_S3_CUSTOMER_BUCKET
+              value: "dioptra-client-data"
             - name: PORT
               value: "4004"
             - name: PRECANNED_ORG_ID
