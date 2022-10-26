@@ -15,6 +15,7 @@ import {IconNames} from 'constants';
 import {Area, AreaChart, Line, ResponsiveContainer, XAxis} from 'recharts';
 import theme from 'styles/theme.module.scss';
 import ModalComponent from 'components/modal';
+import UploadData from 'components/upload-data';
 import EditModel from 'pages/model/edit-model';
 import metricsClient from 'clients/metrics';
 
@@ -184,6 +185,7 @@ const ModelRow = setupComponent(_ModelRow);
 
 const Models = ({modelStore}) => {
     const [showModal, setShowModal] = useState(false);
+    const [showUploadDataModal, setShowUploadDataModal] = useState(false);
     const [errors, setErrors] = useState([]);
 
     const color = theme.primary;
@@ -223,11 +225,18 @@ const Models = ({modelStore}) => {
                     <span className='h2 fs-1 text-dark bold-text'>Models</span>
                     <span>
                         <Button
-                            className='py-3 fs-6 bold-text px-5 text-white'
+                            className='py-3 mx-3 fs-6 bold-text px-5 text-white'
                             onClick={() => setShowModal(true)}
+                            variant='secondary'
+                        >
+                            REGISTER MODEL
+                        </Button>
+                        <Button
+                            className='py-3 fs-6 bold-text px-5 text-white'
+                            onClick={() => setShowUploadDataModal(true)}
                             variant='primary'
                         >
-            REGISTER MODEL
+                            UPLOAD DATA
                         </Button>
                     </span>
                 </div>
@@ -270,6 +279,9 @@ const Models = ({modelStore}) => {
                     initialValue={{}}
                     onSubmit={handleSubmit}
                 />
+            </ModalComponent>
+            <ModalComponent isOpen={showUploadDataModal} onClose={() => setShowUploadDataModal(false)} title='Upload Data'>
+                <UploadData onDone={() => setShowUploadDataModal(false)}/>
             </ModalComponent>
         </>
     );

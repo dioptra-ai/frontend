@@ -8,6 +8,7 @@ import OrganizationRouter from './controllers/organization.mjs';
 import Timeseries from './controllers/timeseries.mjs';
 import UserRouter from './controllers/user.controller.mjs';
 import IntegrationRouter from './controllers/integrations.mjs';
+import IngestionRouter from './controllers/ingestion.mjs';
 import TasksRouter from './controllers/tasks.mjs';
 
 const ApiRouter = express.Router();
@@ -22,5 +23,6 @@ ApiRouter.use('/api-key', ApiKey);
 ApiRouter.use('/organization', OrganizationRouter);
 ApiRouter.use('/organization-membership', OrganizationMembershipRouter);
 ApiRouter.use('/integration', IntegrationRouter);
+ApiRouter.use('/ingestion', IngestionRouter);
 
 export default ApiRouter;

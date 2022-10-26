@@ -40,6 +40,8 @@ spec:
               value: "http://dioptra-druid-router:8888/druid/v2/sql/"
             - name: TASK_ENGINE_URL
               value: "http://task-engine:8001"
+            - name: INGESTION_URL
+              value: "http://ingestion:8082"
             - name: PORT
               value: "4004"
             - name: PRECANNED_ORG_ID

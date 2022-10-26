@@ -61,14 +61,14 @@ const EditModel = ({initialValue, onSubmit, errors, modelStore}) => {
                 )) : null}
                 <Form autoComplete='off' className='w-100' onSubmit={handleSubmit}>
                     <Row>
-                        <Col sm={6}>
+                        <Col>
                             <Form.Label className='mt-3 mb-0'>Benchmark</Form.Label>
                             <InputGroup className='mt-1 text-center'>
                                 <ToggleButtonGroup defaultValue={benchmarkType} type='radio' onChange={setBenchmarkType} name='benchmark-type'>
                                     <ToggleButton variant='outline-secondary' id='date-range' value='date-range'>&nbsp;Date Range</ToggleButton>
                                     <ToggleButton variant='outline-secondary' id='benchmark-run' value='benchmark-run'>&nbsp;Benchmark Run</ToggleButton>
                                 </ToggleButtonGroup>
-                                <div className='mt-1'>
+                                <div className='m-1'>
                                     {
                                         benchmarkType === 'date-range' ? (
                                             <DateTimeRangePicker
@@ -186,33 +186,6 @@ const EditModel = ({initialValue, onSubmit, errors, modelStore}) => {
                                     {/* <option value='MULTIPLE_OBJECT_TRACKING'>Multiple Object Tracking</option> */}
                                 </Form.Control>
                             </InputGroup>
-                        </Col>
-                        <Col sm={6}>
-                            <Form.Label className='mt-3 mb-0'>Asynchronous Data Source</Form.Label>
-                            <InputGroup className='mt-1'>
-                                <Form.Control
-                                    name='objectStoreId'
-                                    placeholder='s3://bucket-name/my-model'
-                                    type='text'
-                                />
-                            </InputGroup>
-                            <Form.Text className='text-muted'>
-                                <div>Add files to the buket to send data to Dioptra. Currently supported platforms: AWS S3, Google Cloud Storage.</div>
-                                <div>See <a href='/settings'>settings</a> for authentication.</div>
-                            </Form.Text>
-                            <Form.Label className='mt-3 mb-0'>Python Mapper Module Location</Form.Label>
-                            <InputGroup className='mt-1'>
-                                {/* See here to implement this: https://github.com/getredash/redash/blob/master/redash/query_runner/python.py */}
-                                <Form.Control
-                                    name='mapperLocation'
-                                    placeholder='https://github.com/.../my-model.py'
-                                    type='text'
-                                />
-                            </InputGroup>
-                            <Form.Text className='text-muted'>
-                                <div>Transform and return data into one of the supported formats. Allowed external imports: pandas, numpy.</div>
-                                <div>See the <a href='/documentation/data_mapping'>Data Mapping Documentation</a>.</div>
-                            </Form.Text>
                         </Col>
                     </Row>
                     <Button

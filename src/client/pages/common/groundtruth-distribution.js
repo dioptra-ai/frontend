@@ -13,12 +13,11 @@ const GroundTruthDistribution = () => {
             renderData={(data) => (
                 <BarGraph
                     bars={data.map((result) => ({
-                        name: result.name,
+                        name: result.label,
                         value: result.value,
-                        fill: getHexColor(result.name)
+                        fill: getHexColor(result.label)
                     }))}
                     title='Groundtruth Distribution'
-                    unit='%'
                 />
             )}
             fetchData={() => metricsClient('queries/class-distribution', {
