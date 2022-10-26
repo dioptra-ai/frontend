@@ -8,7 +8,7 @@ import comparisonContext from 'context/comparison-context';
 import MetricChart from 'pages/common/metric-chart';
 import PerformancePerGroup from 'pages/common/performance-per-class';
 import ConfusionMatrix from 'components/confusion-matrix';
-import GroundTruthDistribution from 'pages/common/groundtruth-distribution';
+import ClassDistribution from 'pages/common/class-distribution';
 import Segmentation from 'pages/common/segmentation';
 
 const Performance = () => {
@@ -105,7 +105,7 @@ const Performance = () => {
         break;
     case 'UNSUPERVISED_IMAGE_CLASSIFIER':
     case 'UNSUPERVISED_OBJECT_DETECTION':
-        widgets.push(<PerformancePerGroup />, <Segmentation />);
+        widgets.push(<ClassDistribution classFieldDisplayName='Prediction' classField="prediction->>'class_name'"/>, <PerformancePerGroup />, <Segmentation />);
         timeMetrics.push('BRIGHTNESS', 'SHARPNESS', 'CONTRAST');
         break;
     case 'LEARNING_TO_RANK':
@@ -113,7 +113,7 @@ const Performance = () => {
         timeMetrics.push('FEATURES_DRIFT');
         break;
     default:
-        widgets.push(<GroundTruthDistribution/>, <PerformancePerGroup/>, <ConfusionMatrix />, <Segmentation />);
+        widgets.push(<ClassDistribution classFieldDisplayName='Ground Truth' classField="groundtruth->>'class_name'"/>, <PerformancePerGroup/>, <ConfusionMatrix />, <Segmentation />);
     }
 
     return (
