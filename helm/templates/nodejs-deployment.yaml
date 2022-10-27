@@ -46,6 +46,8 @@ spec:
               value: "http://ingestion:8082"
             - name: AWS_S3_CUSTOMER_BUCKET
               value: "dioptra-client-data"
+            - name: AWS_S3_CUSTOMER_BUCKET_REGION
+              value: "us-east-2"
             - name: PORT
               value: "4004"
             - name: PRECANNED_ORG_ID

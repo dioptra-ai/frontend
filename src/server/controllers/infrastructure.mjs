@@ -5,8 +5,8 @@ import {getSignedUrl} from '@aws-sdk/s3-request-presigner';
 
 import {isAuthenticated} from '../middleware/authentication.mjs';
 
-const {AWS_S3_CUSTOMER_BUCKET, AWS_S3_CUSTOMER_UPLOAD_EXPIRATION_SECONDS = 300, ENVIRONMENT} = process.env;
-const s3 = new S3Client();
+const {AWS_S3_CUSTOMER_BUCKET, AWS_S3_CUSTOMER_BUCKET_REGION = 'us-east-2', AWS_S3_CUSTOMER_UPLOAD_EXPIRATION_SECONDS = 300, ENVIRONMENT} = process.env;
+const s3 = new S3Client({region: AWS_S3_CUSTOMER_BUCKET_REGION});
 
 const InfrastructureRouter = express.Router();
 
