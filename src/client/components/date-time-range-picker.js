@@ -76,7 +76,7 @@ const DateTimeRangePicker = ({onChange, start, end, className, datePickerSetting
                                         <Button className='btn-primary text-white m-2' onClick={async () => {
                                             const [d] = await metricsClient('default-time-range', {
                                                 sql_filters: allSqlFiltersWithoutTime
-                                            });
+                                            }, false);
 
                                             if (d) {
                                                 timeStore.setTimeRange(d);

@@ -81,7 +81,7 @@ const Model = ({filtersStore, modelStore}) => {
                 if (c?.value === 0) {
                     const [d] = await metricsClient('default-time-range', {
                         sql_filters: allSqlFiltersWithoutTime
-                    });
+                    }, false);
 
                     if (d) {
                         timeStore.setTimeRange(d);
