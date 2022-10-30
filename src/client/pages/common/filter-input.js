@@ -93,7 +93,7 @@ const FilterInput = ({
             } else if (newFilter.isLeftComplete) {
 
                 setShowSuggestions(true);
-                setSuggestionsIfInFlight(['=', '<>', '<', '>', 'like', 'not like', 'in', 'not in']);
+                setSuggestionsIfInFlight(['=', '!=', '<', '>', 'like', 'not like', 'in', 'not in']);
             } else if (key) {
 
                 setShowSuggestions(true);
