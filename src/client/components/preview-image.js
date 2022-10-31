@@ -93,19 +93,19 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
                                 predictions?.filter(Boolean).map((p, i) => (
                                     <div key={i}
                                         className='position-absolute hover-z100'
-                                        style={{
+                                        style={p['top'] ? {
                                             height: p['height'] * (height / frameH),
                                             width: p['width'] * (height / frameH),
                                             top: p['top'] * (height / frameH),
                                             left: p['left'] * (height / frameH),
                                             border: '1px solid',
                                             borderColor: getHexColor(p['class_name'])
+                                        } : {
+                                            bottom: 0
                                         }}
                                     >
-                                        <span className='position-absolute fs-7 px-1 text-nowrap' style={{
-                                            backgroundColor: getHexColor(p['class_name']),
-                                            top: 0,
-                                            left: 0
+                                        <span className='fs-7 px-1 text-nowrap' style={{
+                                            backgroundColor: getHexColor(p['class_name'])
                                         }}
                                         >{p['class_name']}</span>
                                     </div>
@@ -115,19 +115,19 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
                                 groundtruths?.filter(Boolean).map((g, i) => (
                                     <div key={i}
                                         className='position-absolute hover-z100'
-                                        style={{
+                                        style={g['top'] ? {
                                             height: g['height'] * (height / frameH),
                                             width: g['width'] * (height / frameH),
                                             top: g['top'] * (height / frameH),
                                             left: g['left'] * (height / frameH),
                                             border: '1px solid',
                                             borderColor: getHexColor(g['class_name'])
+                                        } : {
+                                            top: 0
                                         }}
                                     >
                                         <span className='position-absolute fs-7 px-1 text-nowrap' style={{
-                                            backgroundColor: getHexColor(g['class_name']),
-                                            top: 0,
-                                            left: 0
+                                            backgroundColor: getHexColor(g['class_name'])
                                         }}
                                         >{g['class_name']} {g['class_name'] ? <IoPricetagSharp /> : ''}</span>
                                     </div>
