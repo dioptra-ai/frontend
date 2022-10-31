@@ -34,6 +34,66 @@ class ModelStore {
         this.modelsById[_id] = data;
     }
 
+    getReferenceFilters(_id) {
+        const {referencePeriod, referenceBenchmarkId} = this.modelsById[_id];
+
+        if (referenceBenchmarkId) {
+
+            return {
+                left: 'benchmark_id',
+                op: '=',
+                right: referenceBenchmarkId
+            };
+        } else if (referencePeriod) {
+
+            return {
+                left: {
+                    left: {
+                        left: 'timestamp',
+                        op: '>=',
+                        right: referencePeriod.start
+                    },
+                    op: 'and',
+                    right: {
+                        left: 'timestamp',
+                        op: '<',
+                        right: referencePeriod.end
+                    }
+                },
+                op: 'and',
+                right: {
+                    left: {
+                        left: 'benchmark_id',
+                        op: 'is',
+                        right: null
+                    },
+                    op: 'and',
+                    right: {
+                        left: 'dataset_id',
+                        op: 'is',
+                        right: null
+                    }
+                }
+            };
+        } else {
+
+            return {
+                left: {
+                    left: 'benchmark_id',
+                    op: 'is',
+                    right: null
+                },
+                op: 'and',
+                right: {
+                    left: 'dataset_id',
+                    op: 'is',
+                    right: null
+                }
+            };
+        }
+    }
+
+
     getSqlReferenceFilters(_id) {
         const {referencePeriod, referenceBenchmarkId} = this.modelsById[_id];
 

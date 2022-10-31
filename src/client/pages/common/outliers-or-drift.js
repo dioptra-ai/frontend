@@ -8,12 +8,12 @@ import {BsCircleFill} from 'react-icons/bs';
 
 import Select from 'components/select';
 import Async from 'components/async';
-import useAllSqlFilters from 'hooks/use-all-sql-filters';
 import ScatterChart, {ScatterSearch} from 'components/scatter-chart';
 import metricsClient from 'clients/metrics';
 import theme from 'styles/theme.module.scss';
 import SamplesPreview from 'components/samples-preview';
 import useModel from 'hooks/use-model';
+import useAllFilters from 'hooks/use-all-filters';
 
 const getEmbeddingsFieldsForModel = (modelType) => {
     const results = [{
@@ -42,13 +42,13 @@ const getEmbeddingsFieldsForModel = (modelType) => {
 const OutliersOrDrift = ({isDrift}) => {
     const model = useModel();
     const mlModelType = model?.mlModelType;
-    const allSqlFilters = useAllSqlFilters();
+    const allFilters = useAllFilters();
     const [userSelectedAlgorithm, setUserSelectedAlgorithm] = useState('Local Outlier Factor');
     const [userSelectedContamination, setUserSelectedContamination] = useState('auto');
     const [userSelectedEmbeddings, setUserSelectedEmbeddings] = useState(getEmbeddingsFieldsForModel(mlModelType)[0].value);
     const [selectedPoints, setSelectedPoints] = useState([]);
     const uniqueSampleUUIDs = new Set(selectedPoints.map(({sample}) => sample['uuid']));
-    const referenceFilters = isDrift && useAllSqlFilters({useReferenceFilters: true});
+    const referenceFilters = isDrift && useAllFilters({useReferenceFilters: true});
     const handleClearSamples = (uuids) => {
         const uuidsSet = new Set(uuids);
 
@@ -128,15 +128,15 @@ const OutliersOrDrift = ({isDrift}) => {
             </Row>
             <Async
                 refetchOnChanged={[
-                    allSqlFilters,
+                    JSON.stringify(allFilters),
                     userSelectedAlgorithm,
                     userSelectedContamination,
-                    referenceFilters,
+                    JSON.stringify(referenceFilters),
                     userSelectedEmbeddings
                 ]}
                 fetchData={() => metricsClient('compute', {
                     metrics_type: 'outlier_detection',
-                    current_filters: allSqlFilters,
+                    current_filters: allFilters,
                     reference_filters: referenceFilters,
                     outlier_algorithm: userSelectedAlgorithm,
                     contamination: userSelectedContamination,
