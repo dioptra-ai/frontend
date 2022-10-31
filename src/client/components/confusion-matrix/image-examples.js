@@ -7,10 +7,12 @@ import metricsClient from 'clients/metrics';
 import {IoArrowBackCircleOutline, IoCloseCircleOutline} from 'react-icons/io5';
 import PreviewImage from 'components/preview-image';
 import SamplesPreview from 'components/samples-preview';
+import useAllFilters from 'hooks/use-all-filters';
 
 const ImageExamples = ({onClose, groundtruth, prediction, iou, model}) => {
     const [exampleInModal, setExampleInModal] = useState(false);
     const allSqlFilters = useAllSqlFilters();
+    const allFilters = useAllFilters();
 
     return (
         <Modal isOpen onClose={onClose} title='Examples'
@@ -41,21 +43,22 @@ const ImageExamples = ({onClose, groundtruth, prediction, iou, model}) => {
                             );
                         }}
                         refetchOnChanged={[groundtruth, prediction, iou, allSqlFilters, model.mlModelType]}
-                        fetchData={() => metricsClient(`queries/${model.mlModelType === 'DOCUMENT_PROCESSING' || model.mlModelType === 'UNSUPERVISED_OBJECT_DETECTION' ?
-                            'select-samples-for-document-processing' : 'select-samples-for-default'}`,
-                        model.mlModelType === 'DOCUMENT_PROCESSING' || model.mlModelType === 'UNSUPERVISED_OBJECT_DETECTION' ?
-                            {
-                                groundtruth,
-                                prediction,
-                                iou,
-                                sql_filters: allSqlFilters
-                            } :
-                            {
-                                groundtruth,
-                                prediction,
-                                sql_filters: allSqlFilters
-                            })
-                        }
+                        fetchData={() => metricsClient('select', {
+                            select: '"image_metadata", "prediction", "groundtruth", "request_id", "uuid"',
+                            filters: [...allFilters, {
+                                left: 'prediction.class_name',
+                                op: '=',
+                                right: prediction
+                            }, {
+                                left: 'groundtruth.class_name',
+                                op: '=',
+                                right: groundtruth
+                            }, ...((model.mlModelType === 'UNSUPERVISED_OBJECT_DETECTION' || model.mlModelType === 'OBJECT_DETECTION') ? [{
+                                left: 'iou',
+                                op: '>=',
+                                right: iou
+                            }] : [])]
+                        })}
                     />)
                 }
             </div>

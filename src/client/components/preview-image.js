@@ -110,7 +110,6 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
                                         >{p['class_name']}</span>
                                     </div>
                                 ))
-
                             }
                             {
                                 groundtruths?.filter(Boolean).map((g, i) => (
@@ -130,7 +129,7 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
                                             top: 0,
                                             left: 0
                                         }}
-                                        >{g['class_name']} <IoPricetagSharp /></span>
+                                        >{g['class_name']} {g['class_name'] ? <IoPricetagSharp /> : ''}</span>
                                     </div>
                                 ))
                             }
