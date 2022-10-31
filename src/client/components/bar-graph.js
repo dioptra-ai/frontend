@@ -9,7 +9,7 @@ const CustomTooltip = ({payload, label, unit}) => {
 
         return (
             <div className='line-graph-tooltip bg-white p-3'>
-                <p className='text-dark bold-text fs-5 m-0'>{Number(payload[0].value).toFixed(4)}{unit}</p>
+                <p className='text-dark bold-text fs-5 m-0'>{Number(payload[0].value).toLocaleString()}{unit}</p>
                 <p className='text-secondary m-0 fs-7' style={{
                     textOverflow: 'ellipsis',
                     overflow: 'hidden',

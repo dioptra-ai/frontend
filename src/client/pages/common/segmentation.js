@@ -107,7 +107,7 @@ const _DistributionCell = ({row, segmentationStore}) => {
                 </Alert>
             ) : (
                 <ResponsiveContainer height={150} width='100%'>
-                    <BarChart data={distributionData.map((d) => ({...d, value: 100 * d.value}))}>
+                    <BarChart data={distributionData.map((d) => ({...d, value: d.value}))}>
                         <Tooltip content={<BarTooltip/>}/>
                         <Bar background={false} dataKey='value' minPointSize={2}>
                             {distributionData.map((d, i) => (
@@ -149,7 +149,6 @@ const _metricCell = ({cell}) => {
                     if (inView) {
 
                         return metricsClient(cellId, {
-                            sql_filters: `${allSqlFilters} AND ${cellFields.map((f) => `"${f}"='${cellValues[f]}'`).join(' AND ')}`,
                             filters: [...allFilters, ...cellFields.map((f) => ({left: f, op: '=', right: cellValues[f]}))],
                             model_type: mlModelType,
                             iou_threshold: 0.5
@@ -175,7 +174,7 @@ _metricCell.propTypes = {
 const metricCell = setupComponent(_metricCell);
 
 const Segmentation = ({segmentationStore}) => {
-    const allSqlFilters = useAllSqlFilters();
+    const allFilters = useAllFilters();
     const [addColModal, setAddColModal] = useModal(false);
     const groupByColumns = segmentationStore.segmentation;
     const {mlModelType} = useModel();
@@ -362,10 +361,10 @@ const Segmentation = ({segmentationStore}) => {
                             data={data}
                         />
                     )}
-                    refetchOnChanged={[groupByColumns.join(','), allSqlFilters]}
+                    refetchOnChanged={[groupByColumns.join(','), JSON.stringify(allFilters)]}
                     fetchData={() => groupByColumns.length ? metricsClient('queries/fairness-bias-columns', {
                         group_by: groupByColumns,
-                        sql_filters: allSqlFilters
+                        filters: allFilters
                     }) : Promise.resolve([])}
                 />
                 {addColModal && (
