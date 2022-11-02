@@ -53,7 +53,12 @@ const Explorer = () => {
 
                                             return requestDatapoints;
                                         } else return metricsClient('select', {
-                                            select: '"uuid", "request_id", "image_metadata", "text_metadata", "video_metadata", "text", "prediction", "groundtruth"',
+                                            select: `
+                                            "uuid", "request_id", "image_metadata", "text_metadata", "video_metadata", "text", 
+                                            "tags",
+                                            CASE WHEN jsonb_typeof("prediction") = 'object' THEN "prediction" - 'embeddings' ELSE "prediction" END as "prediction",
+                                            CASE WHEN jsonb_typeof("groundtruth") = 'object' THEN "groundtruth" - 'embeddings' ELSE "groundtruth" END as "groundtruth"
+                                            `,
                                             filters: allFilters,
                                             limit: 1000
                                         });
