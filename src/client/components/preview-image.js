@@ -32,7 +32,7 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
             setRequestPredictions([]);
             setRequestGroundtruths([]);
             metricsClient('select', {
-                select: '"prediction", "groundtruth"',
+                select: '"prediction", "groundtruth", "tags"',
                 filters: [{
                     left: 'request_id',
                     op: '=',

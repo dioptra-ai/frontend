@@ -38,7 +38,7 @@ const Explorer = () => {
                                 <Async
                                     fetchData={async () => {
                                         const requestDatapoints = await metricsClient('select', {
-                                            select: '"uuid", "request_id", "image_metadata", "text_metadata", "video_metadata","text"',
+                                            select: '"uuid", "request_id", "image_metadata", "text_metadata", "video_metadata","text", "tags"',
                                             filters: [...allFilters, {
                                                 left: 'prediction',
                                                 op: 'is null'

@@ -298,7 +298,7 @@ const _ClustersAnalysis = ({clusters, clustersAreOfRequests}) => {
             <Col className='bg-white-blue rounded p-3'>
                 <Async
                     fetchData={() => samplesFilters ? metricsClient('select', {
-                        select: '"uuid", "groundtruth", prediction, "image_metadata", "text", "request_id"',
+                        select: '"uuid", "groundtruth", prediction, "image_metadata", "text", "request_id", "tags"',
                         filters: samplesFilters,
                         limit: 1000
                     }) : null}

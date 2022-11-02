@@ -44,7 +44,7 @@ const ImageExamples = ({onClose, groundtruth, prediction, iou, model}) => {
                         }}
                         refetchOnChanged={[groundtruth, prediction, iou, allSqlFilters, model.mlModelType]}
                         fetchData={() => metricsClient('select', {
-                            select: '"image_metadata", "prediction", "groundtruth", "request_id", "uuid"',
+                            select: '"image_metadata", "prediction", "groundtruth", "request_id", "uuid", "tags"',
                             filters: [...allFilters, {
                                 left: 'prediction.class_name',
                                 op: '=',
