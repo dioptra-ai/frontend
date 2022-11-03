@@ -74,7 +74,7 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
                                 predictions?.filter(Boolean).map((p, i) => {
                                     const box = imageObject || p;
                                     const heatmap = p['feature_heatmap'];
-                                    const maxVal = Math.max(...heatmap.flat());
+                                    const heatMapMax = heatmap && Math.max(...heatmap.flat());
 
                                     return (
                                         <div key={i}
@@ -104,7 +104,7 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
                                                 <div key={i} className='d-flex flex-grow-1'>
                                                     {row.map((col, j) => (
                                                         <div key={j} className='flex-grow-1' style={{
-                                                            backgroundColor: `hsla(${(1 - col / maxVal) * 240}, 100%, 50%, 0.3)`
+                                                            backgroundColor: `hsla(${(1 - col / heatMapMax) * 240}, 100%, 50%, 0.3)`
                                                         }}/>
                                                     ))}
                                                 </div>
