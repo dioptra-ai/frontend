@@ -53,16 +53,17 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
                             {/* eslint-disable-next-line react/no-unknown-property */}
                             <style jsx>{`
                                 .hover-z100:hover {
-                                    z-index: 100;
+                                    opacity: 0.2;
                                 }
                             `}</style>
                             {
                                 predictions?.filter(Boolean).map((p, i) => {
                                     const box = imageObject || p;
+                                    const heatmap = p['feature_heatmap'];
 
                                     return (
                                         <div key={i}
-                                            className='position-absolute hover-z100'
+                                            className='position-absolute d-flex flex-column hover-z100'
                                             style={'top' in box ? {
                                                 height: box['height'] * (height / frameH),
                                                 width: box['width'] * (height / frameH),
@@ -75,10 +76,20 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
                                                 display: predictions.length > 1 && !('top' in box) ? 'none' : 'block'
                                             }}
                                         >
-                                            <span className='fs-7 px-1 text-nowrap' style={{
+                                            {/* <span className='position-absolute fs-7 px-1 text-nowrap' style={{
                                                 backgroundColor: getHexColor(p['class_name'])
                                             }}
-                                            >{p['class_name']}</span>
+                                            >{p['class_name']}</span> */}
+                                            {heatmap?.map((row, i) => (
+                                                <div key={i} className='d-flex flex-grow-1'>
+                                                    {row.map((col, j) => (
+                                                        <div key={j} className='flex-grow-1' style={{
+                                                            backgroundColor: 'red',
+                                                            opacity: col * 0.8
+                                                        }}/>
+                                                    ))}
+                                                </div>
+                                            ))}
                                         </div>
                                     );
                                 })
