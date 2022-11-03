@@ -9,6 +9,7 @@ import SignedImage from 'components/signed-image';
 import SeekableVideo from 'components/seekable-video';
 import {getHexColor} from 'helpers/color-helper';
 import useLabels from 'hooks/use-labels';
+import Canvas from './canvas';
 
 /* eslint-disable complexity */
 const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomable, maxHeight}) => {
@@ -73,6 +74,7 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
                             {
                                 predictions?.filter(Boolean).map((p, i) => {
                                     const box = imageObject || p;
+                                    const scale = height / frameH;
                                     const heatmap = p['feature_heatmap'];
                                     const heatMapMax = heatmap && Math.max(...heatmap.flat());
 
@@ -80,10 +82,10 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
                                         <div key={i}
                                             className='position-absolute d-flex flex-column hover-fade'
                                             style={'top' in box ? {
-                                                height: box['height'] * (height / frameH),
-                                                width: box['width'] * (height / frameH),
-                                                top: box['top'] * (height / frameH),
-                                                left: box['left'] * (height / frameH),
+                                                height: box['height'] * scale,
+                                                width: box['width'] * scale,
+                                                top: box['top'] * scale,
+                                                left: box['left'] * scale,
                                                 border: '1px solid',
                                                 borderColor: getHexColor(p['class_name']),
                                                 boxSizing: 'content-box'
@@ -100,15 +102,27 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
                                                 right: box['left'] < frameW - box['left'] - box['width'] ? 'unset' : '100%'
                                             }}
                                             >{p['class_name']}</span>
-                                            {showHeatMap && heatmap?.map((row, i) => (
-                                                <div key={i} className='d-flex flex-grow-1'>
-                                                    {row.map((col, j) => (
-                                                        <div key={j} className='flex-grow-1' style={{
-                                                            backgroundColor: `hsla(${(1 - col / heatMapMax) * 240}, 100%, 50%, 0.3)`
-                                                        }}/>
-                                                    ))}
-                                                </div>
-                                            ))}
+                                            {
+                                                heatmap && showHeatMap ? (
+
+                                                    <Canvas draw={(ctx) => {
+                                                        const numRows = heatmap.length;
+                                                        const numCols = heatmap[0].length;
+
+                                                        ctx.canvas.width = numCols;
+                                                        ctx.canvas.height = numRows;
+
+                                                        console.log('drawing');
+
+                                                        heatmap.forEach((row, i) => {
+                                                            row.forEach((col, j) => {
+                                                                ctx.fillStyle = `hsla(${(1 - col / heatMapMax) * 240}, 100%, 50%, 0.3)`;
+                                                                ctx.fillRect(j, i, 1, 1);
+                                                            });
+                                                        });
+                                                    }} />
+                                                ) : null
+                                            }
                                         </div>
                                     );
                                 })
