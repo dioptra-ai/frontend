@@ -116,7 +116,11 @@ const Miner = () => {
                                                                                 "groundtruth",
                                                                                 "text",
                                                                                 "tags"`,
-                                                                            where: `"uuid" IN (${miner['mined_uuids'].map((u) => `'${u}'`).join(',')})`
+                                                                            filters: [{
+                                                                                'left': 'uuid',
+                                                                                'op': 'in',
+                                                                                'right': miner['mined_uuids']
+                                                                            }]
                                                                         })}
                                                                         renderData={(datapoints) => <SamplesPreview samples={datapoints}/>}
                                                                     />
