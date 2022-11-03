@@ -6,6 +6,7 @@ import isUrl from 'is-url';
 import {FiExternalLink} from 'react-icons/fi';
 
 import useLabels from 'hooks/use-labels';
+import Table from 'components/table';
 
 const SKIPPED_KEYS = new Set(['feature_heatmap', 'embeddings', 'original_embeddings', 'logits']);
 
@@ -44,9 +45,9 @@ const PreviewDetails = ({sample}) => {
                     predictions?.length ? (
                         <>
                             <Row className='mt-5 mb-1 bg-white'>
-                                <h3>Predictions</h3>
+                                <h4>Predictions</h4>
                             </Row>
-                            <PreviewDetails sample={predictions}/>
+                            <Table columns={Object.keys(predictions[0]).filter((k) => !SKIPPED_KEYS.has(k)).map((k) => ({Header: k, accessor: k}))} data={predictions}/>
                         </>
                     ) : null
                 }
@@ -54,9 +55,9 @@ const PreviewDetails = ({sample}) => {
                     groundtruths?.length ? (
                         <>
                             <Row className='mt-5 mb-1 bg-white'>
-                                <h3>Groundtruths</h3>
+                                <h4>Groundtruths</h4>
                             </Row>
-                            <PreviewDetails sample={groundtruths}/>
+                            <Table columns={Object.keys(groundtruths[0]).filter((k) => !SKIPPED_KEYS.has(k)).map((k) => ({Header: k, accessor: k}))} data={groundtruths}/>
                         </>
                     ) : null
                 }
