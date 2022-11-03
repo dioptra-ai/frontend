@@ -1,19 +1,18 @@
-import {useEffect, useState} from 'react';
+import {useState} from 'react';
 import PropTypes from 'prop-types';
 import {TransformComponent, TransformWrapper} from 'react-zoom-pan-pinch';
 import {VscDiscard, VscZoomIn, VscZoomOut} from 'react-icons/vsc';
 import {IoPricetagSharp} from 'react-icons/io5';
-import {useInView} from 'react-intersection-observer';
 
 import SignedImage from 'components/signed-image';
 import SeekableVideo from 'components/seekable-video';
 import {getHexColor} from 'helpers/color-helper';
-import metricsClient from 'clients/metrics';
+import useLabels from 'hooks/use-labels';
 
 /* eslint-disable complexity */
 const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomable, maxHeight}) => {
     const [height, setHeight] = useState();
-    const {ref, inView} = useInView();
+    const {ref, predictions, groundtruths} = useLabels(datapoint);
     const handleLoad = ({target}) => {
         setHeight(target.offsetHeight);
     };
@@ -21,39 +20,6 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
     const imageUrl = datapoint.image_metadata?.uri;
     const frameH = datapoint.image_metadata?.height || datapoint.video_metadata?.height;
     const imageObject = datapoint.image_metadata?.object;
-    const {prediction, groundtruth} = datapoint;
-    const [requestPredictions, setRequestPredictions] = useState([]);
-    const [requestGroundtruths, setRequestGroundtruths] = useState([]);
-    const predictions = prediction ? [prediction] : requestPredictions;
-    const groundtruths = groundtruth ? [groundtruth] : requestGroundtruths;
-
-    useEffect(() => {
-        if (inView && !prediction && !groundtruth) {
-            setRequestPredictions([]);
-            setRequestGroundtruths([]);
-            metricsClient('select', {
-                select: '"prediction", "groundtruth", "tags"',
-                filters: [{
-                    left: 'request_id',
-                    op: '=',
-                    right: datapoint.request_id
-                }, {
-                    left: {
-                        left: 'prediction',
-                        op: 'is not null'
-                    },
-                    op: 'or',
-                    right: {
-                        left: 'groundtruth',
-                        op: 'is not null'
-                    }
-                }]
-            }).then((datapoints) => {
-                setRequestPredictions(datapoints.map((d) => d.prediction));
-                setRequestGroundtruths(datapoints.map((d) => d.groundtruth));
-            });
-        }
-    }, [inView, datapoint.request_id]);
 
     return (
         <div ref={ref} onClick={onClick} style={{position: 'relative'}}>
