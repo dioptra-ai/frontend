@@ -68,7 +68,7 @@ passport.use(new LocalStrategy({
 }));
 
 class OptionalApiKeyStrategy extends PassportStrategy {
-    name = 'optional-apikey'
+    name = 'optional-apikey';
 
     async authenticate(req) {
         if (req.user) {

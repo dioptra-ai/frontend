@@ -74,6 +74,7 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
                                 predictions?.filter(Boolean).map((p, i) => {
                                     const box = imageObject || p;
                                     const heatmap = p['feature_heatmap'];
+                                    const maxVal = Math.max(...heatmap.flat());
 
                                     return (
                                         <div key={i}
@@ -84,7 +85,8 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
                                                 top: box['top'] * (height / frameH),
                                                 left: box['left'] * (height / frameH),
                                                 border: '1px solid',
-                                                borderColor: getHexColor(p['class_name'])
+                                                borderColor: getHexColor(p['class_name']),
+                                                boxSizing: 'content-box'
                                             } : {
                                                 bottom: 0,
                                                 display: predictions.length > 1 && !('top' in box) ? 'none' : 'block'
@@ -102,8 +104,7 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
                                                 <div key={i} className='d-flex flex-grow-1'>
                                                     {row.map((col, j) => (
                                                         <div key={j} className='flex-grow-1' style={{
-                                                            backgroundColor: 'red',
-                                                            opacity: col * 0.8
+                                                            backgroundColor: `hsla(${(1 - col / maxVal) * 240}, 100%, 50%, 0.3)`
                                                         }}/>
                                                     ))}
                                                 </div>
@@ -125,7 +126,8 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
                                                 top: box['top'] * (height / frameH),
                                                 left: box['left'] * (height / frameH),
                                                 border: '1px solid',
-                                                borderColor: getHexColor(g['class_name'])
+                                                borderColor: getHexColor(g['class_name']),
+                                                boxSizing: 'content-box'
                                             } : {
                                                 top: 0,
                                                 display: groundtruths.length > 1 && !('top' in box) ? 'none' : 'block'
