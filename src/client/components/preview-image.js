@@ -63,7 +63,7 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
                                     return (
                                         <div key={i}
                                             className='position-absolute hover-z100'
-                                            style={box['top'] ? {
+                                            style={'top' in box ? {
                                                 height: box['height'] * (height / frameH),
                                                 width: box['width'] * (height / frameH),
                                                 top: box['top'] * (height / frameH),
@@ -71,7 +71,8 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
                                                 border: '1px solid',
                                                 borderColor: getHexColor(p['class_name'])
                                             } : {
-                                                bottom: 0
+                                                bottom: 0,
+                                                display: predictions.length > 1 && !('top' in box) ? 'none' : 'block'
                                             }}
                                         >
                                             <span className='fs-7 px-1 text-nowrap' style={{
@@ -89,7 +90,7 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
                                     return (
                                         <div key={i}
                                             className='position-absolute hover-z100'
-                                            style={box['top'] ? {
+                                            style={'top' in box ? {
                                                 height: box['height'] * (height / frameH),
                                                 width: box['width'] * (height / frameH),
                                                 top: box['top'] * (height / frameH),
@@ -97,7 +98,8 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
                                                 border: '1px solid',
                                                 borderColor: getHexColor(g['class_name'])
                                             } : {
-                                                top: 0
+                                                top: 0,
+                                                display: groundtruths.length > 1 && !('top' in box) ? 'none' : 'block'
                                             }}
                                         >
                                             <span className='position-absolute fs-7 px-1 text-nowrap' style={{
