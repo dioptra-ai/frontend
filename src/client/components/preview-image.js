@@ -52,7 +52,7 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
                             )}
                             {/* eslint-disable-next-line react/no-unknown-property */}
                             <style jsx>{`
-                                .hover-z100:hover {
+                                .hover-fade:hover {
                                     opacity: 0.2;
                                 }
                             `}</style>
@@ -63,7 +63,7 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
 
                                     return (
                                         <div key={i}
-                                            className='position-absolute d-flex flex-column hover-z100'
+                                            className='position-absolute d-flex flex-column hover-fade'
                                             style={'top' in box ? {
                                                 height: box['height'] * (height / frameH),
                                                 width: box['width'] * (height / frameH),
@@ -76,10 +76,14 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
                                                 display: predictions.length > 1 && !('top' in box) ? 'none' : 'block'
                                             }}
                                         >
-                                            {/* <span className='position-absolute fs-7 px-1 text-nowrap' style={{
-                                                backgroundColor: getHexColor(p['class_name'])
+                                            <span className='position-absolute fs-7 px-1 text-nowrap' style={{
+                                                backgroundColor: getHexColor(p['class_name']),
+                                                bottom: box['top'] > 20 ? '100%' : 'unset',
+                                                top: box['top'] > 20 ? 'unset' : '100%',
+                                                left: box['left'] + box['width'] < 200 ? '100%' : 'unset',
+                                                right: box['left'] < 200 ? 'unset' : '100%'
                                             }}
-                                            >{p['class_name']}</span> */}
+                                            >{p['class_name']}</span>
                                             {heatmap?.map((row, i) => (
                                                 <div key={i} className='d-flex flex-grow-1'>
                                                     {row.map((col, j) => (
@@ -100,7 +104,7 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
 
                                     return (
                                         <div key={i}
-                                            className='position-absolute hover-z100'
+                                            className='position-absolute hover-fade'
                                             style={'top' in box ? {
                                                 height: box['height'] * (height / frameH),
                                                 width: box['width'] * (height / frameH),
