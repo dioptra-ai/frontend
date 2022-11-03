@@ -7,8 +7,9 @@ import {FiExternalLink} from 'react-icons/fi';
 
 import useLabels from 'hooks/use-labels';
 
+const SKIPPED_KEYS = new Set(['feature_heatmap', 'embeddings', 'original_embeddings', 'logits']);
+
 const PreviewDetails = ({sample}) => {
-    console.log(sample);
     const {ref, predictions, groundtruths} = useLabels(sample);
 
     if (React.isValidElement(sample)) {
@@ -30,7 +31,7 @@ const PreviewDetails = ({sample}) => {
         return (
             <>
                 {
-                    Object.entries(sample).map(([k, v], i) => (
+                    Object.entries(sample).filter(([k]) => !SKIPPED_KEYS.has(k)).map(([k, v], i) => (
                         <Row key={k} className={i % 2 ? 'my-1 bg-white-blue' : 'my-1 bg-white'} ref={ref}>
                             <Col xs={2} style={{borderRight: '1px solid silver'}}>{k}</Col>
                             <Col className='text-break'>
