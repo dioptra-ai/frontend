@@ -72,7 +72,7 @@ const getEmbeddingsFieldsForModel = (modelType) => {
             value: 'embeddings'
         }, {
             name: 'Prediction Box Embeddings',
-            value: 'prediction.embeddings'
+            value: 'prediction->\'embeddings\''
         }];
     } else if (modelType === 'OBJECT_DETECTION') {
 
@@ -81,10 +81,10 @@ const getEmbeddingsFieldsForModel = (modelType) => {
             value: 'embeddings'
         }, {
             name: 'Prediction Box Embeddings',
-            value: 'prediction.embeddings'
+            value: 'prediction->\'embeddings\''
         }, {
             name: 'Ground Truth Box Embeddings',
-            value: 'groundtruth.embeddings'
+            value: 'groundtruth.\'embeddings\''
         }];
     } else if (modelType === 'LEARNING_TO_RANK') {
 

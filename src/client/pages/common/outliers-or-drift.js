@@ -24,15 +24,15 @@ const getEmbeddingsFieldsForModel = (modelType) => {
     if (modelType === 'UNSUPERVISED_OBJECT_DETECTION') {
         results.push({
             name: 'Prediction Box Embeddings',
-            value: 'prediction.embeddings'
+            value: 'prediction->\'embeddings\''
         });
     } else if (modelType === 'OBJECT_DETECTION') {
         results.push({
             name: 'Prediction Box Embeddings',
-            value: 'prediction.embeddings'
+            value: 'prediction->\'embeddings\''
         }, {
             name: 'Ground Truth Box Embeddings',
-            value: 'groundtruth.embeddings'
+            value: 'groundtruth->\'embeddings\''
         });
     }
 
