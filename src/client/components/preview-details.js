@@ -11,7 +11,7 @@ import Table from 'components/table';
 const SKIPPED_KEYS = new Set(['feature_heatmap', 'embeddings', 'original_embeddings', 'logits']);
 
 const PreviewDetails = ({sample}) => {
-    const {ref, predictions, groundtruths} = useLabels(sample);
+    const {ref, predictions, groundtruths} = useLabels(sample instanceof Object ? sample : {});
 
     if (React.isValidElement(sample)) {
 
