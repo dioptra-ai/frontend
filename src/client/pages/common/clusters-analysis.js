@@ -128,6 +128,10 @@ const _ClustersAnalysis = ({clusters, clustersAreOfRequests}) => {
         ...c,
         elements: c.elements.map((e) => ({clusterLabel: c.label, ...e}))
     })).sort((c1, c2) => c2.metric?.value - c1.metric?.value), [clusters]);
+    const allClusterElements = sortedClusters.map((cluster) => cluster.elements.map((e) => ({
+        ...e,
+        color: cluster.label === -1 ? getHexColor('') : getHexColor(cluster.label)
+    }))).flat();
     const samples = selectedPoints.map((p) => p.sample);
     // SQL Filter for samples is sliced if there are more than samplingLimit samples.
     const samplesFilters = uniqueSampleUUIDs.size ? [{
@@ -204,10 +208,7 @@ const _ClustersAnalysis = ({clusters, clustersAreOfRequests}) => {
                 <Row className='flex-grow-1'>
                     <Col>
                         <ScatterChart
-                            data={sortedClusters.map((cluster) => cluster.elements.map((e) => ({
-                                ...e,
-                                color: cluster.label === -1 ? getHexColor('') : getHexColor(cluster.label)
-                            }))).flat()}
+                            data={allClusterElements}
                             getX={(p) => p['PCA1']}
                             getY={(p) => p['PCA2']}
                             getColor={(p) => {
@@ -227,7 +228,7 @@ const _ClustersAnalysis = ({clusters, clustersAreOfRequests}) => {
                 <Row>
                     <Col>
                         <ScatterSearch
-                            data={sortedClusters.map((c) => c.elements).flat()}
+                            data={allClusterElements}
                             onSelectedDataChange={handleSelectedDataChange}
                             isSearchMatch={(p, searchTerm) => JSON.stringify(p.sample).includes(searchTerm)}
                         />

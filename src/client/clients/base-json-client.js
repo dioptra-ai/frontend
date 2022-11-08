@@ -1,4 +1,4 @@
-import mem from 'mem';
+import mem from 'p-memoize';
 
 const jsonFetch = async (...args) => {
     const res = await fetch(...args);
@@ -26,7 +26,7 @@ const memoizedFetch = mem(jsonFetch, {
     cacheKey: JSON.stringify,
     maxAge: 1000 * 60 * 5 // 5 minutes
 });
-const baseJSONClient = (url, {method = 'get', body, headers = {'content-type': 'application/json'}, memoized = false} = {}) => {
+const baseJSONClient = (url, {method = 'get', body, headers = {'content-type': 'application/json'}, memoized = false, ...rest} = {}) => {
     const fetch = memoized ? memoizedFetch : jsonFetch;
 
     return fetch(url, {
@@ -34,7 +34,8 @@ const baseJSONClient = (url, {method = 'get', body, headers = {'content-type': '
         retryDelay: 3000,
         retryOn: [503, 504],
         method, headers,
-        body: body ? JSON.stringify(body) : undefined
+        body: body ? JSON.stringify(body) : undefined,
+        ...rest
     });
 };
 

@@ -112,8 +112,6 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
                                                         ctx.canvas.width = numCols;
                                                         ctx.canvas.height = numRows;
 
-                                                        console.log('drawing');
-
                                                         heatmap.forEach((row, i) => {
                                                             row.forEach((col, j) => {
                                                                 ctx.fillStyle = `hsla(${(1 - col / heatMapMax) * 240}, 100%, 50%, 0.3)`;

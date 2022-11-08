@@ -2,9 +2,8 @@ import moment from 'moment';
 import {autorun, makeAutoObservable} from 'mobx';
 
 import {lastMilliseconds} from 'helpers/date-helper';
-import TimeseriesClient from 'clients/timeseries';
 
-const {SQL_OUTER_LIMIT} = TimeseriesClient;
+const SQL_OUTER_LIMIT = 100;
 
 const granularityLadderMs = [
     moment.duration(1, 'second'),
