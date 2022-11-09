@@ -80,8 +80,8 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
 
                                     return (
                                         <div key={i}
-                                            className='position-absolute d-flex flex-column hover-fade'
-                                            style={Number.isInteger(box['top']) ? {
+                                            className='position-absolute hover-fade'
+                                            style={!isNaN(box['top']) ? {
                                                 height: box['height'] * scale,
                                                 width: box['width'] * scale,
                                                 top: box['top'] * scale,
@@ -91,12 +91,12 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
                                                 boxSizing: 'content-box'
                                             } : {
                                                 top: 0,
-                                                display: predictions.length > 1 && !Number.isInteger(box['top']) ? 'none' : 'block'
+                                                display: predictions.length > 1 && Boolean(isNaN(box['top'])) ? 'none' : 'block'
                                             }}
                                         >
-                                            <span className='fs-7 px-1 text-nowrap' style={{
+                                            <span className='fs-7 position-absolute px-1 text-nowrap' style={{
                                                 backgroundColor: getHexColor(p['class_name']),
-                                                ...(Number.isInteger(box['top']) ? {
+                                                ...(!isNaN(box['top']) ? {
                                                     bottom: box['top'] > frameH - box['top'] - box['height'] ? '100%' : 'unset',
                                                     top: box['top'] > frameH - box['top'] - box['height'] ? 'unset' : '100%',
                                                     left: box['left'] < frameW - box['left'] - box['width'] ? '100%' : 'unset',
@@ -133,8 +133,8 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
 
                                     return (
                                         <div key={i}
-                                            className='position-absolute d-flex hover-fade'
-                                            style={Number.isInteger(box['top']) ? {
+                                            className='position-absolute hover-fade'
+                                            style={!isNaN(box['top']) ? {
                                                 height: box['height'] * (height / frameH),
                                                 width: box['width'] * (height / frameH),
                                                 top: box['top'] * (height / frameH),
@@ -144,17 +144,19 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
                                                 boxSizing: 'content-box'
                                             } : {
                                                 bottom: 0,
-                                                display: groundtruths.length > 1 && !Number.isInteger(box['top']) ? 'none' : 'block'
+                                                display: groundtruths.length > 1 && Boolean(isNaN(box['top'])) ? 'none' : 'block'
                                             }}
                                         >
-                                            <span className='fs-7 px-1 text-nowrap' style={{
+                                            <span className='fs-7 position-absolute px-1 text-nowrap' style={{
                                                 backgroundColor: getHexColor(g['class_name']),
-                                                ...(Number.isInteger(box['top']) ? {
+                                                ...(!isNaN(box['top']) ? {
                                                     bottom: box['top'] > frameH - box['top'] - box['height'] ? '100%' : 'unset',
                                                     top: box['top'] > frameH - box['top'] - box['height'] ? 'unset' : '100%',
                                                     left: box['left'] < frameW - box['left'] - box['width'] ? '100%' : 'unset',
                                                     right: box['left'] < frameW - box['left'] - box['width'] ? 'unset' : '100%'
-                                                } : {})
+                                                } : {
+                                                    bottom: 0
+                                                })
                                             }}
                                             >{g['class_name']} {g['class_name'] ? <IoPricetagSharp /> : ''}</span>
                                         </div>
