@@ -1,22 +1,53 @@
+import React, {useEffect} from 'react';
 import PropTypes from 'prop-types';
-import {useSortBy, useTable} from 'react-table';
+import {useRowSelect, useSortBy, useTable} from 'react-table';
 import {TiArrowSortedDown, TiArrowSortedUp, TiArrowUnsorted} from 'react-icons/ti';
+import Form from 'react-bootstrap/Form';
 
-
-const Table = ({columns, data, getRowProps}) => {
+const Table = ({columns, data, onSelectedRowsChange, getRowProps}) => {
     const {
         getTableProps,
         getTableBodyProps,
         headerGroups,
         rows,
-        prepareRow
+        prepareRow,
+        selectedFlatRows
     } = useTable(
         {
             columns,
             data
         },
-        useSortBy
+        useSortBy,
+        ...(onSelectedRowsChange ? [
+            useRowSelect,
+            (hooks) => {
+                hooks.visibleColumns.push((columns) => [
+                    // Let's make a column for selection
+                    {
+                        id: 'selection',
+                        // eslint-disable-next-line react/prop-types
+                        Header: ({getToggleAllRowsSelectedProps}) => (
+                            <IndeterminateCheckbox {...getToggleAllRowsSelectedProps()} />
+                        ),
+                        // eslint-disable-next-line react/prop-types
+                        Cell: ({row}) => (
+                            <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} /> // eslint-disable-line react/prop-types
+                        ),
+                        disableSortBy: true,
+                        width: 40
+                    },
+                    ...columns
+                ]);
+            }
+        ] : [])
     );
+    const selectedRows = selectedFlatRows?.map((row) => row.original);
+
+    useEffect(() => {
+        if (onSelectedRowsChange) {
+            onSelectedRowsChange(selectedRows);
+        }
+    }, [JSON.stringify(selectedRows)]);
 
     return (
         <table {...getTableProps()} className='table fs-6'>
@@ -28,7 +59,7 @@ const Table = ({columns, data, getRowProps}) => {
                             // we can add them into the header props
                             <th className={`text-center py-3 border-0 ${column.disableSortBy ? '' : 'cursor-pointer'}`} key={i}
                                 {...column.getHeaderProps(column.getSortByToggleProps())}
-                                style={{width: `${100 / headerGroup.headers.length}%`, textOverflow: 'ellipsis', overflow: 'hidden'}}
+                                style={{width: column.width || `${100 / headerGroup.headers.length}%`, textOverflow: 'ellipsis', overflow: 'hidden'}}
                                 title={column.render('Header')}
                             >
                                 {column.render('Header')}
@@ -72,7 +103,24 @@ const Table = ({columns, data, getRowProps}) => {
 Table.propTypes = {
     columns: PropTypes.array,
     data: PropTypes.array,
-    getRowProps: PropTypes.func
+    getRowProps: PropTypes.func,
+    onSelectedRowsChange: PropTypes.func
 };
 
 export default Table;
+
+// eslint-disable-next-line react/display-name
+const IndeterminateCheckbox = React.forwardRef(
+    ({indeterminate, ...rest}, ref) => { // eslint-disable-line react/prop-types
+        const defaultRef = React.useRef();
+        const resolvedRef = ref || defaultRef;
+
+        React.useEffect(() => {
+            resolvedRef.current.indeterminate = indeterminate;
+        }, [resolvedRef, indeterminate]);
+
+        return (
+            <Form.Check type='checkbox' ref={resolvedRef} {...rest} />
+        );
+    }
+);

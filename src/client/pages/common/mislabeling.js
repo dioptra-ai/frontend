@@ -1,8 +1,13 @@
+import PropTypes from 'prop-types';
 import {useState} from 'react';
 
 import Async from 'components/async';
 import metricsClient from 'clients/metrics';
 import useAllFilters from 'hooks/use-all-filters';
+import {OverlayTrigger, Tooltip} from 'react-bootstrap';
+import {BsCartPlus, BsHandThumbsDown, BsPatchCheck} from 'react-icons/bs';
+import {AiOutlineDelete} from 'react-icons/ai';
+
 import Table from 'components/table';
 import Modal from 'components/modal';
 import {datapointIsImage, datapointIsNER, datapointIsText, datapointIsVideo} from 'helpers/datapoint';
@@ -10,13 +15,59 @@ import PreviewImage from 'components/preview-image';
 import PreviewTextClassification from 'components/preview-text-classification';
 import PreviewDetails from 'components/preview-details';
 import PreviewNER from 'components/preview-ner';
+import {setupComponent} from 'helpers/component-helper';
 
-const Mislabeling = () => {
+const Mislabeling = ({userStore}) => {
     const allFilters = useAllFilters();
     const [exampleUUIDInModal, setExampleUUIDInModal] = useState(null);
+    const [selectedRows, setSelectedRows] = useState([]);
+    const limit = 1000;
 
     return (
         <>
+            <div className='text-dark m-3 bold-text d-flex justify-content-between'>
+                <div>
+                    Total: {selectedRows.length >= limit ? `${limit.toLocaleString()}+` : selectedRows.length.toLocaleString()}
+                </div>
+                <div className='d-flex'>
+                    <OverlayTrigger overlay={<Tooltip>Add {selectedRows.length} to Data Cart</Tooltip>}>
+                        <button
+                            disabled={!selectedRows.length}
+                            className='d-flex text-dark border-0 bg-transparent click-down fs-2' onClick={() => {
+
+                                userStore.tryUpdate({
+                                    cart: userStore.userData.cart.concat(...selectedRows.map(({uuid}) => uuid))
+                                });
+                            }}>
+                            <BsCartPlus className='fs-2 ps-2 cursor-pointer' />
+                        </button>
+                    </OverlayTrigger>
+                    <OverlayTrigger overlay={<Tooltip>Accept {selectedRows.length} Suggested Label(s)</Tooltip>}>
+                        <button
+                            disabled={!selectedRows.length}
+                            className='d-flex text-dark border-0 bg-transparent click-down fs-2'
+                        >
+                            <BsPatchCheck className='fs-2 ps-2 cursor-pointer' />
+                        </button>
+                    </OverlayTrigger>
+                    <OverlayTrigger overlay={<Tooltip>Reject {selectedRows.length} Suggested Label(s)</Tooltip>}>
+                        <button
+                            disabled={!selectedRows.length}
+                            className='d-flex text-dark border-0 bg-transparent click-down fs-2'
+                        >
+                            <BsHandThumbsDown className='fs-2 ps-2 cursor-pointer' />
+                        </button>
+                    </OverlayTrigger>
+                    <OverlayTrigger overlay={<Tooltip>Delete {selectedRows.length} Datapoint(s)</Tooltip>}>
+                        <button
+                            disabled={!selectedRows.length}
+                            className='d-flex text-dark border-0 bg-transparent click-down fs-2'
+                        >
+                            <AiOutlineDelete className='fs-2 ps-2 cursor-pointer' />
+                        </button>
+                    </OverlayTrigger>
+                </div>
+            </div>
             <div className='my-3'>
                 <Async
                     fetchData={() => metricsClient('mislabeling-score', {
@@ -25,6 +76,7 @@ const Mislabeling = () => {
                     refetchOnChanged={[JSON.stringify(allFilters)]}
                     renderData={(datapoints) => (
                         <Table
+                            onSelectedRowsChange={setSelectedRows}
                             columns={[{
                                 Header: 'Preview',
                                 accessor: 'uuid',
@@ -134,4 +186,8 @@ const Mislabeling = () => {
     );
 };
 
-export default Mislabeling;
+Mislabeling.propTypes = {
+    userStore: PropTypes.object
+};
+
+export default setupComponent(Mislabeling);
