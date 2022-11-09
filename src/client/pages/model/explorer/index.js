@@ -4,6 +4,7 @@ import {useState} from 'react';
 import Select from 'components/select';
 import OutliersOrDrift from 'pages/common/outliers-or-drift';
 import ClustersAnalysis from 'pages/common/clusters-analysis';
+import Mislabeling from 'pages/common/mislabeling';
 import SamplesPreview from 'components/samples-preview';
 import Async from 'components/async';
 import metricsClient from 'clients/metrics';
@@ -13,7 +14,8 @@ const ANALYSES = {
     DATA_VIEWER: 'Data Viewer',
     CLUSTERING: 'Clustering',
     OUTLIER: 'Outlier Detection',
-    DRIFT: 'Drift Detection'
+    DRIFT: 'Drift Detection',
+    MISLABELING: 'Mislabeling Detection'
 };
 
 const Explorer = () => {
@@ -33,41 +35,42 @@ const Explorer = () => {
             {
                 selectedAnalysis === 'DRIFT' ? <OutliersOrDrift isDrift/> :
                     selectedAnalysis === 'OUTLIER' ? <OutliersOrDrift/> :
-                        selectedAnalysis === 'CLUSTERING' ? <ClustersAnalysis /> : (
-                            <div className='my-3'>
-                                <Async
-                                    fetchData={async () => {
-                                        const requestDatapoints = await metricsClient('select', {
-                                            select: '"uuid", "request_id", "image_metadata", "text_metadata", "video_metadata","text", "tags"',
-                                            filters: [...allFilters, {
-                                                left: 'prediction',
-                                                op: 'is null'
-                                            }, {
-                                                left: 'groundtruth',
-                                                op: 'is null'
-                                            }],
-                                            limit: 1000
-                                        });
+                        selectedAnalysis === 'CLUSTERING' ? <ClustersAnalysis /> :
+                            selectedAnalysis === 'MISLABELING' ? <Mislabeling/> : (
+                                <div className='my-3'>
+                                    <Async
+                                        fetchData={async () => {
+                                            const requestDatapoints = await metricsClient('select', {
+                                                select: '"uuid", "request_id", "image_metadata", "text_metadata", "video_metadata","text", "tags"',
+                                                filters: [...allFilters, {
+                                                    left: 'prediction',
+                                                    op: 'is null'
+                                                }, {
+                                                    left: 'groundtruth',
+                                                    op: 'is null'
+                                                }],
+                                                limit: 1000
+                                            });
 
-                                        if (requestDatapoints.length) {
+                                            if (requestDatapoints.length) {
 
-                                            return requestDatapoints;
-                                        } else return metricsClient('select', {
-                                            select: `
+                                                return requestDatapoints;
+                                            } else return metricsClient('select', {
+                                                select: `
                                             "uuid", "request_id", "image_metadata", "text_metadata", "video_metadata", "text", 
                                             "tags",
                                             CASE WHEN jsonb_typeof("prediction") = 'object' THEN "prediction" - 'embeddings' ELSE "prediction" END as "prediction",
                                             CASE WHEN jsonb_typeof("groundtruth") = 'object' THEN "groundtruth" - 'embeddings' ELSE "groundtruth" END as "groundtruth"
                                             `,
-                                            filters: allFilters,
-                                            limit: 1000
-                                        });
-                                    }}
-                                    renderData={(datapoints) => <SamplesPreview samples={datapoints} limit={1000}/>}
-                                    refetchOnChanged={[JSON.stringify(allFilters)]}
-                                />
-                            </div>
-                        )
+                                                filters: allFilters,
+                                                limit: 1000
+                                            });
+                                        }}
+                                        renderData={(datapoints) => <SamplesPreview samples={datapoints} limit={1000}/>}
+                                        refetchOnChanged={[JSON.stringify(allFilters)]}
+                                    />
+                                </div>
+                            )
             }
         </>
     );
