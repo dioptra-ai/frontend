@@ -81,7 +81,7 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
                                     return (
                                         <div key={i}
                                             className='position-absolute d-flex flex-column hover-fade'
-                                            style={'top' in box ? {
+                                            style={Number.isInteger(box['top']) ? {
                                                 height: box['height'] * scale,
                                                 width: box['width'] * scale,
                                                 top: box['top'] * scale,
@@ -90,16 +90,18 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
                                                 borderColor: getHexColor(p['class_name']),
                                                 boxSizing: 'content-box'
                                             } : {
-                                                bottom: 0,
-                                                display: predictions.length > 1 && !('top' in box) ? 'none' : 'block'
+                                                top: 0,
+                                                display: predictions.length > 1 && !Number.isInteger(box['top']) ? 'none' : 'block'
                                             }}
                                         >
-                                            <span className='position-absolute fs-7 px-1 text-nowrap' style={{
+                                            <span className='fs-7 px-1 text-nowrap' style={{
                                                 backgroundColor: getHexColor(p['class_name']),
-                                                bottom: box['top'] > frameH - box['top'] - box['height'] ? '100%' : 'unset',
-                                                top: box['top'] > frameH - box['top'] - box['height'] ? 'unset' : '100%',
-                                                left: box['left'] < frameW - box['left'] - box['width'] ? '100%' : 'unset',
-                                                right: box['left'] < frameW - box['left'] - box['width'] ? 'unset' : '100%'
+                                                ...(Number.isInteger(box['top']) ? {
+                                                    bottom: box['top'] > frameH - box['top'] - box['height'] ? '100%' : 'unset',
+                                                    top: box['top'] > frameH - box['top'] - box['height'] ? 'unset' : '100%',
+                                                    left: box['left'] < frameW - box['left'] - box['width'] ? '100%' : 'unset',
+                                                    right: box['left'] < frameW - box['left'] - box['width'] ? 'unset' : '100%'
+                                                } : {})
                                             }}
                                             >{p['class_name']}</span>
                                             {
@@ -131,8 +133,8 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
 
                                     return (
                                         <div key={i}
-                                            className='position-absolute hover-fade'
-                                            style={'top' in box ? {
+                                            className='position-absolute d-flex hover-fade'
+                                            style={Number.isInteger(box['top']) ? {
                                                 height: box['height'] * (height / frameH),
                                                 width: box['width'] * (height / frameH),
                                                 top: box['top'] * (height / frameH),
@@ -141,16 +143,18 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
                                                 borderColor: getHexColor(g['class_name']),
                                                 boxSizing: 'content-box'
                                             } : {
-                                                top: 0,
-                                                display: groundtruths.length > 1 && !('top' in box) ? 'none' : 'block'
+                                                bottom: 0,
+                                                display: groundtruths.length > 1 && !Number.isInteger(box['top']) ? 'none' : 'block'
                                             }}
                                         >
-                                            <span className='position-absolute fs-7 px-1 text-nowrap' style={{
+                                            <span className='fs-7 px-1 text-nowrap' style={{
                                                 backgroundColor: getHexColor(g['class_name']),
-                                                bottom: box['top'] > frameH - box['top'] - box['height'] ? '100%' : 'unset',
-                                                top: box['top'] > frameH - box['top'] - box['height'] ? 'unset' : '100%',
-                                                left: box['left'] < frameW - box['left'] - box['width'] ? '100%' : 'unset',
-                                                right: box['left'] < frameW - box['left'] - box['width'] ? 'unset' : '100%'
+                                                ...(Number.isInteger(box['top']) ? {
+                                                    bottom: box['top'] > frameH - box['top'] - box['height'] ? '100%' : 'unset',
+                                                    top: box['top'] > frameH - box['top'] - box['height'] ? 'unset' : '100%',
+                                                    left: box['left'] < frameW - box['left'] - box['width'] ? '100%' : 'unset',
+                                                    right: box['left'] < frameW - box['left'] - box['width'] ? 'unset' : '100%'
+                                                } : {})
                                             }}
                                             >{g['class_name']} {g['class_name'] ? <IoPricetagSharp /> : ''}</span>
                                         </div>
