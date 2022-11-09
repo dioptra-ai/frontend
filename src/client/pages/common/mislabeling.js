@@ -60,7 +60,8 @@ const Mislabeling = () => {
                             accessor: 'prediction'
                         }, {
                             Header: 'Mislabeling Score',
-                            accessor: 'mislabeling_score'
+                            accessor: 'mislabeling_score',
+                            sortType: 'basic'
                         }]}
                         data={datapoints}
                     />

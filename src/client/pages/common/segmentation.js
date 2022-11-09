@@ -334,7 +334,8 @@ const Segmentation = ({segmentationStore}) => {
                                     Cell: metricCell
                                 }, {
                                     accessor: 'value',
-                                    Header: 'Sample Size'
+                                    Header: 'Sample Size',
+                                    sortType: 'basic'
                                 }] : [
                                     {
                                         id: 'accuracy-metric',

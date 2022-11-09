@@ -26,20 +26,21 @@ const Table = ({columns, data, getRowProps}) => {
                         {headerGroup.headers.map((column, i) => (
                             // Add the sorting props to control sorting. For this example
                             // we can add them into the header props
-                            <th className='text-center py-3 border-0' key={i}
+                            <th className={`text-center py-3 border-0 ${column.disableSortBy ? '' : 'cursor-pointer'}`} key={i}
                                 {...column.getHeaderProps(column.getSortByToggleProps())}
                                 style={{width: `${100 / headerGroup.headers.length}%`, textOverflow: 'ellipsis', overflow: 'hidden'}}
                                 title={column.render('Header')}
                             >
                                 {column.render('Header')}
                                 {/* Add a sort direction indicator */}
-                                <span>
-                                    {column.isSorted ?
-                                        column.isSortedDesc ?
-                                            <TiArrowSortedDown/> :
-                                            <TiArrowSortedUp/> :
-                                        <TiArrowUnsorted/>}
-                                </span>
+                                {column.disableSortBy ? null : (
+                                    <span>
+                                        {column.isSorted ?
+                                            column.isSortedDesc ?
+                                                <TiArrowSortedDown/> :
+                                                <TiArrowSortedUp/> :
+                                            <TiArrowUnsorted/>}
+                                    </span>)}
                             </th>
                         ))}
                     </tr>
