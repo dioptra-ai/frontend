@@ -1,3 +1,5 @@
+/* eslint-disable react/prop-types */
+
 import PropTypes from 'prop-types';
 import {useState} from 'react';
 
@@ -17,10 +19,153 @@ import PreviewDetails from 'components/preview-details';
 import PreviewNER from 'components/preview-ner';
 import {setupComponent} from 'helpers/component-helper';
 
+const FakeStatefulMislabeling = ({initialDatapoints, userStore, setExampleUUIDInModal}) => {
+    const [datapoints, setDatapoints] = useState(initialDatapoints);
+    const [selectedRows, setSelectedRows] = useState([]);
+
+    return (
+        <>
+            <div className='text-dark m-3 bold-text d-flex justify-content-between'>
+                <div>
+                    Total: {datapoints.length.toLocaleString()}
+                </div>
+                <div className='d-flex'>
+                    <OverlayTrigger overlay={<Tooltip>Add {selectedRows.length} to Data Cart</Tooltip>}>
+                        <button
+                            disabled={!selectedRows.length}
+                            className='d-flex text-dark border-0 bg-transparent click-down fs-2' onClick={() => {
+
+                                userStore.tryUpdate({
+                                    cart: userStore.userData.cart.concat(...selectedRows.map(({uuid}) => uuid))
+                                });
+                            }}>
+                            <BsCartPlus className='fs-2 ps-2 cursor-pointer' />
+                        </button>
+                    </OverlayTrigger>
+                    <OverlayTrigger overlay={<Tooltip>Accept {selectedRows.length} Suggested Label(s)</Tooltip>}>
+                        <button
+                            disabled={!selectedRows.length}
+                            className='d-flex text-dark border-0 bg-transparent click-down fs-2'
+                        >
+                            <BsPatchCheck className='fs-2 ps-2 cursor-pointer' />
+                        </button>
+                    </OverlayTrigger>
+                    <OverlayTrigger overlay={<Tooltip>Reject {selectedRows.length} Suggested Label(s)</Tooltip>}>
+                        <button
+                            disabled={!selectedRows.length}
+                            className='d-flex text-dark border-0 bg-transparent click-down fs-2'
+                        >
+                            <BsHandThumbsDown className='fs-2 ps-2 cursor-pointer' />
+                        </button>
+                    </OverlayTrigger>
+                    <OverlayTrigger overlay={<Tooltip>Delete {selectedRows.length} Datapoint(s)</Tooltip>}>
+                        <button
+                            disabled={!selectedRows.length}
+                            className='d-flex text-dark border-0 bg-transparent click-down fs-2'
+                        >
+                            <AiOutlineDelete className='fs-2 ps-2 cursor-pointer' />
+                        </button>
+                    </OverlayTrigger>
+                </div>
+            </div>
+            <Table
+                onSelectedRowsChange={setSelectedRows}
+                columns={[{
+                    Header: 'Preview',
+                    accessor: 'uuid',
+                    disableSortBy: true,
+                    width: '25%',
+                    Cell: ({row}) => { // eslint-disable-line react/prop-types
+                        const {uuid} = row.original; // eslint-disable-line react/prop-types
+
+                        return (
+                            <div className='d-flex align-items-center justify-content-center'>
+                                <div className='my-2 cursor-pointer' onClick={() => setExampleUUIDInModal(uuid)}>
+                                    {
+                                        (datapointIsImage(row.original) || datapointIsVideo(row.original)) ? (
+                                            <PreviewImage datapoint={row.original} maxHeight={200} />
+                                        ) : datapointIsText(row.original) ? (
+                                            <PreviewTextClassification sample={row.original} />
+                                        ) : null
+                                    }
+                                </div>
+                            </div>
+                        );
+                    }
+                }, {
+                    Header: 'Ground Truth Label',
+                    // eslint-disable-next-line react/prop-types
+                    Cell: ({row}) => row.original['groundtruth']['class_name']
+                }, {
+                    Header: 'Suggested Label',
+                    // eslint-disable-next-line react/prop-types
+                    Cell: ({row}) => row.original['prediction']['class_name']
+                }, {
+                    Header: 'Mislabeling Score',
+                    accessor: 'mislabeling_score',
+                    sortType: 'basic',
+                    // eslint-disable-next-line react/prop-types
+                    Cell: ({row}) => Number(row.original.mislabeling_score).toFixed(2)
+                }, {
+                    Header: '',
+                    disableSortBy: true,
+                    id: 'actions',
+                    width: '25%',
+                    Cell: ({row}) => ( // eslint-disable-line react/prop-types
+                        <div className='d-flex justify-content-end'>
+                            <OverlayTrigger overlay={<Tooltip>Add to Data Cart</Tooltip>}>
+                                <button
+                                    className='d-flex text-dark border-0 bg-transparent click-down fs-2' onClick={() => {
+
+                                        userStore.tryUpdate({
+                                            // eslint-disable-next-line react/prop-types
+                                            cart: userStore.userData.cart.concat(row.original.uuid)
+                                        });
+                                    }}>
+                                    <BsCartPlus className='fs-2 ps-2 cursor-pointer' />
+                                </button>
+                            </OverlayTrigger>
+                            <OverlayTrigger overlay={<Tooltip>Accept Suggested Label</Tooltip>}>
+                                <button
+                                    onClick={() => setDatapoints(datapoints.filter(({uuid}) => uuid !== row.original.uuid))}
+                                    className='d-flex text-dark border-0 bg-transparent click-down fs-2'
+                                >
+                                    <BsPatchCheck className='fs-2 ps-2 cursor-pointer' />
+                                </button>
+                            </OverlayTrigger>
+                            <OverlayTrigger overlay={<Tooltip>Reject Suggested Label</Tooltip>}>
+                                <button
+                                    onClick={() => setDatapoints(datapoints.filter(({uuid}) => uuid !== row.original.uuid))}
+                                    className='d-flex text-dark border-0 bg-transparent click-down fs-2'
+                                >
+                                    <BsHandThumbsDown className='fs-2 ps-2 cursor-pointer' />
+                                </button>
+                            </OverlayTrigger>
+                            <OverlayTrigger overlay={<Tooltip>Delete Datapoint</Tooltip>}>
+                                <button
+                                    onClick={() => setDatapoints(datapoints.filter(({uuid}) => uuid !== row.original.uuid))} className='d-flex text-dark border-0 bg-transparent click-down fs-2'
+                                >
+                                    <AiOutlineDelete className='fs-2 ps-2 cursor-pointer' />
+                                </button>
+                            </OverlayTrigger>
+                        </div>
+                    )
+                }]}
+                data={datapoints}
+            />
+        </>
+    );
+};
+
+FakeStatefulMislabeling.propTypes = {
+    initialDatapoints: PropTypes.any,
+    setExampleUUIDInModal: PropTypes.func,
+    userStore: PropTypes.object.isRequired
+};
+
 const Mislabeling = ({userStore}) => {
     const allFilters = useAllFilters();
     const [exampleUUIDInModal, setExampleUUIDInModal] = useState(null);
-    const [selectedRows, setSelectedRows] = useState([]);
 
     return (
         <>
@@ -31,143 +176,7 @@ const Mislabeling = ({userStore}) => {
                     })}
                     refetchOnChanged={[JSON.stringify(allFilters)]}
                     renderData={(datapoints) => (
-                        <>
-
-                            <div className='text-dark m-3 bold-text d-flex justify-content-between'>
-                                <div>
-                                    Total: {datapoints.length.toLocaleString()}
-                                </div>
-                                <div className='d-flex'>
-                                    <OverlayTrigger overlay={<Tooltip>Add {selectedRows.length} to Data Cart</Tooltip>}>
-                                        <button
-                                            disabled={!selectedRows.length}
-                                            className='d-flex text-dark border-0 bg-transparent click-down fs-2' onClick={() => {
-
-                                                userStore.tryUpdate({
-                                                    cart: userStore.userData.cart.concat(...selectedRows.map(({uuid}) => uuid))
-                                                });
-                                            }}>
-                                            <BsCartPlus className='fs-2 ps-2 cursor-pointer' />
-                                        </button>
-                                    </OverlayTrigger>
-                                    <OverlayTrigger overlay={<Tooltip>Accept {selectedRows.length} Suggested Label(s)</Tooltip>}>
-                                        <button
-                                            disabled={!selectedRows.length}
-                                            className='d-flex text-dark border-0 bg-transparent click-down fs-2'
-                                        >
-                                            <BsPatchCheck className='fs-2 ps-2 cursor-pointer' />
-                                        </button>
-                                    </OverlayTrigger>
-                                    <OverlayTrigger overlay={<Tooltip>Reject {selectedRows.length} Suggested Label(s)</Tooltip>}>
-                                        <button
-                                            disabled={!selectedRows.length}
-                                            className='d-flex text-dark border-0 bg-transparent click-down fs-2'
-                                        >
-                                            <BsHandThumbsDown className='fs-2 ps-2 cursor-pointer' />
-                                        </button>
-                                    </OverlayTrigger>
-                                    <OverlayTrigger overlay={<Tooltip>Delete {selectedRows.length} Datapoint(s)</Tooltip>}>
-                                        <button
-                                            disabled={!selectedRows.length}
-                                            className='d-flex text-dark border-0 bg-transparent click-down fs-2'
-                                        >
-                                            <AiOutlineDelete className='fs-2 ps-2 cursor-pointer' />
-                                        </button>
-                                    </OverlayTrigger>
-                                </div>
-                            </div>
-                            <Table
-                                onSelectedRowsChange={setSelectedRows}
-                                columns={[{
-                                    Header: 'Preview',
-                                    accessor: 'uuid',
-                                    disableSortBy: true,
-                                    Cell: ({value}) => ( // eslint-disable-line react/prop-types
-                                        <div className='d-flex align-items-center justify-content-center'>
-                                            <div className='my-2 cursor-pointer' onClick={() => setExampleUUIDInModal(value)}>
-                                                <Async
-                                                    fetchData={() => metricsClient('select', {
-                                                        select: '"uuid", "image_metadata", "text_metadata", "video_metadata"',
-                                                        filters: [{
-                                                            left: 'uuid',
-                                                            op: '==',
-                                                            right: value
-                                                        }]
-                                                    })}
-                                                    renderData={(datapoints) => {
-                                                        const {image_metadata, text_metadata, video_metadata} = datapoints[0];
-
-                                                        if (image_metadata || video_metadata) {
-
-                                                            return <PreviewImage datapoint={datapoints[0]} maxHeight={100}/>;
-                                                        } else if (text_metadata) {
-
-                                                            return <PreviewTextClassification sample={datapoints[0]}/>;
-                                                        } else {
-
-                                                            return <div>N/A</div>;
-                                                        }
-                                                    }}
-                                                    refetchOnChanged={[value]}
-                                                />
-                                            </div>
-                                        </div>
-                                    )
-                                }, {
-                                    Header: 'Ground Truth Label',
-                                    accessor: 'groundtruth'
-                                }, {
-                                    Header: 'Suggested Label',
-                                    accessor: 'prediction'
-                                }, {
-                                    Header: 'Mislabeling Score',
-                                    accessor: 'mislabeling_score',
-                                    sortType: 'basic'
-                                }, {
-                                    Header: '',
-                                    disableSortBy: true,
-                                    id: 'actions',
-                                    Cell: ({row}) => ( // eslint-disable-line react/prop-types
-                                        <div className='d-flex justify-content-end'>
-                                            <OverlayTrigger overlay={<Tooltip>Add to Data Cart</Tooltip>}>
-                                                <button
-                                                    className='d-flex text-dark border-0 bg-transparent click-down fs-2' onClick={() => {
-
-                                                        userStore.tryUpdate({
-                                                        // eslint-disable-next-line react/prop-types
-                                                            cart: userStore.userData.cart.concat(row.original.uuid)
-                                                        });
-                                                    }}>
-                                                    <BsCartPlus className='fs-2 ps-2 cursor-pointer' />
-                                                </button>
-                                            </OverlayTrigger>
-                                            <OverlayTrigger overlay={<Tooltip>Accept Suggested Label</Tooltip>}>
-                                                <button
-                                                    className='d-flex text-dark border-0 bg-transparent click-down fs-2'
-                                                >
-                                                    <BsPatchCheck className='fs-2 ps-2 cursor-pointer' />
-                                                </button>
-                                            </OverlayTrigger>
-                                            <OverlayTrigger overlay={<Tooltip>Reject Suggested Label</Tooltip>}>
-                                                <button
-                                                    className='d-flex text-dark border-0 bg-transparent click-down fs-2'
-                                                >
-                                                    <BsHandThumbsDown className='fs-2 ps-2 cursor-pointer' />
-                                                </button>
-                                            </OverlayTrigger>
-                                            <OverlayTrigger overlay={<Tooltip>Delete Datapoint</Tooltip>}>
-                                                <button
-                                                    className='d-flex text-dark border-0 bg-transparent click-down fs-2'
-                                                >
-                                                    <AiOutlineDelete className='fs-2 ps-2 cursor-pointer' />
-                                                </button>
-                                            </OverlayTrigger>
-                                        </div>
-                                    )
-                                }]}
-                                data={datapoints}
-                            />
-                        </>
+                        <FakeStatefulMislabeling initialDatapoints={datapoints} userStore={userStore} setExampleUUIDInModal={setExampleUUIDInModal}/>
                     )}
                 />
             </div>
