@@ -77,11 +77,12 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
                                     const scale = height / frameH;
                                     const heatmap = p['feature_heatmap'];
                                     const heatMapMax = heatmap && Math.max(...heatmap.flat());
+                                    const hasBoxTop = box['top'] !== null && !isNaN(box['top']);
 
                                     return (
                                         <div key={i}
                                             className='position-absolute hover-fade'
-                                            style={!isNaN(box['top']) ? {
+                                            style={hasBoxTop ? {
                                                 height: box['height'] * scale,
                                                 width: box['width'] * scale,
                                                 top: box['top'] * scale,
@@ -91,12 +92,12 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
                                                 boxSizing: 'content-box'
                                             } : {
                                                 top: 0,
-                                                display: predictions.length > 1 && Boolean(isNaN(box['top'])) ? 'none' : 'block'
+                                                display: predictions.length > 1 && !hasBoxTop ? 'none' : 'block'
                                             }}
                                         >
                                             <span className='fs-7 position-absolute px-1 text-nowrap' style={{
                                                 backgroundColor: getHexColor(p['class_name']),
-                                                ...(!isNaN(box['top']) ? {
+                                                ...(hasBoxTop ? {
                                                     bottom: box['top'] > frameH - box['top'] - box['height'] ? '100%' : 'unset',
                                                     top: box['top'] > frameH - box['top'] - box['height'] ? 'unset' : '100%',
                                                     left: box['left'] < frameW - box['left'] - box['width'] ? '100%' : 'unset',
@@ -130,11 +131,12 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
                             {
                                 groundtruths?.filter(Boolean).map((g, i) => {
                                     const box = imageObject || g;
+                                    const hasBoxTop = box['top'] !== null && !isNaN(box['top']);
 
                                     return (
                                         <div key={i}
                                             className='position-absolute hover-fade'
-                                            style={!isNaN(box['top']) ? {
+                                            style={hasBoxTop ? {
                                                 height: box['height'] * (height / frameH),
                                                 width: box['width'] * (height / frameH),
                                                 top: box['top'] * (height / frameH),
@@ -144,12 +146,12 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
                                                 boxSizing: 'content-box'
                                             } : {
                                                 bottom: 0,
-                                                display: groundtruths.length > 1 && Boolean(isNaN(box['top'])) ? 'none' : 'block'
+                                                display: groundtruths.length > 1 && !hasBoxTop ? 'none' : 'block'
                                             }}
                                         >
                                             <span className='fs-7 position-absolute px-1 text-nowrap' style={{
                                                 backgroundColor: getHexColor(g['class_name']),
-                                                ...(!isNaN(box['top']) ? {
+                                                ...(hasBoxTop ? {
                                                     bottom: box['top'] > frameH - box['top'] - box['height'] ? '100%' : 'unset',
                                                     top: box['top'] > frameH - box['top'] - box['height'] ? 'unset' : '100%',
                                                     left: box['left'] < frameW - box['left'] - box['width'] ? '100%' : 'unset',
