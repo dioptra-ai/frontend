@@ -14,6 +14,7 @@ const Mislabeling = () => {
                 fetchData={() => metricsClient('mislabeling-score', {
                     filters: allFilters
                 })}
+                refetchOnChanged={[JSON.stringify(allFilters)]}
                 renderData={(datapoints) => (
                     <Table
                         columns={[{
