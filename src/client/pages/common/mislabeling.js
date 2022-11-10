@@ -1,7 +1,6 @@
 /* eslint-disable react/prop-types */
-
 import PropTypes from 'prop-types';
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 
 import Async from 'components/async';
 import metricsClient from 'clients/metrics';
@@ -23,6 +22,29 @@ import {setupComponent} from 'helpers/component-helper';
 const FakeStatefulMislabeling = ({initialDatapoints, userStore, setExampleUUIDInModal}) => {
     const [datapoints, setDatapoints] = useState(initialDatapoints);
     const [selectedRows, setSelectedRows] = useState([]);
+
+    const handleKeyPress = (event) => {
+        console.log(event.key, event.ctrlKey);
+
+        if (event.key === 'a' && (event.ctrlKey || event.metaKey)) {
+            event.preventDefault();
+            setDatapoints(datapoints.filter((d) => d['uuid'] !== datapoints[0]['uuid']));
+        } else if (event.key === 's' && (event.ctrlKey || event.metaKey)) {
+            event.preventDefault();
+            setDatapoints(datapoints.filter((d) => d['uuid'] !== datapoints[0]['uuid']));
+        } else if (event.key === 'd' && (event.ctrlKey || event.metaKey)) {
+            event.preventDefault();
+            setDatapoints(datapoints.filter((d) => d['uuid'] !== datapoints[0]['uuid']));
+        }
+    };
+
+    useEffect(() => {
+        window.addEventListener('keydown', handleKeyPress);
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyPress);
+        };
+    }, [datapoints]);
 
     return (
         <>
@@ -113,75 +135,90 @@ const FakeStatefulMislabeling = ({initialDatapoints, userStore, setExampleUUIDIn
                     id: 'actions',
                     width: '25%',
                     Cell: ({row}) => ( // eslint-disable-line react/prop-types
-                        <div className='d-flex justify-content-end'>
-                            <OverlayTrigger overlay={<Tooltip>Add to Data Cart</Tooltip>}>
-                                <button
-                                    className='d-flex text-dark border-0 bg-transparent click-down fs-2' onClick={() => {
+                        <div className='d-flex justify-content-end flex-column align-items-center'>
+                            <div className='d-flex align-items-center pb-1 mb-1' style={{
+                                borderBottom: '1px solid #e0e0e0'
+                            }}>
+                                <OverlayTrigger overlay={<Tooltip>Add to Data Cart</Tooltip>}>
+                                    <button
+                                        className='d-flex text-dark border-0 bg-transparent click-down fs-2' onClick={() => {
 
-                                        userStore.tryUpdate({
+                                            userStore.tryUpdate({
                                             // eslint-disable-next-line react/prop-types
-                                            cart: userStore.userData.cart.concat(row.original.uuid)
-                                        });
-                                    }}>
-                                    <BsCartPlus className='fs-2 ps-2 cursor-pointer' />
-                                </button>
-                            </OverlayTrigger>
-                            <OverlayTrigger overlay={<Tooltip>Accept Suggested Label</Tooltip>}>
-                                <div className='d-flex flex-column align-items-center'>
-                                    <button
-                                        onClick={() => setDatapoints(datapoints.filter(({uuid}) => uuid !== row.original.uuid))}
-                                        className='d-flex text-dark border-0 bg-transparent click-down fs-2'
-                                    >
-                                        <BsPatchCheck className='fs-2 ps-2 cursor-pointer' />
+                                                cart: userStore.userData.cart.concat(row.original.uuid)
+                                            });
+                                        }}>
+                                        <BsCartPlus className='fs-2 ps-2 cursor-pointer' />
                                     </button>
-                                    {
-                                        row.index === 0 ? (
+                                </OverlayTrigger>
+                                <OverlayTrigger overlay={<Tooltip>Delete Datapoint</Tooltip>}>
+                                    <div className='d-flex flex-column align-items-center'>
+                                        <button
+                                            onClick={() => setDatapoints(datapoints.filter(({uuid}) => uuid !== row.original.uuid))} className='d-flex text-dark border-0 bg-transparent click-down fs-2'
+                                        >
+                                            <AiOutlineDelete className='fs-2 ps-2 cursor-pointer' />
+                                        </button>
+                                        {
+                                            row.index === 0 ? (
 
-                                            <div className='text-secondary d-flex'>
-                                                <BsCommand />
-                                                <TbLetterA />
-                                            </div>
-                                        ) : null
-                                    }
-                                </div>
-                            </OverlayTrigger>
-                            <OverlayTrigger overlay={<Tooltip>Reject Suggested Label</Tooltip>}>
-                                <div className='d-flex flex-column align-items-center'>
-                                    <button
-                                        onClick={() => setDatapoints(datapoints.filter(({uuid}) => uuid !== row.original.uuid))}
-                                        className='d-flex text-dark border-0 bg-transparent click-down fs-2'
-                                    >
-                                        <BsHandThumbsDown className='fs-2 ps-2 cursor-pointer' />
-                                    </button>
-                                    {
-                                        row.index === 0 ? (
+                                                <div className='text-secondary d-flex'>
+                                                    <BsCommand />
+                                                    <TbLetterD />
+                                                </div>
+                                            ) : null
+                                        }
+                                    </div>
+                                </OverlayTrigger>
+                            </div>
+                            <div className='d-flex align-items-center flex-column'>
+                                {
+                                    row.index === 0 ? (
+                                        <div className='text-secondary d-flex'>
+                                            Accept Suggestion?
+                                        </div>
+                                    ) : null
+                                }
+                                <div className='d-flex align-items-center'>
+                                    <OverlayTrigger overlay={<Tooltip>Accept Suggested Label</Tooltip>}>
+                                        <div className='d-flex flex-column align-items-center'>
+                                            <button
+                                                onClick={() => setDatapoints(datapoints.filter(({uuid}) => uuid !== row.original.uuid))}
+                                                className='d-flex text-dark border-0 bg-transparent click-down fs-2'
+                                            >
+                                                <BsPatchCheck className='fs-2 ps-2 cursor-pointer' />
+                                            </button>
+                                            {
+                                                row.index === 0 ? (
 
-                                            <div className='text-secondary d-flex'>
-                                                <BsCommand />
-                                                <TbLetterS />
-                                            </div>
-                                        ) : null
-                                    }
-                                </div>
-                            </OverlayTrigger>
-                            <OverlayTrigger overlay={<Tooltip>Delete Datapoint</Tooltip>}>
-                                <div className='d-flex flex-column align-items-center'>
-                                    <button
-                                        onClick={() => setDatapoints(datapoints.filter(({uuid}) => uuid !== row.original.uuid))} className='d-flex text-dark border-0 bg-transparent click-down fs-2'
-                                    >
-                                        <AiOutlineDelete className='fs-2 ps-2 cursor-pointer' />
-                                    </button>
-                                    {
-                                        row.index === 0 ? (
+                                                    <div className='text-secondary d-flex'>
+                                                        <BsCommand />
+                                                        <TbLetterA />
+                                                    </div>
+                                                ) : null
+                                            }
+                                        </div>
+                                    </OverlayTrigger>
+                                    <OverlayTrigger overlay={<Tooltip>Reject Suggested Label</Tooltip>}>
+                                        <div className='d-flex flex-column align-items-center'>
+                                            <button
+                                                onClick={() => setDatapoints(datapoints.filter(({uuid}) => uuid !== row.original.uuid))}
+                                                className='d-flex text-dark border-0 bg-transparent click-down fs-2'
+                                            >
+                                                <BsHandThumbsDown className='fs-2 ps-2 cursor-pointer' />
+                                            </button>
+                                            {
+                                                row.index === 0 ? (
 
-                                            <div className='text-secondary d-flex'>
-                                                <BsCommand />
-                                                <TbLetterD />
-                                            </div>
-                                        ) : null
-                                    }
+                                                    <div className='text-secondary d-flex'>
+                                                        <BsCommand />
+                                                        <TbLetterS />
+                                                    </div>
+                                                ) : null
+                                            }
+                                        </div>
+                                    </OverlayTrigger>
                                 </div>
-                            </OverlayTrigger>
+                            </div>
                         </div>
                     )
                 }]}
