@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import {useState} from 'react';
+import {Redirect, Route, Switch, useHistory, useLocation} from 'react-router-dom';
 
 import Select from 'components/select';
 import OutliersOrDrift from 'pages/common/outliers-or-drift';
@@ -11,7 +11,7 @@ import metricsClient from 'clients/metrics';
 import useAllFilters from 'hooks/use-all-filters';
 
 const ANALYSES = {
-    DATA_VIEWER: 'Data Viewer',
+    VIEWER: 'Data Viewer',
     CLUSTERING: 'Clustering',
     OUTLIER: 'Outlier Detection',
     DRIFT: 'Drift Detection',
@@ -21,57 +21,65 @@ const ANALYSES = {
 const Explorer = () => {
     const allFilters = useAllFilters();
     const analysesKeys = Object.keys(ANALYSES);
-    const [selectedAnalysis, setSelectedAnalysis] = useState(analysesKeys[0]);
+    const history = useHistory();
+    const location = useLocation();
 
     return (
         <>
-            <Select required defaultValue={selectedAnalysis} onChange={setSelectedAnalysis}>
+            <Select required defaultValue={location.pathname.slice(1).toUpperCase()} onChange={(value) => {
+                history.push({
+                    ...location,
+                    pathname: `/${value.toLowerCase()}`
+                });
+            }}>
                 {
                     analysesKeys.map((k) => (
                         <option value={k} key={k}>{ANALYSES[k]}</option>
                     ))
                 }
             </Select>
-            {
-                selectedAnalysis === 'DRIFT' ? <OutliersOrDrift isDrift/> :
-                    selectedAnalysis === 'OUTLIER' ? <OutliersOrDrift/> :
-                        selectedAnalysis === 'CLUSTERING' ? <ClustersAnalysis /> :
-                            selectedAnalysis === 'MISLABELING' ? <Mislabeling/> : (
-                                <div className='my-3'>
-                                    <Async
-                                        fetchData={async () => {
-                                            const requestDatapoints = await metricsClient('select', {
-                                                select: '"uuid", "request_id", "image_metadata", "text_metadata", "video_metadata","text", "tags"',
-                                                filters: [...allFilters, {
-                                                    left: 'prediction',
-                                                    op: 'is null'
-                                                }, {
-                                                    left: 'groundtruth',
-                                                    op: 'is null'
-                                                }],
-                                                limit: 1000
-                                            });
+            <Switch>
+                <Route path='/dataviewer' render={() => (
+                    <div className='my-3'>
+                        <Async
+                            fetchData={async () => {
+                                const requestDatapoints = await metricsClient('select', {
+                                    select: '"uuid", "request_id", "image_metadata", "text_metadata", "video_metadata","text", "tags"',
+                                    filters: [...allFilters, {
+                                        left: 'prediction',
+                                        op: 'is null'
+                                    }, {
+                                        left: 'groundtruth',
+                                        op: 'is null'
+                                    }],
+                                    limit: 1000
+                                });
 
-                                            if (requestDatapoints.length) {
+                                if (requestDatapoints.length) {
 
-                                                return requestDatapoints;
-                                            } else return metricsClient('select', {
-                                                select: `
+                                    return requestDatapoints;
+                                } else return metricsClient('select', {
+                                    select: `
                                             "uuid", "request_id", "image_metadata", "text_metadata", "video_metadata", "text", 
                                             "tags",
                                             CASE WHEN jsonb_typeof("prediction") = 'object' THEN "prediction" - 'embeddings' ELSE "prediction" END as "prediction",
                                             CASE WHEN jsonb_typeof("groundtruth") = 'object' THEN "groundtruth" - 'embeddings' ELSE "groundtruth" END as "groundtruth"
                                             `,
-                                                filters: allFilters,
-                                                limit: 1000
-                                            });
-                                        }}
-                                        renderData={(datapoints) => <SamplesPreview samples={datapoints} limit={1000}/>}
-                                        refetchOnChanged={[JSON.stringify(allFilters)]}
-                                    />
-                                </div>
-                            )
-            }
+                                    filters: allFilters,
+                                    limit: 1000
+                                });
+                            }}
+                            renderData={(datapoints) => <SamplesPreview samples={datapoints} limit={1000} />}
+                            refetchOnChanged={[JSON.stringify(allFilters)]}
+                        />
+                    </div>
+                )}/>
+                <Route path='/mislabeling' component={Mislabeling}/>
+                <Route path='/clustering' component={ClustersAnalysis}/>
+                <Route path='/outlier' component={OutliersOrDrift}/>
+                <Route path='/drift' render={() => <OutliersOrDrift isDrift/>}/>
+                <Redirect to='/viewer' />
+            </Switch>
         </>
     );
 };

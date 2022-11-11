@@ -1,6 +1,6 @@
 import React, {useEffect} from 'react';
 import PropTypes from 'prop-types';
-import {Route, Switch} from 'react-router-dom';
+import {BrowserRouter, Route, Switch} from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -124,10 +124,12 @@ const Model = ({filtersStore, modelStore}) => {
                                     {models.map((model, i) => <Features key={i} />)}
                                 </SplitView>
                             )} />
-                            <Route exact path='/models/explorer' render={() => (
-                                <SplitView>
-                                    {models.map((model, i) => <Explorer key={i}/>)}
-                                </SplitView>
+                            <Route path='/models/explorer' render={() => (
+                                <BrowserRouter basename='/models/explorer'>
+                                    <SplitView>
+                                        {models.map((model, i) => <Explorer key={i}/>)}
+                                    </SplitView>
+                                </BrowserRouter>
                             )}/>
                         </div>
                     </Route>
