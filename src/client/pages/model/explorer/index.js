@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import {Redirect, Route, Switch, useHistory, useLocation} from 'react-router-dom';
+import {Redirect, Route, Switch, useHistory} from 'react-router-dom';
 
 import Select from 'components/select';
 import OutliersOrDrift from 'pages/common/outliers-or-drift';
@@ -22,13 +22,12 @@ const Explorer = () => {
     const allFilters = useAllFilters();
     const analysesKeys = Object.keys(ANALYSES);
     const history = useHistory();
-    const location = useLocation();
 
     return (
         <>
             <Select required defaultValue={location.pathname.slice(1).toUpperCase()} onChange={(value) => {
                 history.push({
-                    ...location,
+                    ...history.location,
                     pathname: `/${value.toLowerCase()}`
                 });
             }}>
@@ -39,7 +38,7 @@ const Explorer = () => {
                 }
             </Select>
             <Switch>
-                <Route path='/dataviewer' render={() => (
+                <Route path='/viewer' render={() => (
                     <div className='my-3'>
                         <Async
                             fetchData={async () => {
@@ -78,7 +77,10 @@ const Explorer = () => {
                 <Route path='/clustering' component={ClustersAnalysis}/>
                 <Route path='/outlier' component={OutliersOrDrift}/>
                 <Route path='/drift' render={() => <OutliersOrDrift isDrift/>}/>
-                <Redirect to='/viewer' />
+                <Redirect to={{
+                    ...history.location,
+                    pathname: '/viewer'
+                }} />
             </Switch>
         </>
     );
