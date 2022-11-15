@@ -16,7 +16,7 @@ export const datapointIsText = (datapoint) => {
 
 export const datapointIsNER = (datapoint) => {
 
-    return datapointIsText(datapoint) && (Boolean(datapoint.prediction?.class_name) || Boolean(datapoint.groundtruth?.class_name));
+    return datapointIsText(datapoint) && (Boolean(datapoint.prediction?.start) || Boolean(datapoint.groundtruth?.start));
 };
 
 export const datapointIsAudio = (datapoint) => {

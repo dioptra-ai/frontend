@@ -129,35 +129,32 @@ const DatapointsViewer = ({datapoints, onSelectedChange, onClearDatapoint, limit
                                     </div>
                                 </Col>
                             );
+                        } else if (datapointIsNER(datapoint)) {
+
+                            return (
+                                <Col key={`${JSON.stringify(datapoint)}-${i}`} xs={6} md={4} xl={3}>
+                                    <div className='p-2 bg-white-blue border rounded' >
+                                        {selectOrClearBar}
+                                        <PreviewNER
+                                            sample={datapoint}
+                                            onClick={() => setSampleIndexInModal(i)}
+                                        />
+                                    </div>
+                                </Col>
+                            );
                         } else if (datapointIsText(datapoint)) {
 
-                            if (datapointIsNER(datapoint)) {
-
-                                return (
-                                    <Col key={`${JSON.stringify(datapoint)}-${i}`} xs={6} md={4} xl={3}>
-                                        <div className='p-2 bg-white-blue border rounded' >
-                                            {selectOrClearBar}
-                                            <PreviewNER
-                                                sample={datapoint}
-                                                onClick={() => setSampleIndexInModal(i)}
-                                            />
-                                        </div>
-                                    </Col>
-                                );
-                            } else {
-
-                                return (
-                                    <Col key={`${JSON.stringify(datapoint)}-${i}`} xs={12}>
-                                        <div className='p-2 border-bottom' >
-                                            {selectOrClearBar}
-                                            <PreviewTextClassification
-                                                sample={datapoint}
-                                                onClick={() => setSampleIndexInModal(i)}
-                                            />
-                                        </div>
-                                    </Col>
-                                );
-                            }
+                            return (
+                                <Col key={`${JSON.stringify(datapoint)}-${i}`} xs={12}>
+                                    <div className='p-2 border-bottom' >
+                                        {selectOrClearBar}
+                                        <PreviewTextClassification
+                                            sample={datapoint}
+                                            onClick={() => setSampleIndexInModal(i)}
+                                        />
+                                    </div>
+                                </Col>
+                            );
                         } else return (
                             <Col key={`${JSON.stringify(datapoint)}-${i}`} xs={12}>
                                 <div className='p-2 border-bottom' >
