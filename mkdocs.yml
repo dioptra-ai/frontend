@@ -5,6 +5,7 @@ nav:
   - Supported Types and Schemas: supported-types.md
   - Real-time Ingestion Api: real-time-ingestion.md
   - Batch Ingestion Api: batch-ingestion.md
+  - Active Learning: active-learning.md
   - Data Mapping: data-mapping.md
   - Segment.com: segment.md
 
