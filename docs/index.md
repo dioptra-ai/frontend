@@ -8,4 +8,5 @@ Dioptra is a platform managing model continuous improvement.
 * [Supported types](supported-types.md) - Explore the supported data types and expected schemas
 * [Real Time Ingestion](real-time-ingestion.md) - Learn how to send data to Dioptra in real time
 * [Batch Ingestion](batch-ingestion.md) - Learn how to send data to Dioptra in batch
+* [Active Learning](active-learning.md) - Learn how to use our active learning techniques
 * [Segment integration (Coming Soon)](segment.md) - Use our Segment.com integration
