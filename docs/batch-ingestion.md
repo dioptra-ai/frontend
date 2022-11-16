@@ -8,7 +8,7 @@ Dioptra uses API Keys to authenticate data ingestion calls. To authenticate, you
 
 ### Request Format
 
-Send a POST request with a JSON body to the `/events` endpoint. The JSON body should contain a `urls` list, containing urls of files to be ingested. Each file line should be in [supported format](/documentation/supported_types/).
+Send a POST request with a JSON body to the `/events` endpoint. The JSON body should contain a `urls` list, containing urls of files to be ingested. Each file line should be in [supported format](/documentation/supported-types/).
 
 ### Example Request
 

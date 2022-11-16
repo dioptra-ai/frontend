@@ -1,128 +1,234 @@
-# Datapoint Types
+## Supported formats
 
-Datapoints are the core element of a dataset. Each datapoint describes a single piece of data and can contain the following fields:
+Datapoints are the core element of a dataset. Each datapoint describes a single piece of data and can contain several fields
+
+### Generic fields
+
+Generic fields describe the datapoint and its relationship to models and datasets
+```json
+{
+    "model_id": "STRING", // the model that generated this datapoint
+    "model_type": "STRING", // the type of model for that datapoint. [List of available ENUMS](##model-specific-fields)
+    "request_id": "STRING", // (optional) a unique identifier connecting to your system default: uuid4()
+    "timestamp": "TIMESTAMP", // (optional) default: ingestion time
+    "tags": {"STRING": "STRING"}, //  (optional) key-value pairs for arbitrary metadata
+    "dataset_id": "STRING", //  (optional) the id of the dataset the datapoint belongs to
+    "benchmark_id": "STRING" //  (optional) the id of the benchmark run the datapoint belongs to
+}
+```
+
+### Metadata fields
+
+Depending on the type of data, some metadata may be used
 
 ```json
 {
-    "timestamp": "TIMESTAMP", // default: ingestion time
-
-    "dataset_id": "STRING",
-    "benchmark_id": "STRING",
-
-    "tags": {"STRING": "STRING"}, // key-value pairs for arbitrary metadata
     "image_metadata": { // metadata about the image described by this datapoint
-        "width": "INT",
-        "height": "INT",
-        "uri": "STRING"
+        "width": "INT", // image width. required with object detection
+        "height": "INT", //image height. required with object detection
+        "uri": "STRING", // a uri to the image for rendering purposes (http://, s3:// etc.)
+        "object": { // crop of the image the model focuses on
+            "top": "INTEGER", // top pixel coordinate of the object box
+            "left": "INTEGER", // left pixel coordinate of the object box
+            "height": "INTEGER", // pixel height of the object box
+            "width": "INTEGER", // pixel width of the object box
+        }
     },
     "video_metadata": { // metadata about the video frame described by this datapoint
         "width": "INT",
         "height": "INT",
-        "uri": "STRING",
+        "uri": "STRING", // a uri to the image for rendering purposes (http://, s3:// etc.)
         "frame": "INT",
         "frame_rate": "FLOAT"
     },
     "audio_metadata": { // metadata about the audio sample described by this datapoint
-        "uri": "STRING",
+        "uri": "STRING",  // a uri to the image for rendering purposes (http://, s3:// etc.)
         "duration": "FLOAT",
         "sampling_rate": "INT",
         "start_time": "FLOAT",
         "end_time": "FLOAT"
     },
-    "text": "STRING",
+    "text": "STRING",  // text can be passed directly 
     "text_metadata": { // metadata about the text described by this datapoint
         "uri": "STRING"
-    },
-    // a 1D, 2D or 3D array of floats for the prediction described by this datapoint.
-    // 3D embeddings enable dynamic roi-pooling analyses.
-    "embeddings": [],
-
-    // An identifier for the request that generated this datapoint.
-    "request_id": "STRING", // default: uuid4()
-    "model_id": "STRING", // the model that generated this datapoint
-    "model_version": "STRING", // the model version that generated this datapoint
-    "prediction": {
-        "class_name": "STRING",
-        "confidence": "FLOAT",
-        "logits": ["FLOAT"],
-        "confidences": ["FLOAT"],
-        "entropy": "FLOAT", // auto-generated
-        "ratio_of_confidence": "FLOAT", // auto-generated
-        "margin_of_confidence": "FLOAT", // auto-generated
-        // See below for additional optional fields.
-    },
-    "groundtruth":  {
-        "class_name": "STRING"
-        // See below for additional optional fields.
     }
 }
 ```
 
-## Model Types
+### Features fields
 
-Dioptra accepts optional prediction and groundtruth fields for some models types. These fields are used to generate additional metrics and visualizations.
-
-### Classifiers
+Dioptra accepts discrete features as well embeddings features
 
 ```json
-    {
-        "prediction": {
-            "class_name": "STRING",
-            "confidence": "FLOAT"
-        },
-        "groundtruth":  {
-            "class_name": "STRING"
-        }
-    }
+{
+    "embeddings": [], // a 1D, 2D or 3D array of floats for the prediction described by this datapoint. Will be used for embedings and activation based mining and analyses
+    "features": {"STRING", ["FLOAT", "INT", "STRING", "TIMESTAMP"]} // arbitrary key value pairs of explicit features
+}
 ```
 
-### Name Entity Recognition
+### Model specific fields
 
-For `class_name` the following schemes are supported for metrics computation: IOB1, IOB2, IOE1, IOE2, IOBES, BILOU.
-Predictions will be matched to same-index ground-truths.
+Regardless of the model type, prediction and groundtruth are available using the following fields
 
 ```json
-    {
-        "prediction": [{
-            "class_name": "STRING",
-            "confidence": "FLOAT",
-            "start": "INT", // starting character index
-            "end": "INT" // ending character index
-        }, {...}],
-        "groundtruth":  [{
-            "class_name": "STRING",
-            "start": "INT", // starting character index
-            "end": "INT" // ending character index
-        }, {...}]
-    }
+{
+    "prediction": "MODEL_FORMAT", // model specific prediction format
+    "mc_dropout": ["MODEL_FORMAT"],  // a list of model specific predictions from a Monte Carlo Dropout
+    "query_by_committee": ["MODEL_FORMAT"], // a list of model specific predictions from a Query By Commitee ensemble of models
+    "groundtruth": "MODEL_FORMAT" // model specific groundtruth format
+}
 ```
 
-### Object Detection
+#### Classifiers
 
-In a datapoint, each element of the `prediction` and `groundtruth` lists describes a single object in the image.
-Predictions and ground-truths with the highest IoUs will be matched first.
+##### Model type ENUMs
 
 ```json
+{
+    "model_type": "IMAGE_CLASSIFIER",
+    "model_type": "TEXT_CLASSIFIER" 
+}
+```
+
+##### Prediction format
+
+We take a classifier output un two different formats.
+
+```json Simple
+{
+    "prediction": {
+        "class_name": "STRING",
+        "confidence": "FLOAT"
+    }
+}
+```
+
+```json Full
+{
+    "prediction": {
+        "class_names": ["STRING"], // all class names
+        "confidences": ["FLOAT"], // (optional) confidence vector. Indexes must match the class names vector
+        "logits": ["FLOAT"] // (optional) raw logits (before the softmax). Indexes must match the class names vector. Will be available for Activation based mining
+    }
+}
+```
+
+##### Groudntruth format
+
+```json
+{
+    "groundtruth":  {
+        "class_name": "STRING"
+    }
+}
+```
+
+#### Object Detection
+
+##### Model type ENUMs
+
+```json
+{
+    "model_type": "OBJECT_DETECTION"
+}
+```
+
+##### Prediction format
+
+We take a classifier output un two different formats.
+
+```json Simple
+{
     "prediction": [{
         "class_name": "STRING",
         "confidence": "FLOAT",
-        "top": "INTEGER", // top left pixel coordinate of the bounding box
-        "left": "INTEGER", // top left pixel coordinate of the bounding box
-        "height": "INTEGER", // pixel height of the bounding box
-        "width": "INTEGER", // pixel width of the bounding box
-        "embeddings": "ARRAY", // auto-generated
-        "objectness": "FLOAT"
-    }, {...}],
-    "groundtruth": [{
-        "class_name": "STRING",
-        "top": "INTEGER", // top left pixel coordinate of the bounding box
-        "left": "INTEGER", // top left pixel coordinate of the bounding box
-        "height": "INTEGER", // pixel height of the bounding box
-        "width": "INTEGER", // pixel width of the bounding box
+        "top": "FLOAT",
+        "left": "FLOAT",
+        "width": "FLOAT",
+        "height": "FLOAT",
     }, {...}]
+}
 ```
 
-### Learning to Rank
+```json Full
+{
+    "prediction": [{
+        "class_names": ["STRING"], // all class names
+        "confidences": ["FLOAT"], // (optional) confidence vector. Indexes must match the class names vector
+        "logits": ["FLOAT"], // (optional) raw logits (before the softmax). Indexes must match the class names vector. Will be available for Activation based mining
+        "top": "FLOAT",
+        "left": "FLOAT",
+        "width": "FLOAT",
+        "height": "FLOAT",
+    }, {...}]
+}
+```
+
+##### Groudntruth format
+
+```json
+{
+    "groundtruth":  [{
+        "class_name": "STRING",
+        "top": "FLOAT",
+        "left": "FLOAT",
+        "width": "FLOAT",
+        "height": "FLOAT",
+    }, {...}]
+}
+```
+
+
+#### Name Entity Recognition
+
+##### Model type ENUMs
+
+```json
+{
+    "model_type": "NER"
+}
+```
+
+##### Prediction format
+
+We take a classifier output un two different formats.
+
+```json Simple
+{
+    "prediction": [{
+        "class_name": "STRING",
+        "confidence": "FLOAT",
+        "start": "INT", // starting character index
+        "end": "INT" // ending character index
+    }, {...}]
+}
+```
+
+```json Full
+{
+    "prediction": [{
+        "class_names": ["STRING"], // all class names
+        "confidences": ["FLOAT"], // (optional) confidence vector. Indexes must match the class names vector
+        "logits": ["FLOAT"], // (optional) raw logits (before the softmax). Indexes must match the class names vector. Will be available for Activation based mining
+        "start": "INT", // starting character index
+        "end": "INT" // ending character index
+    }, {...}]
+}
+```
+
+##### Groudntruth format
+
+```json
+{
+    "groundtruth":  [{
+        "class_name": "STRING",
+        "start": "INT", // starting character index
+        "end": "INT" // ending character index
+    }, {...}]
+}
+```
+
+#### Learning to Rank
 
 A datapoint represents a ranked query-document pair.
 
