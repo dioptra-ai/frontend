@@ -72,8 +72,7 @@ module.exports = {
             template: './src/client/public/index.html'
         }),
         new webpack.DefinePlugin({
-            _WEBPACK_DEF_FLAG_DISABLE_REGISTER_: true,
-            _WEBPACK_DEF_ENV_: JSON.stringify(process.env.NODE_ENV)
+            _WEBPACK_DEF_FLAG_DISABLE_REGISTER_: true
         })
     ]
 };

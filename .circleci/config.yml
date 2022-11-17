@@ -3,139 +3,9 @@ version: 2.1
 
 jobs:
   # We had to redefine this to include pulling of submodules which is used to generate documentation
-  build_and_push_image:
-    description: >
-      Install AWS CLI, if needed, and configure. Log into Amazon ECR and push image
-      to repository. Requires environment variables for AWS_ACCESS_KEY_ID and
-      AWS_SECRET_ACCESS_KEY. We recommend these be saved in a Project
-      (https://circleci.com/docs/2.0/env-vars/#setting-an-environment-variable-in-a-project)
-      or in Contexts (https://circleci.com/docs/2.0/contexts).
-    executor: <<parameters.executor>>
-    parameters:
-      account-url:
-        default: AWS_ECR_ACCOUNT_URL
-        description: >
-          Env var storing Amazon ECR account URL that maps to an AWS account, e.g.
-          {awsAccountNum}.dkr.ecr.us-west-2.amazonaws.com defaults to
-          AWS_ECR_ACCOUNT_URL
-        type: env_var_name
-      attach-workspace:
-        default: false
-        description: >
-          Boolean for whether or not to attach to an existing workspace. Default is
-          false.
-        type: boolean
-      aws-access-key-id:
-        default: AWS_ACCESS_KEY_ID
-        description: >
-          AWS access key id for IAM role. Set this to the name of the environment
-          variable you will set to hold this value, i.e. AWS_ACCESS_KEY_ID.
-        type: env_var_name
-      aws-secret-access-key:
-        default: AWS_SECRET_ACCESS_KEY
-        description: >
-          AWS secret key for IAM role. Set this to the name of the environment
-          variable you will set to hold this value, i.e. AWS_SECRET_ACCESS_KEY.
-        type: env_var_name
-      checkout:
-        default: true
-        description: |
-          Boolean for whether or not to checkout as a first step. Default is true.
-        type: boolean
-      create-repo:
-        default: false
-        description: Should the repo be created if it does not exist?
-        type: boolean
-      docker-login:
-        default: false
-        description: |
-          Enable dockerhub authentication. Defaults to false.
-        type: boolean
-      dockerfile:
-        default: Dockerfile
-        description: Name of dockerfile to use. Defaults to Dockerfile.
-        type: string
-      dockerhub-password:
-        default: DOCKERHUB_PASSWORD
-        description: >
-          Dockerhub password to be configured. Set this to the name of the
-          environment variable you will set to hold this value, i.e.
-          DOCKERHUB_PASSWORD.
-        type: env_var_name
-      dockerhub-username:
-        default: DOCKERHUB_USERNAME
-        description: >
-          Dockerhub username to be configured. Set this to the name of the
-          environment variable you will set to hold this value, i.e.
-          DOCKERHUB_USERNAME.
-        type: env_var_name
-      executor:
-        default: default
-        description: executor to use for this job
-        type: executor
-      extra-build-args:
-        default: ''
-        description: >
-          Extra flags to pass to docker build. For examples, see
-          https://docs.docker.com/engine/reference/commandline/build
-        type: string
-      no-output-timeout:
-        default: 10m
-        description: >
-          The amount of time to allow the docker build command to run before timing
-          out. Defaults to '10m'
-        type: string
-      path:
-        default: .
-        description: >-
-          Path to the directory containing your Dockerfile and build context.
-          Defaults to . (working directory).
-        type: string
-      profile-name:
-        default: default
-        description: AWS profile name to be configured.
-        type: string
-      region:
-        default: AWS_REGION
-        description: >
-          Name of env var storing your AWS region information, defaults to
-          AWS_REGION
-        type: env_var_name
-      remote-docker-layer-caching:
-        default: false
-        description: >
-          Enable Docker layer caching if using remote Docker engine. Defaults to
-          false.
-        type: boolean
-      remote-docker-version:
-        default: 19.03.13
-        description: Specific remote docker version
-        type: string
-      repo:
-        description: Name of an Amazon ECR repository
-        type: string
-      setup-remote-docker:
-        default: false
-        description: >
-          Setup and use CircleCI's remote Docker environment for Docker and
-          docker-compose commands? Not required if using the default executor
-        type: boolean
-      skip-when-tags-exist:
-        default: false
-        description: Whether to skip image building if all specified tags already exist in ECR
-        type: boolean
-      tag:
-        default: latest
-        description: >-
-          A comma-separated string containing docker image tags to build and push
-          (default = latest)
-        type: string
-      workspace-root:
-        default: .
-        description: >
-          Workspace root path that is either an absolute path or a path relative to
-          the working directory. Defaults to '.' (the working directory)
-        type: string
+  build-and-push-image:
+    docker:
+      - image: cimg/base:2022.03
     steps:
       - checkout
       - run:
@@ -144,28 +14,21 @@ jobs:
             git submodule init
             git submodule update --remote
       - aws-ecr/build-and-push-image:
-          account-url: <<parameters.account-url>>
-          attach-workspace: <<parameters.attach-workspace>>
-          aws-access-key-id: <<parameters.aws-access-key-id>>
-          aws-secret-access-key: <<parameters.aws-secret-access-key>>
-          checkout: <<parameters.checkout>>
-          create-repo: <<parameters.create-repo>>
-          docker-login: <<parameters.docker-login>>
-          dockerfile: <<parameters.dockerfile>>
-          dockerhub-password: <<parameters.dockerhub-password>>
-          dockerhub-username: <<parameters.dockerhub-username>>
-          extra-build-args: <<parameters.extra-build-args>>
-          no-output-timeout: <<parameters.no-output-timeout>>
-          path: <<parameters.path>>
-          profile-name: <<parameters.profile-name>>
-          region: <<parameters.region>>
-          remote-docker-layer-caching: <<parameters.remote-docker-layer-caching>>
-          remote-docker-version: <<parameters.remote-docker-version>>
-          repo: <<parameters.repo>>
-          setup-remote-docker: <<parameters.setup-remote-docker>>
-          skip-when-tags-exist: <<parameters.skip-when-tags-exist>>
-          tag: <<parameters.tag>>
-          workspace-root: <<parameters.workspace-root>>
+          checkout: false
+          remote-docker-layer-caching: true
+          setup-remote-docker: true
+          repo: frontend
+          tag: <<pipeline.git.revision>>,latest,<<pipeline.git.tag>>
+  
+  tag-image:
+    docker:
+      - image: cimg/aws:2022.11
+    steps:
+      - aws-ecr/tag-image:
+          repo: frontend
+          source-tag: <<pipeline.git.revision>>
+          target-tag: <<pipeline.git.tag>>
+
   helm-upgrade:
     parameters:
       cluster-name:
@@ -195,7 +58,7 @@ jobs:
           values-to-override: tag=<<parameters.image-tag>>
 
 orbs:
-  aws-ecr: circleci/aws-ecr@7.0.0
+  aws-ecr: circleci/aws-ecr@8.1.3
   aws-cli: circleci/aws-cli@2.0.6
   aws-ecs: circleci/aws-ecs@2.2.1
   node: circleci/node@4.5
@@ -209,20 +72,8 @@ workflows:
           name: lint
           version: 16.4.0 # This to be kept in sync with Dockerfile
           run-command: lint
-      - build_and_push_image:
+      - build-and-push-image:
           name: build-dev-image
-          account-url: AWS_ECR_ACCOUNT_URL
-          aws-access-key-id: AWS_ACCESS_KEY_ID
-          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
-          create-repo: true
-          dockerfile: Dockerfile
-          executor:
-            name: aws-ecr/default
-            use-docker-layer-caching: true
-          path: .
-          region: AWS_REGION
-          repo: frontend
-          tag: <<pipeline.git.revision>>,latest,<<pipeline.git.tag>>
           context:
             - aws-creds
           requires:
@@ -247,34 +98,10 @@ workflows:
 
   Delivery:
     jobs:
-      - node/test:
-          name: lint
-          version: 16.4.0 # This to be kept in sync with Dockerfile
-          run-command: lint
-          filters:
-            tags:
-              only: /^v.*/
-            branches:
-              ignore: /.*/
-      - build_and_push_image:
-          name: build-prod-image
-          account-url: AWS_ECR_ACCOUNT_URL
-          aws-access-key-id: AWS_ACCESS_KEY_ID
-          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
-          create-repo: true
-          dockerfile: Dockerfile
-          extra-build-args: "--build-arg NODE_ENV=production"
-          executor:
-            name: aws-ecr/default
-            use-docker-layer-caching: true
-          path: .
-          region: AWS_REGION
-          repo: frontend
-          tag: <<pipeline.git.revision>>,latest,<<pipeline.git.tag>>
+      - tag-image:
+          name: tag-prod-image
           context:
             - aws-creds
-          requires:
-            - lint
           filters:
             tags:
               only: /^v.*/
@@ -288,7 +115,7 @@ workflows:
           context:
             - aws-creds
           requires:
-            - build-prod-image
+            - tag-prod-image
           filters:
             tags:
               only: /^v.*/
