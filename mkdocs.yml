@@ -2,12 +2,13 @@ site_name: Dioptra
 nav:
   - Home: index.md
   - Getting Started: getting-started.md
-  - Supported Types and Schemas: supported-types.md
   - Real-time Ingestion Api: real-time-ingestion.md
   - Batch Ingestion Api: batch-ingestion.md
+  - Getting Started with Queries: querying-getting-started.md
+  - Metrics API: metrics.md
+  - Miners API: miners.md
   - Active Learning: active-learning.md
-  - Data Mapping: data-mapping.md
-  - Segment.com: segment.md
+  - Supported Types and Schemas: supported-types.md
 
 site_dir: build/documentation
 

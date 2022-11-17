@@ -6,80 +6,128 @@ Recently, the industry realised that rather than trying to work on the model, fo
 Dioptra supports a Data Centric approach to model imporvement.
 We help ML team systematically engineer their data to get the best performance out or their models.
 
-Active Learning is teh bethod by which we select the best data to add to teh retraining cycle to maximise improvement outcome while minimizing labeling and training costs.
+Active Learning is the method by which we select the best data to add to the retraining cycle to maximise improvement outcome while minimizing labeling and training costs.
 
 Here is the question. Given the following state of your model, how do you pick the best data to retrain ?
 
 ![Raw Diagram](./imgs/diagram-raw.png)
 
 The answer is that it depends on what model waekness you are trying to fix. 
-Dioptra supports several techniques, each designed to fix a kind of model waekness.
+Dioptra develops techniques designed to fix specific kind of waekness.
 They can and should be combined to maximise the breath of model improvement at each retraining.
 
 ### Uncertainty Sampling
 
-When the model is confused about in domain data, we can use uncertainty sampling to detect the confusing unlabeled data.
+When the model is confused about in domain data, we can use uncertainty sampling to detect confusing unlabeled data.
 This data is going to be close to the decision boundary.
 
 ![Raw Diagram](./imgs/diagram-uncertainty.png)
 
-We leverage several techniques to locate this data:
-
 - confidence sampling
 
 Probably the most straighforward active learning technique. It consists in sampling low confidence samples
-The drawback of confidence sampling is that only look at the confidence of the predicted class
+The drawback of confidence sampling is that only look at the confidence of the predicted class.
 
-``` Data field requirements
-   'confidence'
-   or 'confidences'
-   or 'logits'
+```python
+## Ingestion field requirements
+'confidence' or
+'confidences' or
+'logits'
 ```
-``` Query
 
+```python
+## Query
+import requests
 
+r = requests.post('https://app.dioptra.ai/api/miners', headers={
+   'content-type': 'application/json',
+   'x-api-key': DIOPTRA_API_KEY
+}, json={
+   {
+      'strategy': 'CONFIDENCE',
+      'size': 'INT', # number of samples to return
+      'filters': [...],
+      'limit': ...,
+      'order_by': ...,
+      'desc': ...
+   }
+})
 ```
 
 - entropy sampling
 
 In cases where there are many classes, looking at the confidence of the predicted class is not enough
 We need to look at the level of confidence of all classes
-To do this, we compute the entropy of the confidence vector.
-This tec either the `confidences` field or `logits` fields to be passes in the predictions
+To do this, we compute the entropy of the confidence vector and sample for high entropy
+As a reminder, `entropy = 0` when there is no uncertainty and `entropy = 1` when the uncertainty is maximal
 
-``` Data field requirements
-   'confidences' 
-   or 'logits'
-```
-``` Query
-
-
+```python
+## Ingestion field requirements
+onfidences'  or
+'logits'
 ```
 
-- Query By Committee
+```python
+## Query
+import requests
+
+r = requests.post('https://app.dioptra.ai/api/miners', headers={
+   'content-type': 'application/json',
+   'x-api-key': DIOPTRA_API_KEY
+}, json={
+   {
+      'strategy': 'ENTROPY',
+      'size': 'INT', # number of samples to return
+      'filters': [...],
+      'limit': ...,
+      'order_by': ...,
+      'desc': ...
+   }
+})
+```
+
+- Query By Committee (coming soon)
 
 Another alternative to model uncertainty is use leverage Query By Committee.
-This techniques consists in training several models with the same architecture on separate data folds and have them predict on the same data point as the main model. This technique has the advantage to be applicable regardless of the model architecture and model uncertainty for all model outputs (class uncertainty, bbox location uncertainty etc.)
+This techniques consists in training several models and have them predict on the same data point to compare their prediction.
+There are several techniques to produce such committee, one of them being to train the same model on separate data folds.
+This technique has the advantage to be applicable regardless of the model type and will model uncertainty all model outputs: classes, boxes etc.
 
-``` Data field requirements
-   'query_by_committee'
+```python
+## Ingestion field requirements
+'query_committee'
 ```
-``` Query
 
+```python
+## Query
+import requests
 
+r = requests.post('https://app.dioptra.ai/api/miners', headers={
+   'content-type': 'application/json',
+   'x-api-key': DIOPTRA_API_KEY
+}, json={
+   {
+      'strategy': 'QUERY_BY_COMMITTEE',
+      'size': 'INT', # number of samples to return
+      'filters': [...],
+      'limit': ...,
+      'order_by': ...,
+      'desc': ...
+   }
+})
 ```
 
-- Monte Carlo Dropout
+- Monte Carlo Dropout (coming soon)
 
 Similar to Query By Committee MC Dropout models uncertainty by comparing several model output with each other.
-But, while Query By Committee requires several trainings, MC Dropout generates candidate predictions by activating the dropout layer at inference time.
+But, while Query By Committee requires several trainings, MC Dropout generates candidate predictions by activating the dropout layer at inference time. Doing so, we generate an approximate Bayesian inference which has provent to effectively model uncertainty in NN.
 
-This technique is gaining popularity in recent years as a good way to approximate uncertainty while minimising training costs.
 More details [here](https://arxiv.org/abs/1506.02142)
 
 To setup your model to perform MC Dropout, set your dropout layers in training mode while running inference and call the model several times to generate different predictions.
 
-```python Pytorch
+```python
+# Pytorch
 for m in model.modules():
     if m.__class__.__name__.startswith('Dropout'):
         m.train()
@@ -87,47 +135,125 @@ for m in model.modules():
 
 Or wrap the Dropout layer in a custom layer
 
-```python Tensorflow
+```python
+# Tensorflow
 class MonteCarloDropout(keras.layers.Dropout):
   def call(self, inputs):
     return super().call(inputs, training=True)
 ```
 
-``` Data field requirements
-   'mc_dropout'
+```python
+## Ingestion field requirements
+'mc_dropout'
 ```
-``` Query
 
+```python
+## Query
+import requests
 
+r = requests.post('https://app.dioptra.ai/api/miners', headers={
+   'content-type': 'application/json',
+   'x-api-key': DIOPTRA_API_KEY
+}, json={
+   {
+      'strategy': 'MONTE_CARLO_DROPOUT',
+      'size': 'INT', # number of samples to return
+      'filters': [...],
+      'limit': ...,
+      'order_by': ...,
+      'desc': ...
+   }
+})
 ```
 
 ### Diversity Sampling
 
-When the model is infering on Out Of Domain data (drift), the uncertainty of the model cannot be trusted
-To discover OODs and Drifted data, we need to find data far from the training data
+To discover Out Of Domain data, we need to sample data that are far from the training data and that won't be caught by uncertainty sampling.
 
 ![Raw Diagram](./imgs/diagram-diversity.png)
 
-To discover these datapoints, we leverage two types of techniques
+To discover these datapoints, we leverage techniques based on embeddings and model activation
 
-- Embedding distance
+- Embedding distance (coming soon)
 
-The first way is to measure the distance from the training dataset in the embedding space or to leverage a novelty detection algorithm to find data that are out of distribution. 
-Both techniques rely on embedding distances.
+This technique measures the distance from the training dataset in the embedding space and returns the data that are the farthest away from it.
 
-``` Data field requirements
-   'embeddings'
-```
-``` Embedding Distance Miner
-
-
-```
-``` Novelty detection Miner
-
-
+```python
+## Ingestion field requirements
+'embeddings'
 ```
 
-These techniques are proven effective to catch far OODs but can be biased by the quality and biaseness of the embedding space.
+```python
+(coming soon)
+```
+
+- Novelty detection
+
+The drawback of the embedding distance is that it doesn't account for data density. A single training datapoint will cover large partion of the training set.
+
+To compensate for that, Dioptra leverages a novelty detection algorithm trained on the training set and infered on the unlabeled set to detect unlabeled data un areas of low training data density.
+
+```python
+## Ingestion field requirements
+'embeddings'
+```
+
+```python
+## Query
+import requests
+
+r = requests.post('https://app.dioptra.ai/api/miners', headers={
+   'content-type': 'application/json',
+   'x-api-key': DIOPTRA_API_KEY
+}, json={
+   {
+      'strategy': 'DRIFT',
+      'size': 'INT', # number of samples to return
+      'embeddings_field': ['embeddings', 'prediction.embeddings', 'groundtruth.embeddings', 'prediction.logits'],
+      'filters': [...],
+      'limit': ...,
+      'order_by': ...,
+      'desc': ...,
+      'reference_data': {
+         'filters': [...],
+         'limit': ...,
+         'order_by': ...,
+         'desc': ...      
+      }
+   }
+})
+```
+
+- Outlier detection
+
+In certain cases, edge cases can be zeroed downt to by filtering down to a small subset of data that looks similar and looking for outliers in this space. We implement an outlier detection sampling technique based on Local Outlier Factor
+
+```python
+## Ingestion field requirements
+'embeddings'
+```
+
+```python
+## Query
+import requests
+
+r = requests.post('https://app.dioptra.ai/api/miners', headers={
+   'content-type': 'application/json',
+   'x-api-key': DIOPTRA_API_KEY
+}, json={
+   {
+      'strategy': 'OUTLIER',
+      'size': 'INT', # number of samples to return
+      'embeddings_field': ['embeddings', 'prediction.embeddings', 'groundtruth.embeddings', 'prediction.logits'],
+      'filters': [...],
+      'limit': ...,
+      'order_by': ...,
+      'desc': ...
+   }
+})
+```
+
+These techniques have proven effective to catch far OODs and can be biased by the quality and biaseness of the embedding space.
 We recommend experimenting with different embedding layers, bearing in mind that the lower levers are going to remain relatively stable across tasks but will be generic, while the upper level will have greater discriminatory power but can become biased towards the task.
 
 - Activation levels
@@ -135,11 +261,89 @@ We recommend experimenting with different embedding layers, bearing in mind that
 Another way to detect OODs is to look at the activation levels in the model while it makes a prediction.
 This is indicative of the amount of information the model is using to make a decision.
 This technique has proven to be the most effective but is less explainable and model specific.
-``` Data field requirements
-   'embeddings' // will focus on semantic activation
-   or 'logits' // will focus on prediction activation
+
+```python
+## Ingestion field requirements
+'embeddings' // will focus on semantic activation or
+'logits' // will focus on prediction activation
 ```
-``` Activation Miner
 
+```python
+## Query
+import requests
 
+r = requests.post('https://app.dioptra.ai/api/miners', headers={
+   'content-type': 'application/json',
+   'x-api-key': DIOPTRA_API_KEY
+}, json={
+   {
+      'strategy': 'ACTIVATION',
+      'size': 'INT', # number of samples to return
+      'embeddings_field': ['embeddings', 'prediction.embeddings', 'groundtruth.embeddings', 'prediction.logits'],
+      'reverse_order': 'BOOLEAN' # whether to look for low activation (true) or high activation (false)
+      'filters': [...],
+      'limit': ...,
+      'order_by': ...,
+      'desc': ...
+   }
+})
+```
+
+### Similarity Sampling
+
+One of the most common pattern in data curation is to find a seed (edge case, feedback from end users etc.) and look for similar data.
+You can do this by using our KNN miners
+
+![Raw Diagram](./imgs/diagram-similarity.png)
+
+```python
+## Query
+import requests
+
+r = requests.post('https://app.dioptra.ai/api/miners', headers={
+   'content-type': 'application/json',
+   'x-api-key': DIOPTRA_API_KEY
+}, json={
+   {
+      'strategy': 'NEAREST_NEIGHBORS',
+      'size': 'INT', # number of samples to return
+      'filters': [...],
+      'limit': ...,
+      'order_by': ...,
+      'desc': ...,
+      'reference_data': {
+         'filters': [...],
+         'limit': ...,
+         'order_by': ...,
+         'desc': ...      
+      }
+   }
+})
+```
+
+### Density Sampling
+
+One of the draw back of AL techniques is that they tend to sample similar data because they share the same properties.
+To compensate for that, we look can sample the output of a miner to find the most differentiable data
+We use the [coreset](https://arxiv.org/abs/1708.00489) algorithm for that
+
+![Raw Diagram](./imgs/diagram-similarity.png)
+
+```python
+## Query
+import requests
+
+r = requests.post('https://app.dioptra.ai/api/miners', headers={
+   'content-type': 'application/json',
+   'x-api-key': DIOPTRA_API_KEY
+}, json={
+   {
+      'strategy': 'CORESET',
+      'size': 'INT', # number of samples to return
+      'filters': [...],
+      'limit': ...,
+      'order_by': ...,
+      'desc': ...
+   }
+})
 ```

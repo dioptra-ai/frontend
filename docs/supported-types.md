@@ -9,11 +9,13 @@ Generic fields describe the datapoint and its relationship to models and dataset
 {
     "model_id": "STRING", // the model that generated this datapoint
     "model_type": "STRING", // the type of model for that datapoint. [List of available ENUMS](##model-specific-fields)
-    "request_id": "STRING", // (optional) a unique identifier connecting to your system default: uuid4()
-    "timestamp": "TIMESTAMP", // (optional) default: ingestion time
-    "tags": {"STRING": "STRING"}, //  (optional) key-value pairs for arbitrary metadata
-    "dataset_id": "STRING", //  (optional) the id of the dataset the datapoint belongs to
-    "benchmark_id": "STRING" //  (optional) the id of the benchmark run the datapoint belongs to
+    "request_id": "STRING", // a unique identifier connecting to your system default: uuid4()
+    "timestamp": "TIMESTAMP", // default: ingestion time
+    "tags": {
+        "STRING": "STRING" //  key-value pairs for arbitrary metadata
+    },
+    "dataset_id": "STRING", //  the id of the dataset the datapoint belongs to
+    "benchmark_id": "STRING" //  the id of the benchmark run the datapoint belongs to
 }
 ```
 
@@ -32,7 +34,10 @@ Depending on the type of data, some metadata may be used
             "left": "INTEGER", // left pixel coordinate of the object box
             "height": "INTEGER", // pixel height of the object box
             "width": "INTEGER", // pixel width of the object box
-        }
+        },
+        "brightness": "FLOAT",
+        "sharpness": "FLOAT",
+        "contrast": "FLOAT"
     },
     "video_metadata": { // metadata about the video frame described by this datapoint
         "width": "INT",
@@ -94,7 +99,8 @@ Regardless of the model type, prediction and groundtruth are available using the
 
 We take a classifier output un two different formats.
 
-```json Simple
+```json
+// Simple
 {
     "prediction": {
         "class_name": "STRING",
@@ -103,12 +109,13 @@ We take a classifier output un two different formats.
 }
 ```
 
-```json Full
+```json
+// Full
 {
     "prediction": {
         "class_names": ["STRING"], // all class names
-        "confidences": ["FLOAT"], // (optional) confidence vector. Indexes must match the class names vector
-        "logits": ["FLOAT"] // (optional) raw logits (before the softmax). Indexes must match the class names vector. Will be available for Activation based mining
+        "confidences": ["FLOAT"], // confidence vector. Indexes must match the class names vector
+        "logits": ["FLOAT"] // raw logits (before the softmax). Indexes must match the class names vector. Will be available for Activation based mining
     }
 }
 ```
@@ -137,7 +144,8 @@ We take a classifier output un two different formats.
 
 We take a classifier output un two different formats.
 
-```json Simple
+```json
+// Simple
 {
     "prediction": [{
         "class_name": "STRING",
@@ -150,12 +158,13 @@ We take a classifier output un two different formats.
 }
 ```
 
-```json Full
+```json
+// Full
 {
     "prediction": [{
         "class_names": ["STRING"], // all class names
-        "confidences": ["FLOAT"], // (optional) confidence vector. Indexes must match the class names vector
-        "logits": ["FLOAT"], // (optional) raw logits (before the softmax). Indexes must match the class names vector. Will be available for Activation based mining
+        "confidences": ["FLOAT"], // confidence vector. Indexes must match the class names vector
+        "logits": ["FLOAT"], // raw logits (before the softmax). Indexes must match the class names vector. Will be available for Activation based mining
         "top": "FLOAT",
         "left": "FLOAT",
         "width": "FLOAT",
@@ -193,7 +202,8 @@ We take a classifier output un two different formats.
 
 We take a classifier output un two different formats.
 
-```json Simple
+```json
+// Simple
 {
     "prediction": [{
         "class_name": "STRING",
@@ -204,12 +214,13 @@ We take a classifier output un two different formats.
 }
 ```
 
-```json Full
+```json
+// Full
 {
     "prediction": [{
         "class_names": ["STRING"], // all class names
-        "confidences": ["FLOAT"], // (optional) confidence vector. Indexes must match the class names vector
-        "logits": ["FLOAT"], // (optional) raw logits (before the softmax). Indexes must match the class names vector. Will be available for Activation based mining
+        "confidences": ["FLOAT"], // confidence vector. Indexes must match the class names vector
+        "logits": ["FLOAT"], // raw logits (before the softmax). Indexes must match the class names vector. Will be available for Activation based mining
         "start": "INT", // starting character index
         "end": "INT" // ending character index
     }, {...}]
