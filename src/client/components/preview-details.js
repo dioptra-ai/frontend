@@ -34,7 +34,7 @@ const PreviewDetails = ({sample}) => {
                 {
                     Object.entries(sample).filter(([k]) => !SKIPPED_KEYS.has(k)).map(([k, v], i) => (
                         <Row key={k} className={i % 2 ? 'my-1 bg-white-blue' : 'my-1 bg-white'} ref={ref}>
-                            <Col xs={2} style={{borderRight: '1px solid silver'}}>{k}</Col>
+                            <Col style={{borderRight: '1px solid silver'}}>{k}</Col>
                             <Col className='text-break'>
                                 <PreviewDetails sample={v}/>
                             </Col>
