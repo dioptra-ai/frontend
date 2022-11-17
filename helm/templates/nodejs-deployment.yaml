@@ -66,6 +66,11 @@ spec:
                   name: aws-key-frontend
                   key: aws_secret_access_key
                   optional: true
+            # Used for the semi-public documentation.
+            - name: BASIC_USERNAME
+              value: "dioptra"
+            - name: BASIC_PASSWORD
+              value: "!37iM6jJIU8C"
           image: "641017132295.dkr.ecr.us-east-2.amazonaws.com/frontend:{{ .Values.tag }}"
           name: dioptra-frontend
           ports:

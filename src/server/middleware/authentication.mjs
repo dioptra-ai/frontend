@@ -1,16 +1,19 @@
 import mongoose from 'mongoose';
 import passport from 'passport';
 import {Strategy as LocalStrategy} from 'passport-local';
+import * as passportHttp from 'passport-http';
 import PassportStrategy from 'passport-strategy';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
+
+const {BASIC_USERNAME, BASIC_PASSWORD} = process.env;
 
 const sessionStore = new MongoStore({
     mongoUrl: process.env.DB_CONNECTION_URI,
     collectionName: 'sessions'
 });
 
-const sessionHandler = session({
+export const sessionHandler = session({
     secret: process.env.COOKIE_SECRET,
     resave: false,
     saveUninitialized: false,
@@ -20,7 +23,7 @@ const sessionHandler = session({
     }
 });
 
-const isAuthenticated = [
+export const isAuthenticated = [
     passport.authenticate('optional-apikey'),
     (req, res, next) => {
         if (req.user) {
@@ -32,7 +35,26 @@ const isAuthenticated = [
     }
 ];
 
-const isAdmin = (req, res, next) => {
+export const isbasicAuthenticated = [
+    passport.authenticate('optional-apikey'),
+    (req, res, next) => {
+        if (req.user) {
+            next();
+        } else {
+            passport.authenticate('basic', {session: false})(req, res, next);
+        }
+    },
+    (req, res, next) => {
+        if (req.user) {
+            next();
+        } else {
+
+            res.sendStatus(401);
+        }
+    }
+];
+
+export const isAdmin = (req, res, next) => {
     if (req.user && req?.user?.activeOrganizationMembership?.type === 'ADMIN') {
         next();
     } else {
@@ -67,6 +89,16 @@ passport.use(new LocalStrategy({
     }
 }));
 
+passport.use(new passportHttp.BasicStrategy(
+    (username, password, done) => {
+        if (username === BASIC_USERNAME && password === BASIC_PASSWORD) {
+            return done(null, {username});
+        } else {
+            return done(null, false);
+        }
+    }
+));
+
 class OptionalApiKeyStrategy extends PassportStrategy {
     name = 'optional-apikey';
 
@@ -96,6 +128,3 @@ class OptionalApiKeyStrategy extends PassportStrategy {
 }
 
 passport.use(new OptionalApiKeyStrategy());
-
-
-export {isAuthenticated, sessionHandler, isAdmin};

@@ -7,7 +7,7 @@ import {} from 'dotenv/config';
 import {sessionHandler} from './src/server/middleware/authentication.mjs';
 import ApiRouter from './src/server/api-router.mjs';
 import jsonError from './src/server/middleware/json-error.mjs';
-import {isAuthenticated} from './src/server/middleware/authentication.mjs';
+import { isbasicAuthenticated } from './src/server/middleware/authentication.mjs';
 import './src/server/models/index.mjs';
 
 const app = express();
@@ -20,7 +20,7 @@ app.use(sessionHandler);
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use('/documentation', isAuthenticated);
+app.use('/documentation', isbasicAuthenticated);
 app.use(express.static(join(basePath, 'build')));
 
 
