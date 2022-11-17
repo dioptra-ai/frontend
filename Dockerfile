@@ -16,9 +16,7 @@ COPY . .
 
 RUN PYTHONPATH=submodules/collector-py-private mkdocs build
 
-ARG NODE_ENV
-
-ENV NODE_ENV=$NODE_ENV
+ENV NODE_ENV=production
 
 RUN npm run build
 

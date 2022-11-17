@@ -27,8 +27,7 @@
   },
   "globals": {
       "window": true,
-      "_WEBPACK_DEF_FLAG_DISABLE_REGISTER_": true,
-      "_WEBPACK_DEF_ENV_": true
+      "_WEBPACK_DEF_FLAG_DISABLE_REGISTER_": true
   },
     "ignorePatterns": ["**/__tests__/**"],
     "rules": {

@@ -1,5 +1,5 @@
 
-if (_WEBPACK_DEF_ENV_ === 'production') {
+if (document.location.host === 'app.dioptra.ai') {
 
     /* eslint-disable */
     !(function() {
