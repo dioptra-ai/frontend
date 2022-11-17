@@ -1,8 +1,8 @@
 ## Metrics endpoints
 
-Computing a metrics with Dioptra is as simple as running a post request
-Data is selected using the [data selector](/documentation/querying-getting-started/)
-We also request a `model_type` parameter to be passed as some metrics can be computed differently based on context
+Computing a metrics with Dioptra is as simple as running a post request  
+Data is selected using the [data selector](/documentation/querying-getting-started/)  
+We also request a `model_type` parameter to be passed as some metrics can be computed differently based on context  
 
 ```python
 ## Available metrics endpoint names are
@@ -22,7 +22,7 @@ entropy
 ```
 
 ```python
-## Query
+## Request
 import requests
 
 r = requests.post('https://app.dioptra.ai/api/metrics/<endpoint_name>', headers={

@@ -25,7 +25,7 @@ This data is going to be close to the decision boundary.
 
 - confidence sampling
 
-Probably the most straighforward active learning technique. It consists in sampling low confidence samples
+Probably the most straighforward active learning technique. It consists in sampling low confidence samples.
 The drawback of confidence sampling is that only look at the confidence of the predicted class.
 
 ```python
@@ -36,7 +36,7 @@ The drawback of confidence sampling is that only look at the confidence of the p
 ```
 
 ```python
-## Query
+## Request
 import requests
 
 r = requests.post('https://app.dioptra.ai/api/miners', headers={
@@ -56,19 +56,19 @@ r = requests.post('https://app.dioptra.ai/api/miners', headers={
 
 - entropy sampling
 
-In cases where there are many classes, looking at the confidence of the predicted class is not enough
-We need to look at the level of confidence of all classes
-To do this, we compute the entropy of the confidence vector and sample for high entropy
-As a reminder, `entropy = 0` when there is no uncertainty and `entropy = 1` when the uncertainty is maximal
+In cases where there are many classes, looking at the confidence of the predicted class is not enough.
+We need to look at the level of confidence of all classes.
+To do this, we compute the entropy of the confidence vector and sample for high entropy.  
+As a reminder, `entropy = 0` when there is no uncertainty and `entropy = 1` when the uncertainty is maximal.
 
 ```python
 ## Ingestion field requirements
-onfidences'  or
+'confidences'  or
 'logits'
 ```
 
 ```python
-## Query
+## Request
 import requests
 
 r = requests.post('https://app.dioptra.ai/api/miners', headers={
@@ -99,7 +99,7 @@ This technique has the advantage to be applicable regardless of the model type a
 ```
 
 ```python
-## Query
+## Request
 import requests
 
 r = requests.post('https://app.dioptra.ai/api/miners', headers={
@@ -148,7 +148,7 @@ class MonteCarloDropout(keras.layers.Dropout):
 ```
 
 ```python
-## Query
+## Request
 import requests
 
 r = requests.post('https://app.dioptra.ai/api/miners', headers={
@@ -172,7 +172,7 @@ To discover Out Of Domain data, we need to sample data that are far from the tra
 
 ![Raw Diagram](./imgs/diagram-diversity.png)
 
-To discover these datapoints, we leverage techniques based on embeddings and model activation
+To discover these datapoints, we leverage techniques based on embeddings and model activation.
 
 - Embedding distance (coming soon)
 
@@ -199,7 +199,7 @@ To compensate for that, Dioptra leverages a novelty detection algorithm trained 
 ```
 
 ```python
-## Query
+## Request
 import requests
 
 r = requests.post('https://app.dioptra.ai/api/miners', headers={
@@ -226,7 +226,7 @@ r = requests.post('https://app.dioptra.ai/api/miners', headers={
 
 - Outlier detection
 
-In certain cases, edge cases can be zeroed downt to by filtering down to a small subset of data that looks similar and looking for outliers in this space. We implement an outlier detection sampling technique based on Local Outlier Factor
+In certain cases, edge cases can be zeroed downt to by filtering down to a small subset of data that looks similar and looking for outliers in this space. We implement an outlier detection sampling technique based on Local Outlier Factor.
 
 ```python
 ## Ingestion field requirements
@@ -234,7 +234,7 @@ In certain cases, edge cases can be zeroed downt to by filtering down to a small
 ```
 
 ```python
-## Query
+## Request
 import requests
 
 r = requests.post('https://app.dioptra.ai/api/miners', headers={
@@ -264,12 +264,12 @@ This technique has proven to be the most effective but is less explainable and m
 
 ```python
 ## Ingestion field requirements
-'embeddings' // will focus on semantic activation or
-'logits' // will focus on prediction activation
+'embeddings' ## will focus on semantic activation or
+'logits' ## will focus on prediction activation
 ```
 
 ```python
-## Query
+## Request
 import requests
 
 r = requests.post('https://app.dioptra.ai/api/miners', headers={
@@ -292,12 +292,12 @@ r = requests.post('https://app.dioptra.ai/api/miners', headers={
 ### Similarity Sampling
 
 One of the most common pattern in data curation is to find a seed (edge case, feedback from end users etc.) and look for similar data.
-You can do this by using our KNN miners
+You can do this by using our KNN miners.
 
 ![Raw Diagram](./imgs/diagram-similarity.png)
 
 ```python
-## Query
+## Request
 import requests
 
 r = requests.post('https://app.dioptra.ai/api/miners', headers={
@@ -324,13 +324,13 @@ r = requests.post('https://app.dioptra.ai/api/miners', headers={
 ### Density Sampling
 
 One of the draw back of AL techniques is that they tend to sample similar data because they share the same properties.
-To compensate for that, we look can sample the output of a miner to find the most differentiable data
-We use the [coreset](https://arxiv.org/abs/1708.00489) algorithm for that
+To compensate for that, we look can sample the output of a miner to find the most differentiable data.
+We use the [coreset](https://arxiv.org/abs/1708.00489) algorithm for that.
 
-![Raw Diagram](./imgs/diagram-similarity.png)
+![Raw Diagram](./imgs/diagram-density.png)
 
 ```python
-## Query
+## Request
 import requests
 
 r = requests.post('https://app.dioptra.ai/api/miners', headers={

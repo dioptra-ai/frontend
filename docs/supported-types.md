@@ -1,10 +1,10 @@
 ## Supported formats
 
-Datapoints are the core element of a dataset. Each datapoint describes a single piece of data and can contain several fields
+Datapoints are the core element of a dataset. Each datapoint describes a single piece of data and can contain several fields.
 
 ### Generic fields
 
-Generic fields describe the datapoint and its relationship to models and datasets
+Generic fields describe the datapoint and its relationship to models and datasets.
 ```json
 {
     "model_id": "STRING", // the model that generated this datapoint
@@ -21,7 +21,7 @@ Generic fields describe the datapoint and its relationship to models and dataset
 
 ### Metadata fields
 
-Depending on the type of data, some metadata may be used
+Depending on the type of data, some metadata may be used.
 
 ```json
 {
@@ -62,7 +62,7 @@ Depending on the type of data, some metadata may be used
 
 ### Features fields
 
-Dioptra accepts discrete features as well embeddings features
+Dioptra accepts discrete features as well embeddings features.
 
 ```json
 {
@@ -73,7 +73,7 @@ Dioptra accepts discrete features as well embeddings features
 
 ### Model specific fields
 
-Regardless of the model type, prediction and groundtruth are available using the following fields
+Regardless of the model type, prediction and groundtruth are available using the following fields.
 
 ```json
 {

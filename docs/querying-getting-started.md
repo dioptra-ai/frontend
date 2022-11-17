@@ -1,10 +1,10 @@
 ## Getting started with querying
 
-Dioptra offers a comprehensive set of APIs to execute metadata, metrics and ML queries
+Dioptra offers a comprehensive set of APIs to execute metadata, metrics and ML queries.
 
 ### Data selector
 
-All Dioptra APIs leverage the same data selector
+All Dioptra APIs leverage the same data selector.
 
 ```json
 {
@@ -19,15 +19,15 @@ All Dioptra APIs leverage the same data selector
 }
 ```
 
-`filters` is the main object. It is a list of conditions that will be applied to the data.
-`left` is always a field value
-`right` can be a value or a field. Field names should be enclosed in double quotes, values in single quotes
-`limit` can be used to limit the amount of data in the selection and can be combined with `order_by` and `desc` to control the selection
+`filters` is the main object. It is a list of conditions that will be applied to the data  
+`left` is always a field value  
+`right` can be a value or a field. Field names should be enclosed in double quotes, values in single quotes  
+`limit` can be used to limit the amount of data in the selection and can be combined with `order_by` and `desc` to control the selection 
 
-The fields can be any metadata and heuristics pre computed at a datapoint level during ingestion
-They include some active learning metrics
+The fields can be any metadata and heuristics pre computed at a datapoint level during ingestion.
+They include some active learning metrics:
 
-```json
+```python
 prediction.confidence
 prediction.entropy
 prediction.confidence.variance
@@ -36,11 +36,11 @@ prediction.box.variance
 
 ### The select endpoint
 
-The most basic way to query data is using the select endpoint
-This is essentially a SQL query running on your data
+The most basic way to query data is using the select endpoint.
+This is essentially a SQL query running on your data.
 
 ```python
-## Query
+## Request
 import requests
 
 r = requests.post('https://app.dioptra.ai/api/metrics/select', headers={
