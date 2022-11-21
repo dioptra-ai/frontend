@@ -24,6 +24,14 @@ const Miner = () => {
     const [lastRequestedRefresh, setLastRequestedRefresh] = useState(0);
     const analysesKeys = Object.keys(ANALYSES);
     const [selectedAnalysis, setSelectedAnalysis] = useState(analysesKeys[0]);
+    const handleRerunMiner = async () => {
+        await baseJSONClient('/api/tasks/miners/start', {
+            method: 'post',
+            memoized: false,
+            body: {miner_id: minerId}
+        });
+        setLastRequestedRefresh(Date.now());
+    };
 
     return (
         <Menu>
@@ -46,6 +54,10 @@ const Miner = () => {
                                         return [key, value === 'pending' ? (
                                             <div>
                                                 {value} <a className='text-decoration-underline cursor-pointer' onClick={() => setLastRequestedRefresh(Date.now())}>(refresh)</a>
+                                            </div>
+                                        ) : value === 'error' ? (
+                                            <div>
+                                                {value} <a className='text-decoration-underline cursor-pointer' onClick={handleRerunMiner}>(re-run)</a>
                                             </div>
                                         ) : value];
                                     } else return [key, value];
