@@ -28,11 +28,8 @@ LoginRouter.post('/login', (req, res, next) => {
                         res.status(401);
                         next(new Error('Unauthorized.'));
                     } else {
-                        const safeUser = user.toObject();
 
-                        delete safeUser.password;
-
-                        res.json(safeUser);
+                        res.json(user.toObject());
                     }
                 });
             }

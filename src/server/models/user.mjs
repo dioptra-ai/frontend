@@ -47,6 +47,8 @@ userSchema.statics.validatePassword = async (username, password) => {
 
     const valid = await bcrypt.compare(password, foundUser.password);
 
+    delete foundUser.password;
+
     if (!valid) {
         throw new Error('Incorrect username or password.');
     } else {
