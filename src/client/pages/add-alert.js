@@ -91,7 +91,7 @@ FormSection.propTypes = {
     name: PropTypes.string
 };
 
-const ErrorHandlingRow = ({errorCondition, initialValue, onChange}) => {
+const ErrorHandlingRow = ({errorCondition, defaultValue, onChange}) => {
     return (
         <Row>
             <Col xl={3}>
@@ -102,7 +102,7 @@ const ErrorHandlingRow = ({errorCondition, initialValue, onChange}) => {
             </Col>
             <Col xl={2}>
                 <Select
-                    initialValue={initialValue}
+                    defaultValue={defaultValue}
                     onChange={onChange}
                     options={Object.values(AlertErrorHandlingStatuses)}
                 />
@@ -113,7 +113,7 @@ const ErrorHandlingRow = ({errorCondition, initialValue, onChange}) => {
 
 ErrorHandlingRow.propTypes = {
     errorCondition: PropTypes.string,
-    initialValue: PropTypes.string,
+    defaultValue: PropTypes.string,
     onChange: PropTypes.func
 };
 
@@ -147,8 +147,7 @@ const ConditionRow = ({
                 <Col xl={1}>
                     {isFirst ? 'WHEN' : (
                         <Select
-                            initialValue={rowState.logicalOperator}
-                            isTextBold
+                            defaultValue={rowState.logicalOperator}
                             onChange={handleLogicalChange}
                             options={Object.values(LogicalOperators)}
                             textColor='primary'
@@ -157,8 +156,7 @@ const ConditionRow = ({
                 </Col>
                 <Col className='d-flex' xl={2}>
                     <Select
-                        initialValue={rowState.metric}
-                        selectValue={rowState.metric}
+                        defaultValue={rowState.metric}
                         onChange={handleMetricChange}
                         options={Object.values(
                             getMetricsForModel(model.mlModelType)
@@ -167,8 +165,7 @@ const ConditionRow = ({
                 </Col>
                 <Col xl={2}>
                     <Select
-                        initialValue={rowState.comparator}
-                        isTextBold
+                        defaultValue={rowState.comparator}
                         onChange={handleComparatorChange}
                         options={Object.values(Comparators)}
                         textColor='primary'
@@ -179,7 +176,7 @@ const ConditionRow = ({
                         <Form.Control
                             type='number'
                             className='form-control bg-white-blue'
-                            initialValue={rowState.valueToCompare}
+                            defaultValue={rowState.valueToCompare}
                             onChange={(e) => handleValueToCompareChange(e.target.value)}
                         />
                     )}
@@ -221,7 +218,7 @@ const RecipientRow = ({
             <Col xl={11}>
                 <Form.Control
                     className={inputStyling}
-                    initialValue={rowState.address}
+                    defaultValue={rowState.address}
                     onChange={handleAddressChange}
                     placeholder='Enter webhook URL (ex. Slack webhook URL)'
                 />
@@ -273,7 +270,7 @@ const TagRow = ({
                 <Col xl={5}>
                     <Form.Control
                         className={inputStyling}
-                        initialValue={rowState.name}
+                        defaultValue={rowState.name}
                         onChange={handleNameChange}
                         placeholder='Enter tag name'
                     />{' '}
@@ -282,7 +279,7 @@ const TagRow = ({
                     <div className='flex-grow-1'>
                         <Form.Control
                             className={inputStyling}
-                            initialValue={rowState.value}
+                            defaultValue={rowState.value}
                             onChange={handleValueChange}
                             placeholder='Enter tag value'
                         />{' '}
