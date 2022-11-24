@@ -87,7 +87,7 @@ const Miner = () => {
                                     } else return [key, value];
                                 }))}/>
                                 <hr/>
-                                <h4>Execution Results</h4>
+                                <h4>Results</h4>
                                 <div className='my-3'>
                                     <Async
                                         fetchData={() => baseJSONClient(`/api/tasks/miners/inspect/${minerId}`, {memoized: false})}
@@ -99,7 +99,6 @@ const Miner = () => {
                                                     task['status'] === 'SUCCESS' ? (
                                                         <>
                                                             <hr/>
-
                                                             <Select required defaultValue={selectedAnalysis} onChange={setSelectedAnalysis}>
                                                                 {
                                                                     analysesKeys.map((k) => (
@@ -109,37 +108,45 @@ const Miner = () => {
                                                             </Select>
                                                             <div className='my-3'>
                                                                 {
-                                                                    selectedAnalysis === 'DRIFT' ? <OutliersOrDrift isDrift /> :
-                                                                        selectedAnalysis === 'OUTLIER' ? <OutliersOrDrift /> :
-                                                                            selectedAnalysis === 'CLUSTERING' ? (
-                                                                                <ClustersAnalysis
-                                                                                    filters={[{
-                                                                                        left: 'uuid',
-                                                                                        op: 'in',
-                                                                                        right: miner['mined_uuids']
-                                                                                    }]}
-                                                                                    embeddingsField={miner['embeddings_field']}
+                                                                    selectedAnalysis === 'OUTLIER' ? (
+                                                                        <OutliersOrDrift
+                                                                            filters={[{
+                                                                                left: 'uuid',
+                                                                                op: 'in',
+                                                                                right: task['result'].map((r) => r['uuid'])
+                                                                            }]}
+                                                                            embeddingsField={`"${miner['embeddings_field']}"`}
+                                                                        />
+                                                                    ) :
+                                                                        selectedAnalysis === 'CLUSTERING' ? (
+                                                                            <ClustersAnalysis
+                                                                                filters={[{
+                                                                                    left: 'uuid',
+                                                                                    op: 'in',
+                                                                                    right: task['result'].map((r) => r['uuid'])
+                                                                                }]}
+                                                                                embeddingsField={`"${miner['embeddings_field']}"`}
+                                                                            />
+                                                                        ) : (
+                                                                            <div className='my-3'>
+                                                                                <Async
+                                                                                    fetchData={() => metricsClient('select', {
+                                                                                        select: `"uuid", 
+                                                                            "image_metadata",
+                                                                            "prediction",
+                                                                            "groundtruth",
+                                                                            "text",
+                                                                            "tags"`,
+                                                                                        filters: [{
+                                                                                            left: 'uuid',
+                                                                                            op: 'in',
+                                                                                            right: task['result'].map((r) => r['uuid'])
+                                                                                        }]
+                                                                                    })}
+                                                                                    renderData={(datapoints) => <SamplesPreview samples={datapoints} />}
                                                                                 />
-                                                                            ) : (
-                                                                                <div className='my-3'>
-                                                                                    <Async
-                                                                                        fetchData={() => metricsClient('select', {
-                                                                                            select: `"uuid", 
-                                                                                "image_metadata",
-                                                                                "prediction",
-                                                                                "groundtruth",
-                                                                                "text",
-                                                                                "tags"`,
-                                                                                            filters: [{
-                                                                                                'left': 'uuid',
-                                                                                                'op': 'in',
-                                                                                                'right': miner['mined_uuids']
-                                                                                            }]
-                                                                                        })}
-                                                                                        renderData={(datapoints) => <SamplesPreview samples={datapoints} />}
-                                                                                    />
-                                                                                </div>
-                                                                            )
+                                                                            </div>
+                                                                        )
                                                                 }
                                                             </div>
                                                         </>

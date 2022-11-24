@@ -39,13 +39,13 @@ const getEmbeddingsFieldsForModel = (modelType) => {
     return results;
 };
 
-const OutliersOrDrift = ({isDrift}) => {
+const OutliersOrDrift = ({filters, embeddingsField, isDrift}) => {
     const model = useModel();
     const mlModelType = model?.mlModelType;
-    const allFilters = useAllFilters();
+    const allFilters = filters || useAllFilters();
     const [userSelectedAlgorithm, setUserSelectedAlgorithm] = useState('Local Outlier Factor');
     const [userSelectedContamination, setUserSelectedContamination] = useState('auto');
-    const [userSelectedEmbeddings, setUserSelectedEmbeddings] = useState(getEmbeddingsFieldsForModel(mlModelType)[0].value);
+    const [userSelectedEmbeddings, setUserSelectedEmbeddings] = useState(embeddingsField || getEmbeddingsFieldsForModel(mlModelType)[0].value);
     const [selectedPoints, setSelectedPoints] = useState([]);
     const uniqueSampleUUIDs = new Set(selectedPoints.map(({sample}) => sample['uuid']));
     const referenceFilters = isDrift && useAllFilters({useReferenceFilters: true});
@@ -93,11 +93,19 @@ const OutliersOrDrift = ({isDrift}) => {
                 <Col></Col>
                 <Col lg={3}>
                     Analysis Space
-                    <Select onChange={setUserSelectedEmbeddings}>
-                        {getEmbeddingsFieldsForModel(mlModelType).map((o, i) => (
-                            <option key={i} value={o.value}>{o.name}</option>
-                        ))}
-                    </Select>
+                    {
+                        embeddingsField ? (
+                            <Select disabled>
+                                <option>{embeddingsField}</option>
+                            </Select>
+                        ) : (
+                            <Select onChange={setUserSelectedEmbeddings} value={embeddingsField}>
+                                {getEmbeddingsFieldsForModel(mlModelType).map((o, i) => (
+                                    <option key={i} value={o.value}>{o.name}</option>
+                                ))}
+                            </Select>
+                        )
+                    }
                 </Col>
                 <Col lg={3}>
                     Algorithm
@@ -210,7 +218,9 @@ const OutliersOrDrift = ({isDrift}) => {
 };
 
 OutliersOrDrift.propTypes = {
-    isDrift: PropTypes.bool
+    isDrift: PropTypes.bool,
+    filters: PropTypes.array,
+    embeddingsField: PropTypes.string
 };
 
 export default OutliersOrDrift;
