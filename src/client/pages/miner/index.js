@@ -113,7 +113,7 @@ const Miner = () => {
                                                                             filters={[{
                                                                                 left: 'uuid',
                                                                                 op: 'in',
-                                                                                right: task['result'].map((r) => r['uuid'])
+                                                                                right: task['result']
                                                                             }]}
                                                                             embeddingsField={`"${miner['embeddings_field']}"`}
                                                                         />
@@ -123,7 +123,7 @@ const Miner = () => {
                                                                                 filters={[{
                                                                                     left: 'uuid',
                                                                                     op: 'in',
-                                                                                    right: task['result'].map((r) => r['uuid'])
+                                                                                    right: task['result']
                                                                                 }]}
                                                                                 embeddingsField={`"${miner['embeddings_field']}"`}
                                                                             />
@@ -140,7 +140,7 @@ const Miner = () => {
                                                                                         filters: [{
                                                                                             left: 'uuid',
                                                                                             op: 'in',
-                                                                                            right: task['result'].map((r) => r['uuid'])
+                                                                                            right: task['result']
                                                                                         }]
                                                                                     })}
                                                                                     renderData={(datapoints) => <SamplesPreview samples={datapoints} />}

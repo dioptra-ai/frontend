@@ -178,7 +178,7 @@ const MinerModal = ({isOpen, onClose, onMinerSaved, defaultMiner = {}, modelStor
                                 ) : null
                             }
                             {
-                                minerStrategy === 'NEAREST_NEIGHBORS' || minerStrategy === 'ACTIVATION' ? (
+                                minerStrategy === 'NEAREST_NEIGHBORS' || minerStrategy === 'ACTIVATION' || minerStrategy === 'CORESET' ? (
                                     <>
                                         <Form.Label className='mt-3 mb-0 w-100'>Analysis Space</Form.Label>
                                         <InputGroup className='mt-1 flex-column'>
