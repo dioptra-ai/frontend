@@ -347,11 +347,19 @@ const ClustersAnalysis = ({filters, embeddingsField}) => {
                 <Col/>
                 <Col lg={2}>
                     Analysis Space
-                    <Select onChange={setUserSelectedEmbeddings}>
-                        {getEmbeddingsFieldsForModel(model?.mlModelType).map((o, i) => (
-                            <option key={i} value={o.value}>{o.name}</option>
-                        ))}
-                    </Select>
+                    {
+                        embeddingsField ? (
+                            <Select disabled>
+                                <option>{embeddingsField}</option>
+                            </Select>
+                        ) : (
+                            <Select onChange={setUserSelectedEmbeddings}>
+                                {getEmbeddingsFieldsForModel(model?.mlModelType).map((o, i) => (
+                                    <option key={i} value={o.value}>{o.name}</option>
+                                ))}
+                            </Select>
+                        )
+                    }
                 </Col>
                 <Col lg={2}>
                     Cluster Grouping

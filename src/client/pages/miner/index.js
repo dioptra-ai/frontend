@@ -3,6 +3,7 @@ import {useParams} from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
 
 import Select from 'components/select';
+import MinerModal from 'components/miner-modal';
 import OutliersOrDrift from 'pages/common/outliers-or-drift';
 import ClustersAnalysis from 'pages/common/clusters-analysis';
 import Menu from 'components/menu';
@@ -21,25 +22,56 @@ const ANALYSES = {
 
 const Miner = () => {
     const {minerId} = useParams();
+    const [isMinerModalOpen, setIsMinerModalOpen] = useState(false);
     const [lastRequestedRefresh, setLastRequestedRefresh] = useState(0);
     const analysesKeys = Object.keys(ANALYSES);
     const [selectedAnalysis, setSelectedAnalysis] = useState(analysesKeys[0]);
+    const handleRunMiner = async () => {
+        await baseJSONClient('/api/tasks/miner/run', {
+            method: 'post',
+            body: {miner_id: minerId}
+        });
+        setLastRequestedRefresh(Date.now());
+    };
+    const handleResetMiner = async () => {
+        await baseJSONClient('/api/tasks/miner/reset', {
+            method: 'post',
+            body: {miner_id: minerId}
+        });
+        setLastRequestedRefresh(Date.now());
+    };
 
     return (
         <Menu>
             <TopBar hideTimePicker/>
             <Async
-                fetchData={() => metricsClient(`miners/${minerId}`, null, false)}
+                fetchData={() => baseJSONClient(`/api/tasks/miners/${minerId}`)}
                 refetchOnChanged={[minerId, lastRequestedRefresh]}
                 renderData={(miner) => (
                     <>
+                        {isMinerModalOpen ? (
+                            <MinerModal
+                                isOpen
+                                onMinerSaved={() => {
+                                    setIsMinerModalOpen(false);
+                                    handleResetMiner();
+                                }}
+                                onClose={() => setIsMinerModalOpen(false)}
+                                defaultMiner={miner}
+                            />
+                        ) : null}
                         <div className='bg-white-blue text-dark p-3'>
                             <h4>{miner['display_name']}</h4>
+                            <a href='#' onClick={() => setIsMinerModalOpen(true)}>Edit</a>
+                            &nbsp;|&nbsp;
+                            <a href='#' onClick={handleRunMiner}>Run</a>
+                            &nbsp;|&nbsp;
+                            <a href='#' onClick={handleResetMiner}>Reset</a>
                         </div>
                         <Container fluid>
                             <div className='text-dark p-3'>
                                 <PreviewDetails sample={Object.fromEntries(Object.entries(miner).filter(([key]) => ![
-                                    '_id', 'organization_id', 'mined_uuids', 'user_id', 'task_id', 'display_name'
+                                    '_id', 'organization_id', 'user_id', 'display_name'
                                 ].includes(key)).map(([key, value]) => {
                                     if (key === 'status') {
 
@@ -47,92 +79,83 @@ const Miner = () => {
                                             <div>
                                                 {value} <a className='text-decoration-underline cursor-pointer' onClick={() => setLastRequestedRefresh(Date.now())}>(refresh)</a>
                                             </div>
+                                        ) : value === 'error' ? (
+                                            <div>
+                                                {value} <a className='text-decoration-underline cursor-pointer' onClick={handleRunMiner}>(re-run)</a>
+                                            </div>
                                         ) : value];
                                     } else return [key, value];
                                 }))}/>
+                                <hr/>
+                                <h4>Results</h4>
                                 <div className='my-3'>
                                     <Async
                                         fetchData={() => baseJSONClient(`/api/tasks/miners/inspect/${minerId}`, {memoized: false})}
                                         refetchOnChanged={[minerId, lastRequestedRefresh]}
-                                        renderData={(task) => (
+                                        renderData={({task}) => task ? (
                                             <>
-                                                <table>
-                                                    <tbody>
-                                                        <tr>
-                                                            <td>
-                                                                <p>Execution Errors: {task.status}</p>
-                                                            </td>
-                                                        </tr>
-                                                        {
-                                                            task.executions.map((e, i) => (
-                                                                <tr key={i}>
-                                                                    <td>
-                                                                        <p>Started at: {new Date(e['time_started'] * 1000).toString()}</p>
-                                                                        <p>Failed at: {new Date(e['time_failed'] * 1000).toString()}</p>
-                                                                        <hr/>
-                                                                        <pre style={{whiteSpace: 'pre-wrap'}}>
-                                                                            {e.traceback}
-                                                                        </pre>
-                                                                    </td>
-                                                                </tr>
-                                                            ))
-                                                        }
-                                                    </tbody>
-                                                </table>
+                                                <PreviewDetails sample={task}/>
+                                                {
+                                                    task['status'] === 'SUCCESS' ? (
+                                                        <>
+                                                            <hr/>
+                                                            <Select required defaultValue={selectedAnalysis} onChange={setSelectedAnalysis}>
+                                                                {
+                                                                    analysesKeys.map((k) => (
+                                                                        <option value={k} key={k}>{ANALYSES[k]}</option>
+                                                                    ))
+                                                                }
+                                                            </Select>
+                                                            <div className='my-3'>
+                                                                {
+                                                                    task['result'].length ? (
+                                                                        selectedAnalysis === 'OUTLIER' ? (
+                                                                            <OutliersOrDrift
+                                                                                filters={[{
+                                                                                    left: 'uuid',
+                                                                                    op: 'in',
+                                                                                    right: task['result']
+                                                                                }]}
+                                                                                embeddingsField={miner['embeddings_field']}
+                                                                            />
+                                                                        ) :
+                                                                            selectedAnalysis === 'CLUSTERING' ? (
+                                                                                <ClustersAnalysis
+                                                                                    filters={[{
+                                                                                        left: 'uuid',
+                                                                                        op: 'in',
+                                                                                        right: task['result']
+                                                                                    }]}
+                                                                                    embeddingsField={miner['embeddings_field']}
+                                                                                />
+                                                                            ) : (
+                                                                                <div className='my-3'>
+                                                                                    <Async
+                                                                                        fetchData={() => metricsClient('select', {
+                                                                                            select: '"uuid",  "image_metadata", "prediction", "groundtruth", "text", "tags"',
+                                                                                            filters: [{
+                                                                                                left: 'uuid',
+                                                                                                op: 'in',
+                                                                                                right: task['result']
+                                                                                            }]
+                                                                                        })}
+                                                                                        renderData={(datapoints) => <SamplesPreview samples={datapoints} />}
+                                                                                    />
+                                                                                </div>
+                                                                            )
+                                                                    ) : (
+                                                                        <h5>Empty Result</h5>
+                                                                    )
+                                                                }
+                                                            </div>
+                                                        </>
+                                                    ) : null
+                                                }
                                             </>
-                                        )}
+                                        ) : <span>Miner Never Run</span>
+                                        }
                                     />
                                 </div>
-                                {
-                                    miner['mined_uuids'] && miner['mined_uuids'].length ? (
-                                        <>
-                                            <Select required defaultValue={selectedAnalysis} onChange={setSelectedAnalysis}>
-                                                {
-                                                    analysesKeys.map((k) => (
-                                                        <option value={k} key={k}>{ANALYSES[k]}</option>
-                                                    ))
-                                                }
-                                            </Select>
-                                            <div className='my-3'>
-                                                {
-                                                    selectedAnalysis === 'DRIFT' ? <OutliersOrDrift isDrift/> :
-                                                        selectedAnalysis === 'OUTLIER' ? <OutliersOrDrift/> :
-                                                            selectedAnalysis === 'CLUSTERING' ? (
-                                                                <ClustersAnalysis
-                                                                    filters={[{
-                                                                        left: 'uuid',
-                                                                        op: 'in',
-                                                                        right: miner['mined_uuids']
-                                                                    }]}
-                                                                    embeddingsField={miner['embeddings_field']}
-                                                                />
-                                                            ) : (
-                                                                <div className='my-3'>
-                                                                    <Async
-                                                                        fetchData={() => metricsClient('select', {
-                                                                            select: `"uuid", 
-                                                                                "image_metadata",
-                                                                                "prediction",
-                                                                                "groundtruth",
-                                                                                "text",
-                                                                                "tags"`,
-                                                                            filters: [{
-                                                                                'left': 'uuid',
-                                                                                'op': 'in',
-                                                                                'right': miner['mined_uuids']
-                                                                            }]
-                                                                        })}
-                                                                        renderData={(datapoints) => <SamplesPreview samples={datapoints}/>}
-                                                                    />
-                                                                </div>
-                                                            )
-                                                }
-                                            </div>
-                                        </>
-                                    ) : (
-                                        <h3>No Mined Data</h3>
-                                    )
-                                }
                             </div>
                         </Container>
                     </>

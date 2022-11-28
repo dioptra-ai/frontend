@@ -91,13 +91,15 @@ const Cart = ({userStore}) => {
                                     <ButtonDownloadCSV uuids={userStore.userData.cart} filename='data-cart.csv'/>
                                     <MinerModal
                                         isOpen={minerModalOpen}
-                                        onMinerCreated={(minerId) => {
+                                        onMinerSaved={(minerId) => {
                                             metricsClient('miners', null, false);
                                             setMinerModalOpen(false);
                                             history.push(`/miners/${minerId}`);
                                         }}
                                         onClose={() => setMinerModalOpen(false)}
-                                        uuids={userStore.userData.cart}
+                                        defaultMiner={{
+                                            uuids: userStore.userData.cart
+                                        }}
                                     />
                                     <hr/>
                                     <Button

@@ -136,7 +136,7 @@ const ConfusionMatrix = () => {
                                         {name: 'iou >= 0.75', value: '0.75'},
                                         {name: 'iou >= 0.95', value: '0.95'}
                                     ]}
-                                    initialValue={iou}
+                                    defaultValue={iou}
                                     onChange={(val) => setIou(Number(val))}
                                 />
                             </Col>

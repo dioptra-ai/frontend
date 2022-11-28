@@ -11,7 +11,7 @@ const jsonFetch = async (...args) => {
         console.warn(`Failed to JSON parse response: ${responseBody}`);
     }
 
-    if (responseBody.error) {
+    if (responseBody?.error) {
 
         throw new Error(responseBody.error.message);
     } else if (res.ok) {

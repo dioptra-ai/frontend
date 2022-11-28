@@ -65,7 +65,7 @@ const MetricChart = ({selectableMetrics, selectedMetric, type}) => {
                                         <Col>{metricName}</Col>
                                         <Col lg={3}>
                                             <Select
-                                                initialValue={userSelectedMetric}
+                                                defaultValue={userSelectedMetric}
                                                 onChange={setUserSelectedMetric}
                                                 options={selectableMetrics.map((value) => ({
                                                     value,

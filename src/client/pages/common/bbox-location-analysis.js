@@ -54,7 +54,7 @@ const BBoxLocationAnalysis = () => {
                                         return {name: c, value: c};
                                     })
                                 ]}
-                                initialValue={classFilter}
+                                defaultValue={classFilter}
                                 onChange={setClassFilter}
                             />
                         )}
@@ -111,7 +111,7 @@ const BBoxLocationAnalysis = () => {
                         <MinerModal
                             isOpen={minerModalOpen}
                             onClose={() => setMinerModalOpen(false)}
-                            onMinerCreated={(minerId) => {
+                            onMinerSaved={(minerId) => {
                                 metricsClient('miners', null, false);
                                 setMinerModalOpen(false);
                                 history.push(`/miners/${minerId}`);

@@ -1,5 +1,4 @@
 import {useHistory} from 'react-router-dom';
-import metricsClient from 'clients/metrics';
 import Menu from 'components/menu';
 import Async from 'components/async';
 import MinerModal from 'components/miner-modal';
@@ -13,6 +12,7 @@ import {AiOutlineDelete} from 'react-icons/ai';
 import {BarLoader} from 'react-spinners';
 import {Button, OverlayTrigger, Tooltip} from 'react-bootstrap';
 import {saveAs} from 'file-saver';
+import baseJSONClient from 'clients/base-json-client';
 
 const MinersList = () => {
     const [lastUpdateRequested, setLastUpdateRequested] = useState(null); // Change this and create a miner store.
@@ -21,7 +21,7 @@ const MinersList = () => {
 
     return (
         <Async
-            fetchData={() => metricsClient('miners', null, false)}
+            fetchData={() => baseJSONClient('/api/tasks/miners')}
             refetchOnChanged={[lastUpdateRequested]}
             renderData={(miners) => (
                 <Menu>
@@ -74,7 +74,7 @@ const MinersList = () => {
                                                 <td>{miner.type}</td>
                                                 <td>
                                                     <Async
-                                                        fetchData={() => metricsClient(`miners/size?id=${miner._id}`, null, false)}
+                                                        fetchData={() => baseJSONClient(`miners/size?id=${miner._id}`)}
                                                         renderData={({size}) => Number(size).toLocaleString()}
                                                     />
                                                 </td>
@@ -84,7 +84,7 @@ const MinersList = () => {
                                                             <BarLoader loading size={40} />
                                                         ) : miner.status !== 'error' ? (
                                                             <Async
-                                                                fetchData={() => metricsClient(`miners/size?id=${miner._id}`, null, false)}
+                                                                fetchData={() => baseJSONClient(`miners/size?id=${miner._id}`)}
                                                                 renderData={({size}) => (
                                                                     <OverlayTrigger overlay={
                                                                         <Tooltip>
@@ -98,7 +98,7 @@ const MinersList = () => {
                                                                                 e.stopPropagation();
 
                                                                                 if (size) {
-                                                                                    const datapoints = await metricsClient(`miner/datapoints?id=${miner._id}&as_csv=true`, null, false);
+                                                                                    const datapoints = await baseJSONClient(`miner/datapoints?id=${miner._id}&as_csv=true`);
 
                                                                                     saveAs(new Blob([datapoints], {type: 'text/csv;charset=utf-8'}), `${slugify(miner.display_name)}.csv`);
                                                                                 }
@@ -121,8 +121,11 @@ const MinersList = () => {
                                                                     e.preventDefault();
                                                                     e.stopPropagation();
 
-                                                                    await metricsClient('miners/delete', {
-                                                                        miner_id: miner._id
+                                                                    await baseJSONClient('/api/tasks/miners/delete', {
+                                                                        method: 'POST',
+                                                                        body: {
+                                                                            miner_id: miner._id
+                                                                        }
                                                                     });
                                                                     setLastUpdateRequested(Date.now());
                                                                 }}
@@ -138,7 +141,7 @@ const MinersList = () => {
                     </div>
                     <MinerModal
                         isOpen={isMinerModalOpen}
-                        onMinerCreated={(minerId) => {
+                        onMinerSaved={(minerId) => {
                             setIsMinerModalOpen(false);
                             history.push(`/miners/${minerId}`);
                         }}
