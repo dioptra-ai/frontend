@@ -115,7 +115,7 @@ const Miner = () => {
                                                                                 op: 'in',
                                                                                 right: task['result']
                                                                             }]}
-                                                                            embeddingsField={`"${miner['embeddings_field']}"`}
+                                                                            embeddingsField={miner['embeddings_field']}
                                                                         />
                                                                     ) :
                                                                         selectedAnalysis === 'CLUSTERING' ? (
@@ -125,18 +125,13 @@ const Miner = () => {
                                                                                     op: 'in',
                                                                                     right: task['result']
                                                                                 }]}
-                                                                                embeddingsField={`"${miner['embeddings_field']}"`}
+                                                                                embeddingsField={miner['embeddings_field']}
                                                                             />
                                                                         ) : (
                                                                             <div className='my-3'>
                                                                                 <Async
                                                                                     fetchData={() => metricsClient('select', {
-                                                                                        select: `"uuid", 
-                                                                            "image_metadata",
-                                                                            "prediction",
-                                                                            "groundtruth",
-                                                                            "text",
-                                                                            "tags"`,
+                                                                                        select: '"uuid",  "image_metadata", "prediction", "groundtruth", "text", "tags"',
                                                                                         filters: [{
                                                                                             left: 'uuid',
                                                                                             op: 'in',

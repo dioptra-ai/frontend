@@ -192,13 +192,13 @@ const MinerModal = ({isOpen, onClose, onMinerSaved, defaultMiner = {}, modelStor
                                                 <option value='embeddings'>
                                                 Embeddings
                                                 </option>
-                                                <option value='prediction.embeddings'>
+                                                <option value='"prediction.embeddings"'>
                                                 Prediction Embeddings
                                                 </option>
-                                                <option value='groundtruth.embeddings'>
+                                                <option value='"groundtruth.embeddings"'>
                                                 Groundtruth Embeddings
                                                 </option>
-                                                <option value='prediction.logits'>
+                                                <option value='"prediction.logits"'>
                                                 Prediction Logits
                                                 </option>
                                             </Form.Control>
