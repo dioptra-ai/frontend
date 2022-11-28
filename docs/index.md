@@ -5,8 +5,7 @@ Dioptra is a platform managing model continuous improvement.
 ## Helpful links
 
 * [Getting Started](getting-started.md) - Get setup in 5 min
-* [Real Time Ingestion](real-time-ingestion.md) - Learn how to send data to Dioptra in real time
-* [Batch Ingestion](batch-ingestion.md) - Learn how to send data to Dioptra in batch
+* [Ingestion](ingestion.md) - Learn how to send data to Dioptra
 * [Getting Started with Queries](querying-getting-started.md) - Run your first query
 * [Metrics API](metrics.md) - Learn how you can compute ml metrics over API
 * [Miners API](miners.md) - Learn how you can create a miner to run active learning over API

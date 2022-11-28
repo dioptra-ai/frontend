@@ -2,8 +2,7 @@ site_name: Dioptra
 nav:
   - Home: index.md
   - Getting Started: getting-started.md
-  - Real-time Ingestion Api: real-time-ingestion.md
-  - Batch Ingestion Api: batch-ingestion.md
+  - Ingestion: ingestion.md
   - Getting Started with Queries: querying-getting-started.md
   - Metrics API: metrics.md
   - Miners API: miners.md
