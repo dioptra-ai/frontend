@@ -10,19 +10,19 @@ All Dioptra APIs leverage the same data selector.
 {
     "filters": [{
         "left": "STRING", // field
-        "operator": ["<", "<=", ">", ">=", "=", "!=", "in", "not in", "like", "not like"],
+        "op": ["<", "<=", ">", ">=", "=", "!=", "in", "not in", "like", "not like"],
         "right": "STRING" // field or value
     }, {...}],
-    "limit": "INT",
-    "order_by": "STRING", // field
-    "desc": "BOOLEAN"
+    "limit": "INT", // maximum number of rows to return
+    "order_by": "STRING", // field name
+    "desc": "BOOLEAN" // descending order
 }
 ```
 
-`filters` is the main object. It is a list of conditions that will be applied to the data  
+`filters` is a list of conditions that will be ANDed to filter the data
 `left` is always a field value  
-`right` can be a value or a field. Field names should be enclosed in double quotes, values in single quotes  
-`limit` can be used to limit the amount of data in the selection and can be combined with `order_by` and `desc` to control the selection 
+`right` can be a value or a field. Field names should be enclosed in double quotes, and values in single quotes.
+`limit` can be used to limit the amount of data in the selection and can be combined with `order_by` and `desc` to control the selection.
 
 The fields can be any metadata and heuristics pre computed at a datapoint level during ingestion.
 They include some active learning metrics:
