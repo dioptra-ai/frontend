@@ -42,9 +42,9 @@ const MinersList = () => {
                                 <tr className='border-0 border-bottom border-mercury'>
                                     <th className='text-secondary'>Name</th>
                                     <th className='text-secondary'>Created At</th>
+                                    <th className='text-secondary'>Strategy</th>
                                     <th className='text-secondary'>Last Run</th>
                                     <th className='text-secondary'>Status</th>
-                                    <th className='text-secondary'>Strategy</th>
                                     <th className='text-secondary'>Size</th>
                                     <th className='text-secondary'>
                                         Download
@@ -63,43 +63,31 @@ const MinersList = () => {
                                                 <td>
                                                     {new Date(moment(miner.created_at)).toLocaleString()}
                                                 </td>
+                                                <td>{miner.strategy}</td>
                                                 <td>
                                                     {miner.task?.['done_at'] && new Date(miner.task?.['done_at']).toLocaleString() || 'N/A'}
                                                 </td>
                                                 <td>{miner.task?.['status']}</td>
-                                                <td>{miner.strategy}</td>
                                                 <td>
                                                     {miner.task?.['result_size'] || 0}{' '}
                                                 </td>
                                                 <td>
                                                     {
-                                                        miner.status === 'pending' ? (
+                                                        miner.task?.['status'] === 'PENDING' ? (
                                                             <BarLoader loading size={40} />
-                                                        ) : miner.status !== 'error' ? (
-                                                            <Async
-                                                                fetchData={() => baseJSONClient(`miners/size?id=${miner._id}`)}
-                                                                renderData={({size}) => (
-                                                                    <OverlayTrigger overlay={
-                                                                        <Tooltip>
-                                                                            {size ? 'Download datapoints' : 'There are no datapoints to download'}
-                                                                        </Tooltip>
-                                                                    }>
-                                                                        <IoDownloadOutline
-                                                                            className={`fs-3 ${size ? 'cursor-pointer' : ''}`}
-                                                                            style={{opacity: size ? 1 : 0.2}}
-                                                                            onClick={async (e) => {
-                                                                                e.stopPropagation();
+                                                        ) : miner.task?.['status'] === 'SUCCESS' && miner.task?.['result_size'] ? (
+                                                            <OverlayTrigger overlay={<Tooltip>Download datapoints</Tooltip>}>
+                                                                <IoDownloadOutline
+                                                                    className='fs-3 cursor-pointer'
+                                                                    onClick={async (e) => {
+                                                                        e.stopPropagation();
 
-                                                                                if (size) {
-                                                                                    const datapoints = await baseJSONClient(`miner/datapoints?id=${miner._id}&as_csv=true`);
+                                                                        const datapoints = await baseJSONClient(`/api/tasks/miners/results/${miner._id}?as_csv=true`);
 
-                                                                                    saveAs(new Blob([datapoints], {type: 'text/csv;charset=utf-8'}), `${slugify(miner.display_name)}.csv`);
-                                                                                }
-                                                                            }}
-                                                                        />
-                                                                    </OverlayTrigger>
-                                                                )}
-                                                            />
+                                                                        saveAs(new Blob([datapoints], {type: 'text/csv;charset=utf-8'}), `${slugify(miner.display_name)}.csv`);
+                                                                    }}
+                                                                />
+                                                            </OverlayTrigger>
                                                         ) : null
                                                     }
                                                 </td>
