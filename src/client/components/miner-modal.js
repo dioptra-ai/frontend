@@ -14,7 +14,6 @@ import ToggleButton from 'react-bootstrap/ToggleButton';
 import ToggleButtonGroup from 'react-bootstrap/ToggleButtonGroup';
 import {setupComponent} from 'helpers/component-helper';
 import FilterInput from 'pages/common/filter-input';
-import {Filter} from 'state/stores/filters-store';
 import CountEvents from './count-events';
 import baseJSONClient from 'clients/base-json-client';
 
@@ -32,9 +31,7 @@ const MinerModal = ({isOpen, onClose, onMinerSaved, defaultMiner = {}, modelStor
     const {
         uuids, display_name, start_time, end_time, evaluation_period,
         metric, embeddings_field, limit, duplication_factor, ml_model_id,
-        // TODO: Fix this
-        sql_filters, // eslint-disable-line no-unused-vars
-        strategy
+        filters, strategy
     } = defaultMiner;
     const [minerName, setMinerName] = useState(display_name);
     const [referencePeriod, setReferencePeriod] = useState({
@@ -48,23 +45,22 @@ const MinerModal = ({isOpen, onClose, onMinerSaved, defaultMiner = {}, modelStor
     const [minerLimit, setMinerLimit] = useState(limit);
     const [minerDuplicationFactor, setMinerDuplicationFactor] = useState(duplication_factor || 1);
     const [minerModel, setMinerModel] = useState(ml_model_id ? modelStore.getModelByMlModelId(ml_model_id) : modelStore.models[0]);
-    // TODO: Fix this to use the new filters insteadof the sql strings
-    const [minerFilters, setMinerFilters] = useState([]);
+    const [minerFilters, setMinerFilters] = useState(filters || []);
     const minerStrategyOptions = uuids ? [{
         value: 'NEAREST_NEIGHBORS',
         name: 'K Nearest Neighbors'
     }, {
         value: 'CORESET',
         name: 'Coreset'
-    }, {
-        value: 'ACTIVATION',
-        name: 'K Lowest Activation'
     }] : [{
         value: 'ENTROPY',
         name: 'K Highest Entropy'
     }, {
         value: 'CORESET',
         name: 'Coreset'
+    }, {
+        value: 'ACTIVATION',
+        name: 'K Lowest Activation'
     }];
     const [minerStrategy, setMinerStrategy] = useState(strategy || minerStrategyOptions[0].value);
 
@@ -87,7 +83,8 @@ const MinerModal = ({isOpen, onClose, onMinerSaved, defaultMiner = {}, modelStor
             duplication_factor: minerDuplicationFactor,
             metric: minerMetric,
             limit: minerLimit,
-            embeddings_field: minerAnalysisSpace
+            embeddings_field: minerAnalysisSpace,
+            filters: minerFilters
         };
 
         if (liveDataType === 'range') {
@@ -98,10 +95,6 @@ const MinerModal = ({isOpen, onClose, onMinerSaved, defaultMiner = {}, modelStor
             payload['start_time'] = null;
             payload['end_time'] = null;
             payload['evaluation_period'] = evaluationPeriod;
-        }
-
-        if (minerFilters.length > 0) {
-            payload['sql_filters'] = Filter.filtersToSqlStrings(minerFilters).join(' AND');
         }
 
         if (!payload['_id'] || window.confirm('Changing the miner configuration will delete the current results. Are you sure you want to continue?')) {

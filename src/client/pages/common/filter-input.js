@@ -60,7 +60,7 @@ const FilterInput = ({
     const [suggestionsLoading, setSuggestionsLoading] = useState(false);
     const inFilterTooltipTarget = useRef(null);
     const inFlightRequest = useRef(null);
-    const appliedFilters = value || filtersStore.filters;
+    const appliedFilters = value ? value.map((v) => new Filter(v)) : filtersStore.filters;
 
     const model = useModel();
 
