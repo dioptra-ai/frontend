@@ -44,7 +44,7 @@ const MinersList = () => {
                                     <th className='text-secondary'>Created At</th>
                                     <th className='text-secondary'>Last Run</th>
                                     <th className='text-secondary'>Status</th>
-                                    <th className='text-secondary'>Type</th>
+                                    <th className='text-secondary'>Strategy</th>
                                     <th className='text-secondary'>Size</th>
                                     <th className='text-secondary'>
                                         Download
@@ -61,22 +61,15 @@ const MinersList = () => {
                                             <tr key={miner._id} className='cursor-pointer' onClick={() => history.push(`/miners/${miner._id}`)}>
                                                 <td>{miner.display_name}</td>
                                                 <td>
-                                                    {new Date(
-                                                        moment(miner.created_at)
-                                                    ).toLocaleString()}
+                                                    {new Date(moment(miner.created_at)).toLocaleString()}
                                                 </td>
                                                 <td>
-                                                    {miner.last_run && new Date(
-                                                        moment(miner.last_run)
-                                                    ).toLocaleString()}
+                                                    {miner.task?.['done_at'] && new Date(miner.task?.['done_at']).toLocaleString() || 'N/A'}
                                                 </td>
-                                                <td>{miner.status}</td>
-                                                <td>{miner.type}</td>
+                                                <td>{miner.task?.['status']}</td>
+                                                <td>{miner.strategy}</td>
                                                 <td>
-                                                    <Async
-                                                        fetchData={() => baseJSONClient(`miners/size?id=${miner._id}`)}
-                                                        renderData={({size}) => Number(size).toLocaleString()}
-                                                    />
+                                                    {miner.task?.['result_size'] || 0}{' '}
                                                 </td>
                                                 <td>
                                                     {
