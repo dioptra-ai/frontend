@@ -56,9 +56,6 @@ const MinerModal = ({isOpen, onClose, onMinerSaved, defaultMiner = {}, modelStor
         value: 'ENTROPY',
         name: 'K Highest Entropy'
     }, {
-        value: 'CORESET',
-        name: 'Coreset'
-    }, {
         value: 'ACTIVATION',
         name: 'K Lowest Activation'
     }];
