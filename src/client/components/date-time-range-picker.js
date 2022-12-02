@@ -72,7 +72,7 @@ const DateTimeRangePicker = ({onChange, start, end, className, datePickerSetting
                             <Overlay target={overlayTarget.current} placement='bottom-end' show={d?.value === 0}>
                                 {(props) => (
                                     <Tooltip className='text-center' {...props}>
-                                        No datapoints could be found within the selected time range.
+                                        No data could be found within the selected time range.
                                         <Button className='btn-primary text-white m-2' onClick={async () => {
                                             const [d] = await metricsClient('default-time-range', {
                                                 sql_filters: allSqlFiltersWithoutTime

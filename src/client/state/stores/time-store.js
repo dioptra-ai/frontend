@@ -1,22 +1,7 @@
 import moment from 'moment';
 import {autorun, makeAutoObservable} from 'mobx';
 
-import {lastMilliseconds} from 'helpers/date-helper';
-
-const SQL_OUTER_LIMIT = 100;
-
-const granularityLadderMs = [
-    moment.duration(1, 'second'),
-    moment.duration(10, 'second'),
-    moment.duration(1, 'minute'),
-    moment.duration(10, 'minute'),
-    moment.duration(1, 'hour'),
-    moment.duration(3, 'hour'),
-    moment.duration(6, 'hour'),
-    moment.duration(1, 'day'),
-    moment.duration(5, 'day'),
-    moment.duration(30, 'day')
-];
+import {lastMilliseconds, timeRangeGranularity} from 'helpers/date-helper';
 
 class TimeStore {
     _start = null;
@@ -136,25 +121,9 @@ class TimeStore {
         };
     }
 
-    getTimeGranularity(maxTicks = SQL_OUTER_LIMIT) {
-        const rangeSeconds = this._end.diff(this._start) / 1000;
-        const DURATION_MAX_SEC_TO_GRANULARITY = granularityLadderMs.map((duration) => {
-            return {
-                maxSpanSec: maxTicks * duration.asSeconds(),
-                granularity: duration
-            };
-        });
+    getTimeGranularity(maxTicks) {
 
-        for (const {
-            maxSpanSec,
-            granularity
-        } of DURATION_MAX_SEC_TO_GRANULARITY) {
-            if (rangeSeconds < maxSpanSec) {
-                return granularity;
-            }
-        }
-
-        return moment.duration(1, 'month');
+        return timeRangeGranularity(this._start, this._end, maxTicks);
     }
 }
 

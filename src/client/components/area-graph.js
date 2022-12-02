@@ -323,10 +323,6 @@ export const SmallChart = setupComponent(({
                     <stop offset='10%' stopColor={theme.primary} stopOpacity={0.7}/>
                     <stop offset='90%' stopColor='#FFFFFF' stopOpacity={0.1}/>
                 </linearGradient>
-                <linearGradient id='warning' x1='0' x2='0' y1='0' y2='1'>
-                    <stop offset='10%' stopColor={theme.warning} stopOpacity={0.9}/>
-                    <stop offset='90%' stopColor='#FFFFFF' stopOpacity={0.1}/>
-                </linearGradient>
             </defs>
             <XAxis
                 axisLine={false}

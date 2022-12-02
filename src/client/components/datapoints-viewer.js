@@ -4,7 +4,6 @@ import Alert from 'react-bootstrap/Alert';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import Form from 'react-bootstrap/Form';
-import Container from 'react-bootstrap/Container';
 import {GrNext, GrPrevious} from 'react-icons/gr';
 import {IoCloseOutline} from 'react-icons/io5';
 import {mod} from 'helpers/math';
@@ -75,107 +74,111 @@ const DatapointsViewer = ({datapoints, onSelectedChange, onClearDatapoint, limit
     }, [datapoints]);
 
     useEffect(() => {
-        selectAllRef.current.indeterminate = (selectedDatapoints.size && selectedDatapoints.size !== datapoints.length);
-        selectAllRef.current.checked = (datapoints.length && selectedDatapoints.size === datapoints.length);
+        if (selectAllRef.current) {
+            selectAllRef.current.indeterminate = (selectedDatapoints.size && selectedDatapoints.size !== datapoints.length);
+            selectAllRef.current.checked = (datapoints.length && selectedDatapoints.size === datapoints.length);
+        }
     }, [selectedDatapoints, datapoints]);
 
     return (
         <>
-            <Container fluid>
-                {
-                    datapoints.length >= limit ? (
-                        <Row>
-                            <Col>
-                                <Alert variant='warning'>
+            {
+                datapoints.length >= limit ? (
+                    <Row>
+                        <Col>
+                            <Alert variant='warning'>
                                 Only the first {limit.toLocaleString()} datapoints are shown. Try filtering down or choosing different parameters.
-                                </Alert>
-                            </Col>
-                        </Row>
-                    ) : null
-                }
-                <Row className='ps-2'>
-                    <Col>
-                        <Form.Check id='select-all' ref={selectAllRef} type='checkbox' onChange={(e) => {
-                            handleSelectAll(e.target.checked);
-                        }} label={<span className='cursor-pointer text-decoration-underline'>Select All</span>}/>
-                    </Col>
-                </Row>
-                <Row className='g-2'>
-                    {datapoints.length ? datapoints.slice(0, limit).map((datapoint, i) => {
-                        const selectOrClearBar = (
-                            <div className='d-flex justify-content-between'>
-                                <Form.Check type='checkbox'
-                                    onChange={(e) => handleSelectDatapoint(datapoint['uuid'], e.target.checked)}
-                                    checked={selectedDatapoints.has(datapoint['uuid'])}
-                                />
-                                {onClearDatapoint ?
-                                    <IoCloseOutline className='cursor-pointer fs-4' onClick={() => onClearDatapoint(datapoint['uuid'])}/> :
-                                    null}
-                            </div>
-                        );
+                            </Alert>
+                        </Col>
+                    </Row>
+                ) : null
+            }
+            {
+                onSelectedChange && (
+                    <Row className='ps-2'>
+                        <Col>
+                            <Form.Check id='select-all' ref={selectAllRef} type='checkbox' onChange={(e) => {
+                                handleSelectAll(e.target.checked);
+                            }} label={<span className='cursor-pointer text-decoration-underline'>Select All</span>} />
+                        </Col>
+                    </Row>
+                )
+            }
+            <Row className='g-2'>
+                {datapoints.length ? datapoints.slice(0, limit).map((datapoint, i) => {
+                    const selectOrClearBar = (
+                        <div className='d-flex justify-content-between'>
+                            {onSelectedChange && <Form.Check type='checkbox'
+                                onChange={(e) => handleSelectDatapoint(datapoint['uuid'], e.target.checked)}
+                                checked={selectedDatapoints.has(datapoint['uuid'])}
+                            />}
+                            {onClearDatapoint ?
+                                <IoCloseOutline className='cursor-pointer fs-4' onClick={() => onClearDatapoint(datapoint['uuid'])}/> :
+                                null}
+                        </div>
+                    );
 
-                        if (datapointIsVideo(datapoint) || datapointIsImage(datapoint)) {
+                    if (datapointIsVideo(datapoint) || datapointIsImage(datapoint)) {
 
-                            return (
-                                <Col key={`${JSON.stringify(datapoint)}-${i}`} xs={6} md={4} lg={3}>
-                                    <div className='p-2 bg-white-blue border rounded' >
-                                        {selectOrClearBar}
-                                        <PreviewImage
-                                            datapoint={datapoint}
-                                            videoControls={false}
-                                            maxHeight={200}
-                                            onClick={() => setSampleIndexInModal(i)}
-                                        />
-                                    </div>
-                                </Col>
-                            );
-                        } else if (datapointIsNER(datapoint)) {
-
-                            return (
-                                <Col key={`${JSON.stringify(datapoint)}-${i}`} xs={6} md={4} xl={3}>
-                                    <div className='p-2 bg-white-blue border rounded' >
-                                        {selectOrClearBar}
-                                        <PreviewNER
-                                            sample={datapoint}
-                                            onClick={() => setSampleIndexInModal(i)}
-                                        />
-                                    </div>
-                                </Col>
-                            );
-                        } else if (datapointIsText(datapoint)) {
-
-                            return (
-                                <Col key={`${JSON.stringify(datapoint)}-${i}`} xs={12}>
-                                    <div className='p-2 border-bottom' >
-                                        {selectOrClearBar}
-                                        <PreviewTextClassification
-                                            sample={datapoint}
-                                            onClick={() => setSampleIndexInModal(i)}
-                                        />
-                                    </div>
-                                </Col>
-                            );
-                        } else return (
-                            <Col key={`${JSON.stringify(datapoint)}-${i}`} xs={12}>
-                                <div className='p-2 border-bottom' >
+                        return (
+                            <Col key={`${JSON.stringify(datapoint)}-${i}`} xs={4} md={3} lg={2}>
+                                <div className='p-2 bg-white-blue border rounded' >
                                     {selectOrClearBar}
-                                    <PreviewDetails sample={datapoint}/>
+                                    <PreviewImage
+                                        datapoint={datapoint}
+                                        videoControls={false}
+                                        maxHeight={200}
+                                        onClick={() => setSampleIndexInModal(i)}
+                                    />
                                 </div>
                             </Col>
                         );
-                    }) : (
-                        <h3 className='text-secondary my-5 text-center' key='nope'>No Data</h3>
-                    )}
-                </Row>
-            </Container>
+                    } else if (datapointIsNER(datapoint)) {
+
+                        return (
+                            <Col key={`${JSON.stringify(datapoint)}-${i}`} xs={6} md={4} xl={3}>
+                                <div className='p-2 bg-white-blue border rounded' >
+                                    {selectOrClearBar}
+                                    <PreviewNER
+                                        sample={datapoint}
+                                        onClick={() => setSampleIndexInModal(i)}
+                                    />
+                                </div>
+                            </Col>
+                        );
+                    } else if (datapointIsText(datapoint)) {
+
+                        return (
+                            <Col key={`${JSON.stringify(datapoint)}-${i}`} xs={12}>
+                                <div className='p-2 border-bottom' >
+                                    {selectOrClearBar}
+                                    <PreviewTextClassification
+                                        sample={datapoint}
+                                        onClick={() => setSampleIndexInModal(i)}
+                                    />
+                                </div>
+                            </Col>
+                        );
+                    } else return (
+                        <Col key={`${JSON.stringify(datapoint)}-${i}`} xs={12}>
+                            <div className='p-2 border-bottom' >
+                                {selectOrClearBar}
+                                <PreviewDetails sample={datapoint}/>
+                            </div>
+                        </Col>
+                    );
+                }) : (
+                    <h3 className='text-secondary my-5 text-center' key='nope'>No Data</h3>
+                )}
+            </Row>
             {exampleInModal && (
                 <Modal isOpen={true} onClose={() => setSampleIndexInModal(-1)} title={
-                    <div className='ps-2'>
+                    onSelectedChange ? <div className='ps-2'>
                         <Form.Check type='checkbox'
                             onChange={(e) => handleSelectDatapoint(exampleInModal['uuid'], e.target.checked)}
                             checked={selectedDatapoints.has(exampleInModal['uuid'])}
                         />
-                    </div>
+                    </div> : ''
                 }>
                     <div className='d-flex'>
                         <div className='fs-1 p-4 bg-white-blue cursor-pointer d-flex align-items-center mx-2' onClick={handlePrevious}>

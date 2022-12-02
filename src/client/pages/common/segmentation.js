@@ -84,14 +84,14 @@ const _DistributionCell = ({row, segmentationStore}) => {
     const allSqlFilters = useAllSqlFilters();
     const allFilters = useAllFilters();
     const [distributionData, setDistributionData] = useState([]);
-    const sqlColumns = groupByColumns.map((c) => `"${c}"`).join(', ');
+    const sqlColumns = groupByColumns.join(', ');
 
     useEffect(() => {
         if (inView) {
             metricsClient('queries/distribution-data', {
                 sql_columns: sqlColumns,
                 filters: [...allFilters, ...groupByColumns.map((c) => ({left: c, op: '=', right: row.original[c]}))],
-                columns: groupByColumns.map((column) => `my_sub_table."${column}" = my_sub_count_table."${column}"`).join(' AND '),
+                columns: groupByColumns.map((column) => `my_sub_table.${column} = my_sub_count_table.${column}`).join(' AND '),
                 model_type: mlModelType
             }).then((data) => {
                 setDistributionData(data);
@@ -355,7 +355,11 @@ const Segmentation = ({segmentationStore}) => {
                                 ]
                             ).concat(
                                 groupByColumns.map((column) => ({
-                                    accessor: (c) => c[column],
+                                    accessor: (c) => {
+                                        const value = c[column];
+
+                                        return value === undefined || value === null ? '<none>' : value;
+                                    },
                                     Header: column
                                 }))
                             )}

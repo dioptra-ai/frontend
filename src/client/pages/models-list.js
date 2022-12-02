@@ -19,7 +19,7 @@ import UploadData from 'components/upload-data';
 import EditModel from 'pages/model/edit-model';
 import metricsClient from 'clients/metrics';
 
-const TRAFFIC_START_MOMENT = moment().subtract(1, 'day');
+const TRAFFIC_START_MOMENT = moment().subtract(30, 'days');
 const TRAFFIC_END_MOMENT = moment();
 
 const IncidentsTooltipContent = ({incidents}) => {
@@ -104,18 +104,18 @@ const _ModelRow = ({model, idx, color, filtersStore, onDeleteModelClick}) => {
                     <Async
                         fetchData={() => metricsClient('throughput', {
                             filters: [{
-                                left: {left: 'timestamp', op: '>=', right: new Date(new Date().setDate(new Date().getDate() - 5))},
+                                left: {left: 'timestamp', op: '>=', right: TRAFFIC_START_MOMENT.toISOString()},
                                 op: 'and',
                                 right: {left: 'model_id', op: '=', right: model.mlModelId}
                             }],
-                            time_granularity: moment.duration(6, 'hour').toISOString()
+                            time_granularity: moment.duration(1, 'day').toISOString()
                         })}
                         renderData={(throughput) => (
 
                             <ResponsiveContainer height={65} width='100%'>
-                                <AreaChart data={throughput.map(({value, time}) => ({
+                                <AreaChart data={throughput.map(({value, timestamp}) => ({
                                     y: value,
-                                    x: new Date(time).getTime()
+                                    x: new Date(timestamp).getTime()
                                 }))}>
                                     <defs>
                                         <linearGradient id='areaColor' x1='0' x2='0' y1='0' y2='1'>
@@ -133,7 +133,7 @@ const _ModelRow = ({model, idx, color, filtersStore, onDeleteModelClick}) => {
                                         type='linear'
                                     />
                                     <XAxis
-                                        axisLine={false}
+                                        axisLine
                                         dataKey='x'
                                         domain={[TRAFFIC_START_MOMENT.valueOf(), TRAFFIC_END_MOMENT.valueOf()]}
                                         scale='time'

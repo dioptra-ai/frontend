@@ -60,12 +60,11 @@ const Explorer = () => {
                                 } else return metricsClient('select', {
                                     select: `
                                             "uuid", "request_id", "image_metadata", "text_metadata", "video_metadata", "text", 
-                                            "tags",
-                                            CASE WHEN jsonb_typeof("prediction") = 'object' THEN "prediction" - 'embeddings' ELSE "prediction" END as "prediction",
-                                            CASE WHEN jsonb_typeof("groundtruth") = 'object' THEN "groundtruth" - 'embeddings' ELSE "groundtruth" END as "groundtruth"
+                                            "tags"
                                             `,
                                     filters: allFilters,
-                                    limit: 1000
+                                    limit: 1000,
+                                    rm_fields: ['embeddings', 'logits']
                                 });
                             }}
                             renderData={(datapoints) => <SamplesPreview samples={datapoints} limit={1000} />}

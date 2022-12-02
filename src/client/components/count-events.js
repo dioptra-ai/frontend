@@ -19,7 +19,7 @@ const CountEvents = ({filters, ...rest}) => {
 };
 
 CountEvents.propTypes = {
-    filters: PropTypes.string
+    filters: PropTypes.array
 };
 
 export default CountEvents;

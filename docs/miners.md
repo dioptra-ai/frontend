@@ -15,24 +15,25 @@ r = requests.post('https://app.dioptra.ai/api/tasks/miners', headers={
    'content-type': 'application/json',
    'x-api-key': DIOPTRA_API_KEY
 }, json={
-    "uuids": [ # Reference datapoints - see Strategies below.
-        "a13b09be-df6a-41a8-83e2-834edc128297",
-        "9059e988-1091-4487-aa26-bd9398bac246",
-        "914e550d-f2a6-42d2-bfca-a6eb95d931d3",
-        "807c8462-8fe4-47bd-93b5-b4712c0b3ad5",
-        "d5fb01ce-2e28-48d3-be1a-bfb05ca89bd7"
-    ],
-    "display_name": "My Miner",
-    "ml_model_id": "model_foo",
-    "strategy": "NEAREST_NEIGHBORS", # See Strategies below.
-    "duplication_factor": 1,
-    "metric": "euclidean",
-    "limit": 8,
-    "embeddings_field": "embeddings", # "embeddings", "prediction.embeddings", etc.
-    "filters": [{...}],
-    "start_time": "2022-11-22T03:54:59.427Z", # Start of the time range to mine.
-    "end_time": "2022-11-29T03:54:59.427Z", # End of the time range to mine.
-    "evaluation_period": null # ISO 8601 duration for periodic miners. If null, the miner will run once.
+   "display_name": "8 Cats that look like dogs",
+   "strategy": "NEAREST_NEIGHBORS", # See Strategies below.
+   "metric": "euclidean",
+   "size": 8,
+   "embeddings_field": "embeddings", # "embeddings", "prediction.embeddings", etc
+   "select: {
+      "filters": [{
+         "left": "groundtruth.class_name",
+         "op": "=",
+         "right": "cat"
+      }]
+   },
+   "select_reference": {
+      "filters": [{
+         "left": "groundtruth.class_name",
+         "op": "=",
+         "right": "dog"
+      }]
+   }
 })
 
 # JSON Response
@@ -40,16 +41,20 @@ r = requests.post('https://app.dioptra.ai/api/tasks/miners', headers={
 
 ```
 
-### Strategies and Parameters
+### Miner Strategies
 
-#### `NEAREST_NEIGHBORS`, `CORESET`
+#### `strategy: NEAREST_NEIGHBORS`
 Required parameters:
-   * `uuids`: datapoints uuids to use as reference.
-   * `ml_model_id`: the model that generated the embeddings that will be mined.
+   * `select_reference`: datapoints to use as reference.
 
-#### `ENTROPY`, `ACTIVATION`
+#### `strategy: CORESET`
 Required parameters:
-   * `ml_model_id`: the model that generated the embeddings that will be mined.
+   * `select_reference`: datapoints to use as reference.
+
+#### `strategy: ENTROPY`
+
+#### `strategy: ACTIVATION`
+   
 
 ---
 

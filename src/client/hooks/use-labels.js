@@ -23,35 +23,60 @@ const useLabels = (datapoint) => {
                 setRequestGroundtruths([]);
                 requestControllerRef.current = new AbortController();
 
-                metricsClient('select', {
-                    select: '"prediction", "groundtruth", "tags"',
-                    filters: [{
-                        left: 'request_id',
-                        op: '=',
-                        right: datapoint.request_id
-                    }, {
-                        left: {
-                            left: 'prediction',
-                            op: 'is not null'
-                        },
-                        op: 'or',
-                        right: {
-                            left: 'groundtruth',
-                            op: 'is not null'
+                (async () => {
+                    try {
+                        let datapoints = await metricsClient('select', {
+                            select: '"prediction", "groundtruth", "tags"',
+                            filters: [{
+                                left: 'uuid',
+                                op: '=',
+                                right: datapoint.uuid
+                            }, {
+                                left: {
+                                    left: 'prediction',
+                                    op: 'is not null'
+                                },
+                                op: 'or',
+                                right: {
+                                    left: 'groundtruth',
+                                    op: 'is not null'
+                                }
+                            }]
+                        }, true, {signal: requestControllerRef.current.signal});
+
+                        if (!datapoints.length) {
+                            datapoints = await metricsClient('select', {
+                                select: '"prediction", "groundtruth", "tags"',
+                                filters: [{
+                                    left: 'request_id',
+                                    op: '=',
+                                    right: datapoint.request_id
+                                }, {
+                                    left: {
+                                        left: 'prediction',
+                                        op: 'is not null'
+                                    },
+                                    op: 'or',
+                                    right: {
+                                        left: 'groundtruth',
+                                        op: 'is not null'
+                                    }
+                                }]
+                            }, true, {signal: requestControllerRef.current.signal});
                         }
-                    }]
-                }, true, {signal: requestControllerRef.current.signal})
-                    .then((datapoints) => {
+
                         setRequestPredictions(datapoints.map((d) => d.prediction).filter(Boolean));
                         setRequestGroundtruths(datapoints.map((d) => d.groundtruth).filter(Boolean));
-                    }).catch((err) => {
+                    } catch (err) {
+
                         if (err.name !== 'AbortError') {
                             console.error(err);
                         }
-                    });
+                    }
+                })();
             }
         }
-    }, [inView, datapoint.request_id]);
+    }, [inView, datapoint]);
 
     return {ref, predictions, groundtruths};
 };

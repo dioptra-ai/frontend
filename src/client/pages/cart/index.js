@@ -17,6 +17,7 @@ import metricsClient from 'clients/metrics';
 import DatapointsViewer from 'components/datapoints-viewer';
 import useModal from 'hooks/useModal';
 import ButtonDownloadCSV from 'components/button-download-csv';
+import baseJSONClient from 'clients/base-json-client';
 
 const Cart = ({userStore}) => {
     const history = useHistory();
@@ -92,13 +93,19 @@ const Cart = ({userStore}) => {
                                     <MinerModal
                                         isOpen={minerModalOpen}
                                         onMinerSaved={(minerId) => {
-                                            metricsClient('miners', null, false);
+                                            baseJSONClient('/api/tasks/miners');
                                             setMinerModalOpen(false);
                                             history.push(`/miners/${minerId}`);
                                         }}
                                         onClose={() => setMinerModalOpen(false)}
                                         defaultMiner={{
-                                            uuids: userStore.userData.cart
+                                            select_reference: {
+                                                filters: [{
+                                                    left: 'uuid',
+                                                    op: 'in',
+                                                    right: userStore.userData.cart
+                                                }]
+                                            }
                                         }}
                                     />
                                     <hr/>

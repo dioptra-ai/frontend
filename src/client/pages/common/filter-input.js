@@ -93,7 +93,7 @@ const FilterInput = ({
             } else if (newFilter.isLeftComplete) {
 
                 setShowSuggestions(true);
-                setSuggestionsIfInFlight(['=', '!=', '<', '>', 'like', 'not like', 'in', 'not in']);
+                setSuggestionsIfInFlight(['=', '!=', '<', '<=', '>', '>=', 'like', 'not like', 'in', 'not in']);
             } else if (key) {
 
                 setShowSuggestions(true);
@@ -275,7 +275,7 @@ const FilterInput = ({
                             />
                         ))}
                         <span
-                            className='text-dark clear mx-2 d-flex align-items-center'
+                            className='text-dark clear mx-2 d-flex align-items-center fs-7'
                             onClick={() => onChange([])}
                         >
                             CLEAR ALL
