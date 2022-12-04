@@ -57,7 +57,7 @@ RenderDatapoint.propTypes = {
 };
 
 
-const PreviewDetails = ({sample, displayLabels}) => {
+const PreviewDetails = ({sample, displayLabels = true}) => {
     const {ref, predictions, groundtruths} = useLabels(sample instanceof Object ? sample : {});
 
     return (
