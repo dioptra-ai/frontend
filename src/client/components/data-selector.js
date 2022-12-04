@@ -46,7 +46,7 @@ const DataSelector = ({value = {}, onChange}) => {
                             })}
                             refetchOnChanged={[filters]}
                             renderData={(data) => (
-                                <DatapointsViewer datapoints={data} limit={limit}/>
+                                <DatapointsViewer datapoints={data} />
                             )}
                         />
                     </Col>

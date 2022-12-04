@@ -23,6 +23,7 @@ const useLabels = (datapoint) => {
                 setRequestGroundtruths([]);
                 requestControllerRef.current = new AbortController();
 
+                // TODO: Only display labels for datapoint rows, not label rows.
                 (async () => {
                     try {
                         let datapoints = await metricsClient('select', {

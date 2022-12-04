@@ -23,13 +23,13 @@ const MinerModal = ({isOpen, onClose, onMinerSaved, defaultMiner = {}}) => {
     const [minerSize, setMinerSize] = useState(size);
     const [minerFilters, setMinerFilters] = useState(select?.filters || []);
     const [referenceFilters, setReferenceFilters] = useState(select_reference?.filters || []);
-    const minerStrategyOptions = select_reference ? [{
+    const minerStrategyOptions = [{
         value: 'NEAREST_NEIGHBORS',
         name: 'N Nearest Neighbors'
     }, {
         value: 'CORESET',
         name: 'Coreset'
-    }] : [{
+    }, {
         value: 'ENTROPY',
         name: 'N Highest Entropy'
     }, {

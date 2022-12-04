@@ -10,69 +10,98 @@ import Table from 'components/table';
 
 const SKIPPED_KEYS = new Set(['feature_heatmap', 'embeddings', 'original_embeddings', 'logits']);
 
-const PreviewDetails = ({sample}) => {
-    const {ref, predictions, groundtruths} = useLabels(sample instanceof Object ? sample : {});
+const RenderDatapoint = ({datapoint}) => {
 
-    if (React.isValidElement(sample)) {
+    if (React.isValidElement(datapoint)) {
 
-        return sample;
-    } else if (Array.isArray(sample)) {
+        return datapoint;
+    } else if (Array.isArray(datapoint)) {
 
         return (
             <Row className='g-1'>
                 {
-                    sample.map((v, i) => (
-                        <Col key={i} xs={12} className={i % 2 ? 'my-1 py-1 bg-white-blue' : 'my-1 py-1 bg-white'} style={{borderBottom: '1px solid silver'}}><PreviewDetails sample={v}/></Col>
+                    datapoint.map((v, i) => (
+                        <Col key={i} xs={12} className={i % 2 ? 'my-1 py-1 bg-white-blue' : 'my-1 py-1 bg-white'} style={{borderBottom: '1px solid silver'}}><RenderDatapoint datapoint={v} /></Col>
                     ))
                 }
             </Row>
         );
-    } else if (sample && typeof sample === 'object') {
+    } else if (datapoint && typeof datapoint === 'object') {
 
         return (
             <>
                 {
-                    Object.entries(sample).filter(([k]) => !SKIPPED_KEYS.has(k)).map(([k, v], i) => (
-                        <Row key={k} className={i % 2 ? 'my-1 bg-white-blue' : 'my-1 bg-white'} ref={ref}>
+                    Object.entries(datapoint).filter(([k]) => !SKIPPED_KEYS.has(k)).map(([k, v], i) => (
+                        <Row key={k} className={i % 2 ? 'my-1 bg-white-blue' : 'my-1 bg-white'}>
                             <Col style={{borderRight: '1px solid silver'}}>{k}</Col>
                             <Col className='text-break'>
-                                <PreviewDetails sample={v}/>
+                                <RenderDatapoint datapoint={v} />
                             </Col>
                         </Row>
                     ))
                 }
-                {
-                    predictions?.length ? (
-                        <>
-                            <Row className='mt-5 mb-1 bg-white'>
-                                <h4>Predictions</h4>
-                            </Row>
-                            <Table columns={Object.keys(predictions[0]).filter((k) => !SKIPPED_KEYS.has(k)).map((k) => ({Header: k, accessor: k}))} data={predictions}/>
-                        </>
-                    ) : null
-                }
-                {
-                    groundtruths?.length ? (
-                        <>
-                            <Row className='mt-5 mb-1 bg-white'>
-                                <h4>Groundtruths</h4>
-                            </Row>
-                            <Table columns={Object.keys(groundtruths[0]).filter((k) => !SKIPPED_KEYS.has(k)).map((k) => ({Header: k, accessor: k}))} data={groundtruths}/>
-                        </>
-                    ) : null
-                }
             </>
         );
-    } else if (isUrl(sample)) {
+    } else if (isUrl(datapoint)) {
 
         return (
-            <a href={sample} target='_blank' rel='noreferrer'>{sample}&nbsp;<sup><FiExternalLink className='fs-7'/></sup></a>
+            <a href={datapoint} target='_blank' rel='noreferrer'>{datapoint}&nbsp;<sup><FiExternalLink className='fs-7' /></sup></a>
         );
-    } else return String(sample);
+    } else return String(datapoint);
+};
+
+RenderDatapoint.propTypes = {
+    datapoint: PropTypes.shape({
+        map: PropTypes.func
+    })
+};
+
+
+const PreviewDetails = ({sample, displayLabels}) => {
+    const {ref, predictions, groundtruths} = useLabels(sample instanceof Object ? sample : {});
+
+    return (
+        <div ref={ref}>
+            <RenderDatapoint datapoint={sample} />
+            {
+                displayLabels && predictions?.length ? (
+                    <>
+                        <Row className='mt-5 mb-1 bg-white'>
+                            <h4>Predictions</h4>
+                        </Row>
+                        <Table
+                            columns={Object.keys(predictions[0]).filter((k) => !SKIPPED_KEYS.has(k)).map((k) => ({
+                                Header: k,
+                                Cell: ({cell}) => <pre>{JSON.stringify(cell.row.original[k], null, 4)}</pre> // eslint-disable-line react/prop-types
+                            }))}
+                            data={predictions}
+                        />
+                    </>
+                ) : null
+            }
+            {
+                displayLabels && groundtruths?.length ? (
+                    <>
+                        <Row className='mt-5 mb-1 bg-white'>
+                            <h4>Groundtruths</h4>
+                        </Row>
+                        <Table
+                            columns={Object.keys(groundtruths[0]).filter((k) => !SKIPPED_KEYS.has(k)).map((k) => ({
+                                Header: k,
+                                Cell: ({cell}) => <pre>{JSON.stringify(cell.row.original[k], null, 4)}</pre> // eslint-disable-line react/prop-types
+                            }))}
+                            data={groundtruths}
+                        />
+                    </>
+                ) : null
+            }
+        </div>
+    );
 };
 
 PreviewDetails.propTypes = {
-    sample: PropTypes.any
+    sample: PropTypes.any,
+    displayLabels: PropTypes.bool
 };
 
 export default PreviewDetails;

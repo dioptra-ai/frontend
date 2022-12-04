@@ -105,7 +105,8 @@ const Cart = ({userStore}) => {
                                                     op: 'in',
                                                     right: userStore.userData.cart
                                                 }]
-                                            }
+                                            },
+                                            strategy: 'NEAREST_NEIGHBORS'
                                         }}
                                     />
                                     <hr/>

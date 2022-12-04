@@ -132,14 +132,14 @@ const Miner = () => {
                                                                                 <div className='my-3'>
                                                                                     <Async
                                                                                         fetchData={() => metricsClient('select', {
-                                                                                            select: '"uuid",  "image_metadata", "prediction", "groundtruth", "text", "tags"',
+                                                                                            select: '"uuid", "request_id",  "image_metadata", "prediction", "groundtruth", "text", "tags"',
                                                                                             filters: [{
                                                                                                 left: 'uuid',
                                                                                                 op: 'in',
                                                                                                 right: task['result']
                                                                                             }]
                                                                                         })}
-                                                                                        renderData={(datapoints) => <SamplesPreview samples={datapoints} />}
+                                                                                        renderData={(datapoints) => <SamplesPreview samples={datapoints} displayLabels={false}/>}
                                                                                     />
                                                                                 </div>
                                                                             )
