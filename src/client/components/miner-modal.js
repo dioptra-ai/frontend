@@ -39,7 +39,7 @@ const MinerModal = ({isOpen, onClose, onMinerSaved, defaultMiner = {}}) => {
     const [minerStrategy, setMinerStrategy] = useState(strategy || minerStrategyOptions[0].value);
     const saveMiner = async () => {
         const payload = {
-            ...defaultMiner,
+            _id: defaultMiner?._id,
             display_name: minerName,
             strategy: minerStrategy,
             metric: minerMetric,
@@ -49,10 +49,12 @@ const MinerModal = ({isOpen, onClose, onMinerSaved, defaultMiner = {}}) => {
                 ...defaultMiner.select,
                 filters: minerFilters
             },
-            select_reference: {
-                ...defaultMiner.select_reference,
-                filters: referenceFilters
-            }
+            ...(minerStrategy === 'NEAREST_NEIGHBORS' || minerStrategy === 'CORESET' ? {
+                select_reference: {
+                    ...defaultMiner.select_reference,
+                    filters: referenceFilters
+                }
+            } : {})
         };
 
         if (!payload['_id'] || window.confirm('Changing the miner configuration will delete the current results. Are you sure you want to continue?')) {
