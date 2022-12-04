@@ -161,7 +161,7 @@ const DatapointsViewer = ({datapoints, onSelectedChange, onClearDatapoint, limit
                         );
                     } else return (
                         <Col key={`${JSON.stringify(datapoint)}-${i}`} xs={12}>
-                            <div className='p-2 border-bottom' >
+                            <div className='p-2 border-bottom cursor-pointer' onClick={() => setSampleIndexInModal(i)}>
                                 {selectOrClearBar}
                                 <PreviewDetails sample={datapoint}/>
                             </div>
@@ -210,7 +210,7 @@ const DatapointsViewer = ({datapoints, onSelectedChange, onClearDatapoint, limit
                                     <hr/>
                                 </>
                             ) : null}
-                            <PreviewDetails sample={exampleInModal}/>
+                            <PreviewDetails sample={exampleInModal} displayLabels/>
                         </div>
                         <div className='fs-1 p-4 bg-white-blue cursor-pointer d-flex align-items-center mx-2' onClick={handleNext}>
                             <GrNext/>

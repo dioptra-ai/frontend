@@ -139,7 +139,7 @@ const Miner = () => {
                                                                                                 right: task['result']
                                                                                             }]
                                                                                         })}
-                                                                                        renderData={(datapoints) => <SamplesPreview samples={datapoints} displayLabels={false}/>}
+                                                                                        renderData={(datapoints) => <SamplesPreview samples={datapoints}/>}
                                                                                     />
                                                                                 </div>
                                                                             )

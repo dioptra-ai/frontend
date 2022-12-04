@@ -57,14 +57,14 @@ RenderDatapoint.propTypes = {
 };
 
 
-const PreviewDetails = ({sample, displayLabels = true}) => {
+const PreviewDetails = ({sample, displayLabels}) => {
     const {ref, predictions, groundtruths} = useLabels(sample instanceof Object ? sample : {});
 
     return (
         <div ref={ref}>
             <RenderDatapoint datapoint={sample} />
             {
-                displayLabels && predictions?.length ? (
+                displayLabels && predictions?.length > 1 ? (
                     <>
                         <Row className='mt-5 mb-1 bg-white'>
                             <h4>Predictions</h4>
@@ -80,7 +80,7 @@ const PreviewDetails = ({sample, displayLabels = true}) => {
                 ) : null
             }
             {
-                displayLabels && groundtruths?.length ? (
+                displayLabels && groundtruths?.length > 1 ? (
                     <>
                         <Row className='mt-5 mb-1 bg-white'>
                             <h4>Groundtruths</h4>
