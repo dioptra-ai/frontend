@@ -9,7 +9,6 @@ import Login from 'pages/login';
 import Logout from 'pages/logout';
 import Register from 'pages/register';
 import AuthRoute from 'components/auth-route';
-import Benchmark from 'pages/benchmark';
 import Miner from 'pages/miner';
 import DatasetsList from 'pages/datasets-list';
 import MinersList from 'pages/miners-list';
@@ -58,14 +57,7 @@ const App = () => {
                         <Model/>
                     </AppContext.Provider>
                 )}/>
-                <AuthRoute path='/benchmark' renderLoggedIn={() => (
-                    <AppContext.Provider value={{
-                        isBenchmarkView: true
-                    }}>
-                        <Benchmark/>
-                    </AppContext.Provider>
-                )}/>
-                <AuthRoute path='/dataset' renderLoggedIn={() => (
+                <AuthRoute path='/datasets' renderLoggedIn={() => (
                     <DatasetsList/>
                 )}/>
                 <AuthRoute path='/miners/:minerId' renderLoggedIn={() => (
