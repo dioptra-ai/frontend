@@ -2,10 +2,11 @@ site_name: Dioptra
 nav:
   - Home: index.md
   - Getting Started: getting-started.md
-  - Ingestion: ingestion.md
-  - Getting Started with Queries: querying-getting-started.md
-  - Metrics API: metrics.md
-  - Miners API: miners.md
+  - Ingest data to the lake: ingestion.md
+  - Download data from the lake: querying-getting-started.md
+  - Metrics: metrics.md
+  - Miners: miners.md
+  - Tensorflow and Pytorch Utilities: tf-and-torch-utils.md
   - Active Learning: active-learning.md
   - Supported Types and Schemas: supported-types.md
 

@@ -12,7 +12,7 @@ Here is the question. Given the following state of your model, how do you pick t
 
 ![Raw Diagram](./imgs/diagram-raw.png)
 
-The answer is that it depends on what model waekness you are trying to fix. 
+The answer is that it depends on what model waekness you are trying to fix.
 Dioptra develops techniques designed to fix specific kind of waekness.
 They can and should be combined to maximise the breath of model improvement at each retraining.
 
@@ -28,63 +28,12 @@ This data is going to be close to the decision boundary.
 Probably the most straighforward active learning technique. It consists in sampling low confidence samples.
 The drawback of confidence sampling is that only look at the confidence of the predicted class.
 
-```python
-## Ingestion field requirements
-'confidence' or
-'confidences' or
-'logits'
-```
-
-```python
-## Request
-import requests
-
-r = requests.post('https://app.dioptra.ai/api/miners', headers={
-   'content-type': 'application/json',
-   'x-api-key': DIOPTRA_API_KEY
-}, json={
-   {
-      'strategy': 'CONFIDENCE',
-      'size': 'INT', # number of samples to return
-      'filters': [...],
-      'limit': ...,
-      'order_by': ...,
-      'desc': ...
-   }
-})
-```
-
 - entropy sampling
 
 In cases where there are many classes, looking at the confidence of the predicted class is not enough.
 We need to look at the level of confidence of all classes.
-To do this, we compute the entropy of the confidence vector and sample for high entropy.  
+To do this, we compute the entropy of the confidence vector and sample for high entropy.
 As a reminder, `entropy = 0` when there is no uncertainty and `entropy = 1` when the uncertainty is maximal.
-
-```python
-## Ingestion field requirements
-'confidences'  or
-'logits'
-```
-
-```python
-## Request
-import requests
-
-r = requests.post('https://app.dioptra.ai/api/miners', headers={
-   'content-type': 'application/json',
-   'x-api-key': DIOPTRA_API_KEY
-}, json={
-   {
-      'strategy': 'ENTROPY',
-      'size': 'INT', # number of samples to return
-      'filters': [...],
-      'limit': ...,
-      'order_by': ...,
-      'desc': ...
-   }
-})
-```
 
 - Query By Committee (coming soon)
 
@@ -92,30 +41,6 @@ Another alternative to model uncertainty is use leverage Query By Committee.
 This techniques consists in training several models and have them predict on the same data point to compare their prediction.
 There are several techniques to produce such committee, one of them being to train the same model on separate data folds.
 This technique has the advantage to be applicable regardless of the model type and will model uncertainty all model outputs: classes, boxes etc.
-
-```python
-## Ingestion field requirements
-'query_committee'
-```
-
-```python
-## Request
-import requests
-
-r = requests.post('https://app.dioptra.ai/api/miners', headers={
-   'content-type': 'application/json',
-   'x-api-key': DIOPTRA_API_KEY
-}, json={
-   {
-      'strategy': 'QUERY_BY_COMMITTEE',
-      'size': 'INT', # number of samples to return
-      'filters': [...],
-      'limit': ...,
-      'order_by': ...,
-      'desc': ...
-   }
-})
-```
 
 - Monte Carlo Dropout (coming soon)
 
@@ -142,30 +67,6 @@ class MonteCarloDropout(keras.layers.Dropout):
     return super().call(inputs, training=True)
 ```
 
-```python
-## Ingestion field requirements
-'mc_dropout'
-```
-
-```python
-## Request
-import requests
-
-r = requests.post('https://app.dioptra.ai/api/miners', headers={
-   'content-type': 'application/json',
-   'x-api-key': DIOPTRA_API_KEY
-}, json={
-   {
-      'strategy': 'MONTE_CARLO_DROPOUT',
-      'size': 'INT', # number of samples to return
-      'filters': [...],
-      'limit': ...,
-      'order_by': ...,
-      'desc': ...
-   }
-})
-```
-
 ### Diversity Sampling
 
 To discover Out Of Domain data, we need to sample data that are far from the training data and that won't be caught by uncertainty sampling.
@@ -178,80 +79,15 @@ To discover these datapoints, we leverage techniques based on embeddings and mod
 
 This technique measures the distance from the training dataset in the embedding space and returns the data that are the farthest away from it.
 
-```python
-## Ingestion field requirements
-'embeddings'
-```
-
-```python
-(coming soon)
-```
-
 - Novelty detection
 
 The drawback of the embedding distance is that it doesn't account for data density. A single training datapoint will cover large partion of the training set.
 
 To compensate for that, Dioptra leverages a novelty detection algorithm trained on the training set and infered on the unlabeled set to detect unlabeled data un areas of low training data density.
 
-```python
-## Ingestion field requirements
-'embeddings'
-```
-
-```python
-## Request
-import requests
-
-r = requests.post('https://app.dioptra.ai/api/miners', headers={
-   'content-type': 'application/json',
-   'x-api-key': DIOPTRA_API_KEY
-}, json={
-   {
-      'strategy': 'DRIFT',
-      'size': 'INT', # number of samples to return
-      'embeddings_field': ['embeddings', 'prediction.embeddings', 'groundtruth.embeddings', 'prediction.logits'],
-      'filters': [...],
-      'limit': ...,
-      'order_by': ...,
-      'desc': ...,
-      'reference_data': {
-         'filters': [...],
-         'limit': ...,
-         'order_by': ...,
-         'desc': ...      
-      }
-   }
-})
-```
-
 - Outlier detection
 
 In certain cases, edge cases can be zeroed downt to by filtering down to a small subset of data that looks similar and looking for outliers in this space. We implement an outlier detection sampling technique based on Local Outlier Factor.
-
-```python
-## Ingestion field requirements
-'embeddings'
-```
-
-```python
-## Request
-import requests
-
-r = requests.post('https://app.dioptra.ai/api/miners', headers={
-   'content-type': 'application/json',
-   'x-api-key': DIOPTRA_API_KEY
-}, json={
-   {
-      'strategy': 'OUTLIER',
-      'size': 'INT', # number of samples to return
-      'embeddings_field': ['embeddings', 'prediction.embeddings', 'groundtruth.embeddings', 'prediction.logits'],
-      'filters': [...],
-      'limit': ...,
-      'order_by': ...,
-      'desc': ...
-   }
-})
-```
 
 These techniques have proven effective to catch far OODs and can be biased by the quality and biaseness of the embedding space.
 We recommend experimenting with different embedding layers, bearing in mind that the lower levers are going to remain relatively stable across tasks but will be generic, while the upper level will have greater discriminatory power but can become biased towards the task.
@@ -262,64 +98,12 @@ Another way to detect OODs is to look at the activation levels in the model whil
 This is indicative of the amount of information the model is using to make a decision.
 This technique has proven to be the most effective but is less explainable and model specific.
 
-```python
-## Ingestion field requirements
-'embeddings' ## will focus on semantic activation or
-'logits' ## will focus on prediction activation
-```
-
-```python
-## Request
-import requests
-
-r = requests.post('https://app.dioptra.ai/api/miners', headers={
-   'content-type': 'application/json',
-   'x-api-key': DIOPTRA_API_KEY
-}, json={
-   {
-      'strategy': 'ACTIVATION',
-      'size': 'INT', # number of samples to return
-      'embeddings_field': ['embeddings', 'prediction.embeddings', 'groundtruth.embeddings', 'prediction.logits'],
-      'reverse_order': 'BOOLEAN' # whether to look for low activation (true) or high activation (false)
-      'filters': [...],
-      'limit': ...,
-      'order_by': ...,
-      'desc': ...
-   }
-})
-```
-
 ### Similarity Sampling
 
 One of the most common pattern in data curation is to find a seed (edge case, feedback from end users etc.) and look for similar data.
 You can do this by using our KNN miners.
 
 ![Raw Diagram](./imgs/diagram-similarity.png)
-
-```python
-## Request
-import requests
-
-r = requests.post('https://app.dioptra.ai/api/miners', headers={
-   'content-type': 'application/json',
-   'x-api-key': DIOPTRA_API_KEY
-}, json={
-   {
-      'strategy': 'NEAREST_NEIGHBORS',
-      'size': 'INT', # number of samples to return
-      'filters': [...],
-      'limit': ...,
-      'order_by': ...,
-      'desc': ...,
-      'reference_data': {
-         'filters': [...],
-         'limit': ...,
-         'order_by': ...,
-         'desc': ...      
-      }
-   }
-})
-```
 
 ### Density Sampling
 
@@ -328,22 +112,3 @@ To compensate for that, we look can sample the output of a miner to find the mos
 We use the [coreset](https://arxiv.org/abs/1708.00489) algorithm for that.
 
 ![Raw Diagram](./imgs/diagram-density.png)
-
-```python
-## Request
-import requests
-
-r = requests.post('https://app.dioptra.ai/api/miners', headers={
-   'content-type': 'application/json',
-   'x-api-key': DIOPTRA_API_KEY
-}, json={
-   {
-      'strategy': 'CORESET',
-      'size': 'INT', # number of samples to return
-      'filters': [...],
-      'limit': ...,
-      'order_by': ...,
-      'desc': ...
-   }
-})
-```

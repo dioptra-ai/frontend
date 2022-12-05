@@ -1,6 +1,6 @@
-## Getting started with querying
+## Getting started with the lake
 
-Dioptra offers a comprehensive set of APIs to execute metadata, metrics and ML queries.
+Dioptra offers a comprehensive set of APIs to execute metadata, metrics and ML queries on its data lake.
 
 ### Data selector
 
@@ -20,7 +20,7 @@ All Dioptra APIs leverage the same data selector.
 ```
 
 `filters` is a list of conditions that will be ANDed to filter the data
-`left` is always a field value  
+`left` is always a field value
 `right` can be a value or a field. Field names should be enclosed in double quotes, and values in single quotes.
 `limit` can be used to limit the amount of data in the selection and can be combined with `order_by` and `desc` to control the selection.
 
@@ -34,10 +34,17 @@ prediction.confidence.variance
 prediction.box.variance
 ```
 
-### The select endpoint
+### Downloading data from the lake
 
-The most basic way to query data is using the select endpoint.
+The most basic way to query data is using the `download_from_lake` utility
 This is essentially a SQL query running on your data.
+
+::: dioptra.lake.utils.download_from_lake
+    handler: python
+    rendering:
+      show_source: true
+
+You can also use the API directly
 
 ```python
 ## Request
@@ -48,7 +55,7 @@ r = requests.post('https://app.dioptra.ai/api/metrics/select', headers={
    'x-api-key': DIOPTRA_API_KEY
 }, json={
    {
-      'select': ["STRING"], # list of fields to be retreived
+      'select': "STRING", # a coma separated list of fields to be retreived
       'filters': [...],
       'limit': ...,
       'order_by': ...,
