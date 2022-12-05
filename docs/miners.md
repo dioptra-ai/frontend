@@ -48,7 +48,7 @@ r = requests.post('https://app.dioptra.ai/api/miners', headers={
 
 #### `strategy: ACTIVATION`
 
-::: dioptra.miners.actvation_miner.ActivationMiner
+::: dioptra.miners.activation_miner.ActivationMiner
     handler: python
     rendering:
       show_source: true

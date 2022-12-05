@@ -6,7 +6,6 @@ nav:
   - Download data from the lake: querying-getting-started.md
   - Metrics: metrics.md
   - Miners: miners.md
-  - Tensorflow and Pytorch Utilities: tf-and-torch-utils.md
   - Active Learning: active-learning.md
   - Supported Types and Schemas: supported-types.md
 
