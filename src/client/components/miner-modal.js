@@ -49,7 +49,7 @@ const MinerModal = ({isOpen, onClose, onMinerSaved, defaultMiner = {}}) => {
                 ...defaultMiner.select,
                 filters: minerFilters
             },
-            ...(minerStrategy === 'NEAREST_NEIGHBORS' || minerStrategy === 'CORESET' ? {
+            ...((minerStrategy === 'NEAREST_NEIGHBORS' || minerStrategy === 'CORESET') && referenceFilters.length ? {
                 select_reference: {
                     ...defaultMiner.select_reference,
                     filters: referenceFilters
@@ -209,6 +209,7 @@ const MinerModal = ({isOpen, onClose, onMinerSaved, defaultMiner = {}}) => {
                             <Col>
                                 <Form.Label className='mt-3 mb-0 w-100'>Mined Data</Form.Label>
                                 <DataSelector
+                                    emptyOnUnfiltered
                                     onChange={(data) => {
                                         setMinerFilters(data.filters);
                                     }}
@@ -220,6 +221,7 @@ const MinerModal = ({isOpen, onClose, onMinerSaved, defaultMiner = {}}) => {
                                     <Col>
                                         <Form.Label className='mt-3 mb-0 w-100'>Reference Data</Form.Label>
                                         <DataSelector
+                                            emptyOnUnfiltered
                                             onChange={(data) => {
                                                 setReferenceFilters(data.filters);
                                             }}
