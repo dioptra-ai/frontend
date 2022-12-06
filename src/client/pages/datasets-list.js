@@ -3,8 +3,8 @@ import {Button} from 'react-bootstrap';
 
 import Async from 'components/async';
 import TopBar from 'pages/common/top-bar';
-import metricsClient from 'clients/metrics';
 import Menu from 'components/menu';
+import baseJSONClient from 'clients/base-json-client';
 
 const DatasetsList = () => {
 
@@ -23,21 +23,21 @@ const DatasetsList = () => {
                     </Button>
                 </div>
                 <Async
-                    fetchData={() => metricsClient('datasets')}
-                    renderData={(benchmarks) => (
+                    fetchData={() => baseJSONClient('/api/datasets')}
+                    renderData={(datasets) => (
                         <Table className='models-table mt-3'>
                             <thead className='align-middle text-secondary'>
                                 <tr className='border-0 border-bottom border-mercury'>
-                                    <th className='text-secondary'>Dataset ID</th>
-                                    <th className='text-secondary'>Size</th>
+                                    <th className='text-secondary'>ID</th>
+                                    <th className='text-secondary'>Name</th>
                                     <th className='text-secondary'>Created At</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {benchmarks.map(({dataset_id, size, created_at}, i) => (
+                                {datasets.map(({uuid, display_name, created_at}, i) => (
                                     <tr className='cursor-pointer' key={i}>
-                                        <td>{dataset_id}</td>
-                                        <td>{size.toLocaleString()}</td>
+                                        <td className='text-dark'>{uuid}</td>
+                                        <td>{display_name}</td>
                                         <td>{new Date(created_at).toLocaleString()}</td>
                                     </tr>
                                 ))}

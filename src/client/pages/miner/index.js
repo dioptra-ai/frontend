@@ -4,6 +4,7 @@ import Container from 'react-bootstrap/Container';
 
 import Select from 'components/select';
 import MinerModal from 'components/miner-modal';
+import DatasetModal from 'components/dataset-modal';
 import OutliersOrDrift from 'pages/common/outliers-or-drift';
 import ClustersAnalysis from 'pages/common/clusters-analysis';
 import Menu from 'components/menu';
@@ -26,6 +27,7 @@ const Miner = () => {
     const [lastRequestedRefresh, setLastRequestedRefresh] = useState(0);
     const analysesKeys = Object.keys(ANALYSES);
     const [selectedAnalysis, setSelectedAnalysis] = useState(analysesKeys[0]);
+    const [isDatasetModalOpen, setIsDatasetModalOpen] = useState(false);
     const handleRunMiner = async () => {
         await baseJSONClient('/api/tasks/miner/run', {
             method: 'post',
@@ -94,6 +96,29 @@ const Miner = () => {
                                         refetchOnChanged={[minerId, lastRequestedRefresh]}
                                         renderData={({task}) => task ? (
                                             <>
+                                                <a href='#' onClick={() => setIsDatasetModalOpen(true)}>Export to Dataset</a>
+                                                {isDatasetModalOpen ? (
+                                                    <Async
+                                                        fetchData={() => metricsClient('select', {
+                                                            select: 'DISTINCT request_id',
+                                                            filters: [{
+                                                                left: 'uuid',
+                                                                op: 'in',
+                                                                right: task['result']
+                                                            }]
+                                                        })}
+                                                        renderData={(results) => (
+                                                            <DatasetModal
+                                                                isOpen
+                                                                onDatasetSaved={() => {
+                                                                    setIsDatasetModalOpen(false);
+                                                                }}
+                                                                onClose={() => setIsDatasetModalOpen(false)}
+                                                                datapoints={results}
+                                                            />
+                                                        )}
+                                                    />
+                                                ) : null}
                                                 <PreviewDetails sample={task}/>
                                                 {
                                                     task['status'] === 'SUCCESS' ? (

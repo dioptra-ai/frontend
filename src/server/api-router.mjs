@@ -11,6 +11,8 @@ import IntegrationRouter from './controllers/integrations.mjs';
 import IngestionRouter from './controllers/ingestion.mjs';
 import InfrastructureRouter from './controllers/infrastructure.mjs';
 import TasksRouter from './controllers/tasks.mjs';
+import DatasetsRouter from './controllers/datasets.mjs';
+import DatapointsRouter from './controllers/datapoints.mjs';
 
 const ApiRouter = express.Router();
 
@@ -26,5 +28,7 @@ ApiRouter.use('/organization-membership', OrganizationMembershipRouter);
 ApiRouter.use('/integration', IntegrationRouter);
 ApiRouter.use('/ingestion', IngestionRouter);
 ApiRouter.use('/infrastructure', InfrastructureRouter);
+ApiRouter.use('/datapoints', DatapointsRouter);
+ApiRouter.use('/datasets', DatasetsRouter);
 
 export default ApiRouter;

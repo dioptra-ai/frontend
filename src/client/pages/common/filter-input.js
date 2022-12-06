@@ -32,7 +32,10 @@ const RenderedFilter = ({filter, onDelete, applied = false}) => {
                     maxWidth: 200,
                     overflow: 'hidden'
                 }}>{truncatedFilters}</div>
-                <button onClick={onDelete}>
+                <button onClick={(e) => {
+                    e.preventDefault();
+                    onDelete?.();
+                }}>
                     <FontIcon className='text-dark' icon='Close' size={10} />
                 </button>
             </div>
