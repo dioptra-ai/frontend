@@ -1,6 +1,7 @@
 import express from 'express';
 import {isAuthenticated} from '../middleware/authentication.mjs';
 import Dataset from '../models/dataset.mjs';
+import Datapoint from '../models/datapoint.mjs';
 
 const DatasetsRouter = express.Router();
 
@@ -10,10 +11,10 @@ DatasetsRouter.post('/', async (req, res, next) => {
     try {
         const {_id: createdBy, activeOrganizationMembership} = req.user;
 
-        if (req.body.id) {
+        if (req.body.uuid) {
             const dataset = await Dataset.updateById(
                 activeOrganizationMembership.organization._id,
-                req.body.id,
+                req.body.uuid,
                 req.body.displayName
             );
 
@@ -75,7 +76,16 @@ DatasetsRouter.delete('/:id', async (req, res, next) => {
 DatasetsRouter.post('/:id/datapoints', async (req, res, next) => {
     try {
         const {activeOrganizationMembership} = req.user;
-        const dataset = await Dataset.addDatapointsById(activeOrganizationMembership.organization._id, req.params.id, req.body.datapointIds);
+
+        let datapointIds = req.body.datapointIds;
+
+        if (req.body.requestIds) {
+            const datapoints = await Datapoint.upsertMany(activeOrganizationMembership.organization._id, req.body.requestIds);
+
+            datapointIds = datapoints.map((datapoint) => datapoint['uuid']);
+        }
+
+        const dataset = await Dataset.addDatapointsById(activeOrganizationMembership.organization._id, req.params.id, datapointIds);
 
         res.json(dataset);
     } catch (e) {
@@ -97,7 +107,7 @@ DatasetsRouter.delete('/:id/datapoints', async (req, res, next) => {
 DatasetsRouter.get('/:id/datapoints', async (req, res, next) => {
     try {
         const {activeOrganizationMembership} = req.user;
-        const datapoints = await Dataset.findDatapointsById(activeOrganizationMembership.organization._id, req.params.id);
+        const datapoints = await Dataset.getDatapointsById(activeOrganizationMembership.organization._id, req.params.id);
 
         res.json(datapoints);
     } catch (e) {

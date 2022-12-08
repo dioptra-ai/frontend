@@ -6,6 +6,10 @@ import Row from 'react-bootstrap/Row';
 import Form from 'react-bootstrap/Form';
 import {GrNext, GrPrevious} from 'react-icons/gr';
 import {IoCloseOutline} from 'react-icons/io5';
+import {HiOutlineRectangleStack} from 'react-icons/hi2';
+import {BsTags} from 'react-icons/bs';
+import {OverlayTrigger, Tooltip} from 'react-bootstrap';
+
 import {mod} from 'helpers/math';
 import {datapointIsImage, datapointIsNER, datapointIsText, datapointIsVideo} from 'helpers/datapoint';
 import Modal from 'components/modal';
@@ -14,11 +18,29 @@ import PreviewTextClassification from 'components/preview-text-classification';
 import PreviewDetails from 'components/preview-details';
 import PreviewNER from './preview-ner';
 
-const DatapointsViewer = ({datapoints, onSelectedChange, onClearDatapoint, limit = Infinity}) => {
+const EventType = ({datapoint: {prediction, groundtruth}, size = 4}) => (
+    (prediction || groundtruth) ? (
+        <OverlayTrigger overlay={<Tooltip>This is an annotation</Tooltip>}>
+            <div className={`text-muted d-flex fs-${size} cursor-help`}><BsTags /></div>
+        </OverlayTrigger>
+    ) : (
+        <OverlayTrigger overlay={<Tooltip>This is a data row</Tooltip>}>
+            <div className={`text-muted d-flex fs-${size - 1} cursor-help`}><HiOutlineRectangleStack/></div>
+        </OverlayTrigger>
+    )
+);
+
+EventType.propTypes = {
+    size: PropTypes.number,
+    datapoint: PropTypes.object
+};
+
+const DatapointsViewer = ({datapoints, onSelectedUUIDsChange, onSelectedChange, onClearDatapoint, limit = Infinity, renderButtons}) => {
     const selectAllRef = useRef();
     const [sampleIndexInModal, setSampleIndexInModal] = useState(-1);
     const [selectedDatapoints, setSelectedDatapoints] = useState(new Set());
     const exampleInModal = datapoints[sampleIndexInModal];
+    const datapointsByUUID = new Map(datapoints.map((d) => [d.uuid, d]));
 
     const handleSelectDatapoint = (uuid, selected) => {
         const newSet = new Set(selectedDatapoints);
@@ -29,7 +51,8 @@ const DatapointsViewer = ({datapoints, onSelectedChange, onClearDatapoint, limit
             newSet.delete(uuid);
         }
         setSelectedDatapoints(newSet);
-        onSelectedChange?.(newSet);
+        onSelectedUUIDsChange?.(newSet);
+        onSelectedChange?.(Array.from(newSet).map((uuid) => datapointsByUUID.get(uuid)));
     };
     const handleSelectAll = (selected) => {
         let newSet = null;
@@ -40,7 +63,8 @@ const DatapointsViewer = ({datapoints, onSelectedChange, onClearDatapoint, limit
             newSet = new Set();
         }
         setSelectedDatapoints(newSet);
-        onSelectedChange?.(newSet);
+        onSelectedUUIDsChange?.(newSet);
+        onSelectedChange?.(Array.from(newSet).map((uuid) => datapointsByUUID.get(uuid)));
     };
     const handleKeyDown = (e) => {
         if (exampleInModal) {
@@ -94,27 +118,31 @@ const DatapointsViewer = ({datapoints, onSelectedChange, onClearDatapoint, limit
                 ) : null
             }
             {
-                onSelectedChange && (
-                    <Row className='ps-2'>
-                        <Col>
-                            <Form.Check id='select-all' ref={selectAllRef} type='checkbox' onChange={(e) => {
-                                handleSelectAll(e.target.checked);
-                            }} label={<span className='cursor-pointer text-decoration-underline'>Select All</span>} />
-                        </Col>
-                    </Row>
+                (onSelectedUUIDsChange || onSelectedChange) && (
+                    <div className='ps-2 py-2 d-flex align-items-center' >
+                        <Form.Check id='select-all' ref={selectAllRef} type='checkbox' onChange={(e) => {
+                            handleSelectAll(e.target.checked);
+                        }} label={<span className='cursor-pointer text-decoration-underline'>Select All</span>} />
+                        {renderButtons?.()}
+                    </div>
                 )
             }
             <Row className='g-2'>
                 {datapoints.length ? datapoints.slice(0, limit).map((datapoint, i) => {
                     const selectOrClearBar = (
-                        <div className='d-flex justify-content-between'>
-                            {onSelectedChange && <Form.Check type='checkbox'
-                                onChange={(e) => handleSelectDatapoint(datapoint['uuid'], e.target.checked)}
-                                checked={selectedDatapoints.has(datapoint['uuid'])}
-                            />}
-                            {onClearDatapoint ?
-                                <IoCloseOutline className='cursor-pointer fs-4' onClick={() => onClearDatapoint(datapoint['uuid'])}/> :
-                                null}
+                        <div className='d-flex justify-content-between pb-1'>
+                            {(onSelectedUUIDsChange || onSelectedChange) && (
+                                <Form.Check type='checkbox'
+                                    onChange={(e) => handleSelectDatapoint(datapoint['uuid'], e.target.checked)}
+                                    checked={selectedDatapoints.has(datapoint['uuid'])}
+                                />
+                            )}
+                            <div className='d-flex align-items-center'>
+                                <EventType datapoint={datapoint} />
+                                {onClearDatapoint ?
+                                    <IoCloseOutline className='cursor-pointer fs-4' onClick={() => onClearDatapoint(datapoint['uuid'])} /> :
+                                    null}
+                            </div>
                         </div>
                     );
 
@@ -161,9 +189,9 @@ const DatapointsViewer = ({datapoints, onSelectedChange, onClearDatapoint, limit
                         );
                     } else return (
                         <Col key={`${JSON.stringify(datapoint)}-${i}`} xs={12}>
-                            <div className='p-2 border-bottom cursor-pointer' onClick={() => setSampleIndexInModal(i)}>
+                            <div className='p-2 border-bottom'>
                                 {selectOrClearBar}
-                                <PreviewDetails sample={datapoint}/>
+                                <PreviewDetails sample={datapoint} onClick={() => setSampleIndexInModal(i)} className='cursor-pointer'/>
                             </div>
                         </Col>
                     );
@@ -173,12 +201,19 @@ const DatapointsViewer = ({datapoints, onSelectedChange, onClearDatapoint, limit
             </Row>
             {exampleInModal && (
                 <Modal isOpen={true} onClose={() => setSampleIndexInModal(-1)} title={
-                    onSelectedChange ? <div className='ps-2'>
-                        <Form.Check type='checkbox'
-                            onChange={(e) => handleSelectDatapoint(exampleInModal['uuid'], e.target.checked)}
-                            checked={selectedDatapoints.has(exampleInModal['uuid'])}
-                        />
-                    </div> : ''
+                    <div className='d-flex align-items-center justify-content-between'>
+                        {(onSelectedUUIDsChange || onSelectedChange) ? (
+                            <div className='ps-2'>
+                                <Form.Check type='checkbox'
+                                    onChange={(e) => handleSelectDatapoint(exampleInModal['uuid'], e.target.checked)}
+                                    checked={selectedDatapoints.has(exampleInModal['uuid'])}
+                                />
+                            </div>
+                        ) : <div/>}
+                        <div className='align-self-end'>
+                            <EventType datapoint={exampleInModal} size={3}/>
+                        </div>
+                    </div>
                 }>
                     <div className='d-flex'>
                         <div className='fs-1 p-4 bg-white-blue cursor-pointer d-flex align-items-center mx-2' onClick={handlePrevious}>
@@ -224,9 +259,11 @@ const DatapointsViewer = ({datapoints, onSelectedChange, onClearDatapoint, limit
 
 DatapointsViewer.propTypes = {
     datapoints: PropTypes.array.isRequired,
+    onSelectedUUIDsChange: PropTypes.func,
     onSelectedChange: PropTypes.func,
     onClearDatapoint: PropTypes.func,
-    limit: PropTypes.number
+    limit: PropTypes.number,
+    renderButtons: PropTypes.func
 };
 
 export default DatapointsViewer;

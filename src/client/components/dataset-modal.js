@@ -1,31 +1,53 @@
 import PropTypes from 'prop-types';
 import {useState} from 'react';
-import {Button, Col, Container, Form, Row} from 'react-bootstrap';
+import {Button, Form} from 'react-bootstrap';
 
 import Modal from 'components/modal';
 import baseJSONClient from 'clients/base-json-client';
-import DataSelector from './data-selector';
+import metricsClient from 'clients/metrics';
 
-const DatasetModal = ({isOpen, onDatasetSaved, onClose, datapoints, dataset}) => {
-    const [displayName, setDisplayName] = useState(dataset ? dataset.displayName : '');
-    const [selectData, setSelectData] = useState(datapoints ? {
-        filters: [{
-            left: 'request_id',
-            op: 'in',
-            right: datapoints.map(({request_id}) => request_id)
-        }]
-    } : null);
-    const handleSaveDataset = () => {
-        baseJSONClient('/api/datasets', {
+const DatasetModal = ({isOpen, onDatasetSaved, onClose, defaultDatapoints, defaultFilters, dataset}) => {
+    const [displayName, setDisplayName] = useState(dataset ? dataset['display_name'] : '');
+    const [datapoints, setDatapoints] = useState(defaultDatapoints);
+    const handleSaveDataset = async () => {
+        const savedDataset = await baseJSONClient('/api/datasets', {
             method: 'POST',
             body: {
                 displayName,
-                id: dataset?.id
+                uuid: dataset?.uuid
             }
         });
-        // TODO: add datapoints if datapoints are provided
-        onDatasetSaved();
+
+        if (datapoints?.length) {
+
+            await baseJSONClient(`/api/datasets/${savedDataset.uuid}/datapoints`, {
+                method: 'POST',
+                body: {
+                    requestIds: datapoints.map(({request_id}) => request_id)
+                }
+            });
+
+        }
+
+        onDatasetSaved(savedDataset);
     };
+
+    useState(() => {
+        (async () => {
+            if (defaultFilters) {
+                if (defaultFilters.length > 0) {
+                    const datapoints = await metricsClient('select', {
+                        select: 'DISTINCT "request_id"',
+                        filters: defaultFilters
+                    });
+
+                    setDatapoints(datapoints);
+                } else {
+                    setDatapoints([]);
+                }
+            }
+        })();
+    }, [defaultFilters]);
 
     return (
         <Modal isOpen={isOpen} onClose={onClose} title={dataset ? 'Edit Dataset' : 'Create Dataset'}>
@@ -33,20 +55,8 @@ const DatasetModal = ({isOpen, onDatasetSaved, onClose, datapoints, dataset}) =>
                 e.preventDefault();
                 handleSaveDataset();
             }}>
-                <Container fluid>
-                    <Row>
-                        <Col>
-                            <Form.Label>Name</Form.Label>
-                            <Form.Control type='text' placeholder='Name' value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col>
-                            <Form.Label>Data Points</Form.Label>
-                            <DataSelector value={selectData} onChange={setSelectData} emptyOnUnfiltered />
-                        </Col>
-                    </Row>
-                </Container>
+                <Form.Label>Name</Form.Label>
+                <Form.Control required type='text' value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
                 <Button
                     className='w-100 text-white btn-submit mt-3'
                     variant='primary'
@@ -60,16 +70,13 @@ const DatasetModal = ({isOpen, onDatasetSaved, onClose, datapoints, dataset}) =>
 };
 
 DatasetModal.propTypes = {
-    datapoints: PropTypes.shape({
-        map: PropTypes.func
-    }),
-    dataset: PropTypes.shape({
-        displayName: PropTypes.any,
-        id: PropTypes.any
-    }),
+    datapoints: PropTypes.array,
+    dataset: PropTypes.object,
     isOpen: PropTypes.any,
     onClose: PropTypes.any,
-    onDatasetSaved: PropTypes.func
+    onDatasetSaved: PropTypes.func,
+    defaultDatapoints: PropTypes.array,
+    defaultFilters: PropTypes.array
 };
 
 export default DatasetModal;

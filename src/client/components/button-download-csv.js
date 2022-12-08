@@ -9,7 +9,7 @@ const ButtonDownloadCSV = ({uuids, filename = 'data.csv'}) => {
 
     return (
         <Button
-            className='w-100 text-white btn-submit click-down mb-3'
+            className='w-100 text-white btn-submit mb-3'
             variant='secondary'
             onClick={async () => {
                 const data = await metricsClient('datapoints', {

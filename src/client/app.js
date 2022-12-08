@@ -10,6 +10,7 @@ import Logout from 'pages/logout';
 import Register from 'pages/register';
 import AuthRoute from 'components/auth-route';
 import Miner from 'pages/miner';
+import Dataset from 'pages/dataset';
 import DatasetsList from 'pages/datasets-list';
 import MinersList from 'pages/miners-list';
 import Cart from 'pages/cart';
@@ -56,7 +57,10 @@ const App = () => {
                     }}>
                         <Model/>
                     </AppContext.Provider>
-                )}/>
+                )} />
+                <AuthRoute path='/datasets/:datasetId' renderLoggedIn={() => (
+                    <Dataset/>
+                )} />
                 <AuthRoute path='/datasets' renderLoggedIn={() => (
                     <DatasetsList/>
                 )}/>

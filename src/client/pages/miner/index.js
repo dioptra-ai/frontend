@@ -1,5 +1,5 @@
 import {useState} from 'react';
-import {useParams} from 'react-router-dom';
+import {useHistory, useParams} from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
 
 import Select from 'components/select';
@@ -22,6 +22,7 @@ const ANALYSES = {
 };
 
 const Miner = () => {
+    const history = useHistory();
     const {minerId} = useParams();
     const [isMinerModalOpen, setIsMinerModalOpen] = useState(false);
     const [lastRequestedRefresh, setLastRequestedRefresh] = useState(0);
@@ -98,25 +99,18 @@ const Miner = () => {
                                             <>
                                                 <a href='#' onClick={() => setIsDatasetModalOpen(true)}>Export to Dataset</a>
                                                 {isDatasetModalOpen ? (
-                                                    <Async
-                                                        fetchData={() => metricsClient('select', {
-                                                            select: 'DISTINCT request_id',
-                                                            filters: [{
-                                                                left: 'uuid',
-                                                                op: 'in',
-                                                                right: task['result']
-                                                            }]
-                                                        })}
-                                                        renderData={(results) => (
-                                                            <DatasetModal
-                                                                isOpen
-                                                                onDatasetSaved={() => {
-                                                                    setIsDatasetModalOpen(false);
-                                                                }}
-                                                                onClose={() => setIsDatasetModalOpen(false)}
-                                                                datapoints={results}
-                                                            />
-                                                        )}
+                                                    <DatasetModal
+                                                        isOpen
+                                                        onDatasetSaved={(dataset) => {
+                                                            setIsDatasetModalOpen(false);
+                                                            history.push(`/datasets/${dataset['uuid']}`);
+                                                        }}
+                                                        onClose={() => setIsDatasetModalOpen(false)}
+                                                        defaultFilters={[{
+                                                            left: 'uuid',
+                                                            op: 'in',
+                                                            right: task['result']
+                                                        }]}
                                                     />
                                                 ) : null}
                                                 <PreviewDetails sample={task}/>
@@ -177,7 +171,7 @@ const Miner = () => {
                                                     ) : null
                                                 }
                                             </>
-                                        ) : <span>Miner Never Run</span>
+                                        ) : <span>Miner not Run</span>
                                         }
                                     />
                                 </div>

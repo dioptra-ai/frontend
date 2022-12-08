@@ -28,12 +28,12 @@ DatapointsRouter.get('/:id', async (req, res, next) => {
     }
 });
 
-DatapointsRouter.post('/', async (req, res, next) => {
+DatapointsRouter.post('/from-event-uuids', async (req, res, next) => {
     try {
         const {activeOrganizationMembership} = req.user;
-        const datapoint = await Datapoint.createNew(activeOrganizationMembership.organization._id, req.body.requestId);
+        const datapoints = await Datapoint.upsertByEventUuids(activeOrganizationMembership.organization._id, req.body.eventUuids);
 
-        res.json(datapoint);
+        res.json(datapoints);
     } catch (e) {
         next(e);
     }

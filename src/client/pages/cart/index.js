@@ -1,7 +1,10 @@
 import PropTypes from 'prop-types';
 import {useState} from 'react';
 import {BsMinecartLoaded} from 'react-icons/bs';
+import {AiOutlineDatabase} from 'react-icons/ai';
 import Button from 'react-bootstrap/Button';
+import DropdownButton from 'react-bootstrap/DropdownButton';
+import Dropdown from 'react-bootstrap/Dropdown';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import Container from 'react-bootstrap/Container';
@@ -26,7 +29,7 @@ const Cart = ({userStore}) => {
     const removeDatapointsFromCart = async (uuids) => {
         if (uuids) {
             await userStore.tryUpdate({
-                cart: userStore.userData.cart.filter((_, i) => !uuids.has(i))
+                cart: userStore.userData.cart.filter((uuid) => !uuids.has(uuid))
             });
         } else {
             await userStore.tryUpdate({
@@ -63,7 +66,7 @@ const Cart = ({userStore}) => {
                                                 Selected: {selectedDatapoints.size}&nbsp;
                                             {
                                                 selectedDatapoints.size ? (
-                                                    <a className='text-dark border-0 bg-transparent click-down'
+                                                    <a className='text-dark border-0 bg-transparent'
                                                         onClick={() => removeDatapointsFromCart(selectedDatapoints)}
                                                     >
                                                         (remove from cart)
@@ -75,20 +78,53 @@ const Cart = ({userStore}) => {
                                 </Container>
                                 <DatapointsViewer
                                     datapoints={datapoints}
-                                    onSelectedChange={setSelectedDatapoints}
+                                    onSelectedUUIDsChange={setSelectedDatapoints}
                                 />
                             </Col>
                             <Col xs={2}>
                                 <h5>With {userStore.userData.cart.length} datapoints :</h5>
                                 <div className='text-center'>
                                     <Button
-                                        className='w-100 text-white btn-submit click-down mb-3'
+                                        className='w-100 text-white btn-submit mb-3'
                                         variant='secondary'
                                         onClick={() => {
                                             setMinerModalOpen(true);
                                         }}>
                                         <BsMinecartLoaded className='fs-2 ps-2 cursor-pointer'/> Create Miner
                                     </Button>
+                                    <Async
+                                        fetchData={() => baseJSONClient('/api/datasets')}
+                                        renderData={(datasets) => (
+                                            <DropdownButton
+                                                className='w-100 text-white btn-submit mb-3 d-flex flex-column'
+                                                variant='secondary'
+                                                menuAlign='right'
+                                                title={<><AiOutlineDatabase className='fs-2 ps-2 cursor-pointer' /> Add to Dataset</>}
+                                            >
+                                                {datasets.map((dataset) => (
+                                                    <Dropdown.Item as='button' key={dataset.uuid} onClick={async () => {
+                                                        const datapoints = await baseJSONClient('/api/datapoints/from-event-uuids', {
+                                                            method: 'POST',
+                                                            body: {
+                                                                eventUuids: userStore.userData.cart
+                                                            }
+                                                        });
+
+                                                        await baseJSONClient(`/api/datasets/${dataset.uuid}/datapoints`, {
+                                                            method: 'POST',
+                                                            body: {
+                                                                datapointIds: datapoints.map((datapoint) => datapoint['uuid'])
+                                                            }
+                                                        });
+
+                                                        history.push(`/datasets/${dataset.uuid}`);
+                                                    }}>
+                                                        {dataset['display_name']}
+                                                    </Dropdown.Item>
+                                                ))}
+                                            </DropdownButton>
+                                        )}
+                                    />
                                     <ButtonDownloadCSV uuids={userStore.userData.cart} filename='data-cart.csv'/>
                                     <MinerModal
                                         isOpen={minerModalOpen}
@@ -111,8 +147,12 @@ const Cart = ({userStore}) => {
                                     />
                                     <hr/>
                                     <Button
-                                        className='w-100 click-down my-3' variant='secondary'
-                                        onClick={() => removeDatapointsFromCart()}
+                                        className='w-100 my-3' variant='secondary'
+                                        onClick={() => {
+                                            if (confirm('Are you sure you want to empty your data cart?')) {
+                                                removeDatapointsFromCart();
+                                            }
+                                        }}
                                     >
                                         Empty Data Cart
                                     </Button>

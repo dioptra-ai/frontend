@@ -48,8 +48,8 @@ class Dataset {
 
     static async addDatapointsById(organizationId, id, datapointIds) {
         const {rows} = await postgresClient.query(
-            'INSERT INTO dataset_to_datapoints (organization_id, dataset, datapoint) VALUES $1 RETURNING *',
-            [datapointIds.map((datapointId) => [organizationId, id, datapointId])]
+            `INSERT INTO dataset_to_datapoints (organization_id, dataset, datapoint) VALUES ${datapointIds.map((dId, i) => `($1, $2, $${i + 3})`).join(',')} ON CONFLICT DO NOTHING RETURNING *`,
+            [organizationId, id, ...datapointIds]
         );
 
         return rows;
@@ -66,10 +66,11 @@ class Dataset {
 
     static async getDatapointsById(organizationId, id) {
         const {rows} = await postgresClient.query(`
-            SELECT datapoints.* 
-                FROM dataset_to_datapoints 
-                WHERE organization_id = $1 AND dataset = $2
-            JOIN datapoints ON datapoints.id = dataset_to_datapoints.datapoint
+            SELECT datapoints.*
+            FROM datapoints
+            JOIN dataset_to_datapoints 
+                ON datapoints.uuid = dataset_to_datapoints.datapoint
+            WHERE dataset_to_datapoints.organization_id = $1 AND dataset_to_datapoints.dataset = $2
             `,
         [organizationId, id]);
 

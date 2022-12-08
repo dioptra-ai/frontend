@@ -6,6 +6,13 @@ import autopopulate from 'mongoose-autopopulate';
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
+    _id: {
+        type: Schema.Types.ObjectId,
+        default: () => new mongoose.Types.ObjectId(),
+        get(_id) { // eslint-disable-line func-names
+            return _id.toHexString();
+        }
+    },
     username: {type: String, required: true},
     password: {
         type: String,

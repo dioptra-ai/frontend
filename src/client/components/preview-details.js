@@ -57,39 +57,40 @@ RenderDatapoint.propTypes = {
 };
 
 
-const PreviewDetails = ({sample, displayLabels}) => {
+const PreviewDetails = ({sample, displayLabels, ...rest}) => {
     const {ref, predictions, groundtruths} = useLabels(sample instanceof Object ? sample : {});
+    const displayLabelsFoDatapoint = displayLabels && !sample.prediction && !sample.groundtruth;
 
     return (
-        <div ref={ref}>
+        <div ref={ref} {...rest}>
             <RenderDatapoint datapoint={sample} />
             {
-                displayLabels && predictions?.length > 1 ? (
+                displayLabelsFoDatapoint ? (
                     <>
                         <Row className='mt-5 mb-1 bg-white'>
                             <h4>Predictions</h4>
                         </Row>
                         <Table
-                            columns={Object.keys(predictions[0]).filter((k) => !SKIPPED_KEYS.has(k)).map((k) => ({
+                            columns={predictions.length ? Object.keys(predictions[0]).filter((k) => !SKIPPED_KEYS.has(k)).map((k) => ({
                                 Header: k,
                                 Cell: ({cell}) => <pre>{JSON.stringify(cell.row.original[k], null, 4)}</pre> // eslint-disable-line react/prop-types
-                            }))}
+                            })) : []}
                             data={predictions}
                         />
                     </>
                 ) : null
             }
             {
-                displayLabels && groundtruths?.length > 1 ? (
+                displayLabelsFoDatapoint ? (
                     <>
                         <Row className='mt-5 mb-1 bg-white'>
                             <h4>Groundtruths</h4>
                         </Row>
                         <Table
-                            columns={Object.keys(groundtruths[0]).filter((k) => !SKIPPED_KEYS.has(k)).map((k) => ({
+                            columns={groundtruths.length ? Object.keys(groundtruths[0]).filter((k) => !SKIPPED_KEYS.has(k)).map((k) => ({
                                 Header: k,
                                 Cell: ({cell}) => <pre>{JSON.stringify(cell.row.original[k], null, 4)}</pre> // eslint-disable-line react/prop-types
-                            }))}
+                            })) : []}
                             data={groundtruths}
                         />
                     </>
