@@ -41,6 +41,8 @@ const DatapointsViewer = ({datapoints, onSelectedUUIDsChange, onSelectedChange, 
     const [selectedDatapoints, setSelectedDatapoints] = useState(new Set());
     const exampleInModal = datapoints[sampleIndexInModal];
     const datapointsByUUID = new Map(datapoints.map((d) => [d.uuid, d]));
+    const annotationsNum = datapoints.filter((d) => d.prediction || d.groundtruth).length;
+    const dataRowsNum = datapoints.length - annotationsNum;
 
     const handleSelectDatapoint = (uuid, selected) => {
         const newSet = new Set(selectedDatapoints);
@@ -122,7 +124,11 @@ const DatapointsViewer = ({datapoints, onSelectedUUIDsChange, onSelectedChange, 
                     <div className='ps-2 py-2 d-flex align-items-center' >
                         <Form.Check id='select-all' ref={selectAllRef} type='checkbox' onChange={(e) => {
                             handleSelectAll(e.target.checked);
-                        }} label={<span className='cursor-pointer text-decoration-underline'>Select All</span>} />
+                        }} label={<span className='cursor-pointer text-decoration-underline'>Select {[
+                            dataRowsNum ? `${dataRowsNum} data rows` : '',
+                            annotationsNum ? `${annotationsNum} annotations` : ''
+                        ].filter(Boolean).join(' and ')}</span>} />
+                        &nbsp;&nbsp;&nbsp;
                         {renderButtons?.()}
                     </div>
                 )

@@ -1,13 +1,13 @@
 import PropTypes from 'prop-types';
 import {useState} from 'react';
+import {OverlayTrigger, Tooltip} from 'react-bootstrap';
 import {BsMinecartLoaded} from 'react-icons/bs';
-import {AiOutlineDatabase} from 'react-icons/ai';
+import {AiOutlineDatabase, AiOutlineDelete} from 'react-icons/ai';
 import Button from 'react-bootstrap/Button';
 import DropdownButton from 'react-bootstrap/DropdownButton';
 import Dropdown from 'react-bootstrap/Dropdown';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
-import Container from 'react-bootstrap/Container';
 import {useHistory} from 'react-router-dom';
 
 import {IconNames} from 'constants';
@@ -60,29 +60,22 @@ const Cart = ({userStore}) => {
                     renderData={(datapoints) => (
                         <Row>
                             <Col>
-                                <Container fluid>
-                                    <Row>
-                                        <Col className='ps-3'>
-                                                Selected: {selectedDatapoints.size}&nbsp;
-                                            {
-                                                selectedDatapoints.size ? (
-                                                    <a className='text-dark border-0 bg-transparent'
-                                                        onClick={() => removeDatapointsFromCart(selectedDatapoints)}
-                                                    >
-                                                        (remove from cart)
-                                                    </a>
-                                                ) : null
-                                            }
-                                        </Col>
-                                    </Row>
-                                </Container>
                                 <DatapointsViewer
                                     datapoints={datapoints}
                                     onSelectedUUIDsChange={setSelectedDatapoints}
+                                    renderButtons={() => selectedDatapoints.size ? (
+                                        <OverlayTrigger overlay={<Tooltip>Remove {selectedDatapoints.size} items from cart</Tooltip>}>
+                                            <button className='d-flex text-dark border-0 bg-transparent click-down'
+                                                onClick={() => removeDatapointsFromCart(selectedDatapoints)}
+                                            >
+                                                <AiOutlineDelete className='fs-4' />
+                                            </button>
+                                        </OverlayTrigger>
+                                    ) : null}
                                 />
                             </Col>
                             <Col xs={2}>
-                                <h5>With {userStore.userData.cart.length} datapoints :</h5>
+                                <h5 className='text-center'>Total: {userStore.userData.cart.length} items</h5>
                                 <div className='text-center'>
                                     <Button
                                         className='w-100 text-white btn-submit mb-3'
