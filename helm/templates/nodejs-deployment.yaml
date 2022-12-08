@@ -34,6 +34,15 @@ spec:
               value: "12"
             - name: DB_CONNECTION_URI
               value: mongodb://{{ .Release.Name }}-{{ .Values.environment }}-mongodb:4005/dioptra
+            - name: POSTGRES_HOST
+              value: {{ .Values.postgres.host }}
+            - name: POSTGRES_USER
+              value: "{{ .Values.postgres.user }}"
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.postgres.secret.name }}
+                  key: {{ .Values.postgres.secret.key }}
             - name: METRICS_ENGINE_URL
               value: http://metrics-engine:4006
             - name: DRUID_DB_URL
