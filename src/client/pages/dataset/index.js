@@ -45,7 +45,7 @@ const Dataset = () => {
                                                     op: 'in',
                                                     right: datapoints.map((datapoint) => datapoint['request_id'])
                                                 }],
-                                                rm_fields: ['embeddings', 'logits'],
+                                                rm_fields: ['embeddings', 'logits', 'feature_heatmap'],
                                                 as_csv: true
                                             }, false);
 
