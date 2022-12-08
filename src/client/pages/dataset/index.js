@@ -131,7 +131,7 @@ const Dataset = () => {
                                                 datapoints={datapoints.map((d) => eventsByRequestId[d['request_id']] || 'UNDEFINED')}
                                                 onSelectedChange={setSelectedEvents}
                                                 renderButtons={() => (
-                                                    <OverlayTrigger overlay={<Tooltip>Remove Selected Datapoints</Tooltip>}>
+                                                    <OverlayTrigger overlay={<Tooltip>Remove {selectedEvents.length} from dataset</Tooltip>}>
                                                         <button
                                                             disabled={!selectedEvents.length}
                                                             className='d-flex text-dark border-0 bg-transparent click-down' onClick={handleRemoveSelectedEvents}
