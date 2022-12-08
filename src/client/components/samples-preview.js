@@ -64,7 +64,7 @@ const SamplesPreview = ({samples, userStore, onClearSamples, limit}) => {
             </div>
             <DatapointsViewer
                 datapoints={samples}
-                onSelectedChange={setSelectedSamples}
+                onSelectedUUIDsChange={setSelectedSamples}
                 onClearDatapoint={onClearSamples ? (uuid) => onClearSamples([uuid]) : null}
                 limit={limit}
             />

@@ -37,8 +37,8 @@ MenuItem.propTypes = {
 
 const TopMenuItemsConfig = [
     {icon: <HiOutlineCube className='fs-2 text-dark'/>, url: '/models', title: 'Models'},
-    {icon: <AiOutlineDatabase className='fs-3'/>, url: '/datasets', title: 'Datasets'},
-    {icon: <BsMinecartLoaded className='fs-3'/>, url: '/miners', title: 'Miners'}
+    {icon: <BsMinecartLoaded className='fs-3'/>, url: '/miners', title: 'Miners'},
+    {icon: <AiOutlineDatabase className='fs-3' />, url: '/datasets', title: 'Datasets'}
 ];
 
 const BottomMenuItemsConfig = [

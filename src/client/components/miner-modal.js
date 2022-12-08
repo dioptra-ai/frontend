@@ -107,141 +107,139 @@ const MinerModal = ({isOpen, onClose, onMinerSaved, defaultMiner = {}}) => {
 
 
     return (
-        <div>
-            <Modal
-                isOpen={isOpen}
-                onClose={() => onClose()}
-                title='Edit Miner'
-            >
-                <Form style={{minWidth: 900}} onSubmit={(e) => {
-                    e.preventDefault();
-                    saveMiner();
-                }}>
-                    <Container fluid>
-                        <Row classname='g-2'>
-                            <Col>
-                                <Form.Label className='mt-3 mb-0 w-100'>Miner Name</Form.Label>
-                                <InputGroup className='mt-1'>
-                                    <Form.Control
-                                        required
-                                        onChange={(e) => {
-                                            setMinerName(e.target.value);
-                                        }}
-                                        value={minerName}
-                                    />
-                                </InputGroup>
-                            </Col>
-                            <Col>
-                                <Form.Label className='mt-3 mb-0 w-100'>Strategy</Form.Label>
-                                <InputGroup className='mt-1'>
-                                    <Select onChange={setMinerStrategy} value={minerStrategy} options={minerStrategyOptions} />
-                                </InputGroup>
-                            </Col>
-                            <Col>
-                                <Form.Label className='mt-3 mb-0 w-100'>Select up to {minerSize || '-'} datapoints.</Form.Label>
-                                <InputGroup className='mt-1'>
-                                    <Form.Control required placeholder='N' type='number' min={1} value={minerSize} onChange={(e) => {
-                                        setMinerSize(Number(e.target.value));
-                                    }} />
-                                </InputGroup>
-                            </Col>
-                        </Row>
-                        <Row classname='g-2'>
-                            <Col>
-                                {
-                                    minerStrategy === 'NEAREST_NEIGHBORS' || minerStrategy === 'ACTIVATION' || minerStrategy === 'CORESET' ? (
-                                        <>
-                                            <Form.Label className='mt-3 mb-0 w-100'>Analysis Space</Form.Label>
-                                            <InputGroup className='mt-1 flex-column'>
-                                                <Form.Control as='select' className={'form-select w-100'} required
-                                                    value={minerAnalysisSpace}
-                                                    onChange={(e) => {
-                                                        setMinerAnalysisSpace(e.target.value);
-                                                    }}
-                                                >
-                                                    <option disabled>Select Analysis Space</option>
-                                                    <option value='embeddings'>
-                                            Embeddings
-                                                    </option>
-                                                    <option value='prediction.embeddings'>
-                                            Prediction Embeddings
-                                                    </option>
-                                                    <option value='groundtruth.embeddings'>
-                                            Groundtruth Embeddings
-                                                    </option>
-                                                    <option value='prediction.logits'>
-                                            Prediction Logits
-                                                    </option>
-                                                </Form.Control>
-                                            </InputGroup>
-                                        </>
-                                    ) : null
-                                }
-                            </Col>
-                            <Col>
-                                {
-                                    minerStrategy === 'NEAREST_NEIGHBORS' || minerStrategy === 'CORESET' ? (
-                                        <>
-                                            <Form.Label className='mt-3 mb-0 w-100'>Metric</Form.Label>
-                                            <InputGroup className='mt-1 flex-column'>
-                                                <Form.Control as='select' className={'form-select w-100'} required
-                                                    value={minerMetric}
-                                                    onChange={(e) => {
-                                                        setMinerMetric(e.target.value);
-                                                    }}
-                                                >
-                                                    <option disabled>Select Metric</option>
-                                                    <option value='euclidean'>
-                                                    Euclidean
-                                                    </option>
-                                                    <option value='cosine'>
-                                                    Cosine
-                                                    </option>
-                                                </Form.Control>
-                                            </InputGroup>
-                                        </>
-                                    ) : null
-                                }
-                            </Col>
-                        </Row>
-                        <hr/>
-                        <Row classname='g-2'>
-                            <Col>
-                                <Form.Label className='mt-3 mb-0 w-100'>Mined Data</Form.Label>
-                                <DataSelector
-                                    emptyOnUnfiltered
-                                    onChange={(data) => {
-                                        setMinerFilters(data.filters);
+        <Modal
+            isOpen={isOpen}
+            onClose={() => onClose()}
+            title='Edit Miner'
+        >
+            <Form style={{minWidth: 900}} onSubmit={(e) => {
+                e.preventDefault();
+                saveMiner();
+            }}>
+                <Container fluid>
+                    <Row classname='g-2'>
+                        <Col>
+                            <Form.Label className='mt-3 mb-0 w-100'>Miner Name</Form.Label>
+                            <InputGroup className='mt-1'>
+                                <Form.Control
+                                    required
+                                    onChange={(e) => {
+                                        setMinerName(e.target.value);
                                     }}
-                                    value={{filters: minerFilters}}
+                                    value={minerName}
                                 />
-                            </Col>
+                            </InputGroup>
+                        </Col>
+                        <Col>
+                            <Form.Label className='mt-3 mb-0 w-100'>Strategy</Form.Label>
+                            <InputGroup className='mt-1'>
+                                <Select onChange={setMinerStrategy} value={minerStrategy} options={minerStrategyOptions} />
+                            </InputGroup>
+                        </Col>
+                        <Col>
+                            <Form.Label className='mt-3 mb-0 w-100'>Select up to {minerSize || '-'} datapoints.</Form.Label>
+                            <InputGroup className='mt-1'>
+                                <Form.Control required placeholder='N' type='number' min={1} value={minerSize} onChange={(e) => {
+                                    setMinerSize(Number(e.target.value));
+                                }} />
+                            </InputGroup>
+                        </Col>
+                    </Row>
+                    <Row classname='g-2'>
+                        <Col>
                             {
-                                minerStrategy === 'NEAREST_NEIGHBORS' || minerStrategy === 'CORESET' ? (
-                                    <Col>
-                                        <Form.Label className='mt-3 mb-0 w-100'>Reference Data</Form.Label>
-                                        <DataSelector
-                                            emptyOnUnfiltered
-                                            onChange={(data) => {
-                                                setReferenceFilters(data.filters);
-                                            }}
-                                            value={{filters: referenceFilters}}
-                                        />
-                                    </Col>
+                                minerStrategy === 'NEAREST_NEIGHBORS' || minerStrategy === 'ACTIVATION' || minerStrategy === 'CORESET' ? (
+                                    <>
+                                        <Form.Label className='mt-3 mb-0 w-100'>Analysis Space</Form.Label>
+                                        <InputGroup className='mt-1 flex-column'>
+                                            <Form.Control as='select' className={'form-select w-100'} required
+                                                value={minerAnalysisSpace}
+                                                onChange={(e) => {
+                                                    setMinerAnalysisSpace(e.target.value);
+                                                }}
+                                            >
+                                                <option disabled>Select Analysis Space</option>
+                                                <option value='embeddings'>
+                                            Embeddings
+                                                </option>
+                                                <option value='prediction.embeddings'>
+                                            Prediction Embeddings
+                                                </option>
+                                                <option value='groundtruth.embeddings'>
+                                            Groundtruth Embeddings
+                                                </option>
+                                                <option value='prediction.logits'>
+                                            Prediction Logits
+                                                </option>
+                                            </Form.Control>
+                                        </InputGroup>
+                                    </>
                                 ) : null
                             }
-                        </Row>
-                    </Container>
-                    <Button
-                        className='w-100 text-white btn-submit mt-3'
-                        variant='primary'
-                        type='submit'
-                    >
-                        {defaultMiner?._id ? 'Update Miner' : 'Create Miner'}
-                    </Button>
-                </Form>
-            </Modal>
-        </div>
+                        </Col>
+                        <Col>
+                            {
+                                minerStrategy === 'NEAREST_NEIGHBORS' || minerStrategy === 'CORESET' ? (
+                                    <>
+                                        <Form.Label className='mt-3 mb-0 w-100'>Metric</Form.Label>
+                                        <InputGroup className='mt-1 flex-column'>
+                                            <Form.Control as='select' className={'form-select w-100'} required
+                                                value={minerMetric}
+                                                onChange={(e) => {
+                                                    setMinerMetric(e.target.value);
+                                                }}
+                                            >
+                                                <option disabled>Select Metric</option>
+                                                <option value='euclidean'>
+                                                    Euclidean
+                                                </option>
+                                                <option value='cosine'>
+                                                    Cosine
+                                                </option>
+                                            </Form.Control>
+                                        </InputGroup>
+                                    </>
+                                ) : null
+                            }
+                        </Col>
+                    </Row>
+                    <hr/>
+                    <Row classname='g-2'>
+                        <Col>
+                            <Form.Label className='mt-3 mb-0 w-100'>Mined Data</Form.Label>
+                            <DataSelector
+                                emptyOnUnfiltered
+                                onChange={(data) => {
+                                    setMinerFilters(data.filters);
+                                }}
+                                value={{filters: minerFilters}}
+                            />
+                        </Col>
+                        {
+                            minerStrategy === 'NEAREST_NEIGHBORS' || minerStrategy === 'CORESET' ? (
+                                <Col>
+                                    <Form.Label className='mt-3 mb-0 w-100'>Reference Data</Form.Label>
+                                    <DataSelector
+                                        emptyOnUnfiltered
+                                        onChange={(data) => {
+                                            setReferenceFilters(data.filters);
+                                        }}
+                                        value={{filters: referenceFilters}}
+                                    />
+                                </Col>
+                            ) : null
+                        }
+                    </Row>
+                </Container>
+                <Button
+                    className='w-100 text-white btn-submit mt-3'
+                    variant='primary'
+                    type='submit'
+                >
+                    {defaultMiner?._id ? 'Update Miner' : 'Create Miner'}
+                </Button>
+            </Form>
+        </Modal>
     );
 };
 

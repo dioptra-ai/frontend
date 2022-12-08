@@ -9,7 +9,7 @@ const CountEvents = ({filters, ...rest}) => {
     return (
         <Async
             renderData={([d]) => (
-                <span>{d?.value ? Number(d.value).toLocaleString() : d}</span>
+                <span>{d?.value !== undefined ? Number(d.value).toLocaleString() : d}</span>
             )}
             fetchData={() => metricsClient('throughput', {filters})}
             refetchOnChanged={[JSON.stringify(filters)]}

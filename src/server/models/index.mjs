@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import * as pg from 'pg';
 
 import MlModel from './ml-model.mjs';
 import OrganizationMembership from './organization-membership.mjs';
@@ -31,3 +32,19 @@ mongoose.connection.once('open', () => {
         }
     });
 });
+
+const postgresPool = new pg.default.Pool({
+    host: process.env.POSTGRES_HOST,
+    user: process.env.POSTGRES_USER,
+    password: process.env.POSTGRES_PASSWORD,
+    application_name: 'frontend',
+    database: 'dioptra'
+});
+
+export const postgresClient = {
+    query: (text, params) => {
+        console.log('PostgreSQL query: ', text, params);
+
+        return postgresPool.query(text, params);
+    }
+};

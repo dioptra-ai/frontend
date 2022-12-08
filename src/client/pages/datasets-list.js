@@ -1,12 +1,17 @@
+import {useState} from 'react';
 import Table from 'react-bootstrap/Table';
 import {Button} from 'react-bootstrap';
+import {useHistory} from 'react-router-dom';
 
 import Async from 'components/async';
 import TopBar from 'pages/common/top-bar';
-import metricsClient from 'clients/metrics';
 import Menu from 'components/menu';
+import baseJSONClient from 'clients/base-json-client';
+import DatasetModal from 'components/dataset-modal';
 
 const DatasetsList = () => {
+    const history = useHistory();
+    const [isDatasetModalOpen, setIsDatasetModalOpen] = useState(false);
 
     return (
         <Menu>
@@ -16,28 +21,28 @@ const DatasetsList = () => {
                     <span className='h2 fs-1 text-dark bold-text'>Datasets</span>
                     <Button
                         className='py-3 fs-6 bold-text px-5 text-white'
-                        onClick={() => console.log('nothing')}
+                        onClick={() => setIsDatasetModalOpen(true)}
                         variant='primary'
                     >
                         CREATE NEW DATASET
                     </Button>
                 </div>
                 <Async
-                    fetchData={() => metricsClient('datasets')}
-                    renderData={(benchmarks) => (
+                    fetchData={() => baseJSONClient('/api/datasets')}
+                    renderData={(datasets) => (
                         <Table className='models-table mt-3'>
                             <thead className='align-middle text-secondary'>
                                 <tr className='border-0 border-bottom border-mercury'>
-                                    <th className='text-secondary'>Dataset ID</th>
-                                    <th className='text-secondary'>Size</th>
+                                    <th className='text-secondary'>ID</th>
+                                    <th className='text-secondary'>Name</th>
                                     <th className='text-secondary'>Created At</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {benchmarks.map(({dataset_id, size, created_at}, i) => (
-                                    <tr className='cursor-pointer' key={i}>
-                                        <td>{dataset_id}</td>
-                                        <td>{size.toLocaleString()}</td>
+                                {datasets.map(({uuid, display_name, created_at}, i) => (
+                                    <tr className='cursor-pointer' key={i} onClick={() => history.push(`/datasets/${uuid}`)}>
+                                        <td className='text-dark'>{uuid}</td>
+                                        <td>{display_name}</td>
                                         <td>{new Date(created_at).toLocaleString()}</td>
                                     </tr>
                                 ))}
@@ -46,6 +51,14 @@ const DatasetsList = () => {
                     )}
                 />
             </div>
+            <DatasetModal
+                isOpen={isDatasetModalOpen}
+                onClose={() => setIsDatasetModalOpen(false)}
+                onDatasetSaved={({uuid}) => {
+                    setIsDatasetModalOpen(false);
+                    history.push(`/datasets/${uuid}`);
+                }}
+            />
         </Menu>
     );
 };

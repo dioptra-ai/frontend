@@ -8,6 +8,13 @@ if (!precannedOrgId) {
 
 const Schema = mongoose.Schema;
 const organizationSchema = new Schema({
+    _id: {
+        type: Schema.Types.ObjectId,
+        default: () => new mongoose.Types.ObjectId(),
+        get (_id) { // eslint-disable-line func-names
+            return _id.toHexString();
+        }
+    },
     name: {type: String, required: true}
 }, {timestamps: true});
 

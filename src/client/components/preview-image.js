@@ -2,7 +2,7 @@ import {useState} from 'react';
 import PropTypes from 'prop-types';
 import {TransformComponent, TransformWrapper} from 'react-zoom-pan-pinch';
 import {VscDiscard, VscZoomIn, VscZoomOut} from 'react-icons/vsc';
-import {IoPricetagSharp} from 'react-icons/io5';
+import {MdOutlineVerifiedUser} from 'react-icons/md';
 import Form from 'react-bootstrap/Form';
 
 import SignedImage from 'components/signed-image';
@@ -30,7 +30,9 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
         <div ref={ref} onClick={onClick} style={{position: 'relative'}}>
             <TransformWrapper disabled={!zoomable}>
                 {({zoomIn, zoomOut, resetTransform}) => (
-                    <div className={`${onClick ? 'cursor-pointer' : zoomable ? 'cursor-grab' : ''} d-flex flex-column align-items-center`} >
+                    <div className={`${onClick ? 'cursor-pointer' : zoomable ? 'cursor-grab' : ''} d-flex flex-column align-items-center overflow-hidden`} style={{
+                        backgroundColor: '#18191B'
+                    }}>
                         {zoomable ? (
                             <div className='position-absolute bg-white px-2 d-flex align-items-center' style={{zIndex: 1, top: -1, left: -1}}>
                                 <VscZoomOut className='cursor-pointer fs-2' onClick={() => zoomOut()}/>
@@ -47,7 +49,8 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
                                 ) : null}
                             </div>
                         ) : null}
-                        <TransformComponent>
+                        {/* Overflow hidden at the parent to allow more breathing room to the image. */}
+                        <TransformComponent wrapperStyle={{overflow: 'visible'}}>
                             {videoUrl ? (
                                 <SeekableVideo
                                     url={videoUrl}
@@ -87,7 +90,7 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
                                                 width: box['width'] * scale,
                                                 top: box['top'] * scale,
                                                 left: box['left'] * scale,
-                                                border: '1px solid',
+                                                border: '1px dashed',
                                                 borderColor: getHexColor(p['class_name']),
                                                 boxSizing: 'content-box'
                                             } : {
@@ -160,7 +163,7 @@ const PreviewImage = ({datapoint, videoSeekToSec, videoControls, onClick, zoomab
                                                     bottom: 0
                                                 })
                                             }}
-                                            >{g['class_name']} {g['class_name'] ? <IoPricetagSharp /> : ''}</span>
+                                            >{g['class_name']} {g['class_name'] ? <MdOutlineVerifiedUser /> : ''}</span>
                                         </div>
                                     );
                                 })

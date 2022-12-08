@@ -3,3 +3,9 @@ app:
   awsLoadBalancerSubnets:
   awsApiGatewayPlanId: 'ujyzsg'
 precannedOrgId: 629e67be5db879bd69921a65
+postgres:
+  host: prod-postgresql-cluster.cluster-c58vxsd50oik.us-east-2.rds.amazonaws.com
+  user: postgres
+  secret:
+    name: "dioptra-postgres"
+    key: "password"
