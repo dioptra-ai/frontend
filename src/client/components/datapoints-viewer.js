@@ -21,11 +21,11 @@ import PreviewNER from './preview-ner';
 const EventType = ({datapoint: {prediction, groundtruth}, size = 4}) => (
     (prediction || groundtruth) ? (
         <OverlayTrigger overlay={<Tooltip>This is an annotation</Tooltip>}>
-            <div className={`text-muted d-flex fs-${size} cursor-help`}><BsTags /></div>
+            <div className={`text-muted d-flex fs-${size}`} style={{cursor: 'help'}}><BsTags /></div>
         </OverlayTrigger>
     ) : (
         <OverlayTrigger overlay={<Tooltip>This is a data row</Tooltip>}>
-            <div className={`text-muted d-flex fs-${size - 1} cursor-help`}><HiOutlineRectangleStack/></div>
+            <div className={`text-muted d-flex fs-${size - 1}`} style={{cursor: 'help'}}><HiOutlineRectangleStack/></div>
         </OverlayTrigger>
     )
 );
