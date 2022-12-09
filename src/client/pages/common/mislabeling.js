@@ -18,24 +18,35 @@ import PreviewTextClassification from 'components/preview-text-classification';
 import PreviewDetails from 'components/preview-details';
 import PreviewNER from 'components/preview-ner';
 import {setupComponent} from 'helpers/component-helper';
+import baseJSONClient from 'clients/base-json-client';
 
 const FakeStatefulMislabeling = ({initialDatapoints, userStore, setExampleUUIDInModal}) => {
     const [datapoints, setDatapoints] = useState(initialDatapoints);
     const [selectedRows, setSelectedRows] = useState([]);
 
-    const handleKeyPress = (event) => {
-        console.log(event.key, event.ctrlKey);
+    const handleKeyPress = async (e) => {
 
-        if (event.key === 'a' && (event.ctrlKey || event.metaKey)) {
-            event.preventDefault();
+        if (e.key === 'a' && (e.ctrlKey || e.metaKey)) {
+            await handleAcceptLabel(datapoints[0], e);
+        } else if (e.key === 's' && (e.ctrlKey || e.metaKey)) {
+            e.preventDefault();
             setDatapoints(datapoints.filter((d) => d['uuid'] !== datapoints[0]['uuid']));
-        } else if (event.key === 's' && (event.ctrlKey || event.metaKey)) {
-            event.preventDefault();
-            setDatapoints(datapoints.filter((d) => d['uuid'] !== datapoints[0]['uuid']));
-        } else if (event.key === 'd' && (event.ctrlKey || event.metaKey)) {
-            event.preventDefault();
+        } else if (e.key === 'd' && (e.ctrlKey || e.metaKey)) {
+            e.preventDefault();
             setDatapoints(datapoints.filter((d) => d['uuid'] !== datapoints[0]['uuid']));
         }
+    };
+    const handleAcceptLabel = async (event, domEvent) => {
+        domEvent.preventDefault();
+        setDatapoints(datapoints.filter((d) => d['uuid'] !== event['uuid']));
+        await baseJSONClient('/api/events', {
+            method: 'post',
+            body: {
+                eventId: event['uuid'],
+                column: 'groundtruth',
+                value: `{"class_name": "${event['prediction']['class_name']}"}`
+            }
+        });
     };
 
     useEffect(() => {
@@ -139,7 +150,7 @@ const FakeStatefulMislabeling = ({initialDatapoints, userStore, setExampleUUIDIn
                             <div className='d-flex align-items-center pb-1 mb-1' style={{
                                 borderBottom: '1px solid #e0e0e0'
                             }}>
-                                <OverlayTrigger overlay={<Tooltip>Add to Data Cart</Tooltip>}>
+                                <OverlayTrigger overlay={<Tooltip>Add to data cart</Tooltip>}>
                                     <button
                                         className='d-flex text-dark border-0 bg-transparent click-down fs-2' onClick={() => {
 
@@ -151,7 +162,7 @@ const FakeStatefulMislabeling = ({initialDatapoints, userStore, setExampleUUIDIn
                                         <BsCartPlus className='fs-2 ps-2 cursor-pointer' />
                                     </button>
                                 </OverlayTrigger>
-                                <OverlayTrigger overlay={<Tooltip>Delete Datapoint</Tooltip>}>
+                                <OverlayTrigger overlay={<Tooltip>Delete data row</Tooltip>}>
                                     <div className='d-flex flex-column align-items-center'>
                                         <button
                                             onClick={() => setDatapoints(datapoints.filter(({uuid}) => uuid !== row.original.uuid))} className='d-flex text-dark border-0 bg-transparent click-down fs-2'
@@ -179,10 +190,10 @@ const FakeStatefulMislabeling = ({initialDatapoints, userStore, setExampleUUIDIn
                                     ) : null
                                 }
                                 <div className='d-flex align-items-center'>
-                                    <OverlayTrigger overlay={<Tooltip>Accept Suggested Label</Tooltip>}>
+                                    <OverlayTrigger overlay={<Tooltip>Accept suggested label</Tooltip>}>
                                         <div className='d-flex flex-column align-items-center'>
                                             <button
-                                                onClick={() => setDatapoints(datapoints.filter(({uuid}) => uuid !== row.original.uuid))}
+                                                onClick={handleAcceptLabel.bind(null, row.original)}
                                                 className='d-flex text-dark border-0 bg-transparent click-down fs-2'
                                             >
                                                 <BsPatchCheck className='fs-2 ps-2 cursor-pointer' />
@@ -198,7 +209,7 @@ const FakeStatefulMislabeling = ({initialDatapoints, userStore, setExampleUUIDIn
                                             }
                                         </div>
                                     </OverlayTrigger>
-                                    <OverlayTrigger overlay={<Tooltip>Reject Suggested Label</Tooltip>}>
+                                    <OverlayTrigger overlay={<Tooltip>Reject suggested label</Tooltip>}>
                                         <div className='d-flex flex-column align-items-center'>
                                             <button
                                                 onClick={() => setDatapoints(datapoints.filter(({uuid}) => uuid !== row.original.uuid))}
