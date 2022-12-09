@@ -13,6 +13,7 @@ import InfrastructureRouter from './controllers/infrastructure.mjs';
 import TasksRouter from './controllers/tasks.mjs';
 import DatasetsRouter from './controllers/datasets.mjs';
 import DatapointsRouter from './controllers/datapoints.mjs';
+import EventsRouter from './controllers/events.mjs';
 
 const ApiRouter = express.Router();
 
@@ -30,5 +31,6 @@ ApiRouter.use('/ingestion', IngestionRouter);
 ApiRouter.use('/infrastructure', InfrastructureRouter);
 ApiRouter.use('/datapoints', DatapointsRouter);
 ApiRouter.use('/datasets', DatasetsRouter);
+ApiRouter.use('/events', EventsRouter);
 
 export default ApiRouter;
