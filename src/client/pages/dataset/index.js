@@ -32,7 +32,7 @@ const Dataset = () => {
                             <h4>{dataset['display_name']}</h4>
                             <h6 className='text-muted'>Created {new Date(dataset['created_at']).toLocaleString()}</h6>
                             <Async
-                                fetchData={() => baseJSONClient(`/api/datasets/${datasetId}/datapoints`)}
+                                fetchData={() => baseJSONClient(`/api/datasets/${datasetId}/datapoints`, {memoized: true})}
                                 renderData={(datapoints) => (
                                     <>
                                         <a href='#' onClick={() => setIsDatasetEditOpen(true)}>Edit</a>
@@ -95,7 +95,7 @@ const Dataset = () => {
             />
             <Container fluid>
                 <Async
-                    fetchData={() => baseJSONClient(`/api/datasets/${datasetId}/datapoints`)}
+                    fetchData={() => baseJSONClient(`/api/datasets/${datasetId}/datapoints`, {memoized: true})}
                     refetchOnChanged={[datasetId, lastUpdatedOn]}
                     renderData={(datapoints) => (
                         datapoints.length ? (
