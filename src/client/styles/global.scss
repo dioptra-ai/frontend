@@ -36,6 +36,16 @@
     }
 }
 
+a, a:not([href]):not([class]) {
+    color: theme-color('primary');
+    text-decoration: none;
+    cursor: pointer;
+    &:hover {
+        color: currentcolor !important;
+        text-decoration: underline !important;
+    }
+}
+
 b {
     font-family: 'Inter Extra Bold';
 }

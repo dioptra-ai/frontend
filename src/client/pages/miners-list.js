@@ -3,14 +3,10 @@ import Menu from 'components/menu';
 import Async from 'components/async';
 import MinerModal from 'components/miner-modal';
 import moment from 'moment';
-import slugify from 'slugify';
 import TopBar from 'pages/common/top-bar';
 import {useState} from 'react';
 import Table from 'react-bootstrap/Table';
-import {IoDownloadOutline} from 'react-icons/io5';
-import {BarLoader} from 'react-spinners';
-import {Button, OverlayTrigger, Tooltip} from 'react-bootstrap';
-import {saveAs} from 'file-saver';
+import {Button} from 'react-bootstrap';
 import baseJSONClient from 'clients/base-json-client';
 
 const MinersList = () => {
@@ -43,9 +39,6 @@ const MinersList = () => {
                                     <th className='text-secondary'>Last Run</th>
                                     <th className='text-secondary'>Status</th>
                                     <th className='text-secondary'>Size</th>
-                                    <th className='text-secondary'>
-                                        Download
-                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -64,26 +57,6 @@ const MinersList = () => {
                                                 <td>{miner.task?.['status']}</td>
                                                 <td>
                                                     {miner.task?.['result_size'] || 0}{' '}
-                                                </td>
-                                                <td>
-                                                    {
-                                                        miner.task?.['status'] === 'PENDING' ? (
-                                                            <BarLoader loading size={40} />
-                                                        ) : miner.task?.['status'] === 'SUCCESS' && miner.task?.['result_size'] ? (
-                                                            <OverlayTrigger overlay={<Tooltip>Download results</Tooltip>}>
-                                                                <IoDownloadOutline
-                                                                    className='fs-3 cursor-pointer'
-                                                                    onClick={async (e) => {
-                                                                        e.stopPropagation();
-
-                                                                        const datapoints = await baseJSONClient(`/api/tasks/miners/results/${miner._id}?as_csv=true`);
-
-                                                                        saveAs(new Blob([datapoints], {type: 'text/csv;charset=utf-8'}), `${slugify(miner.display_name)}.csv`);
-                                                                    }}
-                                                                />
-                                                            </OverlayTrigger>
-                                                        ) : null
-                                                    }
                                                 </td>
                                             </tr>
                                         );

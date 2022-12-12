@@ -1,6 +1,8 @@
 import {useState} from 'react';
 import {useHistory, useParams} from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
+import {saveAs} from 'file-saver';
+import slugify from 'slugify';
 
 import Select from 'components/select';
 import MinerModal from 'components/miner-modal';
@@ -109,22 +111,16 @@ const Miner = () => {
                                         refetchOnChanged={[minerId, lastRequestedRefresh]}
                                         renderData={({task}) => task ? (
                                             <>
-                                                <a href='#' onClick={() => setIsDatasetModalOpen(true)}>Export to Dataset</a>
-                                                {isDatasetModalOpen ? (
-                                                    <DatasetModal
-                                                        isOpen
-                                                        onDatasetSaved={(dataset) => {
-                                                            setIsDatasetModalOpen(false);
-                                                            history.push(`/datasets/${dataset['uuid']}`);
-                                                        }}
-                                                        onClose={() => setIsDatasetModalOpen(false)}
-                                                        defaultFilters={[{
-                                                            left: 'uuid',
-                                                            op: 'in',
-                                                            right: task['result']
-                                                        }]}
-                                                    />
-                                                ) : null}
+                                                {task['result'] ? (
+                                                    <>
+                                                        <a onClick={() => setIsDatasetModalOpen(true)}>Export to Dataset</a>
+                                                    &nbsp;|&nbsp;
+                                                        <a onClick={async () => {
+                                                            const datapoints = await baseJSONClient(`/api/tasks/miners/results/${minerId}?as_csv=true`);
+
+                                                            saveAs(new Blob([datapoints], {type: 'text/csv;charset=utf-8'}), `${slugify(miner['display_name'])}.csv`);
+                                                        }}>Download as CSV</a>
+                                                    </>) : null}
                                                 <PreviewDetails sample={task}/>
                                                 {
                                                     task['status'] === 'SUCCESS' ? (
@@ -182,6 +178,22 @@ const Miner = () => {
                                                         </>
                                                     ) : null
                                                 }
+                                                {isDatasetModalOpen ? (
+                                                    <DatasetModal
+                                                        isOpen
+                                                        onDatasetSaved={(dataset) => {
+                                                            setIsDatasetModalOpen(false);
+                                                            history.push(`/datasets/${dataset['uuid']}`);
+                                                        }}
+                                                        onClose={() => setIsDatasetModalOpen(false)}
+                                                        defaultFilters={[{
+                                                            left: 'uuid',
+                                                            op: 'in',
+                                                            right: task['result']
+                                                        }]}
+                                                        defaultDisplayName={`Results of "${miner['display_name']}"`}
+                                                    />
+                                                ) : null}
                                             </>
                                         ) : <span>Miner not Run</span>
                                         }
