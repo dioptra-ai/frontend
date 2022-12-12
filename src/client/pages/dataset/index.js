@@ -33,7 +33,6 @@ const Dataset = () => {
                             <h6 className='text-muted'>Created {new Date(dataset['created_at']).toLocaleString()}</h6>
                             <Async
                                 fetchData={() => baseJSONClient(`/api/datasets/${datasetId}/datapoints`)}
-                                // refetchOnChanged={[datasetId, lastUpdatedOn]}
                                 renderData={(datapoints) => (
                                     <>
                                         <a href='#' onClick={() => setIsDatasetEditOpen(true)}>Edit</a>

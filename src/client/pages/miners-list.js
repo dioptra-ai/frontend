@@ -8,21 +8,18 @@ import TopBar from 'pages/common/top-bar';
 import {useState} from 'react';
 import Table from 'react-bootstrap/Table';
 import {IoDownloadOutline} from 'react-icons/io5';
-import {AiOutlineDelete} from 'react-icons/ai';
 import {BarLoader} from 'react-spinners';
 import {Button, OverlayTrigger, Tooltip} from 'react-bootstrap';
 import {saveAs} from 'file-saver';
 import baseJSONClient from 'clients/base-json-client';
 
 const MinersList = () => {
-    const [lastUpdateRequested, setLastUpdateRequested] = useState(null); // Change this and create a miner store.
     const [isMinerModalOpen, setIsMinerModalOpen] = useState(false);
     const history = useHistory();
 
     return (
         <Async
             fetchData={() => baseJSONClient('/api/tasks/miners')}
-            refetchOnChanged={[lastUpdateRequested]}
             renderData={(miners) => (
                 <Menu>
                     <TopBar hideTimePicker />
@@ -48,9 +45,6 @@ const MinersList = () => {
                                     <th className='text-secondary'>Size</th>
                                     <th className='text-secondary'>
                                         Download
-                                    </th>
-                                    <th className='text-secondary d-flex justify-content-end'>
-                                        Delete
                                     </th>
                                 </tr>
                             </thead>
@@ -90,29 +84,6 @@ const MinersList = () => {
                                                             </OverlayTrigger>
                                                         ) : null
                                                     }
-                                                </td>
-                                                <td>
-                                                    <div className='d-flex justify-content-center align-content-center align-items-center'>
-                                                        <OverlayTrigger overlay={
-                                                            <Tooltip>Delete this miner</Tooltip>
-                                                        }>
-                                                            <AiOutlineDelete
-                                                                className='fs-3 cursor-pointer'
-                                                                onClick={async (e) => {
-                                                                    e.preventDefault();
-                                                                    e.stopPropagation();
-
-                                                                    await baseJSONClient('/api/tasks/miners/delete', {
-                                                                        method: 'POST',
-                                                                        body: {
-                                                                            miner_id: miner._id
-                                                                        }
-                                                                    });
-                                                                    setLastUpdateRequested(Date.now());
-                                                                }}
-                                                            />
-                                                        </OverlayTrigger>
-                                                    </div>
                                                 </td>
                                             </tr>
                                         );

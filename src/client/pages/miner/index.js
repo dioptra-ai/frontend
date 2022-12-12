@@ -43,6 +43,16 @@ const Miner = () => {
         });
         setLastRequestedRefresh(Date.now());
     };
+    const handleDeleteMiner = async () => {
+
+        if (window.confirm('Are you sure you want to delete this miner?')) {
+            await baseJSONClient('/api/tasks/miners/delete', {
+                method: 'post',
+                body: {miner_id: minerId}
+            });
+            history.push('/miners');
+        }
+    };
 
     return (
         <Menu>
@@ -70,6 +80,8 @@ const Miner = () => {
                             <a href='#' onClick={handleRunMiner}>Run</a>
                             &nbsp;|&nbsp;
                             <a href='#' onClick={handleResetMiner}>Reset</a>
+                            &nbsp;|&nbsp;
+                            <a href='#' style={{color: 'red'}} onClick={handleDeleteMiner}>Delete</a>
                         </div>
                         <Container fluid>
                             <div className='text-dark p-3'>
