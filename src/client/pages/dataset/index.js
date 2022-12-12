@@ -15,7 +15,8 @@ import DatasetModal from 'components/dataset-modal';
 const Dataset = () => {
     const {datasetId} = useParams();
     const history = useHistory();
-    const [isDatasetModalOpen, setIsDatasetModalOpen] = useState(false);
+    const [isDatasetEditOpen, setIsDatasetEditOpen] = useState(false);
+    const [isDatasetCloneOpen, setIsDatasetCloneOpen] = useState(false);
     const [selectedEvents, setSelectedEvents] = useState([]);
     const [lastUpdatedOn, setLastUpdatedOn] = useState(new Date());
 
@@ -24,7 +25,7 @@ const Dataset = () => {
             <TopBar hideTimePicker />
             <Async
                 fetchData={() => baseJSONClient(`/api/datasets/${datasetId}`)}
-                refetchOnChanged={[datasetId]}
+                refetchOnChanged={[datasetId, lastUpdatedOn]}
                 renderData={(dataset) => (
                     <>
                         <div className='bg-white-blue text-dark p-3'>
@@ -32,10 +33,12 @@ const Dataset = () => {
                             <h6 className='text-muted'>Created {new Date(dataset['created_at']).toLocaleString()}</h6>
                             <Async
                                 fetchData={() => baseJSONClient(`/api/datasets/${datasetId}/datapoints`)}
-                                refetchOnChanged={[datasetId, lastUpdatedOn]}
+                                // refetchOnChanged={[datasetId, lastUpdatedOn]}
                                 renderData={(datapoints) => (
                                     <>
-                                        <a href='#' onClick={() => setIsDatasetModalOpen(true)}>Edit</a>
+                                        <a href='#' onClick={() => setIsDatasetEditOpen(true)}>Edit</a>
+                                        &nbsp;|&nbsp;
+                                        <a href='#' onClick={() => setIsDatasetCloneOpen(true)}>Clone</a>
                                         &nbsp;|&nbsp;
                                         <a href='#' onClick={async () => {
                                             const data = await metricsClient('select', {
@@ -62,19 +65,28 @@ const Dataset = () => {
                                                 history.push('/datasets');
                                             }
                                         }}>Delete</a>
-                                        &nbsp;|&nbsp;
-                                        <span className='text-muted'>{datapoints.length} datapoints</span>
-                                        <DatasetModal
-                                            isOpen={isDatasetModalOpen}
-                                            onClose={() => setIsDatasetModalOpen(false)}
-                                            onDatasetSaved={() => setIsDatasetModalOpen(false)}
-                                            dataset={dataset}
-                                            defaultFilters={datapoints.length ? [{
-                                                left: 'request_id',
-                                                op: 'in',
-                                                right: datapoints.map((datapoint) => datapoint['request_id'])
-                                            }] : null}
-                                        />
+                                        {(isDatasetEditOpen || isDatasetCloneOpen) ? (
+                                            <DatasetModal
+                                                isOpen
+                                                onClose={() => {
+                                                    setIsDatasetEditOpen(false);
+                                                    setIsDatasetCloneOpen(false);
+                                                }}
+                                                onDatasetSaved={({uuid}) => {
+                                                    setIsDatasetEditOpen(false);
+                                                    setIsDatasetCloneOpen(false);
+                                                    setLastUpdatedOn(new Date());
+                                                    history.push(`/datasets/${uuid}`);
+                                                }}
+                                                dataset={isDatasetEditOpen ? dataset : null}
+                                                defaultDisplayName={`Clone of ${dataset['display_name']}`}
+                                                defaultFilters={datapoints.length ? [{
+                                                    left: 'request_id',
+                                                    op: 'in',
+                                                    right: datapoints.map((datapoint) => datapoint['request_id'])
+                                                }] : null}
+                                            />
+                                        ) : null}
                                     </>
                                 )}
                             />

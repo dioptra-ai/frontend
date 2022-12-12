@@ -76,7 +76,7 @@ const MinersList = () => {
                                                         miner.task?.['status'] === 'PENDING' ? (
                                                             <BarLoader loading size={40} />
                                                         ) : miner.task?.['status'] === 'SUCCESS' && miner.task?.['result_size'] ? (
-                                                            <OverlayTrigger overlay={<Tooltip>Download datapoints</Tooltip>}>
+                                                            <OverlayTrigger overlay={<Tooltip>Download results</Tooltip>}>
                                                                 <IoDownloadOutline
                                                                     className='fs-3 cursor-pointer'
                                                                     onClick={async (e) => {

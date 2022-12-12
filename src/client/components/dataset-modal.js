@@ -6,8 +6,8 @@ import Modal from 'components/modal';
 import baseJSONClient from 'clients/base-json-client';
 import metricsClient from 'clients/metrics';
 
-const DatasetModal = ({isOpen, onDatasetSaved, onClose, defaultDatapoints, defaultFilters, dataset}) => {
-    const [displayName, setDisplayName] = useState(dataset ? dataset['display_name'] : '');
+const DatasetModal = ({isOpen, onDatasetSaved, onClose, defaultDatapoints, defaultDisplayName, defaultFilters, dataset}) => {
+    const [displayName, setDisplayName] = useState(dataset ? dataset['display_name'] : defaultDisplayName);
     const [datapoints, setDatapoints] = useState(defaultDatapoints);
     const handleSaveDataset = async () => {
         const savedDataset = await baseJSONClient('/api/datasets', {
@@ -76,7 +76,8 @@ DatasetModal.propTypes = {
     onClose: PropTypes.any,
     onDatasetSaved: PropTypes.func,
     defaultDatapoints: PropTypes.array,
-    defaultFilters: PropTypes.array
+    defaultFilters: PropTypes.array,
+    defaultDisplayName: PropTypes.string
 };
 
 export default DatasetModal;
