@@ -58,8 +58,15 @@ const Table = ({columns, data, onSelectedRowsChange, getRowProps}) => {
                             // Add the sorting props to control sorting. For this example
                             // we can add them into the header props
                             <th className={`text-center py-3 border-0 ${column.disableSortBy ? '' : 'cursor-pointer'}`} key={i}
-                                {...column.getHeaderProps(column.getSortByToggleProps())}
-                                style={{width: column.width || `${100 / headerGroup.headers.length}%`, textOverflow: 'ellipsis', overflow: 'hidden'}}
+                                {...column.getHeaderProps({
+                                    ...column.getSortByToggleProps(),
+                                    style: {
+                                        width: column.width,
+                                        maxWidth: column.maxWidth,
+                                        textOverflow: 'ellipsis',
+                                        overflow: 'hidden'
+                                    }
+                                })}
                                 title={column.render('Header')}
                             >
                                 {column.render('Header')}

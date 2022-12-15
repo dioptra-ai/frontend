@@ -69,8 +69,8 @@ const HistogramCell = ({cell}) => {
     const {histogram: [hist, bins]} = cell.row.original;
 
     return (
-        <>
-            <ResponsiveContainer height={60} width='100%'>
+        <div className='w-100 d-flex justify-content-center'>
+            <ResponsiveContainer height={60} width={200}>
                 <BarChart data={hist.map((v, i) => ({
                     name: `${Number(bins[i]).toFixed(2)} - ${Number(bins[i + 1]).toFixed(2)}`,
                     value: v
@@ -84,7 +84,7 @@ const HistogramCell = ({cell}) => {
                     <XAxis dataKey='name' tick={false} hide/>
                 </BarChart>
             </ResponsiveContainer>
-        </>
+        </div>
     );
 };
 
