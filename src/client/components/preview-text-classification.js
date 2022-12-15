@@ -10,8 +10,10 @@ const PreviewTextClassification = ({datapoint, labels, onClick, ...rest}) => { /
 
     return (
         <div className={onClick ? 'cursor-pointer' : ''} onClick={onClick}>
-            <i>{datapoint['text']}</i>
-            <Row className='mt-2'>
+            <div className='my-2'>
+                <span className='text-muted'>Query: </span><i>{datapoint['text']}</i>
+            </div>
+            <Row>
                 {groundtruth ? <Col xl={6}><span className='text-nowrap'>Ground Truth: </span><i>{groundtruth['class_name']}</i></Col> : null}
                 {prediction ? <Col xl={6}><span className='text-nowrap'>Prediction: </span><i>{prediction['class_name']}</i></Col> : null}
             </Row>

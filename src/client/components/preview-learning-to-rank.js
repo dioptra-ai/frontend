@@ -4,13 +4,12 @@ import {default as truncate} from 'truncate';
 import Table from './table';
 
 const PreviewLearningToRank = ({datapoint, labels, displayDetails, onClick}) => { // eslint-disable-line no-unused-vars
-    const sortedByGroundtruth = labels?.sort((a, b) => (a['groundtruth']?.['relevance'] || 0) - (b['groundtruth']?.['relevance'] || 0));
-    const sortedByPrediction = labels?.sort((a, b) => (a['prediction']?.['score'] || 0) - (b['prediction']?.['score'] || 0));
+    const sortedByScore = labels?.sort((a, b) => (b['prediction']?.['score'] || 0) - (a['prediction']?.['score'] || 0));
 
     return (
         <div className={onClick ? 'cursor-pointer' : ''} onClick={onClick}>
             <div className='my-2'>
-                <i>{datapoint['text']}</i>
+                <span className='text-muted'>Query: </span><i>{datapoint['text']}</i>
             </div>
             {
                 displayDetails ?
@@ -20,22 +19,24 @@ const PreviewLearningToRank = ({datapoint, labels, displayDetails, onClick}) => 
                                 Header: 'Rank',
                                 accessor: 'rank'
                             }, {
-                                Header: 'Ground Truth',
-                                accessor: 'groundtruth',
+                                Header: 'Score',
+                                accessor: 'score',
                                 disableSortBy: true
                             }, {
                                 Header: 'Prediction',
                                 accessor: 'prediction',
                                 disableSortBy: true
+                            }, {
+                                Header: 'Relevance',
+                                accessor: 'relevance'
                             }]}
-                            data={sortedByGroundtruth.map((l, i) => ({
-                                groundtruth: (
-                                    <div style={{minWidth: 200}} title={l['text']}>{truncate(l['text'], 100)}</div>
-                                ),
+                            data={sortedByScore.map((l, i) => ({
+                                rank: i + 1,
+                                score: Number(l['prediction']?.['score']),
+                                relevance: Number(l['groundtruth']?.['relevance']),
                                 prediction: (
-                                    <div style={{minWidth: 200}} title={sortedByPrediction[i]['text']}>{truncate(sortedByPrediction[i]['text'], 100)}</div>
-                                ),
-                                rank: i + 1
+                                    <div style={{minWidth: 200}} title={sortedByScore[i]['text']}>{truncate(sortedByScore[i]['text'], 100)}</div>
+                                )
                             }))}
                         />
                     ) : <div>Loading annotations...</div> :
