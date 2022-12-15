@@ -66,7 +66,7 @@ const Alerts = ({alerts, onPageChange, onDeleteRefreshCallback}) => {
             <div className='alerts'>
                 <div className='header mb-3'>
                     <p className='bold-text fs-3 text-dark'>Alerts</p>
-                    <Link to={'/models/add-alert'}>
+                    <a>
                         <Button
                             className='text-white bold-text fs-6'
                             variant='primary'
@@ -74,7 +74,7 @@ const Alerts = ({alerts, onPageChange, onDeleteRefreshCallback}) => {
                             <FontIcon className='text-white' icon='Plus' size={10} />
                             ADD ALERT
                         </Button>
-                    </Link>
+                    </a>
                 </div>
                 <div className='border rounded px-3'>
                     <div className='table-row py-4 text-secondary bold-text'>
