@@ -2,21 +2,26 @@ import PropTypes from 'prop-types';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 
-const PreviewTextClassification = ({sample, onClick, ...rest}) => { // eslint-disable-line no-unused-vars
+const PreviewTextClassification = ({datapoint, labels, onClick, ...rest}) => { // eslint-disable-line no-unused-vars
+    const groundtruths = labels?.map((l) => l['groundtruth']);
+    const predictions = labels?.map((l) => l['prediction']);
+    const groundtruth = groundtruths?.length ? groundtruths[0] : null;
+    const prediction = predictions?.length ? predictions[0] : null;
 
     return (
         <div className={onClick ? 'cursor-pointer' : ''} onClick={onClick}>
-            <i>{sample['text']}</i>
+            <i>{datapoint['text']}</i>
             <Row className='mt-2'>
-                {sample['groundtruth'] ? <Col xl={6}><span className='text-nowrap'>Ground Truth: </span><i>{sample['groundtruth']['class_name']}</i></Col> : null}
-                <Col xl={6}><span className='text-nowrap'>Prediction: </span><i>{sample['prediction']['class_name']}</i></Col>
+                {groundtruth ? <Col xl={6}><span className='text-nowrap'>Ground Truth: </span><i>{groundtruth['class_name']}</i></Col> : null}
+                {prediction ? <Col xl={6}><span className='text-nowrap'>Prediction: </span><i>{prediction['class_name']}</i></Col> : null}
             </Row>
         </div>
     );
 };
 
 PreviewTextClassification.propTypes = {
-    sample: PropTypes.object.isRequired,
+    datapoint: PropTypes.object,
+    labels: PropTypes.array,
     onClick: PropTypes.func
 };
 

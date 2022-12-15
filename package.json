@@ -110,7 +110,8 @@
     "react-zoom-pan-pinch": "^2.1.3",
     "recharts": "^2.0.9",
     "slugify": "^1.6.5",
-    "string-hash": "^1.1.3"
+    "string-hash": "^1.1.3",
+    "truncate": "^3.0.0"
   },
   "scripts": {
     "start": "node index.mjs",

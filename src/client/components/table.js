@@ -85,9 +85,7 @@ const Table = ({columns, data, onSelectedRowsChange, getRowProps}) => {
                         <tr key={i} {...row.getRowProps()} {...getRowProps?.(row)}>
                             {row.cells.map((cell, i) => {
                                 return (
-                                    <td className='text-center align-middle py-1' key={i} style={{textOverflow: 'ellipsis', overflow: 'hidden'}} {...cell.getCellProps()}
-                                        title={cell.value}
-                                    >
+                                    <td className='text-center align-middle py-1' key={i} {...cell.getCellProps()}>
                                         {cell.render('Cell')}
                                     </td>
                                 );

@@ -5,7 +5,6 @@ import Col from 'react-bootstrap/Col';
 import isUrl from 'is-url';
 import {FiExternalLink} from 'react-icons/fi';
 
-import useLabels from 'hooks/use-labels';
 import Table from 'components/table';
 
 const SKIPPED_KEYS = new Set(['feature_heatmap', 'embeddings', 'original_embeddings', 'logits']);
@@ -51,19 +50,17 @@ const RenderDatapoint = ({datapoint}) => {
 };
 
 RenderDatapoint.propTypes = {
-    datapoint: PropTypes.shape({
-        map: PropTypes.func
-    })
+    datapoint: PropTypes.any.isRequired
 };
 
-
-const PreviewDetails = ({sample, displayLabels, ...rest}) => {
-    const {ref, predictions, groundtruths} = useLabels(sample instanceof Object ? sample : {});
-    const displayLabelsFoDatapoint = displayLabels && !sample.prediction && !sample.groundtruth;
+const PreviewDetails = ({datapoint, labels, displayDetails, ...rest}) => {
+    const predictions = labels?.map((l) => l['prediction']).filter(Boolean);
+    const groundtruths = labels?.map((l) => l['groundtruth']).filter(Boolean);
+    const displayLabelsFoDatapoint = displayDetails && !datapoint.prediction && !datapoint.groundtruth;
 
     return (
-        <div ref={ref} {...rest}>
-            <RenderDatapoint datapoint={sample} />
+        <div {...rest}>
+            <RenderDatapoint datapoint={datapoint} />
             {
                 displayLabelsFoDatapoint ? (
                     <>
@@ -71,7 +68,7 @@ const PreviewDetails = ({sample, displayLabels, ...rest}) => {
                             <h4>Predictions</h4>
                         </Row>
                         <Table
-                            columns={predictions.length ? Object.keys(predictions[0]).filter((k) => !SKIPPED_KEYS.has(k)).map((k) => ({
+                            columns={predictions?.length ? Object.keys(predictions[0]).filter((k) => !SKIPPED_KEYS.has(k)).map((k) => ({
                                 Header: k,
                                 Cell: ({cell}) => <pre>{JSON.stringify(cell.row.original[k], null, 4)}</pre> // eslint-disable-line react/prop-types
                             })) : []}
@@ -87,7 +84,7 @@ const PreviewDetails = ({sample, displayLabels, ...rest}) => {
                             <h4>Groundtruths</h4>
                         </Row>
                         <Table
-                            columns={groundtruths.length ? Object.keys(groundtruths[0]).filter((k) => !SKIPPED_KEYS.has(k)).map((k) => ({
+                            columns={groundtruths?.length ? Object.keys(groundtruths[0]).filter((k) => !SKIPPED_KEYS.has(k)).map((k) => ({
                                 Header: k,
                                 Cell: ({cell}) => <pre>{JSON.stringify(cell.row.original[k], null, 4)}</pre> // eslint-disable-line react/prop-types
                             })) : []}
@@ -101,8 +98,9 @@ const PreviewDetails = ({sample, displayLabels, ...rest}) => {
 };
 
 PreviewDetails.propTypes = {
-    sample: PropTypes.any,
-    displayLabels: PropTypes.bool
+    datapoint: PropTypes.object,
+    labels: PropTypes.array,
+    displayDetails: PropTypes.bool
 };
 
 export default PreviewDetails;

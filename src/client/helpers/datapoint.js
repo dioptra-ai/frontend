@@ -14,22 +14,27 @@ export const datapointIsText = (datapoint) => {
     return Boolean(datapoint['text']);
 };
 
-export const datapointIsNER = (datapoint) => {
-
-    return datapointIsText(datapoint) && (Boolean(datapoint.prediction?.start) || Boolean(datapoint.groundtruth?.start));
-};
-
 export const datapointIsAudio = (datapoint) => {
 
     return Boolean(datapoint['audio_metadata']);
 };
 
-export const datapointIsClassifier = (datapoint) => {
+export const labelsAreNER = (labels) => {
 
-    return Boolean(datapoint['prediction']) || Boolean(datapoint['groundtruth']);
+    return Boolean(labels?.[0]?.['prediction']?.['start']) || Boolean(labels?.[0]?.['groundtruth']?.['start']);
 };
 
-export const datapointIsObjectDetection = (datapoint) => {
+export const labelsAreClassifier = (labels) => {
 
-    return Boolean(datapoint.prediction?.top) || Boolean(datapoint.groundtruth?.top);
+    return Boolean(labels?.[0]?.['prediction']?.['class_name']) || Boolean(labels?.[0]?.['groundtruth']?.['class_name']);
+};
+
+export const labelsAreObjectDetection = (labels) => {
+
+    return Boolean(labels?.[0]?.['prediction']?.['top']) || Boolean(labels?.[0]?.['groundtruth']?.['top']);
+};
+
+export const labelsAreLearningToRank = (labels) => {
+
+    return Boolean(labels?.[0]?.['prediction']?.['score']) || Boolean(labels?.[0]?.['groundtruth']?.['relevance']);
 };

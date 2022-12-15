@@ -12,7 +12,7 @@ import {TbLetterA, TbLetterD, TbLetterS} from 'react-icons/tb';
 
 import Table from 'components/table';
 import Modal from 'components/modal';
-import {datapointIsImage, datapointIsNER, datapointIsText, datapointIsVideo} from 'helpers/datapoint';
+import {datapointIsImage, datapointIsText, datapointIsVideo, labelsAreNER} from 'helpers/datapoint';
 import PreviewImage from 'components/preview-image';
 import PreviewTextClassification from 'components/preview-text-classification';
 import PreviewDetails from 'components/preview-details';
@@ -301,7 +301,7 @@ const Mislabeling = ({userStore}) => {
                                         {detailsComponent}
                                     </>
                                 );
-                            } else if (datapointIsNER(datapoint)) {
+                            } else if (labelsAreNER(datapoint)) {
                                 return (
                                     <>
                                         <PreviewNER sample={datapoint} />

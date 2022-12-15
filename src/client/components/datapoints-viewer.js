@@ -6,28 +6,102 @@ import Row from 'react-bootstrap/Row';
 import Form from 'react-bootstrap/Form';
 import {GrNext, GrPrevious} from 'react-icons/gr';
 import {IoCloseOutline} from 'react-icons/io5';
-import {HiOutlineRectangleStack} from 'react-icons/hi2';
 import {BsTags} from 'react-icons/bs';
 import {OverlayTrigger, Tooltip} from 'react-bootstrap';
 
 import {mod} from 'helpers/math';
-import {datapointIsImage, datapointIsNER, datapointIsText, datapointIsVideo} from 'helpers/datapoint';
+import {datapointIsImage, datapointIsText, datapointIsVideo, labelsAreLearningToRank, labelsAreNER} from 'helpers/datapoint';
 import Modal from 'components/modal';
 import PreviewImage from 'components/preview-image';
 import PreviewTextClassification from 'components/preview-text-classification';
 import PreviewDetails from 'components/preview-details';
 import PreviewNER from './preview-ner';
+import PreviewLearningToRank from './preview-learning-to-rank';
+import {useInView} from 'react-intersection-observer';
+
+import metricsClient from 'clients/metrics';
+
+const useLabels = (datapoint) => {
+    const {prediction, groundtruth, text} = datapoint;
+    const {ref, inView} = useInView();
+    const [requestlabels, setRequestLabels] = useState(null);
+    const labels = (prediction || groundtruth) ? [{prediction, groundtruth, text}] : requestlabels;
+    const requestControllerRef = useRef();
+
+    useEffect(() => {
+        if (!prediction && !groundtruth && datapoint.request_id) {
+            if (requestControllerRef.current) {
+                requestControllerRef.current.abort();
+            }
+
+            if (inView) {
+                setRequestLabels(null);
+                requestControllerRef.current = new AbortController();
+
+                // TODO: Only display labels for datapoint rows, not label rows.
+                (async () => {
+                    try {
+                        let datapoints = await metricsClient('select', {
+                            select: '"prediction", "groundtruth", "tags", "text"',
+                            filters: [{
+                                left: 'uuid',
+                                op: '=',
+                                right: datapoint.uuid
+                            }, {
+                                left: {
+                                    left: 'prediction',
+                                    op: 'is not null'
+                                },
+                                op: 'or',
+                                right: {
+                                    left: 'groundtruth',
+                                    op: 'is not null'
+                                }
+                            }]
+                        }, true, {signal: requestControllerRef.current.signal});
+
+                        if (!datapoints.length) {
+                            datapoints = await metricsClient('select', {
+                                select: '"prediction", "groundtruth", "tags", "text"',
+                                filters: [{
+                                    left: 'request_id',
+                                    op: '=',
+                                    right: datapoint.request_id
+                                }, {
+                                    left: {
+                                        left: 'prediction',
+                                        op: 'is not null'
+                                    },
+                                    op: 'or',
+                                    right: {
+                                        left: 'groundtruth',
+                                        op: 'is not null'
+                                    }
+                                }]
+                            }, true, {signal: requestControllerRef.current.signal});
+                        }
+
+                        setRequestLabels(datapoints);
+                    } catch (err) {
+
+                        if (err.name !== 'AbortError') {
+                            console.error(err);
+                        }
+                    }
+                })();
+            }
+        }
+    }, [inView, datapoint]);
+
+    return {loadWhenRefInView: ref, labels};
+};
 
 const EventType = ({datapoint: {prediction, groundtruth}, size = 4}) => (
     (prediction || groundtruth) ? (
         <OverlayTrigger overlay={<Tooltip>This is an annotation</Tooltip>}>
             <div className={`text-muted d-flex fs-${size}`} style={{cursor: 'help'}}><BsTags /></div>
         </OverlayTrigger>
-    ) : (
-        <OverlayTrigger overlay={<Tooltip>This is a data row</Tooltip>}>
-            <div className={`text-muted d-flex fs-${size - 1}`} style={{cursor: 'help'}}><HiOutlineRectangleStack/></div>
-        </OverlayTrigger>
-    )
+    ) : null
 );
 
 EventType.propTypes = {
@@ -35,11 +109,68 @@ EventType.propTypes = {
     datapoint: PropTypes.object
 };
 
+const DatapointPreview = ({datapoint, displayDetails, ...rest}) => {
+    const {loadWhenRefInView, labels} = useLabels(datapoint);
+
+    if (datapointIsVideo(datapoint) || datapointIsImage(datapoint)) {
+
+        return (
+            <div ref={loadWhenRefInView}>
+                <PreviewImage
+                    datapoint={datapoint}
+                    videoControls={false}
+                    maxHeight={200}
+                    labels={labels}
+                    displayDetails={displayDetails}
+                    {...rest}
+                />
+            </div>
+        );
+    } else if (labelsAreNER(labels)) {
+
+        return (
+            <div ref={loadWhenRefInView}>
+                <PreviewNER datapoint={datapoint} labels={labels} {...rest}/>
+            </div>
+        );
+    } else if (datapointIsText(datapoint)) {
+
+        // FIXME: Why is this always false?
+        if (labelsAreLearningToRank(labels)) {
+
+            return (
+                <div ref={loadWhenRefInView}>
+                    <PreviewLearningToRank datapoint={datapoint} labels={labels} displayDetails={displayDetails} {...rest} />
+                </div>
+            );
+        } else {
+
+            return (
+                <div ref={loadWhenRefInView}>
+                    <PreviewTextClassification datapoint={datapoint} labels={labels} {...rest} />
+                </div>
+            );
+        }
+    } else {
+
+        return (
+            <div ref={loadWhenRefInView}>
+                <PreviewDetails datapoint={datapoint} labels={labels} displayDetails={displayDetails} {...rest}/>
+            </div>
+        );
+    }
+};
+
+DatapointPreview.propTypes = {
+    datapoint: PropTypes.object.isRequired,
+    displayDetails: PropTypes.bool
+};
+
 const DatapointsViewer = ({datapoints, onSelectedUUIDsChange, onSelectedChange, onClearDatapoint, limit = Infinity, renderButtons}) => {
     const selectAllRef = useRef();
-    const [sampleIndexInModal, setSampleIndexInModal] = useState(-1);
+    const [datapointIndexInModal, setDatapointIndexInModal] = useState(-1);
     const [selectedDatapoints, setSelectedDatapoints] = useState(new Set());
-    const exampleInModal = datapoints[sampleIndexInModal];
+    const exampleInModal = datapoints[datapointIndexInModal];
     const datapointsByUUID = new Map(datapoints.map((d) => [d.uuid, d]));
     const annotationsNum = datapoints.filter((d) => d.prediction || d.groundtruth).length;
     const dataRowsNum = datapoints.length - annotationsNum;
@@ -81,10 +212,10 @@ const DatapointsViewer = ({datapoints, onSelectedUUIDsChange, onSelectedChange, 
         }
     };
     const handlePrevious = () => {
-        setSampleIndexInModal(mod(sampleIndexInModal - 1, datapoints.length));
+        setDatapointIndexInModal(mod(datapointIndexInModal - 1, datapoints.length));
     };
     const handleNext = () => {
-        setSampleIndexInModal(mod(sampleIndexInModal + 1, datapoints.length));
+        setDatapointIndexInModal(mod(datapointIndexInModal + 1, datapoints.length));
     };
 
     useEffect(() => {
@@ -93,7 +224,7 @@ const DatapointsViewer = ({datapoints, onSelectedUUIDsChange, onSelectedChange, 
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
         };
-    }, [sampleIndexInModal]);
+    }, [datapointIndexInModal]);
 
     useEffect(() => {
         setSelectedDatapoints(new Set(datapoints.filter((d) => selectedDatapoints.has(d['uuid'])).map((d) => d['uuid'])));
@@ -152,52 +283,14 @@ const DatapointsViewer = ({datapoints, onSelectedUUIDsChange, onSelectedChange, 
                         </div>
                     );
 
-                    if (datapointIsVideo(datapoint) || datapointIsImage(datapoint)) {
-
-                        return (
-                            <Col key={`${JSON.stringify(datapoint)}-${i}`} xs={4} md={3} lg={2}>
-                                <div className='p-2 bg-white-blue border rounded' >
-                                    {selectOrClearBar}
-                                    <PreviewImage
-                                        datapoint={datapoint}
-                                        videoControls={false}
-                                        maxHeight={200}
-                                        onClick={() => setSampleIndexInModal(i)}
-                                    />
-                                </div>
-                            </Col>
-                        );
-                    } else if (datapointIsNER(datapoint)) {
-
-                        return (
-                            <Col key={`${JSON.stringify(datapoint)}-${i}`} xs={6} md={4} xl={3}>
-                                <div className='p-2 bg-white-blue border rounded' >
-                                    {selectOrClearBar}
-                                    <PreviewNER
-                                        sample={datapoint}
-                                        onClick={() => setSampleIndexInModal(i)}
-                                    />
-                                </div>
-                            </Col>
-                        );
-                    } else if (datapointIsText(datapoint)) {
-
-                        return (
-                            <Col key={`${JSON.stringify(datapoint)}-${i}`} xs={12}>
-                                <div className='p-2 border-bottom' >
-                                    {selectOrClearBar}
-                                    <PreviewTextClassification
-                                        sample={datapoint}
-                                        onClick={() => setSampleIndexInModal(i)}
-                                    />
-                                </div>
-                            </Col>
-                        );
-                    } else return (
-                        <Col key={`${JSON.stringify(datapoint)}-${i}`} xs={12}>
-                            <div className='p-2 border-bottom'>
+                    return (
+                        <Col key={`${JSON.stringify(datapoint)}-${i}`} xs={4} md={3} lg={2}>
+                            <div className='p-2 bg-white-blue border rounded' >
                                 {selectOrClearBar}
-                                <PreviewDetails sample={datapoint} onClick={() => setSampleIndexInModal(i)} className='cursor-pointer'/>
+                                <DatapointPreview
+                                    datapoint={datapoint}
+                                    onClick={() => setDatapointIndexInModal(i)}
+                                />
                             </div>
                         </Col>
                     );
@@ -206,7 +299,7 @@ const DatapointsViewer = ({datapoints, onSelectedUUIDsChange, onSelectedChange, 
                 )}
             </Row>
             {exampleInModal && (
-                <Modal isOpen={true} onClose={() => setSampleIndexInModal(-1)} title={
+                <Modal isOpen={true} onClose={() => setDatapointIndexInModal(-1)} title={
                     <div className='d-flex align-items-center justify-content-between'>
                         {(onSelectedUUIDsChange || onSelectedChange) ? (
                             <div className='ps-2'>
@@ -226,32 +319,13 @@ const DatapointsViewer = ({datapoints, onSelectedUUIDsChange, onSelectedChange, 
                             <GrPrevious/>
                         </div>
                         <div>
-                            {datapointIsImage(exampleInModal) || datapointIsVideo(exampleInModal) ? (
-                                <>
-                                    <PreviewImage
-                                        datapoint={exampleInModal}
-                                        videoControls
-                                        maxHeight={600}
-                                        zoomable
-                                    />
-                                    <hr/>
-                                </>
-                            ) : datapointIsText(exampleInModal) && datapointIsNER(exampleInModal) ? (
-                                <>
-                                    <PreviewNER
-                                        sample={exampleInModal}
-                                    />
-                                    <hr/>
-                                </>
-                            ) : datapointIsText(exampleInModal) ? (
-                                <>
-                                    <PreviewTextClassification
-                                        sample={exampleInModal}
-                                    />
-                                    <hr/>
-                                </>
-                            ) : null}
-                            <PreviewDetails sample={exampleInModal} displayLabels/>
+                            <DatapointPreview
+                                datapoint={exampleInModal}
+                                videoControls
+                                maxHeight={600}
+                                zoomable
+                                displayDetails
+                            />
                         </div>
                         <div className='fs-1 p-4 bg-white-blue cursor-pointer d-flex align-items-center mx-2' onClick={handleNext}>
                             <GrNext/>
