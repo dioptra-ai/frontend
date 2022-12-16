@@ -106,7 +106,7 @@ const ScatterChart = ({
             <div id={chartId} style={{width, height, minHeight: 400}} onClick={(e) => onSelectedDataChange?.([], e)}/>
             <style>{`
                 .point:hover {
-                    cursor: ${onSelectedDataChange ? 'pointer' : 'default'};
+                    cursor: ${onSelectedDataChange ? 'pointer' : getPointTitle ? 'help' : 'default'};
                 }
                 .x-axis {
                     height: 0 !important;
