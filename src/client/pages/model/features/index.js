@@ -31,14 +31,17 @@ const Features = () => {
                             Header: 'Histogram',
                             Cell: HistogramCell
                         }, {
-                            Header: 'Feature Importance',
+                            Header: 'Global Feature Importance',
                             accessor: 'importance'
                         }, {
-                            Header: 'Drift',
+                            Header: 'Global Drift',
                             accessor: 'drift'
                         }, {
-                            Header: 'Prediction Drift Impact',
-                            accessor: 'pdi'
+                            Header: 'Global Drift Impact',
+                            accessor: 'gdi'
+                        }, {
+                            Header: 'Segment Max Drift Impact',
+                            accessor: 'sdi'
                         }, {
                             Header: 'Quality',
                             Cell: QualityCell
@@ -46,14 +49,21 @@ const Features = () => {
                         data={data.map((feature) => {
                             const {label, value: histogram} = feature;
                             const importance = Number(hash(JSON.stringify(feature)) / 4294967295);
-                            const drift = Number(hash(`${JSON.stringify(feature)}.`) / 4294967295);
+                            const drift = Number(hash(`${JSON.stringify(feature)}.`) / 4294967295) / 4;
+
+                            let segmentDriftImpact = Number(hash(`${JSON.stringify(feature)}.`) / 4294967295) / 4.1;
+
+                            if (label.endsWith('title')) {
+                                segmentDriftImpact = Number(hash(`${JSON.stringify(feature)}.`) / 4294967295) / 2;
+                            }
 
                             return {
                                 label, histogram,
                                 type: 'FLOAT',
                                 importance: importance.toFixed(4),
                                 drift: drift.toFixed(4),
-                                pdi: Number(importance * drift).toFixed(4)
+                                gdi: Number(importance * drift).toFixed(4),
+                                sdi: segmentDriftImpact.toFixed(4)
                             };
                         })}
                     />
