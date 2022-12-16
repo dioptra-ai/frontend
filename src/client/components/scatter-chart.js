@@ -112,11 +112,10 @@ const ScatterChart = ({
                     xScale.range([0, width]);
                     yScale.range([height, 0]);
                     xAxisJoin(svg, (d) => [d])
-                        .attr('transform', `translate(0, ${height - 10})`)
+                        .attr('transform', `translate(0, ${height})`)
                         .call(xAxis)
                         .call((g) => g.select('.domain').remove());
                     yAxisJoin(svg, (d) => [d])
-                        .attr('transform', `translate(${20}, 0)`)
                         .call(yAxis)
                         .call((g) => g.select('.domain').remove());
                 });
@@ -148,6 +147,7 @@ const ScatterChart = ({
                 }
                 d3fc-group.cartesian-chart {
                     overflow: visible !important;
+                    ${showAxes ? 'padding: 10px;' : ''}
                 }
                 d3fc-group.cartesian-chart>.plot-area {
                     overflow: visible !important;
