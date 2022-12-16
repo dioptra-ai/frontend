@@ -39,7 +39,7 @@ const tranformBrushSelection = (selection, xScale, yScale) => {
 };
 const ScatterChart = ({
     data, onSelectedDataChange,
-    getX = (d) => d.x, getY = (d) => d.y, getColor, isDatapointSelected,
+    getX = (d) => d.x, getY = (d) => d.y, getColor, getPointTitle, isDatapointSelected,
     chartId = `chart-${nanoid()}`, width = '100%', height = '100%'
 }) => {
     const brushRef = useRef(null);
@@ -61,7 +61,7 @@ const ScatterChart = ({
                     return inRange(getX(p), left, right) && inRange(getY(p), top, bottom);
                 });
 
-                onSelectedDataChange([...filteredData], e.sourceEvent);
+                onSelectedDataChange?.([...filteredData], e.sourceEvent);
 
                 d3.select(brushRef.current).call(brush.move, null);
             }
@@ -79,8 +79,11 @@ const ScatterChart = ({
             selection.style('stroke', (d) => getColor ? d3.color(getColor(d)).darker() : '#000');
             selection.on('click', (e, points) => {
                 e.stopPropagation();
-                onSelectedDataChange([Array(points).flat()[0]], e);
+                onSelectedDataChange?.([Array(points).flat()[0]], e);
             });
+            if (getPointTitle) {
+                selection.append('title').text((d) => getPointTitle(d));
+            }
         });
     const svgGridSeries = fc.annotationSvgGridline()
         .xDecorate((s) => s.attr('pointer-events', 'none').attr('stroke', theme.light))
@@ -100,10 +103,10 @@ const ScatterChart = ({
 
     return (
         <>
-            <div id={chartId} style={{width, height, minHeight: 400}} onClick={(e) => onSelectedDataChange([], e)}/>
+            <div id={chartId} style={{width, height, minHeight: 400}} onClick={(e) => onSelectedDataChange?.([], e)}/>
             <style>{`
                 .point:hover {
-                    cursor: pointer;
+                    cursor: ${onSelectedDataChange ? 'pointer' : 'default'};
                 }
                 .x-axis {
                     height: 0 !important;
@@ -121,11 +124,12 @@ ScatterChart.propTypes = {
     getX: PropTypes.func,
     getY: PropTypes.func,
     getColor: PropTypes.func,
+    getPointTitle: PropTypes.func,
     isDatapointSelected: PropTypes.func,
     chartId: PropTypes.string,
     width: PropTypes.string,
     height: PropTypes.string,
-    onSelectedDataChange: PropTypes.func.isRequired
+    onSelectedDataChange: PropTypes.func
 };
 
 export default ScatterChart;
@@ -146,7 +150,7 @@ export const ScatterSearch = ({isSearchMatch, data, onSelectedDataChange}) => {
             </Col>
             <Col className='text-dark d-flex align-items-center'>
                 {search ? (
-                    <div className='cursor-pointer' onClick={(e) => onSelectedDataChange(searchData, e)}>
+                    <div className='cursor-pointer' onClick={(e) => onSelectedDataChange?.(searchData, e)}>
                         <IoChevronForwardSharp/>&nbsp;<span className='text-decoration-underline'>{searchData.length.toLocaleString()} results</span>
                     </div>
                 ) : null}
@@ -158,5 +162,5 @@ export const ScatterSearch = ({isSearchMatch, data, onSelectedDataChange}) => {
 ScatterSearch.propTypes = {
     data: PropTypes.array.isRequired,
     isSearchMatch: PropTypes.func.isRequired,
-    onSelectedDataChange: PropTypes.func.isRequired
+    onSelectedDataChange: PropTypes.func
 };

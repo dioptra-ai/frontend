@@ -14,6 +14,9 @@ import {OverlayTrigger, Tooltip} from 'react-bootstrap';
 import {IoDownloadOutline} from 'react-icons/io5';
 import {saveAs} from 'file-saver';
 import useAllFilters from 'hooks/use-all-filters';
+import ScatterChart from 'components/scatter-chart';
+import Select from 'components/select';
+import theme from 'styles/theme.module.scss';
 
 const PerformanceBox = ({
     title = '',
@@ -64,35 +67,33 @@ const PerformanceBox = ({
                     <span className='mx-2'>{title}</span>
                 </div>
             </div>
-            <div className='py-5'>
-                <div
-                    style={{
-                        height: '150px',
-                        overflowY: 'scroll',
-                        position: 'relative',
-                        left: 10,
-                        paddingRight: 10,
-                        marginLeft: -10
-                    }}
-                >
-                    {classes.map((c, i) => {
-                        const classReferenceData = referenceData?.find(
-                            ({label}) => label === c.label
-                        );
-                        const classReferenceMetric =
+            <div
+                style={{
+                    height: '350px',
+                    overflowY: 'scroll',
+                    position: 'relative',
+                    left: 10,
+                    paddingRight: 10,
+                    marginLeft: -10
+                }}
+            >
+                {classes.map((c, i) => {
+                    const classReferenceData = referenceData?.find(
+                        ({label}) => label === c.label
+                    );
+                    const classReferenceMetric =
                             classReferenceData?.value;
-                        const difference = c.value - classReferenceMetric;
+                    const difference = c.value - classReferenceMetric;
 
-                        return (
-                            <ClassRow
-                                key={i}
-                                name={c.label}
-                                value={Number(c.value).toFixed(4)}
-                                difference={difference}
-                            />
-                        );
-                    })}
-                </div>
+                    return (
+                        <ClassRow
+                            key={i}
+                            name={c.label}
+                            value={Number(c.value).toFixed(4)}
+                            difference={difference}
+                        />
+                    );
+                })}
             </div>
         </div>
     );
@@ -164,8 +165,47 @@ PerformanceMetricAnalysis.propTypes = {
     title: PropTypes.string
 };
 
+const PerformanceMetricScatterPlot = ({metricUrl, title}) => {
+    const allFilters = useAllFilters();
+    const model = useModel();
+
+    return (
+        <div className='border rounded p-3 pb-0'>
+            <span className='text-dark bold-text fs-5'>{title}</span>
+            <Async
+                defaultData={[]}
+                renderData={(data) => (
+                    <Row className='flex-grow-1'>
+                        <Col>
+                            <ScatterChart
+                                data={data}
+                                getX={(p) => p['x']}
+                                getY={(p) => p['value']}
+                                getColor={() => theme.primary}
+                                getPointTitle={(p) => `Perf.: ${Number(p['value'].toFixed(2))}\nPopularity: ${Number(p['x'].toFixed(0))}\n\n${p['label']}`}
+                            />
+                        </Col>
+                    </Row>
+                )}
+                fetchData={() => metricsClient(metricUrl, {
+                    filters: allFilters,
+                    per_class: true,
+                    model_type: model.mlModelType
+                })}
+                refetchOnChanged={[allFilters, metricUrl]}
+            />
+        </div>
+    );
+};
+
+PerformanceMetricScatterPlot.propTypes = {
+    metricUrl: PropTypes.string.isRequired,
+    title: PropTypes.string
+};
+
 const PerformancePerGroup = () => {
     const model = useModel();
+    const [selectedLtrMetric, setSelectedLtrMetric] = useState('mean-ndcg');
 
     return (
         <Row className='g-2'>
@@ -190,8 +230,16 @@ const PerformancePerGroup = () => {
                     </>
                 ) : model.mlModelType === 'LEARNING_TO_RANK' ? (
                     <>
-                        <Col lg={12}>
+                        <Col lg={6}>
                             <PerformanceMetricAnalysis metricUrl='mean-ndcg' title='NDCG per Document' />
+                        </Col>
+                        <Col lg={6}>
+                            <PerformanceMetricScatterPlot metricUrl={selectedLtrMetric} title={(
+                                <Select value={selectedLtrMetric} onChange={setSelectedLtrMetric}>
+                                    <option value='mean-ndcg'>Mean NDCG / Popularity</option>
+                                    <option value='mrr'>Mean Reciprocal Rank / Popularity</option>
+                                </Select>
+                            )} />
                         </Col>
                     </>
                 ) : `Unsupported model type: ${model.mlModelType}`
