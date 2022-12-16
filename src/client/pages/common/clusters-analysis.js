@@ -48,7 +48,7 @@ const getDistributionFieldForModel = (modelType) => {
             name: 'Relevance',
             value: '"groundtruth"->\'relevance\''
         }, {
-            name: 'Pred. Score',
+            name: 'Prediction Score',
             value: '"prediction"->\'score\''
         }];
     } else {
@@ -263,23 +263,17 @@ const _ClustersAnalysis = ({clusters, clustersAreOfRequests}) => {
                                             fill: getHexColor(label)
                                         }))}
                                         title={(
-                                            <Row className='g-2'>
-                                                <Col>Class Distribution</Col>
-                                                <Col>
-                                                    <Form.Control as='select' className='form-select w-100' custom required
-                                                        onChange={(e) => {
-                                                            setUserSelectedSummaryDistribution(e.target.value);
-                                                        }}
-                                                        value={userSelectedSummaryDistribution}
-                                                    >
-                                                        {distributionMetricsOptions.map((o, i) => (
-                                                            <option key={i} value={o.value}>{o.name}</option>
-                                                        ))}
-                                                    </Form.Control>
-                                                </Col>
-                                            </Row>
+                                            <Form.Control as='select' className='form-select w-100' custom required
+                                                onChange={(e) => {
+                                                    setUserSelectedSummaryDistribution(e.target.value);
+                                                }}
+                                                value={userSelectedSummaryDistribution}
+                                            >
+                                                {distributionMetricsOptions.map((o, i) => (
+                                                    <option key={i} value={o.value}>{o.name} Distribution</option>
+                                                ))}
+                                            </Form.Control>
                                         )}
-                                        unit='%'
                                     />
                                 )}
                                 fetchData={() => metricsClient('queries/class-distribution', {
