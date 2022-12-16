@@ -4,7 +4,7 @@ import {IconNames} from 'constants';
 import FontIcon from 'components/font-icon';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import {useEffect, useState} from 'react';
+import {useState} from 'react';
 import ProgressBar from 'components/progress-bar';
 import DifferenceLabel from 'components/difference-labels';
 import CountEvents from 'components/count-events';
@@ -25,19 +25,7 @@ const PerformanceBox = ({
     referenceData
 }) => {
     const [sortAcs, setSortAsc] = useState(true);
-    const [classes, setClasses] = useState([]);
-
-    useEffect(() => {
-        if (sortAcs) {
-            setClasses([
-                ...data.sort((c1, c2) => c2.value - c1.value)
-            ]);
-        } else {
-            setClasses([
-                ...data.sort((c1, c2) => c1.value - c2.value)
-            ]);
-        }
-    }, [sortAcs, data]);
+    const classes = data.sort((c1, c2) => sortAcs ? c1.value - c2.value : c2.value - c1.value);
 
     return (
         <div className='border rounded p-3 pb-0'>
