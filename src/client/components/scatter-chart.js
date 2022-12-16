@@ -38,7 +38,7 @@ const tranformBrushSelection = (selection, xScale, yScale) => {
     return {xDomain, yDomain};
 };
 const ScatterChart = ({
-    data, onSelectedDataChange,
+    data, onSelectedDataChange, showAxes,
     getX = (d) => d.x, getY = (d) => d.y, getColor, getPointTitle, isDatapointSelected,
     chartId = `chart-${nanoid()}`, width = '100%', height = '100%'
 }) => {
@@ -66,8 +66,8 @@ const ScatterChart = ({
                 d3.select(brushRef.current).call(brush.move, null);
             }
         });
-    const xExtent = fc.extentLinear().pad([0.05, 0.05]).accessors([getX]);
-    const yExtent = fc.extentLinear().pad([0.05, 0.05]).accessors([getY]);
+    const xExtent = fc.extentLinear().pad([0.10, 0.10]).accessors([getX]);
+    const yExtent = fc.extentLinear().pad([0.10, 0.10]).accessors([getY]);
     const xScale = d3.scaleLinear().domain(xExtent(data));
     const yScale = d3.scaleLinear().domain(yExtent(data));
     const svgPointSeries = fc.seriesSvgPoint()
@@ -86,17 +86,49 @@ const ScatterChart = ({
             }
         });
     const svgGridSeries = fc.annotationSvgGridline()
+        .xScale(xScale)
+        .yScale(yScale)
         .xDecorate((s) => s.attr('pointer-events', 'none').attr('stroke', theme.light))
         .yDecorate((s) => s.attr('pointer-events', 'none').attr('stroke', theme.light));
+    const xAxis = fc.axisBottom(xScale);
+    const yAxis = fc.axisLeft(yScale);
+    const xAxisJoin = fc.dataJoin('g', 'x-axis');
+    const yAxisJoin = fc.dataJoin('g', 'y-axis');
     const svgSeries = fc.seriesSvgMulti().series([svgGridSeries, svgPointSeries]);
     const renderData = () => {
         const chart = fc.chartCartesian(xScale, yScale).svgPlotArea(svgSeries);
+
+        if (showAxes) {
+            const container = document.querySelector('d3fc-svg');
+            const svg = d3.select(container).select('svg');
+
+            d3.select(container)
+                .on('draw', () => {
+                    svg.call(svgGridSeries);
+                })
+                .on('measure', (event) => {
+                    const {width, height} = event.detail;
+
+                    xScale.range([0, width]);
+                    yScale.range([height, 0]);
+                    xAxisJoin(svg, (d) => [d])
+                        .attr('transform', `translate(0, ${height - 10})`)
+                        .call(xAxis)
+                        .call((g) => g.select('.domain').remove());
+                    yAxisJoin(svg, (d) => [d])
+                        .attr('transform', `translate(${20}, 0)`)
+                        .call(yAxis)
+                        .call((g) => g.select('.domain').remove());
+                });
+        }
 
         d3.select(`#${chartId}`)
             .datum(data.sort((p1) => isDatapointSelected?.(p1) ? 1 : -1)) // Selected => on top.
             .call(chart);
 
-        d3.select(`#${chartId} svg`).call(brush);
+        if (onSelectedDataChange) {
+            d3.select(`#${chartId} svg`).call(brush);
+        }
     };
 
     React.useEffect(renderData, [data]);
@@ -114,6 +146,12 @@ const ScatterChart = ({
                 .y-axis {
                     width: 0 !important;
                 }
+                d3fc-group.cartesian-chart {
+                    overflow: visible !important;
+                }
+                d3fc-group.cartesian-chart>.plot-area {
+                    overflow: visible !important;
+                }
             `}</style>
         </>
     );
@@ -129,7 +167,8 @@ ScatterChart.propTypes = {
     chartId: PropTypes.string,
     width: PropTypes.string,
     height: PropTypes.string,
-    onSelectedDataChange: PropTypes.func
+    onSelectedDataChange: PropTypes.func,
+    showAxes: PropTypes.bool
 };
 
 export default ScatterChart;

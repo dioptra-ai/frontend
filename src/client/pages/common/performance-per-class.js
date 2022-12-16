@@ -178,6 +178,7 @@ const PerformanceMetricScatterPlot = ({metricUrl, title}) => {
                     <Row className='flex-grow-1'>
                         <Col>
                             <ScatterChart
+                                showAxes
                                 data={data}
                                 getX={(p) => p['x']}
                                 getY={(p) => p['value']}
