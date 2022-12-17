@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import {Tooltip as OverlayTooltip, OverlayTrigger} from 'react-bootstrap';
 import {AiOutlineCheckCircle} from 'react-icons/ai';
 import hash from 'string-hash';
 import {Bar, BarChart, Cell, Tooltip, XAxis} from 'recharts';
@@ -30,19 +31,28 @@ const Features = () => {
                         }, {
                             id: 'histogram',
                             Header: 'Histogram',
-                            Cell: HistogramCell
+                            Cell: HistogramCell,
+                            disableSortBy: true
                         }, {
                             Header: 'Global Feature Importance',
-                            accessor: 'importance'
+                            accessor: 'importance',
+                            Cell: ToFixed4Cell,
+                            sortType: 'basic'
                         }, {
                             Header: 'Global Drift',
-                            accessor: 'drift'
+                            accessor: 'drift',
+                            Cell: ToFixed4Cell,
+                            sortType: 'basic'
                         }, {
                             Header: 'Global Drift Impact',
-                            accessor: 'gdi'
+                            accessor: 'gdi',
+                            Cell: GDICell,
+                            sortType: 'basic'
                         }, {
                             Header: 'Segment Max Drift Impact',
-                            accessor: 'sdi'
+                            accessor: 'sdi',
+                            Cell: SDICell,
+                            sortType: 'basic'
                         }, {
                             Header: 'Quality',
                             Cell: QualityCell
@@ -51,20 +61,22 @@ const Features = () => {
                             const {label, value: histogram} = feature;
                             const importance = Number(hash(JSON.stringify(feature)) / 4294967295);
                             const drift = Number(hash(`${JSON.stringify(feature)}.`) / 4294967295) / 4;
+                            const gdi = importance * drift;
 
-                            let segmentDriftImpact = Number(hash(`${JSON.stringify(feature)}.`) / 4294967295) / 4.1;
+                            let sdi = Number(hash(`${JSON.stringify(feature)}.`) / 4294967295) / 4.1;
 
                             if (label.endsWith('title')) {
-                                segmentDriftImpact = Number(hash(`${JSON.stringify(feature)}.`) / 4294967295) / 2;
+                                sdi = Number(hash(`${JSON.stringify(feature)}.`) / 4294967295) / 2;
                             }
 
                             return {
-                                label, histogram,
+                                label,
+                                histogram,
                                 type: 'FLOAT',
-                                importance: importance.toFixed(4),
-                                drift: drift.toFixed(4),
-                                gdi: Number(importance * drift).toFixed(4),
-                                sdi: segmentDriftImpact.toFixed(4)
+                                importance,
+                                drift,
+                                gdi,
+                                sdi
                             };
                         })}
                     />
@@ -75,6 +87,48 @@ const Features = () => {
 };
 
 export default Features;
+
+const ToFixed4Cell = ({cell}) => {
+    return (
+        <span>{Number(cell.value).toFixed(4)}</span>
+    );
+};
+
+ToFixed4Cell.propTypes = {
+    cell: PropTypes.object
+};
+
+const GDICell = ({cell}) => {
+    const {gdi} = cell.row.original;
+
+    return (
+        <span style={{color: gdi > 0.3 ? theme.danger : 'inherit'}}>
+            {gdi.toFixed(4)}
+        </span>
+    );
+};
+
+GDICell.propTypes = {
+    cell: PropTypes.object
+};
+
+const SDICell = ({cell}) => {
+    const {sdi} = cell.row.original;
+
+    return (
+        <OverlayTrigger show={sdi > 0.3} overlay={(
+            <OverlayTooltip id='sdi-tooltip'>Detected drift in the segment <pre>tags.browser = safari</pre></OverlayTooltip>
+        )}>
+            <span style={{color: sdi > 0.3 ? theme.danger : 'inherit'}}>
+                {sdi.toFixed(4)}
+            </span>
+        </OverlayTrigger>
+    );
+};
+
+SDICell.propTypes = {
+    cell: PropTypes.object
+};
 
 const HistogramCell = ({cell}) => {
     const {histogram: [hist, bins]} = cell.row.original;

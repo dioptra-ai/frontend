@@ -55,11 +55,8 @@ const Table = ({columns, data, onSelectedRowsChange, getRowProps}) => {
                 {headerGroups.map((headerGroup, i) => (
                     <tr key={i} {...headerGroup.getHeaderGroupProps()}>
                         {headerGroup.headers.map((column, i) => (
-                            // Add the sorting props to control sorting. For this example
-                            // we can add them into the header props
                             <th className={`text-center py-3 border-0 ${column.disableSortBy ? '' : 'cursor-pointer'}`} key={i}
-                                {...column.getSortByToggleProps()}
-                                {...column.getHeaderProps()}
+                                {...column.getHeaderProps(column.getSortByToggleProps())}
                                 {...{
                                     style: {
                                         width: column.width,
@@ -71,15 +68,12 @@ const Table = ({columns, data, onSelectedRowsChange, getRowProps}) => {
                                 title={column.render('Header')}
                             >
                                 {column.render('Header')}
-                                {/* Add a sort direction indicator */}
                                 {column.disableSortBy ? null : (
-                                    <span>
-                                        {column.isSorted ?
-                                            column.isSortedDesc ?
-                                                <TiArrowSortedDown/> :
-                                                <TiArrowSortedUp/> :
-                                            <TiArrowUnsorted/>}
-                                    </span>)}
+                                    column.isSorted ? column.isSortedDesc ?
+                                        <TiArrowSortedDown/> :
+                                        <TiArrowSortedUp/> :
+                                        <TiArrowUnsorted/>
+                                )}
                             </th>
                         ))}
                     </tr>
