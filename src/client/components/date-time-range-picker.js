@@ -6,7 +6,6 @@ import {IoCalendarOutline, IoChevronDownSharp, IoChevronUpSharp} from 'react-ico
 import {Button, Overlay, Tooltip} from 'react-bootstrap';
 
 import {formatDateTimeRange, last} from 'helpers/date-helper';
-import useAllSqlFilters from 'hooks/use-all-sql-filters';
 import useAllFilters from 'hooks/use-all-filters';
 import metricsClient from 'clients/metrics';
 import {setupComponent} from 'helpers/component-helper';
@@ -47,7 +46,7 @@ const DateTimeRangePicker = ({onChange, start, end, className, datePickerSetting
     const overlayTarget = React.useRef(null);
     const [isCalendarVisible, setIsCalendarVisible] = useState(false);
     const allFilters = useAllFilters();
-    const allSqlFiltersWithoutTime = useAllSqlFilters({excludeCurrentTimeFilters: true});
+    const allFiltersWithoutTime = useAllFilters({excludeCurrentTimeFilters: true});
     const handleChange = ({startDate, endDate, chosenLabel}) => {
         if (chosenLabel) {
             // Clicked a "lastXXXHours" type range.
@@ -75,7 +74,7 @@ const DateTimeRangePicker = ({onChange, start, end, className, datePickerSetting
                                         No data could be found within the selected time range.
                                         <Button className='btn-primary text-white m-2' onClick={async () => {
                                             const [d] = await metricsClient('default-time-range', {
-                                                sql_filters: allSqlFiltersWithoutTime
+                                                filters: allFiltersWithoutTime
                                             }, false);
 
                                             if (d) {

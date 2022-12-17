@@ -20,7 +20,6 @@ import useSyncStoresToUrl from 'hooks/use-sync-stores-to-url';
 import Menu from 'components/menu';
 import comparisonContext from 'context/comparison-context';
 import {timeStore} from 'state/stores/time-store';
-import useAllSqlFilters from 'hooks/use-all-sql-filters';
 import metricsClient from 'clients/metrics';
 import useAllFilters from 'hooks/use-all-filters';
 
@@ -43,7 +42,7 @@ SplitView.propTypes = {
 };
 
 const Model = ({filtersStore, modelStore}) => {
-    const allSqlFiltersWithoutTime = useAllSqlFilters({excludeCurrentTimeFilters: true});
+    const allFiltersWithoutTime = useAllFilters({excludeCurrentTimeFilters: true});
     const allFilters = useAllFilters();
 
     useSyncStoresToUrl(({timeStore, filtersStore, segmentationStore}) => ({
@@ -80,7 +79,7 @@ const Model = ({filtersStore, modelStore}) => {
 
                 if (c?.value === 0) {
                     const [d] = await metricsClient('default-time-range', {
-                        sql_filters: allSqlFiltersWithoutTime
+                        filters: allFiltersWithoutTime
                     }, false);
 
                     if (d) {
@@ -89,7 +88,7 @@ const Model = ({filtersStore, modelStore}) => {
                 }
             }
         })();
-    }, [timeStore.isModified, allSqlFiltersWithoutTime]);
+    }, [timeStore.isModified, allFiltersWithoutTime]);
 
     if (!firstModel) {
 

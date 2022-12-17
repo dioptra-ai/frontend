@@ -33,9 +33,10 @@ const useAllFilters = ({useReferenceFilters = false, excludeCurrentTimeFilters} 
                 right: null
             });
         }
+    } else {
+        allFilters.push(timeStore.timeFilter);
     }
 
-    allFilters.push(timeStore.timeFilter);
     allFilters.push(...filtersStore.filters);
 
     return allFilters;
