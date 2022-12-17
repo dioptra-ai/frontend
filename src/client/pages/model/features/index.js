@@ -115,15 +115,20 @@ GDICell.propTypes = {
 const SDICell = ({cell}) => {
     const {sdi} = cell.row.original;
 
-    return (
-        <OverlayTrigger show={sdi > 0.3} overlay={(
-            <OverlayTooltip id='sdi-tooltip'>Detected drift in the segment <pre>tags.browser = safari</pre></OverlayTooltip>
-        )}>
-            <span style={{color: sdi > 0.3 ? theme.danger : 'inherit'}}>
-                {sdi.toFixed(4)}
-            </span>
-        </OverlayTrigger>
-    );
+    if (sdi > 0.3) {
+
+        return (
+            <OverlayTrigger overlay={(
+                <OverlayTooltip id='sdi-tooltip'>
+                    Detected drift in the segment <pre>tags.browser = safari</pre>
+                </OverlayTooltip>
+            )}>
+                <span style={{color: theme.danger}}>
+                    {sdi.toFixed(4)}
+                </span>
+            </OverlayTrigger>
+        );
+    } else return sdi.toFixed(4);
 };
 
 SDICell.propTypes = {
