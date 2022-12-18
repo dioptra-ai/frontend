@@ -9,7 +9,6 @@ import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import {IoChevronForwardSharp, IoCloseCircleOutline} from 'react-icons/io5';
 
-
 import theme from 'styles/theme.module.scss';
 
 const inRange = (num, min, max) => num >= min && num <= max;
@@ -42,6 +41,21 @@ const ScatterChart = ({
     getX = (d) => d.x, getY = (d) => d.y, getColor, getPointTitle, isDatapointSelected,
     chartId = `chart-${nanoid()}`, width = '100%', height = '100%'
 }) => {
+    const dataMap = data.reduce((acc, d) => {
+        const x = getX(d);
+        const y = getY(d);
+
+        if (!acc[x]) {
+            acc[x] = {};
+        }
+
+        if (!acc[x][y]) {
+            acc[x][y] = d;
+        }
+
+        return acc;
+    }, {});
+    const prunedData = Object.values(dataMap).map((d) => Object.values(d)).flat();
     const brushRef = useRef(null);
     const brush = d3.brush().keyModifiers(false)
         .on('start', function () {
@@ -68,8 +82,8 @@ const ScatterChart = ({
         });
     const xExtent = fc.extentLinear().pad([0.10, 0.10]).accessors([getX]);
     const yExtent = fc.extentLinear().pad([0.10, 0.10]).accessors([getY]);
-    const xScale = d3.scaleLinear().domain(xExtent(data));
-    const yScale = d3.scaleLinear().domain(yExtent(data));
+    const xScale = d3.scaleLinear().domain(xExtent(prunedData));
+    const yScale = d3.scaleLinear().domain(yExtent(prunedData));
     const svgPointSeries = fc.seriesSvgPoint()
         .crossValue(getX)
         .mainValue(getY)
@@ -122,7 +136,7 @@ const ScatterChart = ({
         }
 
         d3.select(`#${chartId}`)
-            .datum(data.sort((p1) => isDatapointSelected?.(p1) ? 1 : -1)) // Selected => on top.
+            .datum(prunedData.sort((p1) => isDatapointSelected?.(p1) ? 1 : -1)) // Selected => on top.
             .call(chart);
 
         if (onSelectedDataChange) {
@@ -130,7 +144,7 @@ const ScatterChart = ({
         }
     };
 
-    React.useEffect(renderData, [data]);
+    React.useEffect(renderData, [prunedData]);
 
     return (
         <>

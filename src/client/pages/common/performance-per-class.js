@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import Async from 'components/async';
+import Alert from 'react-bootstrap/Alert';
 import {IconNames} from 'constants';
 import FontIcon from 'components/font-icon';
 import Row from 'react-bootstrap/Row';
@@ -18,6 +19,7 @@ import ScatterChart from 'components/scatter-chart';
 import Select from 'components/select';
 import theme from 'styles/theme.module.scss';
 
+const PERF_BOX_LIMIT = 1000;
 const PerformanceBox = ({
     title = '',
     subtext,
@@ -33,6 +35,13 @@ const PerformanceBox = ({
             {subtext && (
                 <span className='text-primary mx-1 d-inline-flex'>(n={subtext})</span>
             )}
+            {
+                data.length >= PERF_BOX_LIMIT ? (
+                    <Alert variant='warning' className='my-2'>
+                        {`This analysis is only showing ${Number(PERF_BOX_LIMIT).toLocaleString()} elements. Try filtering down to see all values.`}
+                    </Alert>
+                ) : null
+            }
             <div className='d-flex py-3 text-secondary bold-text border-bottom'>
                 <span className='w-100'>Label</span>
                 <div
@@ -141,7 +150,9 @@ const PerformanceMetricAnalysis = ({metricUrl, title}) => {
             fetchData={() => metricsClient(metricUrl, {
                 filters: allFilters,
                 per_class: true,
-                model_type: model.mlModelType
+                model_type: model.mlModelType,
+                limit: PERF_BOX_LIMIT,
+                order_by: 'RANDOM()'
             })}
             refetchOnChanged={[allFilters]}
         />
@@ -153,6 +164,7 @@ PerformanceMetricAnalysis.propTypes = {
     title: PropTypes.string
 };
 
+const SCATTER_PLOT_LIMIT = 1000;
 const PerformanceMetricScatterPlot = ({metricUrl, title}) => {
     const allFilters = useAllFilters();
     const model = useModel();
@@ -165,7 +177,15 @@ const PerformanceMetricScatterPlot = ({metricUrl, title}) => {
                 renderData={(data) => (
                     <Row className='flex-grow-1'>
                         <Col>
+                            {
+                                data.length >= SCATTER_PLOT_LIMIT ? (
+                                    <Alert variant='warning' className='my-2'>
+                                        {`This analysis is only showing ${Number(SCATTER_PLOT_LIMIT).toLocaleString()} elements. Try filtering down to see all values.`}
+                                    </Alert>
+                                ) : null
+                            }
                             <ScatterChart
+                                height={400}
                                 showAxes
                                 data={data}
                                 getX={(p) => p['x']}
@@ -179,7 +199,9 @@ const PerformanceMetricScatterPlot = ({metricUrl, title}) => {
                 fetchData={() => metricsClient(metricUrl, {
                     filters: allFilters,
                     per_class: true,
-                    model_type: model.mlModelType
+                    model_type: model.mlModelType,
+                    limit: SCATTER_PLOT_LIMIT,
+                    order_by: 'RANDOM()'
                 })}
                 refetchOnChanged={[allFilters, metricUrl]}
             />
