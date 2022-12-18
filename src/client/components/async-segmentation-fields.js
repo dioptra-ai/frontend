@@ -2,16 +2,16 @@ import PropTypes from 'prop-types';
 
 import {setupComponent} from 'helpers/component-helper';
 import Async from 'components/async';
-import useAllSqlFilters from 'hooks/use-all-sql-filters';
+import useAllFilters from 'hooks/use-all-filters';
 import metricsClient from 'clients/metrics';
 
 const AsyncSegmentationFields = ({renderData}) => {
-    const allSqlFilters = useAllSqlFilters();
+    const allFilters = useAllFilters();
 
     return (
         <Async
             fetchData={() => metricsClient('queries/segmentation-columns', {
-                sql_filters: allSqlFilters
+                filters: allFilters
             })}
             renderData={renderData}
         />
