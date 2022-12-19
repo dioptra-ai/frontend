@@ -131,6 +131,25 @@ const MinerModal = ({isOpen, onClose, onMinerSaved, defaultMiner = {}}) => {
                             </InputGroup>
                         </Col>
                         <Col>
+                            <Form.Label className='mt-3 mb-0 w-100'>Schedule</Form.Label>
+                            <InputGroup className='mt-1'>
+                                <Select>
+                                    <option>One time</option>
+                                    <option>Every 5 mins</option>
+                                    <option>Every 15 mins</option>
+                                    <option>Every 30 mins</option>
+                                    <option>Every 1 hour</option>
+                                    <option>Every 6 hours</option>
+                                    <option>Every 12 hours</option>
+                                    <option>Every 24 hours</option>
+                                    <option>Every 3 days</option>
+                                    <option>Every 7 days</option>
+                                </Select>
+                            </InputGroup>
+                        </Col>
+                    </Row>
+                    <Row classname='g-2'>
+                        <Col>
                             <Form.Label className='mt-3 mb-0 w-100'>Strategy</Form.Label>
                             <InputGroup className='mt-1'>
                                 <Select onChange={setMinerStrategy} value={minerStrategy} options={minerStrategyOptions} />
