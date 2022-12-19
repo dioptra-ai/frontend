@@ -2,6 +2,8 @@
 import {useInView} from 'react-intersection-observer';
 import PropTypes from 'prop-types';
 import React, {useEffect, useState} from 'react';
+import Collapse from 'react-bootstrap/Collapse';
+import {IoChevronDownSharp, IoChevronForwardSharp} from 'react-icons/io5';
 import {
     Bar,
     BarChart,
@@ -30,6 +32,18 @@ import useAllFilters from 'hooks/use-all-filters';
 
 const AddColumnModal = ({onApply, allColumns, initiallyselected}) => {
     const [selectedColumns, setSelectedColumns] = useState(initiallyselected.filter((c) => allColumns.includes(c)));
+    const [openSections, setOpenSections] = useState([]);
+    const columnsBySection = allColumns.reduce((acc, col) => {
+        const section = col.split('.')[0];
+
+        if (acc[section]) {
+            acc[section].push(col);
+        } else {
+            acc[section] = [col];
+        }
+
+        return acc;
+    }, {});
 
     const handleChange = (e, col) => {
         if (e.target.checked) {
@@ -45,17 +59,35 @@ const AddColumnModal = ({onApply, allColumns, initiallyselected}) => {
         <>
             {allColumns.length > 0 && (
                 <div className='d-flex flex-column mb-4'>
-                    <p className='text-dark fw-bold fs-6'>Available Columns</p>
-                    {allColumns.map((column, i) => (
-                        <label className='checkbox my-2 fs-6' key={i}>
-                            <input
-                                defaultChecked={selectedColumns.includes(column)}
-                                onChange={(e) => handleChange(e, column)}
-                                type='checkbox'
-                            />
-                            <span className='fs-6'>{column}</span>
-                        </label>
-                    ))}
+                    {
+                        Object.keys(columnsBySection).map((section) => (
+                            <div key={section}>
+                                <a className='text-dark fw-bold fs-6' onClick={() => {
+                                    if (openSections.includes(section)) {
+                                        setOpenSections(openSections.filter((s) => s !== section));
+                                    } else {
+                                        setOpenSections([...openSections, section]);
+                                    }
+                                }}>
+                                    {section || 'Other Columns'}{openSections.includes(section) ? <IoChevronDownSharp/> : <IoChevronForwardSharp/>}
+                                </a>
+                                <Collapse in={openSections.includes(section)}>
+                                    <div>
+                                        {columnsBySection[section].map((column, i) => (
+                                            <label className='checkbox my-2 fs-6' key={i}>
+                                                <input
+                                                    defaultChecked={selectedColumns.includes(column)}
+                                                    onChange={(e) => handleChange(e, column)}
+                                                    type='checkbox'
+                                                />
+                                                <span className='fs-6'>{column}</span>
+                                            </label>
+                                        ))}
+                                    </div>
+                                </Collapse>
+                            </div>
+                        ))
+                    }
                 </div>
             )}
             <div className='border-top border-mercury py-3'>
