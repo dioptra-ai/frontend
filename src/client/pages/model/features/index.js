@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import {Tooltip as OverlayTooltip, OverlayTrigger} from 'react-bootstrap';
 import {AiOutlineCheckCircle} from 'react-icons/ai';
 import hash from 'string-hash';
-import {Bar, BarChart, Cell, Tooltip, XAxis} from 'recharts';
+import {Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis} from 'recharts';
 import metricsClient from 'clients/metrics';
 import Async from 'components/async';
 import useAllFilters from 'hooks/use-all-filters';
@@ -139,19 +139,21 @@ const HistogramCell = ({cell}) => {
     const {histogram: [hist, bins]} = cell.row.original;
 
     return (
-        <div className='w-100 d-flex justify-content-center' style={{width: 200, height: 60}}>
-            <BarChart data={hist.map((v, i) => ({
-                name: `${Number(bins[i]).toFixed(2)} - ${Number(bins[i + 1]).toFixed(2)}`,
-                value: v
-            }))}>
-                <Tooltip content={<BarTooltip />} />
-                <Bar background={false} dataKey='value' minPointSize={2}>
-                    {hist.map((v, i) => (
-                        <Cell accentHeight='0px' fill={theme.primary} key={i} />
-                    ))}
-                </Bar>
-                <XAxis dataKey='name' tick={false} hide/>
-            </BarChart>
+        <div className='d-flex justify-content-center' style={{width: 200}}>
+            <ResponsiveContainer height={60}>
+                <BarChart data={hist.map((v, i) => ({
+                    name: `${Number(bins[i]).toFixed(2)} - ${Number(bins[i + 1]).toFixed(2)}`,
+                    value: v
+                }))}>
+                    <Tooltip content={<BarTooltip />} />
+                    <Bar background={false} dataKey='value' minPointSize={2}>
+                        {hist.map((v, i) => (
+                            <Cell accentHeight='0px' fill={theme.primary} key={i} />
+                        ))}
+                    </Bar>
+                    <XAxis dataKey='name' tick={false} hide/>
+                </BarChart>
+            </ResponsiveContainer>
         </div>
     );
 };
