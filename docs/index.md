@@ -2,7 +2,7 @@
 
 Dioptra is a platform managing model continuous improvement.
 
-## Helpful links
+## Helpful Links
 
 * [Getting Started](getting-started.md) - Get setup in 5 min
 * [Ingesting data to the lake](ingestion.md) - Learn how to send data to the Dioptra lake
