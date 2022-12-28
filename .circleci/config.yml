@@ -44,6 +44,7 @@ jobs:
       image-tag:
         type: string
         default: <<pipeline.git.revision>>
+    circleci_ip_ranges: true
     docker:
       - image: 'cimg/python:3.10'
     steps:
@@ -123,3 +124,5 @@ workflows:
               only: /^v.*/
             branches:
               ignore: /.*/
+
+# VS Code Extension Version: 1.5.0
