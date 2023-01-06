@@ -5,6 +5,7 @@ import {dirname, join, resolve} from 'path';
 import {fileURLToPath} from 'url';
 import {} from 'dotenv/config';
 import {sessionHandler} from './src/server/middleware/authentication.mjs';
+import rateLimit from './src/server/middleware/rate-limit.mjs';
 import ApiRouter from './src/server/api-router.mjs';
 import jsonError from './src/server/middleware/json-error.mjs';
 import { isbasicAuthenticated } from './src/server/middleware/authentication.mjs';
@@ -28,8 +29,7 @@ app.use(express.json({limit: '50mb'}));
 app.use(express.urlencoded({extended: true}));
 
 // Register all controller routes to /api/ basepath
-app.use('/api', ApiRouter);
-
+app.use('/api', rateLimit, ApiRouter);
 
 // Serve frontend on all routes other than /api
 app.get('*', (req, res, next) => {
