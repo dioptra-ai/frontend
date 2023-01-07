@@ -277,7 +277,7 @@ const Mislabeling = ({userStore}) => {
                             const detailsComponent = (
                                 <>
                                     <hr/>
-                                    <PreviewDetails sample={datapoint}/>
+                                    <PreviewDetails datapoint={datapoint}/>
                                 </>
                             );
 

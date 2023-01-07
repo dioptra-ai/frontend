@@ -87,7 +87,7 @@ const Miner = () => {
                         </div>
                         <Container fluid>
                             <div className='text-dark p-3'>
-                                <PreviewDetails sample={Object.fromEntries(Object.entries(miner).filter(([key]) => ![
+                                <PreviewDetails datapoint={Object.fromEntries(Object.entries(miner).filter(([key]) => ![
                                     '_id', 'organization_id', 'user_id', 'display_name'
                                 ].includes(key)).map(([key, value]) => {
                                     if (key === 'status') {
@@ -121,7 +121,7 @@ const Miner = () => {
                                                             saveAs(new Blob([datapoints], {type: 'text/csv;charset=utf-8'}), `${slugify(miner['display_name'])}.csv`);
                                                         }}>Download as CSV</a>
                                                     </>) : null}
-                                                <PreviewDetails sample={task}/>
+                                                <PreviewDetails datapoint={task}/>
                                                 {
                                                     task['status'] === 'SUCCESS' ? (
                                                         <>
