@@ -46,5 +46,6 @@ export const postgresClient = {
         console.log('PostgreSQL query: ', text, params);
 
         return postgresPool.query(text, params);
-    }
+    },
+    connect: () => postgresPool.connect()
 };
