@@ -6,21 +6,23 @@ import Modal from 'components/modal';
 import baseJSONClient from 'clients/base-json-client';
 import metricsClient from 'clients/metrics';
 
-const DatasetModal = ({isOpen, onDatasetSaved, onClose, defaultDatapoints, defaultDisplayName, defaultFilters, dataset}) => {
-    const [displayName, setDisplayName] = useState(dataset ? dataset['display_name'] : defaultDisplayName);
+const DatasetModal = ({isOpen, onDatasetSaved, onClose, defaultDatapoints, defaultFilters, dataset, parentDataset}) => {
+    const defaultDataset = dataset || parentDataset;
+    const [displayName, setDisplayName] = useState(defaultDataset?.['display_name']);
     const [datapoints, setDatapoints] = useState(defaultDatapoints);
     const handleSaveDataset = async () => {
-        const savedDataset = await baseJSONClient('/api/datasets', {
+        const savedDataset = await baseJSONClient('/api/dataset/version', {
             method: 'POST',
             body: {
                 displayName,
-                uuid: dataset?.uuid
+                uuid: dataset?.uuid,
+                parentUuid: parentDataset?.uuid
             }
         });
 
         if (datapoints?.length) {
 
-            await baseJSONClient(`/api/datasets/${savedDataset.uuid}/datapoints`, {
+            await baseJSONClient(`/api/dataset/${savedDataset.uuid}/datapoints`, {
                 method: 'POST',
                 body: {
                     requestIds: datapoints.map(({request_id}) => request_id)
@@ -50,19 +52,19 @@ const DatasetModal = ({isOpen, onDatasetSaved, onClose, defaultDatapoints, defau
     }, [defaultFilters]);
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title={dataset ? 'Edit Dataset' : 'Create Dataset'}>
+        <Modal isOpen={isOpen} onClose={onClose} title={dataset ? 'Edit Dataset' : parentDataset ? 'New Dataset Version' : 'Create Dataset'}>
             <Form onSubmit={(e) => {
                 e.preventDefault();
                 handleSaveDataset();
             }}>
-                <Form.Label>Name</Form.Label>
+                <Form.Label>Dataset Name</Form.Label>
                 <Form.Control required type='text' value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
                 <Button
                     className='w-100 text-white btn-submit mt-3'
                     variant='primary'
                     type='submit'
                 >
-                    {dataset ? 'Update Dataset' : 'Create Dataset'}
+                    {dataset ? 'Update Dataset' : parentDataset ? 'Create Dataset Version' : 'Create Dataset'}
                 </Button>
             </Form>
         </Modal>
@@ -77,7 +79,7 @@ DatasetModal.propTypes = {
     onDatasetSaved: PropTypes.func,
     defaultDatapoints: PropTypes.array,
     defaultFilters: PropTypes.array,
-    defaultDisplayName: PropTypes.string
+    parentDataset: PropTypes.object
 };
 
 export default DatasetModal;

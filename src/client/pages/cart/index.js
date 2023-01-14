@@ -86,7 +86,7 @@ const Cart = ({userStore}) => {
                                         <BsMinecartLoaded className='fs-2 ps-2 cursor-pointer'/> Create Miner
                                     </Button>
                                     <Async
-                                        fetchData={() => baseJSONClient('/api/datasets')}
+                                        fetchData={() => baseJSONClient('/api/dataset')}
                                         renderData={(datasets) => (
                                             <DropdownButton
                                                 className='w-100 text-white btn-submit mb-3 d-flex flex-column'
@@ -103,7 +103,7 @@ const Cart = ({userStore}) => {
                                                             }
                                                         });
 
-                                                        await baseJSONClient(`/api/datasets/${dataset.uuid}/datapoints`, {
+                                                        await baseJSONClient(`/api/dataset/${dataset.uuid}/datapoints`, {
                                                             method: 'POST',
                                                             body: {
                                                                 datapointIds: datapoints.map((datapoint) => datapoint['uuid'])

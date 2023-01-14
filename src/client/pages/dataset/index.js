@@ -1,8 +1,9 @@
 import {useState} from 'react';
 import {useHistory, useParams} from 'react-router-dom';
-import {Container, OverlayTrigger, Tooltip} from 'react-bootstrap';
+import {Button, Container, OverlayTrigger, Tooltip} from 'react-bootstrap';
 import {AiOutlineDelete} from 'react-icons/ai';
 import {saveAs} from 'file-saver';
+import Form from 'react-bootstrap/Form';
 
 import Async from 'components/async';
 import Menu from 'components/menu';
@@ -11,12 +12,14 @@ import baseJSONClient from 'clients/base-json-client';
 import DatapointsViewer from 'components/datapoints-viewer';
 import metricsClient from 'clients/metrics';
 import DatasetModal from 'components/dataset-modal';
+import Select from 'components/select';
 
 const Dataset = () => {
-    const {datasetId} = useParams();
+    const {datasetVersionId} = useParams();
     const history = useHistory();
     const [isDatasetEditOpen, setIsDatasetEditOpen] = useState(false);
     const [isDatasetCloneOpen, setIsDatasetCloneOpen] = useState(false);
+    const [isDatasetNewVersionOpen, setIsDatasetNewVersionOpen] = useState(false);
     const [selectedEvents, setSelectedEvents] = useState([]);
     const [lastUpdatedOn, setLastUpdatedOn] = useState(new Date());
 
@@ -24,20 +27,52 @@ const Dataset = () => {
         <Menu>
             <TopBar hideTimePicker />
             <Async
-                fetchData={() => baseJSONClient(`/api/datasets/${datasetId}`)}
-                refetchOnChanged={[datasetId, lastUpdatedOn]}
+                fetchData={() => baseJSONClient(`/api/dataset/version/${datasetVersionId}`)}
+                refetchOnChanged={[datasetVersionId, lastUpdatedOn]}
                 renderData={(dataset) => (
                     <>
                         <div className='bg-white-blue text-dark p-3'>
                             <h4>{dataset['display_name']}</h4>
-                            <h6 className='text-muted'>Created {new Date(dataset['created_at']).toLocaleString()}</h6>
+                            <Form className='my-2 d-flex' style={{width: 'fit-content'}}onSubmit={async (e) => {
+                                const datasetVersionId = e.target.datasetVersionId.value;
+
+                                e.preventDefault();
+
+                                await baseJSONClient(`/api/dataset/version/${datasetVersionId}/same-parent-current`, {
+                                    method: 'POST',
+                                    body: {datasetVersionId}
+                                });
+
+                                history.push(`/datasets/${datasetVersionId}`);
+                            }}>
+                                <Form.Label column sm={2} className='mb-0'>Versions</Form.Label>
+                                <Async
+                                    className='mx-3 flex-grow-0'
+                                    fetchData={() => baseJSONClient(`/api/dataset/version/${datasetVersionId}/same-parent`)}
+                                    renderData={(versions) => (
+                                        <Select name='datasetVersionId' defaultValue={datasetVersionId}>
+                                            {versions.map((version) => (
+                                                <option key={version['uuid']} value={version['uuid']}>
+                                                    {`${version['display_name']} (${version['created_at']}) ${version['is_current'] ? '[Current]' : ''}`}
+                                                </option>
+                                            ))}
+                                        </Select>
+                                    )}
+                                    refetchOnChanged={[datasetVersionId]}
+                                />
+                                <Button type='submit' variant='secondary' size='s' className='text-nowrap'>
+                                    Set Current
+                                </Button>
+                            </Form>
                             <Async
-                                fetchData={() => baseJSONClient(`/api/datasets/${datasetId}/datapoints`, {memoized: true})}
+                                fetchData={() => baseJSONClient(`/api/dataset/version/${datasetVersionId}/datapoints`, {memoized: true})}
                                 renderData={(datapoints) => (
                                     <>
                                         <a href='#' onClick={() => setIsDatasetEditOpen(true)}>Edit</a>
                                         &nbsp;|&nbsp;
                                         <a href='#' onClick={() => setIsDatasetCloneOpen(true)}>Clone</a>
+                                        &nbsp;|&nbsp;
+                                        <a href='#' onClick={() => setIsDatasetNewVersionOpen(true)}>New Version</a>
                                         &nbsp;|&nbsp;
                                         <a href='#' onClick={async () => {
                                             const data = await metricsClient('select', {
@@ -57,27 +92,30 @@ const Dataset = () => {
                                         &nbsp;|&nbsp;
                                         <a href='#' style={{color: 'red'}} onClick={async () => {
                                             if (window.confirm('Are you sure you want to delete this dataset?')) {
-                                                await baseJSONClient(`/api/datasets/${datasetId}`, {
+                                                await baseJSONClient(`/api/dataset/version/${datasetVersionId}`, {
                                                     method: 'DELETE'
                                                 });
 
                                                 history.push('/datasets');
                                             }
                                         }}>Delete</a>
-                                        {(isDatasetEditOpen || isDatasetCloneOpen) ? (
+                                        {(isDatasetEditOpen || isDatasetCloneOpen || isDatasetNewVersionOpen) ? (
                                             <DatasetModal
                                                 isOpen
                                                 onClose={() => {
                                                     setIsDatasetEditOpen(false);
                                                     setIsDatasetCloneOpen(false);
+                                                    setIsDatasetNewVersionOpen(false);
                                                 }}
                                                 onDatasetSaved={({uuid}) => {
                                                     setIsDatasetEditOpen(false);
                                                     setIsDatasetCloneOpen(false);
+                                                    setIsDatasetNewVersionOpen(false);
                                                     setLastUpdatedOn(new Date());
                                                     history.push(`/datasets/${uuid}`);
                                                 }}
                                                 dataset={isDatasetEditOpen ? dataset : null}
+                                                parentDataset={isDatasetNewVersionOpen ? dataset : null}
                                                 defaultDisplayName={`Clone of ${dataset['display_name']}`}
                                                 defaultFilters={datapoints.length ? [{
                                                     left: 'request_id',
@@ -95,8 +133,8 @@ const Dataset = () => {
             />
             <Container fluid>
                 <Async
-                    fetchData={() => baseJSONClient(`/api/datasets/${datasetId}/datapoints`, {memoized: true})}
-                    refetchOnChanged={[datasetId, lastUpdatedOn]}
+                    fetchData={() => baseJSONClient(`/api/dataset/version/${datasetVersionId}/datapoints`, {memoized: true})}
+                    refetchOnChanged={[datasetVersionId, lastUpdatedOn]}
                     renderData={(datapoints) => (
                         datapoints.length ? (
                             <Async
@@ -124,7 +162,7 @@ const Dataset = () => {
                                     }, {});
                                     const handleRemoveSelectedEvents = async () => {
                                         if (window.confirm('Are you sure you want to remove the selected datapoints?')) {
-                                            await baseJSONClient(`/api/datasets/${datasetId}/datapoints`, {
+                                            await baseJSONClient(`/api/dataset/version/${datasetVersionId}/datapoints`, {
                                                 method: 'DELETE',
                                                 body: {
                                                     datapointIds: selectedEvents.map((e) => datapoints.find((d) => d['request_id'] === e['request_id'])['uuid'])

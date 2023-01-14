@@ -30,7 +30,7 @@ ApiRouter.use('/integration', IntegrationRouter);
 ApiRouter.use('/ingestion', IngestionRouter);
 ApiRouter.use('/infrastructure', InfrastructureRouter);
 ApiRouter.use('/datapoints', DatapointsRouter);
-ApiRouter.use('/datasets', DatasetsRouter);
+ApiRouter.use('/dataset', DatasetsRouter);
 ApiRouter.use('/events', EventsRouter);
 
 export default ApiRouter;

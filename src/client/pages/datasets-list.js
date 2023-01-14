@@ -28,20 +28,18 @@ const DatasetsList = () => {
                     </Button>
                 </div>
                 <Async
-                    fetchData={() => baseJSONClient('/api/datasets')}
+                    fetchData={() => baseJSONClient('/api/dataset/version')}
                     renderData={(datasets) => (
                         <Table className='models-table mt-3'>
                             <thead className='align-middle text-secondary'>
                                 <tr className='border-0 border-bottom border-mercury'>
-                                    <th className='text-secondary'>ID</th>
                                     <th className='text-secondary'>Name</th>
-                                    <th className='text-secondary'>Created At</th>
+                                    <th className='text-secondary'>Latest Version Date</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {datasets.map(({uuid, display_name, created_at}, i) => (
                                     <tr className='cursor-pointer' key={i} onClick={() => history.push(`/datasets/${uuid}`)}>
-                                        <td className='text-dark'>{uuid}</td>
                                         <td>{display_name}</td>
                                         <td>{new Date(created_at).toLocaleString()}</td>
                                     </tr>
