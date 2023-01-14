@@ -20,9 +20,10 @@ const DatasetModal = ({isOpen, onDatasetSaved, onClose, defaultDatapoints, defau
             }
         });
 
-        if (datapoints?.length) {
+        // This is already done on the server-side when passing parentUuid to the POST /api/dataset/version endpoint.
+        if (datapoints?.length && !parentDataset) {
 
-            await baseJSONClient(`/api/dataset/${savedDatasetVersion.uuid}/datapoints`, {
+            await baseJSONClient(`/api/dataset/version/${savedDatasetVersion.uuid}/datapoints`, {
                 method: 'POST',
                 body: {
                     requestIds: datapoints.map(({request_id}) => request_id)
