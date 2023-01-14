@@ -140,7 +140,7 @@ DatasetsRouter.get('/version/:datasetVersionId/same-parent', async (req, res, ne
 DatasetsRouter.post('/version/:datasetVersionId/same-parent-current', async (req, res, next) => {
     try {
         const {activeOrganizationMembership} = req.user;
-        const datasetVersion = await DatasetVersion.setCurrentFromSameParent(activeOrganizationMembership.organization._id, req.params.datasetVersionId, req.body.datasetVersionId);
+        const datasetVersion = await DatasetVersion.setCurrentFromSameRootParent(activeOrganizationMembership.organization._id, req.params.datasetVersionId, req.body.datasetVersionId);
 
         res.json(datasetVersion);
     } catch (e) {

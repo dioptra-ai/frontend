@@ -20,7 +20,7 @@ class DatasetVersion {
         return rows;
     }
 
-    static async setCurrentFromSameParent(organizationId, currentDatasetVersionId, datasetVersionId) {
+    static async setCurrentFromSameRootParent(organizationId, currentDatasetVersionId, datasetVersionId) {
         const currentDatasetVersion = await DatasetVersion.findById(organizationId, currentDatasetVersionId);
         const transactionClient = await postgresClient.connect();
 
@@ -113,13 +113,41 @@ class DatasetVersion {
         return rows[0];
     }
 
-    static async deleteById(organizationId, id) {
-        const {rows} = await postgresClient.query(
-            'DELETE FROM dataset_versions WHERE uuid = $1 AND organization_id = $2 RETURNING *',
-            [id, organizationId]
-        );
+    static async deleteById(organizationId, datasetVersionId) {
+        const datasetVersion = await DatasetVersion.findById(organizationId, datasetVersionId);
+        const transactionClient = await postgresClient.connect();
 
-        return rows[0];
+        try {
+            await transactionClient.query('BEGIN');
+
+            // Delete dataset version.
+            await postgresClient.query(
+                'DELETE FROM dataset_versions WHERE uuid = $1 AND organization_id = $2',
+                [datasetVersionId, organizationId]
+            );
+
+            // Set latest version as current.
+            const {rows: [latestDatasetVersion]} = await transactionClient.query(
+                'SELECT * FROM dataset_versions WHERE organization_id = $1 and (root_parent_uuid = $2 or uuid = $2) ORDER BY created_at DESC LIMIT 1',
+                [organizationId, datasetVersion['root_parent_uuid'] || datasetVersionId]
+            );
+
+            if (latestDatasetVersion) {
+                await transactionClient.query(
+                    'UPDATE dataset_versions SET is_current = true WHERE uuid = $1 AND organization_id = $2',
+                    [latestDatasetVersion.uuid, organizationId]
+                );
+            }
+
+            await transactionClient.query('COMMIT');
+
+            return latestDatasetVersion;
+        } catch (e) {
+            await transactionClient.query('ROLLBACK');
+            throw e;
+        } finally {
+            transactionClient.release();
+        }
     }
 
 

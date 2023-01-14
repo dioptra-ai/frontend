@@ -45,9 +45,9 @@ const Dataset = () => {
 
                                 history.push(`/datasets/${datasetVersionId}`);
                             }}>
-                                <Form.Label column sm={2} className='mb-0'>Versions</Form.Label>
+                                <Form.Label column className='mb-0 text-nowrap'>Current Version:</Form.Label>
                                 <Async
-                                    className='mx-3 flex-grow-0'
+                                    className='ms-1 me-3 flex-grow-0'
                                     fetchData={() => baseJSONClient(`/api/dataset/version/${datasetVersionId}/same-parent`)}
                                     renderData={(versions) => (
                                         <Select name='datasetVersionId' defaultValue={datasetVersionId}>
@@ -61,7 +61,7 @@ const Dataset = () => {
                                     refetchOnChanged={[datasetVersionId]}
                                 />
                                 <Button type='submit' variant='secondary' size='s' className='text-nowrap'>
-                                    Set Current
+                                    Save
                                 </Button>
                             </Form>
                             <Async
@@ -91,14 +91,14 @@ const Dataset = () => {
                                         }}>Download as CSV</a>
                                         &nbsp;|&nbsp;
                                         <a href='#' style={{color: 'red'}} onClick={async () => {
-                                            if (window.confirm('Are you sure you want to delete this dataset?')) {
+                                            if (window.confirm('Are you sure you want to delete this dataset version?')) {
                                                 await baseJSONClient(`/api/dataset/version/${datasetVersionId}`, {
                                                     method: 'DELETE'
                                                 });
 
                                                 history.push('/datasets');
                                             }
-                                        }}>Delete</a>
+                                        }}>Delete Current Version</a>
                                         {(isDatasetEditOpen || isDatasetCloneOpen || isDatasetNewVersionOpen) ? (
                                             <DatasetModal
                                                 isOpen
