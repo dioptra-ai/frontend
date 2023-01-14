@@ -11,7 +11,7 @@ const DatasetModal = ({isOpen, onDatasetSaved, onClose, defaultDatapoints, defau
     const [displayName, setDisplayName] = useState(defaultDataset?.['display_name']);
     const [datapoints, setDatapoints] = useState(defaultDatapoints);
     const handleSaveDataset = async () => {
-        const savedDataset = await baseJSONClient('/api/dataset/version', {
+        const savedDatasetVersion = await baseJSONClient('/api/dataset/version', {
             method: 'POST',
             body: {
                 displayName,
@@ -22,7 +22,7 @@ const DatasetModal = ({isOpen, onDatasetSaved, onClose, defaultDatapoints, defau
 
         if (datapoints?.length) {
 
-            await baseJSONClient(`/api/dataset/${savedDataset.uuid}/datapoints`, {
+            await baseJSONClient(`/api/dataset/${savedDatasetVersion.uuid}/datapoints`, {
                 method: 'POST',
                 body: {
                     requestIds: datapoints.map(({request_id}) => request_id)
@@ -31,7 +31,7 @@ const DatasetModal = ({isOpen, onDatasetSaved, onClose, defaultDatapoints, defau
 
         }
 
-        onDatasetSaved(savedDataset);
+        onDatasetSaved(savedDatasetVersion);
     };
 
     useState(() => {

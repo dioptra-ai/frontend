@@ -21,7 +21,7 @@ class Datapoint {
 
     static async upsertByEventUuids(organizationId, eventUuids) {
         const {rows: events} = await postgresClient.query(
-            `SELECT DISTINCT request_id from events WHERE organization_id = $1 AND uuid IN (${eventUuids.map((_, i) => `$${i + 2}`).join(',')})`,
+            `SELECT DISTINCT request_id FROM events WHERE organization_id = $1 AND uuid IN (${eventUuids.map((_, i) => `$${i + 2}`).join(',')})`,
             [organizationId, ...eventUuids]
         );
         const rows = Datapoint.upsertMany(organizationId, events.map((event) => event['request_id']));
