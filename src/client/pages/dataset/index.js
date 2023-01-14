@@ -65,7 +65,7 @@ const Dataset = () => {
                                 </Button>
                             </Form>
                             <Async
-                                fetchData={() => baseJSONClient(`/api/dataset/version/${datasetVersionId}/datapoints`, {memoized: true})}
+                                fetchData={() => baseJSONClient(`/api/dataset/version/${datasetVersionId}/datapoints`)}
                                 renderData={(datapoints) => (
                                     <>
                                         <a href='#' onClick={() => setIsDatasetEditOpen(true)}>Edit</a>
@@ -133,7 +133,7 @@ const Dataset = () => {
             />
             <Container fluid>
                 <Async
-                    fetchData={() => baseJSONClient(`/api/dataset/version/${datasetVersionId}/datapoints`, {memoized: true})}
+                    fetchData={() => baseJSONClient(`/api/dataset/version/${datasetVersionId}/datapoints`)}
                     refetchOnChanged={[datasetVersionId, lastUpdatedOn]}
                     renderData={(datapoints) => (
                         datapoints.length ? (
@@ -160,7 +160,8 @@ const Dataset = () => {
 
                                         return acc;
                                     }, {});
-                                    const handleRemoveSelectedEvents = async () => {
+                                    const handleRemoveSelectedEvents = async (e) => {
+                                        e.preventDefault();
                                         if (window.confirm('Are you sure you want to remove the selected datapoints?')) {
                                             await baseJSONClient(`/api/dataset/version/${datasetVersionId}/datapoints`, {
                                                 method: 'DELETE',
