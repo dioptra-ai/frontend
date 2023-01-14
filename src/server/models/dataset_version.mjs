@@ -125,7 +125,7 @@ class DatasetVersion {
 
     static async addDatapointsById(organizationId, id, datapointIds) {
         const {rows} = await postgresClient.query(
-            `INSERT INTO dataset_to_datapoints (organization_id, dataset, datapoint) VALUES ${datapointIds.map((dId, i) => `($1, $2, $${i + 3})`).join(',')} ON CONFLICT DO NOTHING RETURNING *`,
+            `INSERT INTO dataset_to_datapoints (organization_id, dataset_version, datapoint) VALUES ${datapointIds.map((dId, i) => `($1, $2, $${i + 3})`).join(',')} ON CONFLICT DO NOTHING RETURNING *`,
             [organizationId, id, ...datapointIds]
         );
 
