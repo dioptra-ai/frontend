@@ -6,7 +6,7 @@ import PassportStrategy from 'passport-strategy';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
 
-const {BASIC_USERNAME, BASIC_PASSWORD} = process.env;
+const {BASIC_USERNAME, BASIC_PASSWORD, OVERRIDE_POSTGRES_ORG_ID} = process.env;
 
 const sessionStore = new MongoStore({
     mongoUrl: process.env.DB_CONNECTION_URI,
@@ -68,8 +68,13 @@ passport.serializeUser((user, done) => {
 passport.deserializeUser(async (_id, done) => {
     try {
         const User = mongoose.model('User');
+        const user = await User.findById(_id);
 
-        done(null, await User.findById(_id));
+        if (OVERRIDE_POSTGRES_ORG_ID) {
+            user.activeOrganizationMembership.organization._id = OVERRIDE_POSTGRES_ORG_ID;
+        }
+
+        done(null, user);
     } catch (error) {
         done(error, null);
     }

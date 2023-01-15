@@ -27,7 +27,7 @@ const userSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'OrganizationMembership',
         required: true,
-        autopopulate: true // This makes a loop with organizationMembershipSchema.user - use {select: '-user'} and fix all issues arising
+        autopopulate: {maxDepth: 2}
     },
     cart: {
         type: [String],

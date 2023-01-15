@@ -3,7 +3,6 @@ import pgFormat from 'pg-format';
 import {postgresClient} from './index.mjs';
 
 const EDITABLE_JSONB_OBJECT_COLUMNS = new Set(['groundtruth']);
-const {OVERRIDE_EVENTS_ORG_ID} = process.env;
 
 class Event {
     static async updateById(organizationId, id, column, value) {
@@ -16,7 +15,7 @@ class Event {
                     END
                 ) || %L 
                 WHERE uuid = $1 AND organization_id = $2 RETURNING %I`, column, column, column, value, column),
-                [id, OVERRIDE_EVENTS_ORG_ID || organizationId]
+                [id, organizationId]
             );
 
             return rows[0];
