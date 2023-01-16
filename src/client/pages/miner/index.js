@@ -6,7 +6,7 @@ import slugify from 'slugify';
 
 import Select from 'components/select';
 import MinerModal from 'components/miner-modal';
-import DatasetModal from 'components/dataset-modal';
+import {DatasetEditModal} from 'components/dataset-modal';
 import OutliersOrDrift from 'pages/common/outliers-or-drift';
 import ClustersAnalysis from 'pages/common/clusters-analysis';
 import Menu from 'components/menu';
@@ -179,19 +179,13 @@ const Miner = () => {
                                                     ) : null
                                                 }
                                                 {isDatasetModalOpen ? (
-                                                    <DatasetModal
+                                                    <DatasetEditModal
                                                         isOpen
                                                         onDatasetSaved={(dataset) => {
                                                             setIsDatasetModalOpen(false);
                                                             history.push(`/datasets/${dataset['uuid']}`);
                                                         }}
                                                         onClose={() => setIsDatasetModalOpen(false)}
-                                                        defaultFilters={[{
-                                                            left: 'uuid',
-                                                            op: 'in',
-                                                            right: task['result']
-                                                        }]}
-                                                        defaultDisplayName={`Results of "${miner['display_name']}"`}
                                                     />
                                                 ) : null}
                                             </>

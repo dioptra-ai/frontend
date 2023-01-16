@@ -1,113 +1,33 @@
 import express from 'express';
 import {isAuthenticated} from '../middleware/authentication.mjs';
-import DatasetVersion from '../models/dataset_version.mjs';
-import Datapoint from '../models/datapoint.mjs';
+import Dataset from '../models/dataset.mjs';
 
 const DatasetsRouter = express.Router();
 
 DatasetsRouter.all('*', isAuthenticated);
 
-DatasetsRouter.post('/version', async (req, res, next) => {
+DatasetsRouter.get('/:datasetId?', async (req, res, next) => {
     try {
-        const {_id: createdBy, activeOrganizationMembership} = req.user;
+        const {activeOrganizationMembership} = req.user;
 
-        if (req.body.uuid) {
-            const dataset = await DatasetVersion.updateById(
-                activeOrganizationMembership.organization._id,
-                req.body.uuid,
-                req.body.displayName
-            );
+        if (req.params.datasetId) {
+            const dataset = await Dataset.findById(activeOrganizationMembership.organization._id, req.params.datasetId);
 
             res.json(dataset);
         } else {
-            const dataset = await DatasetVersion.createNew(activeOrganizationMembership.organization._id, req.body.displayName, createdBy, req.body.parentUuid);
+            const datasets = await Dataset.findAll(activeOrganizationMembership.organization._id);
 
-            res.json(dataset);
+            res.json(datasets);
         }
     } catch (e) {
         next(e);
     }
 });
 
-DatasetsRouter.get('/version', async (req, res, next) => {
+DatasetsRouter.get('/:datasetId/datapoints', async (req, res, next) => {
     try {
         const {activeOrganizationMembership} = req.user;
-        const datasets = await DatasetVersion.findAll(activeOrganizationMembership.organization._id);
-
-        res.json(datasets);
-    } catch (e) {
-        next(e);
-    }
-});
-
-DatasetsRouter.get('/version/:id', async (req, res, next) => {
-    try {
-        const {activeOrganizationMembership} = req.user;
-        const dataset = await DatasetVersion.findById(activeOrganizationMembership.organization._id, req.params.id);
-
-        res.json(dataset);
-    } catch (e) {
-        next(e);
-    }
-});
-
-DatasetsRouter.put('/version/:id', async (req, res, next) => {
-    try {
-        const {activeOrganizationMembership} = req.user;
-        const dataset = await DatasetVersion.updateById(activeOrganizationMembership.organization._id, req.params.id, req.body.displayName);
-
-        res.json(dataset);
-    } catch (e) {
-        next(e);
-    }
-});
-
-DatasetsRouter.delete('/version/:id', async (req, res, next) => {
-    try {
-        const {activeOrganizationMembership} = req.user;
-        const dataset = await DatasetVersion.deleteById(activeOrganizationMembership.organization._id, req.params.id);
-
-        res.json(dataset);
-    } catch (e) {
-        next(e);
-    }
-});
-
-DatasetsRouter.post('/version/:id/datapoints', async (req, res, next) => {
-    try {
-        const {activeOrganizationMembership} = req.user;
-
-        let datapointIds = req.body.datapointIds;
-
-        if (req.body.requestIds) {
-            const datapoints = await Datapoint.upsertMany(activeOrganizationMembership.organization._id, req.body.requestIds);
-
-            datapointIds = datapoints.map((datapoint) => datapoint['uuid']);
-        }
-
-        const dataset = await DatasetVersion.addDatapointsById(activeOrganizationMembership.organization._id, req.params.id, datapointIds);
-
-        res.json(dataset);
-    } catch (e) {
-        next(e);
-    }
-});
-
-DatasetsRouter.delete('/version/:id/datapoints', async (req, res, next) => {
-    try {
-        const {activeOrganizationMembership} = req.user;
-        const dataset = await DatasetVersion.removeDatapointsById(activeOrganizationMembership.organization._id, req.params.id, req.body.datapointIds);
-
-        res.json(dataset);
-    } catch (e) {
-        next(e);
-    }
-});
-
-DatasetsRouter.get('/version/:id/datapoints', async (req, res, next) => {
-    try {
-        const {activeOrganizationMembership} = req.user;
-        const datapoints = await DatasetVersion.getDatapointsById(activeOrganizationMembership.organization._id, req.params.id);
+        const datapoints = await Dataset.findDatapoints(activeOrganizationMembership.organization._id, req.params.datasetId);
 
         res.json(datapoints);
     } catch (e) {
@@ -115,21 +35,10 @@ DatasetsRouter.get('/version/:id/datapoints', async (req, res, next) => {
     }
 });
 
-DatasetsRouter.get('/version/:id/datapoints/count', async (req, res, next) => {
+DatasetsRouter.get('/:datasetId/versions', async (req, res, next) => {
     try {
         const {activeOrganizationMembership} = req.user;
-        const count = await DatasetVersion.countDatapointsById(activeOrganizationMembership.organization._id, req.params.id);
-
-        res.json(count);
-    } catch (e) {
-        next(e);
-    }
-});
-
-DatasetsRouter.get('/version/:datasetVersionId/same-parent', async (req, res, next) => {
-    try {
-        const {activeOrganizationMembership} = req.user;
-        const versions = await DatasetVersion.getAllFromSameRootParent(activeOrganizationMembership.organization._id, req.params.datasetVersionId);
+        const versions = await Dataset.findVersions(activeOrganizationMembership.organization._id, req.params.datasetId);
 
         res.json(versions);
     } catch (e) {
@@ -137,12 +46,85 @@ DatasetsRouter.get('/version/:datasetVersionId/same-parent', async (req, res, ne
     }
 });
 
-DatasetsRouter.post('/version/:datasetVersionId/same-parent-current', async (req, res, next) => {
+DatasetsRouter.post('/', async (req, res, next) => {
     try {
         const {activeOrganizationMembership} = req.user;
-        const datasetVersion = await DatasetVersion.setCurrentFromSameRootParent(activeOrganizationMembership.organization._id, req.params.datasetVersionId, req.body.datasetVersionId);
+        const dataset = await Dataset.upsert(activeOrganizationMembership.organization._id, {
+            uuid: req.body['uuid'],
+            display_name: req.body['displayName'],
+            created_by: activeOrganizationMembership.user._id
+        });
 
-        res.json(datasetVersion);
+        res.json(dataset);
+    } catch (e) {
+        next(e);
+    }
+});
+
+DatasetsRouter.post('/:datasetId/commit', async (req, res, next) => {
+    try {
+        const {activeOrganizationMembership} = req.user;
+        const versionId = await Dataset.commit(activeOrganizationMembership.organization._id, req.params.datasetId, req.body['message']);
+
+        res.json(versionId);
+    } catch (e) {
+        next(e);
+    }
+});
+
+DatasetsRouter.post('/:datasetId/checkout/:versionId', async (req, res, next) => {
+    try {
+        const {activeOrganizationMembership} = req.user;
+        const versionId = await Dataset.checkout(activeOrganizationMembership.organization._id, req.params.datasetId, req.params.versionId);
+
+        res.json(versionId);
+    } catch (e) {
+        next(e);
+    }
+});
+
+DatasetsRouter.post('/:datasetId/add', async (req, res, next) => {
+    try {
+        const {activeOrganizationMembership} = req.user;
+
+        await Dataset.add(activeOrganizationMembership.organization._id, req.params.datasetId, req.body.datapointIds);
+
+        res.json();
+    } catch (e) {
+        next(e);
+    }
+});
+
+DatasetsRouter.post('/:datasetId/remove', async (req, res, next) => {
+    try {
+        const {activeOrganizationMembership} = req.user;
+
+        await Dataset.remove(activeOrganizationMembership.organization._id, req.params.datasetId, req.body.datapointIds);
+
+        res.json();
+    } catch (e) {
+        next(e);
+    }
+});
+
+DatasetsRouter.delete('/:datasetId', async (req, res, next) => {
+    try {
+        const {activeOrganizationMembership} = req.user;
+
+        await Dataset.delete(activeOrganizationMembership.organization._id, req.params.datasetId);
+
+        res.json();
+    } catch (e) {
+        next(e);
+    }
+});
+
+DatasetsRouter.get('/diff/:versionId1/:versionId2', async (req, res, next) => {
+    try {
+        const {activeOrganizationMembership} = req.user;
+        const diff = await Dataset.diff(activeOrganizationMembership.organization._id, req.params.versionId1, req.params.versionId2);
+
+        res.json(diff);
     } catch (e) {
         next(e);
     }

@@ -58,7 +58,7 @@ const App = () => {
                         <Model/>
                     </AppContext.Provider>
                 )} />
-                <AuthRoute path='/datasets/:datasetVersionId' renderLoggedIn={() => (
+                <AuthRoute path='/datasets/:datasetId' renderLoggedIn={() => (
                     <Dataset/>
                 )} />
                 <AuthRoute path='/datasets' renderLoggedIn={() => (

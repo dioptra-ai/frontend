@@ -43,9 +43,37 @@ const postgresPool = new pg.default.Pool({
 
 export const postgresClient = {
     query: (text, params) => {
-        console.log('PostgreSQL query: ', text, params);
+        console.log('PostgreSQL: ', text, params);
 
         return postgresPool.query(text, params);
     },
     connect: () => postgresPool.connect()
+};
+
+export const postgresTransaction = async (callback) => {
+    const client = await postgresClient.connect();
+    const originalQuery = client.query.bind(client);
+
+    client.query = (...args) => {
+        console.log('PostgreSQL: ', ...args);
+
+        return originalQuery(...args);
+    };
+
+    try {
+        await client.query('BEGIN');
+
+        const result = await callback(client);
+
+        await client.query('COMMIT');
+
+        return result;
+    } catch (e) {
+        await client.query('ROLLBACK');
+
+        throw e;
+    } finally {
+        client.query = originalQuery;
+        client.release();
+    }
 };

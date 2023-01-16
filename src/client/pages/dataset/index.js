@@ -11,15 +11,14 @@ import TopBar from 'pages/common/top-bar';
 import baseJSONClient from 'clients/base-json-client';
 import DatapointsViewer from 'components/datapoints-viewer';
 import metricsClient from 'clients/metrics';
-import DatasetModal from 'components/dataset-modal';
+import {DatasetCommitModal, DatasetEditModal} from 'components/dataset-modal';
 import Select from 'components/select';
 
 const Dataset = () => {
-    const {datasetVersionId} = useParams();
+    const {datasetId} = useParams();
     const history = useHistory();
     const [isDatasetEditOpen, setIsDatasetEditOpen] = useState(false);
-    const [isDatasetCloneOpen, setIsDatasetCloneOpen] = useState(false);
-    const [isDatasetNewVersionOpen, setIsDatasetNewVersionOpen] = useState(false);
+    const [isDatasetCommitOpen, setIsDatasetCommitVersionOpen] = useState(false);
     const [selectedEvents, setSelectedEvents] = useState([]);
     const [lastUpdatedOn, setLastUpdatedOn] = useState(new Date());
 
@@ -27,52 +26,58 @@ const Dataset = () => {
         <Menu>
             <TopBar hideTimePicker />
             <Async
-                fetchData={() => baseJSONClient(`/api/dataset/version/${datasetVersionId}`)}
-                refetchOnChanged={[datasetVersionId, lastUpdatedOn]}
+                fetchData={() => baseJSONClient(`/api/dataset/${datasetId}`)}
+                refetchOnChanged={[datasetId, lastUpdatedOn]}
                 renderData={(dataset) => (
                     <>
                         <div className='bg-white-blue text-dark p-3'>
                             <h4>{dataset['display_name']}</h4>
-                            <Form className='my-2 d-flex' style={{width: 'fit-content'}}onSubmit={async (e) => {
-                                const datasetVersionId = e.target.datasetVersionId.value;
+                            <Async
+                                className='ms-1 me-3 flex-grow-0'
+                                fetchData={() => baseJSONClient(`/api/dataset/${datasetId}/versions`)}
+                                renderData={(versions) => (
+                                    <Form className='my-2 d-flex' style={{width: 'fit-content'}} onSubmit={async (e) => {
+                                        const versionId = e.target.versionId.value;
+                                        const uncommittedDirty = versions.find((v) => v['committed'] === false)['dirty'];
 
-                                e.preventDefault();
+                                        e.preventDefault();
 
-                                await baseJSONClient(`/api/dataset/version/${datasetVersionId}/same-parent-current`, {
-                                    method: 'POST',
-                                    body: {datasetVersionId}
-                                });
+                                        if (uncommittedDirty && !alert('You have uncommitted changes in your dataset. Checking out will discard these changes.\nAre you sure you want to continue?')) {
+                                            return;
+                                        }
 
-                                history.push(`/datasets/${datasetVersionId}`);
-                            }}>
-                                <Form.Label column className='mb-0 text-nowrap'>Current Version:</Form.Label>
-                                <Async
-                                    className='ms-1 me-3 flex-grow-0'
-                                    fetchData={() => baseJSONClient(`/api/dataset/version/${datasetVersionId}/same-parent`)}
-                                    renderData={(versions) => (
-                                        <Select name='datasetVersionId' defaultValue={datasetVersionId}>
-                                            {versions.map((version) => (
+                                        try {
+                                            await baseJSONClient(`/api/dataset/${datasetId}/checkout/${versionId}`, {
+                                                method: 'POST'
+                                            });
+                                        } catch (error) {
+                                            alert(error.message);
+                                        }
+
+                                        setLastUpdatedOn(new Date());
+                                    }}>
+                                        <Form.Label column className='mb-0 text-nowrap'>Checkout Version:</Form.Label>
+                                        <Select key={versions[0]?.['uuid']} name='versionId' className='ms-1 me-2'>
+                                            {versions.filter((v) => v['committed']).map((version) => (
                                                 <option key={version['uuid']} value={version['uuid']}>
-                                                    {`${version['display_name']} (${version['created_at']}) ${version['is_current'] ? '[Current]' : ''}`}
+                                                    {version['message']} ({new Date(version['created_at']).toLocaleString()})
                                                 </option>
                                             ))}
                                         </Select>
-                                    )}
-                                    refetchOnChanged={[datasetVersionId]}
-                                />
-                                <Button type='submit' variant='secondary' size='s' className='text-nowrap'>
-                                    Save
-                                </Button>
-                            </Form>
+                                        <Button type='submit' variant='secondary' size='s' className='text-nowrap'>
+                                            Checkout
+                                        </Button>
+                                    </Form>
+                                )}
+                                refetchOnChanged={[datasetId, lastUpdatedOn]}
+                            />
                             <Async
-                                fetchData={() => baseJSONClient(`/api/dataset/version/${datasetVersionId}/datapoints`)}
+                                fetchData={() => baseJSONClient(`/api/dataset/${datasetId}/datapoints`)}
                                 renderData={(datapoints) => (
                                     <>
-                                        <a href='#' onClick={() => setIsDatasetEditOpen(true)}>Edit</a>
+                                        <a href='#' onClick={() => setIsDatasetEditOpen(true)}>Edit Name</a>
                                         &nbsp;|&nbsp;
-                                        <a href='#' onClick={() => setIsDatasetCloneOpen(true)}>Clone</a>
-                                        &nbsp;|&nbsp;
-                                        <a href='#' onClick={() => setIsDatasetNewVersionOpen(true)}>New Version</a>
+                                        <a href='#' onClick={() => setIsDatasetCommitVersionOpen(true)}>Commit Version</a>
                                         &nbsp;|&nbsp;
                                         <a href='#' onClick={async () => {
                                             const data = await metricsClient('select', {
@@ -91,37 +96,39 @@ const Dataset = () => {
                                         }}>Download as CSV</a>
                                         &nbsp;|&nbsp;
                                         <a href='#' style={{color: 'red'}} onClick={async () => {
-                                            if (window.confirm('Are you sure you want to delete this dataset version?')) {
-                                                await baseJSONClient(`/api/dataset/version/${datasetVersionId}`, {
+                                            if (window.confirm('Are you sure you want to delete this dataset?\nThis action cannot be undone.')) {
+                                                await baseJSONClient(`/api/dataset/${datasetId}`, {
                                                     method: 'DELETE'
                                                 });
 
                                                 history.push('/datasets');
                                             }
-                                        }}>Delete Current Version</a>
-                                        {(isDatasetEditOpen || isDatasetCloneOpen || isDatasetNewVersionOpen) ? (
-                                            <DatasetModal
+                                        }}>Delete Dataset</a>
+                                        {(isDatasetEditOpen) ? (
+                                            <DatasetEditModal
                                                 isOpen
                                                 onClose={() => {
                                                     setIsDatasetEditOpen(false);
-                                                    setIsDatasetCloneOpen(false);
-                                                    setIsDatasetNewVersionOpen(false);
                                                 }}
                                                 onDatasetSaved={({uuid}) => {
                                                     setIsDatasetEditOpen(false);
-                                                    setIsDatasetCloneOpen(false);
-                                                    setIsDatasetNewVersionOpen(false);
                                                     setLastUpdatedOn(new Date());
                                                     history.push(`/datasets/${uuid}`);
                                                 }}
-                                                dataset={isDatasetEditOpen ? dataset : null}
-                                                parentDataset={isDatasetNewVersionOpen ? dataset : null}
-                                                defaultDisplayName={`Clone of ${dataset['display_name']}`}
-                                                defaultFilters={datapoints.length ? [{
-                                                    left: 'request_id',
-                                                    op: 'in',
-                                                    right: datapoints.map((datapoint) => datapoint['request_id'])
-                                                }] : null}
+                                                dataset={dataset}
+                                            />
+                                        ) : null}
+                                        {(isDatasetCommitOpen) ? (
+                                            <DatasetCommitModal
+                                                isOpen
+                                                onClose={() => {
+                                                    setIsDatasetCommitVersionOpen(false);
+                                                }}
+                                                onCommit={() => {
+                                                    setIsDatasetCommitVersionOpen(false);
+                                                    setLastUpdatedOn(new Date());
+                                                }}
+                                                datasetId={datasetId}
                                             />
                                         ) : null}
                                     </>
@@ -133,8 +140,8 @@ const Dataset = () => {
             />
             <Container fluid>
                 <Async
-                    fetchData={() => baseJSONClient(`/api/dataset/version/${datasetVersionId}/datapoints`)}
-                    refetchOnChanged={[datasetVersionId, lastUpdatedOn]}
+                    fetchData={() => baseJSONClient(`/api/dataset/${datasetId}/datapoints`)}
+                    refetchOnChanged={[datasetId, lastUpdatedOn]}
                     renderData={(datapoints) => (
                         datapoints.length ? (
                             <Async
@@ -163,8 +170,8 @@ const Dataset = () => {
                                     const handleRemoveSelectedEvents = async (e) => {
                                         e.preventDefault();
                                         if (window.confirm('Are you sure you want to remove the selected datapoints?')) {
-                                            await baseJSONClient(`/api/dataset/version/${datasetVersionId}/datapoints`, {
-                                                method: 'DELETE',
+                                            await baseJSONClient(`/api/dataset/${datasetId}/remove`, {
+                                                method: 'POST',
                                                 body: {
                                                     datapointIds: selectedEvents.map((e) => datapoints.find((d) => d['request_id'] === e['request_id'])['uuid'])
                                                 }

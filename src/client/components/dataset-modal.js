@@ -1,86 +1,78 @@
 import PropTypes from 'prop-types';
-import {useState} from 'react';
 import {Button, Form} from 'react-bootstrap';
 
 import Modal from 'components/modal';
 import baseJSONClient from 'clients/base-json-client';
-import metricsClient from 'clients/metrics';
 
-const DatasetModal = ({isOpen, onDatasetSaved, onClose, defaultDatapoints, defaultFilters, dataset, parentDataset}) => {
-    const defaultDataset = dataset || parentDataset;
-    const [displayName, setDisplayName] = useState(defaultDataset?.['display_name']);
-    const [datapoints, setDatapoints] = useState(defaultDatapoints);
-    const handleSaveDataset = async () => {
-        const savedDatasetVersion = await baseJSONClient('/api/dataset/version', {
-            method: 'POST',
-            body: {
-                displayName,
-                uuid: dataset?.uuid,
-                parentUuid: parentDataset?.uuid
-            }
-        });
-
-        // This is already done on the server-side when passing parentUuid to the POST /api/dataset/version endpoint.
-        if (datapoints?.length && !parentDataset) {
-
-            await baseJSONClient(`/api/dataset/version/${savedDatasetVersion.uuid}/datapoints`, {
-                method: 'POST',
-                body: {
-                    requestIds: datapoints.map(({request_id}) => request_id)
-                }
-            });
-
-        }
-
-        onDatasetSaved(savedDatasetVersion);
-    };
-
-    useState(() => {
-        (async () => {
-            if (defaultFilters) {
-                if (defaultFilters.length > 0) {
-                    const datapoints = await metricsClient('select', {
-                        select: 'DISTINCT "request_id"',
-                        filters: defaultFilters
-                    });
-
-                    setDatapoints(datapoints);
-                } else {
-                    setDatapoints([]);
-                }
-            }
-        })();
-    }, [defaultFilters]);
+const DatasetEditModal = ({isOpen, onDatasetSaved, onClose, dataset}) => {
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title={dataset ? 'Edit Dataset' : parentDataset ? 'New Dataset Version' : 'Create Dataset'}>
-            <Form onSubmit={(e) => {
+        <Modal isOpen={isOpen} onClose={onClose} title={dataset ? 'Edit Dataset' : 'Create Dataset'}>
+            <Form onSubmit={async (e) => {
                 e.preventDefault();
-                handleSaveDataset();
+                const savedDataset = await baseJSONClient('/api/dataset', {
+                    method: 'POST',
+                    body: {
+                        displayName: e.target['displayName'].value,
+                        uuid: dataset?.uuid
+                    }
+                });
+
+                onDatasetSaved(savedDataset);
             }}>
                 <Form.Label>Dataset Name</Form.Label>
-                <Form.Control required type='text' value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
+                <Form.Control required type='text' defaultValue={dataset?.['display_name']} name='displayName' placeholder='Dataset name...' />
                 <Button
                     className='w-100 text-white btn-submit mt-3'
                     variant='primary'
                     type='submit'
                 >
-                    {dataset ? 'Update Dataset' : parentDataset ? 'Create Dataset Version' : 'Create Dataset'}
+                    {dataset ? 'Update Dataset' : 'Create Dataset'}
                 </Button>
             </Form>
         </Modal>
     );
 };
 
-DatasetModal.propTypes = {
-    datapoints: PropTypes.array,
+DatasetEditModal.propTypes = {
     dataset: PropTypes.object,
     isOpen: PropTypes.any,
     onClose: PropTypes.any,
-    onDatasetSaved: PropTypes.func,
-    defaultDatapoints: PropTypes.array,
-    defaultFilters: PropTypes.array,
-    parentDataset: PropTypes.object
+    onDatasetSaved: PropTypes.func
 };
 
-export default DatasetModal;
+const DatasetCommitModal = ({isOpen, onClose, onCommit, datasetId}) => {
+
+    return (
+        <Modal isOpen={isOpen} onClose={onClose} title='Commit Dataset Version'>
+            <Form onSubmit={async (e) => {
+                e.preventDefault();
+
+                await baseJSONClient(`/api/dataset/${datasetId}/commit`, {
+                    method: 'POST',
+                    body: {
+                        message: e.target.message.value
+                    }
+                });
+
+                onCommit();
+            }}>
+                <Form.Label>Commit Message</Form.Label>
+                <Form.Text name='message' className='form-control' as='textarea' rows={3} placeholder='Commit message...' />
+                <Button className='w-100 text-white btn-submit mt-3' variant='primary' type='submit'>
+                    Commit
+                </Button>
+            </Form>
+        </Modal>
+    );
+};
+
+DatasetCommitModal.propTypes = {
+    datasetId: PropTypes.string,
+    isOpen: PropTypes.bool,
+    onClose: PropTypes.func,
+    onCommit: PropTypes.func
+};
+
+
+export {DatasetEditModal, DatasetCommitModal};

@@ -7,7 +7,7 @@ import Async from 'components/async';
 import TopBar from 'pages/common/top-bar';
 import Menu from 'components/menu';
 import baseJSONClient from 'clients/base-json-client';
-import DatasetModal from 'components/dataset-modal';
+import {DatasetEditModal} from 'components/dataset-modal';
 
 const DatasetsList = () => {
     const history = useHistory();
@@ -28,7 +28,7 @@ const DatasetsList = () => {
                     </Button>
                 </div>
                 <Async
-                    fetchData={() => baseJSONClient('/api/dataset/version')}
+                    fetchData={() => baseJSONClient('/api/dataset')}
                     renderData={(datasets) => (
                         <Table className='models-table mt-3'>
                             <thead className='align-middle text-secondary'>
@@ -49,7 +49,7 @@ const DatasetsList = () => {
                     )}
                 />
             </div>
-            <DatasetModal
+            <DatasetEditModal
                 isOpen={isDatasetModalOpen}
                 onClose={() => setIsDatasetModalOpen(false)}
                 onDatasetSaved={({uuid}) => {
