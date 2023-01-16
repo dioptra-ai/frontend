@@ -33,42 +33,53 @@ const Dataset = () => {
                         <div className='bg-white-blue text-dark p-3'>
                             <h4>{dataset['display_name']}</h4>
                             <Async
-                                className='ms-1 me-3 flex-grow-0'
                                 fetchData={() => baseJSONClient(`/api/dataset/${datasetId}/versions`)}
-                                renderData={(versions) => (
-                                    <Form className='my-2 d-flex' style={{width: 'fit-content'}} onSubmit={async (e) => {
-                                        const versionId = e.target.versionId.value;
-                                        const uncommittedDirty = versions.find((v) => v['committed'] === false)['dirty'];
+                                renderData={(versions) => {
+                                    const dirty = versions.find((v) => v['committed'] === false)['dirty'];
 
-                                        e.preventDefault();
+                                    return (
+                                        <>
+                                            {
+                                                dirty && (
+                                                    <div className='text-muted'>
+                                                        This dataset has uncommitted changes.
+                                                    </div>
+                                                )
+                                            }
+                                            <Form className='my-2 d-flex' style={{width: 'fit-content'}} onSubmit={async (e) => {
+                                                const versionId = e.target.versionId.value;
 
-                                        if (uncommittedDirty && !alert('You have uncommitted changes in your dataset. Checking out will discard these changes.\nAre you sure you want to continue?')) {
-                                            return;
-                                        }
+                                                e.preventDefault();
 
-                                        try {
-                                            await baseJSONClient(`/api/dataset/${datasetId}/checkout/${versionId}`, {
-                                                method: 'POST'
-                                            });
-                                        } catch (error) {
-                                            alert(error.message);
-                                        }
+                                                if (dirty && !confirm('You have uncommitted changes in your dataset. Checking out will discard these changes.\nAre you sure you want to continue?')) {
+                                                    return;
+                                                }
 
-                                        setLastUpdatedOn(new Date());
-                                    }}>
-                                        <Form.Label column className='mb-0 text-nowrap'>Checkout Version:</Form.Label>
-                                        <Select key={versions[0]?.['uuid']} name='versionId' className='ms-1 me-2'>
-                                            {versions.filter((v) => v['committed']).map((version) => (
-                                                <option key={version['uuid']} value={version['uuid']}>
-                                                    {version['message']} ({new Date(version['created_at']).toLocaleString()})
-                                                </option>
-                                            ))}
-                                        </Select>
-                                        <Button type='submit' variant='secondary' size='s' className='text-nowrap'>
-                                            Checkout
-                                        </Button>
-                                    </Form>
-                                )}
+                                                try {
+                                                    await baseJSONClient(`/api/dataset/${datasetId}/checkout/${versionId}`, {
+                                                        method: 'POST'
+                                                    });
+                                                } catch (error) {
+                                                    alert(error.message);
+                                                }
+
+                                                setLastUpdatedOn(new Date());
+                                            }}>
+                                                <Form.Label column className='mb-0 text-nowrap'>Checkout Version:</Form.Label>
+                                                <Select key={versions[0]?.['uuid']} name='versionId' className='ms-1 me-2'>
+                                                    {versions.filter((v) => v['committed']).map((version) => (
+                                                        <option key={version['uuid']} value={version['uuid']}>
+                                                            {version['message']} ({new Date(version['created_at']).toLocaleString()})
+                                                        </option>
+                                                    ))}
+                                                </Select>
+                                                <Button type='submit' variant='secondary' size='s' className='text-nowrap'>
+                                                    Checkout
+                                                </Button>
+                                            </Form>
+                                        </>
+                                    );
+                                }}
                                 refetchOnChanged={[datasetId, lastUpdatedOn]}
                             />
                             <Async
