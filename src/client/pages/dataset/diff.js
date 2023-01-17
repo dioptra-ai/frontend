@@ -45,7 +45,7 @@ const DatasetDiff = () => {
                         <hr/>
                         <Row>
                             <Col>
-                                <h4 style={{color: 'green'}}>Added</h4>
+                                <h4 style={{color: 'green'}}>Added: {Number(added.length).toLocaleString()}</h4>
                                 <Async
                                     fetchData={() => baseJSONClient('/api/datapoints/_legacy-get-events', {
                                         method: 'post',
@@ -58,7 +58,7 @@ const DatasetDiff = () => {
                                 />
                             </Col>
                             <Col>
-                                <h4 style={{color: 'red'}}>Removed</h4>
+                                <h4 style={{color: 'red'}}>Removed: {Number(removed.length).toLocaleString()}</h4>
                                 <Async
                                     fetchData={() => baseJSONClient('/api/datapoints/_legacy-get-events', {
                                         method: 'post',
