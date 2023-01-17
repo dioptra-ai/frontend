@@ -76,7 +76,7 @@ const Dataset = () => {
                                                 if (!versionId) {
                                                     alert('Please select a version to diff with');
                                                 } else {
-                                                    history.push(`/dataset/diff/${uncomittedVersion['uuid']}/${versionId}`);
+                                                    history.push(`/dataset/diff/${versionId}/${uncomittedVersion['uuid']}`);
                                                 }
                                             }}>
                                                 Diff with uncomitted

@@ -241,7 +241,9 @@ class Dataset {
 
         return {
             added,
-            removed
+            removed,
+            version1: firstVersion,
+            version2: secondVersion
         };
     }
 }
