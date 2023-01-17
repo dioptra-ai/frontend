@@ -74,7 +74,7 @@ const Dataset = () => {
                                                 const versionId = e.target.closest('form').versionId.value;
 
                                                 if (!versionId) {
-                                                    alert('Please select a version to diff with');
+                                                    alert('Please select a version to diff with.');
                                                 } else {
                                                     history.push(`/dataset/diff/${versionId}/${uncomittedVersion['uuid']}`);
                                                 }

@@ -49,7 +49,7 @@ userSchema.virtual('organizationMemberships', {
 
 userSchema.virtual('activeOrganizationId').get(function () {
 
-    return OVERRIDE_POSTGRES_ORG_ID || this.activeOrganizationMembership?.organization._id; // eslint-disable-line no-invalid-this
+    return OVERRIDE_POSTGRES_ORG_ID || this.activeOrganizationMembership?.organization?._id; // eslint-disable-line no-invalid-this
 });
 
 userSchema.statics.validatePassword = async (username, password) => {
