@@ -6,7 +6,7 @@ import baseJSONClient from 'clients/base-json-client';
 import Async from 'components/async';
 import Menu from 'components/menu';
 import TopBar from 'pages/common/top-bar';
-import DatapointsViewer from 'components/datapoints-viewer';
+import DataViewer from './data-viewer';
 
 const DatasetDiff = () => {
     const {versionId1, versionId2} = useParams();
@@ -46,29 +46,11 @@ const DatasetDiff = () => {
                         <Row>
                             <Col>
                                 <h4 style={{color: 'green'}}>Added: {Number(added.length).toLocaleString()}</h4>
-                                <Async
-                                    fetchData={() => baseJSONClient('/api/datapoints/_legacy-get-events', {
-                                        method: 'post',
-                                        body: {datapointIds: added}
-                                    })}
-                                    renderData={(events) => (
-                                        <DatapointsViewer datapoints={events} />
-                                    )}
-                                    refetchOnChanged={[added]}
-                                />
+                                <DataViewer datapointIds={added} />
                             </Col>
                             <Col>
                                 <h4 style={{color: 'red'}}>Removed: {Number(removed.length).toLocaleString()}</h4>
-                                <Async
-                                    fetchData={() => baseJSONClient('/api/datapoints/_legacy-get-events', {
-                                        method: 'post',
-                                        body: {datapointIds: removed}
-                                    })}
-                                    renderData={(events) => (
-                                        <DatapointsViewer datapoints={events} />
-                                    )}
-                                    refetchOnChanged={[added]}
-                                />
+                                <DataViewer datapointIds={removed} />
                             </Col>
                         </Row>
                     </div>
