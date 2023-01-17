@@ -1,11 +1,12 @@
 import {useParams} from 'react-router-dom';
 import PropTypes from 'prop-types';
+import {Col, Row} from 'react-bootstrap';
 
 import baseJSONClient from 'clients/base-json-client';
 import Async from 'components/async';
 import Menu from 'components/menu';
 import TopBar from 'pages/common/top-bar';
-import {Col, Row} from 'react-bootstrap';
+import DatapointsViewer from 'components/datapoints-viewer';
 
 const DatasetDiff = () => {
     const {versionId1, versionId2} = useParams();
@@ -15,21 +16,33 @@ const DatasetDiff = () => {
             <TopBar hideTimePicker />
             <Async
                 fetchData={() => baseJSONClient(`/api/dataset/diff/${versionId1}/${versionId2}`)}
-                renderData={({added, removed, version1, version2}) => (
+                refetchOnChanged={[versionId1, versionId2]}
+                renderData={({added, removed, version1, version2, dataset1, dataset2}) => (
                     <div className='bg-white-blue text-dark p-3'>
                         <Row>
                             <Col>
-                                <h4>Version 1</h4>
-                                <pre>{version1['committed'] ? version1['message'] : '<Uncomitted>'}</pre>
+                                <div>Version1: <span style={{fontFamily: 'monospace'}}>{version1['uuid']}</span></div>
+                                <div>Commit message: <span style={{fontFamily: 'monospace'}}>{
+                                    version1['committed'] ? `"${version1['message']}"` : '<Uncommitted>'
+                                }</span></div>
+                                <div>
+                                    Dataset: {dataset1['display_name']} (<span style={{fontFamily: 'monospace'}}>{dataset1['uuid']}</span>)
+                                </div>
                             </Col>
-                            <Col xs={1}>
+                            <Col xs={1} className='d-flex align-items-center'>
                                 <span className='fs-2'>{'->'}</span>
                             </Col>
                             <Col>
-                                <h4>Version 2</h4>
-                                <pre>{version2['committed'] ? version2['message'] : '<Uncomitted>'}</pre>
+                                <div>Version2: <span style={{fontFamily: 'monospace'}}>{version2['uuid']}</span></div>
+                                <div>Commit message: <span style={{fontFamily: 'monospace'}}>{
+                                    version2['committed'] ? `"${version2['message']}"` : '<Uncommitted>'
+                                }</span></div>
+                                <div>
+                                    Dataset: {dataset1['display_name']} (<span style={{fontFamily: 'monospace'}}>{dataset2['uuid']}</span>)
+                                </div>
                             </Col>
                         </Row>
+                        <hr/>
                         <Row>
                             <Col>
                                 <h4 style={{color: 'green'}}>Added</h4>
@@ -39,7 +52,7 @@ const DatasetDiff = () => {
                                         body: {datapointIds: added}
                                     })}
                                     renderData={(events) => (
-                                        <pre>{JSON.stringify(events, null, 2)}</pre>
+                                        <DatapointsViewer datapoints={events} />
                                     )}
                                     refetchOnChanged={[added]}
                                 />
@@ -52,7 +65,7 @@ const DatasetDiff = () => {
                                         body: {datapointIds: removed}
                                     })}
                                     renderData={(events) => (
-                                        <pre>{JSON.stringify(events, null, 2)}</pre>
+                                        <DatapointsViewer datapoints={events} />
                                     )}
                                     refetchOnChanged={[added]}
                                 />

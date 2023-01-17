@@ -211,25 +211,37 @@ class Dataset {
     }
 
     static async getDiff(organizationId, firstVersionId, secondVersionId) {
-        const {rows: [firstVersion]} = await postgresClient.query(
-            'SELECT * FROM dataset_versions WHERE uuid = $1 AND organization_id = $2',
-            [firstVersionId, organizationId]
-        );
-
-        const {rows: [secondVersion]} = await postgresClient.query(
-            'SELECT * FROM dataset_versions WHERE uuid = $1 AND organization_id = $2',
-            [secondVersionId, organizationId]
-        );
-
-        const {rows: firstVersionDatapoints} = await postgresClient.query(
-            'SELECT datapoint FROM dataset_to_datapoints WHERE dataset_version = $1',
-            [firstVersion.uuid]
-        );
-
-        const {rows: secondVersionDatapoints} = await postgresClient.query(
-            'SELECT datapoint FROM dataset_to_datapoints WHERE dataset_version = $1',
-            [secondVersion.uuid]
-        );
+        const [
+            {rows: [firstVersion]}, {rows: [secondVersion]},
+            {rows: firstVersionDatapoints}, {rows: secondVersionDatapoints}
+        ] = await Promise.all([
+            postgresClient.query(
+                'SELECT * FROM dataset_versions WHERE uuid = $1 AND organization_id = $2',
+                [firstVersionId, organizationId]
+            ),
+            postgresClient.query(
+                'SELECT * FROM dataset_versions WHERE uuid = $1 AND organization_id = $2',
+                [secondVersionId, organizationId]
+            ),
+            postgresClient.query(
+                'SELECT datapoint FROM dataset_to_datapoints WHERE dataset_version = $1',
+                [firstVersionId]
+            ),
+            postgresClient.query(
+                'SELECT datapoint FROM dataset_to_datapoints WHERE dataset_version = $1',
+                [secondVersionId]
+            )
+        ]);
+        const [{rows: [firstVersionDataset]}, {rows: [secondVersionDataset]}] = await Promise.all([
+            postgresClient.query(
+                'SELECT * FROM datasets WHERE uuid = $1',
+                [firstVersion.dataset_uuid]
+            ),
+            postgresClient.query(
+                'SELECT * FROM datasets WHERE uuid = $1',
+                [secondVersion.dataset_uuid]
+            )
+        ]);
 
         const firstVersionDatapointIds = firstVersionDatapoints.map((datapoint) => datapoint.datapoint);
         const firstVersionDatapointIdsSet = new Set(firstVersionDatapointIds);
@@ -243,7 +255,9 @@ class Dataset {
             added,
             removed,
             version1: firstVersion,
-            version2: secondVersion
+            version2: secondVersion,
+            dataset1: firstVersionDataset,
+            dataset2: secondVersionDataset
         };
     }
 }

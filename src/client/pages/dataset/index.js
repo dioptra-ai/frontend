@@ -161,72 +161,57 @@ const Dataset = () => {
                     fetchData={() => baseJSONClient(`/api/dataset/${datasetId}/datapoints`)}
                     refetchOnChanged={[datasetId, lastUpdatedOn]}
                     renderData={(datapoints) => (
-                        datapoints.length ? (
-                            <Async
-                                fetchData={() => metricsClient('select', {
-                                    select: '"image_metadata", "video_metadata", "text_metadata", "request_id", "uuid", "tags"',
-                                    filters: [{
-                                        left: 'request_id',
-                                        op: 'in',
-                                        right: datapoints.map((datapoint) => datapoint['request_id'])
-                                    }, {
-                                        left: 'prediction',
-                                        op: 'is null'
-                                    }, {
-                                        left: 'groundtruth',
-                                        op: 'is null'
-                                    }]
-                                })}
-                                renderData={(events) => {
-                                    const eventsByRequestId = datapoints.reduce((acc, datapoint) => {
-                                        const event = events.find((e) => e['request_id'] === datapoint['request_id']);
+                        <Async
+                            fetchData={() => baseJSONClient('/api/datapoints/_legacy-get-events', {
+                                method: 'post',
+                                body: {
+                                    datapointIds: datapoints.map((datapoint) => datapoint['uuid'])
+                                }
+                            })}
+                            renderData={(events) => {
+                                const eventsByRequestId = datapoints.reduce((acc, datapoint) => {
+                                    const event = events.find((e) => e['request_id'] === datapoint['request_id']);
 
-                                        acc[datapoint['request_id']] = event;
+                                    acc[datapoint['request_id']] = event;
 
-                                        return acc;
-                                    }, {});
-                                    const handleRemoveSelectedEvents = async (e) => {
-                                        e.preventDefault();
-                                        if (window.confirm('Are you sure you want to remove the selected datapoints?')) {
-                                            await baseJSONClient(`/api/dataset/${datasetId}/remove`, {
-                                                method: 'POST',
-                                                body: {
-                                                    datapointIds: selectedEvents.map((e) => datapoints.find((d) => d['request_id'] === e['request_id'])['uuid'])
-                                                }
-                                            });
+                                    return acc;
+                                }, {});
+                                const handleRemoveSelectedEvents = async (e) => {
+                                    e.preventDefault();
+                                    if (window.confirm('Are you sure you want to remove the selected datapoints?')) {
+                                        await baseJSONClient(`/api/dataset/${datasetId}/remove`, {
+                                            method: 'POST',
+                                            body: {
+                                                datapointIds: selectedEvents.map((e) => datapoints.find((d) => d['request_id'] === e['request_id'])['uuid'])
+                                            }
+                                        });
 
-                                            setSelectedEvents([]);
-                                            setLastUpdatedOn(new Date());
-                                        }
-                                    };
+                                        setSelectedEvents([]);
+                                        setLastUpdatedOn(new Date());
+                                    }
+                                };
 
-                                    return (
-                                        <>
-                                            <DatapointsViewer
-                                                datapoints={datapoints.map((d) => eventsByRequestId[d['request_id']] || 'UNDEFINED')}
-                                                onSelectedChange={setSelectedEvents}
-                                                renderButtons={() => (
-                                                    <OverlayTrigger overlay={<Tooltip>Remove {selectedEvents.length} from dataset</Tooltip>}>
-                                                        <button
-                                                            disabled={!selectedEvents.length}
-                                                            className='d-flex text-dark border-0 bg-transparent click-down' onClick={handleRemoveSelectedEvents}
-                                                        >
-                                                            <AiOutlineDelete className='fs-3 cursor-pointer' />
-                                                        </button>
-                                                    </OverlayTrigger>
-                                                )}
-                                            />
-                                        </>
-                                    );
-                                }}
-                                refetchOnChanged={[datapoints]}
-                            />
-                        ) : (
-                            <div className='text-center py-5 text-muted'>
-                                <h3>No Datapoints</h3>
-                                <p>Add some datapoints from the Data Cart to get started</p>
-                            </div>
-                        )
+                                return (
+                                    <>
+                                        <DatapointsViewer
+                                            datapoints={datapoints.map((d) => eventsByRequestId[d['request_id']] || 'UNDEFINED')}
+                                            onSelectedChange={setSelectedEvents}
+                                            renderButtons={() => (
+                                                <OverlayTrigger overlay={<Tooltip>Remove {selectedEvents.length} from dataset</Tooltip>}>
+                                                    <button
+                                                        disabled={!selectedEvents.length}
+                                                        className='d-flex text-dark border-0 bg-transparent click-down' onClick={handleRemoveSelectedEvents}
+                                                    >
+                                                        <AiOutlineDelete className='fs-3 cursor-pointer' />
+                                                    </button>
+                                                </OverlayTrigger>
+                                            )}
+                                        />
+                                    </>
+                                );
+                            }}
+                            refetchOnChanged={[datapoints]}
+                        />
                     )}
                 />
             </Container>
