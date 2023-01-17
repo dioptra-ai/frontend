@@ -91,7 +91,7 @@ const DataViewer = ({datapointIds, ...rest}) => {
                             body: {datapointIds}
                         })}
                         renderData={(events) => (
-                            <DatapointsViewer datapoints={events} {...rest} />
+                            <DatapointsViewer datapoints={events} limit={1000} {...rest} />
                         )}
                         refetchOnChanged={[datapointIds]}
                     />
