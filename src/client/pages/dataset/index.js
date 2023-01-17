@@ -35,49 +35,56 @@ const Dataset = () => {
                             <Async
                                 fetchData={() => baseJSONClient(`/api/dataset/${datasetId}/versions`)}
                                 renderData={(versions) => {
-                                    const dirty = versions.find((v) => v['committed'] === false)['dirty'];
+                                    const uncomittedVersion = versions.find((v) => v['committed'] === false);
+                                    const dirty = uncomittedVersion['dirty'];
 
                                     return (
-                                        <>
-                                            {
-                                                dirty && (
-                                                    <div className='text-muted'>
-                                                        This dataset has uncommitted changes.
-                                                    </div>
-                                                )
+                                        <Form className='my-2 d-flex' style={{width: 'fit-content'}} onSubmit={async (e) => {
+                                            const versionId = e.target.versionId.value;
+
+                                            e.preventDefault();
+
+                                            if (dirty && !confirm('You have uncommitted changes in your dataset. Checking out will discard these changes.\nAre you sure you want to continue?')) {
+                                                return;
                                             }
-                                            <Form className='my-2 d-flex' style={{width: 'fit-content'}} onSubmit={async (e) => {
-                                                const versionId = e.target.versionId.value;
 
-                                                e.preventDefault();
+                                            try {
+                                                await baseJSONClient(`/api/dataset/${datasetId}/checkout/${versionId}`, {
+                                                    method: 'POST'
+                                                });
+                                            } catch (error) {
+                                                alert(error.message);
+                                            }
 
-                                                if (dirty && !confirm('You have uncommitted changes in your dataset. Checking out will discard these changes.\nAre you sure you want to continue?')) {
-                                                    return;
+                                            setLastUpdatedOn(new Date());
+                                        }}>
+                                            <Form.Label column className='mb-0 text-nowrap'>Dataset Versions:</Form.Label>
+                                            <Select required key={versions[0]?.['uuid']} name='versionId' className='ms-1 me-2'>
+                                                {versions.map((version) => version['committed'] ? (
+                                                    <option key={version['uuid']} value={version['uuid']}>
+                                                        {version['message']} ({new Date(version['created_at']).toLocaleString()})
+                                                    </option>
+                                                ) : (
+                                                    <option key={version['uuid']} disabled selected value=''>
+                                                        Uncomitted {dirty ? '(dirty)' : ''}
+                                                    </option>
+                                                ))}
+                                            </Select>
+                                            <Button variant='secondary' size='s' className='text-nowrap me-2' onClick={(e) => {
+                                                const versionId = e.target.closest('form').versionId.value;
+
+                                                if (!versionId) {
+                                                    alert('Please select a version to diff with');
+                                                } else {
+                                                    history.push(`/dataset/diff/${uncomittedVersion['uuid']}/${versionId}`);
                                                 }
-
-                                                try {
-                                                    await baseJSONClient(`/api/dataset/${datasetId}/checkout/${versionId}`, {
-                                                        method: 'POST'
-                                                    });
-                                                } catch (error) {
-                                                    alert(error.message);
-                                                }
-
-                                                setLastUpdatedOn(new Date());
                                             }}>
-                                                <Form.Label column className='mb-0 text-nowrap'>Checkout Version:</Form.Label>
-                                                <Select key={versions[0]?.['uuid']} name='versionId' className='ms-1 me-2'>
-                                                    {versions.filter((v) => v['committed']).map((version) => (
-                                                        <option key={version['uuid']} value={version['uuid']}>
-                                                            {version['message']} ({new Date(version['created_at']).toLocaleString()})
-                                                        </option>
-                                                    ))}
-                                                </Select>
-                                                <Button type='submit' variant='secondary' size='s' className='text-nowrap'>
-                                                    Checkout
-                                                </Button>
-                                            </Form>
-                                        </>
+                                                Diff with uncomitted
+                                            </Button>
+                                            <Button type='submit' variant='secondary' size='s' className='text-nowrap' name='action' value='checkout'>
+                                                Checkout
+                                            </Button>
+                                        </Form>
                                     );
                                 }}
                                 refetchOnChanged={[datasetId, lastUpdatedOn]}
@@ -112,7 +119,7 @@ const Dataset = () => {
                                                     method: 'DELETE'
                                                 });
 
-                                                history.push('/datasets');
+                                                history.push('/dataset');
                                             }
                                         }}>Delete Dataset</a>
                                         {(isDatasetEditOpen) ? (
@@ -124,7 +131,7 @@ const Dataset = () => {
                                                 onDatasetSaved={({uuid}) => {
                                                     setIsDatasetEditOpen(false);
                                                     setLastUpdatedOn(new Date());
-                                                    history.push(`/datasets/${uuid}`);
+                                                    history.push(`/dataset/${uuid}`);
                                                 }}
                                                 dataset={dataset}
                                             />

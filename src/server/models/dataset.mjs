@@ -90,7 +90,7 @@ class Dataset {
         const {rows} = await postgresClient.query(
             `SELECT * FROM dataset_versions
             WHERE dataset_versions.dataset_uuid = $1 AND dataset_versions.organization_id = $2
-            ORDER BY dataset_versions.created_at ASC`,
+            ORDER BY dataset_versions.created_at DESC`,
             [id, organizationId]
         );
 
@@ -231,11 +231,13 @@ class Dataset {
             [secondVersion.uuid]
         );
 
-        const firstVersionDatapointIds = new Set(firstVersionDatapoints.map((datapoint) => datapoint.datapoint));
-        const secondVersionDatapointIds = new Set(secondVersionDatapoints.map((datapoint) => datapoint.datapoint));
+        const firstVersionDatapointIds = firstVersionDatapoints.map((datapoint) => datapoint.datapoint);
+        const firstVersionDatapointIdsSet = new Set(firstVersionDatapointIds);
+        const secondVersionDatapointIds = secondVersionDatapoints.map((datapoint) => datapoint.datapoint);
+        const secondVersionDatapointIdsSet = new Set(secondVersionDatapointIds);
 
-        const added = secondVersionDatapointIds.filter((datapointId) => !firstVersionDatapointIds.has(datapointId));
-        const removed = firstVersionDatapointIds.filter((datapointId) => !secondVersionDatapointIds.has(datapointId));
+        const added = secondVersionDatapointIds.filter((datapointId) => !firstVersionDatapointIdsSet.has(datapointId));
+        const removed = firstVersionDatapointIds.filter((datapointId) => !secondVersionDatapointIdsSet.has(datapointId));
 
         return {
             added,

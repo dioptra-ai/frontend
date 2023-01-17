@@ -110,7 +110,7 @@ const Cart = ({userStore}) => {
                                                             }
                                                         });
 
-                                                        history.push(`/datasets/${dataset.uuid}`);
+                                                        history.push(`/dataset/${dataset.uuid}`);
                                                     }}>
                                                         {dataset['display_name']}
                                                     </Dropdown.Item>

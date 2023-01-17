@@ -9,7 +9,7 @@ import Menu from 'components/menu';
 import baseJSONClient from 'clients/base-json-client';
 import {DatasetEditModal} from 'components/dataset-modal';
 
-const DatasetsList = () => {
+const DatasetList = () => {
     const history = useHistory();
     const [isDatasetModalOpen, setIsDatasetModalOpen] = useState(false);
 
@@ -39,7 +39,7 @@ const DatasetsList = () => {
                             </thead>
                             <tbody>
                                 {datasets.map(({uuid, display_name, created_at}, i) => (
-                                    <tr className='cursor-pointer' key={i} onClick={() => history.push(`/datasets/${uuid}`)}>
+                                    <tr className='cursor-pointer' key={i} onClick={() => history.push(`/dataset/${uuid}`)}>
                                         <td>{display_name}</td>
                                         <td>{new Date(created_at).toLocaleString()}</td>
                                     </tr>
@@ -54,11 +54,11 @@ const DatasetsList = () => {
                 onClose={() => setIsDatasetModalOpen(false)}
                 onDatasetSaved={({uuid}) => {
                     setIsDatasetModalOpen(false);
-                    history.push(`/datasets/${uuid}`);
+                    history.push(`/dataset/${uuid}`);
                 }}
             />
         </Menu>
     );
 };
 
-export default DatasetsList;
+export default DatasetList;

@@ -11,7 +11,8 @@ import Register from 'pages/register';
 import AuthRoute from 'components/auth-route';
 import Miner from 'pages/miner';
 import Dataset from 'pages/dataset';
-import DatasetsList from 'pages/datasets-list';
+import DatasetDiff from 'pages/dataset/diff';
+import DatasetList from 'pages/dataset-list';
 import MinersList from 'pages/miners-list';
 import Cart from 'pages/cart';
 import AppContext from 'context/app-context';
@@ -58,11 +59,14 @@ const App = () => {
                         <Model/>
                     </AppContext.Provider>
                 )} />
-                <AuthRoute path='/datasets/:datasetId' renderLoggedIn={() => (
+                <AuthRoute path='/dataset/diff/:versionId1/:versionId2' renderLoggedIn={() => (
+                    <DatasetDiff />
+                )} />
+                <AuthRoute path='/dataset/:datasetId' renderLoggedIn={() => (
                     <Dataset/>
                 )} />
-                <AuthRoute path='/datasets' renderLoggedIn={() => (
-                    <DatasetsList/>
+                <AuthRoute path='/dataset' renderLoggedIn={() => (
+                    <DatasetList/>
                 )}/>
                 <AuthRoute path='/miners/:minerId' renderLoggedIn={() => (
                     <Miner/>

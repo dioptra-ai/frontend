@@ -1,10 +1,10 @@
 import PropTypes from 'prop-types';
 import Form from 'react-bootstrap/Form';
 
-const Select = ({options = [], onChange, children, ...rest}) => {
+const Select = ({options = [], onChange, children, className, ...rest}) => {
 
     return (
-        <Form.Control as='select' className='form-select w-100' {...rest} onChange={(e) => {
+        <Form.Control as='select' className={`${className} form-select w-100`} {...rest} onChange={(e) => {
             onChange?.(e.target.value);
         }}>
             {
@@ -22,7 +22,8 @@ Select.propTypes = {
         value: PropTypes.any
     })),
     onChange: PropTypes.func,
-    children: PropTypes.node
+    children: PropTypes.node,
+    className: PropTypes.string
 };
 
 export default Select;

@@ -183,7 +183,7 @@ const Miner = () => {
                                                         isOpen
                                                         onDatasetSaved={(dataset) => {
                                                             setIsDatasetModalOpen(false);
-                                                            history.push(`/datasets/${dataset['uuid']}`);
+                                                            history.push(`/dataset/${dataset['uuid']}`);
                                                         }}
                                                         onClose={() => setIsDatasetModalOpen(false)}
                                                     />

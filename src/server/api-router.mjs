@@ -11,7 +11,7 @@ import IntegrationRouter from './controllers/integrations.mjs';
 import IngestionRouter from './controllers/ingestion.mjs';
 import InfrastructureRouter from './controllers/infrastructure.mjs';
 import TasksRouter from './controllers/tasks.mjs';
-import DatasetsRouter from './controllers/datasets.mjs';
+import DatasetRouter from './controllers/dataset.mjs';
 import DatapointsRouter from './controllers/datapoints.mjs';
 import EventsRouter from './controllers/events.mjs';
 
@@ -30,7 +30,7 @@ ApiRouter.use('/integration', IntegrationRouter);
 ApiRouter.use('/ingestion', IngestionRouter);
 ApiRouter.use('/infrastructure', InfrastructureRouter);
 ApiRouter.use('/datapoints', DatapointsRouter);
-ApiRouter.use('/dataset', DatasetsRouter);
+ApiRouter.use('/dataset', DatasetRouter);
 ApiRouter.use('/events', EventsRouter);
 
 export default ApiRouter;
