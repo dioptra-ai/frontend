@@ -81,7 +81,7 @@ class Datapoint {
             return [];
         } else {
             const {rows} = await postgresClient.query(
-                `SELECT "groundtruth", "prediction" - 'embeddings' as "prediction", "uuid"
+                `SELECT "groundtruth", "prediction", "uuid"
             FROM events
             WHERE organization_id = $1 AND
                 (prediction IS NOT NULL OR groundtruth IS NOT NULL) AND

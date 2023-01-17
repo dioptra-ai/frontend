@@ -25,7 +25,7 @@ const PreviewImage = ({datapoint, labels, videoSeekToSec, videoControls, onClick
     const frameH = datapoint.image_metadata?.height || datapoint.video_metadata?.height;
     const frameW = datapoint.image_metadata?.width || datapoint.video_metadata?.width;
     const imageObject = datapoint.image_metadata?.object;
-    const someHeatMap = predictions?.some((p) => p['feature_heatmap']);
+    const someHeatMap = predictions?.some((p) => p?.['feature_heatmap']);
 
     return (
         <>
