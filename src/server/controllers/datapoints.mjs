@@ -26,9 +26,19 @@ DatapointsRouter.get('/:id', async (req, res, next) => {
     }
 });
 
-DatapointsRouter.post('/_legacy-get-events', async (req, res, next) => {
+DatapointsRouter.post('/_legacy-get-datapoint-events', async (req, res, next) => {
     try {
-        const events = await Datapoint._legacyFindEventsByDatapointIds(req.user.activeOrganizationId, req.body.datapointIds);
+        const events = await Datapoint._legacyFindDatapointEventsByDatapointIds(req.user.activeOrganizationId, req.body.datapointIds);
+
+        res.json(events);
+    } catch (e) {
+        next(e);
+    }
+});
+
+DatapointsRouter.post('/_legacy-get-groundtruth-prediction-events', async (req, res, next) => {
+    try {
+        const events = await Datapoint._legacyFindGroundtruthAndPredictionEventsByDatapointIds(req.user.activeOrganizationId, req.body.datapointIds);
 
         res.json(events);
     } catch (e) {

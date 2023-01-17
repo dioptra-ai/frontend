@@ -58,7 +58,7 @@ class Datapoint {
         return rows[0];
     }
 
-    static async _legacyFindEventsByDatapointIds(organizationId, datapointIds) {
+    static async _legacyFindDatapointEventsByDatapointIds(organizationId, datapointIds) {
         if (datapointIds.length === 0) {
             return [];
         } else {
@@ -68,6 +68,23 @@ class Datapoint {
             WHERE organization_id = $1 AND 
                 prediction IS NULL AND
                 groundtruth IS NULL AND
+                request_id IN (SELECT request_id FROM datapoints WHERE uuid IN (${datapointIds.map((_, i) => `$${i + 2}`).join(',')}))`,
+                [organizationId, ...datapointIds]
+            );
+
+            return rows;
+        }
+    }
+
+    static async _legacyFindGroundtruthAndPredictionEventsByDatapointIds(organizationId, datapointIds) {
+        if (datapointIds.length === 0) {
+            return [];
+        } else {
+            const {rows} = await postgresClient.query(
+                `SELECT "groundtruth", "prediction" - 'embeddings' as "prediction", "uuid"
+            FROM events
+            WHERE organization_id = $1 AND
+                (prediction IS NOT NULL OR groundtruth IS NOT NULL) AND
                 request_id IN (SELECT request_id FROM datapoints WHERE uuid IN (${datapointIds.map((_, i) => `$${i + 2}`).join(',')}))`,
                 [organizationId, ...datapointIds]
             );

@@ -252,7 +252,7 @@ const DatapointsViewer = ({datapoints, onSelectedUUIDsChange, onSelectedChange, 
             }
             {
                 (onSelectedUUIDsChange || onSelectedChange) && (
-                    <div className='ps-2 py-2 d-flex align-items-center' >
+                    <div className='ps-2 pb-2 pt-3 d-flex align-items-center' >
                         <Form.Check id='select-all' ref={selectAllRef} type='checkbox' onChange={(e) => {
                             handleSelectAll(e.target.checked);
                         }} label={<span className='cursor-pointer text-decoration-underline'>Select {[
