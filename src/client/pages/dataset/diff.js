@@ -7,6 +7,8 @@ import Async from 'components/async';
 import Menu from 'components/menu';
 import TopBar from 'pages/common/top-bar';
 import DataViewer from './data-viewer';
+import BarGraph from 'components/bar-graph';
+import {getHexColor} from 'helpers/color-helper';
 
 const DatasetDiff = () => {
     const {versionId1, versionId2} = useParams();
@@ -19,7 +21,7 @@ const DatasetDiff = () => {
                 refetchOnChanged={[versionId1, versionId2]}
                 renderData={({added, removed, version1, version2, dataset1, dataset2}) => (
                     <div className='bg-white-blue text-dark p-3'>
-                        <Row>
+                        <Row className='mb-3'>
                             <Col>
                                 <div>Version1: <span style={{fontFamily: 'monospace'}}>{version1['uuid']}</span></div>
                                 <div>Commit message: <span style={{fontFamily: 'monospace'}}>{
@@ -42,13 +44,79 @@ const DatasetDiff = () => {
                                 </div>
                             </Col>
                         </Row>
-                        <hr/>
-                        <Row>
+                        <Async
+                            fetchData={() => Promise.all([
+                                baseJSONClient('/api/datapoints/_legacy-get-groundtruth-prediction-events', {
+                                    method: 'post',
+                                    body: {datapointIds: removed}
+                                }),
+                                baseJSONClient('/api/datapoints/_legacy-get-groundtruth-prediction-events', {
+                                    method: 'post',
+                                    body: {datapointIds: added}
+                                })
+                            ])}
+                            refetchOnChanged={[removed, added]}
+                            renderData={([removedEvents, addedEvents]) => {
+                                const getHistogram = (initialAcc, events, getClassName, getNewValue) => {
+
+                                    return events.reduce((acc, event) => {
+                                        const className = getClassName(event);
+
+                                        if (className) {
+                                            acc[className] = getNewValue(acc[className]);
+                                        }
+
+                                        return acc;
+                                    }, initialAcc);
+                                };
+                                const groundtruthAddedHistogram = getHistogram({}, addedEvents, (e) => e['groundtruth']?.['class_name'], (v) => v ? v + 1 : 1);
+                                const groundtruthHistogram = getHistogram(groundtruthAddedHistogram, removedEvents, (e) => e['groundtruth']?.['class_name'], (v) => v ? v - 1 : -1);
+                                const predictionAddedHistogram = getHistogram({}, addedEvents, (e) => e['prediction']?.['class_name'], (v) => v ? v + 1 : 1);
+                                const predictionHistogram = getHistogram(predictionAddedHistogram, removedEvents, (e) => e['prediction']?.['class_name'], (v) => v ? v - 1 : -1);
+
+                                return (
+                                    <Row>
+                                        {
+                                            Object.entries(groundtruthHistogram).length ? (
+
+                                                <Col>
+                                                    <BarGraph
+                                                        title='Net Groundtruth Changes'
+                                                        bars={Object.entries(groundtruthHistogram).map(([className, count]) => ({
+                                                            name: className,
+                                                            value: count,
+                                                            fill: getHexColor(className)
+                                                        }))}
+                                                        yAxisTickFormatter={(v) => Number(v).toLocaleString()}
+                                                    />
+                                                </Col>
+                                            ) : null
+                                        }
+                                        {
+                                            Object.entries(predictionHistogram).length ? (
+                                                <Col>
+                                                    <BarGraph
+                                                        title='Net Prediction Changes'
+                                                        bars={Object.entries(predictionHistogram).map(([className, count]) => ({
+                                                            name: className,
+                                                            value: count,
+                                                            fill: getHexColor(className)
+                                                        }))}
+                                                        yAxisTickFormatter={(v) => Number(v).toLocaleString()}
+                                                    />
+                                                </Col>
+                                            ) : null
+                                        }
+                                    </Row>
+                                );
+                            }}
+                        />
+                        <Row className='mt-3'>
                             <Col>
                                 <h4 style={{color: 'red'}}>Removed: {Number(removed.length).toLocaleString()}</h4>
                                 <DataViewer datapointIds={removed} />
                             </Col>
-                            <Col>
+                            <Col style={{borderLeft: '1px solid #ccc'}}>
                                 <h4 style={{color: 'green'}}>Added: {Number(added.length).toLocaleString()}</h4>
                                 <DataViewer datapointIds={added} />
                             </Col>

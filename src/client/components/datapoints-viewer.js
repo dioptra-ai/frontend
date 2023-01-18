@@ -240,17 +240,6 @@ const DatapointsViewer = ({datapoints, onSelectedUUIDsChange, onSelectedChange, 
     return (
         <>
             {
-                datapoints.length >= limit ? (
-                    <Row>
-                        <Col>
-                            <Alert variant='warning'>
-                                Only the first {limit.toLocaleString()} datapoints are shown. Try filtering down or choosing different parameters.
-                            </Alert>
-                        </Col>
-                    </Row>
-                ) : null
-            }
-            {
                 (onSelectedUUIDsChange || onSelectedChange) && (
                     <div className='ps-2 pb-2 pt-3 d-flex align-items-center' >
                         <Form.Check id='select-all' ref={selectAllRef} type='checkbox' onChange={(e) => {
@@ -263,6 +252,17 @@ const DatapointsViewer = ({datapoints, onSelectedUUIDsChange, onSelectedChange, 
                         {renderButtons?.()}
                     </div>
                 )
+            }
+            {
+                datapoints.length >= limit ? (
+                    <Row>
+                        <Col>
+                            <Alert variant='warning'>
+                                Only the first {limit.toLocaleString()} datapoints are shown. Try filtering down or choosing different parameters.
+                            </Alert>
+                        </Col>
+                    </Row>
+                ) : null
             }
             <Row className='g-2'>
                 {datapoints.length ? datapoints.slice(0, limit).map((datapoint, i) => {

@@ -40,7 +40,13 @@ CustomTooltip.propTypes = {
     payload: PropTypes.array,
     unit: PropTypes.string
 };
-const BarGraph = ({title, bars, unit, yAxisName, xAxisName, yAxisDomain, className = '', onClick, children, height, ...rest}) => {
+const BarGraph = ({
+    title, bars, unit, yAxisName, xAxisName, yAxisDomain,
+    // Probably should be this instead:
+    // yAxisTickFormatter={(v) => Number(v).toLocaleString()}
+    yAxisTickFormatter = (value) => Number(value).toFixed?.(2) || '-',
+    className = '', onClick, children, height, ...rest
+}) => {
 
     return (
         <div className={`border rounded p-3 pe-5 w-100 ${className}`}>
@@ -66,7 +72,7 @@ const BarGraph = ({title, bars, unit, yAxisName, xAxisName, yAxisDomain, classNa
                                     dx: -20,
                                     fontSize: fontSizes.fs_7
                                 }}
-                                tickFormatter={(value) => Number(value).toFixed?.(2) || '-'}
+                                tickFormatter={yAxisTickFormatter}
                                 tick={{fontSize: fontSizes.fs_7}}
                                 unit={unit}
                             />
@@ -97,7 +103,8 @@ BarGraph.propTypes = {
     yAxisName: PropTypes.string,
     onClick: PropTypes.func,
     height: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-    children: PropTypes.node
+    children: PropTypes.node,
+    yAxisTickFormatter: PropTypes.func
 };
 
 export default BarGraph;

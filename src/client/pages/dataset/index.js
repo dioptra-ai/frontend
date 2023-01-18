@@ -4,6 +4,8 @@ import {Button, Container, OverlayTrigger, Tooltip} from 'react-bootstrap';
 import {AiOutlineDelete} from 'react-icons/ai';
 import {saveAs} from 'file-saver';
 import Form from 'react-bootstrap/Form';
+import Col from 'react-bootstrap/Col';
+import Row from 'react-bootstrap/Row';
 
 import Async from 'components/async';
 import Menu from 'components/menu';
@@ -13,6 +15,8 @@ import DataViewer from './data-viewer';
 import metricsClient from 'clients/metrics';
 import {DatasetCommitModal, DatasetEditModal} from 'components/dataset-modal';
 import Select from 'components/select';
+import BarGraph from 'components/bar-graph';
+import {getHexColor} from 'helpers/color-helper';
 
 const Dataset = () => {
     const {datasetId} = useParams();
@@ -161,6 +165,7 @@ const Dataset = () => {
                     fetchData={() => baseJSONClient(`/api/dataset/${datasetId}/datapoints`)}
                     refetchOnChanged={[datasetId, lastUpdatedOn]}
                     renderData={(datapoints) => {
+                        const datapointIds = datapoints.map((datapoint) => datapoint['uuid']);
                         const handleRemoveSelectedEvents = async (e) => {
                             e.preventDefault();
                             if (window.confirm('Are you sure you want to remove the selected datapoints?')) {
@@ -178,8 +183,66 @@ const Dataset = () => {
 
                         return (
                             <>
+                                <Async
+                                    fetchData={() => baseJSONClient('/api/datapoints/_legacy-get-groundtruth-prediction-events', {
+                                        method: 'post',
+                                        body: {datapointIds}
+                                    })}
+                                    refetchOnChanged={[datapointIds]}
+                                    renderData={(events) => {
+                                        const getHistogram = (events, getClassName) => events.reduce((acc, event) => {
+                                            const name = getClassName(event);
+
+                                            if (name) {
+                                                if (!acc[name]) {
+                                                    acc[name] = 0;
+                                                }
+                                                acc[name] += 1;
+                                            }
+
+                                            return acc;
+                                        }, {});
+                                        const groundtruths = getHistogram(events, (event) => event['groundtruth']?.['class_name']);
+                                        const predictions = getHistogram(events, (event) => event['prediction']?.['class_name']);
+
+                                        return (
+                                            <Row className='g-2 my-2'>
+                                                {
+                                                    Object.keys(groundtruths).length ? (
+                                                        <Col>
+                                                            <BarGraph
+                                                                title='Groundtruths'
+                                                                bars={Object.entries(groundtruths).map(([name, value]) => ({
+                                                                    name,
+                                                                    value,
+                                                                    fill: getHexColor(name)
+                                                                }))}
+                                                                yAxisTickFormatter={(v) => Number(v).toLocaleString()}
+                                                            />
+                                                        </Col>
+                                                    ) : null
+                                                }
+                                                {
+                                                    Object.keys(predictions).length ? (
+                                                        <Col>
+                                                            <BarGraph
+                                                                title='Predictions'
+                                                                bars={Object.entries(predictions).map(([name, value]) => ({
+                                                                    name,
+                                                                    value,
+                                                                    fill: getHexColor(name)
+                                                                }))}
+                                                                yAxisTickFormatter={(v) => Number(v).toLocaleString()}
+                                                            />
+                                                        </Col>
+                                                    ) : null
+                                                }
+                                            </Row>
+                                        );
+                                    }}
+                                />
                                 <DataViewer
-                                    datapointIds={datapoints.map((datapoint) => datapoint['uuid'])}
+                                    datapointIds={datapointIds}
                                     onSelectedChange={setSelectedEvents}
                                     renderButtons={() => (
                                         <OverlayTrigger overlay={<Tooltip>Remove {selectedEvents.length} from dataset</Tooltip>}>
