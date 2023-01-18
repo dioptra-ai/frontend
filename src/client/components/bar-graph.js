@@ -41,7 +41,8 @@ CustomTooltip.propTypes = {
     unit: PropTypes.string
 };
 const BarGraph = ({
-    title, bars, unit, yAxisName, xAxisName, yAxisDomain,
+    title, bars, unit, yAxisName, xAxisName,
+    yAxisDomain = ([dataMin, dataMax]) => [Math.min(0, dataMin), Math.max(0, dataMax)],
     // Probably should be this instead:
     // yAxisTickFormatter={(v) => Number(v).toLocaleString()}
     yAxisTickFormatter = (value) => Number(value).toFixed?.(2) || '-',
