@@ -1,4 +1,4 @@
-import {useParams} from 'react-router-dom';
+import {Link, useParams} from 'react-router-dom';
 import PropTypes from 'prop-types';
 import {Col, Row} from 'react-bootstrap';
 
@@ -23,24 +23,24 @@ const DatasetDiff = () => {
                     <div className='bg-white-blue text-dark p-3'>
                         <Row className='mb-3'>
                             <Col>
-                                <div>Version1: <span style={{fontFamily: 'monospace'}}>{version1['uuid']}</span></div>
+                                <div>Version1: <Link to={`/dataset/version/${version1['uuid']}`} style={{fontFamily: 'monospace'}}>{version1['uuid']}</Link></div>
                                 <div>Commit message: <span style={{fontFamily: 'monospace'}}>{
                                     version1['committed'] ? `"${version1['message']}"` : '<Uncommitted>'
                                 }</span></div>
                                 <div>
-                                    Dataset: {dataset1['display_name']} (<span style={{fontFamily: 'monospace'}}>{dataset1['uuid']}</span>)
+                                    Dataset: <Link to={`/dataset/${dataset1['uuid']}`}>{dataset1['display_name']}</Link>
                                 </div>
                             </Col>
                             <Col xs={1} className='d-flex align-items-center'>
                                 <span className='fs-2'>{'->'}</span>
                             </Col>
                             <Col>
-                                <div>Version2: <span style={{fontFamily: 'monospace'}}>{version2['uuid']}</span></div>
+                                <div>Version2: <Link to={`/dataset/version/${version2['uuid']}`} style={{fontFamily: 'monospace'}}>{version2['uuid']}</Link></div>
                                 <div>Commit message: <span style={{fontFamily: 'monospace'}}>{
                                     version2['committed'] ? `"${version2['message']}"` : '<Uncommitted>'
                                 }</span></div>
                                 <div>
-                                    Dataset: {dataset1['display_name']} (<span style={{fontFamily: 'monospace'}}>{dataset2['uuid']}</span>)
+                                    Dataset: <Link to={`/dataset/${dataset2['uuid']}`}>{dataset2['display_name']}</Link>
                                 </div>
                             </Col>
                         </Row>

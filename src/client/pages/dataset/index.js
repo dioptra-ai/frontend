@@ -34,15 +34,22 @@ const Dataset = () => {
                             <h4>{dataset['display_name']}</h4>
                             <Async
                                 fetchData={() => baseJSONClient(`/api/dataset/${datasetId}/versions`)}
+                                refetchOnChanged={[datasetId, lastUpdatedOn]}
                                 renderData={(versions) => {
-                                    const uncomittedVersion = versions.find((v) => v['committed'] === false);
-                                    const dirty = uncomittedVersion['dirty'];
+                                    const uncommittedVersion = versions.find((v) => v['committed'] === false);
+                                    const dirty = uncommittedVersion['dirty'];
 
                                     return (
                                         <Form className='my-2 d-flex' style={{width: 'fit-content'}} onSubmit={async (e) => {
                                             const versionId = e.target.versionId.value;
 
                                             e.preventDefault();
+
+                                            if (uncommittedVersion['uuid'] === versionId) {
+                                                alert('The uncommitted version cannot be checked out.\nTo rollback, select the version you want to rollback to.');
+
+                                                return;
+                                            }
 
                                             if (dirty && !confirm('You have uncommitted changes in your dataset. Checking out will discard these changes.\nAre you sure you want to continue?')) {
                                                 return;
@@ -60,37 +67,22 @@ const Dataset = () => {
                                         }}>
                                             <Form.Label column className='mb-0 text-nowrap'>Versions:</Form.Label>
                                             <Select required key={versions[0]?.['uuid']} name='versionId' className='ms-1 me-2'>
-                                                {versions.map((version) => version['committed'] ? (
-                                                    <option key={version['uuid']} value={version['uuid']}>
-                                                        {version['message']} ({new Date(version['created_at']).toLocaleString()})
-                                                    </option>
-                                                ) : (
-                                                    <option key={version['uuid']} disabled selected value=''>
-                                                        Uncomitted {dirty ? '(dirty)' : ''}
-                                                    </option>
-                                                ))}
+                                                {
+                                                    versions.map((version) => (
+                                                        <option key={version['uuid']} value={version['uuid']}>
+                                                            {
+                                                                version['committed'] ? `"${version['message']}" (${new Date(version['created_at']).toLocaleString()})'` : `<Uncomitted${dirty ? ' (dirty)' : ''}>`
+                                                            }
+                                                        </option>
+                                                    ))
+                                                }
                                             </Select>
                                             <Button variant='secondary' size='s' className='text-nowrap me-2' onClick={(e) => {
                                                 const versionId = e.target.closest('form').versionId.value;
 
-                                                if (!versionId) {
-                                                    alert('Please select a version to diff with.');
-                                                } else {
-                                                    history.push(`/dataset/version/${versionId}`);
-                                                }
+                                                history.push(`/dataset/version/${versionId}`);
                                             }}>
                                                 View
-                                            </Button>
-                                            <Button variant='secondary' size='s' className='text-nowrap me-2' onClick={(e) => {
-                                                const versionId = e.target.closest('form').versionId.value;
-
-                                                if (!versionId) {
-                                                    alert('Please select a version to diff with.');
-                                                } else {
-                                                    history.push(`/dataset/diff/${versionId}/${uncomittedVersion['uuid']}`);
-                                                }
-                                            }}>
-                                                Diff with uncomitted
                                             </Button>
                                             <Button type='submit' variant='secondary' size='s' className='text-nowrap' name='action' value='checkout'>
                                                 Checkout
@@ -98,7 +90,6 @@ const Dataset = () => {
                                         </Form>
                                     );
                                 }}
-                                refetchOnChanged={[datasetId, lastUpdatedOn]}
                             />
                             <a href='#' onClick={() => setIsDatasetEditOpen(true)}>Edit Name</a>
                                 &nbsp;|&nbsp;

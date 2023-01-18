@@ -1,7 +1,9 @@
 import PropTypes from 'prop-types';
-import {Col, Row} from 'react-bootstrap';
-import {Link, useParams} from 'react-router-dom';
+import {Button, Col, Row} from 'react-bootstrap';
+import {Link, useHistory, useParams} from 'react-router-dom';
+import Form from 'react-bootstrap/Form';
 
+import Select from 'components/select';
 import BarGraph from 'components/bar-graph';
 import {getHexColor} from 'helpers/color-helper';
 import DataViewer from './data-viewer';
@@ -96,6 +98,7 @@ export {DatasetVersionViewer};
 
 const DatasetVersion = () => {
     const {versionId} = useParams();
+    const history = useHistory();
 
     return (
         <Menu>
@@ -117,6 +120,30 @@ const DatasetVersion = () => {
                                     <div>
                                         Dataset: <Link to={`/dataset/${dataset['uuid']}`}>{dataset['display_name']}</Link>
                                     </div>
+                                )}
+                            />
+                            <Async
+                                fetchData={() => baseJSONClient(`/api/dataset/${version['dataset_uuid']}/versions`)}
+                                refetchOnChanged={[version['dataset_uuid']]}
+                                renderData={(versions) => (
+                                    <Form className='my-2 d-flex' style={{width: 'fit-content'}} onSubmit={(e) => {
+                                        e.preventDefault();
+                                        const otherVersionId = e.target.versionId.value;
+
+                                        history.push(`/dataset/diff/${otherVersionId}/${versionId}`);
+                                    }}>
+                                        <Form.Label column className='mb-0 text-nowrap'>Versions:</Form.Label>
+                                        <Select name='versionId' className='ms-1 me-2' defaultValue={versionId}>
+                                            {
+                                                versions.map((version) => (
+                                                    <option key={version['uuid']} value={version['uuid']}>
+                                                        {version['committed'] ? `"${version['message']}"` : '<Uncommitted>'} ({new Date(version['created_at']).toLocaleString()})
+                                                    </option>
+                                                ))
+                                            }
+                                        </Select>
+                                        <Button type='submit' variant='secondary' size='s' className='text-nowrap me-2'>{'->'} Diff</Button>
+                                    </Form>
                                 )}
                             />
                         </>
