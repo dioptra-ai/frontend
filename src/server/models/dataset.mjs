@@ -61,29 +61,35 @@ class Dataset {
         return rows[0];
     }
 
-    static async findDatapoints(organizationId, id, versionId) {
-        if (!versionId) {
-            const {rows: [uncommittedVersion]} = await postgresClient.query(
-                'SELECT * FROM dataset_versions WHERE dataset_uuid = $1 AND organization_id = $2 AND committed = false',
-                [id, organizationId]
-            );
+    static async findUncommittedVersion(organizationId, id) {
+        const {rows: [uncommittedVersion]} = await postgresClient.query(
+            'SELECT * FROM dataset_versions WHERE dataset_uuid = $1 AND organization_id = $2 AND committed = false',
+            [id, organizationId]
+        );
 
-            // There must be an uncommitted version.
-            if (!uncommittedVersion) {
-                throw new Error('Uncommitted version not found.');
-            }
-
-            versionId = uncommittedVersion.uuid;
+        // There must be an uncommitted version.
+        if (!uncommittedVersion) {
+            throw new Error('Uncommitted version not found.');
         }
 
+        return uncommittedVersion;
+    }
+
+    static async findDatapointsByVersion(organizationId, versionId) {
         const {rows} = await postgresClient.query(
             `SELECT datapoints.* FROM dataset_to_datapoints
             INNER JOIN datapoints ON dataset_to_datapoints.datapoint = datapoints.uuid
-            WHERE dataset_to_datapoints.dataset_version = $1`,
-            [versionId]
+            WHERE dataset_to_datapoints.dataset_version = $1 AND datapoints.organization_id = $2`,
+            [versionId, organizationId]
         );
 
         return rows;
+    }
+
+    static async findDatapoints(organizationId, id) {
+        const uncommittedVersion = await Dataset.findUncommittedVersion(organizationId, id);
+
+        return Dataset.findDatapointsByVersion(organizationId, uncommittedVersion.uuid);
     }
 
     static async findVersions(organizationId, id) {
@@ -259,6 +265,15 @@ class Dataset {
             dataset1: firstVersionDataset,
             dataset2: secondVersionDataset
         };
+    }
+
+    static async getVersionById(organizationId, versionId) {
+        const {rows: [version]} = await postgresClient.query(
+            'SELECT * FROM dataset_versions WHERE uuid = $1 AND organization_id = $2',
+            [versionId, organizationId]
+        );
+
+        return version;
     }
 }
 

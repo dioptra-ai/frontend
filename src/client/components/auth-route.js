@@ -1,17 +1,15 @@
 import PropTypes from 'prop-types';
-import {Redirect, Route, useLocation} from 'react-router-dom';
+import {Redirect, Route} from 'react-router-dom';
 
 import {setupComponent} from 'helpers/component-helper';
 
 const AuthRoute = ({userStore, renderLoggedIn, renderLoggedOut, ...rest}) => {
-    const {pathname, search, hash} = useLocation();
-
     if (renderLoggedIn && userStore.isAuthenticated) {
 
-        return <Route {...rest} render={() => renderLoggedIn({pathname, search, hash})}/>;
+        return <Route {...rest} render={renderLoggedIn}/>;
     } else if (renderLoggedOut && !userStore.isAuthenticated) {
 
-        return <Route {...rest} render={() => renderLoggedOut({pathname, search, hash})}/>;
+        return <Route {...rest} render={renderLoggedOut}/>;
     } else return null;
 };
 

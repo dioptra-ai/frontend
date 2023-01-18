@@ -42,6 +42,16 @@ DatasetsRouter.get('/:datasetId/versions', async (req, res, next) => {
     }
 });
 
+DatasetsRouter.get('/:datasetId/uncommitted-version', async (req, res, next) => {
+    try {
+        const version = await Dataset.findUncommittedVersion(req.user.activeOrganizationId, req.params.datasetId);
+
+        res.json(version);
+    } catch (e) {
+        next(e);
+    }
+});
+
 DatasetsRouter.post('/', async (req, res, next) => {
     try {
         const dataset = await Dataset.upsert(req.user.activeOrganizationId, {
@@ -114,6 +124,26 @@ DatasetsRouter.get('/diff/:versionId1/:versionId2', async (req, res, next) => {
         const diff = await Dataset.getDiff(req.user.activeOrganizationId, req.params.versionId1, req.params.versionId2);
 
         res.json(diff);
+    } catch (e) {
+        next(e);
+    }
+});
+
+DatasetsRouter.get('/version/:versionId', async (req, res, next) => {
+    try {
+        const version = await Dataset.getVersionById(req.user.activeOrganizationId, req.params.versionId);
+
+        res.json(version);
+    } catch (e) {
+        next(e);
+    }
+});
+
+DatasetsRouter.get('/version/:versionId/datapoints', async (req, res, next) => {
+    try {
+        const datapoints = await Dataset.findDatapointsByVersion(req.user.activeOrganizationId, req.params.versionId);
+
+        res.json(datapoints);
     } catch (e) {
         next(e);
     }

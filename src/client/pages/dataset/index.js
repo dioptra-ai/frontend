@@ -4,19 +4,15 @@ import {Button, Container, OverlayTrigger, Tooltip} from 'react-bootstrap';
 import {AiOutlineDelete} from 'react-icons/ai';
 import {saveAs} from 'file-saver';
 import Form from 'react-bootstrap/Form';
-import Col from 'react-bootstrap/Col';
-import Row from 'react-bootstrap/Row';
 
 import Async from 'components/async';
 import Menu from 'components/menu';
 import TopBar from 'pages/common/top-bar';
 import baseJSONClient from 'clients/base-json-client';
-import DataViewer from './data-viewer';
 import metricsClient from 'clients/metrics';
 import {DatasetCommitModal, DatasetEditModal} from 'components/dataset-modal';
 import Select from 'components/select';
-import BarGraph from 'components/bar-graph';
-import {getHexColor} from 'helpers/color-helper';
+import {DatasetVersionViewer} from './dataset-version';
 
 const Dataset = () => {
     const {datasetId} = useParams();
@@ -62,7 +58,7 @@ const Dataset = () => {
 
                                             setLastUpdatedOn(new Date());
                                         }}>
-                                            <Form.Label column className='mb-0 text-nowrap'>Dataset Versions:</Form.Label>
+                                            <Form.Label column className='mb-0 text-nowrap'>Versions:</Form.Label>
                                             <Select required key={versions[0]?.['uuid']} name='versionId' className='ms-1 me-2'>
                                                 {versions.map((version) => version['committed'] ? (
                                                     <option key={version['uuid']} value={version['uuid']}>
@@ -74,6 +70,17 @@ const Dataset = () => {
                                                     </option>
                                                 ))}
                                             </Select>
+                                            <Button variant='secondary' size='s' className='text-nowrap me-2' onClick={(e) => {
+                                                const versionId = e.target.closest('form').versionId.value;
+
+                                                if (!versionId) {
+                                                    alert('Please select a version to diff with.');
+                                                } else {
+                                                    history.push(`/dataset/version/${versionId}`);
+                                                }
+                                            }}>
+                                                View
+                                            </Button>
                                             <Button variant='secondary' size='s' className='text-nowrap me-2' onClick={(e) => {
                                                 const versionId = e.target.closest('form').versionId.value;
 
@@ -93,82 +100,77 @@ const Dataset = () => {
                                 }}
                                 refetchOnChanged={[datasetId, lastUpdatedOn]}
                             />
-                            <Async
-                                fetchData={() => baseJSONClient(`/api/dataset/${datasetId}/datapoints`)}
-                                renderData={(datapoints) => (
-                                    <>
-                                        <a href='#' onClick={() => setIsDatasetEditOpen(true)}>Edit Name</a>
-                                        &nbsp;|&nbsp;
-                                        <a href='#' onClick={() => setIsDatasetCommitVersionOpen(true)}>Commit Version</a>
-                                        &nbsp;|&nbsp;
-                                        <a href='#' onClick={async () => {
-                                            const data = await metricsClient('select', {
-                                                select: '"uuid", "is_annotation", "timestamp", "request_id" as "datapoint_id", "model_id", "model_version", "image_metadata", "text_metadata", "video_metadata", "text", "tags", "features", "groundtruth", "prediction"',
-                                                filters: [{
-                                                    left: 'request_id',
-                                                    op: 'in',
-                                                    right: datapoints.map((datapoint) => datapoint['request_id'])
-                                                }],
-                                                rm_fields: ['embeddings', 'logits', 'feature_heatmap'],
-                                                as_csv: true
-                                            }, false);
+                            <a href='#' onClick={() => setIsDatasetEditOpen(true)}>Edit Name</a>
+                                &nbsp;|&nbsp;
+                            <a href='#' onClick={() => setIsDatasetCommitVersionOpen(true)}>Commit</a>
+                                &nbsp;|&nbsp;
+                            <a href='#' onClick={async () => {
+                                const datapoints = await baseJSONClient(`/api/dataset/${datasetId}/datapoints`);
+                                const data = await metricsClient('select', {
+                                    select: '"uuid", "is_annotation", "timestamp", "request_id" as "datapoint_id", "model_id", "model_version", "image_metadata", "text_metadata", "video_metadata", "text", "tags", "features", "groundtruth", "prediction"',
+                                    filters: [{
+                                        left: 'request_id',
+                                        op: 'in',
+                                        right: datapoints.map((datapoint) => datapoint['request_id'])
+                                    }],
+                                    rm_fields: ['embeddings', 'logits', 'feature_heatmap'],
+                                    as_csv: true
+                                }, false);
 
-                                            saveAs(new Blob([data], {type: 'text/csv;charset=utf-8'}), `${dataset['display_name']}-${new Date().toISOString()}.csv`);
+                                saveAs(new Blob([data], {type: 'text/csv;charset=utf-8'}), `${dataset['display_name']}-${new Date().toISOString()}.csv`);
 
-                                        }}>Download as CSV</a>
-                                        &nbsp;|&nbsp;
-                                        <a href='#' style={{color: 'red'}} onClick={async () => {
-                                            if (window.confirm('Are you sure you want to delete this dataset?\nThis action cannot be undone.')) {
-                                                await baseJSONClient(`/api/dataset/${datasetId}`, {
-                                                    method: 'DELETE'
-                                                });
+                            }}>Download as CSV</a>
+                                &nbsp;|&nbsp;
+                            <a href='#' style={{color: 'red'}} onClick={async () => {
+                                if (window.confirm('Are you sure you want to delete this dataset?\nThis action cannot be undone.')) {
+                                    await baseJSONClient(`/api/dataset/${datasetId}`, {
+                                        method: 'DELETE'
+                                    });
 
-                                                history.push('/dataset');
-                                            }
-                                        }}>Delete Dataset</a>
-                                        {(isDatasetEditOpen) ? (
-                                            <DatasetEditModal
-                                                isOpen
-                                                onClose={() => {
-                                                    setIsDatasetEditOpen(false);
-                                                }}
-                                                onDatasetSaved={({uuid}) => {
-                                                    setIsDatasetEditOpen(false);
-                                                    setLastUpdatedOn(new Date());
-                                                    history.push(`/dataset/${uuid}`);
-                                                }}
-                                                dataset={dataset}
-                                            />
-                                        ) : null}
-                                        {(isDatasetCommitOpen) ? (
-                                            <DatasetCommitModal
-                                                isOpen
-                                                onClose={() => {
-                                                    setIsDatasetCommitVersionOpen(false);
-                                                }}
-                                                onCommit={() => {
-                                                    setIsDatasetCommitVersionOpen(false);
-                                                    setLastUpdatedOn(new Date());
-                                                }}
-                                                datasetId={datasetId}
-                                            />
-                                        ) : null}
-                                    </>
-                                )}
-                            />
+                                    history.push('/dataset');
+                                }
+                            }}>Delete Dataset</a>
+                            {(isDatasetEditOpen) ? (
+                                <DatasetEditModal
+                                    isOpen
+                                    onClose={() => {
+                                        setIsDatasetEditOpen(false);
+                                    }}
+                                    onDatasetSaved={({uuid}) => {
+                                        setIsDatasetEditOpen(false);
+                                        setLastUpdatedOn(new Date());
+                                        history.push(`/dataset/${uuid}`);
+                                    }}
+                                    dataset={dataset}
+                                />
+                            ) : null}
+                            {(isDatasetCommitOpen) ? (
+                                <DatasetCommitModal
+                                    isOpen
+                                    onClose={() => {
+                                        setIsDatasetCommitVersionOpen(false);
+                                    }}
+                                    onCommit={() => {
+                                        setIsDatasetCommitVersionOpen(false);
+                                        setLastUpdatedOn(new Date());
+                                    }}
+                                    datasetId={datasetId}
+                                />
+                            ) : null}
                         </div>
                     </>
                 )}
             />
             <Container fluid>
                 <Async
-                    fetchData={() => baseJSONClient(`/api/dataset/${datasetId}/datapoints`)}
+                    fetchData={() => baseJSONClient(`/api/dataset/${datasetId}/uncommitted-version`)}
                     refetchOnChanged={[datasetId, lastUpdatedOn]}
-                    renderData={(datapoints) => {
-                        const datapointIds = datapoints.map((datapoint) => datapoint['uuid']);
+                    renderData={(uncommittedVersion) => {
                         const handleRemoveSelectedEvents = async (e) => {
                             e.preventDefault();
                             if (window.confirm('Are you sure you want to remove the selected datapoints?')) {
+                                const datapoints = await baseJSONClient(`/api/dataset/${datasetId}/datapoints`);
+
                                 await baseJSONClient(`/api/dataset/${datasetId}/remove`, {
                                     method: 'POST',
                                     body: {
@@ -182,69 +184,11 @@ const Dataset = () => {
                         };
 
                         return (
-                            <>
-                                <Async
-                                    fetchData={() => baseJSONClient('/api/datapoints/_legacy-get-groundtruth-prediction-events', {
-                                        method: 'post',
-                                        body: {datapointIds}
-                                    })}
-                                    refetchOnChanged={[datapointIds]}
-                                    renderData={(events) => {
-                                        const getHistogram = (events, getClassName) => events.reduce((acc, event) => {
-                                            const name = getClassName(event);
-
-                                            if (name) {
-                                                if (!acc[name]) {
-                                                    acc[name] = 0;
-                                                }
-                                                acc[name] += 1;
-                                            }
-
-                                            return acc;
-                                        }, {});
-                                        const groundtruths = getHistogram(events, (event) => event['groundtruth']?.['class_name']);
-                                        const predictions = getHistogram(events, (event) => event['prediction']?.['class_name']);
-
-                                        return (
-                                            <Row className='g-2 my-2'>
-                                                {
-                                                    Object.keys(groundtruths).length ? (
-                                                        <Col>
-                                                            <BarGraph
-                                                                title='Groundtruths'
-                                                                bars={Object.entries(groundtruths).map(([name, value]) => ({
-                                                                    name,
-                                                                    value,
-                                                                    fill: getHexColor(name)
-                                                                }))}
-                                                                yAxisTickFormatter={(v) => Number(v).toLocaleString()}
-                                                            />
-                                                        </Col>
-                                                    ) : null
-                                                }
-                                                {
-                                                    Object.keys(predictions).length ? (
-                                                        <Col>
-                                                            <BarGraph
-                                                                title='Predictions'
-                                                                bars={Object.entries(predictions).map(([name, value]) => ({
-                                                                    name,
-                                                                    value,
-                                                                    fill: getHexColor(name)
-                                                                }))}
-                                                                yAxisTickFormatter={(v) => Number(v).toLocaleString()}
-                                                            />
-                                                        </Col>
-                                                    ) : null
-                                                }
-                                            </Row>
-                                        );
-                                    }}
-                                />
-                                <DataViewer
-                                    datapointIds={datapointIds}
-                                    onSelectedChange={setSelectedEvents}
-                                    renderButtons={() => (
+                            <DatasetVersionViewer
+                                versionId={uncommittedVersion['uuid']}
+                                dataViewerProps={{
+                                    onSelectedChange: setSelectedEvents,
+                                    renderButtons: () => (
                                         <OverlayTrigger overlay={<Tooltip>Remove {selectedEvents.length} from dataset</Tooltip>}>
                                             <button
                                                 disabled={!selectedEvents.length}
@@ -253,9 +197,9 @@ const Dataset = () => {
                                                 <AiOutlineDelete className='fs-3 cursor-pointer' />
                                             </button>
                                         </OverlayTrigger>
-                                    )}
-                                />
-                            </>
+                                    )
+                                }}
+                            />
                         );
                     }}
                 />
