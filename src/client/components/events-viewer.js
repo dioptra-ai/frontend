@@ -173,7 +173,7 @@ const EventsViewer = ({events, onSelectedUUIDsChange, onSelectedChange, onClearD
     const exampleInModal = events[datapointIndexInModal];
     const datapointsByUUID = new Map(events.map((d) => [d.uuid, d]));
     const annotationsNum = events.filter((d) => d.prediction || d.groundtruth).length;
-    const dataRowsNum = events.length - annotationsNum;
+    const datapointNums = events.length - annotationsNum;
 
     const handleSelectDatapoint = (uuid, selected) => {
         const newSet = new Set(selectedDatapoints);
@@ -241,11 +241,11 @@ const EventsViewer = ({events, onSelectedUUIDsChange, onSelectedChange, onClearD
         <>
             {
                 (onSelectedUUIDsChange || onSelectedChange) && (
-                    <div className='ps-2 pb-2 pt-3 d-flex align-items-center' >
+                    <div className='ps-2 pb-2 d-flex align-items-center' >
                         <Form.Check id='select-all' ref={selectAllRef} type='checkbox' onChange={(e) => {
                             handleSelectAll(e.target.checked);
                         }} label={<span className='cursor-pointer text-decoration-underline'>Select {[
-                            dataRowsNum ? `${dataRowsNum} data rows` : '',
+                            datapointNums ? `${datapointNums} datapoints` : '',
                             annotationsNum ? `${annotationsNum} annotations` : ''
                         ].filter(Boolean).join(' and ')}</span>} />
                         &nbsp;&nbsp;&nbsp;

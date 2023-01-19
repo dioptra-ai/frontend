@@ -15,52 +15,47 @@ const EventsViewerWithButtons = ({samples, userStore, onClearSamples, limit}) =>
 
     return (
         <>
-            <div className='text-dark m-3 bold-text d-flex justify-content-between'>
-                <div>
-                    Total: {samples.length >= limit ? `${limit.toLocaleString()}+` : samples.length.toLocaleString()}
-                </div>
-                <div className='d-flex'>
-                    {onClearSamples ? (
-                        <OverlayTrigger overlay={<Tooltip>Clear Selected Samples</Tooltip>}>
-                            <button
-                                disabled={!selectedSamples.size}
-                                className='d-flex text-dark border-0 bg-transparent click-down' onClick={() => onClearSamples(selectedUUIDs)}>
-                                <IoCloseOutline className='fs-2 cursor-pointer'/>
-                            </button>
-                        </OverlayTrigger>
-                    ) : null}
-                    <AddFilters
-                        disabled={!selectedSamples.size}
-                        filters={[new Filter({
-                            left: 'uuid',
-                            op: 'in',
-                            right: selectedUUIDs
-                        })]}
-                        tooltipText={`Filter ${selectedSamples.size} In`}
-                    />
-                    <AddFilters
-                        disabled={!selectedSamples.size}
-                        filters={[new Filter({
-                            left: 'uuid',
-                            op: 'not in',
-                            right: selectedUUIDs
-                        })]}
-                        tooltipText={`Filter ${selectedSamples.size} Out`}
-                        solidIcon
-                    />
-                    <OverlayTrigger overlay={<Tooltip>Add {selectedSamples.size} to Data Cart</Tooltip>}>
+            <div className='d-flex justify-content-end'>
+                {onClearSamples ? (
+                    <OverlayTrigger overlay={<Tooltip>Clear Selected Samples</Tooltip>}>
                         <button
                             disabled={!selectedSamples.size}
-                            className='d-flex text-dark border-0 bg-transparent click-down fs-2' onClick={() => {
-
-                                userStore.tryUpdate({
-                                    cart: userStore.userData.cart.concat(...selectedUUIDs)
-                                });
-                            }}>
-                            <BsCartPlus className='fs-2 ps-2 cursor-pointer'/>
+                            className='d-flex text-dark border-0 bg-transparent click-down' onClick={() => onClearSamples(selectedUUIDs)}>
+                            <IoCloseOutline className='fs-2 cursor-pointer'/>
                         </button>
                     </OverlayTrigger>
-                </div>
+                ) : null}
+                <AddFilters
+                    disabled={!selectedSamples.size}
+                    filters={[new Filter({
+                        left: 'uuid',
+                        op: 'in',
+                        right: selectedUUIDs
+                    })]}
+                    tooltipText={`Filter ${selectedSamples.size} In`}
+                />
+                <AddFilters
+                    disabled={!selectedSamples.size}
+                    filters={[new Filter({
+                        left: 'uuid',
+                        op: 'not in',
+                        right: selectedUUIDs
+                    })]}
+                    tooltipText={`Filter ${selectedSamples.size} Out`}
+                    solidIcon
+                />
+                <OverlayTrigger overlay={<Tooltip>Add {selectedSamples.size} to Data Cart</Tooltip>}>
+                    <button
+                        disabled={!selectedSamples.size}
+                        className='d-flex text-dark border-0 bg-transparent click-down fs-2' onClick={() => {
+
+                            userStore.tryUpdate({
+                                cart: userStore.userData.cart.concat(...selectedUUIDs)
+                            });
+                        }}>
+                        <BsCartPlus className='fs-2 ps-2 cursor-pointer'/>
+                    </button>
+                </OverlayTrigger>
             </div>
             <EventsViewer
                 events={samples}
