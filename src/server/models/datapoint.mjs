@@ -24,25 +24,15 @@ class Datapoint {
             `SELECT DISTINCT request_id FROM events WHERE organization_id = $1 AND uuid IN (${eventUuids.map((_, i) => `$${i + 2}`).join(',')})`,
             [organizationId, ...eventUuids]
         );
-        const rows = Datapoint.upsertMany(organizationId, events.map((event) => event['request_id']));
+        const rows = Datapoint.upsert(organizationId, events.map((event) => event['request_id']));
 
         return rows;
     }
 
-    static async upsertOne(organizationId, requestId) {
+    static async upsert(organizationId, requestIds) {
         const {rows} = await postgresClient.query(
-            // Use a DO UPDATE so RETURNING returns the rows.
-            'INSERT INTO datapoints (organization_id, request_id) VALUES ($1, $2) ON CONFLICT (organization_id, request_id) DO UPDATE SET request_id = $2 RETURNING *',
-            [organizationId, requestId]
-        );
-
-        return rows[0];
-    }
-
-    static async upsertMany(organizationId, requestIds) {
-        const {rows} = await postgresClient.query(
-            // Use a DO UPDATE so RETURNING returns the rows.
-            `INSERT INTO datapoints (organization_id, request_id) VALUES ${requestIds.map((_, i) => `($1, $${i + 2})`).join(',')} ON CONFLICT (organization_id, request_id) DO UPDATE SET request_id = EXCLUDED.request_id RETURNING *`,
+            // Using a DO UPDATE so RETURNING returns the rows.
+            `INSERT INTO datapoints (organization_id, request_id) VALUES ${requestIds.map((_, i) => `($1, $${i + 2})`).join(',')} ON CONFLICT ON CONSTRAINT datapoints_organization_id_request_id_unique DO UPDATE SET request_id = EXCLUDED.request_id RETURNING *`,
             [organizationId, ...requestIds]
         );
 

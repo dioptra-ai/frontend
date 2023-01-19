@@ -172,7 +172,7 @@ class Dataset {
 
             // Add datapoints to uncommitted version.
             await transactionClient.query(
-                `INSERT INTO dataset_to_datapoints (dataset_version, datapoint) VALUES ${datapointIds.map((datapointId, index) => `($1, $${index + 2})`).join(', ')}`,
+                `INSERT INTO dataset_to_datapoints (dataset_version, datapoint) VALUES ${datapointIds.map((_, index) => `($1, $${index + 2})`).join(', ')} ON CONFLICT DO NOTHING`,
                 [uncommittedVersion.uuid, ...datapointIds]
             );
 
