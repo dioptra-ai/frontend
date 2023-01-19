@@ -5,7 +5,7 @@ import useAllSqlFilters from 'hooks/use-all-sql-filters';
 import Async from 'components/async';
 import metricsClient from 'clients/metrics';
 import {IoArrowBackCircleOutline, IoCloseCircleOutline} from 'react-icons/io5';
-import SamplesPreview from 'components/samples-preview';
+import EventsViewerWithButtons from 'components/events-viewer-with-buttons';
 
 const TabularExamples = ({onClose, groundtruth, prediction}) => {
     const [exampleInModal, setExampleInModal] = useState(false);
@@ -42,7 +42,7 @@ const TabularExamples = ({onClose, groundtruth, prediction}) => {
                 <Async
                     renderData={(samples) => {
 
-                        return <SamplesPreview samples={samples}/>;
+                        return <EventsViewerWithButtons samples={samples}/>;
                     }}
                     fetchData={() => metricsClient('queries/all_tabular_examples', {
                         groundtruth,

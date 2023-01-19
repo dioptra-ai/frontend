@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 
 import Async from 'components/async';
-import DatapointsViewer from 'components/datapoints-viewer';
+import EventsViewer from 'components/events-viewer';
 import baseJSONClient from 'clients/base-json-client';
 
 const DataViewer = ({datapointIds, ...rest}) => {
@@ -13,7 +13,7 @@ const DataViewer = ({datapointIds, ...rest}) => {
                 body: {datapointIds}
             })}
             renderData={(events) => (
-                <DatapointsViewer datapoints={events} limit={1000} {...rest} />
+                <EventsViewer events={events} limit={1000} {...rest} />
             )}
             refetchOnChanged={[datapointIds]}
         />

@@ -10,6 +10,7 @@ import Logout from 'pages/logout';
 import Register from 'pages/register';
 import AuthRoute from 'components/auth-route';
 import Miner from 'pages/miner';
+import DataLake from 'pages/data-lake';
 import Dataset from 'pages/dataset';
 import DatasetDiff from 'pages/dataset/diff';
 import DatasetVersion from 'pages/dataset/dataset-version';
@@ -60,6 +61,7 @@ const App = () => {
                         <Model/>
                     </AppContext.Provider>
                 )} />
+                <AuthRoute path='/data-lake' renderLoggedIn={() => <DataLake />} />
                 <AuthRoute path='/dataset/diff/:versionId1/:versionId2' renderLoggedIn={() => (
                     <DatasetDiff />
                 )} />

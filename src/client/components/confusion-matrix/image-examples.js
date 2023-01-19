@@ -6,7 +6,7 @@ import Async from 'components/async';
 import metricsClient from 'clients/metrics';
 import {IoArrowBackCircleOutline, IoCloseCircleOutline} from 'react-icons/io5';
 import PreviewImage from 'components/preview-image';
-import SamplesPreview from 'components/samples-preview';
+import EventsViewerWithButtons from 'components/events-viewer-with-buttons';
 import useAllFilters from 'hooks/use-all-filters';
 
 const ImageExamples = ({onClose, groundtruth, prediction, iou, model}) => {
@@ -39,7 +39,7 @@ const ImageExamples = ({onClose, groundtruth, prediction, iou, model}) => {
                         renderData={(samples) => {
 
                             return (
-                                <SamplesPreview samples={samples}/>
+                                <EventsViewerWithButtons samples={samples}/>
                             );
                         }}
                         refetchOnChanged={[groundtruth, prediction, iou, allSqlFilters, model.mlModelType]}

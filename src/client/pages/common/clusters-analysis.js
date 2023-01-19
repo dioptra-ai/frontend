@@ -17,7 +17,7 @@ import ScatterChart, {ScatterSearch} from 'components/scatter-chart';
 import metricsClient from 'clients/metrics';
 import useModel from 'hooks/use-model';
 import Form from 'react-bootstrap/Form';
-import SamplesPreview from 'components/samples-preview';
+import EventsViewerWithButtons from 'components/events-viewer-with-buttons';
 import useAllFilters from 'hooks/use-all-filters';
 
 // Keep this in sync with metrics-engine/handlers/clusters.py
@@ -297,7 +297,7 @@ const _ClustersAnalysis = ({clusters, clustersAreOfRequests}) => {
                         filters: samplesFilters,
                         limit: 1000
                     }) : null}
-                    renderData={(datapoints) => <SamplesPreview samples={datapoints} limit={1000} />}
+                    renderData={(datapoints) => <EventsViewerWithButtons samples={datapoints} limit={1000} />}
                     refetchOnChanged={[JSON.stringify(samplesFilters)]}
                 />
             </Col>

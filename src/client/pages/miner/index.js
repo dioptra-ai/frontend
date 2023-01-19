@@ -15,7 +15,7 @@ import PreviewDetails from 'components/preview-details';
 import TopBar from 'pages/common/top-bar';
 import baseJSONClient from 'clients/base-json-client';
 import metricsClient from 'clients/metrics';
-import SamplesPreview from 'components/samples-preview';
+import EventsViewerWithButtons from 'components/events-viewer-with-buttons';
 
 const ANALYSES = {
     DATA_VIEWER: 'Data Viewer',
@@ -166,7 +166,7 @@ const Miner = () => {
                                                                                                 right: task['result']
                                                                                             }]
                                                                                         })}
-                                                                                        renderData={(datapoints) => <SamplesPreview samples={datapoints}/>}
+                                                                                        renderData={(datapoints) => <EventsViewerWithButtons samples={datapoints}/>}
                                                                                     />
                                                                                 </div>
                                                                             )

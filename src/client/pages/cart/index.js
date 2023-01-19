@@ -17,7 +17,7 @@ import {setupComponent} from 'helpers/component-helper';
 import Menu from 'components/menu';
 import Async from 'components/async';
 import metricsClient from 'clients/metrics';
-import DatapointsViewer from 'components/datapoints-viewer';
+import EventsViewer from 'components/events-viewer';
 import useModal from 'hooks/useModal';
 import ButtonDownloadCSV from 'components/button-download-csv';
 import baseJSONClient from 'clients/base-json-client';
@@ -57,11 +57,11 @@ const Cart = ({userStore}) => {
                         uuids: userStore.userData.cart
                     })}
                     refetchOnChanged={[userStore.userData.cart]}
-                    renderData={(datapoints) => (
+                    renderData={(events) => (
                         <Row>
                             <Col>
-                                <DatapointsViewer
-                                    datapoints={datapoints}
+                                <EventsViewer
+                                    events={events}
                                     onSelectedUUIDsChange={setSelectedDatapoints}
                                     renderButtons={() => selectedDatapoints.size ? (
                                         <OverlayTrigger overlay={<Tooltip>Remove {selectedDatapoints.size} items from cart</Tooltip>}>

@@ -11,7 +11,7 @@ import Async from 'components/async';
 import ScatterChart, {ScatterSearch} from 'components/scatter-chart';
 import metricsClient from 'clients/metrics';
 import theme from 'styles/theme.module.scss';
-import SamplesPreview from 'components/samples-preview';
+import EventsViewerWithButtons from 'components/events-viewer-with-buttons';
 import useModel from 'hooks/use-model';
 import useAllFilters from 'hooks/use-all-filters';
 
@@ -208,7 +208,7 @@ const OutliersOrDrift = ({filters, embeddingsField, isDrift}) => {
                             </Row>
                         </Col>
                         <Col className='rounded p-3 bg-white-blue'>
-                            <SamplesPreview samples={selectedPoints?.map(({sample}) => sample)} onClearSamples={handleClearSamples}/>
+                            <EventsViewerWithButtons samples={selectedPoints?.map(({sample}) => sample)} onClearSamples={handleClearSamples}/>
                         </Col>
                     </Row>
                 )}

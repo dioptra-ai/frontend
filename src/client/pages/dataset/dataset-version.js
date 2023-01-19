@@ -109,19 +109,20 @@ const DatasetVersion = () => {
                     refetchOnChanged={[versionId]}
                     renderData={(version) => (
                         <>
-                            <div>Version: <span style={{fontFamily: 'monospace'}}>{version['uuid']}</span></div>
-                            <div>Commit message: <span style={{fontFamily: 'monospace'}}>{
-                                version['committed'] ? `"${version['message']}"` : '<Uncommitted>'
-                            }</span></div>
                             <Async
                                 fetchData={() => baseJSONClient(`/api/dataset/${version['dataset_uuid']}`)}
                                 refetchOnChanged={[version['dataset_uuid']]}
                                 renderData={(dataset) => (
-                                    <div>
-                                        Dataset: <Link to={`/dataset/${dataset['uuid']}`}>{dataset['display_name']}</Link>
-                                    </div>
+                                    <h4 className='d-flex align-items-baseline'>
+                                        <Link to={`/dataset/${dataset['uuid']}`}>{dataset['display_name']}</Link>
+                                        &nbsp;
+                                        <div className='fs-5'>version: <span style={{fontFamily: 'monospace'}}>{version['uuid']}</span></div>
+                                    </h4>
                                 )}
                             />
+                            <div>Version commit message: <span style={{fontFamily: 'monospace'}}>{
+                                version['committed'] ? `"${version['message']}"` : '<Uncommitted>'
+                            }</span></div>
                             <Async
                                 fetchData={() => baseJSONClient(`/api/dataset/${version['dataset_uuid']}/versions`)}
                                 refetchOnChanged={[version['dataset_uuid']]}

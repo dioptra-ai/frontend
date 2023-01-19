@@ -1,5 +1,4 @@
 import {Link, useParams} from 'react-router-dom';
-import PropTypes from 'prop-types';
 import {Col, Row} from 'react-bootstrap';
 
 import baseJSONClient from 'clients/base-json-client';
@@ -126,11 +125,6 @@ const DatasetDiff = () => {
             />
         </Menu>
     );
-};
-
-DatasetDiff.propTypes = {
-    versionId1: PropTypes.string.isRequired,
-    versionId2: PropTypes.string.isRequired
 };
 
 export default DatasetDiff;

@@ -166,14 +166,14 @@ DatapointPreview.propTypes = {
     displayDetails: PropTypes.bool
 };
 
-const DatapointsViewer = ({datapoints, onSelectedUUIDsChange, onSelectedChange, onClearDatapoint, limit = Infinity, renderButtons}) => {
+const EventsViewer = ({events, onSelectedUUIDsChange, onSelectedChange, onClearDatapoint, limit = Infinity, renderButtons}) => {
     const selectAllRef = useRef();
     const [datapointIndexInModal, setDatapointIndexInModal] = useState(-1);
     const [selectedDatapoints, setSelectedDatapoints] = useState(new Set());
-    const exampleInModal = datapoints[datapointIndexInModal];
-    const datapointsByUUID = new Map(datapoints.map((d) => [d.uuid, d]));
-    const annotationsNum = datapoints.filter((d) => d.prediction || d.groundtruth).length;
-    const dataRowsNum = datapoints.length - annotationsNum;
+    const exampleInModal = events[datapointIndexInModal];
+    const datapointsByUUID = new Map(events.map((d) => [d.uuid, d]));
+    const annotationsNum = events.filter((d) => d.prediction || d.groundtruth).length;
+    const dataRowsNum = events.length - annotationsNum;
 
     const handleSelectDatapoint = (uuid, selected) => {
         const newSet = new Set(selectedDatapoints);
@@ -191,7 +191,7 @@ const DatapointsViewer = ({datapoints, onSelectedUUIDsChange, onSelectedChange, 
         let newSet = null;
 
         if (selected) {
-            newSet = new Set(datapoints.map(({uuid}) => uuid));
+            newSet = new Set(events.map(({uuid}) => uuid));
         } else {
             newSet = new Set();
         }
@@ -212,10 +212,10 @@ const DatapointsViewer = ({datapoints, onSelectedUUIDsChange, onSelectedChange, 
         }
     };
     const handlePrevious = () => {
-        setDatapointIndexInModal(mod(datapointIndexInModal - 1, datapoints.length));
+        setDatapointIndexInModal(mod(datapointIndexInModal - 1, events.length));
     };
     const handleNext = () => {
-        setDatapointIndexInModal(mod(datapointIndexInModal + 1, datapoints.length));
+        setDatapointIndexInModal(mod(datapointIndexInModal + 1, events.length));
     };
 
     useEffect(() => {
@@ -227,15 +227,15 @@ const DatapointsViewer = ({datapoints, onSelectedUUIDsChange, onSelectedChange, 
     }, [datapointIndexInModal]);
 
     useEffect(() => {
-        setSelectedDatapoints(new Set(datapoints.filter((d) => selectedDatapoints.has(d['uuid'])).map((d) => d['uuid'])));
-    }, [datapoints]);
+        setSelectedDatapoints(new Set(events.filter((d) => selectedDatapoints.has(d['uuid'])).map((d) => d['uuid'])));
+    }, [events]);
 
     useEffect(() => {
         if (selectAllRef.current) {
-            selectAllRef.current.indeterminate = (selectedDatapoints.size && selectedDatapoints.size !== datapoints.length);
-            selectAllRef.current.checked = (datapoints.length && selectedDatapoints.size === datapoints.length);
+            selectAllRef.current.indeterminate = (selectedDatapoints.size && selectedDatapoints.size !== events.length);
+            selectAllRef.current.checked = (events.length && selectedDatapoints.size === events.length);
         }
-    }, [selectedDatapoints, datapoints]);
+    }, [selectedDatapoints, events]);
 
     return (
         <>
@@ -254,18 +254,18 @@ const DatapointsViewer = ({datapoints, onSelectedUUIDsChange, onSelectedChange, 
                 )
             }
             {
-                datapoints.length >= limit ? (
+                events.length >= limit ? (
                     <Row>
                         <Col>
                             <Alert variant='warning'>
-                                Only the first {limit.toLocaleString()} datapoints are shown. Try filtering down or choosing different parameters.
+                                Only the first {limit.toLocaleString()} items are shown. Try filtering down or choosing different parameters.
                             </Alert>
                         </Col>
                     </Row>
                 ) : null
             }
             <Row className='g-2'>
-                {datapoints.length ? datapoints.slice(0, limit).map((datapoint, i) => {
+                {events.length ? events.slice(0, limit).map((datapoint, i) => {
                     const selectOrClearBar = (
                         <div className='d-flex justify-content-between pb-1'>
                             {(onSelectedUUIDsChange || onSelectedChange) && (
@@ -337,8 +337,8 @@ const DatapointsViewer = ({datapoints, onSelectedUUIDsChange, onSelectedChange, 
     );
 };
 
-DatapointsViewer.propTypes = {
-    datapoints: PropTypes.array.isRequired,
+EventsViewer.propTypes = {
+    events: PropTypes.array.isRequired,
     onSelectedUUIDsChange: PropTypes.func,
     onSelectedChange: PropTypes.func,
     onClearDatapoint: PropTypes.func,
@@ -346,4 +346,4 @@ DatapointsViewer.propTypes = {
     renderButtons: PropTypes.func
 };
 
-export default DatapointsViewer;
+export default EventsViewer;

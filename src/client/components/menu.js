@@ -8,7 +8,7 @@ import FontIcon from './font-icon';
 import {MdHelpOutline} from 'react-icons/md';
 import {HiOutlineCube, HiOutlineUserCircle} from 'react-icons/hi';
 import {IoSettingsOutline} from 'react-icons/io5';
-import {BsMinecartLoaded} from 'react-icons/bs';
+import {BsMinecartLoaded, BsWater} from 'react-icons/bs';
 
 const MenuItem = ({icon, isActive, size, className}) => {
     return (
@@ -37,6 +37,7 @@ MenuItem.propTypes = {
 
 const TopMenuItemsConfig = [
     {icon: <HiOutlineCube className='fs-2 text-dark'/>, url: '/models', title: 'Models'},
+    {icon: <BsWater className='fs-2 text-dark'/>, url: '/data-lake', title: 'Data Lake'},
     {icon: <BsMinecartLoaded className='fs-3'/>, url: '/miners', title: 'Miners'},
     {icon: <AiOutlineDatabase className='fs-3' />, url: '/dataset', title: 'Datasets'}
 ];

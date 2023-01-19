@@ -6,7 +6,7 @@ import {Col, Form, Row} from 'react-bootstrap';
 import FilterInput from 'pages/common/filter-input';
 import metricsClient from 'clients/metrics';
 import Async from 'components/async';
-import DatapointsViewer from './datapoints-viewer';
+import EventsViewer from './events-viewer';
 import CountEvents from './count-events';
 
 const DataSelector = ({value = {}, onChange, emptyOnUnfiltered}) => {
@@ -48,8 +48,8 @@ const DataSelector = ({value = {}, onChange, emptyOnUnfiltered}) => {
                                         limit
                                     })}
                                     refetchOnChanged={[filters]}
-                                    renderData={(data) => (
-                                        <DatapointsViewer datapoints={data} />
+                                    renderData={(events) => (
+                                        <EventsViewer events={events} />
                                     )}
                                 />
                             )

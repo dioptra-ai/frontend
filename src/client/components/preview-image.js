@@ -70,7 +70,7 @@ const PreviewImage = ({datapoint, labels, videoSeekToSec, videoControls, onClick
                                     />
                                 )}
                                 {/* eslint-disable-next-line react/no-unknown-property */}
-                                <style jsx>{`
+                                <style>{`
                                 .hover-fade:hover {
                                     opacity: 0.4;
                                     transition: opacity 0.2s ease-in-out;

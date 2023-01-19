@@ -33,7 +33,7 @@ const useAllFilters = ({useReferenceFilters = false, excludeCurrentTimeFilters} 
                 right: null
             });
         }
-    } else {
+    } else if (!excludeCurrentTimeFilters) {
         allFilters.push(timeStore.timeFilter);
     }
 

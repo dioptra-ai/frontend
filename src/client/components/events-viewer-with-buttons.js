@@ -6,10 +6,10 @@ import {IoCloseOutline} from 'react-icons/io5';
 
 import {Filter} from 'state/stores/filters-store';
 import AddFilters from 'components/add-filters';
-import DatapointsViewer from 'components/datapoints-viewer';
+import EventsViewer from 'components/events-viewer';
 import {setupComponent} from 'helpers/component-helper';
 
-const SamplesPreview = ({samples, userStore, onClearSamples, limit}) => {
+const EventsViewerWithButtons = ({samples, userStore, onClearSamples, limit}) => {
     const [selectedSamples, setSelectedSamples] = useState(new Set());
     const selectedUUIDs = samples.map(({uuid}) => uuid).filter((u) => selectedSamples.has(u));
 
@@ -62,8 +62,8 @@ const SamplesPreview = ({samples, userStore, onClearSamples, limit}) => {
                     </OverlayTrigger>
                 </div>
             </div>
-            <DatapointsViewer
-                datapoints={samples}
+            <EventsViewer
+                events={samples}
                 onSelectedUUIDsChange={setSelectedSamples}
                 onClearDatapoint={onClearSamples ? (uuid) => onClearSamples([uuid]) : null}
                 limit={limit}
@@ -72,11 +72,11 @@ const SamplesPreview = ({samples, userStore, onClearSamples, limit}) => {
     );
 };
 
-SamplesPreview.propTypes = {
+EventsViewerWithButtons.propTypes = {
     samples: PropTypes.arrayOf(PropTypes.object).isRequired,
     userStore: PropTypes.object.isRequired,
     onClearSamples: PropTypes.func,
     limit: PropTypes.number
 };
 
-export default setupComponent(SamplesPreview);
+export default setupComponent(EventsViewerWithButtons);

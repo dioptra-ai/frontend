@@ -5,10 +5,8 @@ import Select from 'components/select';
 import OutliersOrDrift from 'pages/common/outliers-or-drift';
 import ClustersAnalysis from 'pages/common/clusters-analysis';
 import Mislabeling from 'pages/common/mislabeling';
-import SamplesPreview from 'components/samples-preview';
-import Async from 'components/async';
-import metricsClient from 'clients/metrics';
 import useAllFilters from 'hooks/use-all-filters';
+import DatapointsViewerWithButtons from 'components/datapoints-viewer-with-buttons';
 
 const ANALYSES = {
     VIEWER: 'Data Viewer',
@@ -40,36 +38,7 @@ const Explorer = () => {
             <Switch>
                 <Route path='/viewer' render={() => (
                     <div className='my-3'>
-                        <Async
-                            fetchData={async () => {
-                                const requestDatapoints = await metricsClient('select', {
-                                    select: '"uuid", "request_id", "image_metadata", "text_metadata", "video_metadata","text", "tags"',
-                                    filters: [...allFilters, {
-                                        left: 'prediction',
-                                        op: 'is null'
-                                    }, {
-                                        left: 'groundtruth',
-                                        op: 'is null'
-                                    }],
-                                    limit: 1000
-                                });
-
-                                if (requestDatapoints.length) {
-
-                                    return requestDatapoints;
-                                } else return metricsClient('select', {
-                                    select: `
-                                            "uuid", "request_id", "image_metadata", "text_metadata", "video_metadata", "text", 
-                                            "tags"
-                                            `,
-                                    filters: allFilters,
-                                    limit: 1000,
-                                    rm_fields: ['embeddings', 'logits']
-                                });
-                            }}
-                            renderData={(datapoints) => <SamplesPreview samples={datapoints} limit={1000} />}
-                            refetchOnChanged={[JSON.stringify(allFilters)]}
-                        />
+                        <DatapointsViewerWithButtons filters={allFilters} />
                     </div>
                 )}/>
                 <Route path='/mislabeling' component={Mislabeling}/>
