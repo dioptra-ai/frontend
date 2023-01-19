@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 
 import Async from 'components/async';
@@ -10,6 +10,10 @@ const PAGE_SIZE = 100;
 
 const DatapointsViewerWithButtons = ({filters}) => {
     const [offset, setOffset] = useState(0);
+
+    useEffect(() => {
+        setOffset(0);
+    }, [filters]);
 
     return (
         <>
