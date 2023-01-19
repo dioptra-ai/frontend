@@ -83,7 +83,7 @@ const DatapointsViewerWithButtons = ({filters}) => {
                         Previous
                             </Button>
                             <div className='mx-3'>
-                            Showing {offset + 1} to {loading ? '...' : `${Math.min(offset + PAGE_SIZE, itemsCount)} of ${itemsCount}`}
+                            Showing {Number(offset + 1).toLocaleString()} to {loading ? '...' : `${Math.min(offset + PAGE_SIZE, itemsCount).toLocaleString()} of ${Number(itemsCount).toLocaleString()}`}
                             </div>
                             <Button
                                 variant='secondary'
