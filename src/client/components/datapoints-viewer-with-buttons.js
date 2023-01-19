@@ -47,6 +47,7 @@ const DatapointsViewerWithButtons = ({filters}) => {
                 renderData={(datapoints) => <EventsViewerWithButtons samples={datapoints} />}
             />
             <Async
+                spinner={false}
                 fetchData={async () => {
                     const datapointsCount = await metricsClient('select', {
                         select: 'count(*)',
@@ -71,28 +72,30 @@ const DatapointsViewerWithButtons = ({filters}) => {
                         return labelsCount[0].count;
                     }
                 }}
-                renderData={(itemsCount) => (
-                    <div className='d-flex justify-content-center my-5 align-items-center'>
-                        <Button
-                            variant='secondary'
-                            disabled={offset === 0}
-                            onClick={() => setOffset(offset - PAGE_SIZE)}
-                        >
-                            Previous
-                        </Button>
-                        <div className='mx-3'>
-                            Showing {offset + 1} to {Math.min(offset + PAGE_SIZE, itemsCount)} of {itemsCount}
+            >{
+                    ({data: itemsCount, loading}) => (
+                        <div className='d-flex justify-content-center my-5 align-items-center'>
+                            <Button
+                                variant='secondary'
+                                disabled={offset === 0}
+                                onClick={() => setOffset(offset - PAGE_SIZE)}
+                            >
+                        Previous
+                            </Button>
+                            <div className='mx-3'>
+                            Showing {offset + 1} to {loading ? '...' : `${Math.min(offset + PAGE_SIZE, itemsCount)} of ${itemsCount}`}
+                            </div>
+                            <Button
+                                variant='secondary'
+                                disabled={!loading && offset + PAGE_SIZE >= itemsCount}
+                                onClick={() => setOffset(offset + PAGE_SIZE)}
+                            >
+                        Next
+                            </Button>
                         </div>
-                        <Button
-                            variant='secondary'
-                            disabled={offset + PAGE_SIZE >= itemsCount}
-                            onClick={() => setOffset(offset + PAGE_SIZE)}
-                        >
-                            Next
-                        </Button>
-                    </div>
-                )}
-            />
+                    )
+                }
+            </Async>
         </>
     );
 };
