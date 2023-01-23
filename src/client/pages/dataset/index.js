@@ -165,7 +165,7 @@ const Dataset = () => {
                                 await baseJSONClient(`/api/dataset/${datasetId}/remove`, {
                                     method: 'POST',
                                     body: {
-                                        datapointIds: selectedEvents.map((e) => datapoints.find((d) => d['request_id'] === e['request_id'])['uuid'])
+                                        datapointIds: selectedEvents.map((e) => datapoints.find((d) => d['request_id'] === e['request_id'])['id'])
                                     }
                                 });
 

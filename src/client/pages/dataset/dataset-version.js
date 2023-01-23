@@ -19,7 +19,7 @@ const DatasetVersionViewer = ({dataViewerProps, versionId}) => {
             fetchData={() => baseJSONClient(`/api/dataset/version/${versionId}/datapoints`)}
             refetchOnChanged={[versionId]}
             renderData={(datapoints) => {
-                const datapointIds = datapoints.map((datapoint) => datapoint['uuid']);
+                const datapointIds = datapoints.map((datapoint) => datapoint['id']);
 
                 return (
                     <>
