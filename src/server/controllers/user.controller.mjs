@@ -16,7 +16,7 @@ UserRouter.put('/', isAuthenticated, async (req, res, next) => {
         if (username) {
             const existingUser = await UserModel.findOne({username});
 
-            if (existingUser && existingUser._id != authUser._id) {
+            if (existingUser && existingUser._id !== authUser._id) {
                 res.status(400);
                 throw new Error('Username already taken.');
             } else {
