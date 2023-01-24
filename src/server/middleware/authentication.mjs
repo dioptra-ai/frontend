@@ -6,7 +6,7 @@ import PassportStrategy from 'passport-strategy';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
 
-const {BASIC_AUTH_USERNAME, BASIC_AUTH_PASSWORD} = process.env;
+const {BASIC_USERNAME, BASIC_PASSWORD} = process.env;
 
 const sessionStore = new MongoStore({
     mongoUrl: process.env.DB_CONNECTION_URI,
@@ -92,7 +92,7 @@ passport.use(new LocalStrategy({
 
 passport.use(new passportHttp.BasicStrategy(
     (username, password, done) => {
-        if (username === BASIC_AUTH_USERNAME && password === BASIC_AUTH_PASSWORD) {
+        if (username === BASIC_USERNAME && password === BASIC_PASSWORD) {
             return done(null, {username});
         } else {
             return done(null, false);
