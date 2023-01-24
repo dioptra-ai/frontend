@@ -12,7 +12,7 @@ class Datapoint {
 
     static async findById(organizationId, id) {
         const {rows} = await postgresClient.query(
-            'SELECT * FROM datapoints WHERE id = $1 AND organization_id = $2',
+            'SELECT * FROM datapoints WHERE uuid = $1 AND organization_id = $2',
             [id, organizationId]
         );
 
@@ -41,7 +41,7 @@ class Datapoint {
 
     static async deleteById(organizationId, id) {
         const {rows} = await postgresClient.query(
-            'DELETE FROM datapoints WHERE id = $1 AND organization_id = $2 RETURNING *',
+            'DELETE FROM datapoints WHERE uuid = $1 AND organization_id = $2 RETURNING *',
             [id, organizationId]
         );
 
@@ -58,7 +58,7 @@ class Datapoint {
             WHERE organization_id = $1 AND 
                 prediction IS NULL AND
                 groundtruth IS NULL AND
-                request_id IN (SELECT request_id FROM datapoints WHERE id IN (${datapointIds.map((_, i) => `$${i + 2}`).join(',')}))`,
+                request_id IN (SELECT request_id FROM datapoints WHERE uuid IN (${datapointIds.map((_, i) => `$${i + 2}`).join(',')}))`,
                 [organizationId, ...datapointIds]
             );
 
@@ -75,7 +75,7 @@ class Datapoint {
             FROM events
             WHERE organization_id = $1 AND
                 (prediction IS NOT NULL OR groundtruth IS NOT NULL) AND
-                request_id IN (SELECT request_id FROM datapoints WHERE id IN (${datapointIds.map((_, i) => `$${i + 2}`).join(',')}))`,
+                request_id IN (SELECT request_id FROM datapoints WHERE uuid IN (${datapointIds.map((_, i) => `$${i + 2}`).join(',')}))`,
                 [organizationId, ...datapointIds]
             );
 
