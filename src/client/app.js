@@ -81,7 +81,7 @@ const App = () => {
                 <AuthRoute path='/cart' renderLoggedIn={() => (
                     <Cart/>
                 )}/>
-                <AuthRoute path='/' renderLoggedIn={() => <Redirect to='/models'/>}/>
+                <AuthRoute path='/' renderLoggedIn={() => <Redirect to='/data-lake'/>}/>
             </Switch>
         </>
     );
