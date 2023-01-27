@@ -20,6 +20,8 @@ IngestionRouter.post('*', async (req, res, next) => {
             throw new Error('At least one API key is needed to ingest data, but none was found for this user.');
         }
 
+        console.log(`Sending to ${INGESTION_ENDPOINT}${req.url} with API key ${firstKey.awsApiKey} and body ${JSON.stringify(req.body)}`);
+
         const ingestionResponse = await fetch(`${INGESTION_ENDPOINT}${req.url}`, {
             headers: {
                 'content-type': 'application/json;charset=UTF-8',
@@ -29,15 +31,8 @@ IngestionRouter.post('*', async (req, res, next) => {
             method: 'post'
         });
 
-        if (ingestionResponse.status !== 200) {
-            const json = await ingestionResponse.json();
-
-            res.status(ingestionResponse.status);
-
-            throw new Error(json.errorMessage);
-        } else {
-            ingestionResponse.body.pipe(res);
-        }
+        res.status(ingestionResponse.status);
+        ingestionResponse.body.pipe(res);
     } catch (e) {
         next(e);
     }

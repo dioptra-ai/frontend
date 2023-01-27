@@ -7,9 +7,11 @@ import {setupComponent} from 'helpers/component-helper';
 const Logout = ({userStore}) => {
 
     useEffect(() => {
-        userStore.tryLogout();
-        localStorage.clear();
-    });
+        (async () => {
+            await userStore.tryLogout();
+            localStorage.clear();
+        })();
+    }, []);
 
     if (userStore.isAuthenticated) {
 

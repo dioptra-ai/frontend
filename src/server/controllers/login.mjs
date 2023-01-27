@@ -41,7 +41,7 @@ LoginRouter.post('/login', (req, res, next) => {
 LoginRouter.post('/logout', (req, res, next) => {
     req.session.destroy(() => {
         req.logout();
-        res.redirect('/login');
+        res.json();
     });
 });
 

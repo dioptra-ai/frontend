@@ -37,7 +37,7 @@ const UploadData = ({onDone}) => {
                 url = formData.get('url');
             }
 
-            await baseJSONClient('/api/ingestion/ingest', {
+            await baseJSONClient('/api/ingestion/events', {
                 method: 'POST',
                 body: {
                     urls: [url]
