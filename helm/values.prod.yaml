@@ -9,3 +9,4 @@ postgres:
   secret:
     name: "dioptra-postgres"
     key: "password"
+ingestionEndpoint: https://api.dioptra.ai/
