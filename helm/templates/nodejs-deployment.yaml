@@ -45,12 +45,10 @@ spec:
                   key: {{ .Values.postgres.secret.key }}
             - name: METRICS_ENGINE_URL
               value: http://metrics-engine:4006
-            - name: DRUID_DB_URL
-              value: "http://dioptra-druid-router:8888/druid/v2/sql/"
             - name: TASK_ENGINE_URL
               value: "http://task-engine:8001"
-            - name: INGESTION_URL
-              value: "http://ingestion:8082"
+            - name: INGESTION_ENDPOINT
+              value: https://api.dioptra.ai
             - name: AWS_S3_CUSTOMER_BUCKET
               value: "dioptra-client-data"
             - name: AWS_S3_CUSTOMER_BUCKET_REGION

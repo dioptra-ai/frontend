@@ -1,24 +1,31 @@
 import fetch from 'node-fetch';
 import express from 'express';
+import mongoose from 'mongoose';
 import {isAuthenticated} from '../middleware/authentication.mjs';
 
-const {INGESTION_URL} = process.env;
+const {INGESTION_ENDPOINT} = process.env;
 const IngestionRouter = express.Router();
 
 IngestionRouter.all('*', isAuthenticated);
 
 IngestionRouter.post('*', async (req, res, next) => {
     try {
-        const {activeOrganizationMembership} = req.user;
-        const organizationId = String(activeOrganizationMembership.organization._id);
-        const ingestionResponse = await fetch(`${INGESTION_URL}${req.url}?organization_id=${organizationId}`, {
+        const firstKey = await mongoose.model('ApiKey').findOne({
+            user: req.user._id,
+            organization: req.user.activeOrganizationMembership.organization._id
+        });
+
+        if (!firstKey) {
+            res.status(401);
+            throw new Error('At least one API key is needed to ingest data, but none was found for this user.');
+        }
+
+        const ingestionResponse = await fetch(`${INGESTION_ENDPOINT}${req.url}`, {
             headers: {
-                'content-type': 'application/json;charset=UTF-8'
+                'content-type': 'application/json;charset=UTF-8',
+                'x-api-key': firstKey.awsApiKey
             },
-            body: JSON.stringify({
-                ...req.body,
-                organization_id: organizationId
-            }),
+            body: JSON.stringify(req.body),
             method: 'post'
         });
 
