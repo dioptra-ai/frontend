@@ -21,7 +21,10 @@ app.use(sessionHandler);
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use('/documentation', isbasicAuthenticated);
+// Send to external documentation page
+app.get('/documentation', (req,res) => {
+    res.redirect('https://dioptra.gitbook.io/dioptra-doc/EIKhoPaxsbOt062jkPon/')
+})
 app.use(express.static(join(basePath, 'build')));
 
 
