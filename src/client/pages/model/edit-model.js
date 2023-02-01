@@ -132,7 +132,7 @@ const EditModel = ({initialValue, onSubmit, errors, modelStore}) => {
                                 />
                             </InputGroup>
                             <Form.Text className='text-muted'>
-                                <div>Use this id to send data to Dioptra in real-time.</div><div>See the <a href='/documentation/supported_types/'>docs</a> for supported data formats.</div>
+                                <div>Use this id to send data to Dioptra in real-time.</div><div>See the <a href='https://dioptra.gitbook.io/dioptra-doc/EIKhoPaxsbOt062jkPon/overview/dioptra-lake-quick-start/supported-fields'>docs</a> for supported data formats.</div>
                             </Form.Text>
                             <Form.Label className='mt-3 mb-0'>Name</Form.Label>
                             <InputGroup className='mt-1'>
