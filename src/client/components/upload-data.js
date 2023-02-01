@@ -99,7 +99,7 @@ const UploadData = ({onDone}) => {
                             />
                         </InputGroup>
                         <Form.Text className='text-muted'>
-                            <div>Transform and return data into one of the supported formats. See the <a target='_blank' href='/documentation/data_mapping'>Data Mapping Documentation</a>.</div>
+                            <div>Transform and return data into one of the supported formats. See the <a target='_blank' href='https://dioptra.gitbook.io/dioptra-doc/EIKhoPaxsbOt062jkPon/overview/dioptra-lake-quick-start/supported-fields' rel='noreferrer'>Data Mapping Documentation</a>.</div>
                             <div>Runtime: Python 3.9.5, pandas, numpy.</div>
                         </Form.Text>
                     </Col>
