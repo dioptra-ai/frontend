@@ -6,7 +6,17 @@ import {setupComponent} from 'helpers/component-helper';
 const AuthRoute = ({userStore, renderLoggedIn, renderLoggedOut, ...rest}) => {
     if (renderLoggedIn && userStore.isAuthenticated) {
 
-        return <Route {...rest} render={renderLoggedIn}/>;
+        if (userStore.hasActiveOrganization) {
+
+            return <Route {...rest} render={renderLoggedIn}/>;
+        } else {
+
+            alert('You are not a member of any organizations. Please contact your administrator to be added to an organization.');
+
+            return <Redirect to={{
+                pathname: '/logout'
+            }}/>;
+        }
     } else if (renderLoggedOut && !userStore.isAuthenticated) {
 
         return <Route {...rest} render={renderLoggedOut}/>;
