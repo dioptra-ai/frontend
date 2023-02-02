@@ -10,7 +10,7 @@ import Table from 'components/table';
 
 const SKIPPED_KEYS = new Set(['feature_heatmap', 'embeddings', 'original_embeddings', 'logits']);
 
-const RenderDatapoint = ({datapoint}) => {
+const RenderDatapoint = ({datapoint, parentIndex = 0}) => {
     const [collapsed, setCollapsed] = React.useState(true);
 
     if (React.isValidElement(datapoint)) {
@@ -22,19 +22,23 @@ const RenderDatapoint = ({datapoint}) => {
 
             <Row className='g-1'>
                 {datapoint.length ? (
-                    <Col xs={12} className='my-1 py-1'>
+                    <Col xs={12}>
                         <a href='#' onClick={() => setCollapsed(!collapsed)}>
                             {datapoint.length} items {collapsed ? <IoChevronDownSharp /> : <IoChevronUpSharp />}
                         </a>
                     </Col>
                 ) : (
-                    <Col xs={12} className='my-1 py-1'>
+                    <Col xs={12}>
                         <i className='text-muted'>{'<empty>'}</i>
                     </Col>
                 )}
                 {collapsed ? null :
                     datapoint.map((v, i) => (
-                        <Col key={i} xs={12} className={i % 2 ? 'my-1 py-1 bg-white-blue' : 'my-1 py-1 bg-white'} style={{borderBottom: '1px solid silver'}}><RenderDatapoint datapoint={v} /></Col>
+                        <Col key={i} xs={12} className={(parentIndex + i) % 2 ? ' bg-white-blue' : ' bg-white'} style={{
+                            borderBottom: i !== datapoint.length - 1 ? '1px solid silver' : 'none'
+                        }}>
+                            <RenderDatapoint datapoint={v} parentIndex={parentIndex + i} />
+                        </Col>
                     ))
                 }
             </Row>
@@ -45,10 +49,10 @@ const RenderDatapoint = ({datapoint}) => {
             <>
                 {
                     Object.entries(datapoint).filter(([k]) => !SKIPPED_KEYS.has(k)).map(([k, v], i) => (
-                        <Row key={k} className={i % 2 ? 'my-1 bg-white-blue' : 'my-1 bg-white'}>
+                        <Row key={k} className={(parentIndex + i) % 2 ? 'bg-white-blue my-1' : 'bg-white my-1'}>
                             <Col style={{borderRight: '1px solid silver'}}>{k}</Col>
                             <Col className='text-break'>
-                                <RenderDatapoint datapoint={v} />
+                                <RenderDatapoint datapoint={v} parentIndex={parentIndex + i} />
                             </Col>
                         </Row>
                     ))
@@ -64,7 +68,8 @@ const RenderDatapoint = ({datapoint}) => {
 };
 
 RenderDatapoint.propTypes = {
-    datapoint: PropTypes.any.isRequired
+    datapoint: PropTypes.any.isRequired,
+    parentIndex: PropTypes.number
 };
 
 const PreviewDetails = ({datapoint, labels, displayDetails, ...rest}) => {
