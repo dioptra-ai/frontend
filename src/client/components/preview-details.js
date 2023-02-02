@@ -49,7 +49,7 @@ const RenderDatapoint = ({datapoint, parentIndex = 0}) => {
             <>
                 {
                     Object.entries(datapoint).filter(([k]) => !SKIPPED_KEYS.has(k)).map(([k, v], i) => (
-                        <Row key={k} className={(parentIndex + i) % 2 ? 'bg-white-blue my-1' : 'bg-white my-1'}>
+                        <Row key={k} className={(parentIndex + i) % 2 ? 'bg-white-blue py-1' : 'bg-white py-1'}>
                             <Col style={{borderRight: '1px solid silver'}}>{k}</Col>
                             <Col className='text-break'>
                                 <RenderDatapoint datapoint={v} parentIndex={parentIndex + i} />
