@@ -2,7 +2,6 @@ import React, {useEffect, useState} from 'react';
 import {useHistory} from 'react-router';
 import {Link} from 'react-router-dom';
 import PropTypes from 'prop-types';
-import Alert from 'react-bootstrap/Alert';
 import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
@@ -220,20 +219,19 @@ const Profile = ({userStore}) => {
                             </Link>
                         </div>
                     ))}
-                    <Alert variant='primary'>
+                    {/* <Alert variant='primary'>
                         Please reach out to <a className='text-secondary' href={`mailto:hello@dioptra.ai?subject=New API Key request&body=Hello, I would like a new Api key for the organization "${userStore.userData.activeOrganizationMembership.organization.name}". Thank you!`}>hello@dioptra.ai</a> to create an API key.
-                    </Alert>
-                    {/* TODO: Reenable for superusers */}
-                    {/*                     <Button */}
-                    {/*                         className='w-100 text-white btn-submit mt-5' */}
-                    {/*                         onClick={async () => { */}
-                    {/*                             await apiKeyClient('post'); */}
-                    {/*  */}
-                    {/*                             return apiKeyClient('get').then(setApiKeys); */}
-                    {/*                         }} */}
-                    {/*                     > */}
-                    {/*                                             Create Api Key */}
-                    {/*                     </Button> */}
+                    </Alert> */}
+                    <Button
+                        className='w-100 text-white btn-submit mt-5'
+                        onClick={async () => {
+                            await apiKeyClient('post');
+
+                            return apiKeyClient('get').then(setApiKeys);
+                        }}
+                    >
+                        Create Api Key
+                    </Button>
                 </div>
             </div>
             <OrganizationUpdateModal
