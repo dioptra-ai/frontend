@@ -4,12 +4,14 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import isUrl from 'is-url';
 import {FiExternalLink} from 'react-icons/fi';
+import {IoChevronDownSharp, IoChevronUpSharp} from 'react-icons/io5';
 
 import Table from 'components/table';
 
 const SKIPPED_KEYS = new Set(['feature_heatmap', 'embeddings', 'original_embeddings', 'logits']);
 
 const RenderDatapoint = ({datapoint}) => {
+    const [collapsed, setCollapsed] = React.useState(true);
 
     if (React.isValidElement(datapoint)) {
 
@@ -17,8 +19,20 @@ const RenderDatapoint = ({datapoint}) => {
     } else if (Array.isArray(datapoint)) {
 
         return (
+
             <Row className='g-1'>
-                {
+                {datapoint.length ? (
+                    <Col xs={12} className='my-1 py-1'>
+                        <a href='#' onClick={() => setCollapsed(!collapsed)}>
+                            {datapoint.length} items {collapsed ? <IoChevronDownSharp /> : <IoChevronUpSharp />}
+                        </a>
+                    </Col>
+                ) : (
+                    <Col xs={12} className='my-1 py-1'>
+                        <i className='text-muted'>{'<empty>'}</i>
+                    </Col>
+                )}
+                {collapsed ? null :
                     datapoint.map((v, i) => (
                         <Col key={i} xs={12} className={i % 2 ? 'my-1 py-1 bg-white-blue' : 'my-1 py-1 bg-white'} style={{borderBottom: '1px solid silver'}}><RenderDatapoint datapoint={v} /></Col>
                     ))
