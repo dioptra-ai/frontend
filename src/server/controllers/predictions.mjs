@@ -6,7 +6,7 @@ const PredictionsRouter = express.Router();
 
 PredictionsRouter.all('*', isAuthenticated);
 
-PredictionsRouter.get('/', async (req, res, next) => {
+PredictionsRouter.post('/', async (req, res, next) => {
     try {
         const predictions = await Prediction.findById(req.user.activeOrganizationId, req.body.datapointIds);
 

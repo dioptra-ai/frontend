@@ -19,19 +19,19 @@ const DatasetVersionViewer = ({dataViewerProps, versionId}) => {
             fetchData={() => baseJSONClient(`/api/dataset/version/${versionId}/datapoints`)}
             refetchOnChanged={[versionId]}
             renderData={(datapoints) => {
-                const datapointIds = datapoints.map((datapoint) => datapoint['uuid']);
+                const datapointIds = datapoints.map((datapoint) => datapoint['id']);
 
                 return (
                     <>
                         <Async
-                            fetchData={() => baseJSONClient('/api/datapoints/_legacy-get-groundtruth-prediction-events', {
+                            fetchData={() => baseJSONClient('/api/groundtruths', {
                                 method: 'post',
                                 body: {datapointIds}
                             })}
                             refetchOnChanged={[datapointIds]}
-                            renderData={(events) => {
-                                const getHistogram = (events, getClassName) => events.reduce((acc, event) => {
-                                    const name = getClassName(event);
+                            renderData={(groundtruths) => {
+                                const getHistogram = (groundtruths, getClassName) => groundtruths.reduce((acc, groundtruth) => {
+                                    const name = getClassName(groundtruth);
 
                                     if (name) {
                                         if (!acc[name]) {
@@ -42,42 +42,67 @@ const DatasetVersionViewer = ({dataViewerProps, versionId}) => {
 
                                     return acc;
                                 }, {});
-                                const groundtruths = getHistogram(events, (event) => event['groundtruth']?.['class_name']);
-                                const predictions = getHistogram(events, (event) => event['prediction']?.['class_name']);
+                                const groundtruthsHist = getHistogram(groundtruths, (groundtruth) => groundtruth?.['class_name']);
+
 
                                 return (
-                                    <Row className='g-2 my-2'>
-                                        {
-                                            Object.keys(groundtruths).length ? (
-                                                <Col>
-                                                    <BarGraph
-                                                        title='Groundtruths'
-                                                        bars={Object.entries(groundtruths).map(([name, value]) => ({
-                                                            name,
-                                                            value,
-                                                            fill: getHexColor(name)
-                                                        }))}
-                                                        yAxisTickFormatter={(v) => Number(v).toLocaleString()}
-                                                    />
-                                                </Col>
-                                            ) : null
-                                        }
-                                        {
-                                            Object.keys(predictions).length ? (
-                                                <Col>
-                                                    <BarGraph
-                                                        title='Predictions'
-                                                        bars={Object.entries(predictions).map(([name, value]) => ({
-                                                            name,
-                                                            value,
-                                                            fill: getHexColor(name)
-                                                        }))}
-                                                        yAxisTickFormatter={(v) => Number(v).toLocaleString()}
-                                                    />
-                                                </Col>
-                                            ) : null
-                                        }
-                                    </Row>
+                                    <Async
+                                        fetchData={() => baseJSONClient('/api/predictions', {
+                                            method: 'post',
+                                            body: {datapointIds}
+                                        })}
+                                        refetchOnChanged={[datapointIds]}
+                                        renderData={(predictions) => {
+                                            const getHistogram = (predictions, getClassName) => predictions.reduce((acc, prediction) => {
+                                                const name = getClassName(prediction);
+
+                                                if (name) {
+                                                    if (!acc[name]) {
+                                                        acc[name] = 0;
+                                                    }
+                                                    acc[name] += 1;
+                                                }
+
+                                                return acc;
+                                            }, {});
+                                            const predictionsHist = getHistogram(predictions, (prediction) => prediction?.['class_name']);
+
+                                            return (
+                                                <Row className='g-2 my-2'>
+                                                    {
+                                                        Object.keys(groundtruthsHist).length ? (
+                                                            <Col>
+                                                                <BarGraph
+                                                                    title='Groundtruths'
+                                                                    bars={Object.entries(groundtruthsHist).map(([name, value]) => ({
+                                                                        name,
+                                                                        value,
+                                                                        fill: getHexColor(name)
+                                                                    }))}
+                                                                    yAxisTickFormatter={(v) => Number(v).toLocaleString()}
+                                                                />
+                                                            </Col>
+                                                        ) : null
+                                                    }
+                                                    {
+                                                        Object.keys(predictionsHist).length ? (
+                                                            <Col>
+                                                                <BarGraph
+                                                                    title='Predictions'
+                                                                    bars={Object.entries(predictionsHist).map(([name, value]) => ({
+                                                                        name,
+                                                                        value,
+                                                                        fill: getHexColor(name)
+                                                                    }))}
+                                                                    yAxisTickFormatter={(v) => Number(v).toLocaleString()}
+                                                                />
+                                                            </Col>
+                                                        ) : null
+                                                    }
+                                                </Row>
+                                            );
+                                        }}
+                                    />
                                 );
                             }}
                         />
