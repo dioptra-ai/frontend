@@ -36,6 +36,16 @@ DatapointsRouter.post('/_legacy-get-datapoint-events', async (req, res, next) =>
     }
 });
 
+DatapointsRouter.post('/get-groundtruth-prediction', async (req, res, next) => {
+    try {
+        const events = await Datapoint.FindGroundtruthAndPredictionByDatapointIds(req.user.activeOrganizationId, req.body.datapointIds);
+
+        res.json(events);
+    } catch (e) {
+        next(e);
+    }
+});
+
 DatapointsRouter.post('/_legacy-get-groundtruth-prediction-events', async (req, res, next) => {
     try {
         const events = await Datapoint._legacyFindGroundtruthAndPredictionEventsByDatapointIds(req.user.activeOrganizationId, req.body.datapointIds);
