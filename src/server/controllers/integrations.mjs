@@ -15,7 +15,6 @@ IntegrationRouter.post('/', async (req, res, next) => {
         const integration = await IntegrationModel.findOneAndUpdate(
             {
                 type,
-                user: id,
                 organization: activeOrganizationMembership.organization._id
             },
             {
