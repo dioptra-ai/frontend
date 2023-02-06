@@ -47,9 +47,7 @@ OrganizationMembershipRouter.post(
                 });
 
             // No modification needed if member is already part of the same organisation
-            if (
-                organizationMembershipDetails
-            ) {
+            if (organizationMembershipDetails) {
                 throw new Error('Member already exists in this organization!');
             } else if (existingUser) {
                 let newOrganizationMemberDetails = null;
@@ -89,7 +87,7 @@ OrganizationMembershipRouter.post(
                 );
 
                 res.status(200).send(
-                    `A new user with username ${newMember.username} is now a member of ${organisationDetails.name}. Their password has been set to password and should be changed in their profile page.`
+                    `A new user with username ${newMember.username} is now a member of ${organisationDetails.name}. Their password should be changed in their profile page.`
                 );
             }
         } catch (e) {
@@ -104,32 +102,23 @@ OrganizationMembershipRouter.delete('/:organizationMembershipID', isAdmin,
             const {organizationMembershipID} = req.params;
             const UserModel = mongoose.model('User');
             const OrganizationMembershipModel = mongoose.model('OrganizationMembership');
-            const {user, organization} = await OrganizationMembershipModel.findById(
+            const {user} = await OrganizationMembershipModel.findById(
                 organizationMembershipID
             );
 
-            if (req.user._id.equals(user?._id)) {
+            if (req.user._id === user?._id) {
 
                 throw new Error('Operation not permitted. Please contact an admin of your organization.');
-            }
-
-            const allOtherOrgsOfUser = await OrganizationMembershipModel.find({
-                user,
-                organization: {$nin: organization}
-            });
-
-            // Until we implement transactions, it's possible to add a membership for an invalid user
-            if (user && allOtherOrgsOfUser.length === 0) {
-
-                throw new Error('Operation not permitted. This organization is the only one the user is a member of.');
             }
 
             await OrganizationMembershipModel.findByIdAndDelete(
                 organizationMembershipID
             );
 
+            const allOrgsOfUser = await OrganizationMembershipModel.find({user});
+
             await UserModel.findByIdAndUpdate(user, {
-                activeOrganizationMembership: allOtherOrgsOfUser[0]?._id
+                activeOrganizationMembership: allOrgsOfUser[0]?._id
             });
 
             res.sendStatus(204);
@@ -148,7 +137,7 @@ OrganizationMembershipRouter.put('/:organizationMembershipID/member', isAdmin,
                 organizationMembershipID
             );
 
-            if (user._id.equals(req.user._id)) {
+            if (user._id === req.user._id) {
 
                 throw new Error('Operation not permitted. Please contact an admin of your organization.');
             }

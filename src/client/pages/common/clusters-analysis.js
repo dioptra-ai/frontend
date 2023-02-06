@@ -36,13 +36,13 @@ const MODEL_TYPE_TO_METRICS_NAMES = {
     'LEARNING_TO_RANK': ['COUNT', 'MEAN_NDCG', 'MRR']
 };
 const getDistributionFieldForModel = (modelType) => {
-    if (modelType.startsWith('UNSUPERVISED_')) {
+    if (modelType?.startsWith('UNSUPERVISED_')) {
 
         return [{
             name: 'Prediction',
             value: '"prediction"->\'class_name\''
         }];
-    } else if (modelType.startsWith('LEARNING_TO_RANK')) {
+    } else if (modelType?.startsWith('LEARNING_TO_RANK')) {
 
         return [{
             name: 'Relevance',
@@ -348,7 +348,7 @@ const ClustersAnalysis = ({filters, embeddingsField}) => {
                             </Select>
                         ) : (
                             <Select onChange={setUserSelectedEmbeddings}>
-                                {getEmbeddingsFieldsForModel(model?.mlModelType).map((o, i) => (
+                                {getEmbeddingsFieldsForModel(mlModelType).map((o, i) => (
                                     <option key={i} value={o.value}>{o.name}</option>
                                 ))}
                             </Select>

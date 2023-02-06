@@ -4,12 +4,27 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import isUrl from 'is-url';
 import {FiExternalLink} from 'react-icons/fi';
+import {IoChevronDownSharp, IoChevronUpSharp} from 'react-icons/io5';
 
 import Table from 'components/table';
 
 const SKIPPED_KEYS = new Set(['feature_heatmap', 'embeddings', 'original_embeddings', 'logits']);
 
-const RenderDatapoint = ({datapoint}) => {
+const getDatapointMaxDepth = (datapoint) => {
+    if (React.isValidElement(datapoint)) {
+
+        return 0;
+    } else if (Array.isArray(datapoint)) {
+
+        return Math.max(...datapoint.map((v) => getDatapointMaxDepth(v)));
+    } else if (datapoint && typeof datapoint === 'object') {
+
+        return 1 + getDatapointMaxDepth(Object.values(datapoint));
+    } else return 0;
+};
+
+const RenderDatapoint = ({datapoint, parentIndex = 0}) => {
+    const [collapsed, setCollapsed] = React.useState(true);
 
     if (React.isValidElement(datapoint)) {
 
@@ -17,24 +32,39 @@ const RenderDatapoint = ({datapoint}) => {
     } else if (Array.isArray(datapoint)) {
 
         return (
-            <Row className='g-1'>
-                {
+            <div>
+                {datapoint.length ? (
+                    <div>
+                        <a href='#' onClick={() => setCollapsed(!collapsed)}>
+                            {datapoint.length} items {collapsed ? <IoChevronDownSharp /> : <IoChevronUpSharp />}
+                        </a>
+                    </div>
+                ) : (
+                    <div><i className='text-muted'>{'<empty list>'}</i></div>
+                )}
+                {collapsed ? null :
                     datapoint.map((v, i) => (
-                        <Col key={i} xs={12} className={i % 2 ? 'my-1 py-1 bg-white-blue' : 'my-1 py-1 bg-white'} style={{borderBottom: '1px solid silver'}}><RenderDatapoint datapoint={v} /></Col>
+                        <div key={i} className={(parentIndex + i) % 2 ? ' bg-white-blue' : ' bg-white'} style={{
+                            borderBottom: i !== datapoint.length - 1 ? '1px solid silver' : 'none'
+                        }}>
+                            <RenderDatapoint datapoint={v} parentIndex={parentIndex + i} />
+                        </div>
                     ))
                 }
-            </Row>
+            </div>
         );
     } else if (datapoint && typeof datapoint === 'object') {
+        const depth = getDatapointMaxDepth(datapoint);
+        const keyWidth = Math.max(Math.round(12 / (depth + 1)), 1);
 
         return (
             <>
                 {
                     Object.entries(datapoint).filter(([k]) => !SKIPPED_KEYS.has(k)).map(([k, v], i) => (
-                        <Row key={k} className={i % 2 ? 'my-1 bg-white-blue' : 'my-1 bg-white'}>
-                            <Col style={{borderRight: '1px solid silver'}}>{k}</Col>
+                        <Row key={k} className={(parentIndex + i) % 2 ? 'bg-white-blue py-1' : 'bg-white py-1'}>
+                            <Col style={{borderRight: '1px solid silver'}} xs={keyWidth}>{k}</Col>
                             <Col className='text-break'>
-                                <RenderDatapoint datapoint={v} />
+                                <RenderDatapoint datapoint={v} parentIndex={parentIndex + i} />
                             </Col>
                         </Row>
                     ))
@@ -50,7 +80,8 @@ const RenderDatapoint = ({datapoint}) => {
 };
 
 RenderDatapoint.propTypes = {
-    datapoint: PropTypes.any.isRequired
+    datapoint: PropTypes.any.isRequired,
+    parentIndex: PropTypes.number
 };
 
 const PreviewDetails = ({datapoint, labels, displayDetails, ...rest}) => {

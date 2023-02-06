@@ -19,10 +19,18 @@ const userSchema = new Schema({
     password: {
         type: String,
         required: true,
+        minlength: 8,
         select: false, // Users.find().select('+password') to override
         set (password) {
-            // eslint-disable-next-line no-sync
-            return bcrypt.hashSync(password, 10);
+            if (password.length < 8) {
+
+                // Should not pass validation.
+                // See https://github.com/Automattic/mongoose/issues/492
+                return password;
+            } else {
+                // eslint-disable-next-line no-sync
+                return bcrypt.hashSync(password, 10);
+            }
         }
     },
     activeOrganizationMembership: {

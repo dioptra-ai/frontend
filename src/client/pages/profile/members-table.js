@@ -133,33 +133,30 @@ const MembersTable = ({isAdmin, orgID}) => {
                             onSubmit={handleSubmit}
                         >
                             <InputGroup className='mb-3 flex-column px-1'>
-                                <Form.Label className='mt-3 mb-0 w-100'>
-                                    Member Name
+                                <Form.Label className='mt-3 mb-1 w-100'>
+                                    Member Email (creates a new user if not already registered)
                                 </Form.Label>
                                 <Form.Control
-                                    className='bg-light w-100'
+                                    className='bg-light w-100 mb-3'
                                     name='username'
                                     onChange={handleChange}
-                                    placeholder='Enter User Email'
-                                    type='text'
+                                    type='email'
                                     value={newMemberForm.username}
                                     required
                                 />
-                                <Form.Label className='mb-3 mb-0 w-100'>
-                                    Member Password
+                                <Form.Label className='mb-1 mb-0 w-100'>
+                                    Password (required if user is not already registered)
                                 </Form.Label>
                                 <Form.Control
                                     className='bg-light w-100'
                                     name='password'
                                     onChange={handleChange}
-                                    placeholder='Enter User Password'
                                     type='password'
                                     value={newMemberForm.password}
-                                    required
                                 />
                                 <Form.Label className='mb-0 w-100'>
                                     Share the link - <Link to={`${window.location.origin}/login`}>{window.location.origin}/login </Link>
-                                    with the new user to login with credentials that have been set
+                                    with the new user to login with credentials that have been set.
                                 </Form.Label>
                             </InputGroup>
                             <InputGroup className='mb-3 flex-column px-1'>

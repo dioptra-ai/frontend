@@ -19,7 +19,7 @@ const Index = ({children}) => (
                 return (
                     <div className='p-5'>
                         <h1 className='text-dark fs-3 text-center'>Oops! Something went wrong 😳</h1>
-                        <h2 className='text-dark fs-5 text-center'>Thanks for your patience while we get it fixed.</h2>
+                        <h2 className='text-dark fs-5 text-center'>We have been notified and we will get it fixed!</h2>
                         <Button
                             className='w-100 text-white btn-submit mt-3'
                             type='submit'

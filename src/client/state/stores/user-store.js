@@ -29,6 +29,11 @@ class UserStore {
         return Boolean(this.userData);
     }
 
+    get hasActiveOrganization() {
+
+        return Boolean(this.userData?.activeOrganizationMembership);
+    }
+
     get userData() {
         return this._userData;
     }
