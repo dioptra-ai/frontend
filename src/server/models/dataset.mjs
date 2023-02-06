@@ -78,7 +78,7 @@ class Dataset {
     static async findDatapointsByVersion(organizationId, versionId) {
         const {rows} = await postgresClient.query(
             `SELECT datapoints.* FROM dataset_to_datapoints
-            INNER JOIN datapoints ON dataset_to_datapoints.datapoint = datapoints.id
+            INNER JOIN datapoints ON dataset_to_datapoints.datapoint = datapoints.uuid
             WHERE dataset_to_datapoints.dataset_version = $1 AND datapoints.organization_id = $2`,
             [versionId, organizationId]
         );
