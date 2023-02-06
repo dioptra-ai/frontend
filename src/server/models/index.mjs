@@ -43,7 +43,8 @@ const postgresPool = new pg.default.Pool({
 
 export const postgresClient = {
     query: (text, params) => {
-        console.log('PostgreSQL: ', text, params);
+        console.log('PostgreSQL: ', text, params || '');
+        console.log('Single-line PostgreSQL:\n', text.replace(/\s+/g, ' '), params || '');
 
         return postgresPool.query(text, params);
     },

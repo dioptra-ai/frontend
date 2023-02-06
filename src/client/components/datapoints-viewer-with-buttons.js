@@ -1,10 +1,10 @@
 import React, {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
+import {Button} from 'react-bootstrap';
 
 import Async from 'components/async';
 import EventsViewerWithButtons from 'components/events-viewer-with-buttons';
-import metricsClient from 'clients/metrics';
-import {Button} from 'react-bootstrap';
+import baseJSONClient from 'clients/base-json-client';
 
 const PAGE_SIZE = 100;
 
@@ -18,64 +18,21 @@ const DatapointsViewerWithButtons = ({filters}) => {
     return (
         <>
             <Async
-                fetchData={async () => {
-                    // Try datapoint events first.
-                    const requestDatapoints = await metricsClient('select', {
-                        select: '"uuid", "request_id", "image_metadata", "text_metadata", "video_metadata","text", "tags"',
-                        filters: [...filters, {
-                            left: 'prediction',
-                            op: 'is null'
-                        }, {
-                            left: 'groundtruth',
-                            op: 'is null'
-                        }],
-                        offset,
-                        limit: PAGE_SIZE
-                    });
-
-                    if (requestDatapoints.length) {
-
-                        return requestDatapoints;
-                    } else {
-                        // If no datapoint events, try label events.
-                        return metricsClient('select', {
-                            select: '"uuid", "request_id", "image_metadata", "text_metadata", "video_metadata", "text", "tags"',
-                            filters,
-                            offset,
-                            limit: PAGE_SIZE,
-                            rm_fields: ['embeddings', 'logits']
-                        });
-                    }
-                }}
+                fetchData={() => baseJSONClient.post('api/datapoints/select', {
+                    select: ['metadata', 'type', 'tags.*', 'predictions.*'],
+                    filters,
+                    offset,
+                    limit: PAGE_SIZE
+                })}
                 refetchOnChanged={[JSON.stringify(filters), offset]}
                 renderData={(datapoints) => <EventsViewerWithButtons samples={datapoints} />}
             />
             <Async
                 spinner={false}
-                fetchData={async () => {
-                    const datapointsCount = await metricsClient('select', {
-                        select: 'count(*)',
-                        filters: [...filters, {
-                            left: 'prediction',
-                            op: 'is null'
-                        }, {
-                            left: 'groundtruth',
-                            op: 'is null'
-                        }]
-                    });
-
-                    if (datapointsCount[0].count) {
-
-                        return datapointsCount[0].count;
-                    } else {
-                        const labelsCount = await metricsClient('select', {
-                            select: 'count(*)',
-                            filters
-                        });
-
-                        return labelsCount[0].count;
-                    }
-                }}
+                fetchData={() => baseJSONClient.post('api/datapoints/select', {
+                    select: ['* FROM datapoints where false; Select 1; SELECT *'],
+                    filters
+                })}
             >{
                     ({data: itemsCount, loading}) => (
                         <div className='d-flex justify-content-center my-5 align-items-center'>

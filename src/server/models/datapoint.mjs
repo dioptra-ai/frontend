@@ -1,3 +1,5 @@
+import pgFormat from 'pg-format';
+
 import {postgresClient} from './index.mjs';
 
 class Datapoint {
@@ -18,6 +20,76 @@ class Datapoint {
 
         return rows[0];
     }
+
+    static async select(organizationId, select, filters, orderBy = 'datapoints.created_at', desc = false, limit = 1000000, offset = 0) {
+        const normalizedSelect = select.map((column) => {
+            if (column.indexOf('.') === -1) {
+                return `datapoints.${column}`;
+            } else {
+                return column;
+            }
+        });
+        const normalizedFilters = filters.concat({
+            'left': 'datapoints.organization_id',
+            'op': '=',
+            'right': organizationId
+        }).map((filter) => {
+            if (filter['left'].indexOf('.') === -1) {
+                filter['left'] = `datapoints.${filter['left']}`;
+            }
+
+            return filter;
+        });
+        const safeSelects = normalizedSelect.map((column) => {
+            const columnSegments = column.split('.');
+
+            if (columnSegments[0] === 'datapoints') {
+
+                return pgFormat(Array(columnSegments.length).fill('%I').join('.'), ...columnSegments);
+            } else {
+
+                return `
+                        ARRAY_AGG(
+                            DISTINCT
+                            JSONB_BUILD_OBJECT('${columnSegments.slice(1).join('.')}', ${column})
+                        ) AS ${columnSegments[0]}
+                    `;
+            }
+        });
+        const joinedTables = Array.from(new Set([
+            ...normalizedSelect.map((column) => column.split('.')[0]),
+            ...normalizedFilters.map((filter) => filter['left'].split('.')[0])
+        ].filter((tableName) => tableName !== 'datapoints')));
+        const safeJoins = pgFormat(Array(joinedTables.length).fill('INNER JOIN %I ON datapoints.id = %I.datapoint').join(' '), ...joinedTables.map((t) => [t, t]).flat());
+        const safeWhere = pgFormat(normalizedFilters.map((filter) => {
+            const leftSegments = filter['left'].split('.');
+            const rightSegments = filter['right'].split('.');
+            const safeLeft = pgFormat(Array(leftSegments.length).fill('%I').join('.'), ...leftSegments);
+            const safeRight = pgFormat(Array(rightSegments.length).fill('%L').join('.'), ...rightSegments);
+            const safeOps = new Set(['=', '!=', '<', '>', '<=', '>=', 'LIKE', 'NOT LIKE', 'ILIKE', 'NOT ILIKE', 'SIMILAR TO', 'NOT SIMILAR TO', 'IS', 'IS NOT', 'IN', 'NOT IN', 'ANY', 'ALL', 'BETWEEN', 'NOT BETWEEN', 'IS DISTINCT FROM', 'IS NOT DISTINCT FROM']);
+
+            if (safeOps.has(filter['op'].toUpperCase())) {
+                return `${safeLeft} ${filter['op']} ${safeRight}`;
+            } else {
+                throw new Error(`Invalid operator: ${filter['op']}`);
+            }
+        }).join(' AND '));
+        const safeOrderBy = pgFormat(Array(orderBy.split('.').length).fill('%I').join('.'), ...orderBy.split('.'));
+        const {rows} = await postgresClient.query(`
+            SELECT ${safeSelects.join(', ')}
+            FROM datapoints
+            ${safeJoins}
+            WHERE ${safeWhere}
+            GROUP BY datapoints.id
+            ORDER BY ${safeOrderBy}
+            ${desc ? 'DESC' : 'ASC'}
+            LIMIT ${pgFormat.literal(limit)}
+            OFFSET ${pgFormat.literal(offset)}
+        `);
+
+        return rows;
+    }
+
 
     static async upsertByEventUuids(organizationId, eventUuids) {
         const {rows: events} = await postgresClient.query(
