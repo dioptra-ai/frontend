@@ -46,7 +46,7 @@ export default function AwsS3Integration({formData, handleSubmit}) {
                             className='bg-light'
                             name='aws_secret_access_key'
                             onChange={formik.handleChange}
-                            type='text'
+                            type='password'
                             value={formik.values.aws_secret_access_key}
                         />
                     </InputGroup>
