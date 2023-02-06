@@ -66,7 +66,6 @@ class Datapoint {
             return rows;
         }
     }
-=
 
     static async _legacyFindGroundtruthAndPredictionEventsByDatapointIds(organizationId, datapointIds) {
         if (datapointIds.length === 0) {

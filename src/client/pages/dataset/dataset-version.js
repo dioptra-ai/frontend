@@ -13,6 +13,20 @@ import Menu from 'components/menu';
 import TopBar from 'pages/common/top-bar';
 
 const DatasetVersionViewer = ({dataViewerProps, versionId}) => {
+    // Defining histogram function to be used in the renderData assignment
+    const getHistogram = (values, getClassName) => values.reduce((acc, value) => {
+        const name = getClassName(value);
+
+        if (name) {
+            if (!acc[name]) {
+                acc[name] = 0;
+            }
+            acc[name] += 1;
+        }
+
+        return acc;
+    }, {});
+
 
     return (
         <Async
@@ -30,18 +44,6 @@ const DatasetVersionViewer = ({dataViewerProps, versionId}) => {
                             })}
                             refetchOnChanged={[datapointIds]}
                             renderData={(groundtruths) => {
-                                const getHistogram = (groundtruths, getClassName) => groundtruths.reduce((acc, groundtruth) => {
-                                    const name = getClassName(groundtruth);
-
-                                    if (name) {
-                                        if (!acc[name]) {
-                                            acc[name] = 0;
-                                        }
-                                        acc[name] += 1;
-                                    }
-
-                                    return acc;
-                                }, {});
                                 const groundtruthsHist = getHistogram(groundtruths, (groundtruth) => groundtruth?.['class_name']);
 
 
@@ -53,18 +55,6 @@ const DatasetVersionViewer = ({dataViewerProps, versionId}) => {
                                         })}
                                         refetchOnChanged={[datapointIds]}
                                         renderData={(predictions) => {
-                                            const getHistogram = (predictions, getClassName) => predictions.reduce((acc, prediction) => {
-                                                const name = getClassName(prediction);
-
-                                                if (name) {
-                                                    if (!acc[name]) {
-                                                        acc[name] = 0;
-                                                    }
-                                                    acc[name] += 1;
-                                                }
-
-                                                return acc;
-                                            }, {});
                                             const predictionsHist = getHistogram(predictions, (prediction) => prediction?.['class_name']);
 
                                             return (
