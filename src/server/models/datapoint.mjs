@@ -12,7 +12,7 @@ class Datapoint {
 
     static async findById(organizationId, id) {
         const {rows} = await postgresClient.query(
-            'SELECT * FROM datapoints WHERE uuid = $1 AND organization_id = $2',
+            'SELECT * FROM datapoints WHERE id = $1 AND organization_id = $2',
             [id, organizationId]
         );
 
@@ -48,12 +48,13 @@ class Datapoint {
         return rows[0];
     }
 
+
     static async _legacyFindDatapointEventsByDatapointIds(organizationId, datapointIds) {
         if (datapointIds.length === 0) {
             return [];
         } else {
             const {rows} = await postgresClient.query(
-                `SELECT "image_metadata", "video_metadata", "text_metadata", "request_id", "uuid", "tags"
+                `SELECT "image_metadata", "video_metadata", "text_metadata", "request_id", "tags"
             FROM events
             WHERE organization_id = $1 AND 
                 prediction IS NULL AND
