@@ -36,11 +36,10 @@ IntegrationRouter.post('/', async (req, res, next) => {
 
 IntegrationRouter.get('/:type', async (req, res, next) => {
     try {
-        const {id, activeOrganizationMembership} = req.user;
+        const {activeOrganizationMembership} = req.user;
         const IntegrationModel = mongoose.model('Integrations');
 
         const integration = await IntegrationModel.findOne({
-            user: id,
             organization: activeOrganizationMembership.organization._id,
             type: req.params.type
         });
