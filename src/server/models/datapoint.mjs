@@ -48,27 +48,6 @@ class Datapoint {
         return rows[0];
     }
 
-    // Tested to work in console
-    static async FindDatapointsByDatapointIds(organizationId, datapointIds) {
-        if (datapointIds.length === 0) {
-
-            return [];
-        } else {
-            console.log(organizationId);
-            const {rows} = await postgresClient.query(
-                // add other desired columns as necessary
-                `SELECT "type", "metadata"
-                FROM datapoints
-                WHERE organization_id = $1 AND
-                id IN (${datapointIds.map((_, i) => `$${i + 2}`).join(',')})`,
-                [organizationId, ...datapointIds]
-            );
-
-            console.log(rows);
-
-            return rows;
-        }
-    }
 
     static async _legacyFindDatapointEventsByDatapointIds(organizationId, datapointIds) {
         if (datapointIds.length === 0) {
@@ -87,23 +66,7 @@ class Datapoint {
             return rows;
         }
     }
-
-    // groundtruth and prediction columns aren't in datapoints.
-    static async FindGroundtruthAndPredictionByDatapointIds(organizationId, datapointIds) {
-        if (datapointIds.length === 0) {
-            return [];
-        } else {
-            const {rows} = await postgresClient.query(
-                `SELECT "groundtruth", "prediction", "uuid"
-            WHERE organization_id = $1 AND
-                (prediction IS NOT NULL OR groundtruth IS NOT NULL) AND
-                request_id IN (SELECT request_id FROM datapoints WHERE uuid IN (${datapointIds.map((_, i) => `$${i + 2}`).join(',')}))`,
-                [organizationId, ...datapointIds]
-            );
-
-            return rows;
-        }
-    }
+=
 
     static async _legacyFindGroundtruthAndPredictionEventsByDatapointIds(organizationId, datapointIds) {
         if (datapointIds.length === 0) {
