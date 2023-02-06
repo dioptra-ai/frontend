@@ -1,6 +1,9 @@
+import assert from 'assert';
 import pgFormat from 'pg-format';
 
 import {postgresClient} from './index.mjs';
+
+const SAFE_OPS = new Set(['=', '!=', '<', '>', '<=', '>=', 'LIKE', 'NOT LIKE', 'ILIKE', 'NOT ILIKE', 'SIMILAR TO', 'NOT SIMILAR TO', 'IS', 'IS NOT', 'IN', 'NOT IN', 'ANY', 'ALL', 'BETWEEN', 'NOT BETWEEN', 'IS DISTINCT FROM', 'IS NOT DISTINCT FROM']);
 
 class Datapoint {
     static async findAll(organizationId) {
@@ -22,74 +25,70 @@ class Datapoint {
     }
 
     static async select(organizationId, select, filters, orderBy = 'datapoints.created_at', desc = false, limit = 1000000, offset = 0) {
-        const normalizedSelect = select.map((column) => {
-            if (column.indexOf('.') === -1) {
-                return `datapoints.${column}`;
-            } else {
-                return column;
-            }
-        });
-        const normalizedFilters = filters.concat({
-            'left': 'datapoints.organization_id',
+        assert(filters.every((f) => SAFE_OPS.has(f['op'].toUpperCase())), 'Invalid filter op');
+
+        const getCanonicalColumn = (column) => column.indexOf('.') === -1 ? `datapoints.${column}` : column;
+        const getCanonicalColumnTable = (column) => column.split('.')[0];
+        const getSafeColumn = (column) => pgFormat(column.split('.').map(() => '%I').join('.'), ...column.split('.'));
+
+        const canonicalFilters = filters.concat({
+            'left': 'organization_id',
             'op': '=',
             'right': organizationId
-        }).map((filter) => {
-            if (filter['left'].indexOf('.') === -1) {
-                filter['left'] = `datapoints.${filter['left']}`;
+        }).map((filter) => ({
+            'left': getCanonicalColumn(filter['left']),
+            'op': filter['op'],
+            'right': filter['right']
+        }));
+        const canonicalSelect = select.map(getCanonicalColumn);
+        const selectsPerTable = canonicalSelect.reduce((acc, column) => {
+            const tableName = getCanonicalColumnTable(column);
+
+            if (!acc[tableName]) {
+                acc[tableName] = [];
             }
 
-            return filter;
-        });
-        const safeSelects = normalizedSelect.map((column) => {
-            const columnSegments = column.split('.');
+            acc[tableName].push(column);
 
-            if (columnSegments[0] === 'datapoints') {
-
-                return pgFormat(Array(columnSegments.length).fill('%I').join('.'), ...columnSegments);
+            return acc;
+        }, {});
+        const safeSelects = Object.entries(selectsPerTable).reduce((acc, [tableName, columns]) => {
+            if (tableName === 'datapoints') {
+                acc.push(...columns.map(getSafeColumn));
             } else {
-
-                return `
-                        ARRAY_AGG(
-                            DISTINCT
-                            JSONB_BUILD_OBJECT('${columnSegments.slice(1).join('.')}', ${column})
-                        ) AS ${columnSegments[0]}
-                    `;
+                acc.push(
+                    pgFormat(`ARRAY_AGG(
+                        DISTINCT JSONB_BUILD_OBJECT(
+                            ${columns.map((column) => [pgFormat.literal(column.split('.').slice(1)), getSafeColumn(column)]).flat().join(', ')}
+                        )
+                    ) AS %I`, tableName)
+                );
             }
-        });
-        const joinedTables = Array.from(new Set([
-            ...normalizedSelect.map((column) => column.split('.')[0]),
-            ...normalizedFilters.map((filter) => filter['left'].split('.')[0])
-        ].filter((tableName) => tableName !== 'datapoints')));
-        const safeJoins = pgFormat(Array(joinedTables.length).fill('INNER JOIN %I ON datapoints.id = %I.datapoint').join(' '), ...joinedTables.map((t) => [t, t]).flat());
-        const safeWhere = pgFormat(normalizedFilters.map((filter) => {
-            const leftSegments = filter['left'].split('.');
-            const rightSegments = filter['right'].split('.');
-            const safeLeft = pgFormat(Array(leftSegments.length).fill('%I').join('.'), ...leftSegments);
-            const safeRight = pgFormat(Array(rightSegments.length).fill('%L').join('.'), ...rightSegments);
-            const safeOps = new Set(['=', '!=', '<', '>', '<=', '>=', 'LIKE', 'NOT LIKE', 'ILIKE', 'NOT ILIKE', 'SIMILAR TO', 'NOT SIMILAR TO', 'IS', 'IS NOT', 'IN', 'NOT IN', 'ANY', 'ALL', 'BETWEEN', 'NOT BETWEEN', 'IS DISTINCT FROM', 'IS NOT DISTINCT FROM']);
 
-            if (safeOps.has(filter['op'].toUpperCase())) {
-                return `${safeLeft} ${filter['op']} ${safeRight}`;
-            } else {
-                throw new Error(`Invalid operator: ${filter['op']}`);
-            }
-        }).join(' AND '));
-        const safeOrderBy = pgFormat(Array(orderBy.split('.').length).fill('%I').join('.'), ...orderBy.split('.'));
+            return acc;
+        }, []);
+        const safeJoins = Array.from(new Set([
+            ...canonicalSelect.map(getCanonicalColumnTable),
+            ...canonicalFilters.map((filter) => getCanonicalColumnTable(filter['left']))
+        ]
+            .filter((t) => t !== 'datapoints')))
+            .map((tableName) => pgFormat('INNER JOIN %I ON datapoints.id = %I.datapoint', tableName, tableName));
+        const safeWhere = canonicalFilters.map((filter) => [
+            getSafeColumn(filter['left']), filter['op'], pgFormat.literal(filter['right'])
+        ].join(' '));
         const {rows} = await postgresClient.query(`
             SELECT ${safeSelects.join(', ')}
             FROM datapoints
-            ${safeJoins}
-            WHERE ${safeWhere}
+            ${safeJoins.join(' ')}
+            WHERE ${safeWhere.join(' AND ')}
             GROUP BY datapoints.id
-            ORDER BY ${safeOrderBy}
-            ${desc ? 'DESC' : 'ASC'}
+            ORDER BY ${getSafeColumn(orderBy)} ${desc ? 'DESC' : 'ASC'}
             LIMIT ${pgFormat.literal(limit)}
             OFFSET ${pgFormat.literal(offset)}
         `);
 
         return rows;
     }
-
 
     static async upsertByEventUuids(organizationId, eventUuids) {
         const {rows: events} = await postgresClient.query(

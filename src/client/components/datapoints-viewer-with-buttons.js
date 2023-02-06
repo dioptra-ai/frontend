@@ -19,7 +19,7 @@ const DatapointsViewerWithButtons = ({filters}) => {
         <>
             <Async
                 fetchData={() => baseJSONClient.post('api/datapoints/select', {
-                    select: ['metadata', 'type', 'tags.*', 'predictions.*'],
+                    select: ['metadata', 'type', 'tags.name', 'tags.value', 'predictions.class_name'],
                     filters,
                     offset,
                     limit: PAGE_SIZE
@@ -30,7 +30,7 @@ const DatapointsViewerWithButtons = ({filters}) => {
             <Async
                 spinner={false}
                 fetchData={() => baseJSONClient.post('api/datapoints/select', {
-                    select: ['* FROM datapoints where false; Select 1; SELECT *'],
+                    select: ['id FROM datapoints where false; Select 1; SELECT *'],
                     filters
                 })}
             >{
