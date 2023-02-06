@@ -1,4 +1,5 @@
 import assert from 'assert';
+import assert from 'assert';
 import pgFormat from 'pg-format';
 
 import {postgresClient} from './index.mjs';
