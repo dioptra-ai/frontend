@@ -95,7 +95,7 @@ const FilterInput = ({
                         value: Array.isArray(value) ? value[value.length - 1] : value
                     }
                 });
-                const allSuggestionKeys = allSuggestions.map((value) => Object.values(value));
+                const allSuggestionValues = allSuggestions.map((value) => Object.values(value));
 
                 console.log(allSuggestions);
                 console.log(allSuggestionValues);
