@@ -25,9 +25,11 @@ export default function AwsS3Integration({formData, handleSubmit}) {
     return (
         <>
             <Form
-                autoComplete='off'
                 className='w-100'
-                onSubmit={formik.handleSubmit}
+                onSubmit={(e) => {
+                    e.preventDefault();
+                    formik.handleSubmit(e);
+                }}
             >
                 <Form.Group className='mb-3'>
                     <Form.Label className='mt-3'>Access Key ID</Form.Label>
@@ -36,13 +38,14 @@ export default function AwsS3Integration({formData, handleSubmit}) {
                             className='bg-light'
                             name='aws_access_key_id'
                             onChange={formik.handleChange}
-                            type='text'
+                            type='search'
                             value={formik.values.aws_access_key_id}
                         />
                     </InputGroup>
                     <Form.Label className='mt-3'>Secret Access Key</Form.Label>
                     <InputGroup>
                         <Form.Control
+                            autoComplete='new-password'
                             className='bg-light'
                             name='aws_secret_access_key'
                             onChange={formik.handleChange}
@@ -68,7 +71,7 @@ export default function AwsS3Integration({formData, handleSubmit}) {
                     type='submit'
                     variant='primary'
                 >
-                    Save
+                    Save and Test
                 </Button>
             </Form>
         </>

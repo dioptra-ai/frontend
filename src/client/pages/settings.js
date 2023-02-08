@@ -7,7 +7,7 @@ import AwsS3Integration from './integrations/aws-s3';
 import GoogleCloudStorageIntegration from './integrations/google-cloud-storage';
 
 const Settings = () => {
-    const [updated, setUpdated] = useState(false);
+    const [successMessage, setSuccessMessage] = useState(null);
     const [error, setError] = useState('');
     const [selectedIntegration, setSelectedIntegration] = useState(Integrations.AWS_S3.value);
     const [formData, setFormData] = useState();
@@ -34,12 +34,12 @@ const Settings = () => {
         baseJSONClient(`/api/integration/${selectedIntegration}`)
             .then((res) => {
                 setFormData(res.data);
-                setUpdated(false);
+                setSuccessMessage(null);
                 setError('');
             })
             .catch((e) => {
                 setFormData(null);
-                setUpdated(false);
+                setSuccessMessage(null);
                 setError(
                     `An error occurred during configuration fetch. Please try again. Reason: ${e}`
                 );
@@ -53,9 +53,9 @@ const Settings = () => {
             method: 'POST',
             body: payload
         })
-            .then(() => {
+            .then(({message}) => {
                 setFormData(null);
-                setUpdated(true);
+                setSuccessMessage(message);
                 setError('');
                 if (
                     location.state &&
@@ -65,12 +65,10 @@ const Settings = () => {
                     window.location = location.state.backPath;
                 }
             })
-            .catch(() => {
+            .catch((e) => {
                 setFormData(null);
-                setUpdated(false);
-                setError(
-                    'An error occurred during configuration update. Please try again'
-                );
+                setSuccessMessage(null);
+                setError(e.message);
             });
     };
 
@@ -118,9 +116,9 @@ const Settings = () => {
                             (integration) => integration.value === selectedIntegration
                         )[0].name}
                 </p>
-                {updated && (
+                {successMessage && (
                     <Alert className='mt-3' variant='success'>
-                        Configuration updated successfully
+                        {successMessage}
                     </Alert>
                 )}
                 {error && error !== '' && (
