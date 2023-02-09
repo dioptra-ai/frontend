@@ -161,6 +161,8 @@ class Dataset {
         });
     }
 
+    static POSTGRES_MAX_PARAMS = 20000;
+
     static add(organizationId, id, datapointIds) {
 
         return postgresTransaction(async (transactionClient) => {
@@ -171,9 +173,16 @@ class Dataset {
             );
 
             // Add datapoints to uncommitted version.
-            await transactionClient.query(
-                `INSERT INTO dataset_to_datapoints (dataset_version, datapoint) VALUES ${datapointIds.map((_, index) => `($1, $${index + 2})`).join(', ')} ON CONFLICT DO NOTHING`,
-                [uncommittedVersion.uuid, ...datapointIds]
+            await Promise.all(
+                Array(Math.ceil(datapointIds.length / Dataset.POSTGRES_MAX_PARAMS)).fill().map(async (_, index) => {
+                    const offset = index * Dataset.POSTGRES_MAX_PARAMS;
+                    const datapointIdsSlice = datapointIds.slice(offset, offset + Dataset.POSTGRES_MAX_PARAMS);
+
+                    await transactionClient.query(
+                        `INSERT INTO dataset_to_datapoints (dataset_version, datapoint) VALUES ${datapointIdsSlice.map((_, index) => `($1, $${index + 2})`).join(', ')} ON CONFLICT DO NOTHING`,
+                        [uncommittedVersion.uuid, ...datapointIdsSlice]
+                    );
+                })
             );
 
             // Mark uncommitted version as dirty.
