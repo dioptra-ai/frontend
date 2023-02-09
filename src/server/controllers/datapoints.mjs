@@ -47,6 +47,37 @@ DatapointsRouter.post('/_legacy-get-groundtruth-prediction-events', async (req, 
     }
 });
 
+DatapointsRouter.post('/select', async (req, res, next) => {
+    try {
+        const datapoints = await Datapoint.select({
+            organizationId: req.user.activeOrganizationId,
+            selectColumns: req.body.selectColumns,
+            filters: req.body.filters,
+            orderBy: req.body.order_by,
+            desc: req.body.desc,
+            limit: req.body.limit,
+            offset: req.body.offset
+        });
+
+        res.json(datapoints);
+    } catch (e) {
+        next(e);
+    }
+});
+
+DatapointsRouter.post('/count', async (req, res, next) => {
+    try {
+        const count = await Datapoint.count({
+            organizationId: req.user.activeOrganizationId,
+            filters: req.body.filters
+        });
+
+        res.json(count);
+    } catch (e) {
+        next(e);
+    }
+});
+
 DatapointsRouter.post('/from-event-uuids', async (req, res, next) => {
     try {
         const datapoints = await Datapoint.upsertByEventUuids(req.user.activeOrganizationId, req.body.eventUuids);

@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 
-import DatapointsViewerWithButtons from 'components/datapoints-viewer-with-buttons';
+import DatapointsViewer from 'components/datapoints-viewer';
 import useAllFilters from 'hooks/use-all-filters';
 import Menu from 'components/menu';
 import TopBar from 'pages/common/top-bar';
@@ -22,13 +22,13 @@ const DataLake = ({filtersStore}) => {
                 <h4>
                     Data Lake
                 </h4>
-                <div className='m-3'>
+                <div className='my-3'>
                     <FilterInput
                         defaultFilters={filtersStore.filters}
                         onChange={(filters) => (filtersStore.filters = filters)}
                     />
                 </div>
-                <DatapointsViewerWithButtons filters={allFilters} />
+                <DatapointsViewer filters={allFilters} />
             </div>
         </Menu>
     );
