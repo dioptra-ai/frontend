@@ -5,6 +5,10 @@ import {postgresClient} from './index.mjs';
 
 const SAFE_OPS = new Set(['=', '!=', '<', '>', '<=', '>=', 'LIKE', 'NOT LIKE', 'ILIKE', 'NOT ILIKE', 'SIMILAR TO', 'NOT SIMILAR TO', 'IS', 'IS NOT', 'IN', 'NOT IN', 'ANY', 'ALL', 'BETWEEN', 'NOT BETWEEN', 'IS DISTINCT FROM', 'IS NOT DISTINCT FROM']);
 
+const getCanonicalColumn = (column) => column.indexOf('.') === -1 ? `datapoints.${column}` : column;
+const getCanonicalColumnTable = (column) => column.split('.')[0];
+const getSafeColumn = (column) => pgFormat(column.split('.').map(() => '%I').join('.'), ...column.split('.'));
+
 class Datapoint {
     static async findAll(organizationId) {
         const {rows} = await postgresClient.query(
@@ -24,12 +28,9 @@ class Datapoint {
         return rows[0];
     }
 
-    static async select(organizationId, select, filters, orderBy = 'datapoints.created_at', desc = false, limit = 1000000, offset = 0) {
+    static async count({organizationId, filters = []}) {
+        assert(organizationId, 'organizationId is required');
         assert(filters.every((f) => SAFE_OPS.has(f['op'].toUpperCase())), 'Invalid filter op');
-
-        const getCanonicalColumn = (column) => column.indexOf('.') === -1 ? `datapoints.${column}` : column;
-        const getCanonicalColumnTable = (column) => column.split('.')[0];
-        const getSafeColumn = (column) => pgFormat(column.split('.').map(() => '%I').join('.'), ...column.split('.'));
 
         const canonicalFilters = filters.concat({
             'left': 'organization_id',
@@ -40,7 +41,34 @@ class Datapoint {
             'op': filter['op'],
             'right': filter['right']
         }));
-        const canonicalSelect = select.map(getCanonicalColumn);
+        const safeFilters = canonicalFilters.map((filter) => `${getSafeColumn(filter['left'])} ${filter['op']} ${pgFormat.literal(filter['right'])}`);
+        const safeJoins = Array.from(new Set(
+            canonicalFilters.map((filter) => getCanonicalColumnTable(filter['left'])).filter((t) => t !== 'datapoints')
+        )).map((tableName) => pgFormat('INNER JOIN %I ON datapoints.id = %I.datapoint', tableName, tableName));
+
+        const {rows} = await postgresClient.query(
+            pgFormat(`SELECT COUNT(*) FROM datapoints ${safeJoins.join(' ')} WHERE ${safeFilters.join(' AND ')}`)
+        );
+
+        return Number(rows[0]['count']);
+    }
+
+    static async select({
+        organizationId, selectColumns = [], filters = [], orderBy = 'datapoints.created_at', desc = false, limit = 1000000, offset = 0
+    }) {
+        assert(organizationId, 'organizationId is required');
+        assert(filters.every((f) => SAFE_OPS.has(f['op'].toUpperCase())), 'Invalid filter op');
+
+        const canonicalFilters = filters.concat({
+            'left': 'organization_id',
+            'op': '=',
+            'right': organizationId
+        }).map((filter) => ({
+            'left': getCanonicalColumn(filter['left']),
+            'op': filter['op'],
+            'right': filter['right']
+        }));
+        const canonicalSelect = selectColumns.map(getCanonicalColumn);
         const selectsPerTable = canonicalSelect.reduce((acc, column) => {
             const tableName = getCanonicalColumnTable(column);
 

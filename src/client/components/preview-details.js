@@ -23,7 +23,7 @@ const getDatapointMaxDepth = (datapoint) => {
     } else return 0;
 };
 
-const RenderDatapoint = ({datapoint, parentIndex = 0}) => {
+export const RenderDatapoint = ({datapoint, parentIndex = 0}) => {
     const [collapsed, setCollapsed] = React.useState(true);
 
     if (React.isValidElement(datapoint)) {
@@ -86,6 +86,7 @@ RenderDatapoint.propTypes = {
     datapoint: PropTypes.any.isRequired,
     parentIndex: PropTypes.number
 };
+
 
 const PreviewDetails = ({datapoint, labels, displayDetails, ...rest}) => {
     const predictions = labels?.map((l) => l['prediction']).filter(Boolean);
