@@ -39,4 +39,6 @@ const baseJSONClient = (url, {method = 'get', body, headers = {'content-type': '
     });
 };
 
+baseJSONClient.post = (url, body, options) => baseJSONClient(url, {method: 'post', body, ...options});
+
 export default baseJSONClient;

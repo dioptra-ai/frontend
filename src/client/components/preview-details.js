@@ -23,7 +23,7 @@ const getDatapointMaxDepth = (datapoint) => {
     } else return 0;
 };
 
-const RenderDatapoint = ({datapoint, parentIndex = 0}) => {
+export const RenderDatapoint = ({datapoint, parentIndex = 0}) => {
     const [collapsed, setCollapsed] = React.useState(true);
 
     if (React.isValidElement(datapoint)) {
@@ -35,7 +35,10 @@ const RenderDatapoint = ({datapoint, parentIndex = 0}) => {
             <div>
                 {datapoint.length ? (
                     <div>
-                        <a href='#' onClick={() => setCollapsed(!collapsed)}>
+                        <a href='#' onClick={(e) => {
+                            e.stopPropagation();
+                            setCollapsed(!collapsed);
+                        }}>
                             {datapoint.length} items {collapsed ? <IoChevronDownSharp /> : <IoChevronUpSharp />}
                         </a>
                     </div>
@@ -74,7 +77,7 @@ const RenderDatapoint = ({datapoint, parentIndex = 0}) => {
     } else if (isUrl(datapoint)) {
 
         return (
-            <a href={datapoint} target='_blank' rel='noreferrer'>{datapoint}&nbsp;<sup><FiExternalLink className='fs-7' /></sup></a>
+            <a href={datapoint} target='_blank' rel='noreferrer' onClick={(e) => e.stopPropagation()}>{datapoint}&nbsp;<sup><FiExternalLink className='fs-7' /></sup></a>
         );
     } else return String(datapoint);
 };
@@ -83,6 +86,7 @@ RenderDatapoint.propTypes = {
     datapoint: PropTypes.any.isRequired,
     parentIndex: PropTypes.number
 };
+
 
 const PreviewDetails = ({datapoint, labels, displayDetails, ...rest}) => {
     const predictions = labels?.map((l) => l['prediction']).filter(Boolean);
