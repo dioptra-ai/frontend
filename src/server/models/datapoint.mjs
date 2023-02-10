@@ -1,14 +1,28 @@
 import assert from 'assert';
-import assert from 'assert';
 import pgFormat from 'pg-format';
 
 import {postgresClient} from './index.mjs';
 
 const SAFE_OPS = new Set(['=', '!=', '<', '>', '<=', '>=', 'LIKE', 'NOT LIKE', 'ILIKE', 'NOT ILIKE', 'SIMILAR TO', 'NOT SIMILAR TO', 'IS', 'IS NOT', 'IN', 'NOT IN', 'ANY', 'ALL', 'BETWEEN', 'NOT BETWEEN', 'IS DISTINCT FROM', 'IS NOT DISTINCT FROM']);
 
-const getCanonicalColumn = (column) => column.indexOf('.') === -1 ? `datapoints.${column}` : column;
-const getCanonicalColumnTable = (column) => column.split('.')[0];
-const getSafeColumn = (column) => pgFormat(column.split('.').map(() => '%I').join('.'), ...column.split('.'));
+export const getCanonicalColumn = (column) => column.indexOf('.') === -1 ? `datapoints.${column}` : column;
+export const getColumnTable = (column) => {
+    const canonicalColumn = getCanonicalColumn(column);
+
+    return canonicalColumn.split('.')[0];
+};
+export const getSafeColumn = (column) => {
+    const canonicalColumn = getCanonicalColumn(column);
+    const [columnTable, ...columnPath] = canonicalColumn.split('.');
+
+    if (columnPath.length === 1) {
+
+        return pgFormat('%I.%I', columnTable, columnPath[0]);
+    } else {
+        // Support for JSONB columns: datapoints.metadata.uri
+        return pgFormat(`%I.%I->>${pgFormat.literal(columnPath.slice(1).join('->>'))}`, columnTable, columnPath[0]);
+    }
+};
 
 class Datapoint {
     static async findAll(organizationId) {
@@ -37,14 +51,10 @@ class Datapoint {
             'left': 'organization_id',
             'op': '=',
             'right': organizationId
-        }).map((filter) => ({
-            'left': getCanonicalColumn(filter['left']),
-            'op': filter['op'],
-            'right': filter['right']
-        }));
+        });
         const safeFilters = canonicalFilters.map((filter) => `${getSafeColumn(filter['left'])} ${filter['op']} ${pgFormat.literal(filter['right'])}`);
         const safeJoins = Array.from(new Set(
-            canonicalFilters.map((filter) => getCanonicalColumnTable(filter['left'])).filter((t) => t !== 'datapoints')
+            canonicalFilters.map((filter) => getColumnTable(filter['left'])).filter((t) => t !== 'datapoints')
         )).map((tableName) => pgFormat('INNER JOIN %I ON datapoints.id = %I.datapoint', tableName, tableName));
 
         const {rows} = await postgresClient.query(
@@ -64,14 +74,9 @@ class Datapoint {
             'left': 'organization_id',
             'op': '=',
             'right': organizationId
-        }).map((filter) => ({
-            'left': getCanonicalColumn(filter['left']),
-            'op': filter['op'],
-            'right': filter['right']
-        }));
-        const canonicalSelect = selectColumns.map(getCanonicalColumn);
-        const selectsPerTable = canonicalSelect.reduce((acc, column) => {
-            const tableName = getCanonicalColumnTable(column);
+        });
+        const selectsPerTable = selectColumns.reduce((acc, column) => {
+            const tableName = getColumnTable(column);
 
             if (!acc[tableName]) {
                 acc[tableName] = [];
@@ -97,8 +102,8 @@ class Datapoint {
             return acc;
         }, []);
         const safeJoins = Array.from(new Set([
-            ...canonicalSelect.map(getCanonicalColumnTable),
-            ...canonicalFilters.map((filter) => getCanonicalColumnTable(filter['left']))
+            ...selectColumns.map(getColumnTable),
+            ...canonicalFilters.map((filter) => getColumnTable(filter['left']))
         ]
             .filter((t) => t !== 'datapoints')))
             .map((tableName) => pgFormat('INNER JOIN %I ON datapoints.id = %I.datapoint', tableName, tableName));

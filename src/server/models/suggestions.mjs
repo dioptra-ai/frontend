@@ -1,81 +1,57 @@
+import pgFormat from 'pg-format';
+
 import {postgresClient} from './index.mjs';
+import {getColumnTable, getSafeColumn} from './datapoint.mjs';
+
+const OMITTED_COLUMNS = ['organization_id'];
 
 class Suggestion {
 
     static async findKeySuggestions(key) {
-        console.log(key);
-        // Check if key is a table name or column name by checking how many '.' are in the key
-        const keyParts = key.split('.');
+        const [firstKeyPart, ...moreKeyParts] = key.split('.');
 
-        let tableName = '';
+        let tableName = firstKeyPart;
 
-        let columnName = '';
+        let columnName = moreKeyParts.join('.');
 
-        // Defined in case the key has more than 2 parts
-        const rows = [];
+        let hardcodedSuggestions = [];
 
-        if (keyParts.length === 1) {
-            tableName = keyParts[0];
-            const {rows} = await postgresClient.query(
-                'SELECT table_name FROM information_schema.tables WHERE table_name LIKE $1 AND table_schema = \'public\'',
-                [`%${tableName}%`]
-            );
-
-
-            return rows;
-        } else if (keyParts.length === 2) {
-            tableName = keyParts[0];
-            columnName = keyParts[1];
-            const {rows} = await postgresClient.query(
-                'SELECT column_name FROM information_schema.columns WHERE table_name = $1 AND column_name LIKE $2',
-                [tableName, `%${columnName}%`]
-            );
-
-
-            return rows;
-        }
-        // console.log(rows);
-
-        return rows;
-    }
-
-    static async findValueSuggestions(organizationId, key, value) {
-        // parse value
-        const keyParts = key.split('.');
-
-        let tableName = '';
-
-        let columnName = '';
-
-        const rows = [];
-
-        if (keyParts.length === 1) {
-            tableName = keyParts[0];
-            const {rows} = await postgresClient.query(
-                'SELECT "value" FROM $2 WHERE organization_id = $1 AND * LIKE $3',
-                [organizationId, tableName, `%${value}%`]
-            );
-
-
-            return rows;
-        } else if (keyParts.length === 2) {
-            tableName = keyParts[0];
-            console.log(tableName);
-            columnName = keyParts[1];
-            const {rows} = await postgresClient.query(
-                // Select values from the table where the table name is the same as tableName, column name is the same as columnName, and the value is like the value
-                `SELECT ${columnName} FROM ${tableName} WHERE organization_id = $1 AND $2 LIKE $3`,
-                [organizationId, columnName, `%${value}%`]
-            );
-
-
-            return rows;
+        if (moreKeyParts.length === 0) {
+            tableName = 'datapoints';
+            columnName = firstKeyPart;
+            hardcodedSuggestions = (await postgresClient.query(
+                `SELECT * FROM (
+                    SELECT 'datapoints' AS value
+                    UNION SELECT 'predictions' AS value
+                    UNION SELECT 'groundtruths' AS value
+                    UNION SELECT 'tags' AS value
+                ) AS suggestions WHERE value LIKE $1`,
+                [`%${columnName}%`]
+            ))['rows'].map((row) => `${row['value']}.`);
         }
 
-        return rows;
+        const {rows} = await postgresClient.query(
+            pgFormat('SELECT column_name as value FROM information_schema.columns WHERE table_name = $1 AND column_name LIKE $2 and column_name NOT IN (%L)', OMITTED_COLUMNS),
+            [tableName, `%${columnName}%`]
+        );
+
+        return [
+            ...rows.map((row) => `${tableName}.${row['value']}`),
+            ...hardcodedSuggestions
+        ];
     }
 
+    static async findValueSuggestions(organizationId, key, value = '') {
+        const tableName = getColumnTable(key);
+        const safeColumn = getSafeColumn(key);
 
+        const {rows} = await postgresClient.query(
+            pgFormat(`SELECT DISTINCT ${safeColumn} AS value FROM %I WHERE organization_id = $1 AND ${safeColumn} LIKE $2`, tableName),
+            [organizationId, `%${value}%`]
+        );
+
+        return rows.map((row) => row['value']);
+    }
 }
 
 export default Suggestion;
