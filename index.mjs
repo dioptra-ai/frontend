@@ -8,7 +8,6 @@ import {sessionHandler} from './src/server/middleware/authentication.mjs';
 import rateLimit from './src/server/middleware/rate-limit.mjs';
 import ApiRouter from './src/server/api-router.mjs';
 import jsonError from './src/server/middleware/json-error.mjs';
-import { isbasicAuthenticated } from './src/server/middleware/authentication.mjs';
 import './src/server/models/index.mjs';
 
 const app = express();
