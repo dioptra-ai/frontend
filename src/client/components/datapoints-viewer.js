@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import PropTypes from 'prop-types';
 import {Button} from 'react-bootstrap';
 import {TransformComponent, TransformWrapper} from 'react-zoom-pan-pinch';
@@ -34,7 +34,7 @@ const DatapointCard = ({datapoint = {}, onClick, zoomable, showDetails, maxHeigh
         const someHeatMap = predictions.some((p) => p['feature_heatmap']);
 
         return (
-            <Row onClick={onClick} classname='g-2'>
+            <Row onClick={onClick} className='g-2'>
                 <Col xs={12} style={{position: 'relative'}}>
                     <TransformWrapper disabled={!zoomable}>
                         {({zoomIn, zoomOut, resetTransform}) => (
@@ -192,7 +192,7 @@ DatapointCard.propTypes = {
     zoomable: PropTypes.bool
 };
 
-const UnpaginatedDatapointsViewer = ({datapoints}) => {
+const DatapointsPage = ({datapoints}) => {
     const [datapointIndexInModal, setDatapointIndexInModal] = useState(-1);
     const datapointInModal = datapoints[datapointIndexInModal];
 
@@ -226,14 +226,106 @@ const UnpaginatedDatapointsViewer = ({datapoints}) => {
     );
 };
 
-UnpaginatedDatapointsViewer.propTypes = {
+DatapointsPage.propTypes = {
     datapoints: PropTypes.array.isRequired
 };
 
-const PAGE_SIZE = 100;
+const DatapointsPageSelector = ({filters, datapoints, selectedDatapoints, onSelectedDatapointsChange}) => {
+    const selectAllRef = useRef();
+    const [allPagesSelected, setAllPagesSelected] = useState(false);
+    const handleSelectedDatapointsChange = (d) => {
+        setAllPagesSelected(false);
+        onSelectedDatapointsChange(new Set(d));
+    };
+    const handleSelectAllDataPoints = async () => {
+        setAllPagesSelected(true);
 
-const DatapointsViewer = ({filters}) => {
+        const allDatapoints = await baseJSONClient.post('api/datapoints/select', {
+            selectColumns: ['id'],
+            filters
+        });
+
+        onSelectedDatapointsChange(new Set(allDatapoints.map((d) => d.id)));
+    };
+
+    useEffect(() => {
+        onSelectedDatapointsChange(new Set());
+        setAllPagesSelected(false);
+    }, [filters]);
+
+    useEffect(() => {
+        if (selectAllRef.current) {
+            const somePageSelected = selectedDatapoints.size && datapoints.map((d) => d.id).some((id) => selectedDatapoints.has(id));
+            const allPageSelected = selectedDatapoints.size && datapoints.map((d) => d.id).every((id) => selectedDatapoints.has(id));
+
+            selectAllRef.current.indeterminate = somePageSelected && !allPageSelected;
+            selectAllRef.current.checked = allPageSelected;
+        }
+    }, [selectedDatapoints, datapoints]);
+
+    return (
+        <>
+            {
+                onSelectedDatapointsChange ? (
+                    <Col xs = { 12} >
+                        <div className='d-flex'>
+                            <Form.Check id='select-all' ref={selectAllRef} className='me-2' type='checkbox' label='Select all' onChange={(e) => {
+                                if (e.target.checked) {
+                                    handleSelectedDatapointsChange(datapoints.map((d) => d.id));
+                                } else {
+                                    handleSelectedDatapointsChange([]);
+                                }
+                            }} />
+                        </div>
+                    </Col >
+                ) : null}
+            {
+                selectedDatapoints.size ? (
+                    <Col xs={12}>
+                        <Async fetchData={() => baseJSONClient.post('api/datapoints/count', {filters}, {memoized: true})}
+                            renderData={(itemsCount) => (
+                                <div className='d-flex justify-content-center'>
+                                    {
+                                        allPagesSelected ? `All ${itemsCount.toLocaleString()} datapoints are selected.` :
+                                            `${selectedDatapoints.size.toLocaleString()} datapoints are selected.`
+                                    }
+                                    &nbsp;
+                                    {
+                                        allPagesSelected ? (
+                                            <a onClick={() => handleSelectedDatapointsChange([])}>Clear selection</a>
+                                        ) : itemsCount > PAGE_SIZE ? (
+                                            <a onClick={handleSelectAllDataPoints}>
+                                                Select all {Number(itemsCount).toLocaleString()} datapoints
+                                            </a>
+                                        ) : null
+                                    }
+                                </div>
+                            )}
+                            refetchOnChanged={[JSON.stringify(filters)]}
+                        />
+                    </Col>
+                ) : null
+            }
+        </>
+    );
+};
+
+DatapointsPageSelector.propTypes = {
+    filters: PropTypes.array.isRequired,
+    datapoints: PropTypes.array.isRequired,
+    selectedDatapoints: PropTypes.instanceOf(Set).isRequired,
+    onSelectedDatapointsChange: PropTypes.func
+};
+
+const PAGE_SIZE = 50;
+
+const DatapointsViewer = ({filters, onSelectedDatapointsChange}) => {
     const [offset, setOffset] = useState(0);
+    const [selectedDatapoints, setSelectedDatapoints] = useState(new Set());
+    const handleSelectedDatapointsChange = (datapoints) => {
+        setSelectedDatapoints(datapoints);
+        onSelectedDatapointsChange?.(datapoints);
+    };
 
     useEffect(() => {
         setOffset(0);
@@ -249,13 +341,24 @@ const DatapointsViewer = ({filters}) => {
                     limit: PAGE_SIZE
                 })}
                 refetchOnChanged={[JSON.stringify(filters), offset]}
-                renderData={(datapoints) => <UnpaginatedDatapointsViewer datapoints={datapoints} />}
+                renderData={(datapoints) => (
+                    <Row className='g-2'>
+                        {onSelectedDatapointsChange ? (
+                            <DatapointsPageSelector
+                                filters={filters} datapoints={datapoints}
+                                onSelectedDatapointsChange={handleSelectedDatapointsChange}
+                                selectedDatapoints={selectedDatapoints}
+                            />
+                        ) : null}
+                        <Col xs={12}>
+                            <DatapointsPage datapoints={datapoints} />
+                        </Col>
+                    </Row>
+                )}
             />
             <Async
                 spinner={false}
-                fetchData={() => baseJSONClient.post('api/datapoints/count', {
-                    filters
-                })}
+                fetchData={() => baseJSONClient.post('api/datapoints/count', {filters}, {memoized: true})}
                 refetchOnChanged={[JSON.stringify(filters)]}
             >{
                     ({data: itemsCount, loading}) => (
@@ -268,7 +371,7 @@ const DatapointsViewer = ({filters}) => {
                         Previous
                             </Button>
                             <div className='mx-3'>
-                            Showing {Number(offset + 1).toLocaleString()} to {loading ? '...' : `${Math.min(offset + PAGE_SIZE, itemsCount).toLocaleString()} of ${Number(itemsCount).toLocaleString()}`}
+                                Showing {Number(offset + 1).toLocaleString()} - {loading ? '...' : `${Math.min(offset + PAGE_SIZE, itemsCount).toLocaleString()} of ${loading ? 'many' : Number(itemsCount).toLocaleString()}`}
                             </div>
                             <Button
                                 variant='secondary'
@@ -286,7 +389,8 @@ const DatapointsViewer = ({filters}) => {
 };
 
 DatapointsViewer.propTypes = {
-    filters: PropTypes.arrayOf(PropTypes.object)
+    filters: PropTypes.arrayOf(PropTypes.object),
+    onSelectedDatapointsChange: PropTypes.func
 };
 
 export default DatapointsViewer;
