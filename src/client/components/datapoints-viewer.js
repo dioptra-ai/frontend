@@ -192,9 +192,10 @@ DatapointCard.propTypes = {
     zoomable: PropTypes.bool
 };
 
-const DatapointsPage = ({datapoints}) => {
+const DatapointsPage = ({datapoints, selectedDatapoints, onSelectedDatapointsChange}) => {
     const [datapointIndexInModal, setDatapointIndexInModal] = useState(-1);
     const datapointInModal = datapoints[datapointIndexInModal];
+    const selectedDatapointsSet = new Set(selectedDatapoints);
 
     return (
         <>
@@ -202,6 +203,22 @@ const DatapointsPage = ({datapoints}) => {
                 {datapoints.map((datapoint, i) => (
                     <Col key={datapoint.id} xs={4} md={3} lg={2}>
                         <div className='p-2 bg-white-blue border rounded' >
+                            {
+                                selectedDatapoints || onSelectedDatapointsChange ? (
+                                    <div className='d-flex'>
+                                        <Form.Check type='checkbox' checked={selectedDatapointsSet.has(datapoint.id)}
+                                            onChange={(e) => {
+                                                if (e.target.checked) {
+                                                    selectedDatapointsSet.add(datapoint.id);
+                                                } else {
+                                                    selectedDatapointsSet.delete(datapoint.id);
+                                                }
+                                                onSelectedDatapointsChange(selectedDatapointsSet);
+                                            }}
+                                        />
+                                    </div>
+                                ) : null
+                            }
                             <DatapointCard datapoint={datapoint} maxHeight={200} onClick={() => setDatapointIndexInModal(i)} />
                         </div>
                     </Col>
@@ -227,7 +244,9 @@ const DatapointsPage = ({datapoints}) => {
 };
 
 DatapointsPage.propTypes = {
-    datapoints: PropTypes.array.isRequired
+    datapoints: PropTypes.array.isRequired,
+    selectedDatapoints: PropTypes.object,
+    onSelectedDatapointsChange: PropTypes.func
 };
 
 const DatapointsPageSelector = ({filters, datapoints, selectedDatapoints, onSelectedDatapointsChange}) => {
@@ -238,21 +257,22 @@ const DatapointsPageSelector = ({filters, datapoints, selectedDatapoints, onSele
         onSelectedDatapointsChange(new Set(d));
     };
     const handleSelectAllDataPoints = async () => {
-        setAllPagesSelected(true);
-
         const allDatapoints = await baseJSONClient.post('api/datapoints/select', {
             selectColumns: ['id'],
             filters
         });
 
         onSelectedDatapointsChange(new Set(allDatapoints.map((d) => d.id)));
+        setAllPagesSelected(true);
     };
 
+    // Reset selected datapoints when filters change.
     useEffect(() => {
         onSelectedDatapointsChange(new Set());
         setAllPagesSelected(false);
     }, [filters]);
 
+    // Update select all checkbox when selected datapoints change.
     useEffect(() => {
         if (selectAllRef.current) {
             const somePageSelected = selectedDatapoints.size && datapoints.map((d) => d.id).some((id) => selectedDatapoints.has(id));
@@ -263,8 +283,16 @@ const DatapointsPageSelector = ({filters, datapoints, selectedDatapoints, onSele
         }
     }, [selectedDatapoints, datapoints]);
 
+    useEffect(() => {
+        // If the number of selected datapoints changes while all pages were selected,
+        // it can only be that some here unselected. Se all pages aren't selected anymore.
+        if (allPagesSelected) {
+            setAllPagesSelected(false);
+        }
+    }, [selectedDatapoints.size]);
+
     return (
-        <>
+        <Row className='g-2'>
             {
                 onSelectedDatapointsChange ? (
                     <Col xs = { 12} >
@@ -306,7 +334,7 @@ const DatapointsPageSelector = ({filters, datapoints, selectedDatapoints, onSele
                     </Col>
                 ) : null
             }
-        </>
+        </Row>
     );
 };
 
@@ -344,14 +372,16 @@ const DatapointsViewer = ({filters, onSelectedDatapointsChange}) => {
                 renderData={(datapoints) => (
                     <Row className='g-2'>
                         {onSelectedDatapointsChange ? (
-                            <DatapointsPageSelector
-                                filters={filters} datapoints={datapoints}
-                                onSelectedDatapointsChange={handleSelectedDatapointsChange}
-                                selectedDatapoints={selectedDatapoints}
-                            />
+                            <Col xs={12}>
+                                <DatapointsPageSelector
+                                    filters={filters} datapoints={datapoints}
+                                    onSelectedDatapointsChange={handleSelectedDatapointsChange}
+                                    selectedDatapoints={selectedDatapoints}
+                                />
+                            </Col>
                         ) : null}
                         <Col xs={12}>
-                            <DatapointsPage datapoints={datapoints} />
+                            <DatapointsPage datapoints={datapoints} selectedDatapoints={selectedDatapoints} onSelectedDatapointsChange={handleSelectedDatapointsChange} />
                         </Col>
                     </Row>
                 )}
