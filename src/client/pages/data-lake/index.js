@@ -28,9 +28,13 @@ const DataLake = ({filtersStore}) => {
                         onChange={(filters) => (filtersStore.filters = filters)}
                     />
                 </div>
-                <DatapointsViewer filters={allFilters} onSelectedDatapointsChange={(datapointIds) => {
-                    console.log(datapointIds);
-                }}/>
+                <DatapointsViewer filters={allFilters} renderActionButtons={({selectedDatapoints}, i) => selectedDatapoints.size ? (
+                    <>
+                        <a onClick={() => console.log(selectedDatapoints)} className={!selectedDatapoints.size && 'disabled'} key={i}>
+                            Add selected to dataset
+                        </a>
+                    </>
+                ) : null} />
             </div>
         </Menu>
     );

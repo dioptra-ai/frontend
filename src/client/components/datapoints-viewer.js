@@ -288,7 +288,7 @@ DatapointsPage.propTypes = {
     onSelectedDatapointsChange: PropTypes.func
 };
 
-const DatapointsPageSelector = ({filters, datapoints, selectedDatapoints, onSelectedDatapointsChange}) => {
+const DatapointsPageActions = ({filters, datapoints, selectedDatapoints, onSelectedDatapointsChange, renderActionButtons}) => {
     const selectAllRef = useRef();
     const [allPagesSelected, setAllPagesSelected] = useState(false);
     const handleSelectedDatapointsChange = (d) => {
@@ -334,42 +334,48 @@ const DatapointsPageSelector = ({filters, datapoints, selectedDatapoints, onSele
         <Row className='g-2'>
             {
                 onSelectedDatapointsChange ? (
-                    <Col xs = { 12} >
-                        <div className='d-flex'>
-                            <Form.Check id='select-all' ref={selectAllRef} className='me-2' type='checkbox' label='Select all' onChange={(e) => {
-                                if (e.target.checked) {
-                                    handleSelectedDatapointsChange(datapoints.map((d) => d.id));
-                                } else {
-                                    handleSelectedDatapointsChange([]);
-                                }
-                            }} />
-                        </div>
-                    </Col >
-                ) : null}
+                    <Col xs={12} className='d-flex'>
+                        <Form.Check id='select-all' ref={selectAllRef} className='me-2' type='checkbox' label='Select all' onChange={(e) => {
+                            if (e.target.checked) {
+                                handleSelectedDatapointsChange(datapoints.map((d) => d.id));
+                            } else {
+                                handleSelectedDatapointsChange([]);
+                            }
+                        }} />
+                    </Col>
+                ) : null
+            }
             {
                 selectedDatapoints.size ? (
-                    <Col xs={12}>
-                        <Async fetchData={() => baseJSONClient.post('api/datapoints/count', {filters}, {memoized: true})}
-                            renderData={(itemsCount) => (
-                                <div className='d-flex justify-content-center'>
-                                    {
-                                        allPagesSelected ? `All ${itemsCount.toLocaleString()} datapoints are selected.` :
-                                            `${selectedDatapoints.size.toLocaleString()} datapoint${selectedDatapoints.size > 1 ? 's are' : ' is'} selected.`
-                                    }
+                    <Col xs={12} className='d-flex justify-content-between'>
+                        <div>
+                            <Async fetchData={() => baseJSONClient.post('api/datapoints/count', {filters}, {memoized: true})}
+                                renderData={(itemsCount) => (
+                                    <div>
+                                        {
+                                            allPagesSelected ? `All ${itemsCount.toLocaleString()} datapoints are selected.` :
+                                                `${selectedDatapoints.size.toLocaleString()} datapoint${selectedDatapoints.size > 1 ? 's are' : ' is'} selected.`
+                                        }
                                     &nbsp;
-                                    {
-                                        allPagesSelected ? (
-                                            <a onClick={() => handleSelectedDatapointsChange([])}>Clear selection</a>
-                                        ) : itemsCount > PAGE_SIZE ? (
-                                            <a onClick={handleSelectAllDataPoints}>
+                                        {
+                                            allPagesSelected && onSelectedDatapointsChange ? (
+                                                <a onClick={() => handleSelectedDatapointsChange([])}>
+                                                Clear selection
+                                                </a>
+                                            ) : itemsCount > PAGE_SIZE && onSelectedDatapointsChange ? (
+                                                <a onClick={handleSelectAllDataPoints}>
                                                 Select all {Number(itemsCount).toLocaleString()} datapoints
-                                            </a>
-                                        ) : null
-                                    }
-                                </div>
-                            )}
-                            refetchOnChanged={[JSON.stringify(filters)]}
-                        />
+                                                </a>
+                                            ) : null
+                                        }
+                                    </div>
+                                )}
+                                refetchOnChanged={[JSON.stringify(filters)]}
+                            />
+                        </div>
+                        <div>
+                            {renderActionButtons?.({selectedDatapoints})}
+                        </div>
                     </Col>
                 ) : null
             }
@@ -377,25 +383,23 @@ const DatapointsPageSelector = ({filters, datapoints, selectedDatapoints, onSele
     );
 };
 
-DatapointsPageSelector.propTypes = {
+DatapointsPageActions.propTypes = {
     filters: PropTypes.array.isRequired,
     datapoints: PropTypes.array.isRequired,
     selectedDatapoints: PropTypes.instanceOf(Set).isRequired,
-    onSelectedDatapointsChange: PropTypes.func
+    onSelectedDatapointsChange: PropTypes.func,
+    renderActionButtons: PropTypes.func
 };
 
 const PAGE_SIZE = 50;
 
-const DatapointsViewer = ({filters, onSelectedDatapointsChange}) => {
+const DatapointsViewer = ({filters, renderActionButtons}) => {
     const [offset, setOffset] = useState(0);
-    const [selectedDatapoints, setSelectedDatapoints] = useState(onSelectedDatapointsChange ? new Set() : null);
-    const handleSelectedDatapointsChange = (datapoints) => {
-        setSelectedDatapoints(datapoints);
-        onSelectedDatapointsChange?.(datapoints);
-    };
+    const [selectedDatapoints, setSelectedDatapoints] = useState(renderActionButtons ? new Set() : null);
 
     useEffect(() => {
         setOffset(0);
+        setSelectedDatapoints(renderActionButtons ? new Set() : null);
     }, [filters]);
 
     return (
@@ -408,21 +412,22 @@ const DatapointsViewer = ({filters, onSelectedDatapointsChange}) => {
                     limit: PAGE_SIZE
                 })}
                 refetchOnChanged={[JSON.stringify(filters), offset]}
-                renderData={(datapoints) => (
+                renderData={(datapointsPage) => (
                     <Row className='g-2'>
-                        {onSelectedDatapointsChange ? (
+                        {renderActionButtons ? (
                             <Col xs={12}>
-                                <DatapointsPageSelector
-                                    filters={filters} datapoints={datapoints}
-                                    onSelectedDatapointsChange={handleSelectedDatapointsChange}
+                                <DatapointsPageActions
+                                    filters={filters} datapoints={datapointsPage}
+                                    onSelectedDatapointsChange={setSelectedDatapoints}
                                     selectedDatapoints={selectedDatapoints}
+                                    renderActionButtons={renderActionButtons}
                                 />
                             </Col>
                         ) : null}
                         <Col xs={12}>
-                            <DatapointsPage datapoints={datapoints}
+                            <DatapointsPage datapoints={datapointsPage}
                                 selectedDatapoints={selectedDatapoints}
-                                onSelectedDatapointsChange={handleSelectedDatapointsChange}
+                                onSelectedDatapointsChange={setSelectedDatapoints}
                             />
                         </Col>
                     </Row>
@@ -462,7 +467,7 @@ const DatapointsViewer = ({filters, onSelectedDatapointsChange}) => {
 
 DatapointsViewer.propTypes = {
     filters: PropTypes.arrayOf(PropTypes.object),
-    onSelectedDatapointsChange: PropTypes.func
+    renderActionButtons: PropTypes.func
 };
 
 export default DatapointsViewer;
