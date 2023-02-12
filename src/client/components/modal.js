@@ -47,7 +47,7 @@ ModalComponent.propTypes = {
     children: PropTypes.node,
     isOpen: PropTypes.bool,
     onClose: PropTypes.func,
-    title: PropTypes.string,
+    title: PropTypes.node,
     closeButton: PropTypes.node
 };
 

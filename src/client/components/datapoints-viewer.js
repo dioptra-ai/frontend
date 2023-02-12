@@ -185,17 +185,67 @@ const DatapointCard = ({datapoint = {}, onClick, zoomable, showDetails, maxHeigh
 };
 
 DatapointCard.propTypes = {
-    datapoint: PropTypes.object.isRequired,
+    datapoint: PropTypes.object,
     maxHeight: PropTypes.number,
     onClick: PropTypes.func,
     showDetails: PropTypes.bool,
     zoomable: PropTypes.bool
 };
 
+const DatapointSelector = ({datapoint = {}, selectedDatapoints, onSelectedDatapointsChange}) => {
+
+    return (
+        <Form.Check type='checkbox'
+            checked={selectedDatapoints.has(datapoint.id)}
+            disabled={!onSelectedDatapointsChange}
+            onChange={(e) => {
+                const newSelectedDatapoints = new Set(selectedDatapoints);
+
+                if (e.target.checked) {
+                    newSelectedDatapoints.add(datapoint.id);
+                } else {
+                    newSelectedDatapoints.delete(datapoint.id);
+                }
+                onSelectedDatapointsChange(newSelectedDatapoints);
+            }}
+        />
+    );
+};
+
+DatapointSelector.propTypes = {
+    datapoint: PropTypes.object,
+    selectedDatapoints: PropTypes.instanceOf(Set).isRequired,
+    onSelectedDatapointsChange: PropTypes.func
+};
+
 const DatapointsPage = ({datapoints, selectedDatapoints, onSelectedDatapointsChange}) => {
     const [datapointIndexInModal, setDatapointIndexInModal] = useState(-1);
     const datapointInModal = datapoints[datapointIndexInModal];
-    const selectedDatapointsSet = new Set(selectedDatapoints);
+    const handleModalprevious = () => {
+        setDatapointIndexInModal(mod(datapointIndexInModal - 1, datapoints.length));
+    };
+    const handleModalNext = () => {
+        setDatapointIndexInModal(mod(datapointIndexInModal + 1, datapoints.length));
+    };
+    const handleKeyDownForModal = (e) => {
+        if (datapointInModal) {
+            if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                handleModalprevious();
+            } else if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                handleModalNext();
+            }
+        }
+    };
+
+    useEffect(() => {
+        window.addEventListener('keydown', handleKeyDownForModal);
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDownForModal);
+        };
+    }, [datapointIndexInModal]);
 
     return (
         <>
@@ -204,19 +254,8 @@ const DatapointsPage = ({datapoints, selectedDatapoints, onSelectedDatapointsCha
                     <Col key={datapoint.id} xs={4} md={3} lg={2}>
                         <div className='p-2 bg-white-blue border rounded' >
                             {
-                                selectedDatapoints || onSelectedDatapointsChange ? (
-                                    <div className='d-flex'>
-                                        <Form.Check type='checkbox' checked={selectedDatapointsSet.has(datapoint.id)}
-                                            onChange={(e) => {
-                                                if (e.target.checked) {
-                                                    selectedDatapointsSet.add(datapoint.id);
-                                                } else {
-                                                    selectedDatapointsSet.delete(datapoint.id);
-                                                }
-                                                onSelectedDatapointsChange(selectedDatapointsSet);
-                                            }}
-                                        />
-                                    </div>
+                                selectedDatapoints ? (
+                                    <DatapointSelector datapoint={datapoint} selectedDatapoints={selectedDatapoints} onSelectedDatapointsChange={onSelectedDatapointsChange} />
                                 ) : null
                             }
                             <DatapointCard datapoint={datapoint} maxHeight={200} onClick={() => setDatapointIndexInModal(i)} />
@@ -224,17 +263,17 @@ const DatapointsPage = ({datapoints, selectedDatapoints, onSelectedDatapointsCha
                     </Col>
                 ))}
             </Row>
-            <Modal isOpen={Boolean(datapointInModal)} onClose={() => setDatapointIndexInModal(-1)}>
+            <Modal isOpen={Boolean(datapointInModal)} onClose={() => setDatapointIndexInModal(-1)}
+                title={selectedDatapoints ? (
+                    <DatapointSelector datapoint={datapointInModal} selectedDatapoints={selectedDatapoints} onSelectedDatapointsChange={onSelectedDatapointsChange} />
+                ) : null}
+            >
                 <div className='d-flex'>
-                    <div className='fs-1 p-4 bg-white-blue cursor-pointer d-flex align-items-center mx-2'
-                        onClick={() => setDatapointIndexInModal(mod(datapointIndexInModal - 1, datapoints.length))}
-                    >
+                    <div className='fs-1 p-4 bg-white-blue cursor-pointer d-flex align-items-center mx-2' onClick={handleModalprevious}>
                         <GrPrevious />
                     </div>
                     <DatapointCard datapoint={datapointInModal} maxHeight={600} zoomable showDetails/>
-                    <div className='fs-1 p-4 bg-white-blue cursor-pointer d-flex align-items-center mx-2'
-                        onClick={() => setDatapointIndexInModal(mod(datapointIndexInModal + 1, datapoints.length))}
-                    >
+                    <div className='fs-1 p-4 bg-white-blue cursor-pointer d-flex align-items-center mx-2' onClick={handleModalNext}>
                         <GrNext />
                     </div>
                 </div>
@@ -245,7 +284,7 @@ const DatapointsPage = ({datapoints, selectedDatapoints, onSelectedDatapointsCha
 
 DatapointsPage.propTypes = {
     datapoints: PropTypes.array.isRequired,
-    selectedDatapoints: PropTypes.object,
+    selectedDatapoints: PropTypes.instanceOf(Set),
     onSelectedDatapointsChange: PropTypes.func
 };
 
@@ -315,7 +354,7 @@ const DatapointsPageSelector = ({filters, datapoints, selectedDatapoints, onSele
                                 <div className='d-flex justify-content-center'>
                                     {
                                         allPagesSelected ? `All ${itemsCount.toLocaleString()} datapoints are selected.` :
-                                            `${selectedDatapoints.size.toLocaleString()} datapoints are selected.`
+                                            `${selectedDatapoints.size.toLocaleString()} datapoint${selectedDatapoints.size > 1 ? 's are' : ' is'} selected.`
                                     }
                                     &nbsp;
                                     {
@@ -349,7 +388,7 @@ const PAGE_SIZE = 50;
 
 const DatapointsViewer = ({filters, onSelectedDatapointsChange}) => {
     const [offset, setOffset] = useState(0);
-    const [selectedDatapoints, setSelectedDatapoints] = useState(new Set());
+    const [selectedDatapoints, setSelectedDatapoints] = useState(onSelectedDatapointsChange ? new Set() : null);
     const handleSelectedDatapointsChange = (datapoints) => {
         setSelectedDatapoints(datapoints);
         onSelectedDatapointsChange?.(datapoints);
@@ -381,7 +420,10 @@ const DatapointsViewer = ({filters, onSelectedDatapointsChange}) => {
                             </Col>
                         ) : null}
                         <Col xs={12}>
-                            <DatapointsPage datapoints={datapoints} selectedDatapoints={selectedDatapoints} onSelectedDatapointsChange={handleSelectedDatapointsChange} />
+                            <DatapointsPage datapoints={datapoints}
+                                selectedDatapoints={selectedDatapoints}
+                                onSelectedDatapointsChange={handleSelectedDatapointsChange}
+                            />
                         </Col>
                     </Row>
                 )}

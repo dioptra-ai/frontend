@@ -28,7 +28,9 @@ const DataLake = ({filtersStore}) => {
                         onChange={(filters) => (filtersStore.filters = filters)}
                     />
                 </div>
-                <DatapointsViewer filters={allFilters} onSelectedDatapointsChange={console.log}/>
+                <DatapointsViewer filters={allFilters} onSelectedDatapointsChange={(datapointIds) => {
+                    console.log(datapointIds);
+                }}/>
             </div>
         </Menu>
     );
