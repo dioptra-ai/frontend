@@ -13,7 +13,7 @@ import baseJSONClient from 'clients/base-json-client';
 import Menu from 'components/menu';
 import TopBar from 'pages/common/top-bar';
 
-const DatasetVersionViewer = ({versionId}) => {
+const DatasetVersionViewer = ({versionId, showDatapointActions}) => {
     const history = useHistory();
     const getHistogram = (values, getClassName) => values.reduce((acc, value) => {
         const name = getClassName(value);
@@ -91,19 +91,22 @@ const DatasetVersionViewer = ({versionId}) => {
                                     op: 'in',
                                     right: datapointIds
                                 }]}
-                                renderActionButtons={({selectedDatapoints}) => selectedDatapoints.size ? (
-                                    <a onClick={async () => {
-                                        if (confirm('Are you sure you want to remove the selected datapoints from this dataset?')) {
-                                            const datasetVersion = await baseJSONClient.get(`/api/dataset/version/${versionId}`);
+                                renderActionButtons={showDatapointActions ? ({selectedDatapoints}) => {
 
-                                            await baseJSONClient.post(`/api/dataset/${datasetVersion['dataset_uuid']}/remove`, {
-                                                datapointIds: Array.from(selectedDatapoints)
-                                            });
+                                    return selectedDatapoints.size ? (
+                                        <a onClick={async () => {
+                                            if (confirm('Are you sure you want to remove the selected datapoints from this dataset?')) {
+                                                const datasetVersion = await baseJSONClient.get(`/api/dataset/version/${versionId}`);
 
-                                            history.go(0);
-                                        }
-                                    }} style={{color: 'red'}}>Remove selected datapoints</a>
-                                ) : null}
+                                                await baseJSONClient.post(`/api/dataset/${datasetVersion['dataset_uuid']}/remove`, {
+                                                    datapointIds: Array.from(selectedDatapoints)
+                                                });
+
+                                                history.go(0);
+                                            }
+                                        }} style={{color: 'red'}}>Remove selected datapoints</a>
+                                    ) : null;
+                                } : null}
                             />
                         </div>
                     </>
@@ -114,7 +117,8 @@ const DatasetVersionViewer = ({versionId}) => {
 };
 
 DatasetVersionViewer.propTypes = {
-    versionId: PropTypes.string.isRequired
+    versionId: PropTypes.string.isRequired,
+    showDatapointActions: PropTypes.bool
 };
 
 export {DatasetVersionViewer};
@@ -138,34 +142,37 @@ const DatasetVersion = () => {
                                 renderData={(dataset) => (
                                     <>
                                         <h4 className='d-flex align-items-baseline'>
-                                            <Link to={`/dataset/${dataset['uuid']}`}>{dataset['display_name']}</Link>
-                                            &nbsp;
-                                            <div className='fs-5'>version: <span style={{fontFamily: 'monospace'}}>{version['uuid']}</span></div>
+                                            Dataset Version:&nbsp;{dataset['display_name']}
                                         </h4>
-                                        <a href='#' onClick={async () => {
-                                            const datapointIds = await baseJSONClient(`/api/dataset/version/${versionId}/datapoint-ids`);
-                                            const data = await baseJSONClient.post('/api/datapoints/select', {
-                                                selectColumns: [
-                                                    'id', 'metadata', 'type', 'text',
-                                                    'tags.name', 'tags.value',
-                                                    'groundtruths.task_type', 'groundtruths.class_name', 'groundtruths.top', 'groundtruths.left', 'groundtruths.width', 'groundtruths.height',
-                                                    'predictions.task_type', 'predictions.class_name', 'predictions.top', 'predictions.left', 'predictions.width', 'predictions.height', 'predictions.confidence', 'predictions.model_name', 'predictions.metrics'
-                                                ],
-                                                filters: [{
-                                                    left: 'datapoints.id',
-                                                    op: 'in',
-                                                    right: datapointIds
-                                                }]
-                                            });
+                                        <div>Version id: <span style={{fontFamily: 'monospace'}}>{version['uuid']}</span></div>
+                                        <div>Version commit message: <span style={{fontFamily: 'monospace'}}>{
+                                            version['committed'] ? `"${version['message']}"` : '<Uncommitted>'
+                                        }</span></div>
+                                        <div>
+                                            <Link to={`/dataset/${dataset['uuid']}`}>Go to dataset</Link>
+                                            &nbsp;|&nbsp;
+                                            <a href='#' onClick={async () => {
+                                                const datapointIds = await baseJSONClient(`/api/dataset/version/${versionId}/datapoint-ids`);
+                                                const data = await baseJSONClient.post('/api/datapoints/select', {
+                                                    selectColumns: [
+                                                        'id', 'metadata', 'type', 'text',
+                                                        'tags.name', 'tags.value',
+                                                        'groundtruths.task_type', 'groundtruths.class_name', 'groundtruths.top', 'groundtruths.left', 'groundtruths.width', 'groundtruths.height',
+                                                        'predictions.task_type', 'predictions.class_name', 'predictions.top', 'predictions.left', 'predictions.width', 'predictions.height', 'predictions.confidence', 'predictions.model_name', 'predictions.metrics'
+                                                    ],
+                                                    filters: [{
+                                                        left: 'datapoints.id',
+                                                        op: 'in',
+                                                        right: datapointIds
+                                                    }]
+                                                });
 
-                                            saveAs(new Blob([JSON.stringify(data)], {type: 'application/json;charset=utf-8'}), `${dataset['display_name']}-${new Date().toISOString()}.json`);
-                                        }}>Download as JSON</a>
+                                                saveAs(new Blob([JSON.stringify(data)], {type: 'application/json;charset=utf-8'}), `${dataset['display_name']}-${new Date().toISOString()}.json`);
+                                            }}>Download version (JSON)</a>
+                                        </div>
                                     </>
                                 )}
                             />
-                            <div>Version commit message: <span style={{fontFamily: 'monospace'}}>{
-                                version['committed'] ? `"${version['message']}"` : '<Uncommitted>'
-                            }</span></div>
                             <Async
                                 fetchData={() => baseJSONClient(`/api/dataset/${version['dataset_uuid']}/versions`)}
                                 refetchOnChanged={[version['dataset_uuid']]}
@@ -176,7 +183,7 @@ const DatasetVersion = () => {
 
                                         history.push(`/dataset/diff/${otherVersionId}/${versionId}`);
                                     }}>
-                                        <Form.Label column className='mb-0 text-nowrap'>Versions:</Form.Label>
+                                        <Form.Label column className='mb-0 text-nowrap'>Other Versions:</Form.Label>
                                         <Select name='versionId' className='ms-1 me-2' defaultValue={versionId}>
                                             {
                                                 versions.map((version) => (

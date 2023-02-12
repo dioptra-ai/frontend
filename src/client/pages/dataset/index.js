@@ -27,7 +27,7 @@ const Dataset = () => {
                 renderData={(dataset) => (
                     <>
                         <div className='bg-white-blue text-dark p-3'>
-                            <h4>{dataset['display_name']}</h4>
+                            <h4>Dataset: {dataset['display_name']}</h4>
                             <Async
                                 fetchData={() => baseJSONClient(`/api/dataset/${datasetId}/versions`)}
                                 refetchOnChanged={[datasetId, lastUpdatedOn]}
@@ -78,7 +78,7 @@ const Dataset = () => {
 
                                                 history.push(`/dataset/version/${versionId}`);
                                             }}>
-                                                View/Download
+                                                View/Download Version
                                             </Button>
                                             <Button type='submit' variant='secondary' size='s' className='text-nowrap' name='action' value='checkout'>
                                                 Checkout
@@ -134,7 +134,7 @@ const Dataset = () => {
                     renderData={(uncommittedVersion) => {
 
                         return (
-                            <DatasetVersionViewer versionId={uncommittedVersion['uuid']}/>
+                            <DatasetVersionViewer versionId={uncommittedVersion['uuid']} showDatapointActions/>
                         );
                     }}
                 />
