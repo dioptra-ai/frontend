@@ -16,7 +16,7 @@ const ModalComponent = ({onClose, isOpen = true, title = ' ', closeButton, child
                 transform: 'translate(-50%, -50%)',
                 maxHeight: '90vh',
                 maxWidth: '90vw',
-                minWidth: '20vw',
+                minWidth: '30vw',
                 paddingTop: 0
             },
             overlay: {
