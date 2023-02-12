@@ -1,6 +1,6 @@
 import express from 'express';
 import {isAuthenticated} from '../middleware/authentication.mjs';
-import Prediction from '../models/predictions.mjs';
+import Prediction from '../models/prediction.mjs';
 
 const PredictionsRouter = express.Router();
 

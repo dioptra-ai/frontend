@@ -1,6 +1,6 @@
 import express from 'express';
 import {isAuthenticated} from '../middleware/authentication.mjs';
-import Suggestions from '../models/suggestions.mjs';
+import Suggestions from '../models/suggestion.mjs';
 
 const SuggestionsRouter = express.Router();
 

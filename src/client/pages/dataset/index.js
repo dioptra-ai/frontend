@@ -97,6 +97,7 @@ const Dataset = () => {
                                 &nbsp;|&nbsp;
                             <a href='#' onClick={async () => {
                                 const datapoints = await baseJSONClient(`/api/dataset/${datasetId}/datapoints`);
+                                // TODO: fix this
                                 const data = await metricsClient('select', {
                                     select: '"uuid", "is_annotation", "timestamp", "request_id" as "datapoint_id", "model_id", "model_version", "image_metadata", "text_metadata", "video_metadata", "text", "tags", "features", "groundtruth", "prediction"',
                                     filters: [{
@@ -109,7 +110,6 @@ const Dataset = () => {
                                 }, false);
 
                                 saveAs(new Blob([data], {type: 'text/csv;charset=utf-8'}), `${dataset['display_name']}-${new Date().toISOString()}.csv`);
-
                             }}>Download as CSV</a>
                                 &nbsp;|&nbsp;
                             <a href='#' style={{color: 'red'}} onClick={async () => {
@@ -122,8 +122,7 @@ const Dataset = () => {
                                 }
                             }}>Delete Dataset</a>
                             {(isDatasetEditOpen) ? (
-                                <DatasetEditModal
-                                    isOpen
+                                <DatasetEditModal isOpen dataset={dataset}
                                     onClose={() => {
                                         setIsDatasetEditOpen(false);
                                     }}
@@ -132,12 +131,10 @@ const Dataset = () => {
                                         setLastUpdatedOn(new Date());
                                         history.push(`/dataset/${uuid}`);
                                     }}
-                                    dataset={dataset}
                                 />
                             ) : null}
                             {(isDatasetCommitOpen) ? (
-                                <DatasetCommitModal
-                                    isOpen
+                                <DatasetCommitModal isOpen datasetId={datasetId}
                                     onClose={() => {
                                         setIsDatasetCommitVersionOpen(false);
                                     }}
@@ -145,7 +142,6 @@ const Dataset = () => {
                                         setIsDatasetCommitVersionOpen(false);
                                         setLastUpdatedOn(new Date());
                                     }}
-                                    datasetId={datasetId}
                                 />
                             ) : null}
                         </div>

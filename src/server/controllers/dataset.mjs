@@ -139,6 +139,7 @@ DatasetsRouter.get('/version/:versionId', async (req, res, next) => {
     }
 });
 
+// TODO: Change this to return datapointIds.
 DatasetsRouter.get('/version/:versionId/datapoints', async (req, res, next) => {
     try {
         const datapoints = await Dataset.findDatapointsByVersion(req.user.activeOrganizationId, req.params.versionId);

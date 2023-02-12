@@ -6,14 +6,14 @@ import Form from 'react-bootstrap/Form';
 import Select from 'components/select';
 import BarGraph from 'components/bar-graph';
 import {getHexColor} from 'helpers/color-helper';
-import DataViewer from './data-viewer';
+import DatapointsViewer from 'components/datapoints-viewer';
 import Async from 'components/async';
 import baseJSONClient from 'clients/base-json-client';
 import Menu from 'components/menu';
 import TopBar from 'pages/common/top-bar';
 
-const DatasetVersionViewer = ({dataViewerProps, versionId}) => {
-    // Defining histogram function to be used in the renderData assignment
+const DatasetVersionViewer = ({versionId}) => {
+    const history = useHistory();
     const getHistogram = (values, getClassName) => values.reduce((acc, value) => {
         const name = getClassName(value);
 
@@ -27,7 +27,6 @@ const DatasetVersionViewer = ({dataViewerProps, versionId}) => {
         return acc;
     }, {});
 
-
     return (
         <Async
             fetchData={() => baseJSONClient(`/api/dataset/version/${versionId}/datapoints`)}
@@ -38,65 +37,75 @@ const DatasetVersionViewer = ({dataViewerProps, versionId}) => {
                 return (
                     <>
                         <Async
-                            fetchData={() => baseJSONClient('/api/groundtruths', {
-                                method: 'post',
-                                body: {datapointIds}
-                            })}
+                            fetchData={() => Promise.all([
+                                baseJSONClient('/api/groundtruths', {
+                                    method: 'post',
+                                    body: {datapointIds}
+                                }),
+                                baseJSONClient('/api/predictions', {
+                                    method: 'post',
+                                    body: {datapointIds}
+                                })
+                            ])}
                             refetchOnChanged={[datapointIds]}
-                            renderData={(groundtruths) => {
+                            renderData={([groundtruths, predictions]) => {
                                 const groundtruthsHist = getHistogram(groundtruths, (groundtruth) => groundtruth?.['class_name']);
-
+                                const predictionsHist = getHistogram(predictions, (prediction) => prediction?.['class_name']);
 
                                 return (
-                                    <Async
-                                        fetchData={() => baseJSONClient('/api/predictions', {
-                                            method: 'post',
-                                            body: {datapointIds}
-                                        })}
-                                        refetchOnChanged={[datapointIds]}
-                                        renderData={(predictions) => {
-                                            const predictionsHist = getHistogram(predictions, (prediction) => prediction?.['class_name']);
-
-                                            return (
-                                                <Row className='g-2 my-2'>
-                                                    {
-                                                        Object.keys(groundtruthsHist).length ? (
-                                                            <Col>
-                                                                <BarGraph
-                                                                    title='Groundtruths'
-                                                                    bars={Object.entries(groundtruthsHist).map(([name, value]) => ({
-                                                                        name,
-                                                                        value,
-                                                                        fill: getHexColor(name)
-                                                                    }))}
-                                                                    yAxisTickFormatter={(v) => Number(v).toLocaleString()}
-                                                                />
-                                                            </Col>
-                                                        ) : null
-                                                    }
-                                                    {
-                                                        Object.keys(predictionsHist).length ? (
-                                                            <Col>
-                                                                <BarGraph
-                                                                    title='Predictions'
-                                                                    bars={Object.entries(predictionsHist).map(([name, value]) => ({
-                                                                        name,
-                                                                        value,
-                                                                        fill: getHexColor(name)
-                                                                    }))}
-                                                                    yAxisTickFormatter={(v) => Number(v).toLocaleString()}
-                                                                />
-                                                            </Col>
-                                                        ) : null
-                                                    }
-                                                </Row>
-                                            );
-                                        }}
-                                    />
+                                    <Row className='g-2 my-2'>
+                                        {
+                                            Object.keys(groundtruthsHist).length ? (
+                                                <Col>
+                                                    <BarGraph
+                                                        title='Groundtruths'
+                                                        bars={Object.entries(groundtruthsHist).map(([name, value]) => ({
+                                                            name, value, fill: getHexColor(name)
+                                                        }))}
+                                                        yAxisTickFormatter={(v) => Number(v).toLocaleString()}
+                                                    />
+                                                </Col>
+                                            ) : null
+                                        }
+                                        {
+                                            Object.keys(predictionsHist).length ? (
+                                                <Col>
+                                                    <BarGraph
+                                                        title='Predictions'
+                                                        bars={Object.entries(predictionsHist).map(([name, value]) => ({
+                                                            name, value, fill: getHexColor(name)
+                                                        }))}
+                                                        yAxisTickFormatter={(v) => Number(v).toLocaleString()}
+                                                    />
+                                                </Col>
+                                            ) : null
+                                        }
+                                    </Row>
                                 );
                             }}
                         />
-                        <DataViewer datapointIds={datapointIds} {...dataViewerProps}/>
+                        <div className='mt-3'>
+                            <DatapointsViewer
+                                filters={[{
+                                    left: 'datapoints.id',
+                                    op: 'in',
+                                    right: datapointIds
+                                }]}
+                                renderActionButtons={({selectedDatapoints}) => selectedDatapoints.size ? (
+                                    <a onClick={async () => {
+                                        if (confirm('Are you sure you want to remove the selected datapoints from this dataset?')) {
+                                            const datasetVersion = await baseJSONClient.get(`/api/dataset/version/${versionId}`);
+
+                                            await baseJSONClient.post(`/api/dataset/${datasetVersion['dataset_uuid']}/remove`, {
+                                                datapointIds: Array.from(selectedDatapoints)
+                                            });
+
+                                            history.go(0);
+                                        }
+                                    }} style={{color: 'red'}}>Remove selected datapoints</a>
+                                ) : null}
+                            />
+                        </div>
                     </>
                 );
             }}
@@ -105,8 +114,7 @@ const DatasetVersionViewer = ({dataViewerProps, versionId}) => {
 };
 
 DatasetVersionViewer.propTypes = {
-    versionId: PropTypes.string.isRequired,
-    dataViewerProps: PropTypes.object
+    versionId: PropTypes.string.isRequired
 };
 
 export {DatasetVersionViewer};
@@ -125,7 +133,7 @@ const DatasetVersion = () => {
                     renderData={(version) => (
                         <>
                             <Async
-                                fetchData={() => baseJSONClient(`/api/dataset/${version['dataset_uuid']}`)}
+                                fetchData={() => baseJSONClient.get(`/api/dataset/${version['dataset_uuid']}`)}
                                 refetchOnChanged={[version['dataset_uuid']]}
                                 renderData={(dataset) => (
                                     <h4 className='d-flex align-items-baseline'>

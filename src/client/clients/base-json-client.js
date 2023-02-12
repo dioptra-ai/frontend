@@ -22,12 +22,12 @@ const jsonFetch = async (...args) => {
         throw new Error(responseBody || res.statusText);
     }
 };
-const memoizedFetch = mem(jsonFetch, {
+const getMemoizedfetch = (maxAge) => mem(jsonFetch, {
     cacheKey: JSON.stringify,
-    maxAge: 1000 * 60 * 5 // 5 minutes
+    maxAge: Number.isInteger(maxAge) ? maxAge : 1000 * 60 * 5 //
 });
 const baseJSONClient = (url, {method = 'get', body, headers = {'content-type': 'application/json'}, memoized = false, ...rest} = {}) => {
-    const fetch = memoized ? memoizedFetch : jsonFetch;
+    const fetch = memoized ? getMemoizedfetch(memoized) : jsonFetch;
 
     return fetch(url, {
         retries: 15,
@@ -39,6 +39,7 @@ const baseJSONClient = (url, {method = 'get', body, headers = {'content-type': '
     });
 };
 
+baseJSONClient.get = (url, options) => baseJSONClient(url, {method: 'get', ...options});
 baseJSONClient.post = (url, body, options) => baseJSONClient(url, {method: 'post', body, ...options});
 
 export default baseJSONClient;

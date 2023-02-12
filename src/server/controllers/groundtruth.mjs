@@ -1,6 +1,6 @@
 import express from 'express';
 import {isAuthenticated} from '../middleware/authentication.mjs';
-import Groundtruth from '../models/groundtruths.mjs';
+import Groundtruth from '../models/groundtruth.mjs';
 
 const GroundtruthsRouter = express.Router();
 

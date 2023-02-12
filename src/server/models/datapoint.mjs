@@ -23,6 +23,30 @@ export const getSafeColumn = (column) => {
         return pgFormat(`%I.%I->>${pgFormat.literal(columnPath.slice(1).join('->>'))}`, columnTable, columnPath[0]);
     }
 };
+export const getSafeFilter = (filter) => {
+    const {left, op, right} = filter;
+
+    assert(SAFE_OPS.has(op.toUpperCase()), 'Invalid filter op');
+
+    const safeLeft = getSafeColumn(left);
+    const safeOp = op.toUpperCase();
+
+    let safeRight = '';
+
+    if (Array.isArray(right)) {
+
+        if (right.length === 0) {
+
+            return 'FALSE';
+        } else {
+            safeRight = pgFormat('(%L)', right);
+        }
+    } else {
+        safeRight = pgFormat.literal(right);
+    }
+
+    return `${safeLeft} ${safeOp} ${safeRight}`;
+};
 
 class Datapoint {
     static async findAll(organizationId) {
@@ -45,14 +69,13 @@ class Datapoint {
 
     static async count({organizationId, filters = []}) {
         assert(organizationId, 'organizationId is required');
-        assert(filters.every((f) => SAFE_OPS.has(f['op'].toUpperCase())), 'Invalid filter op');
 
         const canonicalFilters = filters.concat({
             'left': 'organization_id',
             'op': '=',
             'right': organizationId
         });
-        const safeFilters = canonicalFilters.map((filter) => `${getSafeColumn(filter['left'])} ${filter['op']} ${pgFormat.literal(filter['right'])}`);
+        const safeFilters = canonicalFilters.map(getSafeFilter);
         const safeJoins = Array.from(new Set(
             canonicalFilters.map((filter) => getColumnTable(filter['left'])).filter((t) => t !== 'datapoints')
         )).map((tableName) => pgFormat('INNER JOIN %I ON datapoints.id = %I.datapoint', tableName, tableName));
@@ -68,7 +91,6 @@ class Datapoint {
         organizationId, selectColumns = [], filters = [], orderBy = 'datapoints.created_at', desc = false, limit = 1000000, offset = 0
     }) {
         assert(organizationId, 'organizationId is required');
-        assert(filters.every((f) => SAFE_OPS.has(f['op'].toUpperCase())), 'Invalid filter op');
 
         const canonicalFilters = filters.concat({
             'left': 'organization_id',
@@ -107,9 +129,7 @@ class Datapoint {
         ]
             .filter((t) => t !== 'datapoints')))
             .map((tableName) => pgFormat('INNER JOIN %I ON datapoints.id = %I.datapoint', tableName, tableName));
-        const safeWhere = canonicalFilters.map((filter) => [
-            getSafeColumn(filter['left']), filter['op'], pgFormat.literal(filter['right'])
-        ].join(' '));
+        const safeWhere = canonicalFilters.map(getSafeFilter);
         const {rows} = await postgresClient.query(`
             SELECT ${safeSelects.join(', ')}
             FROM datapoints

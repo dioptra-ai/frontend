@@ -13,9 +13,9 @@ import InfrastructureRouter from './controllers/infrastructure.mjs';
 import TasksRouter from './controllers/tasks.mjs';
 import DatasetRouter from './controllers/dataset.mjs';
 import DatapointsRouter from './controllers/datapoints.mjs';
-import GroundtruthsRouter from './controllers/groundtruths.mjs';
-import PredictionsRouter from './controllers/predictions.mjs';
-import SuggestionsRouter from './controllers/suggestions.mjs';
+import GroundtruthsRouter from './controllers/groundtruth.mjs';
+import PredictionsRouter from './controllers/prediction.mjs';
+import SuggestionsRouter from './controllers/suggestion.mjs';
 import EventsRouter from './controllers/events.mjs';
 
 const ApiRouter = express.Router();

@@ -290,25 +290,21 @@ DatapointsPage.propTypes = {
 
 const DatapointsPageActions = ({filters, datapoints, selectedDatapoints, onSelectedDatapointsChange, renderActionButtons}) => {
     const selectAllRef = useRef();
-    const [allPagesSelected, setAllPagesSelected] = useState(false);
     const handleSelectedDatapointsChange = (d) => {
-        setAllPagesSelected(false);
         onSelectedDatapointsChange(new Set(d));
     };
     const handleSelectAllDataPoints = async () => {
-        const allDatapoints = await baseJSONClient.post('api/datapoints/select', {
+        const allDatapoints = await baseJSONClient.post('/api/datapoints/select', {
             selectColumns: ['id'],
             filters
         });
 
         onSelectedDatapointsChange(new Set(allDatapoints.map((d) => d.id)));
-        setAllPagesSelected(true);
     };
 
     // Reset selected datapoints when filters change.
     useEffect(() => {
         onSelectedDatapointsChange(new Set());
-        setAllPagesSelected(false);
     }, [filters]);
 
     // Update select all checkbox when selected datapoints change.
@@ -321,14 +317,6 @@ const DatapointsPageActions = ({filters, datapoints, selectedDatapoints, onSelec
             selectAllRef.current.checked = allPageSelected;
         }
     }, [selectedDatapoints, datapoints]);
-
-    useEffect(() => {
-        // If the number of selected datapoints changes while all pages were selected,
-        // it can only be that some here unselected. Se all pages aren't selected anymore.
-        if (allPagesSelected) {
-            setAllPagesSelected(false);
-        }
-    }, [selectedDatapoints.size]);
 
     return (
         <Row className='g-2'>
@@ -349,27 +337,31 @@ const DatapointsPageActions = ({filters, datapoints, selectedDatapoints, onSelec
                 selectedDatapoints.size ? (
                     <Col xs={12} className='d-flex justify-content-between'>
                         <div>
-                            <Async fetchData={() => baseJSONClient.post('api/datapoints/count', {filters}, {memoized: true})}
-                                renderData={(itemsCount) => (
-                                    <div>
-                                        {
-                                            allPagesSelected ? `All ${itemsCount.toLocaleString()} datapoints are selected.` :
-                                                `${selectedDatapoints.size.toLocaleString()} datapoint${selectedDatapoints.size > 1 ? 's are' : ' is'} selected.`
-                                        }
-                                    &nbsp;
-                                        {
-                                            allPagesSelected && onSelectedDatapointsChange ? (
-                                                <a onClick={() => handleSelectedDatapointsChange([])}>
-                                                Clear selection
-                                                </a>
-                                            ) : itemsCount > PAGE_SIZE && onSelectedDatapointsChange ? (
-                                                <a onClick={handleSelectAllDataPoints}>
-                                                Select all {Number(itemsCount).toLocaleString()} datapoints
-                                                </a>
-                                            ) : null
-                                        }
-                                    </div>
-                                )}
+                            <Async fetchData={() => baseJSONClient.post('/api/datapoints/count', {filters}, {memoized: 1000})}
+                                renderData={(totalCount) => {
+                                    const allDatapointsSelected = totalCount === selectedDatapoints.size;
+
+                                    return (
+                                        <div>
+                                            {
+                                                allDatapointsSelected ? `All ${totalCount.toLocaleString()} datapoints are selected.` :
+                                                    `${selectedDatapoints.size.toLocaleString()} datapoint${selectedDatapoints.size > 1 ? 's are' : ' is'} selected.`
+                                            }
+                                        &nbsp;
+                                            {
+                                                allDatapointsSelected && onSelectedDatapointsChange ? (
+                                                    <a onClick={() => handleSelectedDatapointsChange([])}>
+                                                    Clear selection
+                                                    </a>
+                                                ) : onSelectedDatapointsChange ? (
+                                                    <a onClick={handleSelectAllDataPoints}>
+                                                    Select all {Number(totalCount).toLocaleString()} datapoints
+                                                    </a>
+                                                ) : null
+                                            }
+                                        </div>
+                                    );
+                                }}
                                 refetchOnChanged={[JSON.stringify(filters)]}
                             />
                         </div>
@@ -405,7 +397,7 @@ const DatapointsViewer = ({filters, renderActionButtons}) => {
     return (
         <>
             <Async
-                fetchData={() => baseJSONClient.post('api/datapoints/select', {
+                fetchData={() => baseJSONClient.post('/api/datapoints/select', {
                     selectColumns: ['id', 'metadata', 'type', 'tags.name', 'tags.value', 'predictions.class_name'],
                     filters,
                     offset,
@@ -435,10 +427,10 @@ const DatapointsViewer = ({filters, renderActionButtons}) => {
             />
             <Async
                 spinner={false}
-                fetchData={() => baseJSONClient.post('api/datapoints/count', {filters}, {memoized: true})}
+                fetchData={() => baseJSONClient.post('/api/datapoints/count', {filters}, {memoized: 1000})}
                 refetchOnChanged={[JSON.stringify(filters)]}
             >{
-                    ({data: itemsCount, loading}) => (
+                    ({data: totalCount, loading}) => (
                         <div className='d-flex justify-content-center my-5 align-items-center'>
                             <Button
                                 variant='secondary'
@@ -448,11 +440,15 @@ const DatapointsViewer = ({filters, renderActionButtons}) => {
                         Previous
                             </Button>
                             <div className='mx-3'>
-                                Showing {Number(offset + 1).toLocaleString()} - {loading ? '...' : `${Math.min(offset + PAGE_SIZE, itemsCount).toLocaleString()} of ${loading ? 'many' : Number(itemsCount).toLocaleString()}`}
+                                {
+                                    loading ? `${Number(offset + 1).toLocaleString()} - ... of many` :
+                                        totalCount === 0 ? '0 of 0' :
+                                            `${Number(offset + 1).toLocaleString()} - ${Math.min(offset + PAGE_SIZE, totalCount).toLocaleString()} of ${Number(totalCount).toLocaleString()}`
+                                }
                             </div>
                             <Button
                                 variant='secondary'
-                                disabled={!loading && offset + PAGE_SIZE >= itemsCount}
+                                disabled={!loading && offset + PAGE_SIZE >= totalCount}
                                 onClick={() => setOffset(offset + PAGE_SIZE)}
                             >
                         Next
