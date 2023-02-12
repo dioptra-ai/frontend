@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import {Button, Col, Row} from 'react-bootstrap';
+import {saveAs} from 'file-saver';
 import {Link, useHistory, useParams} from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
 
@@ -29,10 +30,9 @@ const DatasetVersionViewer = ({versionId}) => {
 
     return (
         <Async
-            fetchData={() => baseJSONClient(`/api/dataset/version/${versionId}/datapoints`)}
+            fetchData={() => baseJSONClient(`/api/dataset/version/${versionId}/datapoint-ids`)}
             refetchOnChanged={[versionId]}
-            renderData={(datapoints) => {
-                const datapointIds = datapoints.map((datapoint) => datapoint['id']);
+            renderData={(datapointIds) => {
 
                 return (
                     <>
@@ -136,11 +136,31 @@ const DatasetVersion = () => {
                                 fetchData={() => baseJSONClient.get(`/api/dataset/${version['dataset_uuid']}`)}
                                 refetchOnChanged={[version['dataset_uuid']]}
                                 renderData={(dataset) => (
-                                    <h4 className='d-flex align-items-baseline'>
-                                        <Link to={`/dataset/${dataset['uuid']}`}>{dataset['display_name']}</Link>
-                                        &nbsp;
-                                        <div className='fs-5'>version: <span style={{fontFamily: 'monospace'}}>{version['uuid']}</span></div>
-                                    </h4>
+                                    <>
+                                        <h4 className='d-flex align-items-baseline'>
+                                            <Link to={`/dataset/${dataset['uuid']}`}>{dataset['display_name']}</Link>
+                                            &nbsp;
+                                            <div className='fs-5'>version: <span style={{fontFamily: 'monospace'}}>{version['uuid']}</span></div>
+                                        </h4>
+                                        <a href='#' onClick={async () => {
+                                            const datapointIds = await baseJSONClient(`/api/dataset/version/${versionId}/datapoint-ids`);
+                                            const data = await baseJSONClient.post('/api/datapoints/select', {
+                                                selectColumns: [
+                                                    'id', 'metadata', 'type', 'text',
+                                                    'tags.name', 'tags.value',
+                                                    'groundtruths.task_type', 'groundtruths.class_name', 'groundtruths.top', 'groundtruths.left', 'groundtruths.width', 'groundtruths.height',
+                                                    'predictions.task_type', 'predictions.class_name', 'predictions.top', 'predictions.left', 'predictions.width', 'predictions.height', 'predictions.confidence', 'predictions.model_name', 'predictions.metrics'
+                                                ],
+                                                filters: [{
+                                                    left: 'datapoints.id',
+                                                    op: 'in',
+                                                    right: datapointIds
+                                                }]
+                                            });
+
+                                            saveAs(new Blob([JSON.stringify(data)], {type: 'application/json;charset=utf-8'}), `${dataset['display_name']}-${new Date().toISOString()}.json`);
+                                        }}>Download as JSON</a>
+                                    </>
                                 )}
                             />
                             <div>Version commit message: <span style={{fontFamily: 'monospace'}}>{

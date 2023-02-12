@@ -75,21 +75,15 @@ class Dataset {
         return uncommittedVersion;
     }
 
-    static async findDatapointsByVersion(organizationId, versionId) {
+    static async findDatapointIdsByVersion(organizationId, versionId) {
         const {rows} = await postgresClient.query(
-            `SELECT datapoints.* FROM dataset_to_datapoints
+            `SELECT datapoints.id FROM dataset_to_datapoints
             INNER JOIN datapoints ON dataset_to_datapoints.datapoint = datapoints.id
             WHERE dataset_to_datapoints.dataset_version = $1 AND datapoints.organization_id = $2`,
             [versionId, organizationId]
         );
 
-        return rows;
-    }
-
-    static async findDatapoints(organizationId, id) {
-        const uncommittedVersion = await Dataset.findUncommittedVersion(organizationId, id);
-
-        return Dataset.findDatapointsByVersion(organizationId, uncommittedVersion.uuid);
+        return rows.map(({id}) => id);
     }
 
     static async findVersions(organizationId, id) {

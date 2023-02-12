@@ -88,7 +88,8 @@ class Datapoint {
     }
 
     static async select({
-        organizationId, selectColumns = [], filters = [], orderBy = 'datapoints.created_at', desc = false, limit = 1000000, offset = 0
+        organizationId, selectColumns = [], filters = [],
+        orderBy = 'datapoints.created_at', desc = false, limit = 1000000, offset = 0
     }) {
         assert(organizationId, 'organizationId is required');
 
@@ -112,12 +113,20 @@ class Datapoint {
             if (tableName === 'datapoints') {
                 acc.push(...columns.map(getSafeColumn));
             } else {
+                // Aggregate distinct JSONB objects with column values of tableName.
+                // Example: JSONB_BUILD_OBJECT('class_name', predictions.class_name, 'confidence', predictions.confidence, ...)
+                // Then with ARRAY_REMOVE, remove objects that have only null values.
+                // Example: ARRAY_REMOVE(..., '{"class_name": null, "confidence": null, ...}')
+                // This would happen if for example there are no predictions for a datapoint so the LEFT JOIN joins predictions.* with all null values.
                 acc.push(
-                    pgFormat(`ARRAY_AGG(
-                        DISTINCT JSONB_BUILD_OBJECT(
-                            ${columns.map((column) => [pgFormat.literal(column.split('.').slice(1)), getSafeColumn(column)]).flat().join(', ')}
-                        )
-                    ) AS %I`, tableName)
+                    pgFormat(`
+                        ARRAY_REMOVE(
+                            ARRAY_AGG(DISTINCT 
+                                JSONB_BUILD_OBJECT(
+                                    ${columns.map((column) => [pgFormat.literal(column.split('.').slice(1)), getSafeColumn(column)]).flat().join(', ')}
+                                )
+                            ), '{${columns.map((c) => pgFormat.literal(c.split('.').slice(1).join('.')).replaceAll('\'', '')).map((cc) => `"${cc}": null`)}}'
+                        ) AS %I`, tableName)
                 );
             }
 
@@ -128,7 +137,7 @@ class Datapoint {
             ...canonicalFilters.map((filter) => getColumnTable(filter['left']))
         ]
             .filter((t) => t !== 'datapoints')))
-            .map((tableName) => pgFormat('INNER JOIN %I ON datapoints.id = %I.datapoint', tableName, tableName));
+            .map((tableName) => pgFormat('LEFT JOIN %I ON datapoints.id = %I.datapoint', tableName, tableName));
         const safeWhere = canonicalFilters.map(getSafeFilter);
         const {rows} = await postgresClient.query(`
             SELECT ${safeSelects.join(', ')}

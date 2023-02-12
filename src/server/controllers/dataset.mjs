@@ -22,16 +22,6 @@ DatasetsRouter.get('/:datasetId?', async (req, res, next) => {
     }
 });
 
-DatasetsRouter.get('/:datasetId/datapoints', async (req, res, next) => {
-    try {
-        const datapoints = await Dataset.findDatapoints(req.user.activeOrganizationId, req.params.datasetId);
-
-        res.json(datapoints);
-    } catch (e) {
-        next(e);
-    }
-});
-
 DatasetsRouter.get('/:datasetId/versions', async (req, res, next) => {
     try {
         const versions = await Dataset.findVersions(req.user.activeOrganizationId, req.params.datasetId);
@@ -139,12 +129,11 @@ DatasetsRouter.get('/version/:versionId', async (req, res, next) => {
     }
 });
 
-// TODO: Change this to return datapointIds.
-DatasetsRouter.get('/version/:versionId/datapoints', async (req, res, next) => {
+DatasetsRouter.get('/version/:versionId/datapoint-ids', async (req, res, next) => {
     try {
-        const datapoints = await Dataset.findDatapointsByVersion(req.user.activeOrganizationId, req.params.versionId);
+        const datapointIds = await Dataset.findDatapointIdsByVersion(req.user.activeOrganizationId, req.params.versionId);
 
-        res.json(datapoints);
+        res.json(datapointIds);
     } catch (e) {
         next(e);
     }

@@ -53,7 +53,7 @@ DatapointsRouter.post('/select', async (req, res, next) => {
             organizationId: req.user.activeOrganizationId,
             selectColumns: req.body.selectColumns,
             filters: req.body.filters,
-            orderBy: req.body.order_by,
+            orderBy: req.body.orderBy,
             desc: req.body.desc,
             limit: req.body.limit,
             offset: req.body.offset
