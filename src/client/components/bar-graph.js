@@ -48,6 +48,7 @@ const BarGraph = ({
     yAxisTickFormatter = (value) => Number(value).toFixed?.(2) || '-',
     className = '', onClick, children, height, ...rest
 }) => {
+    const dataMax = Math.max(...bars.map((i) => i.value));
 
     return (
         <div className={`border rounded p-3 pe-5 w-100 ${className}`}>
@@ -58,6 +59,7 @@ const BarGraph = ({
                         <BarChart data={bars} height={250} width={730} {...rest}>
                             <CartesianGrid strokeDasharray='3 3' />
                             <XAxis
+                                orientation={dataMax <= 0 ? 'top' : 'bottom'}
                                 dataKey='name'
                                 label={{
                                     value: xAxisName,

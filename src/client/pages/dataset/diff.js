@@ -5,9 +5,9 @@ import baseJSONClient from 'clients/base-json-client';
 import Async from 'components/async';
 import Menu from 'components/menu';
 import TopBar from 'pages/common/top-bar';
-import DataViewer from './data-viewer';
 import BarGraph from 'components/bar-graph';
 import {getHexColor} from 'helpers/color-helper';
+import DatapointsViewer from 'components/datapoints-viewer';
 
 const DatasetDiff = () => {
     const {versionId1, versionId2} = useParams();
@@ -45,43 +45,57 @@ const DatasetDiff = () => {
                         </Row>
                         <Async
                             fetchData={() => Promise.all([
-                                baseJSONClient('/api/datapoints/_legacy-get-groundtruth-prediction-events', {
+                                baseJSONClient('/api/groundtruths', {
                                     method: 'post',
                                     body: {datapointIds: removed}
                                 }),
-                                baseJSONClient('/api/datapoints/_legacy-get-groundtruth-prediction-events', {
+                                baseJSONClient('/api/groundtruths', {
+                                    method: 'post',
+                                    body: {datapointIds: added}
+                                }),
+                                baseJSONClient('/api/predictions', {
+                                    method: 'post',
+                                    body: {datapointIds: removed}
+                                }),
+                                baseJSONClient('/api/predictions', {
                                     method: 'post',
                                     body: {datapointIds: added}
                                 })
                             ])}
                             refetchOnChanged={[removed, added]}
-                            renderData={([removedEvents, addedEvents]) => {
-                                const getHistogram = (initialAcc, events, getClassName, getNewValue) => {
+                            renderData={([removedGroundtruths, addedGroundtruths, removedPredictions, addedPredictions]) => {
+                                const getNetHistogram = (added, removed) => {
+                                    const histogram = {};
 
-                                    return events.reduce((acc, event) => {
-                                        const className = getClassName(event);
-
-                                        if (className) {
-                                            acc[className] = getNewValue(acc[className]);
+                                    for (const a of added) {
+                                        if (a['class_name'] in histogram) {
+                                            histogram[a['class_name']] += 1;
+                                        } else {
+                                            histogram[a['class_name']] = 1;
                                         }
+                                    }
+                                    for (const r of removed) {
+                                        if (r['class_name'] in histogram) {
+                                            histogram[r['class_name']] -= 1;
+                                        } else {
+                                            histogram[r['class_name']] = -1;
+                                        }
+                                    }
 
-                                        return acc;
-                                    }, initialAcc);
+                                    return histogram;
                                 };
-                                const groundtruthAddedHistogram = getHistogram({}, addedEvents, (e) => e['groundtruth']?.['class_name'], (v) => v ? v + 1 : 1);
-                                const groundtruthHistogram = getHistogram(groundtruthAddedHistogram, removedEvents, (e) => e['groundtruth']?.['class_name'], (v) => v ? v - 1 : -1);
-                                const predictionAddedHistogram = getHistogram({}, addedEvents, (e) => e['prediction']?.['class_name'], (v) => v ? v + 1 : 1);
-                                const predictionHistogram = getHistogram(predictionAddedHistogram, removedEvents, (e) => e['prediction']?.['class_name'], (v) => v ? v - 1 : -1);
+                                const groundtruthNetHistogram = getNetHistogram(addedGroundtruths, removedGroundtruths);
+                                const predictionNetHistogram = getNetHistogram(addedPredictions, removedPredictions);
 
                                 return (
                                     <Row>
                                         {
-                                            Object.entries(groundtruthHistogram).length ? (
+                                            Object.entries(groundtruthNetHistogram).length ? (
 
                                                 <Col>
                                                     <BarGraph
                                                         title='Net Groundtruth Changes'
-                                                        bars={Object.entries(groundtruthHistogram).map(([className, count]) => ({
+                                                        bars={Object.entries(groundtruthNetHistogram).map(([className, count]) => ({
                                                             name: className,
                                                             value: count,
                                                             fill: getHexColor(className)
@@ -92,11 +106,11 @@ const DatasetDiff = () => {
                                             ) : null
                                         }
                                         {
-                                            Object.entries(predictionHistogram).length ? (
+                                            Object.entries(predictionNetHistogram).length ? (
                                                 <Col>
                                                     <BarGraph
                                                         title='Net Prediction Changes'
-                                                        bars={Object.entries(predictionHistogram).map(([className, count]) => ({
+                                                        bars={Object.entries(predictionNetHistogram).map(([className, count]) => ({
                                                             name: className,
                                                             value: count,
                                                             fill: getHexColor(className)
@@ -113,11 +127,11 @@ const DatasetDiff = () => {
                         <Row className='mt-3'>
                             <Col>
                                 <h4 style={{color: 'red'}}>Removed: {Number(removed.length).toLocaleString()}</h4>
-                                <DataViewer datapointIds={removed} />
+                                <DatapointsViewer filters={[{left: 'datapoints.id', op: 'in', right: removed}]}/>
                             </Col>
                             <Col style={{borderLeft: '1px solid #ccc'}}>
                                 <h4 style={{color: 'green'}}>Added: {Number(added.length).toLocaleString()}</h4>
-                                <DataViewer datapointIds={added} />
+                                <DatapointsViewer filters={[{left: 'datapoints.id', op: 'in', right: added}]} />
                             </Col>
                         </Row>
                     </div>
