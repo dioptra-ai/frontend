@@ -1,8 +1,10 @@
 import PropTypes from 'prop-types';
 
-import DatapointsViewerWithButtons from 'components/datapoints-viewer-with-buttons';
+import baseJSONClient from 'clients/base-json-client';
+import DatapointsViewer from 'components/datapoints-viewer';
 import useAllFilters from 'hooks/use-all-filters';
 import Menu from 'components/menu';
+import DatasetSelector from 'pages/dataset/dataset-selector';
 import TopBar from 'pages/common/top-bar';
 import FilterInput from 'pages/common/filter-input';
 import {setupComponent} from 'helpers/component-helper';
@@ -28,7 +30,14 @@ const DataLake = ({filtersStore}) => {
                         onChange={(filters) => (filtersStore.filters = filters)}
                     />
                 </div>
-                <DatapointsViewerWithButtons filters={allFilters} />
+                <DatapointsViewer filters={allFilters} renderActionButtons={({selectedDatapoints}) => selectedDatapoints.size ? (
+                    <DatasetSelector allowNew title='Add selected to dataset' onChange={async (datasetId) => {
+                        await baseJSONClient.post(`/api/dataset/${datasetId}/add`, {datapointIds: Array.from(selectedDatapoints)});
+                        history.push(`/dataset/${datasetId}`);
+                    }}>
+                        Add selected to dataset
+                    </DatasetSelector>
+                ) : null} />
             </div>
         </Menu>
     );
