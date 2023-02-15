@@ -24,7 +24,8 @@ export const sessionHandler = session({
 });
 
 export const isAuthenticated = [
-    passport.authenticate('optional-apikey'),
+    passport.authenticate('internal-port'),
+    passport.authenticate('aws-apikey'),
     (req, res, next) => {
         if (req.user) {
             next();
@@ -100,18 +101,23 @@ passport.use(new LocalStrategy({
     }
 }));
 
-passport.use(new passportHttp.BasicStrategy(
-    (username, password, done) => {
-        if (username === BASIC_USERNAME && password === BASIC_PASSWORD) {
-            return done(null, {username});
+class InternalPortStrategy extends PassportStrategy {
+    name = 'internal-port';
+
+    authenticate(req) {
+        if (req.socket.localPort === Number(process.env.INTERNAL_PORT)) {
+            this.success({
+                _id: 'internal',
+                activeOrganizationId: req.headers['x-organization-id']
+            });
         } else {
-            return done(null, false);
+            this.pass();
         }
     }
-));
+}
 
-class OptionalApiKeyStrategy extends PassportStrategy {
-    name = 'optional-apikey';
+class AWSApiKeyStrategy extends PassportStrategy {
+    name = 'aws-apikey';
 
     async authenticate(req) {
         if (req.user) {
@@ -148,4 +154,5 @@ class OptionalApiKeyStrategy extends PassportStrategy {
     }
 }
 
-passport.use(new OptionalApiKeyStrategy());
+passport.use(new InternalPortStrategy());
+passport.use(new AWSApiKeyStrategy());

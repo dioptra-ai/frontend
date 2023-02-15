@@ -2,7 +2,6 @@ environment: dev
 app:
   awsLoadBalancerSubnets:
   awsApiGatewayPlanId: 'w0ffue'
-precannedOrgId: 61723d86f1796f8b73854a2d
 postgres:
   host: dev-postgresql-cluster.cluster-c58vxsd50oik.us-east-2.rds.amazonaws.com
   user: postgres

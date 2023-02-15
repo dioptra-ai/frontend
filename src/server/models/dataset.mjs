@@ -77,9 +77,8 @@ class Dataset {
 
     static async findDatapointsByVersion(organizationId, versionId) {
         const {rows} = await postgresClient.query(
-            `SELECT datapoints.* FROM dataset_to_datapoints
-            INNER JOIN datapoints ON dataset_to_datapoints.datapoint = datapoints.id
-            WHERE dataset_to_datapoints.dataset_version = $1 AND datapoints.organization_id = $2`,
+            `SELECT datapoint AS id FROM dataset_to_datapoints
+                WHERE dataset_version = $1 AND organization_id = $2`,
             [versionId, organizationId]
         );
 
@@ -188,7 +187,6 @@ class Dataset {
 
     static remove(organizationId, id, datapointIds) {
 
-
         return postgresTransaction(async (transactionClient) => {
             // Get uncommitted version.
             const {rows: [uncommittedVersion]} = await transactionClient.query(
@@ -197,11 +195,17 @@ class Dataset {
             );
 
             // Remove datapoints from uncommitted version.
-            await transactionClient.query(
-                `DELETE FROM dataset_to_datapoints WHERE dataset_version = $1 AND datapoint IN (${datapointIds.map((datapointId, index) => `$${index + 2}`).join(', ')})`,
-                [uncommittedVersion.uuid, ...datapointIds]
-            );
+            await Promise.all(
+                Array(Math.ceil(datapointIds.length / Dataset.POSTGRES_MAX_PARAMS)).fill().map(async (_, index) => {
+                    const offset = index * Dataset.POSTGRES_MAX_PARAMS;
+                    const datapointIdsSlice = datapointIds.slice(offset, offset + Dataset.POSTGRES_MAX_PARAMS);
 
+                    await transactionClient.query(
+                        `DELETE FROM dataset_to_datapoints WHERE dataset_version = $1 AND datapoint IN (${datapointIdsSlice.map((datapointId, index) => `$${index + 2}`).join(', ')})`,
+                        [uncommittedVersion.uuid, ...datapointIdsSlice]
+                    );
+                })
+            );
             // Mark uncommitted version as dirty.
             await transactionClient.query(
                 'UPDATE dataset_versions SET dirty = true WHERE uuid = $1',

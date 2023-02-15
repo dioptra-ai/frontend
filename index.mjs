@@ -41,15 +41,17 @@ app.use(morgan(ENVIRONMENT === 'local-dev' ? 'dev' : 'combined'));
 // Register all controller routes to /api/ basepath
 app.use('/api', rateLimit, ApiRouter);
 
-// Serve frontend on all routes other than /api
+// Serve client on all routes other than /api
 app.get('*', (req, res, next) => {
     res.sendFile(resolve(basePath, 'build', 'index.html'));
 });
 
 app.use(handleErrors);
 
-const port = process.env.PORT;
+app.listen(process.env.PORT, () => {
+    console.log(`Listening on ${process.env.PORT}`);
+});
 
-app.listen(port, function () {
-    console.log(`Listening on ${port}`);
+app.listen(process.env.INTERNAL_PORT, () => {
+    console.log(`Listening on ${process.env.INTERNAL_PORT}`);
 });

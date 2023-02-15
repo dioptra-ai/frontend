@@ -18,8 +18,24 @@ spec:
   ports:
     - name: https
       port: 443
-      targetPort: 4004
+      targetPort: {{ .Values.app.port }}
   selector:
     io.kompose.service: {{ .Release.Name }}-{{ .Values.environment }}-dioptra-app
 status:
   loadBalancer: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: frontend-internal
+  name: frontend-internal
+spec:
+  type: ClusterIP
+  ports:
+    - name: {{ .Values.app.internalPort }}}
+      port: {{ .Values.app.internalPort }}}
+      targetPort: {{ .Values.app.internalPort }}}
+  selector:
+    io.kompose.service: frontend-internal
