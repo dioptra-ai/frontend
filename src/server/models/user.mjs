@@ -84,7 +84,13 @@ userSchema.virtual('apikeyOrganizationMembership').get(function () {
 }).set(function (membership) {
     this._apikeyOrganizationMembership = membership;
 });
-/* eslint-enable no-invalid-this */
+
+userSchema.virtual('requestOrganizationMembership').get(function () {
+
+    return this._requestOrganizationMembership;
+}).set(function (membership) {
+    this._requestOrganizationMembership = membership;
+});
 
 userSchema.virtual('requestOrganization').get(function () {
 

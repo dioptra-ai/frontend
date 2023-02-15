@@ -1,12 +1,9 @@
 import mongoose from 'mongoose';
 import passport from 'passport';
 import {Strategy as LocalStrategy} from 'passport-local';
-import * as passportHttp from 'passport-http';
 import PassportStrategy from 'passport-strategy';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
-
-const {BASIC_USERNAME, BASIC_PASSWORD} = process.env;
 
 const sessionStore = new MongoStore({
     mongoUrl: process.env.DB_CONNECTION_URI,
@@ -108,7 +105,7 @@ class InternalPortStrategy extends PassportStrategy {
         if (req.socket.localPort === Number(process.env.INTERNAL_PORT)) {
             this.success({
                 _id: 'internal',
-                activeOrganizationId: req.headers['x-organization-id']
+                requestOrganizationId: req.headers['x-organization-id']
             });
         } else {
             this.pass();
@@ -138,7 +135,7 @@ class AWSApiKeyStrategy extends PassportStrategy {
                         });
 
                         if (apikeyMembership) {
-                            apiKey.user.apikeyOrganizationMembership = apikeyMembership;
+                            apiKey.user.requestOrganizationMembership = apikeyMembership;
                             this.success(apiKey.user);
                         } else {
                             this.error(new Error('Could not find an organization membership for the API key'));

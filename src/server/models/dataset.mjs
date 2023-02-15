@@ -173,8 +173,9 @@ class Dataset {
 
             // Add datapoints to uncommitted version.
             await transactionClient.query(
-                `INSERT INTO dataset_to_datapoints (dataset_version, datapoint) VALUES ${datapointIds.map((_, index) => `($1, $${index + 2})`).join(', ')} ON CONFLICT DO NOTHING`,
-                [uncommittedVersion.uuid, ...datapointIds]
+                `INSERT INTO dataset_to_datapoints (dataset_version, datapoint) 
+                (SELECT * FROM UNNEST($1::uuid[], $2::uuid[])) ON CONFLICT DO NOTHING`,
+                [datapointIds.map(() => uncommittedVersion.uuid), datapointIds]
             );
 
             // Mark uncommitted version as dirty.
@@ -195,17 +196,11 @@ class Dataset {
             );
 
             // Remove datapoints from uncommitted version.
-            await Promise.all(
-                Array(Math.ceil(datapointIds.length / Dataset.POSTGRES_MAX_PARAMS)).fill().map(async (_, index) => {
-                    const offset = index * Dataset.POSTGRES_MAX_PARAMS;
-                    const datapointIdsSlice = datapointIds.slice(offset, offset + Dataset.POSTGRES_MAX_PARAMS);
-
-                    await transactionClient.query(
-                        `DELETE FROM dataset_to_datapoints WHERE dataset_version = $1 AND datapoint IN (${datapointIdsSlice.map((datapointId, index) => `$${index + 2}`).join(', ')})`,
-                        [uncommittedVersion.uuid, ...datapointIdsSlice]
-                    );
-                })
+            await transactionClient.query(
+                'DELETE FROM dataset_to_datapoints WHERE dataset_version = $1 AND datapoint IN $2',
+                [uncommittedVersion.uuid, datapointIds]
             );
+
             // Mark uncommitted version as dirty.
             await transactionClient.query(
                 'UPDATE dataset_versions SET dirty = true WHERE uuid = $1',

@@ -44,10 +44,9 @@ DatasetsRouter.get('/:datasetId/versions', async (req, res, next) => {
 
 DatasetsRouter.get('/:datasetId/datapoint-ids', async (req, res, next) => {
     try {
-        console.log(`org id: ${req.user.activeOrganizationId}`);
-        const version = await Dataset.findUncommittedVersion(req.user.activeOrganizationId, req.params.datasetId);
+        const version = await Dataset.findUncommittedVersion(req.user.requestOrganizationId, req.params.datasetId);
 
-        const datapointIds = await Dataset.findDatapointIdsByVersion(req.user.activeOrganizationId, version['uuid']);
+        const datapointIds = await Dataset.findDatapointIdsByVersion(req.user.requestOrganizationId, version['uuid']);
 
         res.json(datapointIds);
     } catch (e) {
