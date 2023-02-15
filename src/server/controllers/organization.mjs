@@ -6,6 +6,28 @@ const OrganizationRouter = express.Router();
 
 OrganizationRouter.all('*', isAuthenticated);
 
+OrganizationRouter.get('/', async (req, res, next) => {
+    try {
+        const OrganizationModel = mongoose.model('Organization');
+        const result = await OrganizationModel.findById(req.user.activeOrganizationId);
+
+        res.json(result);
+    } catch (e) {
+        next(e);
+    }
+});
+
+OrganizationRouter.post('/', async (req, res, next) => {
+    try {
+        const OrganizationModel = mongoose.model('Organization');
+        const newOrganization = await OrganizationModel.createWithMember(req.body, req.user._id);
+
+        res.json(newOrganization);
+    } catch (e) {
+        next(e);
+    }
+});
+
 OrganizationRouter.post('/rename', isAdmin, async (req, res, next) => {
     try {
         const {activeOrganizationMembership} = req.user;

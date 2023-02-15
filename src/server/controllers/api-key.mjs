@@ -43,8 +43,8 @@ ApiKeyRouter.post('/', async (req, res, next) => {
         });
 
         let awsApiKey = {
-            id: '__placeholder_api_key_id__',
-            value: '__placeholder_api_key_value__'
+            id: `__api_key_id__${Date.now()}__`,
+            value: `__api_key_value__${Date.now()}__`
         };
 
         if (AWS_ACCESS_KEY_ID) {
