@@ -55,10 +55,21 @@ userSchema.virtual('organizationMemberships', {
     foreignField: 'user'
 });
 
+/* eslint-disable no-invalid-this */
 userSchema.virtual('activeOrganizationId').get(function () {
 
-    return OVERRIDE_POSTGRES_ORG_ID || this.activeOrganizationMembership?.organization?._id; // eslint-disable-line no-invalid-this
+    return OVERRIDE_POSTGRES_ORG_ID ||
+        this.requestOrganizationMembership?.organization?._id || // Used by api key auth
+        this.activeOrganizationMembership?.organization?._id; // User by cookie session auth
 });
+
+userSchema.virtual('requestOrganizationMembership').get(function () {
+
+    return this._requestOrganizationMembership;
+}).set(function (membership) {
+    this._requestOrganizationMembership = membership;
+});
+/* eslint-enable no-invalid-this */
 
 userSchema.statics.validatePassword = async (username, password) => {
     const foundUser = await User.findOne({username}).select('+password');
