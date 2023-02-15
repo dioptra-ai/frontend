@@ -116,7 +116,17 @@ class OptionalApiKeyStrategy extends PassportStrategy {
                     const apiKey = await mongoose.model('ApiKey').findOne({awsApiKey}).populate('user');
 
                     if (apiKey) {
-                        this.success(apiKey.user);
+                        const apikeyMembership = await mongoose.model('OrganizationMembership').findOne({
+                            user: apiKey.user,
+                            organization: apiKey.organization
+                        });
+
+                        if (apikeyMembership) {
+                            apiKey.user.requestOrganizationMembership = apikeyMembership;
+                            this.success(apiKey.user);
+                        } else {
+                            this.error(new Error('Could not find an organization membership for the API key'));
+                        }
                     } else {
                         this.fail();
                     }
