@@ -47,7 +47,7 @@ const MembersTable = ({isAdmin, orgID}) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        await baseJSONClient(`/api/organization-membership/${orgID}/members`, {
+        await baseJSONClient('/api/organization/memberships', {
             method: 'post',
             body: newMemberForm
         });
@@ -72,7 +72,7 @@ const MembersTable = ({isAdmin, orgID}) => {
             </div>
             <Async
                 refetchOnChanged={[orgID, openMemberModal, refetch]}
-                fetchData={() => baseJSONClient(`/api/organization-membership/${orgID}/members`)}
+                fetchData={() => baseJSONClient('/api/organization/memberships')}
                 renderData={(members) => members.length ? (
                     <Table
                         data={members}
