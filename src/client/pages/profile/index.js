@@ -64,7 +64,7 @@ const Profile = ({userStore}) => {
         setOpenEditModal(false);
     };
     const handleOrgChange = async ({original}) => {
-        const res = await baseJSONClient('/api/user/change-membership', {
+        const res = await baseJSONClient('/api/user/active-membership', {
             method: 'PUT',
             body: {organizationMembershipID: original._id}
         });

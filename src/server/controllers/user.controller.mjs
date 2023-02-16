@@ -81,25 +81,33 @@ UserRouter.get('/my-memberships', isAuthenticated, async (req, res, next) => {
     }
 });
 
-UserRouter.put('/change-membership', isAuthenticated, async (req, res, next) => {
+UserRouter.put('/active-membership', isAuthenticated, async (req, res, next) => {
     try {
         const {organizationMembershipID} = req.body;
-        const UserModel = mongoose.model('User');
-
-        const updatedUser = await UserModel.findByIdAndUpdate(
-            req.user._id,
-            {
-                activeOrganizationMembership: organizationMembershipID
-            },
-            {new: true}
-        ).populate({
-            path: 'activeOrganizationMembership',
-            populate: {
-                path: 'organization'
-            }
+        const membership = await mongoose.model('OrganizationMembership').findOne({
+            _id: organizationMembershipID,
+            user: req.user._id
         });
 
-        res.send(updatedUser);
+        if (!membership) {
+            res.status(400);
+            throw new Error('Invalid membership ID');
+        } else {
+            const updatedUser = await mongoose.model('User').findByIdAndUpdate(
+                req.user._id,
+                {
+                    activeOrganizationMembership: organizationMembershipID
+                },
+                {new: true}
+            ).populate({
+                path: 'activeOrganizationMembership',
+                populate: {
+                    path: 'organization'
+                }
+            });
+
+            res.send(updatedUser);
+        }
     } catch (e) {
         next(e);
     }

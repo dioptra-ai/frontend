@@ -23,7 +23,7 @@ ApiKeyRouter.get('/', async (req, res, next) => {
 
         res.json(await ApiKey.find({
             user: req.user._id,
-            organization: req.user.activeOrganizationMembership.organization._id
+            organization: req.user.requestOrganizationId
         }));
     } catch (e) {
         next(e);
@@ -35,23 +35,23 @@ ApiKeyRouter.post('/', async (req, res, next) => {
     try {
         const ApiKey = mongoose.model('ApiKey');
         const dioptraUserId = req.user._id;
-        const activeOrganization = req.user.activeOrganizationMembership.organization;
-        const dioptraOrganizationId = activeOrganization._id;
+        const requestOrganization = req.user.requestOrganization;
+        const dioptraOrganizationId = requestOrganization._id;
         const dioptraApiKey = new ApiKey({
             user: req.user._id,
-            organization: req.user.activeOrganizationMembership.organization._id
+            organization: requestOrganization._id
         });
 
         let awsApiKey = {
-            id: '__placeholder_api_key_id__',
-            value: '__placeholder_api_key_value__'
+            id: `__api_key_id__${Date.now()}__`,
+            value: `__api_key_value__${Date.now()}__`
         };
 
         if (AWS_ACCESS_KEY_ID) {
 
             awsApiKey = await client.send(new CreateApiKeyCommand({
                 enabled: true,
-                name: `${dioptraApiKey._id} (as: ${req.user.username} | ${activeOrganization.name})`,
+                name: `${dioptraApiKey._id} (as: ${req.user.username} | ${requestOrganization.name})`,
                 tags: {
                     dioptraUserId, dioptraOrganizationId,
                     dioptraApiKeyId: dioptraApiKey._id

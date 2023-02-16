@@ -55,10 +55,32 @@ userSchema.virtual('organizationMemberships', {
     foreignField: 'user'
 });
 
-userSchema.virtual('activeOrganizationId').get(function () {
+/* eslint-disable no-invalid-this */
+userSchema.virtual('requestOrganizationId').get(function () {
 
-    return OVERRIDE_POSTGRES_ORG_ID || this.activeOrganizationMembership?.organization?._id; // eslint-disable-line no-invalid-this
+    return OVERRIDE_POSTGRES_ORG_ID ||
+        // This might be called before autopopulate has kicked in, so organization? is necessary.
+        this.requestOrganizationMembership.organization?._id;
 });
+
+userSchema.virtual('requestOrganization').get(function () {
+
+    return this.requestOrganizationMembership.organization;
+});
+
+userSchema.virtual('requestOrganizationMembership').get(function () {
+
+    return this.apikeyOrganizationMembership || // Used by API key auth
+        this.activeOrganizationMembership; // Used by cookie session auth
+});
+
+userSchema.virtual('apikeyOrganizationMembership').get(function () {
+
+    return this._apikeyOrganizationMembership;
+}).set(function (membership) {
+    this._apikeyOrganizationMembership = membership;
+});
+/* eslint-enable no-invalid-this */
 
 userSchema.statics.validatePassword = async (username, password) => {
     const foundUser = await User.findOne({username}).select('+password');
