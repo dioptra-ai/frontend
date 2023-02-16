@@ -19,7 +19,7 @@ SuggestionsRouter.post('/get-keys-suggestions', async (req, res, next) => {
 SuggestionsRouter.post('/get-values-suggestions', async (req, res, next) => {
     try {
         res.json(
-            await Suggestions.findValueSuggestions(req.user.activeOrganizationId, req.body.key, req.body.value)
+            await Suggestions.findValueSuggestions(req.user.requestOrganizationId, req.body.key, req.body.value)
         );
     } catch (e) {
         next(e);

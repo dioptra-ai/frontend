@@ -9,7 +9,7 @@ OrganizationRouter.all('*', isAuthenticated);
 OrganizationRouter.get('/', async (req, res, next) => {
     try {
         const OrganizationModel = mongoose.model('Organization');
-        const result = await OrganizationModel.findById(req.user.activeOrganizationId);
+        const result = await OrganizationModel.findById(req.user.requestOrganizationId);
 
         res.json(result);
     } catch (e) {
@@ -30,12 +30,11 @@ OrganizationRouter.post('/', async (req, res, next) => {
 
 OrganizationRouter.post('/rename', isAdmin, async (req, res, next) => {
     try {
-        const {activeOrganizationMembership} = req.user;
         const {name} = req.body;
         const OrganizationModel = mongoose.model('Organization');
 
         const result = await OrganizationModel.findByIdAndUpdate(
-            activeOrganizationMembership.organization._id,
+            req.user.requestOrganizationId,
             {name},
             {new: true}
         );

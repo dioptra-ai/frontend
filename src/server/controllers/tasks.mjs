@@ -11,8 +11,7 @@ TasksRouter.all('*', isAuthenticated);
 
 TasksRouter.get('*', async (req, res, next) => {
     try {
-        const {activeOrganizationMembership} = req.user;
-        const organizationId = String(activeOrganizationMembership.organization._id);
+        const organizationId = String(req.user.requestOrganizationId);
 
         await axiosClient
             .get(
@@ -31,8 +30,7 @@ TasksRouter.get('*', async (req, res, next) => {
 
 TasksRouter.put('*', async (req, res, next) => {
     try {
-        const {activeOrganizationMembership} = req.user;
-        const organizationId = String(activeOrganizationMembership.organization._id);
+        const organizationId = String(req.user.requestOrganizationId);
         const taskEnginePath = `${TASK_ENGINE_URL}${req.url}${
             req.url.includes('?') ? '&' : '?'
         }organization_id=${organizationId}`;
@@ -63,8 +61,7 @@ TasksRouter.put('*', async (req, res, next) => {
 
 TasksRouter.post('*', async (req, res, next) => {
     try {
-        const {activeOrganizationMembership} = req.user;
-        const organizationId = String(activeOrganizationMembership.organization._id);
+        const organizationId = String(req.user.requestOrganizationId);
         const taskEnginePath = `${TASK_ENGINE_URL}${req.url}?organization_id=${organizationId}`;
         const taskEngineResponse = await fetch(taskEnginePath, {
             headers: {
@@ -93,8 +90,7 @@ TasksRouter.post('*', async (req, res, next) => {
 
 TasksRouter.delete('*', async (req, res, next) => {
     try {
-        const {activeOrganizationMembership} = req.user;
-        const organizationId = String(activeOrganizationMembership.organization._id);
+        const organizationId = String(req.user.requestOrganizationId);
 
         await axiosClient
             .delete(

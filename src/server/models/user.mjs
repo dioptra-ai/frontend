@@ -56,11 +56,17 @@ userSchema.virtual('organizationMemberships', {
 });
 
 /* eslint-disable no-invalid-this */
-userSchema.virtual('activeOrganizationId').get(function () {
+userSchema.virtual('requestOrganizationId').get(function () {
 
     return OVERRIDE_POSTGRES_ORG_ID ||
         this.requestOrganizationMembership?.organization?._id || // Used by api key auth
         this.activeOrganizationMembership?.organization?._id; // User by cookie session auth
+});
+
+userSchema.virtual('requestOrganization').get(function () {
+
+    return this.requestOrganizationMembership?.organization || // Used by api key auth
+        this.activeOrganizationMembership?.organization; // User by cookie session auth
 });
 
 userSchema.virtual('requestOrganizationMembership').get(function () {

@@ -8,7 +8,7 @@ DatapointsRouter.all('*', isAuthenticated);
 
 DatapointsRouter.get('/', async (req, res, next) => {
     try {
-        const datapoints = await Datapoint.findAll(req.user.activeOrganizationId);
+        const datapoints = await Datapoint.findAll(req.user.requestOrganizationId);
 
         res.json(datapoints);
     } catch (e) {
@@ -18,7 +18,7 @@ DatapointsRouter.get('/', async (req, res, next) => {
 
 DatapointsRouter.get('/:id', async (req, res, next) => {
     try {
-        const datapoint = await Datapoint.findById(req.user.activeOrganizationId, req.params.id);
+        const datapoint = await Datapoint.findById(req.user.requestOrganizationId, req.params.id);
 
         res.json(datapoint);
     } catch (e) {
@@ -28,7 +28,7 @@ DatapointsRouter.get('/:id', async (req, res, next) => {
 
 DatapointsRouter.post('/_legacy-get-datapoint-events', async (req, res, next) => {
     try {
-        const events = await Datapoint._legacyFindDatapointEventsByDatapointIds(req.user.activeOrganizationId, req.body.datapointIds);
+        const events = await Datapoint._legacyFindDatapointEventsByDatapointIds(req.user.requestOrganizationId, req.body.datapointIds);
 
         res.json(events);
     } catch (e) {
@@ -39,7 +39,7 @@ DatapointsRouter.post('/_legacy-get-datapoint-events', async (req, res, next) =>
 
 DatapointsRouter.post('/_legacy-get-groundtruth-prediction-events', async (req, res, next) => {
     try {
-        const events = await Datapoint._legacyFindGroundtruthAndPredictionEventsByDatapointIds(req.user.activeOrganizationId, req.body.datapointIds);
+        const events = await Datapoint._legacyFindGroundtruthAndPredictionEventsByDatapointIds(req.user.requestOrganizationId, req.body.datapointIds);
 
         res.json(events);
     } catch (e) {
@@ -50,7 +50,7 @@ DatapointsRouter.post('/_legacy-get-groundtruth-prediction-events', async (req, 
 DatapointsRouter.post('/select', async (req, res, next) => {
     try {
         const datapoints = await Datapoint.select({
-            organizationId: req.user.activeOrganizationId,
+            organizationId: req.user.requestOrganizationId,
             selectColumns: req.body.selectColumns,
             filters: req.body.filters,
             orderBy: req.body.orderBy,
@@ -68,7 +68,7 @@ DatapointsRouter.post('/select', async (req, res, next) => {
 DatapointsRouter.post('/count', async (req, res, next) => {
     try {
         const count = await Datapoint.count({
-            organizationId: req.user.activeOrganizationId,
+            organizationId: req.user.requestOrganizationId,
             filters: req.body.filters
         });
 
@@ -80,7 +80,7 @@ DatapointsRouter.post('/count', async (req, res, next) => {
 
 DatapointsRouter.post('/from-event-uuids', async (req, res, next) => {
     try {
-        const datapoints = await Datapoint.upsertByEventUuids(req.user.activeOrganizationId, req.body.eventUuids);
+        const datapoints = await Datapoint.upsertByEventUuids(req.user.requestOrganizationId, req.body.eventUuids);
 
         res.json(datapoints);
     } catch (e) {
@@ -90,7 +90,7 @@ DatapointsRouter.post('/from-event-uuids', async (req, res, next) => {
 
 DatapointsRouter.delete('/:id', async (req, res, next) => {
     try {
-        const datapoint = await Datapoint.deleteById(req.user.activeOrganizationId, req.params.id);
+        const datapoint = await Datapoint.deleteById(req.user.requestOrganizationId, req.params.id);
 
         res.json(datapoint);
     } catch (e) {

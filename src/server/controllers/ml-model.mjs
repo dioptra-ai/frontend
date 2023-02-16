@@ -13,7 +13,7 @@ MlModelRouter.get('/:_id', async (req, res, next) => {
         res.json(
             await MlModel.findOne({
                 _id: req.params._id,
-                organization: req.user.activeOrganizationMembership.organization
+                organization: req.user.requestOrganization
             })
         );
     } catch (e) {
@@ -23,9 +23,9 @@ MlModelRouter.get('/:_id', async (req, res, next) => {
 
 MlModelRouter.get('/', async (req, res, next) => {
     try {
-        await req.user.activeOrganizationMembership.organization.populate('mlModels');
+        await req.user.requestOrganization.populate('mlModels');
 
-        res.json(req.user.activeOrganizationMembership.organization.mlModels);
+        res.json(req.user.requestOrganization.mlModels);
     } catch (e) {
         next(e);
     }
@@ -37,7 +37,7 @@ MlModelRouter.post('/', async (req, res, next) => {
 
         const modelData = await MlModel.create({
             ...req.body,
-            organization: req.user.activeOrganizationMembership.organization._id
+            organization: req.user.requestOrganizationId
         });
 
         res.json(modelData);
