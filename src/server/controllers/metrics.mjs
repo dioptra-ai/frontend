@@ -15,8 +15,7 @@ MetricsRouter.all('*', isAuthenticated);
 MetricsRouter.get('/integrations/:sourceName', async (req, res, next) => {
     try {
         const sourceName = req.params.sourceName;
-        const {activeOrganizationMembership} = req.user;
-        const organization_id = activeOrganizationMembership.organization._id;
+        const organization_id = req.user.requestOrganizationId;
 
         await axiosClient
             .get(
@@ -34,8 +33,7 @@ MetricsRouter.get('/integrations/:sourceName', async (req, res, next) => {
 MetricsRouter.post('/integrations/:sourceName/:queryId', async (req, res, next) => {
     try {
         const {sourceName, queryId} = req.params;
-        const {activeOrganizationMembership} = req.user;
-        const organization_id = activeOrganizationMembership.organization._id;
+        const organization_id = req.user.requestOrganizationId;
         const parameters = req.body;
 
         await axiosClient
@@ -57,8 +55,7 @@ MetricsRouter.post(
     async (req, res, next) => {
         try {
             const {sourceName, queryId} = req.params;
-            const {activeOrganizationMembership} = req.user;
-            const organization_id = activeOrganizationMembership.organization._id;
+            const organization_id = req.user.requestOrganizationId;
             const payload = req.body;
 
             await axiosClient
@@ -82,7 +79,7 @@ MetricsRouter.get('*', async (req, res, next) => {
         const originalQS = new url.URLSearchParams(originalUrl.query);
 
         originalQS.set(
-            'organization_id', req.user.activeOrganizationMembership.organization._id
+            'organization_id', req.user.requestOrganizationId
         );
 
         const newurl = {...originalUrl, search: originalQS.toString()};
@@ -117,7 +114,7 @@ MetricsRouter.post('*', async (req, res, next) => {
             body: JSON.stringify({
                 ...req.body,
                 user_id: req.user.id,
-                organization_id: req.user.activeOrganizationMembership.organization._id
+                organization_id: req.user.requestOrganizationId
             }),
             method: 'post'
         });
