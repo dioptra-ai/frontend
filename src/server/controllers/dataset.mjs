@@ -24,7 +24,7 @@ DatasetsRouter.get('/:datasetId?', async (req, res, next) => {
 
 DatasetsRouter.get('/:datasetId/datapoints', async (req, res, next) => {
     try {
-        const datapoints = await Dataset.findDatapoints(req.user.activeOrganizationId, req.params.datasetId);
+        const datapoints = await Dataset.findDatapoints(req.user.requestOrganizationId, req.params.datasetId);
 
         res.json(datapoints);
     } catch (e) {
