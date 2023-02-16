@@ -11,13 +11,10 @@ LoginRouter.post('/login', (req, res, next) => {
     } else {
 
         passport.authenticate('local', (error, user) => {
-
             if (error) {
-
                 res.status(401);
                 next(error);
             } else if (!user) {
-
                 res.status(401);
                 next(new Error('Unauthorized.'));
             } else {
@@ -28,7 +25,6 @@ LoginRouter.post('/login', (req, res, next) => {
                         res.status(401);
                         next(new Error('Unauthorized.'));
                     } else {
-
                         res.json(user.toObject());
                     }
                 });

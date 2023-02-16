@@ -59,21 +59,26 @@ userSchema.virtual('organizationMemberships', {
 userSchema.virtual('requestOrganizationId').get(function () {
 
     return OVERRIDE_POSTGRES_ORG_ID ||
-        this.requestOrganizationMembership?.organization?._id || // Used by api key auth
-        this.activeOrganizationMembership?.organization?._id; // User by cookie session auth
+        // This might be called before autopopulate has kicked in, so organization? is necessary.
+        this.requestOrganizationMembership.organization?._id;
 });
 
 userSchema.virtual('requestOrganization').get(function () {
 
-    return this.requestOrganizationMembership?.organization || // Used by api key auth
-        this.activeOrganizationMembership?.organization; // User by cookie session auth
+    return this.requestOrganizationMembership.organization;
 });
 
 userSchema.virtual('requestOrganizationMembership').get(function () {
 
-    return this._requestOrganizationMembership;
+    return this.apikeyOrganizationMembership || // Used by API key auth
+        this.activeOrganizationMembership; // Used by cookie session auth
+});
+
+userSchema.virtual('apikeyOrganizationMembership').get(function () {
+
+    return this._apikeyOrganizationMembership;
 }).set(function (membership) {
-    this._requestOrganizationMembership = membership;
+    this._apikeyOrganizationMembership = membership;
 });
 /* eslint-enable no-invalid-this */
 

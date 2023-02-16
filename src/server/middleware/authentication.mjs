@@ -54,11 +54,21 @@ export const isbasicAuthenticated = [
     }
 ];
 
-export const isAdmin = (req, res, next) => {
-    if (req.user && req?.user?.activeOrganizationMembership?.type === 'ADMIN') {
-        next();
-    } else {
-        res.sendStatus(403);
+export const isOrgAdmin = async (req, res, next) => {
+    try {
+        const OrganizationMembershipModel = mongoose.model('OrganizationMembership');
+        const membership = await OrganizationMembershipModel.findOne({
+            user: req.user._id,
+            organization: req.user.requestOrganizationId
+        });
+
+        if (membership && membership.type === 'ADMIN') {
+            next();
+        } else {
+            res.sendStatus(403);
+        }
+    } catch (e) {
+        next(e);
     }
 };
 
@@ -122,7 +132,7 @@ class OptionalApiKeyStrategy extends PassportStrategy {
                         });
 
                         if (apikeyMembership) {
-                            apiKey.user.requestOrganizationMembership = apikeyMembership;
+                            apiKey.user.apikeyOrganizationMembership = apikeyMembership;
                             this.success(apiKey.user);
                         } else {
                             this.error(new Error('Could not find an organization membership for the API key'));
