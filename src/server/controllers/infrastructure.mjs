@@ -14,7 +14,7 @@ InfrastructureRouter.all('*', isAuthenticated);
 
 InfrastructureRouter.get('/sign-s3-url-pair', async (req, res, next) => {
     try {
-        const key = `${ENVIRONMENT}/${req.user.activeOrganizationMembership.organization._id}/${uuidv4()}.ndjson`;
+        const key = `${ENVIRONMENT}/${req.user.requestOrganizationId}/${uuidv4()}.ndjson`;
         const [put, get] = await Promise.all([
             getSignedUrl(s3, new PutObjectCommand({
                 Bucket: AWS_S3_CUSTOMER_BUCKET,

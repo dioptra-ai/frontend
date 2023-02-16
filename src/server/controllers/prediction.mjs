@@ -8,7 +8,7 @@ PredictionsRouter.all('*', isAuthenticated);
 
 PredictionsRouter.post('/', async (req, res, next) => {
     try {
-        const predictions = await Prediction.findByDatapointIds(req.user.activeOrganizationId, req.body.datapointIds);
+        const predictions = await Prediction.findByDatapointIds(req.user.requestOrganizationId, req.body.datapointIds);
 
         res.json(predictions);
     } catch (e) {

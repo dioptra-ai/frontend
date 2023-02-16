@@ -8,21 +8,20 @@ IntegrationRouter.all('*', isAuthenticated);
 
 IntegrationRouter.post('/', async (req, res, next) => {
     try {
-        const {_id: createdBy, activeOrganizationMembership, id} = req.user;
+        const {_id: createdBy, id} = req.user;
         const {data, type} = req.body;
         const IntegrationModel = mongoose.model('Integrations');
 
         const integration = await IntegrationModel.findOneAndUpdate(
             {
                 type,
-                organization: activeOrganizationMembership.organization._id
-            },
-            {
+                organization: req.user.requestOrganizationId
+            }, {
                 data,
                 type,
                 createdBy,
                 user: id,
-                organization: activeOrganizationMembership.organization._id
+                organization: req.user.requestOrganizationId
             },
             {new: true, upsert: true}
         );
@@ -38,11 +37,10 @@ IntegrationRouter.post('/', async (req, res, next) => {
 
 IntegrationRouter.get('/:type', async (req, res, next) => {
     try {
-        const {activeOrganizationMembership} = req.user;
         const IntegrationModel = mongoose.model('Integrations');
 
         const integration = await IntegrationModel.findOne({
-            organization: activeOrganizationMembership.organization._id,
+            organization: req.user.requestOrganizationId,
             type: req.params.type
         });
 

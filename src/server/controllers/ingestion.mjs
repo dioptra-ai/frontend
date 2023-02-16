@@ -12,7 +12,7 @@ IngestionRouter.post('*', async (req, res, next) => {
     try {
         const firstKey = await mongoose.model('ApiKey').findOne({
             user: req.user._id,
-            organization: req.user.activeOrganizationMembership.organization._id
+            organization: req.user.requestOrganizationId
         });
 
         if (!firstKey) {
