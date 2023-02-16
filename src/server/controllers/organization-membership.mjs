@@ -12,18 +12,17 @@ OrganizationMembershipRouter.delete('/:organizationMembershipID', isOrgAdmin,
             const {organizationMembershipID} = req.params;
             const UserModel = mongoose.model('User');
             const OrganizationMembershipModel = mongoose.model('OrganizationMembership');
-            const {user} = await OrganizationMembershipModel.findById(
-                organizationMembershipID
-            );
+            const {user} = await OrganizationMembershipModel.findOne({
+                _id: organizationMembershipID,
+                organization: req.user.requestOrganizationId
+            });
 
             if (req.user._id === user?._id) {
 
                 throw new Error('Operation not permitted. Please contact an admin of your organization.');
             }
 
-            await OrganizationMembershipModel.findByIdAndDelete(
-                organizationMembershipID
-            );
+            await OrganizationMembershipModel.findByIdAndDelete(organizationMembershipID);
 
             const allMemberships = await OrganizationMembershipModel.find({user});
 

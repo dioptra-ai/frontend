@@ -81,7 +81,7 @@ UserRouter.get('/my-memberships', isAuthenticated, async (req, res, next) => {
     }
 });
 
-UserRouter.put('/change-membership', isAuthenticated, async (req, res, next) => {
+UserRouter.put('/active-membership', isAuthenticated, async (req, res, next) => {
     try {
         const {organizationMembershipID} = req.body;
         const membership = await mongoose.model('OrganizationMembership').findOne({
