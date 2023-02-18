@@ -88,7 +88,7 @@ userSchema.virtual('apikeyOrganizationMembership').get(function () {
 
 userSchema.virtual('requestOrganization').get(function () {
 
-    return this.requestOrganizationMembership.organization;
+    return this.requestOrganizationMembership?.organization;
 });
 
 userSchema.virtual('requestOrganizationMembership').get(function () {

@@ -2,10 +2,7 @@
 version: 2.1
 
 jobs:
-  run-integration-tests:
-    parameters:
-      environment:
-        type: string
+  match-job-filters:
     docker:
       - image: cimg/base:2021.10
     steps:
@@ -92,14 +89,16 @@ workflows:
           - << pipeline.git.branch >>
           - dev
     jobs:
-      - match-job-filters:
-          name: match-job-filters
+      - start-workflow:
           filters:
             branches:
-              ignore: /(dev|prod)/
+              ignore: /dev/
             tags:
               ignore: /.*/
       - node/test:
+          requires:
+            - match-job-filters
+          name: lint
           version: 16.4.0 # This to be kept in sync with Dockerfile
           run-command: lint
       - build-and-push-image:
@@ -107,14 +106,18 @@ workflows:
             - node/test
           context:
             - aws-creds
-
-  'Build and Deploy to Dev':
-    when:
-      equal:
-        - << pipeline.git.branch >>
-        - dev
+  'Deploy to Dev':
     jobs:
+      - match-job-filters:
+          name: match-job-filters
+          filters:
+            branches:
+              only:
+                - dev
       - node/test:
+          requires:
+            - match-job-filters
+          name: lint
           version: 16.4.0 # This to be kept in sync with Dockerfile
           run-command: lint
       - build-and-push-image:
@@ -139,14 +142,16 @@ workflows:
 
   'Release to Prod':
     jobs:
-      - match-job-filters:
-          name: match-job-filters
+      - start-workflow:
           filters:
             tags:
               only: /^v.*/
             branches:
               ignore: /.*/
       - tag-image:
+          requires:
+            - match-job-filters
+          name: tag-prod-image
           context:
             - aws-creds
           filters: &prod-filters
@@ -163,11 +168,37 @@ workflows:
           image-tag: <<pipeline.git.tag>>
           context:
             - aws-creds
-          filters: *prod-filters
-      - run-integration-tests:
+
+  'Dangerously Deploy to Prod':
+    jobs:
+      - match-job-filters:
+          name: match-job-filters
+          filters:
+            branches:
+              only:
+                - prod
+      - node/test:
           requires:
-            - helm-upgrade
-          environment: prod
+            - match-job-filters
+          name: lint
+          version: 16.4.0 # This to be kept in sync with Dockerfile
+          run-command: lint
+      - build-and-push-image:
+          requires:
+            - lint
+          name: build-prod-image
           context:
-            - circleci-creds
-          filters: *prod-filters
+            - aws-creds
+      - helm-upgrade:
+          requires:
+            - build-prod-image
+          name: upgrade-prod
+          cluster-name: dioptra-prod-eks
+          helm-values: ./helm/values.prod.yaml
+          image-tag: <<pipeline.git.tag>>
+          context:
+            - aws-creds
+          filters:
+            branches:
+              only:
+                - prod
