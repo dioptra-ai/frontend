@@ -60,12 +60,12 @@ userSchema.virtual('requestOrganizationId').get(function () {
 
     return OVERRIDE_POSTGRES_ORG_ID ||
         // This might be called before autopopulate has kicked in, so organization? is necessary.
-        this.requestOrganizationMembership.organization?._id;
+        this.requestOrganizationMembership?.organization?._id;
 });
 
 userSchema.virtual('requestOrganization').get(function () {
 
-    return this.requestOrganizationMembership.organization;
+    return this.requestOrganizationMembership?.organization;
 });
 
 userSchema.virtual('requestOrganizationMembership').get(function () {
