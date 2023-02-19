@@ -168,37 +168,11 @@ workflows:
           image-tag: <<pipeline.git.tag>>
           context:
             - aws-creds
-
-  'Dangerously Deploy to Prod':
-    jobs:
-      - match-job-filters:
-          name: match-job-filters
-          filters:
-            branches:
-              only:
-                - prod
-      - node/test:
+          filters: *prod-filters
+      - run-integration-tests:
           requires:
-            - match-job-filters
-          name: lint
-          version: 16.4.0 # This to be kept in sync with Dockerfile
-          run-command: lint
-      - build-and-push-image:
-          requires:
-            - lint
-          name: build-prod-image
+            - helm-upgrade
+          environment: dev
           context:
-            - aws-creds
-      - helm-upgrade:
-          requires:
-            - build-prod-image
-          name: upgrade-prod
-          cluster-name: dioptra-prod-eks
-          helm-values: ./helm/values.prod.yaml
-          image-tag: <<pipeline.git.tag>>
-          context:
-            - aws-creds
-          filters:
-            branches:
-              only:
-                - prod
+            - circleci-creds
+          filters: *prod-filters
