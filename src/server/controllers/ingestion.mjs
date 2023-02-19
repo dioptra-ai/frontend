@@ -33,9 +33,10 @@ IngestionRouter.get('/executions', async (req, res, next) => {
     try {
         const paginator = paginateListExecutions({
             client: new SFNClient({region: 'us-east-2'}),
-            pageSize: 100
+            pageSize: 1000
         }, {
-            stateMachineArn: AWS_INGESTION_STATE_MACHINE_ARN
+            stateMachineArn: AWS_INGESTION_STATE_MACHINE_ARN,
+            maxResults: 1000
         });
         const executions = [];
 
