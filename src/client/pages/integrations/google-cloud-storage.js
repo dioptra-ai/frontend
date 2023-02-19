@@ -12,12 +12,12 @@ export default function GoogleCloudStorageIntegration() {
                 <LoadingForm
                     autoComplete='off'
                     className='w-100'
-                    onSubmit={async (e, google_cloud_storage) => {
+                    onSubmit={(e, google_cloud_storage) => {
                         e.preventDefault();
 
                         const payload = {data: {google_cloud_storage}, type: 'GOOGLE_CLOUD_STORAGE'};
 
-                        await baseJSONClient('/api/integration', {
+                        return baseJSONClient('/api/integration', {
                             method: 'POST',
                             body: payload
                         });
@@ -38,7 +38,7 @@ export default function GoogleCloudStorageIntegration() {
                     </Form.Group>
                     <div className='w-100 mt-3'>
                         <LoadingForm.Error />
-                        <LoadingForm.Success />
+                        <LoadingForm.Success>{({message}) => message}</LoadingForm.Success>
                         <LoadingForm.Button
                             className='text-white bold-text w-100'
                             type='submit'

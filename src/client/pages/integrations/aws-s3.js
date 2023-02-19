@@ -12,12 +12,12 @@ export default function AwsS3Integration() {
                 <LoadingForm
                     autoComplete='new-api-key'
                     className='w-100'
-                    onSubmit={async (e, aws) => {
+                    onSubmit={(e, aws) => {
                         e.preventDefault();
 
                         const payload = {data: {aws}, type: 'AWS_S3'};
 
-                        await baseJSONClient('/api/integration', {
+                        return baseJSONClient('/api/integration', {
                             method: 'POST',
                             body: payload
                         });
@@ -56,7 +56,7 @@ export default function AwsS3Integration() {
                     </Form.Group>
                     <div className='w-100 mt-3'>
                         <LoadingForm.Error />
-                        <LoadingForm.Success />
+                        <LoadingForm.Success>{({message}) => message}</LoadingForm.Success>
                         <LoadingForm.Button
                             className='text-white bold-text w-100'
                             type='submit'

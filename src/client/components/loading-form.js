@@ -12,11 +12,11 @@ export const LoadingFormContext = React.createContext();
 const LoadingForm = ({onSubmit, ...rest}) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [success, setSuccess] = useState(false);
+    const [success, setSuccess] = useState('');
     const handleSubmit = async (e) => {
         try {
             setError(null);
-            setSuccess(false);
+            setSuccess('');
             setLoading(true);
             const values = Array.from(e.target.elements).reduce((acc, el) => {
                 if (el.name) {
@@ -25,12 +25,12 @@ const LoadingForm = ({onSubmit, ...rest}) => {
 
                 return acc;
             }, {});
+            const success = await onSubmit(e, values);
 
-            await onSubmit(e, values);
-            setSuccess(true);
+            setSuccess(success);
             setError(null);
         } catch (err) {
-            setSuccess(false);
+            setSuccess('');
             setError(err);
         } finally {
             setLoading(false);
@@ -90,7 +90,7 @@ const LoadingFormSuccess = ({children, ...rest}) => (
     <LoadingFormContext.Consumer>
         {({success}) => success ? (
             <Alert variant='success' {...rest} className='overflow-hidden'>
-                {children || 'Success!'}
+                {children?.(success) || success || 'Success'}
             </Alert>
         ) : null}
     </LoadingFormContext.Consumer>
