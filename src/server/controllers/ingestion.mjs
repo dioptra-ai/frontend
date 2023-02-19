@@ -40,6 +40,9 @@ IngestionRouter.get('/executions', async (req, res, next) => {
         const executions = [];
 
         for await (const page of paginator) {
+            if (executions.length >= 100) {
+                break;
+            }
             executions.push(...page.executions.filter((e) => e['name'].startsWith(`ingestion-${req.user.requestOrganizationId}`)));
         }
 
