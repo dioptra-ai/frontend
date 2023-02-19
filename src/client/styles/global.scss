@@ -36,7 +36,7 @@
     }
 }
 
-a, a:not([href]):not([class]) {
+a, a[class] {
     color: theme-color('primary');
     text-decoration: none;
     cursor: pointer;

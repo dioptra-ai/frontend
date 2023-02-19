@@ -201,9 +201,9 @@ const Profile = ({userStore}) => {
                     />
                 </div>
                 <div className='text-secondary border-muted my-3 pt-3 w-100'>
-                    <p className='text-dark bold-text fs-3'>Api Keys</p>
+                    <p className='text-dark bold-text fs-3'>Your api keys</p>
                     <div className='text-secondary'>
-                        Dioptra uses the <b>x-api-key</b> HTTP header to authenticate its APIs.
+                        Use the <b>x-api-key</b> HTTP header to authenticate API calls with api keys.
                     </div>
                     <hr/>
                     {apiKeys.map((apiKey) => (

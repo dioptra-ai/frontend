@@ -3,6 +3,7 @@ import React, {useState} from 'react';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import BarLoader from 'react-spinners/BarLoader';
+import Alert from 'react-bootstrap/Alert';
 
 import Error from 'components/error';
 
@@ -11,12 +12,25 @@ export const LoadingFormContext = React.createContext();
 const LoadingForm = ({onSubmit, ...rest}) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [success, setSuccess] = useState(false);
     const handleSubmit = async (e) => {
         try {
             setError(null);
+            setSuccess(false);
             setLoading(true);
-            await onSubmit(e);
+            const values = Array.from(e.target.elements).reduce((acc, el) => {
+                if (el.name) {
+                    acc[el.name] = el.value;
+                }
+
+                return acc;
+            }, {});
+
+            await onSubmit(e, values);
+            setSuccess(true);
+            setError(null);
         } catch (err) {
+            setSuccess(false);
             setError(err);
         } finally {
             setLoading(false);
@@ -24,7 +38,7 @@ const LoadingForm = ({onSubmit, ...rest}) => {
     };
 
     return (
-        <LoadingFormContext.Provider value={{loading, error}}>
+        <LoadingFormContext.Provider value={{loading, error, success}}>
             <Form onSubmit={handleSubmit} {...rest}/>
         </LoadingFormContext.Provider>
     );
@@ -71,3 +85,19 @@ const LoadingFormError = () => (
 );
 
 LoadingForm.Error = LoadingFormError;
+
+const LoadingFormSuccess = ({children, ...rest}) => (
+    <LoadingFormContext.Consumer>
+        {({success}) => success ? (
+            <Alert variant='success' {...rest} className='overflow-hidden'>
+                {children || 'Success!'}
+            </Alert>
+        ) : null}
+    </LoadingFormContext.Consumer>
+);
+
+LoadingFormSuccess.propTypes = {
+    children: PropTypes.node
+};
+
+LoadingForm.Success = LoadingFormSuccess;

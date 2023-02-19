@@ -149,3 +149,8 @@ workflows:
           image-tag: <<pipeline.git.tag>>
           context:
             - aws-creds
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
