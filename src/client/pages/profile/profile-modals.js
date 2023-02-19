@@ -76,7 +76,7 @@ const OrganizationSwitchModel = ({
     const isActiveMembership = ({original}) => original?._id === currentMembership;
 
     return (
-        <ModalComponent isOpen={isOpen} title='Change Your Organization' onClose={() => handleClose(false)}>
+        <ModalComponent isOpen={isOpen} title='Switch Organizations' onClose={() => handleClose(false)}>
             <Container
                 className='model fs-6 d-flex align-items-center justify-content-center switch-modal'
                 fluid

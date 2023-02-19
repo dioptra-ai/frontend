@@ -136,11 +136,6 @@ workflows:
             - start-workflow
           context:
             - aws-creds
-          filters:
-            tags:
-              only: /^v.*/
-            branches:
-              ignore: /.*/
       - helm-upgrade:
           requires:
             - tag-image

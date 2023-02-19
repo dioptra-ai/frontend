@@ -1,59 +1,54 @@
-import {useFormik} from 'formik';
-import PropTypes from 'prop-types';
-import React, {useEffect} from 'react';
-import {Button, Form} from 'react-bootstrap';
+import {Form} from 'react-bootstrap';
 
-export default function GoogleCloudStorageIntegration({formData, handleSubmit}) {
-    const formik = useFormik({
-        initialValues: {
-            credentials_json: ''
-        },
-        onSubmit: (values) => {
-            handleSubmit({google_cloud_storage: values});
-        }
-    });
+import LoadingForm from 'components/loading-form';
+import baseJSONClient from 'clients/base-json-client';
+import Async from 'components/async';
 
-    useEffect(() => {
-        if (formData && formData.google_cloud_storage) {
-            formik.resetForm();
-            formik.setValues(formData.google_cloud_storage);
-        }
-    }, [formData]);
+export default function GoogleCloudStorageIntegration() {
 
     return (
-        <>
-            <Form
-                autoComplete='off'
-                className='w-100'
-                onSubmit={formik.handleSubmit}
-            >
-                <Form.Group className='mb-3'>
-                    <Form.Label className='mt-3'>
-                        Google application credentials JSON:
-                    </Form.Label>
-                    <Form.Control
-                        className='bg-light'
-                        name='credentials_json'
-                        onChange={formik.handleChange}
-                        type='text'
-                        as='textarea'
-                        rows={20}
-                        value={formik.values.credentials_json}
-                    />
-                </Form.Group>
-                <Button
-                    className='w-100 text-white bold-text mt-3'
-                    type='submit'
-                    variant='primary'
+        <Async fetchData={() => baseJSONClient('/api/integration/GOOGLE_CLOUD_STORAGE')}
+            renderData={({data}) => (
+                <LoadingForm
+                    autoComplete='off'
+                    className='w-100'
+                    onSubmit={async (e, google_cloud_storage) => {
+                        e.preventDefault();
+
+                        const payload = {data: {google_cloud_storage}, type: 'GOOGLE_CLOUD_STORAGE'};
+
+                        await baseJSONClient('/api/integration', {
+                            method: 'POST',
+                            body: payload
+                        });
+                    }}
                 >
-                    Save
-                </Button>
-            </Form>
-        </>
+                    <Form.Group className='mb-3'>
+                        <Form.Label className='mt-3'>
+                            Google application credentials JSON:
+                        </Form.Label>
+                        <Form.Control
+                            className='bg-light'
+                            name='credentials_json'
+                            type='text'
+                            as='textarea'
+                            rows={20}
+                            defaultValue={data?.['google_cloud_storage']?.['credentials_json'] || ''}
+                        />
+                    </Form.Group>
+                    <div className='w-100 mt-3'>
+                        <LoadingForm.Error />
+                        <LoadingForm.Success />
+                        <LoadingForm.Button
+                            className='text-white bold-text w-100'
+                            type='submit'
+                            variant='primary'
+                        >
+                            Save
+                        </LoadingForm.Button>
+                    </div>
+                </LoadingForm>
+            )}
+        />
     );
 }
-
-GoogleCloudStorageIntegration.propTypes = {
-    formData: PropTypes.object,
-    handleSubmit: PropTypes.func
-};
