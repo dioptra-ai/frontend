@@ -41,7 +41,7 @@ const Settings = () => {
                                         <Route path='/settings/logs' exact>
                                             <Async
                                                 key='/settings/logs'
-                                                fetchData={() => baseJSONClient('/api/ingestion/executions')}
+                                                fetchData={() => baseJSONClient('/api/ingestion/executions', {memoized: true})}
                                                 renderData={(executions) => (
                                                     <>
                                                         <h4>Ingestion Executions</h4>
