@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import {useRowSelect, useSortBy, useTable} from 'react-table';
 import {TiArrowSortedDown, TiArrowSortedUp, TiArrowUnsorted} from 'react-icons/ti';
 import Form from 'react-bootstrap/Form';
+import BootstrapTable from 'react-bootstrap/Table';
 
 const Table = ({columns, data, onSelectedRowsChange, getRowProps}) => {
     const {
@@ -50,7 +51,7 @@ const Table = ({columns, data, onSelectedRowsChange, getRowProps}) => {
     }, [JSON.stringify(selectedRows)]);
 
     return (
-        <table {...getTableProps()} className='table fs-6'>
+        <BootstrapTable {...getTableProps()} className='table fs-6'>
             <thead className='text-secondary border-top border-bottom'>
                 {headerGroups.map((headerGroup, i) => (
                     <tr key={i} {...headerGroup.getHeaderGroupProps()}>
@@ -96,7 +97,7 @@ const Table = ({columns, data, onSelectedRowsChange, getRowProps}) => {
                     );
                 })}
             </tbody>
-        </table>
+        </BootstrapTable>
     );
 };
 

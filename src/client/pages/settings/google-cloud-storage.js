@@ -23,6 +23,7 @@ export default function GoogleCloudStorageIntegration() {
                         });
                     }}
                 >
+                    <h4>Google Cloud Storage</h4>
                     <Form.Group className='mb-3'>
                         <Form.Label className='mt-3'>
                             Google application credentials JSON:

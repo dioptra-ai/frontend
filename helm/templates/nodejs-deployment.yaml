@@ -76,6 +76,8 @@ spec:
               value: "dioptra"
             - name: BASIC_PASSWORD
               value: "!37iM6jJIU8C"
+            - name: AWS_INGESTION_STATE_MACHINE_ARN
+              value: {{ .Values.awsIngestionStateMachineArn }}
           image: "641017132295.dkr.ecr.us-east-2.amazonaws.com/frontend:{{ .Values.tag }}"
           name: dioptra-frontend
           ports:

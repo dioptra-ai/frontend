@@ -23,6 +23,7 @@ export default function AwsS3Integration() {
                         });
                     }}
                 >
+                    <h4>AWS</h4>
                     <Form.Group className='mb-3'>
                         <Form.Label className='mt-3'>Access Key ID</Form.Label>
                         <InputGroup>

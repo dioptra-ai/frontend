@@ -23,7 +23,7 @@ const getDatapointMaxDepth = (datapoint) => {
     } else return 0;
 };
 
-const RenderDatapoint = ({datapoint, parentIndex = 0}) => {
+export const RenderDatapoint = ({datapoint, parentIndex = 0}) => {
     const [collapsed, setCollapsed] = React.useState(true);
 
     if (React.isValidElement(datapoint)) {

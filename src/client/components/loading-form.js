@@ -97,7 +97,7 @@ const LoadingFormSuccess = ({children, ...rest}) => (
 );
 
 LoadingFormSuccess.propTypes = {
-    children: PropTypes.node
+    children: PropTypes.func
 };
 
 LoadingForm.Success = LoadingFormSuccess;
