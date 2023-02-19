@@ -10,10 +10,10 @@ const IngestionRouter = express.Router();
 
 IngestionRouter.all('*', isAuthenticated);
 
-IngestionRouter.get('/executions/:executionArn', async (req, res, next) => {
+IngestionRouter.get('/executions/:id', async (req, res, next) => {
     try {
         const execution = await new SFNClient({region: 'us-east-2'}).send(new DescribeExecutionCommand({
-            executionArn: req.params.executionArn
+            executionArn: Buffer.from(req.params.id, 'base64').toString('ascii')
         }));
 
         res.json({
@@ -44,7 +44,18 @@ IngestionRouter.get('/executions', async (req, res, next) => {
             if (executions.length >= 100) {
                 break;
             }
-            executions.push(...page.executions.filter((e) => e['name'].startsWith(`ingestion-${req.user.requestOrganizationId}`)));
+            for (const e of page.executions) {
+                if (executions.length >= 100) {
+                    break;
+                } else if (e['name'].startsWith(`ingestion-${req.user.requestOrganizationId}`)) {
+                    executions.push({
+                        id: Buffer.from(e['executionArn']).toString('base64'),
+                        status: e['status'],
+                        startDate: e['startDate'],
+                        stopDate: e['stopDate']
+                    });
+                }
+            }
         }
 
         res.json(executions);

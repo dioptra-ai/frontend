@@ -34,17 +34,17 @@ const Settings = () => {
                                 </Col>
                             </Row>
                         </Tab>
-                        <Tab eventKey='/settings/logs' title='Ingestion'>
+                        <Tab eventKey='/settings/uploads' title='Uploads'>
                             <Row>
                                 <Col className='p-3'>
                                     <Switch>
-                                        <Route path='/settings/logs' exact>
+                                        <Route path='/settings/uploads' exact>
                                             <Async
-                                                key='/settings/logs'
+                                                key='/settings/uploads'
                                                 fetchData={() => baseJSONClient('/api/ingestion/executions', {memoized: true})}
                                                 renderData={(executions) => (
                                                     <>
-                                                        <h4>Ingestion Executions</h4>
+                                                        <h4>Recent Uploads</h4>
                                                         <Table striped bordered hover>
                                                             <thead>
                                                                 <tr>
@@ -58,7 +58,7 @@ const Settings = () => {
                                                             <tbody>
                                                                 {executions?.map((execution) => {
                                                                     return (
-                                                                        <tr key={execution.executionArn}>
+                                                                        <tr key={execution.id}>
                                                                             <td>{new Date(execution.startDate).toLocaleString()}</td>
                                                                             <td>{new Date(execution.stopDate).toLocaleString()}</td>
                                                                             <td>{
@@ -66,7 +66,7 @@ const Settings = () => {
                                                                                     Number((new Date(execution.stopDate) - new Date(execution.startDate)) / 1000).toLocaleString() : '-'} seconds</td>
                                                                             <td>{execution.status}</td>
                                                                             <td>
-                                                                                <Link to={`/settings/logs/${execution.executionArn}`}>
+                                                                                <Link to={`/settings/uploads/${execution.id}`}>
                                                                                 View
                                                                                 </Link>
                                                                             </td>
@@ -79,14 +79,14 @@ const Settings = () => {
                                                 )}
                                             />
                                         </Route>
-                                        <Route path='/settings/logs/:executionArn'>
+                                        <Route path='/settings/uploads/:id'>
                                             {({match}) => (
                                                 <Async
-                                                    key={match.params.executionArn}
-                                                    fetchData={() => baseJSONClient(`/api/ingestion/executions/${match.params.executionArn}`)}
+                                                    key={match.params.id}
+                                                    fetchData={() => baseJSONClient(`/api/ingestion/executions/${match.params.id}`)}
                                                     renderData={(execution) => (
                                                         <>
-                                                            <h4>Ingestion Execution Details</h4>
+                                                            <h4>Upload Details</h4>
                                                             <RenderDatapoint datapoint={execution} />
                                                         </>
                                                     )}
