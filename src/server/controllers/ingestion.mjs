@@ -13,12 +13,12 @@ IngestionRouter.all('*', isAuthenticated);
 IngestionRouter.get('/executions/:id', async (req, res, next) => {
     try {
         const execution = await new SFNClient({region: 'us-east-2'}).send(new DescribeExecutionCommand({
-            executionArn: Buffer.from(req.params.id, 'base64').toString('ascii')
+            executionArn: Buffer.from(req.params.id, 'base64').toString('utf-8')
         }));
 
         res.json({
             input: JSON.parse(execution.input),
-            output: JSON.parse(execution.output),
+            output: execution.output ? JSON.parse(execution.output) : undefined,
             status: execution.status,
             startDate: execution.startDate,
             stopDate: execution.stopDate,
