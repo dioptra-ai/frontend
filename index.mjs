@@ -1,4 +1,5 @@
 import express from 'express';
+import morgan from 'morgan';
 import compression from 'compression';
 import passport from 'passport';
 import {dirname, join, resolve} from 'path';
@@ -9,6 +10,8 @@ import rateLimit from './src/server/middleware/rate-limit.mjs';
 import ApiRouter from './src/server/api-router.mjs';
 import jsonError from './src/server/middleware/json-error.mjs';
 import './src/server/models/index.mjs';
+
+const { ENVIRONMENT } = process.env;
 
 const app = express();
 const basePath = dirname(fileURLToPath(import.meta.url));
@@ -28,6 +31,8 @@ app.use(express.static(join(basePath, 'build')));
 
 app.use(express.json({limit: '50mb'}));
 app.use(express.urlencoded({extended: true}));
+
+app.use(morgan(ENVIRONMENT === 'local-dev' ? 'dev' : 'combined'));
 
 // Register all controller routes to /api/ basepath
 app.use('/api', rateLimit, ApiRouter);
