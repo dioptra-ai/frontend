@@ -106,7 +106,7 @@ const Cart = ({userStore}) => {
                                                         await baseJSONClient(`/api/dataset/${dataset.uuid}/add`, {
                                                             method: 'POST',
                                                             body: {
-                                                                datapointIds: datapoints.map((datapoint) => datapoint['uuid'])
+                                                                datapointIds: datapoints.map((datapoint) => datapoint['id'])
                                                             }
                                                         });
 
