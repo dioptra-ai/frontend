@@ -118,7 +118,6 @@ const MinersList = () => {
                                                                 className='fs-3 cursor-pointer'
                                                                 onClick={async (e) => {
                                                                     e.stopPropagation();
-
                                                                     await baseJSONClient.post('/api/tasks/miners/delete', {
                                                                         miner_id: miner._id
                                                                     });
