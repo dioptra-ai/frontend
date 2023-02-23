@@ -1,4 +1,7 @@
 import {useHistory} from 'react-router-dom';
+import {Button, OverlayTrigger, Tooltip} from 'react-bootstrap';
+import {AiOutlineDelete} from 'react-icons/ai';
+
 import Menu from 'components/menu';
 import Async from 'components/async';
 import MinerModal from 'components/miner-modal';
@@ -6,16 +9,17 @@ import moment from 'moment';
 import TopBar from 'pages/common/top-bar';
 import {useState} from 'react';
 import Table from 'react-bootstrap/Table';
-import {Button} from 'react-bootstrap';
 import baseJSONClient from 'clients/base-json-client';
 
 const MinersList = () => {
     const [isMinerModalOpen, setIsMinerModalOpen] = useState(false);
+    const [lastUpdated, setLastUpdated] = useState(0);
     const history = useHistory();
 
     return (
         <Async
             fetchData={() => baseJSONClient('/api/tasks/miners')}
+            refetchOnChanged={[lastUpdated]}
             renderData={(miners) => (
                 <Menu>
                     <TopBar hideTimePicker />
@@ -57,6 +61,24 @@ const MinersList = () => {
                                                 <td>{miner.task?.['status']}</td>
                                                 <td>
                                                     {miner.task?.['result_size'] || 0}{' '}
+                                                </td>
+                                                <td>
+                                                    <div className='d-flex justify-content-center align-content-center align-items-center'>
+                                                        <OverlayTrigger overlay={
+                                                            <Tooltip>Delete this miner</Tooltip>
+                                                        }>
+                                                            <AiOutlineDelete
+                                                                className='fs-3 cursor-pointer'
+                                                                onClick={async (e) => {
+                                                                    e.stopPropagation();
+                                                                    await baseJSONClient.post('/api/tasks/miners/delete', {
+                                                                        miner_id: miner._id
+                                                                    });
+                                                                    setLastUpdated(Date.now());
+                                                                }}
+                                                            />
+                                                        </OverlayTrigger>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         );
