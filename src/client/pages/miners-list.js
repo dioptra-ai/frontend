@@ -118,10 +118,13 @@ const MinersList = () => {
                                                                 className='fs-3 cursor-pointer'
                                                                 onClick={async (e) => {
                                                                     e.stopPropagation();
-                                                                    await baseJSONClient.post('/api/tasks/miners/delete', {
-                                                                        miner_id: miner._id
-                                                                    });
-                                                                    setLastUpdated(Date.now());
+
+                                                                    if (confirm('Do you really want to delete this miner?\nThis action cannot be undone.')) {
+                                                                        await baseJSONClient.post('/api/tasks/miners/delete', {
+                                                                            miner_id: miner._id
+                                                                        });
+                                                                        setLastUpdated(Date.now());
+                                                                    }
                                                                 }}
                                                             />
                                                         </OverlayTrigger>
