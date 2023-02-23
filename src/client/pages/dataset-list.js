@@ -1,7 +1,8 @@
 import {useState} from 'react';
 import Table from 'react-bootstrap/Table';
-import {Button} from 'react-bootstrap';
 import {useHistory} from 'react-router-dom';
+import {Button, OverlayTrigger, Tooltip} from 'react-bootstrap';
+import {AiOutlineDelete} from 'react-icons/ai';
 
 import Async from 'components/async';
 import TopBar from 'pages/common/top-bar';
@@ -11,6 +12,7 @@ import {DatasetEditModal} from 'components/dataset-modal';
 
 const DatasetList = () => {
     const history = useHistory();
+    const [lastUpdated, setLastUpdated] = useState(0);
     const [isDatasetModalOpen, setIsDatasetModalOpen] = useState(false);
 
     return (
@@ -29,6 +31,7 @@ const DatasetList = () => {
                 </div>
                 <Async
                     fetchData={() => baseJSONClient('/api/dataset')}
+                    refetchOnChanged={[lastUpdated]}
                     renderData={(datasets) => (
                         <Table className='models-table mt-3'>
                             <thead className='align-middle text-secondary'>
@@ -42,6 +45,26 @@ const DatasetList = () => {
                                     <tr className='cursor-pointer' key={i} onClick={() => history.push(`/dataset/${uuid}`)}>
                                         <td>{display_name}</td>
                                         <td>{new Date(created_at).toLocaleString()}</td>
+                                        <td>
+                                            <div className='d-flex justify-content-center align-content-center align-items-center'>
+                                                <OverlayTrigger overlay={
+                                                    <Tooltip>Delete this dataset</Tooltip>
+                                                }>
+                                                    <AiOutlineDelete
+                                                        className='fs-3 cursor-pointer'
+                                                        onClick={async (e) => {
+                                                            e.stopPropagation();
+
+                                                            if (confirm('Do you really want to delete this dataset?\nThis action cannot be undone.')) {
+
+                                                                await baseJSONClient.delete(`/api/dataset/${uuid}`);
+                                                                setLastUpdated(Date.now());
+                                                            }
+                                                        }}
+                                                    />
+                                                </OverlayTrigger>
+                                            </div>
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>

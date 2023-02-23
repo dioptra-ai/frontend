@@ -163,7 +163,10 @@ const _ModelRow = ({model, idx, color, filtersStore, onDeleteModelClick}) => {
                             className='fs-3 cursor-pointer'
                             onClick={(e) => {
                                 e.stopPropagation();
-                                onDeleteModelClick();
+
+                                if (confirm('Do you really want to delete this model?\nThis action cannot be undone.')) {
+                                    onDeleteModelClick();
+                                }
                             }}
                         />
                     </OverlayTrigger>

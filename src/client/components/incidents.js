@@ -189,7 +189,7 @@ const Incidents = ({incidents, onPageChange}) => {
                 onClose={() => setResolveIncidentModal(false)}
             >
                 <p className='text-dark bold-text fs-4 my-5 px-3 text-center'>
-                    Are you sure you want to resolve selected incidents?
+                    Do you really want to resolve selected incidents?
                 </p>
                 <div className='d-flex justify-content-center border-top pt-4'>
                     <Button

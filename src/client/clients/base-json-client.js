@@ -40,6 +40,7 @@ const baseJSONClient = (url, {method = 'get', body, headers = {'content-type': '
 };
 
 baseJSONClient.get = (url, options) => baseJSONClient(url, {...options, method: 'get'});
+baseJSONClient.delete = (url, options) => baseJSONClient(url, {...options, method: 'delete'});
 baseJSONClient.post = (url, body, options) => baseJSONClient(url, {...options, body, method: 'post'});
 
 export default baseJSONClient;

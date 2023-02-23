@@ -142,7 +142,7 @@ const Cart = ({userStore}) => {
                                     <Button
                                         className='w-100 my-3' variant='secondary'
                                         onClick={() => {
-                                            if (confirm('Are you sure you want to empty your data cart?')) {
+                                            if (confirm('Do you really want to empty your data cart?')) {
                                                 removeDatapointsFromCart();
                                             }
                                         }}

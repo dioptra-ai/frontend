@@ -51,7 +51,7 @@ const Dataset = () => {
                                                 return;
                                             }
 
-                                            if (dirty && !confirm('You have uncommitted changes in your dataset. Checking out will discard these changes.\nAre you sure you want to continue?')) {
+                                            if (dirty && !confirm('You have uncommitted changes in your dataset. Checking out will discard these changes.\nDo you really want to continue?')) {
                                                 return;
                                             }
 
@@ -113,14 +113,14 @@ const Dataset = () => {
                             }}>Download as CSV</a>
                                 &nbsp;|&nbsp;
                             <a href='#' style={{color: 'red'}} onClick={async () => {
-                                if (window.confirm('Are you sure you want to delete this dataset?\nThis action cannot be undone.')) {
+                                if (window.confirm('Do you really want to delete this dataset?\nThis action cannot be undone.')) {
                                     await baseJSONClient(`/api/dataset/${datasetId}`, {
                                         method: 'DELETE'
                                     });
 
                                     history.push('/dataset');
                                 }
-                            }}>Delete Dataset</a>
+                            }}>Delete</a>
                             {(isDatasetEditOpen) ? (
                                 <DatasetEditModal
                                     isOpen
@@ -159,7 +159,7 @@ const Dataset = () => {
                     renderData={(uncommittedVersion) => {
                         const handleRemoveSelectedEvents = async (e) => {
                             e.preventDefault();
-                            if (window.confirm('Are you sure you want to remove the selected datapoints?')) {
+                            if (window.confirm('Do you really want to remove the selected datapoints?')) {
                                 const datapoints = await baseJSONClient(`/api/dataset/${datasetId}/datapoints`);
 
                                 await baseJSONClient(`/api/dataset/${datasetId}/remove`, {

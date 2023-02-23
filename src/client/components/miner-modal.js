@@ -57,7 +57,7 @@ const MinerModal = ({isOpen, onClose, onMinerSaved, defaultMiner = {}}) => {
             } : {})
         };
 
-        if (!payload['_id'] || window.confirm('Changing the miner configuration will delete the current results. Are you sure you want to continue?')) {
+        if (!payload['_id'] || window.confirm('Changing the miner configuration will delete the current results. Do you really want to continue?')) {
             const miner = await baseJSONClient('/api/tasks/miners', {
                 method: 'post',
                 body: payload

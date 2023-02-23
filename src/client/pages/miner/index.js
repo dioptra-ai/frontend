@@ -47,7 +47,7 @@ const Miner = () => {
     };
     const handleDeleteMiner = async () => {
 
-        if (window.confirm('Are you sure you want to delete this miner?')) {
+        if (window.confirm('Do you really want to delete this miner?\nThis action cannot be undone.')) {
             await baseJSONClient('/api/tasks/miners/delete', {
                 method: 'post',
                 body: {miner_id: minerId}
