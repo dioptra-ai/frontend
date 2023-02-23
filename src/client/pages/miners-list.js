@@ -1,5 +1,5 @@
 import {useHistory} from 'react-router-dom';
-import {Button, OverlayTrigger, Tooltip} from 'react-bootstrap';
+import {Button, Form, OverlayTrigger, Tooltip} from 'react-bootstrap';
 import {AiOutlineDelete} from 'react-icons/ai';
 
 import Menu from 'components/menu';
@@ -15,6 +15,7 @@ const MinersList = () => {
     const [isMinerModalOpen, setIsMinerModalOpen] = useState(false);
     const [lastUpdated, setLastUpdated] = useState(0);
     const history = useHistory();
+    const [selectedRows, setSelectedRows] = useState(new Set());
 
     return (
         <Async
@@ -34,9 +35,40 @@ const MinersList = () => {
                                 CREATE NEW MINER
                             </Button>
                         </div>
+                        <div className='d-flex align-items-center mt-4'>
+                            <Form.Check
+                                id='select-all'
+                                type='checkbox'
+                                label='Select all'
+                                checked={selectedRows.size === miners.length}
+                                onChange={(e) => {
+                                    if (e.target.checked) {
+                                        setSelectedRows(new Set(miners.map(({_id}) => _id)));
+                                    } else {
+                                        setSelectedRows(new Set());
+                                    }
+                                }}
+                            />
+                            {
+                                <a className='ms-2' style={{color: 'red'}} onClick={
+                                    async () => {
+                                        if (selectedRows.size && confirm(`Do you really want to delete ${selectedRows.size} miners?\nThis action cannot be undone.`)) {
+
+                                            await Promise.all(Array.from(selectedRows).map((id) => baseJSONClient.post('/api/tasks/miners/delete', {
+                                                miner_id: id
+                                            })));
+                                            setLastUpdated(Date.now());
+                                        }
+                                    }
+                                }>
+                                    Delete Selected
+                                </a>
+                            }
+                        </div>
                         <Table className='models-table mt-3'>
                             <thead className='align-middle text-secondary'>
                                 <tr className='border-0 border-bottom border-mercury'>
+                                    <th></th>
                                     <th className='text-secondary'>Name</th>
                                     <th className='text-secondary'>Created At</th>
                                     <th className='text-secondary'>Strategy</th>
@@ -50,6 +82,21 @@ const MinersList = () => {
                                     miners.map((miner) => {
                                         return (
                                             <tr key={miner._id} className='cursor-pointer' onClick={() => history.push(`/miners/${miner._id}`)}>
+                                                <td className='text-center'>
+                                                    <Form.Check type='checkbox' checked={selectedRows.has(miner._id)}
+                                                        onClick={(e) => e.stopPropagation()}
+                                                        onChange={(e) => {
+                                                            const newSelectedRows = new Set(selectedRows);
+
+                                                            if (e.target.checked) {
+                                                                newSelectedRows.add(miner._id);
+                                                            } else {
+                                                                newSelectedRows.delete(miner._id);
+                                                            }
+                                                            setSelectedRows(newSelectedRows);
+                                                        }}
+                                                    />
+                                                </td>
                                                 <td>{miner.display_name}</td>
                                                 <td>
                                                     {new Date(moment(miner.created_at)).toLocaleString()}
