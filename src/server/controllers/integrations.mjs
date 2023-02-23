@@ -11,8 +11,9 @@ IntegrationRouter.post('/', async (req, res, next) => {
         const {_id: createdBy, id} = req.user;
         const {data, type} = req.body;
         const IntegrationModel = mongoose.model('Integrations');
+        const identity = await IntegrationModel.getIdentity(data, type);
 
-        const integration = await IntegrationModel.findOneAndUpdate(
+        await IntegrationModel.findOneAndUpdate(
             {
                 type,
                 organization: req.user.requestOrganizationId
@@ -25,7 +26,6 @@ IntegrationRouter.post('/', async (req, res, next) => {
             },
             {new: true, upsert: true}
         );
-        const identity = await integration.getIdentity();
 
         res.json({
             message: `Successfully updated credentials for identity ${identity}`

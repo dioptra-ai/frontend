@@ -29,29 +29,29 @@ const integrationSchema = new Schema({
         required: true
     }
 }, {
-    timestamps: true,
-    methods: {
-        async getIdentity() {
-            switch (this.type) {
-            case 'AWS_S3': {
-                const stsResponse = await new STSClient({
-                    credentials: {
-                        accessKeyId: this.data['aws']['aws_access_key_id'],
-                        secretAccessKey: this.data['aws']['aws_secret_access_key'],
-                        sessionToken: this.data['aws']['aws_session_token']
-                    }
-                }).send(new GetCallerIdentityCommand({}));
-
-                return stsResponse['Arn'];
-            }
-            case 'GOOGLE_CLOUD_STORAGE':
-                // TODO: Implement this
-                return 'GCS';
-            default:
-                return Promise.reject(new Error('Unknown integration type'));
-            }
-        }
-    }
+    timestamps: true
 });
+
+integrationSchema.statics.getIdentity = async function (data, type) {
+    switch (type) {
+    case 'AWS_S3': {
+        const stsResponse = await new STSClient({
+            credentials: {
+                accessKeyId: data['aws']['aws_access_key_id'],
+                secretAccessKey: data['aws']['aws_secret_access_key'],
+                sessionToken: data['aws']['aws_session_token']
+            },
+            region: 'us-east-2'
+        }).send(new GetCallerIdentityCommand({}));
+
+        return stsResponse['Arn'];
+    }
+    case 'GOOGLE_CLOUD_STORAGE':
+        // TODO: Implement this
+        return 'GCS';
+    default:
+        return Promise.reject(new Error('Unknown integration type'));
+    }
+};
 
 export default mongoose.model('Integrations', integrationSchema);
