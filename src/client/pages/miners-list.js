@@ -40,7 +40,7 @@ const MinersList = () => {
                                 id='select-all'
                                 type='checkbox'
                                 label='Select all'
-                                checked={selectedRows.size === miners.length}
+                                checked={miners.length && (selectedRows.size === miners.length)}
                                 onChange={(e) => {
                                     if (e.target.checked) {
                                         setSelectedRows(new Set(miners.map(({_id}) => _id)));
@@ -119,12 +119,10 @@ const MinersList = () => {
                                                                 onClick={async (e) => {
                                                                     e.stopPropagation();
 
-                                                                    if (confirm('Do you really want to delete this miner?\nThis action cannot be undone.')) {
-                                                                        await baseJSONClient.post('/api/tasks/miners/delete', {
-                                                                            miner_id: miner._id
-                                                                        });
-                                                                        setLastUpdated(Date.now());
-                                                                    }
+                                                                    await baseJSONClient.post('/api/tasks/miners/delete', {
+                                                                        miner_id: miner._id
+                                                                    });
+                                                                    setLastUpdated(Date.now());
                                                                 }}
                                                             />
                                                         </OverlayTrigger>

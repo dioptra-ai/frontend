@@ -101,11 +101,8 @@ const DatasetList = () => {
                                                             onClick={async (e) => {
                                                                 e.stopPropagation();
 
-                                                                if (confirm('Do you really want to delete this dataset?\nThis action cannot be undone.')) {
-
-                                                                    await baseJSONClient.delete(`/api/dataset/${uuid}`);
-                                                                    setLastUpdated(Date.now());
-                                                                }
+                                                                await baseJSONClient.delete(`/api/dataset/${uuid}`);
+                                                                setLastUpdated(Date.now());
                                                             }}
                                                         />
                                                     </OverlayTrigger>

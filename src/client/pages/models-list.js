@@ -154,7 +154,6 @@ const _ModelRow = ({model, idx, color, filtersStore, onDeleteModelClick}) => {
                 </div>
             </td>
             <td className='fs-6 py-2 align-middle'>
-
                 <div className='d-flex justify-content-center align-content-center align-items-center'>
                     <OverlayTrigger overlay={
                         <Tooltip>Delete this model</Tooltip>
@@ -164,9 +163,7 @@ const _ModelRow = ({model, idx, color, filtersStore, onDeleteModelClick}) => {
                             onClick={(e) => {
                                 e.stopPropagation();
 
-                                if (confirm('Do you really want to delete this model?\nThis action cannot be undone.')) {
-                                    onDeleteModelClick();
-                                }
+                                onDeleteModelClick();
                             }}
                         />
                     </OverlayTrigger>
