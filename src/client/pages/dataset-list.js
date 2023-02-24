@@ -50,7 +50,7 @@ const DatasetList = () => {
                                     }}
                                 />
                                 {
-                                    <a className='ms-2' style={{color: 'red'}} onClick={
+                                    <a className='ms-2' onClick={
                                         async () => {
                                             if (selectedRows.size && confirm(`Do you really want to delete ${selectedRows.size} datasets?\nThis action cannot be undone.`)) {
                                                 await Promise.all(Array.from(selectedRows).map((uuid) => baseJSONClient.delete(`/api/dataset/${uuid}`)));
@@ -58,7 +58,7 @@ const DatasetList = () => {
                                             }
                                         }
                                     }>
-                                        Delete Selected
+                                        <AiOutlineDelete className='fs-3 cursor-pointer' />
                                     </a>
                                 }
                             </div>

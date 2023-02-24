@@ -50,7 +50,7 @@ const MinersList = () => {
                                 }}
                             />
                             {
-                                <a className='ms-2' style={{color: 'red'}} onClick={
+                                <a className='ms-2' onClick={
                                     async () => {
                                         if (selectedRows.size && confirm(`Do you really want to delete ${selectedRows.size} miners?\nThis action cannot be undone.`)) {
 
@@ -61,7 +61,7 @@ const MinersList = () => {
                                         }
                                     }
                                 }>
-                                    Delete Selected
+                                    <AiOutlineDelete className='fs-3 cursor-pointer'/>
                                 </a>
                             }
                         </div>
