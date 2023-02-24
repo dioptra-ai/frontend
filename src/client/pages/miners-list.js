@@ -119,12 +119,10 @@ const MinersList = () => {
                                                                 onClick={async (e) => {
                                                                     e.stopPropagation();
 
-                                                                    if (confirm('Do you really want to delete this miner?\nThis action cannot be undone.')) {
-                                                                        await baseJSONClient.post('/api/tasks/miners/delete', {
-                                                                            miner_id: miner._id
-                                                                        });
-                                                                        setLastUpdated(Date.now());
-                                                                    }
+                                                                    await baseJSONClient.post('/api/tasks/miners/delete', {
+                                                                        miner_id: miner._id
+                                                                    });
+                                                                    setLastUpdated(Date.now());
                                                                 }}
                                                             />
                                                         </OverlayTrigger>
