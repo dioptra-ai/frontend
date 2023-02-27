@@ -9,7 +9,7 @@ metadata:
     io.kompose.service: {{ .Release.Name }}-{{ .Values.environment }}-dioptra-app
   name: {{ .Release.Name }}-{{ .Values.environment }}-dioptra-app
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       io.kompose.service: {{ .Release.Name }}-{{ .Values.environment }}-dioptra-app
