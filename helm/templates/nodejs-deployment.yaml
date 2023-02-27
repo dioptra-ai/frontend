@@ -28,6 +28,8 @@ spec:
         - env:
             - name: ENVIRONMENT
               value: "{{ .Values.environment }}"
+            - name: COMMIT_REF
+              value: "{{ .Values.imageTag }}"
             - name: COOKIE_SECRET
               value: "12345"
             - name: COOKIE_DURATION_HRS
@@ -78,7 +80,7 @@ spec:
               value: "!37iM6jJIU8C"
             - name: AWS_INGESTION_STATE_MACHINE_ARN
               value: {{ .Values.awsIngestionStateMachineArn }}
-          image: "641017132295.dkr.ecr.us-east-2.amazonaws.com/frontend:{{ .Values.tag }}"
+          image: "641017132295.dkr.ecr.us-east-2.amazonaws.com/frontend:{{ .Values.imageTag }}"
           name: dioptra-frontend
           ports:
             - containerPort: 4004

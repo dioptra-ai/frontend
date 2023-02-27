@@ -4,6 +4,7 @@ import * as Tracing from '@sentry/tracing';
 const setupSentry = (app) => {
     Sentry.init({
         dsn: 'https://44baec8d900a47d1a2d8cb0f8b115185@o1152673.ingest.sentry.io/4504749445545984',
+        release: process.env.COMMIT_REF,
         integrations: [
             // enable HTTP calls tracing
             new Sentry.Integrations.Http({tracing: true}),

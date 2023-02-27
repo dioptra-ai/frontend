@@ -63,3 +63,7 @@ state.initializeStores().then(() => {
         document.getElementById('root')
     );
 });
+
+// Use by segment.io to set the release in sentry.
+// See https://segment.com/docs/connections/destinations/catalog/sentry/
+window['COMMIT_REF'] = _WEBPACK_DEF_COMMIT_REF_;
