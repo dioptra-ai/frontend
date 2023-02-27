@@ -58,6 +58,10 @@ userSchema.virtual('organizationMemberships', {
 /* eslint-disable no-invalid-this */
 userSchema.virtual('requestOrganizationId').get(function () {
 
+    if (OVERRIDE_POSTGRES_ORG_ID) {
+        console.log('WARNING: OVERRIDE_POSTGRES_ORG_ID is set.');
+    }
+
     return OVERRIDE_POSTGRES_ORG_ID ||
         // This might be called before autopopulate has kicked in, so organization? is necessary.
         this.requestOrganizationMembership?.organization?._id;
