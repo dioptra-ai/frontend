@@ -1,4 +1,4 @@
-import * as Sentry from '@sentry/react';
+import * as Sentry from '@sentry/react'; // Initialized with segment.io
 import React from 'react';
 import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';

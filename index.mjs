@@ -5,16 +5,20 @@ import passport from 'passport';
 import {dirname, join, resolve} from 'path';
 import {fileURLToPath} from 'url';
 import {} from 'dotenv/config';
+
+import setupSentry from './src/server/middleware/sentry.mjs';
 import {sessionHandler} from './src/server/middleware/authentication.mjs';
 import rateLimit from './src/server/middleware/rate-limit.mjs';
 import ApiRouter from './src/server/api-router.mjs';
-import jsonError from './src/server/middleware/json-error.mjs';
+import handleErrors from './src/server/middleware/error.mjs';
 import './src/server/models/index.mjs';
 
 const { ENVIRONMENT } = process.env;
 
 const app = express();
 const basePath = dirname(fileURLToPath(import.meta.url));
+
+setupSentry(app);
 
 app.set('x-powered-by', false);
 app.use(compression());
@@ -42,7 +46,7 @@ app.get('*', (req, res, next) => {
     res.sendFile(resolve(basePath, 'build', 'index.html'));
 });
 
-app.use(jsonError);
+app.use(handleErrors);
 
 const port = process.env.PORT;
 
