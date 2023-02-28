@@ -2,13 +2,18 @@
 version: 2.1
 
 jobs:
-  start-workflow:
+  run-integration-tests:
+    parameters:
+      environment:
+        type: string
     docker:
       - image: cimg/base:2021.10
     steps:
       - run:
           command: |
-            echo "CIRCLE_BRANCH: ${CIRCLE_BRANCH}"
+            curl -X POST https://circleci.com/api/v2/project/github/dioptra-ai/integration-tests/pipeline \
+            -H "Circle-Token: ${CIRCLE_TOKEN}" \
+            -d '{"parameters": {"environment": "<<parameters.environment>>"}}'
 
   build-and-push-image:
     executor:
@@ -79,16 +84,13 @@ orbs:
 
 workflows:
   'Build Branch':
+    when:
+      not:
+        equal:
+          - << pipeline.git.branch >>
+          - dev
     jobs:
-      - start-workflow:
-          filters:
-            branches:
-              ignore: /dev/
-            tags:
-              ignore: /.*/
       - node/test:
-          requires:
-            - start-workflow
           version: 16.4.0 # This to be kept in sync with Dockerfile
           run-command: lint
       - build-and-push-image:
@@ -98,15 +100,12 @@ workflows:
             - aws-creds
 
   'Build and Deploy to Dev':
+    when:
+      equal:
+        - << pipeline.git.branch >>
+        - dev
     jobs:
-      - start-workflow:
-          filters:
-            branches:
-              only:
-                - dev
       - node/test:
-          requires:
-            - start-workflow
           version: 16.4.0 # This to be kept in sync with Dockerfile
           run-command: lint
       - build-and-push-image:
@@ -122,25 +121,22 @@ workflows:
           image-tag: <<pipeline.git.revision>>
           context:
             - aws-creds
+      - run-integration-tests:
+          requires:
+            - helm-upgrade
+          environment: dev
+          context:
+            - circleci-creds
 
   'Release to Prod':
+    when:
+      equal:
+        - << pipeline.git.tag >>
+        - /^v.*/
     jobs:
-      - start-workflow:
-          filters:
-            tags:
-              only: /^v.*/
-            branches:
-              ignore: /.*/
       - tag-image:
-          requires:
-            - start-workflow
           context:
             - aws-creds
-          filters:
-            tags:
-              only: /^v.*/
-            branches:
-              ignore: /.*/
       - helm-upgrade:
           requires:
             - tag-image
@@ -149,8 +145,9 @@ workflows:
           image-tag: <<pipeline.git.tag>>
           context:
             - aws-creds
-          filters:
-            tags:
-              only: /^v.*/
-            branches:
-              ignore: /.*/
+      - run-integration-tests:
+          requires:
+            - helm-upgrade
+          environment: prod
+          context:
+            - circleci-creds
