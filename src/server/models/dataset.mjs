@@ -100,6 +100,10 @@ class Dataset {
             [id, organizationId]
         );
 
+        if (!rows.length) {
+            throw new Error('No versions found.');
+        }
+
         return rows;
     }
 
