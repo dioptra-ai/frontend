@@ -131,10 +131,6 @@ workflows:
             - circleci-creds
 
   'Release to Prod':
-    when:
-      matches:
-        pattern: ^v[0-9]+\.[0-9]+\.[0-9]+$
-        value: << pipeline.git.tag >>
     jobs:
       - tag-image:
           context:
