@@ -91,6 +91,12 @@ const useLabels = (datapoint) => {
                 })();
             }
         }
+
+        return () => {
+            if (requestControllerRef.current) {
+                requestControllerRef.current.abort();
+            }
+        };
     }, [inView, datapoint]);
 
     return {loadWhenRefInView: ref, labels};
