@@ -130,9 +130,9 @@ workflows:
 
   'Release to Prod':
     when:
-      equal:
-        - << pipeline.git.tag >>
-        - /^v.*/
+      matches:
+        pattern: ^v[0-9]+\.[0-9]+\.[0-9]+$
+        value: << pipeline.git.tag >>
     jobs:
       - tag-image:
           context:
