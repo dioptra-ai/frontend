@@ -50,7 +50,7 @@ export const postgresClient = {
     connect: () => postgresPool.connect()
 };
 
-export const postgresTransaction = async (callback) => {
+export const postgresTransaction = async (callback, beginStatement = 'BEGIN') => {
     const client = await postgresClient.connect();
     const originalQuery = client.query.bind(client);
 
@@ -61,7 +61,7 @@ export const postgresTransaction = async (callback) => {
     };
 
     try {
-        await client.query('BEGIN');
+        await client.query(beginStatement);
 
         const result = await callback(client);
 

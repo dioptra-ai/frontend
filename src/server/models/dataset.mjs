@@ -140,13 +140,11 @@ class Dataset {
                 [message, id, organizationId]
             );
 
-            console.log('committedVersion', committedVersion);
-
             // Create a new clean uncomitted child version.
             await Dataset._createCleanUncomittedVersion(transactionClient, organizationId, committedVersion.created_by, id, committedVersion.uuid);
 
             return committedVersion;
-        });
+        }, 'BEGIN ISOLATION LEVEL SERIALIZABLE');
     }
 
     static checkout(organizationId, id, versionId) {
@@ -162,7 +160,7 @@ class Dataset {
             await Dataset._createCleanUncomittedVersion(transactionClient, organizationId, deletedVersion.created_by, id, versionId);
 
             return versionId;
-        });
+        }, 'BEGIN ISOLATION LEVEL SERIALIZABLE');
     }
 
     static add(organizationId, id, datapointIds) {
@@ -185,7 +183,7 @@ class Dataset {
                 'UPDATE dataset_versions SET dirty = true WHERE uuid = $1',
                 [uncommittedVersion.uuid]
             );
-        });
+        }, 'BEGIN ISOLATION LEVEL SERIALIZABLE');
     }
 
     static remove(organizationId, id, datapointIds) {
@@ -209,7 +207,7 @@ class Dataset {
                 'UPDATE dataset_versions SET dirty = true WHERE uuid = $1',
                 [uncommittedVersion.uuid]
             );
-        });
+        }, 'BEGIN ISOLATION LEVEL SERIALIZABLE');
     }
 
     static delete(organizationId, id) {
