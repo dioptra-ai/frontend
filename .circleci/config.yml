@@ -12,6 +12,8 @@ jobs:
       - run:
           command: |
             curl -X POST https://circleci.com/api/v2/project/github/dioptra-ai/integration-tests/pipeline \
+            -H "Content-Type: application/json" \
+            -H "Accept: application/json" \
             -H "Circle-Token: ${CIRCLE_TOKEN}" \
             -d '{"parameters": {"environment": "<<parameters.environment>>"}}'
 
