@@ -5,6 +5,7 @@ import {AiOutlineDelete} from 'react-icons/ai';
 import {saveAs} from 'file-saver';
 import Form from 'react-bootstrap/Form';
 
+import LoadingForm from 'components/loading-form';
 import Async from 'components/async';
 import Menu from 'components/menu';
 import TopBar from 'pages/common/top-bar';
@@ -40,7 +41,7 @@ const Dataset = () => {
                                     const dirty = uncommittedVersion['dirty'];
 
                                     return (
-                                        <Form className='my-2 d-flex' style={{width: 'fit-content'}} onSubmit={async (e) => {
+                                        <LoadingForm className='my-2 d-flex' style={{width: 'fit-content'}} onSubmit={async (e) => {
                                             const versionId = e.target.versionId.value;
 
                                             e.preventDefault();
@@ -84,10 +85,10 @@ const Dataset = () => {
                                             }}>
                                                 View
                                             </Button>
-                                            <Button type='submit' variant='secondary' size='s' className='text-nowrap' name='action' value='checkout'>
+                                            <LoadingForm.Button type='submit' variant='secondary' size='s' className='text-nowrap' name='action' value='checkout'>
                                                 Checkout
-                                            </Button>
-                                        </Form>
+                                            </LoadingForm.Button>
+                                        </LoadingForm>
                                     );
                                 }}
                             />

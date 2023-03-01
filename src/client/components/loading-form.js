@@ -25,7 +25,7 @@ const LoadingForm = ({onSubmit, ...rest}) => {
 
                 return acc;
             }, {});
-            const success = await onSubmit(e, values);
+            const success = await onSubmit(e, values) || true;
 
             setSuccess(success);
             setError(null);
@@ -56,11 +56,17 @@ const LoadingFormButton = ({children, ...rest}) => {
         <LoadingFormContext.Consumer>
             {({loading}) => loading ? (
                 <Button disabled {...rest}>
-                    <div style={{
-                        display: 'flex',
-                        justifyContent: 'center'
-                    }}>
-                        <BarLoader loading size={150}/>
+                    <div className='position-relative'>
+                        {children}
+                        <div style={{
+                            alignItems: 'center',
+                            position: 'absolute',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            inset: 0
+                        }}>
+                            <BarLoader loading size='100%'/>
+                        </div>
                     </div>
                 </Button>
             ) : (
