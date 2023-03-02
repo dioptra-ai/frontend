@@ -26,6 +26,7 @@ IntegrationRouter.post('/', async (req, res, next) => {
             },
             {new: true, upsert: true}
         );
+        const identity = await integration.getIdentity();
 
         res.json({
             message: `Successfully updated credentials for identity ${identity}`

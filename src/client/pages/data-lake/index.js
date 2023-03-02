@@ -24,7 +24,7 @@ const DataLake = ({filtersStore}) => {
                 <h4>
                     Data Lake
                 </h4>
-                <div className='m-3'>
+                <div className='my-3'>
                     <FilterInput
                         defaultFilters={filtersStore.filters}
                         onChange={(filters) => (filtersStore.filters = filters)}

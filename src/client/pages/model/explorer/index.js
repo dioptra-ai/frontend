@@ -6,7 +6,7 @@ import OutliersOrDrift from 'pages/common/outliers-or-drift';
 import ClustersAnalysis from 'pages/common/clusters-analysis';
 import Mislabeling from 'pages/common/mislabeling';
 import useAllFilters from 'hooks/use-all-filters';
-import DatapointsViewerWithButtons from 'components/datapoints-viewer-with-buttons';
+import LegacyEventsViewerWithButtons from 'components/legacy-events-viewer-with-buttons';
 
 const ANALYSES = {
     VIEWER: 'Data Viewer',
@@ -38,7 +38,7 @@ const Explorer = () => {
             <Switch>
                 <Route path='/viewer' render={() => (
                     <div className='my-3'>
-                        <DatapointsViewerWithButtons filters={allFilters} />
+                        <LegacyEventsViewerWithButtons filters={allFilters} />
                     </div>
                 )}/>
                 <Route path='/mislabeling' component={Mislabeling}/>
