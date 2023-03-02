@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import {useHistory} from 'react-router-dom';
 
 import baseJSONClient from 'clients/base-json-client';
 import DatapointsViewer from 'components/datapoints-viewer';
@@ -12,6 +13,7 @@ import useSyncStoresToUrl from 'hooks/use-sync-stores-to-url';
 
 const DataLake = ({filtersStore}) => {
     const allFilters = useAllFilters({excludeCurrentTimeFilters: true});
+    const history = useHistory();
 
     useSyncStoresToUrl(({filtersStore}) => ({
         filters: JSON.stringify(filtersStore.filters)
@@ -21,9 +23,7 @@ const DataLake = ({filtersStore}) => {
         <Menu>
             <TopBar hideTimePicker />
             <div className='text-dark p-3'>
-                <h4>
-                    Data Lake
-                </h4>
+                <h4>Data Lake</h4>
                 <div className='my-3'>
                     <FilterInput
                         defaultFilters={filtersStore.filters}

@@ -93,13 +93,7 @@ class Dataset {
             [versionId, organizationId]
         );
 
-        return rows;
-    }
-
-    static async findDatapoints(organizationId, id) {
-        const uncommittedVersion = await Dataset.findUncommittedVersion(organizationId, id);
-
-        return Dataset.findDatapointsByVersion(organizationId, uncommittedVersion.uuid);
+        return rows.map(({id}) => id);
     }
 
     static async findVersions(organizationId, id) {

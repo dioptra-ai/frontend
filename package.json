@@ -91,7 +91,6 @@
     "npm": "^8.19.2",
     "p-memoize": "^7.1.1",
     "passport": "^0.4.1",
-    "passport-http": "^0.3.0",
     "passport-local": "^1.0.0",
     "pg": "^8.8.0",
     "pg-format": "^1.0.4",

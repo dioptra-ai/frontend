@@ -16,9 +16,8 @@ const ModalComponent = ({onClose, isOpen = true, title = ' ', closeButton, child
                 transform: 'translate(-50%, -50%)',
                 maxHeight: '90vh',
                 maxWidth: '90vw',
-                minWidth: '20vw',
-                paddingTop: 0,
-                border: 'none'
+                minWidth: '30vw',
+                paddingTop: 0
             },
             overlay: {
                 zIndex: 20
@@ -26,12 +25,12 @@ const ModalComponent = ({onClose, isOpen = true, title = ' ', closeButton, child
         }}>
             <div className='d-flex flex-column p-3'>
                 <div
-                    className='d-flex align-items-center bg-white position-sticky top-0'
+                    className='d-flex justify-content-between align-items-center position-sticky top-0'
                     style={{zIndex: 1}}
                 >
                     <div className='text-dark m-0 bold-text flex-grow-1 fs-4'>{title}</div>
                     {closeButton ? closeButton : (
-                        <button className='text-dark border-0 bg-white fs-2 p-0 ps-3' onClick={onClose}>
+                        <button className='text-dark border-0 bg-white fs-2' onClick={onClose}>
                             <IoCloseOutline/>
                         </button>
                     )}
@@ -48,7 +47,7 @@ ModalComponent.propTypes = {
     children: PropTypes.node,
     isOpen: PropTypes.bool,
     onClose: PropTypes.func,
-    title: PropTypes.string,
+    title: PropTypes.node,
     closeButton: PropTypes.node
 };
 

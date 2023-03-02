@@ -6,8 +6,9 @@ import {postgresClient} from './index.mjs';
 const SAFE_OPS = new Set(['=', '!=', '<', '>', '<=', '>=', 'LIKE', 'NOT LIKE', 'ILIKE', 'NOT ILIKE', 'SIMILAR TO', 'NOT SIMILAR TO', 'IS', 'IS NOT', 'IN', 'NOT IN', 'ANY', 'ALL', 'BETWEEN', 'NOT BETWEEN', 'IS DISTINCT FROM', 'IS NOT DISTINCT FROM']);
 
 const getCanonicalColumn = (column) => column.indexOf('.') === -1 ? `datapoints.${column}` : column;
-const getCanonicalColumnTable = (column) => column.split('.')[0];
-const getSafeColumn = (column) => pgFormat(column.split('.').map(() => '%I').join('.'), ...column.split('.'));
+
+export const getCanonicalColumnTable = (column) => column.split('.')[0];
+export const getSafeColumn = (column) => pgFormat(column.split('.').map(() => '%I').join('.'), ...column.split('.'));
 const getSafeWhere = (canonicalFilters) => {
 
     return canonicalFilters.map((filter) => {
@@ -75,21 +76,17 @@ class Datapoint {
     }
 
     static async select({
-        organizationId, selectColumns = [], filters = [], orderBy = 'datapoints.created_at', desc = false, limit = 1000000, offset = 0
+        organizationId, selectColumns = [], filters = [],
+        orderBy = 'datapoints.created_at', desc = false, limit = 1000000, offset = 0
     }) {
         assert(organizationId, 'organizationId is required');
-
+        const canonicalSelect = selectColumns.map(getCanonicalColumn);
         const canonicalFilters = filters.concat({
             'left': 'organization_id',
             'op': '=',
             'right': organizationId
-        }).map((filter) => ({
-            'left': getCanonicalColumn(filter['left']),
-            'op': filter['op'],
-            'right': filter['right']
-        }));
-        const canonicalSelect = selectColumns.map(getCanonicalColumn);
-        const selectsPerTable = canonicalSelect.reduce((acc, column) => {
+        });
+        const selectsPerTable = selectColumns.reduce((acc, column) => {
             const tableName = getCanonicalColumnTable(column);
 
             if (!acc[tableName]) {
@@ -104,12 +101,20 @@ class Datapoint {
             if (tableName === 'datapoints') {
                 acc.push(...columns.map(getSafeColumn));
             } else {
+                // Aggregate distinct JSONB objects with column values of tableName.
+                // Example: JSONB_BUILD_OBJECT('class_name', predictions.class_name, 'confidence', predictions.confidence, ...)
+                // Then with ARRAY_REMOVE, remove objects that have only null values.
+                // Example: ARRAY_REMOVE(..., '{"class_name": null, "confidence": null, ...}')
+                // This would happen if for example there are no predictions for a datapoint so the LEFT JOIN joins predictions.* with all null values.
                 acc.push(
-                    pgFormat(`ARRAY_AGG(
-                        DISTINCT JSONB_BUILD_OBJECT(
-                            ${columns.map((column) => [pgFormat.literal(column.split('.').slice(1)), getSafeColumn(column)]).flat().join(', ')}
-                        )
-                    ) AS %I`, tableName)
+                    pgFormat(`
+                        ARRAY_REMOVE(
+                            ARRAY_AGG(DISTINCT 
+                                JSONB_BUILD_OBJECT(
+                                    ${columns.map((column) => [pgFormat.literal(column.split('.').slice(1)), getSafeColumn(column)]).flat().join(', ')}
+                                )
+                            ), '{${columns.map((c) => pgFormat.literal(c.split('.').slice(1).join('.')).replaceAll('\'', '')).map((cc) => `"${cc}": null`)}}'
+                        ) AS %I`, tableName)
                 );
             }
 

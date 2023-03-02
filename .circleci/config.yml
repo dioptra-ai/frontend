@@ -92,6 +92,13 @@ workflows:
           - << pipeline.git.branch >>
           - dev
     jobs:
+      - match-job-filters:
+          name: match-job-filters
+          filters:
+            branches:
+              ignore: /(dev|prod)/
+            tags:
+              ignore: /.*/
       - node/test:
           version: 16.4.0 # This to be kept in sync with Dockerfile
           run-command: lint
@@ -132,6 +139,13 @@ workflows:
 
   'Release to Prod':
     jobs:
+      - match-job-filters:
+          name: match-job-filters
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
       - tag-image:
           context:
             - aws-creds

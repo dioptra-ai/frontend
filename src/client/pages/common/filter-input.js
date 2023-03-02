@@ -87,9 +87,8 @@ const FilterInput = ({
                         value: Array.isArray(value) ? value[value.length - 1] : value
                     }
                 });
-                const allSuggestionValues = allSuggestions.map((value) => Object.values(value));
 
-                setSuggestionsIfInFlight(allSuggestionValues);
+                setSuggestionsIfInFlight(allSuggestions);
             } else if (newFilter.isLeftComplete) {
 
                 setShowSuggestions(true);
@@ -105,10 +104,8 @@ const FilterInput = ({
                         key
                     }
                 });
-                // Map allSuggestions to an array of strings instead of objects by calling all the keys in the object
-                const allSuggestionKeys = allSuggestions.map((value) => Object.values(value));
 
-                setSuggestionsIfInFlight(allSuggestionKeys);
+                setSuggestionsIfInFlight(allSuggestions);
             }
         } catch (e) {
             setSuggestionsIfInFlight([]);
@@ -225,7 +222,8 @@ const FilterInput = ({
                         }}
                         onKeyDown={handleKeyDown}
                         placeholder={filters.length === 0 ? inputPlaceholder : ''}
-                        type='text'
+                        type='search'
+                        autoComplete='off'
                         value={newFilter.toString()}
                         name='filter' // to hint chrome to stop password-filling
                     />

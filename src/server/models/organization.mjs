@@ -58,6 +58,23 @@ organizationSchema.statics.createWithMember = async (orgProps, userId) => {
     return org;
 };
 
+organizationSchema.statics.createWithMember = async (orgProps, userId) => {
+    const OrganizationMembership = mongoose.model('OrganizationMembership');
+    const User = mongoose.model('User');
+    const user = await User.findById(userId);
+    const org = await Organization.create(orgProps);
+    const orgMembership = await OrganizationMembership.create({
+        user: userId,
+        organization: org._id
+    });
+
+    user.activeOrganizationMembership = orgMembership;
+
+    await user.save();
+
+    return org;
+};
+
 organizationSchema.statics.createAndInitialize = async (orgProps, firstUserProps) => {
     const User = mongoose.model('User');
     const org = await Organization.create(orgProps);

@@ -107,7 +107,7 @@ const Miner = () => {
                                 <h4>Results</h4>
                                 <div className='my-3'>
                                     <Async
-                                        fetchData={() => baseJSONClient(`/api/tasks/miners/inspect/${minerId}`, {memoized: false})}
+                                        fetchData={() => baseJSONClient(`/api/tasks/miners/inspect/${minerId}`)}
                                         refetchOnChanged={[minerId, lastRequestedRefresh]}
                                         renderData={({task}) => task ? (
                                             <>

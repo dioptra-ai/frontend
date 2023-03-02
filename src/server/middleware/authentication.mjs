@@ -33,25 +33,6 @@ export const isAuthenticated = [
     }
 ];
 
-export const isbasicAuthenticated = [
-    passport.authenticate('optional-apikey'),
-    (req, res, next) => {
-        if (req.user) {
-            next();
-        } else {
-            passport.authenticate('basic', {session: false})(req, res, next);
-        }
-    },
-    (req, res, next) => {
-        if (req.user) {
-            next();
-        } else {
-
-            res.sendStatus(401);
-        }
-    }
-];
-
 export const isOrgAdmin = async (req, res, next) => {
     try {
         const OrganizationMembershipModel = mongoose.model('OrganizationMembership');
@@ -135,7 +116,7 @@ class AWSApiKeyStrategy extends PassportStrategy {
                         });
 
                         if (apikeyMembership) {
-                            apiKey.user.requestOrganizationMembership = apikeyMembership;
+                            apiKey.user.apikeyOrganizationMembership = apikeyMembership;
                             this.success(apiKey.user);
                         } else {
                             this.error(new Error('Could not find an organization membership for the API key'));
