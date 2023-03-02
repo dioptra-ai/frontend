@@ -10,8 +10,6 @@ class Groundtruth {
 
         return rows;
     }
-
-
 }
 
 export default Groundtruth;

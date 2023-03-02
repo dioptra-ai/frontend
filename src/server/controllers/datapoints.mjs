@@ -60,10 +60,10 @@ DatapointsRouter.post('/count', async (req, res, next) => {
 DatapointsRouter.post('/select', async (req, res, next) => {
     try {
         const datapoints = await Datapoint.select({
-            organizationId: req.user.activeOrganizationId,
+            organizationId: req.user.requestOrganizationId,
             selectColumns: req.body.selectColumns,
             filters: req.body.filters,
-            orderBy: req.body.order_by,
+            orderBy: req.body.orderBy,
             desc: req.body.desc,
             limit: req.body.limit,
             offset: req.body.offset
@@ -78,7 +78,7 @@ DatapointsRouter.post('/select', async (req, res, next) => {
 DatapointsRouter.post('/count', async (req, res, next) => {
     try {
         const count = await Datapoint.count({
-            organizationId: req.user.activeOrganizationId,
+            organizationId: req.user.requestOrganizationId,
             filters: req.body.filters
         });
 

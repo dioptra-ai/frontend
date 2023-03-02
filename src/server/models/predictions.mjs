@@ -10,8 +10,6 @@ class Prediction {
 
         return rows;
     }
-
-
 }
 
 export default Prediction;

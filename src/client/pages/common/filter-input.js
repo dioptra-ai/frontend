@@ -6,12 +6,9 @@ import Button from 'react-bootstrap/Button';
 import PropTypes from 'prop-types';
 import {setupComponent} from 'helpers/component-helper';
 import FontIcon from 'components/font-icon';
-// import metricsClient from 'clients/metrics';
 import baseJSONClient from 'clients/base-json-client';
 import {Filter} from 'state/stores/filters-store';
-// import useModel from 'hooks/use-model';
 import Spinner from 'components/spinner';
-// import {values} from 'lodash';
 const RenderedFilter = ({filter, onDelete, applied = false}) => {
     const truncatedFilters = filter.toString(true);
 
@@ -66,8 +63,6 @@ const FilterInput = ({
     const inFlightRequest = useRef(null);
     const appliedFilters = value ? value.map((v) => new Filter(v)) : filtersStore.filters;
 
-    // const model = useModel();
-
     const getSuggestions = useDebounceCallback(async () => {
         const {left: key, isOpValid, right: value} = newFilter;
         const setSuggestionsIfInFlight = (suggestions) => {
@@ -85,9 +80,6 @@ const FilterInput = ({
                 setShowSuggestions(true);
                 setSuggestionsLoading(true);
 
-                // const allSuggestions = await metricsClient('queries/get-values-suggestions', {
-                console.log(key);
-                console.log(Array.isArray(value) ? value[value.length - 1] : value);
                 const allSuggestions = await baseJSONClient('/api/suggestions/get-values-suggestions', {
                     method: 'post',
                     body: {
@@ -97,8 +89,6 @@ const FilterInput = ({
                 });
                 const allSuggestionValues = allSuggestions.map((value) => Object.values(value));
 
-                console.log(allSuggestions);
-                console.log(allSuggestionValues);
                 setSuggestionsIfInFlight(allSuggestionValues);
             } else if (newFilter.isLeftComplete) {
 
@@ -109,19 +99,15 @@ const FilterInput = ({
                 setShowSuggestions(true);
                 setSuggestionsLoading(true);
 
-                // const allSuggestions = await metricsClient('queries/get-keys-suggestions', {
                 const allSuggestions = await baseJSONClient('/api/suggestions/get-keys-suggestions', {
                     method: 'post',
                     body: {
                         key
                     }
                 });
-                //const allSuggestionKeys = allSuggestions.map((value) => value.column_name);
                 // Map allSuggestions to an array of strings instead of objects by calling all the keys in the object
                 const allSuggestionKeys = allSuggestions.map((value) => Object.values(value));
 
-                console.log(allSuggestions);
-                console.log(allSuggestionKeys);
                 setSuggestionsIfInFlight(allSuggestionKeys);
             }
         } catch (e) {

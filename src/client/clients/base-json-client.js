@@ -29,8 +29,6 @@ const memoizedFetch = mem(jsonFetch, {
 const baseJSONClient = (url, {method = 'get', body, headers = {'content-type': 'application/json'}, memoized = false, ...rest} = {}) => {
     const fetch = memoized ? memoizedFetch : jsonFetch;
 
-    console.log(body);
-
     return fetch(url, {
         retries: 15,
         retryDelay: 3000,

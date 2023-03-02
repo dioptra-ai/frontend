@@ -162,8 +162,6 @@ class Dataset {
         }, 'BEGIN ISOLATION LEVEL SERIALIZABLE');
     }
 
-    static POSTGRES_MAX_PARAMS = 20000;
-
     static add(organizationId, id, datapointIds) {
 
         return postgresTransaction(async (transactionClient) => {

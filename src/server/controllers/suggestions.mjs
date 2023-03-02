@@ -8,7 +8,7 @@ SuggestionsRouter.all('*', isAuthenticated);
 
 SuggestionsRouter.post('/', async (req, res, next) => {
     try {
-        const tags = await Suggestion.findByDatapointIds(req.user.activeOrganizationId, req.body.datapointIds);
+        const tags = await Suggestion.findByDatapointIds(req.user.requestOrganizationId, req.body.datapointIds);
 
         res.json(tags);
     } catch (e) {
@@ -28,7 +28,7 @@ SuggestionsRouter.post('/get-keys-suggestions', async (req, res, next) => {
 
 SuggestionsRouter.post('/get-values-suggestions', async (req, res, next) => {
     try {
-        const values = await Suggestion.findValueSuggestions(req.user.activeOrganizationId, req.body.key, req.body.value);
+        const values = await Suggestion.findValueSuggestions(req.user.requestOrganizationId, req.body.key, req.body.value);
 
         res.json(values);
     } catch (e) {
