@@ -6,13 +6,13 @@ import Form from 'react-bootstrap/Form';
 import Select from 'components/select';
 import BarGraph from 'components/bar-graph';
 import {getHexColor} from 'helpers/color-helper';
-import DataViewer from './data-viewer';
 import Async from 'components/async';
 import baseJSONClient from 'clients/base-json-client';
 import Menu from 'components/menu';
 import TopBar from 'pages/common/top-bar';
+import DatapointsViewer from 'components/datapoints-viewer';
 
-const DatasetVersionViewer = ({dataViewerProps, versionId}) => {
+const DatasetVersionViewer = ({versionId}) => {
     // Defining histogram function to be used in the renderData assignment
     const getHistogram = (values, getClassName) => values.reduce((acc, value) => {
         const name = getClassName(value);
@@ -27,13 +27,11 @@ const DatasetVersionViewer = ({dataViewerProps, versionId}) => {
         return acc;
     }, {});
 
-
     return (
         <Async
-            fetchData={() => baseJSONClient(`/api/dataset/version/${versionId}/datapoints`)}
+            fetchData={() => baseJSONClient(`/api/dataset/version/${versionId}/datapoint-ids`)}
             refetchOnChanged={[versionId]}
-            renderData={(datapoints) => {
-                const datapointIds = datapoints.map((datapoint) => datapoint['id']);
+            renderData={(datapointIds) => {
 
                 return (
                     <>
@@ -45,7 +43,6 @@ const DatasetVersionViewer = ({dataViewerProps, versionId}) => {
                             refetchOnChanged={[datapointIds]}
                             renderData={(groundtruths) => {
                                 const groundtruthsHist = getHistogram(groundtruths, (groundtruth) => groundtruth?.['class_name']);
-
 
                                 return (
                                     <Async
@@ -96,7 +93,11 @@ const DatasetVersionViewer = ({dataViewerProps, versionId}) => {
                                 );
                             }}
                         />
-                        <DataViewer datapointIds={datapointIds} {...dataViewerProps}/>
+                        <DatapointsViewer filters={[{
+                            'left': 'datapoints.id',
+                            'op': 'in',
+                            'right': datapointIds
+                        }]}/>
                     </>
                 );
             }}
@@ -105,8 +106,7 @@ const DatasetVersionViewer = ({dataViewerProps, versionId}) => {
 };
 
 DatasetVersionViewer.propTypes = {
-    versionId: PropTypes.string.isRequired,
-    dataViewerProps: PropTypes.object
+    versionId: PropTypes.string.isRequired
 };
 
 export {DatasetVersionViewer};

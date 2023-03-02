@@ -242,7 +242,7 @@ const DatapointsViewer = ({filters}) => {
     return (
         <>
             <Async
-                fetchData={() => baseJSONClient.post('api/datapoints/select', {
+                fetchData={() => baseJSONClient.post('/api/datapoints/select', {
                     selectColumns: ['id', 'metadata', 'type', 'tags.name', 'tags.value', 'predictions.class_name'],
                     filters,
                     offset,
@@ -253,7 +253,7 @@ const DatapointsViewer = ({filters}) => {
             />
             <Async
                 spinner={false}
-                fetchData={() => baseJSONClient.post('api/datapoints/count', {
+                fetchData={() => baseJSONClient.post('/api/datapoints/count', {
                     filters
                 })}
                 refetchOnChanged={[JSON.stringify(filters)]}

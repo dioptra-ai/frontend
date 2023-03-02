@@ -8,6 +8,31 @@ const SAFE_OPS = new Set(['=', '!=', '<', '>', '<=', '>=', 'LIKE', 'NOT LIKE', '
 const getCanonicalColumn = (column) => column.indexOf('.') === -1 ? `datapoints.${column}` : column;
 const getCanonicalColumnTable = (column) => column.split('.')[0];
 const getSafeColumn = (column) => pgFormat(column.split('.').map(() => '%I').join('.'), ...column.split('.'));
+const getSafeWhere = (canonicalFilters) => {
+
+    return canonicalFilters.map((filter) => {
+        assert(SAFE_OPS.has(filter['op'].toUpperCase()), `Unsafe op: ${filter['op']}`);
+
+        switch (filter['op'].toUpperCase()) {
+        case 'IN':
+        case 'NOT IN':
+            if (filter['right'].length === 0) {
+                return 'FALSE';
+            } else {
+                return `${getSafeColumn(filter['left'])} ${filter['op']} (${pgFormat.literal(filter['right'])})`;
+            }
+        default:
+            return `${getSafeColumn(filter['left'])} ${filter['op']} ${pgFormat.literal(filter['right'])}`;
+        }
+    }).join(' AND ');
+};
+const getSafeFrom = (canonicalColumnTables) => {
+
+    return `FROM datapoints ${Array.from(new Set(canonicalColumnTables))
+        .filter((table) => table !== 'datapoints')
+        .map((table) => pgFormat('INNER JOIN %I ON datapoints.id = %I.datapoint', table, table))
+        .join(' ')}`;
+};
 
 class Datapoint {
     static async findAll(organizationId) {
@@ -30,7 +55,6 @@ class Datapoint {
 
     static async count({organizationId, filters = []}) {
         assert(organizationId, 'organizationId is required');
-        assert(filters.every((f) => SAFE_OPS.has(f['op'].toUpperCase())), 'Invalid filter op');
 
         const canonicalFilters = filters.concat({
             'left': 'organization_id',
@@ -41,13 +65,10 @@ class Datapoint {
             'op': filter['op'],
             'right': filter['right']
         }));
-        const safeFilters = canonicalFilters.map((filter) => `${getSafeColumn(filter['left'])} ${filter['op']} ${pgFormat.literal(filter['right'])}`);
-        const safeJoins = Array.from(new Set(
-            canonicalFilters.map((filter) => getCanonicalColumnTable(filter['left'])).filter((t) => t !== 'datapoints')
-        )).map((tableName) => pgFormat('INNER JOIN %I ON datapoints.id = %I.datapoint', tableName, tableName));
+        const canonicalColumnTables = canonicalFilters.map((filter) => getCanonicalColumnTable(filter['left']));
 
         const {rows} = await postgresClient.query(
-            pgFormat(`SELECT COUNT(*) FROM datapoints ${safeJoins.join(' ')} WHERE ${safeFilters.join(' AND ')}`)
+            pgFormat(`SELECT COUNT(*) ${getSafeFrom(canonicalColumnTables)} WHERE ${getSafeWhere(canonicalFilters)}`)
         );
 
         return Number(rows[0]['count']);
@@ -57,7 +78,6 @@ class Datapoint {
         organizationId, selectColumns = [], filters = [], orderBy = 'datapoints.created_at', desc = false, limit = 1000000, offset = 0
     }) {
         assert(organizationId, 'organizationId is required');
-        assert(filters.every((f) => SAFE_OPS.has(f['op'].toUpperCase())), 'Invalid filter op');
 
         const canonicalFilters = filters.concat({
             'left': 'organization_id',
@@ -95,20 +115,14 @@ class Datapoint {
 
             return acc;
         }, []);
-        const safeJoins = Array.from(new Set([
+        const canonicalColumnTables = [
             ...canonicalSelect.map(getCanonicalColumnTable),
             ...canonicalFilters.map((filter) => getCanonicalColumnTable(filter['left']))
-        ]
-            .filter((t) => t !== 'datapoints')))
-            .map((tableName) => pgFormat('INNER JOIN %I ON datapoints.id = %I.datapoint', tableName, tableName));
-        const safeWhere = canonicalFilters.map((filter) => [
-            getSafeColumn(filter['left']), filter['op'], pgFormat.literal(filter['right'])
-        ].join(' '));
+        ];
         const {rows} = await postgresClient.query(`
             SELECT ${safeSelects.join(', ')}
-            FROM datapoints
-            ${safeJoins.join(' ')}
-            WHERE ${safeWhere.join(' AND ')}
+            ${getSafeFrom(canonicalColumnTables)}
+            WHERE ${getSafeWhere(canonicalFilters)}
             GROUP BY datapoints.id
             ORDER BY ${getSafeColumn(orderBy)} ${desc ? 'DESC' : 'ASC'}
             LIMIT ${pgFormat.literal(limit)}
