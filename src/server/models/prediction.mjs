@@ -7,9 +7,8 @@ class Prediction {
             return [];
         } else {
             const {rows} = await postgresClient.query(
-                `SELECT * FROM predictions WHERE organization_id = $1 AND 
-            datapoint IN (${datapointIds.map((_, i) => `$${i + 2}`).join(',')})`,
-                [organizationId, ...datapointIds]
+                'SELECT * FROM predictions WHERE organization_id = $1 AND datapoint = ANY($2)',
+                [organizationId, datapointIds]
             );
 
             return rows;
