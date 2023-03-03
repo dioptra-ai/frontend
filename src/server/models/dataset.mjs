@@ -27,8 +27,8 @@ class Dataset {
         if (parentVersionUuid) {
             // Copy datapoints from parent.
             await transaction.query(
-                `INSERT INTO dataset_to_datapoints (dataset_version, datapoint)
-                SELECT $1, datapoint FROM dataset_to_datapoints WHERE dataset_version = $2`,
+                `INSERT INTO dataset_to_datapoints (dataset_version, datapoint, organization_id)
+                SELECT $1, datapoint, organization_id FROM dataset_to_datapoints WHERE dataset_version = $2`,
                 [datasetVersion.uuid, parentVersionUuid]
             );
 
@@ -82,7 +82,7 @@ class Dataset {
             [versionId, organizationId]
         );
 
-        return rows;
+        return rows.map(({id}) => id);
     }
 
     static async findDatapointsByVersion(organizationId, versionId) {
@@ -178,9 +178,9 @@ class Dataset {
 
             // Add datapoints to uncommitted version.
             await transactionClient.query(
-                `INSERT INTO dataset_to_datapoints (dataset_version, datapoint) 
-                (SELECT * FROM UNNEST($1::uuid[], $2::uuid[])) ON CONFLICT DO NOTHING`,
-                [datapointIds.map(() => uncommittedVersion.uuid), datapointIds]
+                `INSERT INTO dataset_to_datapoints (dataset_version, datapoint, organization_id)
+                (SELECT * FROM UNNEST($1::uuid[], $2::uuid[], $3::text[])) ON CONFLICT DO NOTHING`,
+                [datapointIds.map(() => uncommittedVersion.uuid), datapointIds, datapointIds.map(() => organizationId)]
             );
 
             // Mark uncommitted version as dirty.
@@ -202,7 +202,7 @@ class Dataset {
 
             // Remove datapoints from uncommitted version.
             await transactionClient.query(
-                'DELETE FROM dataset_to_datapoints WHERE dataset_version = $1 AND datapoint IN $2',
+                'DELETE FROM dataset_to_datapoints WHERE dataset_version = $1 AND datapoint = ANY($2)',
                 [uncommittedVersion.uuid, datapointIds]
             );
 

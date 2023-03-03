@@ -37,7 +37,7 @@
 }
 
 a, a[class] {
-    color: theme-color('primary');
+    color: theme-color('primary') !important;
     text-decoration: none;
     cursor: pointer;
     &:hover {

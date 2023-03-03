@@ -6,6 +6,11 @@ import {postgresClient} from './index.mjs';
 const SAFE_OPS = new Set(['=', '!=', '<', '>', '<=', '>=', 'LIKE', 'NOT LIKE', 'ILIKE', 'NOT ILIKE', 'SIMILAR TO', 'NOT SIMILAR TO', 'IS', 'IS NOT', 'IN', 'NOT IN', 'ANY', 'ALL', 'BETWEEN', 'NOT BETWEEN', 'IS DISTINCT FROM', 'IS NOT DISTINCT FROM']);
 
 const getCanonicalColumn = (column) => column.indexOf('.') === -1 ? `datapoints.${column}` : column;
+const getCanonicalFilters = (filters) => filters.map((filter) => ({
+    'left': getCanonicalColumn(filter['left']),
+    'op': filter['op'],
+    'right': filter['right']
+}));
 
 export const getCanonicalColumnTable = (column) => column.split('.')[0];
 export const getSafeColumn = (column) => pgFormat(column.split('.').map(() => '%I').join('.'), ...column.split('.'));
@@ -57,14 +62,10 @@ class Datapoint {
     static async count({organizationId, filters = []}) {
         assert(organizationId, 'organizationId is required');
 
-        const canonicalFilters = filters.concat({
+        const canonicalFilters = getCanonicalFilters(filters.concat({
             'left': 'organization_id',
             'op': '=',
             'right': organizationId
-        }).map((filter) => ({
-            'left': getCanonicalColumn(filter['left']),
-            'op': filter['op'],
-            'right': filter['right']
         }));
         const canonicalColumnTables = canonicalFilters.map((filter) => getCanonicalColumnTable(filter['left']));
 
@@ -80,13 +81,13 @@ class Datapoint {
         orderBy = 'datapoints.created_at', desc = false, limit = 1000000, offset = 0
     }) {
         assert(organizationId, 'organizationId is required');
-        const canonicalSelect = selectColumns.map(getCanonicalColumn);
-        const canonicalFilters = filters.concat({
+        const canonicalSelects = selectColumns.map(getCanonicalColumn);
+        const canonicalFilters = getCanonicalFilters(filters.concat({
             'left': 'organization_id',
             'op': '=',
             'right': organizationId
-        });
-        const selectsPerTable = selectColumns.reduce((acc, column) => {
+        }));
+        const selectsPerTable = canonicalSelects.reduce((acc, column) => {
             const tableName = getCanonicalColumnTable(column);
 
             if (!acc[tableName]) {
@@ -121,7 +122,7 @@ class Datapoint {
             return acc;
         }, []);
         const canonicalColumnTables = [
-            ...canonicalSelect.map(getCanonicalColumnTable),
+            ...canonicalSelects.map(getCanonicalColumnTable),
             ...canonicalFilters.map((filter) => getCanonicalColumnTable(filter['left']))
         ];
         const {rows} = await postgresClient.query(`

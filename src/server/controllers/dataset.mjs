@@ -161,16 +161,5 @@ DatasetsRouter.get('/version/:versionId/datapoint-ids', async (req, res, next) =
     }
 });
 
-DatasetsRouter.get('/version/:versionId/datapoint-ids', async (req, res, next) => {
-    try {
-        const version = await Dataset.getVersionById(req.user.requestOrganizationId, req.params.versionId);
-
-        const datapointIds = await Dataset.findDatapointIdsByVersion(req.user.requestOrganizationId, version['uuid']);
-
-        res.json(datapointIds);
-    } catch (e) {
-        next(e);
-    }
-});
 
 export default DatasetsRouter;
