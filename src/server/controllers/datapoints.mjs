@@ -108,4 +108,14 @@ DatapointsRouter.delete('/:id', async (req, res, next) => {
     }
 });
 
+DatapointsRouter.post('/delete', async (req, res, next) => {
+    try {
+        const datapoints = await Datapoint.deleteByFilters(req.user.requestOrganizationId, req.body.filters);
+
+        res.json(datapoints);
+    } catch (e) {
+        next(e);
+    }
+});
+
 export default DatapointsRouter;

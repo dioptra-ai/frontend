@@ -24,7 +24,9 @@ DatasetsRouter.get('/:datasetId?', async (req, res, next) => {
 
 DatasetsRouter.get('/:datasetId/datapoints', async (req, res, next) => {
     try {
-        const datapoints = await Dataset.findDatapoints(req.user.requestOrganizationId, req.params.datasetId);
+        const version = await Dataset.findUncommittedVersion(req.user.requestOrganizationId, req.params.datasetId);
+
+        const datapoints = await Dataset.findDatapointsByVersion(req.user.requestOrganizationId, version['uuid']);
 
         res.json(datapoints);
     } catch (e) {

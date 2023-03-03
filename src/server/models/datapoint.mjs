@@ -13,7 +13,10 @@ const getCanonicalFilters = (filters) => filters.map((filter) => ({
 }));
 
 export const getCanonicalColumnTable = (column) => column.split('.')[0];
-export const getSafeColumn = (column) => pgFormat(column.split('.').map(() => '%I').join('.'), ...column.split('.'));
+export const getSafeColumn = (column) => {
+
+    return pgFormat(column.split('.').map((c) => c === '*' ? '%s' : '%I').join('.'), ...column.split('.'));
+};
 const getSafeWhere = (canonicalFilters) => {
 
     return canonicalFilters.map((filter) => {
@@ -165,6 +168,19 @@ class Datapoint {
         );
 
         return rows[0];
+    }
+
+    static async deleteByFilters(organizationId, filters) {
+        const canonicalFilters = getCanonicalFilters(filters.concat({
+            'left': 'organization_id',
+            'op': '=',
+            'right': organizationId
+        }));
+        const {rows} = await postgresClient.query(
+            `DELETE FROM datapoints WHERE ${getSafeWhere(canonicalFilters)} RETURNING *`
+        );
+
+        return rows;
     }
 }
 
