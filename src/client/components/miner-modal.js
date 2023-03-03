@@ -1,7 +1,5 @@
 /* eslint-disable complexity */
 import PropTypes from 'prop-types';
-
-import Async from 'components/async';
 import Modal from 'components/modal';
 import Select from 'components/select';
 import {useEffect, useState} from 'react';
@@ -12,19 +10,19 @@ import Col from 'react-bootstrap/Col';
 import InputGroup from 'react-bootstrap/InputGroup';
 import {setupComponent} from 'helpers/component-helper';
 import baseJSONClient from 'clients/base-json-client';
+import DataSelector from './data-selector';
 import {Container} from 'react-bootstrap';
-import DatasetSelector from 'pages/dataset/dataset-selector';
 
 const MinerModal = ({isOpen, onClose, onMinerSaved, defaultMiner = {}}) => {
     const {
-        display_name, dataset_id, reference_dataset_id, size, metric, embeddings_field, strategy
+        display_name, select, select_reference, size, metric, embeddings_field, strategy
     } = defaultMiner;
     const [minerName, setMinerName] = useState(display_name);
     const [minerMetric, setMinerMetric] = useState(metric || 'euclidean');
     const [minerAnalysisSpace, setMinerAnalysisSpace] = useState(embeddings_field);
     const [minerSize, setMinerSize] = useState(size);
-    const [minerDatasetId, setMinerDatasetId] = useState(dataset_id);
-    const [minerReferenceDatasetId, setMinerReferenceDatasetId] = useState(reference_dataset_id);
+    const [minerFilters, setMinerFilters] = useState(select?.filters || []);
+    const [referenceFilters, setReferenceFilters] = useState(select_reference?.filters || []);
     const minerStrategyOptions = [{
         value: 'NEAREST_NEIGHBORS',
         name: 'N Nearest Neighbors'
@@ -47,8 +45,16 @@ const MinerModal = ({isOpen, onClose, onMinerSaved, defaultMiner = {}}) => {
             metric: minerMetric,
             size: minerSize,
             embeddings_field: minerAnalysisSpace,
-            dataset_id: minerDatasetId,
-            reference_dataset_id: minerReferenceDatasetId
+            select: {
+                ...defaultMiner.select,
+                filters: minerFilters
+            },
+            ...((minerStrategy === 'NEAREST_NEIGHBORS' || minerStrategy === 'CORESET') && referenceFilters.length ? {
+                select_reference: {
+                    ...defaultMiner.select_reference,
+                    filters: referenceFilters
+                }
+            } : {})
         };
 
         if (!payload['_id'] || window.confirm('Changing the miner configuration will delete the current results. Do you really want to continue?')) {
@@ -63,6 +69,24 @@ const MinerModal = ({isOpen, onClose, onMinerSaved, defaultMiner = {}}) => {
             }
         }
     };
+
+    useEffect(() => {
+        if (minerAnalysisSpace) {
+            const notNullFilter = minerFilters.find((f) => f['op'] === 'is not null');
+
+            if (notNullFilter) {
+                notNullFilter['left'] = minerAnalysisSpace;
+                setMinerFilters([...minerFilters]);
+            } else {
+                setMinerFilters([...minerFilters, {
+                    left: minerAnalysisSpace,
+                    op: 'is not null'
+                }]);
+            }
+        } else {
+            setMinerFilters(minerFilters.filter((f) => f['op'] !== 'is not null'));
+        }
+    }, [minerAnalysisSpace]);
 
     useEffect(() => {
         switch (minerStrategy) {
@@ -93,7 +117,7 @@ const MinerModal = ({isOpen, onClose, onMinerSaved, defaultMiner = {}}) => {
                 saveMiner();
             }}>
                 <Container fluid>
-                    <Row className='g-2'>
+                    <Row classname='g-2'>
                         <Col>
                             <Form.Label className='mt-3 mb-0 w-100'>Miner Name</Form.Label>
                             <InputGroup className='mt-1'>
@@ -124,7 +148,7 @@ const MinerModal = ({isOpen, onClose, onMinerSaved, defaultMiner = {}}) => {
                             </InputGroup>
                         </Col>
                     </Row>
-                    <Row className='g-2'>
+                    <Row classname='g-2'>
                         <Col>
                             <Form.Label className='mt-3 mb-0 w-100'>Strategy</Form.Label>
                             <InputGroup className='mt-1'>
@@ -140,7 +164,7 @@ const MinerModal = ({isOpen, onClose, onMinerSaved, defaultMiner = {}}) => {
                             </InputGroup>
                         </Col>
                     </Row>
-                    <Row className='g-2'>
+                    <Row classname='g-2'>
                         <Col>
                             {
                                 minerStrategy === 'NEAREST_NEIGHBORS' || minerStrategy === 'ACTIVATION' || minerStrategy === 'CORESET' ? (
@@ -159,6 +183,9 @@ const MinerModal = ({isOpen, onClose, onMinerSaved, defaultMiner = {}}) => {
                                                 </option>
                                                 <option value='prediction.embeddings'>
                                             Prediction Embeddings
+                                                </option>
+                                                <option value='groundtruth.embeddings'>
+                                            Groundtruth Embeddings
                                                 </option>
                                                 <option value='prediction.logits'>
                                             Prediction Logits
@@ -196,36 +223,28 @@ const MinerModal = ({isOpen, onClose, onMinerSaved, defaultMiner = {}}) => {
                         </Col>
                     </Row>
                     <hr/>
-                    <Row className='g-2'>
+                    <Row classname='g-2'>
                         <Col>
-                            <DatasetSelector defaultValue={minerDatasetId} onChange={setMinerDatasetId}>
-                                Select Mined Dataset
-                            </DatasetSelector>
-                            <Form.Label className='mt-3 mb-0 w-100'>
-                                {minerDatasetId ? (
-                                    <Async fetchData={() => baseJSONClient(`/api/dataset/${minerDatasetId}`)}
-                                        renderData={(dataset) => dataset['display_name']}
-                                        refetchOnChanged={[minerDatasetId]}
-                                    />
-                                ) : null}
-                            </Form.Label>
+                            <Form.Label className='mt-3 mb-0 w-100'>Mined Data</Form.Label>
+                            <DataSelector
+                                emptyOnUnfiltered
+                                onChange={(data) => {
+                                    setMinerFilters(data.filters);
+                                }}
+                                value={{filters: minerFilters}}
+                            />
                         </Col>
                         {
                             minerStrategy === 'NEAREST_NEIGHBORS' || minerStrategy === 'CORESET' ? (
                                 <Col>
-                                    <DatasetSelector defaultValue={minerReferenceDatasetId} onChange={setMinerReferenceDatasetId} >
-                                        Select Reference Dataset
-                                    </DatasetSelector>
-                                    <Form.Label className='mt-3 mb-0 w-100'>
-                                        {
-                                            minerReferenceDatasetId ? (
-                                                <Async fetchData={() => baseJSONClient(`/api/dataset/${minerReferenceDatasetId}`)}
-                                                    renderData={(dataset) => dataset['display_name']}
-                                                    refetchOnChanged={[minerReferenceDatasetId]}
-                                                />
-                                            ) : null
-                                        }
-                                    </Form.Label>
+                                    <Form.Label className='mt-3 mb-0 w-100'>Reference Data</Form.Label>
+                                    <DataSelector
+                                        emptyOnUnfiltered
+                                        onChange={(data) => {
+                                            setReferenceFilters(data.filters);
+                                        }}
+                                        value={{filters: referenceFilters}}
+                                    />
                                 </Col>
                             ) : null
                         }
