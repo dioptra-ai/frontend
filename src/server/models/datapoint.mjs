@@ -70,10 +70,10 @@ class Datapoint {
             'op': '=',
             'right': organizationId
         }));
-        const canonicalColumnTables = canonicalFilters.map((filter) => getCanonicalColumnTable(filter['left']));
+        const canonicalFilterTables = canonicalFilters.map((filter) => getCanonicalColumnTable(filter['left']));
 
         const {rows} = await postgresClient.query(
-            pgFormat(`SELECT COUNT(*) ${getSafeFrom(canonicalColumnTables)} WHERE ${getSafeWhere(canonicalFilters)}`)
+            pgFormat(`SELECT COUNT(DISTINCT datapoints.id) as count ${getSafeFrom(canonicalFilterTables)} WHERE ${getSafeWhere(canonicalFilters)}`)
         );
 
         return Number(rows[0]['count']);
@@ -84,13 +84,13 @@ class Datapoint {
         orderBy = 'datapoints.created_at', desc = false, limit = 1000000, offset = 0
     }) {
         assert(organizationId, 'organizationId is required');
-        const canonicalSelects = selectColumns.map(getCanonicalColumn);
+        const canonicalSelectColumns = selectColumns.map(getCanonicalColumn);
         const canonicalFilters = getCanonicalFilters(filters.concat({
             'left': 'organization_id',
             'op': '=',
             'right': organizationId
         }));
-        const selectsPerTable = canonicalSelects.reduce((acc, column) => {
+        const canonicalSelectColumnsPerTable = canonicalSelectColumns.reduce((acc, column) => {
             const tableName = getCanonicalColumnTable(column);
 
             if (!acc[tableName]) {
@@ -101,7 +101,7 @@ class Datapoint {
 
             return acc;
         }, {});
-        const safeSelects = Object.entries(selectsPerTable).reduce((acc, [tableName, columns]) => {
+        const safeSelects = Object.entries(canonicalSelectColumnsPerTable).reduce((acc, [tableName, columns]) => {
             if (tableName === 'datapoints') {
                 acc.push(...columns.map(getSafeColumn));
             } else {
@@ -124,18 +124,24 @@ class Datapoint {
 
             return acc;
         }, []);
-        const canonicalColumnTables = [
-            ...canonicalSelects.map(getCanonicalColumnTable),
-            ...canonicalFilters.map((filter) => getCanonicalColumnTable(filter['left']))
-        ];
+        const canonicalSelectTables = canonicalSelectColumns.map(getCanonicalColumnTable);
+        const canonicalFilterTables = canonicalFilters.map((filter) => getCanonicalColumnTable(filter['left']));
+
         const {rows} = await postgresClient.query(`
             SELECT ${safeSelects.join(', ')}
-            ${getSafeFrom(canonicalColumnTables)}
-            WHERE ${getSafeWhere(canonicalFilters)}
+            ${getSafeFrom(canonicalSelectTables)}
+            WHERE datapoints.id IN (
+                SELECT id FROM (
+                    SELECT DISTINCT datapoints.id, ${getSafeColumn(orderBy)}
+                    ${getSafeFrom(canonicalFilterTables)}
+                    WHERE ${getSafeWhere(canonicalFilters)}
+                    GROUP BY datapoints.id
+                    ORDER BY ${getSafeColumn(orderBy)} ${desc ? 'DESC' : 'ASC'}
+                    LIMIT ${pgFormat.literal(limit)}
+                    OFFSET ${pgFormat.literal(offset)}
+                ) as filtered_datapoints
+            )
             GROUP BY datapoints.id
-            ORDER BY ${getSafeColumn(orderBy)} ${desc ? 'DESC' : 'ASC'}
-            LIMIT ${pgFormat.literal(limit)}
-            OFFSET ${pgFormat.literal(offset)}
         `);
 
         return rows;
