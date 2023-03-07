@@ -93,7 +93,7 @@ class Dataset {
             [versionId, organizationId]
         );
 
-        return rows.map(({id}) => id);
+        return rows;
     }
 
     static async findVersions(organizationId, id) {
