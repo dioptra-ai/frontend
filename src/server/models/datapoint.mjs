@@ -4,6 +4,9 @@ import pgFormat from 'pg-format';
 import {postgresClient} from './index.mjs';
 
 const SAFE_OPS = new Set(['=', '!=', '<', '>', '<=', '>=', 'LIKE', 'NOT LIKE', 'ILIKE', 'NOT ILIKE', 'SIMILAR TO', 'NOT SIMILAR TO', 'IS', 'IS NOT', 'IN', 'NOT IN', 'ANY', 'ALL', 'BETWEEN', 'NOT BETWEEN', 'IS DISTINCT FROM', 'IS NOT DISTINCT FROM']);
+const isSafeOp = (op) => SAFE_OPS.has(op.toUpperCase());
+const SAFE_IDENTIFIERS = new Set(['*', 'RANDOM()']);
+const isSafeIdentifier = (identifier) => SAFE_IDENTIFIERS.has(identifier.toUpperCase());
 
 const getCanonicalColumn = (column) => column.indexOf('.') === -1 ? `datapoints.${column}` : column;
 const getCanonicalFilters = (filters) => filters.map((filter) => ({
@@ -15,12 +18,12 @@ const getCanonicalFilters = (filters) => filters.map((filter) => ({
 export const getCanonicalColumnTable = (column) => column.split('.')[0];
 export const getSafeColumn = (column) => {
 
-    return pgFormat(column.split('.').map((c) => c === '*' ? '%s' : '%I').join('.'), ...column.split('.'));
+    return pgFormat(column.split('.').map((c) => isSafeIdentifier(c) ? '%s' : '%I').join('.'), ...column.split('.'));
 };
 const getSafeWhere = (canonicalFilters) => {
 
     return canonicalFilters.map((filter) => {
-        assert(SAFE_OPS.has(filter['op'].toUpperCase()), `Unsafe op: ${filter['op']}`);
+        assert(isSafeOp(filter['op']), `Unsafe op: ${filter['op']}`);
 
         switch (filter['op'].toUpperCase()) {
         case 'IN':
