@@ -14,8 +14,8 @@ import Async from 'components/async';
 import PreviewDetails from 'components/preview-details';
 import TopBar from 'pages/common/top-bar';
 import baseJSONClient from 'clients/base-json-client';
-import metricsClient from 'clients/metrics';
-import EventsViewerWithButtons from 'components/events-viewer-with-buttons';
+import DatasetSelector from 'pages/dataset/dataset-selector';
+import DatapointsViewer from 'components/datapoints-viewer';
 
 const ANALYSES = {
     DATA_VIEWER: 'Data Viewer',
@@ -139,7 +139,7 @@ const Miner = () => {
                                                                         selectedAnalysis === 'OUTLIER' ? (
                                                                             <OutliersOrDrift
                                                                                 filters={[{
-                                                                                    left: 'uuid',
+                                                                                    left: 'id',
                                                                                     op: 'in',
                                                                                     right: task['result']
                                                                                 }]}
@@ -149,7 +149,7 @@ const Miner = () => {
                                                                             selectedAnalysis === 'CLUSTERING' ? (
                                                                                 <ClustersAnalysis
                                                                                     filters={[{
-                                                                                        left: 'uuid',
+                                                                                        left: 'id',
                                                                                         op: 'in',
                                                                                         right: task['result']
                                                                                     }]}
@@ -157,17 +157,14 @@ const Miner = () => {
                                                                                 />
                                                                             ) : (
                                                                                 <div className='my-3'>
-                                                                                    <Async
-                                                                                        fetchData={() => metricsClient('select', {
-                                                                                            select: '"uuid", "request_id",  "image_metadata", "prediction", "groundtruth", "text", "tags"',
-                                                                                            filters: [{
-                                                                                                left: 'uuid',
-                                                                                                op: 'in',
-                                                                                                right: task['result']
-                                                                                            }]
-                                                                                        })}
-                                                                                        renderData={(datapoints) => <EventsViewerWithButtons samples={datapoints}/>}
-                                                                                    />
+                                                                                    <DatapointsViewer filters={[{left: 'id', op: 'in', right: task['result']}]} renderActionButtons={({selectedDatapoints}) => selectedDatapoints.size ? (
+                                                                                        <DatasetSelector allowNew title='Add selected to dataset' onChange={async (datasetId) => {
+                                                                                            await baseJSONClient.post(`/api/dataset/${datasetId}/add`, {datapointIds: Array.from(selectedDatapoints)});
+                                                                                            history.push(`/dataset/${datasetId}`);
+                                                                                        }}>
+                                                                                            Add selected to dataset
+                                                                                        </DatasetSelector>
+                                                                                    ) : null} />
                                                                                 </div>
                                                                             )
                                                                     ) : (
