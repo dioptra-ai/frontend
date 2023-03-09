@@ -38,11 +38,11 @@ const DatasetVersionViewer = ({versionId, showDatapointActions}) => {
                     <>
                         <Async
                             fetchData={() => Promise.all([
-                                baseJSONClient('/api/groundtruths', {
+                                baseJSONClient('/api/groundtruths/get', {
                                     method: 'post',
                                     body: {datapointIds}
                                 }),
-                                baseJSONClient('/api/predictions', {
+                                baseJSONClient('/api/predictions/get', {
                                     method: 'post',
                                     body: {datapointIds}
                                 })

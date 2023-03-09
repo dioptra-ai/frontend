@@ -31,7 +31,7 @@ const getCanonicalFilters = (filters) => filters.map((filter) => ({
 }));
 
 export const getCanonicalColumnTable = (column) => column.split('.')[0];
-export const getSafeColumn = (column, withJSONBAlias = false) => {
+export const getSafeColumn = (column, withAliasForJSONB = false) => {
     const path = column.split('.');
     const isChildOfJSONB = (i) => {
         if (i === 0) {
@@ -47,7 +47,7 @@ export const getSafeColumn = (column, withJSONBAlias = false) => {
             if (isSafeIdentifier(c)) {
                 return i === 0 ? '%s' : '.%s';
             } else if (isChildOfJSONB(i)) {
-                if (withJSONBAlias && i === path.length - 1) {
+                if (withAliasForJSONB && i === path.length - 1) {
                     return `->>%L AS ${pgFormat.ident(column)}`;
                 } else {
                     return '->>%L';
@@ -146,6 +146,8 @@ class Datapoint {
             return acc;
         }, {});
         const safeSelects = Object.entries(canonicalSelectColumnsPerTable).reduce((acc, [tableName, columns]) => {
+            const getColumnName = (c) => c.split('.').slice(1).join('.');
+
             if (tableName === 'datapoints') {
                 acc.push(...columns.map((c) => getSafeColumn(c, true)));
             } else {
@@ -158,10 +160,13 @@ class Datapoint {
                     pgFormat(`
                         ARRAY_REMOVE(
                             ARRAY_AGG(DISTINCT 
+                                ${''/* ex: JSONB_BUILD_OBJECT('class_name', predictions.class_name, 'confidence', predictions.confidence, ...)*/}
                                 JSONB_BUILD_OBJECT(
-                                    ${columns.map((column) => [pgFormat.literal(column.split('.').slice(1)), getSafeColumn(column, true)]).flat().join(', ')}
+                                    ${columns.map((c) => [pgFormat.literal(getColumnName(c)), getSafeColumn(c, true)]).flat().join(', ')}
                                 )
-                            ), '{${columns.map((c) => pgFormat.literal(c.split('.').slice(1).join('.')).replaceAll('\'', '')).map((cc) => `"${cc}": null`)}}'
+                            ), 
+                            ${''/* ex: {"class_name": null, "confidence": null, ...} */}
+                            '{${columns.map((c) => pgFormat.literal(getColumnName(c)).replaceAll('\'', '')).map((cc) => `"${cc}": null`)}}'
                         ) AS %I`, tableName)
                 );
             }

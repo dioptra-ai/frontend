@@ -14,6 +14,15 @@ class Groundtruth {
             return rows;
         }
     }
+
+    static async deleteByIds(organizationId, ids) {
+        const {rows} = await postgresClient.query(
+            'DELETE FROM groundtruths WHERE id = ANY($1) AND organization_id = $2 RETURNING *',
+            [ids, organizationId]
+        );
+
+        return rows;
+    }
 }
 
 export default Groundtruth;

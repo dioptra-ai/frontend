@@ -45,19 +45,19 @@ const DatasetDiff = () => {
                         </Row>
                         <Async
                             fetchData={() => Promise.all([
-                                baseJSONClient('/api/groundtruths', {
+                                baseJSONClient('/api/groundtruths/get', {
                                     method: 'post',
                                     body: {datapointIds: removed}
                                 }),
-                                baseJSONClient('/api/groundtruths', {
+                                baseJSONClient('/api/groundtruths/get', {
                                     method: 'post',
                                     body: {datapointIds: added}
                                 }),
-                                baseJSONClient('/api/predictions', {
+                                baseJSONClient('/api/predictions/get', {
                                     method: 'post',
                                     body: {datapointIds: removed}
                                 }),
-                                baseJSONClient('/api/predictions', {
+                                baseJSONClient('/api/predictions/get', {
                                     method: 'post',
                                     body: {datapointIds: added}
                                 })
