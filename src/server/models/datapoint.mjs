@@ -18,6 +18,7 @@ const getCanonicalColumn = (column) => {
     case 'predictions':
     case 'groundtruths':
     case 'datapoints':
+    case 'feature_vectors':
         return column;
     default:
         return `datapoints.${column}`;
@@ -80,7 +81,7 @@ const getSafeFrom = (canonicalColumnTables) => {
 
     return `FROM datapoints ${Array.from(new Set(canonicalColumnTables))
         .filter((table) => table !== 'datapoints')
-        .map((table) => pgFormat('INNER JOIN %I ON datapoints.id = %I.datapoint', table, table))
+        .map((table) => pgFormat('LEFT JOIN %I ON datapoints.id = %I.datapoint', table, table))
         .join(' ')}`;
 };
 
