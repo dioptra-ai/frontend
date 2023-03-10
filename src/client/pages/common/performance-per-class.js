@@ -20,17 +20,20 @@ import Select from 'components/select';
 import theme from 'styles/theme.module.scss';
 
 const PERF_BOX_LIMIT = 1000;
-const PerformanceBox = ({
+
+export const PerformanceBox = ({
     title = '',
     subtext,
     data,
-    referenceData
+    referenceData,
+    maxHeight = 350,
+    minHeight = 350
 }) => {
     const [sortAcs, setSortAsc] = useState(true);
     const classes = data.sort((c1, c2) => sortAcs ? c1.value - c2.value : c2.value - c1.value);
 
     return (
-        <div className='border rounded p-3 pb-0'>
+        <div className='p-2'>
             <span className='text-dark bold-text fs-5'>{title}</span>
             {subtext && (
                 <span className='text-primary mx-1 d-inline-flex'>(n={subtext})</span>
@@ -42,8 +45,8 @@ const PerformanceBox = ({
                     </Alert>
                 ) : null
             }
-            <div className='d-flex py-3 text-secondary bold-text border-bottom'>
-                <span className='w-100'>Label</span>
+            <div className='d-flex py-1 text-secondary bold-text border-bottom'>
+                <span className='w-100'>Class Name</span>
                 <div
                     className='w-100 d-flex align-items-center'
                     onClick={() => setSortAsc(!sortAcs)}
@@ -66,7 +69,7 @@ const PerformanceBox = ({
             </div>
             <div
                 style={{
-                    height: '350px',
+                    maxHeight, minHeight,
                     overflowY: 'scroll',
                     position: 'relative',
                     left: 10,
@@ -100,7 +103,9 @@ PerformanceBox.propTypes = {
     data: PropTypes.array,
     referenceData: PropTypes.array,
     subtext: PropTypes.node,
-    title: PropTypes.string
+    title: PropTypes.string,
+    maxHeight: PropTypes.number,
+    minHeight: PropTypes.number
 };
 
 const ClassRow = ({name = '', value, difference = 0}) => {
@@ -215,7 +220,7 @@ PerformanceMetricScatterPlot.propTypes = {
 };
 
 const PerformancePerGroup = () => {
-    const model = useModel();
+    const model = useModel() || {};
     const [selectedLtrMetric, setSelectedLtrMetric] = useState('mean-ndcg');
 
     return (
@@ -253,7 +258,7 @@ const PerformancePerGroup = () => {
                             )} />
                         </Col>
                     </>
-                ) : `Unsupported model type: ${model.mlModelType}`
+                ) : null
             }
         </Row>
     );

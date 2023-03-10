@@ -1,8 +1,5 @@
 import React, {useRef, useState} from 'react';
 import PropTypes from 'prop-types';
-import {Tooltip} from 'react-tooltip';
-import 'react-tooltip/dist/react-tooltip.css';
-import {v4 as uuidv4} from 'uuid';
 
 import {getHexColor} from 'helpers/color-helper';
 import Canvas from 'components/canvas';
@@ -12,9 +9,8 @@ const HOVER_OPACITY = 0.5;
 const SegmentationMask = ({mask, classNames}) => {
     const numRows = mask.length;
     const numCols = mask[0].length;
-    const [canvasId] = useState(uuidv4());
     const canvasRef = useRef(null);
-    const currentClassNameRef = useRef(null);
+    const [currentClassName, setCurrentClassName] = useState(null);
     const getClassName = (row, col) => {
         if (classNames?.[mask[row][col]]) {
             return classNames[mask[row][col]];
@@ -29,12 +25,12 @@ const SegmentationMask = ({mask, classNames}) => {
         // Compute the name of the class under the mouse. Should also work when the canvas is zoomed in.
         const canvasHeight = rect.bottom - rect.top;
         const canvasWidth = rect.right - rect.left;
-        const row = Math.floor((e.clientY - rect.top) / canvasHeight * numRows);
-        const col = Math.floor((e.clientX - rect.left) / canvasWidth * numCols);
+        const row = Math.max(0, Math.floor((e.clientY - rect.top) / canvasHeight * numRows));
+        const col = Math.max(0, Math.floor((e.clientX - rect.left) / canvasWidth * numCols));
         const className = getClassName(row, col);
 
         // If the class name under the mouse has not changed, do nothing.
-        if (currentClassNameRef.current !== className) {
+        if (currentClassName !== className) {
             const canvasContext = canvas.getContext('2d');
 
             canvasContext.clearRect(0, 0, canvas.width, canvas.height);
@@ -52,7 +48,7 @@ const SegmentationMask = ({mask, classNames}) => {
                 });
             });
 
-            currentClassNameRef.current = className;
+            setCurrentClassName(className);
         }
     };
 
@@ -69,11 +65,12 @@ const SegmentationMask = ({mask, classNames}) => {
     // On mouseleave, redraw the canvas with 50% opacity for all pixels.
     const onMouseLeave = () => {
         resetCanvas(canvasRef.current.getContext('2d'));
+        setCurrentClassName(null);
     };
 
     return (
         <>
-            <Canvas id={canvasId} ref={canvasRef.current} draw={(ctx, ref) => {
+            <Canvas ref={canvasRef.current} draw={(ctx, ref) => {
 
                 ctx.canvas.width = numCols;
                 ctx.canvas.height = numRows;
@@ -81,15 +78,20 @@ const SegmentationMask = ({mask, classNames}) => {
 
                 resetCanvas(ctx);
             }} onMouseMove={onMouseMove} onMouseLeave={onMouseLeave} style={{width: '100%', height: '100%'}}/>
-            <Tooltip anchorSelect={`#${canvasId}`} content={currentClassNameRef.current}
-            />
+            {currentClassName ? (
+                <div className='p-2 position-absolute' style={{
+                    bottom: 0,
+                    backgroundColor: 'white',
+                    color: getHexColor(currentClassName)
+                }}>{currentClassName}</div>
+            ) : null}
         </>
     );
 };
 
 SegmentationMask.propTypes = {
     mask: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)).isRequired,
-    classNames: PropTypes.object
+    classNames: PropTypes.arrayOf(PropTypes.string)
 };
 
 export default SegmentationMask;

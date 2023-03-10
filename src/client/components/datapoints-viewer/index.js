@@ -9,6 +9,7 @@ import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import Form from 'react-bootstrap/Form';
 
+import {PerformanceBox} from 'pages/common/performance-per-class';
 import Async from 'components/async';
 import Modal from 'components/modal';
 import {RenderDatapoint} from 'components/preview-details';
@@ -27,6 +28,23 @@ const DatapointCard = ({datapoint = {}, onClick, zoomable, showDetails, maxHeigh
         setViewportHeight(e.target.offsetHeight);
     };
     const [showHeatMap, setShowHeatMap] = useState(false);
+    const [showPredictionMask, setShowPredictionMask] = useState(false);
+    const [showGroundtruthMask, setShowGroundtruthMask] = useState(false);
+    const confidencesPerClass = predictions.reduce((acc, p) => {
+        const {class_names, confidences} = p;
+
+        class_names.forEach((c, i) => {
+            acc[c] = acc[c] || [];
+            acc[c].push(confidences[i]);
+        });
+
+        return acc;
+    }, {});
+    const averageConfidencePerClass = Object.keys(confidencesPerClass).reduce((acc, c) => {
+        acc[c] = confidencesPerClass[c].reduce((a, b) => a + b, 0) / confidencesPerClass[c].length;
+
+        return acc;
+    }, {});
 
     switch (type) {
     case 'IMAGE': {
@@ -34,6 +52,8 @@ const DatapointCard = ({datapoint = {}, onClick, zoomable, showDetails, maxHeigh
         const imageW = metadata.width;
         const imageObject = metadata.object;
         const someHeatMap = predictions.some((p) => p['feature_heatmap']);
+        const somePredictionMask = predictions.some((p) => p['segmentation_class_mask']);
+        const someGroundtruthMask = groundtruths.some((g) => g['segmentation_class_mask']);
 
         return (
             <Row onClick={onClick} className='g-2'>
@@ -52,7 +72,31 @@ const DatapointCard = ({datapoint = {}, onClick, zoomable, showDetails, maxHeigh
                                                     onChange={(e) => setShowHeatMap(e.target.checked)}
                                                     checked={showHeatMap}
                                                 />
-                                                    Display HeatMap
+                                                    HeatMap
+                                            </Form.Label>
+                                        ) : null}
+                                        {somePredictionMask ? (
+                                            <Form.Label className='mb-0 me-2 d-flex cursor-pointer'>
+                                                <Form.Check type='checkbox'
+                                                    onChange={(e) => {
+                                                        setShowPredictionMask(e.target.checked);
+                                                        setShowGroundtruthMask(false);
+                                                    }}
+                                                    checked={showPredictionMask}
+                                                />
+                                                    Prediction Mask
+                                            </Form.Label>
+                                        ) : null}
+                                        {someGroundtruthMask ? (
+                                            <Form.Label className='mb-0 d-flex cursor-pointer'>
+                                                <Form.Check type='checkbox'
+                                                    onChange={(e) => {
+                                                        setShowGroundtruthMask(e.target.checked);
+                                                        setShowPredictionMask(false);
+                                                    }}
+                                                    checked={showGroundtruthMask}
+                                                />
+                                                    Groundtruth Mask
                                             </Form.Label>
                                         ) : null}
                                     </div>
@@ -72,29 +116,25 @@ const DatapointCard = ({datapoint = {}, onClick, zoomable, showDetails, maxHeigh
                                     `}</style>
                                     {
                                         // Segmentation predictions segmentation_class_mask.
-                                        predictions.filter(Boolean).map((p, i) => {
-
-                                            return p['segmentation_class_mask'] ? (
-                                                <div key={i} className='position-absolute h-100 w-100'>
-                                                    <SegmentationMask mask={p['segmentation_class_mask']} classNames={p['class_names']} />
-                                                </div>
-                                            ) : null;
-                                        })
+                                        // More than one of them would overlap and would not really make sense.
+                                        showPredictionMask ? predictions.filter((p) => p['segmentation_class_mask']).map((p, i) => (
+                                            <div key={i} className='position-absolute h-100 w-100'>
+                                                <SegmentationMask mask={p['segmentation_class_mask']} classNames={p['class_names']} />
+                                            </div>
+                                        )) : null
                                     }
                                     {
                                         // Segmentation groundtruths segmentation_class_mask.
-                                        groundtruths.filter(Boolean).map((g, i) => {
-
-                                            return g['segmentation_class_mask'] ? (
-                                                <div key={i} className='position-absolute h-100 w-100'>
-                                                    <SegmentationMask mask={g['segmentation_class_mask']} classNames={g['class_names']} />
-                                                </div>
-                                            ) : null;
-                                        })
+                                        // More than one of them would overlap and would not really make sense.
+                                        showGroundtruthMask ? groundtruths.filter((g) => g['segmentation_class_mask']).map((g, i) => (
+                                            <div key={i} className='position-absolute h-100 w-100'>
+                                                <SegmentationMask mask={g['segmentation_class_mask']} classNames={g['class_names']} />
+                                            </div>
+                                        )) : null
                                     }
                                     {
                                         // Object detection predictions bounding boxes.
-                                        predictions.filter(Boolean).map((p, i) => {
+                                        predictions.filter((p) => !p['segmentation_class_mask']).map((p, i) => {
                                             const box = imageObject || p;
                                             const scale = viewportHeight / imageH;
                                             const heatmap = p['feature_heatmap'];
@@ -152,7 +192,7 @@ const DatapointCard = ({datapoint = {}, onClick, zoomable, showDetails, maxHeigh
                                     }
                                     {
                                         // Object detection groundtruths bounding boxes.
-                                        groundtruths.filter(Boolean).map((g, i) => {
+                                        groundtruths.filter((g) => !g['segmentation_class_mask']).map((g, i) => {
                                             const box = imageObject || g;
                                             const scale = viewportHeight / imageH;
                                             const hasBoxTop = box['top'] !== null && !isNaN(box['top']);
@@ -194,6 +234,11 @@ const DatapointCard = ({datapoint = {}, onClick, zoomable, showDetails, maxHeigh
                         )}
                     </TransformWrapper>
                 </Col>
+                {showDetails && Object.keys(averageConfidencePerClass).length > 0 ? (
+                    <Col xs={12}>
+                        <PerformanceBox minHeight={50} data={Object.entries(averageConfidencePerClass).map(([label, value]) => ({label, value}))} />
+                    </Col>
+                ) : null}
                 {
                     showDetails ? (
                         <Col xs={12}>

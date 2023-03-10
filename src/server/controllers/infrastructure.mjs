@@ -1,5 +1,5 @@
-import {v4 as uuidv4} from 'uuid';
 import express from 'express';
+import md5 from 'md5';
 import {GetObjectCommand, PutObjectCommand, S3Client} from '@aws-sdk/client-s3';
 import {getSignedUrl} from '@aws-sdk/s3-request-presigner';
 
@@ -14,7 +14,7 @@ InfrastructureRouter.all('*', isAuthenticated);
 
 InfrastructureRouter.get('/sign-s3-url-pair', async (req, res, next) => {
     try {
-        const key = `${ENVIRONMENT}/${req.user.requestOrganizationId}/${uuidv4()}.ndjson`;
+        const key = `${ENVIRONMENT}/${req.user.requestOrganizationId}/${md5(Math.random().toString())}.ndjson`;
         const [put, get] = await Promise.all([
             getSignedUrl(s3, new PutObjectCommand({
                 Bucket: AWS_S3_CUSTOMER_BUCKET,
