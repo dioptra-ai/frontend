@@ -1,3 +1,4 @@
+import Color from 'color';
 
 const COLORS = [
     '#11C8BD',
@@ -15,14 +16,14 @@ const COLORS = [
     '#F8C86C'
 ];
 
-export const getHexColor = (fromValue) => {
+export const getHexColor = (fromValue, alpha = 1) => {
     if (fromValue === '') {
 
-        return '#C5CCD3';
+        return Color('#C5CCD3').alpha(alpha).string();
     } else {
         const fromValueString = String(fromValue);
         const sum = fromValueString.split('').reduce((agg, _, i) => fromValueString.charCodeAt(i) + agg, 0);
 
-        return COLORS[sum % COLORS.length];
+        return Color(COLORS[sum % COLORS.length]).alpha(alpha).string();
     }
 };

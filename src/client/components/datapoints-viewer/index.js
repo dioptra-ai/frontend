@@ -18,6 +18,8 @@ import baseJSONClient from 'clients/base-json-client';
 import {getHexColor} from 'helpers/color-helper';
 import {mod} from 'helpers/math';
 
+import SegmentationMask from './segmentation-mask';
+
 const DatapointCard = ({datapoint = {}, onClick, zoomable, showDetails, maxHeight}) => {
     const {predictions = [], groundtruths = [], type, metadata = {}} = datapoint;
     const [viewportHeight, setViewportHeight] = useState(0);
@@ -50,7 +52,7 @@ const DatapointCard = ({datapoint = {}, onClick, zoomable, showDetails, maxHeigh
                                                     onChange={(e) => setShowHeatMap(e.target.checked)}
                                                     checked={showHeatMap}
                                                 />
-                                                Display HeatMap
+                                                    Display HeatMap
                                             </Form.Label>
                                         ) : null}
                                     </div>
@@ -63,12 +65,35 @@ const DatapointCard = ({datapoint = {}, onClick, zoomable, showDetails, maxHeigh
                                     />
                                     {/* eslint-disable-next-line react/no-unknown-property */}
                                     <style>{`
-                                .hover-fade:hover {
-                                    opacity: 0.4;
-                                    transition: opacity 0.2s ease-in-out;
-                                }
-                            `}</style>
+                                        .hover-fade:hover {
+                                            opacity: 0.4;
+                                            transition: opacity 0.2s ease-in-out;
+                                        }
+                                    `}</style>
                                     {
+                                        // Segmentation predictions segmentation_class_mask.
+                                        predictions.filter(Boolean).map((p, i) => {
+
+                                            return p['segmentation_class_mask'] ? (
+                                                <div key={i} className='position-absolute h-100 w-100'>
+                                                    <SegmentationMask mask={p['segmentation_class_mask']} classNames={p['class_names']} />
+                                                </div>
+                                            ) : null;
+                                        })
+                                    }
+                                    {
+                                        // Segmentation groundtruths segmentation_class_mask.
+                                        groundtruths.filter(Boolean).map((g, i) => {
+
+                                            return g['segmentation_class_mask'] ? (
+                                                <div key={i} className='position-absolute h-100 w-100'>
+                                                    <SegmentationMask mask={g['segmentation_class_mask']} classNames={g['class_names']} />
+                                                </div>
+                                            ) : null;
+                                        })
+                                    }
+                                    {
+                                        // Object detection predictions bounding boxes.
                                         predictions.filter(Boolean).map((p, i) => {
                                             const box = imageObject || p;
                                             const scale = viewportHeight / imageH;
@@ -126,6 +151,7 @@ const DatapointCard = ({datapoint = {}, onClick, zoomable, showDetails, maxHeigh
                                         })
                                     }
                                     {
+                                        // Object detection groundtruths bounding boxes.
                                         groundtruths.filter(Boolean).map((g, i) => {
                                             const box = imageObject || g;
                                             const scale = viewportHeight / imageH;
@@ -272,7 +298,7 @@ const DatapointsPage = ({datapoints, selectedDatapoints, onSelectedDatapointsCha
                     <div className='fs-1 p-4 bg-white-blue cursor-pointer d-flex align-items-center mx-2' onClick={handleModalprevious}>
                         <GrPrevious />
                     </div>
-                    <DatapointCard datapoint={datapointInModal} maxHeight={600} zoomable showDetails/>
+                    <DatapointCard datapoint={datapointInModal} maxHeight={600} zoomable showDetails />
                     <div className='fs-1 p-4 bg-white-blue cursor-pointer d-flex align-items-center mx-2' onClick={handleModalNext}>
                         <GrNext />
                     </div>
@@ -347,15 +373,15 @@ const DatapointsPageActions = ({filters, datapoints, selectedDatapoints, onSelec
                                                 allDatapointsSelected ? `All ${totalCount.toLocaleString()} datapoints are selected.` :
                                                     `${selectedDatapoints.size.toLocaleString()} datapoint${selectedDatapoints.size > 1 ? 's are' : ' is'} selected.`
                                             }
-                                        &nbsp;
+                                            &nbsp;
                                             {
                                                 allDatapointsSelected && onSelectedDatapointsChange ? (
                                                     <a onClick={() => handleSelectedDatapointsChange([])}>
-                                                    Clear selection
+                                                        Clear selection
                                                     </a>
                                                 ) : onSelectedDatapointsChange ? (
                                                     <a onClick={handleSelectAllDataPoints}>
-                                                    Select all {Number(totalCount).toLocaleString()} datapoints
+                                                        Select all {Number(totalCount).toLocaleString()} datapoints
                                                     </a>
                                                 ) : null
                                             }
@@ -399,10 +425,14 @@ const DatapointsViewer = ({filters, renderActionButtons}) => {
             <Async
                 fetchData={() => baseJSONClient.post('/api/datapoints/select', {
                     selectColumns: [
-                        'id', 'metadata', 'type', 'tags.name', 'tags.value',
-                        'predictions.class_name', 'predictions.confidence', 'predictions.model_name',
-                        'predictions.top', 'predictions.left', 'predictions.width', 'predictions.height',
-                        'groundtruths.class_name', 'groundtruths.top', 'groundtruths.left', 'groundtruths.width', 'groundtruths.height'
+                        'id', 'metadata', 'type',
+                        'tags.name', 'tags.value',
+                        'predictions.class_name', 'predictions.class_names',
+                        'predictions.confidence', 'predictions.confidences',
+                        'predictions.model_name',
+                        'predictions.segmentation_class_mask', 'predictions.top', 'predictions.left', 'predictions.width', 'predictions.height',
+                        'groundtruths.class_name', 'groundtruths.class_names',
+                        'groundtruths.segmentation_class_mask', 'groundtruths.top', 'groundtruths.left', 'groundtruths.width', 'groundtruths.height'
                     ],
                     filters,
                     offset,
@@ -442,7 +472,7 @@ const DatapointsViewer = ({filters, renderActionButtons}) => {
                                 disabled={offset === 0}
                                 onClick={() => setOffset(offset - PAGE_SIZE)}
                             >
-                        Previous
+                                Previous
                             </Button>
                             <div className='mx-3'>
                                 {
@@ -456,7 +486,7 @@ const DatapointsViewer = ({filters, renderActionButtons}) => {
                                 disabled={!loading && offset + PAGE_SIZE >= totalCount}
                                 onClick={() => setOffset(offset + PAGE_SIZE)}
                             >
-                        Next
+                                Next
                             </Button>
                         </div>
                     )

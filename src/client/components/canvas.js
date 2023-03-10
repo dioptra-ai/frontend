@@ -12,7 +12,7 @@ const useCanvas = (draw, options = {}) => {
 
         const render = () => {
 
-            draw(context);
+            draw(context, canvasRef);
         };
 
         render();
