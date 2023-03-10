@@ -56,7 +56,7 @@ spec:
             - name: AWS_S3_CUSTOMER_BUCKET_REGION
               value: "us-east-2"
             - name: PORT
-              value: {{ .Values.app.port }}
+              value: "{{ .Values.app.port }}"
             - name: INTERNAL_PORT
               value: "{{ .Values.app.internalPort }}"
             - name: AWS_API_GATEWAY_PLAN_ID
