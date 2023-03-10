@@ -58,7 +58,7 @@ spec:
             - name: PORT
               value: {{ .Values.app.port }}
             - name: INTERNAL_PORT
-              value: {{ .Values.app.internalPort }}
+              value: "{{ .Values.app.internalPort }}"
             - name: AWS_API_GATEWAY_PLAN_ID
               value: "{{ .Values.app.awsApiGatewayPlanId }}"
             - name: AWS_ACCESS_KEY_ID
