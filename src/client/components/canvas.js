@@ -1,7 +1,26 @@
-import React from 'react';
+import {useEffect, useRef} from 'react';
 import {PropTypes} from 'prop-types';
 
-import useCanvas from 'hooks/use-canvas';
+const useCanvas = (draw, options = {}) => {
+
+    const canvasRef = useRef(null);
+
+    useEffect(() => {
+
+        const canvas = canvasRef.current;
+        const context = canvas.getContext(options.context || '2d');
+
+        const render = () => {
+
+            draw(context, canvasRef);
+        };
+
+        render();
+
+    }, []);
+
+    return canvasRef;
+};
 
 const Canvas = ({draw, options = {}, ...rest}) => {
 

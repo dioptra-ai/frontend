@@ -26,21 +26,32 @@ DatapointsRouter.get('/:id', async (req, res, next) => {
     }
 });
 
-DatapointsRouter.post('/_legacy-get-datapoint-events', async (req, res, next) => {
+DatapointsRouter.post('/select', async (req, res, next) => {
     try {
-        const events = await Datapoint._legacyFindDatapointEventsByDatapointIds(req.user.requestOrganizationId, req.body.datapointIds);
+        const datapoints = await Datapoint.select({
+            organizationId: req.user.requestOrganizationId,
+            selectColumns: req.body.selectColumns,
+            filters: req.body.filters,
+            orderBy: req.body.orderBy,
+            desc: req.body.desc,
+            limit: req.body.limit,
+            offset: req.body.offset
+        });
 
-        res.json(events);
+        res.json(datapoints);
     } catch (e) {
         next(e);
     }
 });
 
-DatapointsRouter.post('/_legacy-get-groundtruth-prediction-events', async (req, res, next) => {
+DatapointsRouter.post('/count', async (req, res, next) => {
     try {
-        const events = await Datapoint._legacyFindGroundtruthAndPredictionEventsByDatapointIds(req.user.requestOrganizationId, req.body.datapointIds);
+        const count = await Datapoint.count({
+            organizationId: req.user.requestOrganizationId,
+            filters: req.body.filters
+        });
 
-        res.json(events);
+        res.json(count);
     } catch (e) {
         next(e);
     }
@@ -92,6 +103,16 @@ DatapointsRouter.delete('/:id', async (req, res, next) => {
         const datapoint = await Datapoint.deleteById(req.user.requestOrganizationId, req.params.id);
 
         res.json(datapoint);
+    } catch (e) {
+        next(e);
+    }
+});
+
+DatapointsRouter.post('/delete', async (req, res, next) => {
+    try {
+        const datapoints = await Datapoint.deleteByFilters(req.user.requestOrganizationId, req.body.filters);
+
+        res.json(datapoints);
     } catch (e) {
         next(e);
     }

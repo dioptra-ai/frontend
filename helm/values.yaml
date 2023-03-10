@@ -1,0 +1,3 @@
+app:
+  port: 4004
+  internalPort: 4005

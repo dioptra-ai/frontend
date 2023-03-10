@@ -48,26 +48,26 @@ const MapMarAnalysis = () => {
                         );
                     }}
                     refetchOnChanged={[allSqlFilters]}
-                    fetchData={[
-                        () => metricsClient('/map', {
+                    fetchData={() => Promise.all([
+                        metricsClient('/map', {
                             sql_filters: allSqlFilters,
                             model_type: 'DOCUMENT_PROCESSING',
                             iou_threshold: 0.5,
                             group_by: ['groundtruth.class_name']
                         }),
-                        () => metricsClient('/map', {
+                        metricsClient('/map', {
                             sql_filters: allSqlFilters,
                             model_type: 'DOCUMENT_PROCESSING',
                             iou_threshold: 0.75,
                             group_by: ['groundtruth.class_name']
                         }),
-                        () => metricsClient('/map', {
+                        metricsClient('/map', {
                             sql_filters: allSqlFilters,
                             model_type: 'DOCUMENT_PROCESSING',
                             iou_threshold: 0.9,
                             group_by: ['groundtruth.class_name']
                         })
-                    ]}
+                    ])}
                 />
             </div>
             <div className='d-flex my-3'>
@@ -107,26 +107,26 @@ const MapMarAnalysis = () => {
                         );
                     }}
                     refetchOnChanged={[allSqlFilters]}
-                    fetchData={[
-                        () => metricsClient('/mar', {
+                    fetchData={() => Promise.all([
+                        metricsClient('/mar', {
                             sql_filters: allSqlFilters,
                             model_type: 'DOCUMENT_PROCESSING',
                             iou_threshold: 0.5,
                             group_by: ['groundtruth.class_name']
                         }),
-                        () => metricsClient('/mar', {
+                        metricsClient('/mar', {
                             sql_filters: allSqlFilters,
                             model_type: 'DOCUMENT_PROCESSING',
                             iou_threshold: 0.75,
                             group_by: ['groundtruth.class_name']
                         }),
-                        () => metricsClient('/mar', {
+                        metricsClient('/mar', {
                             sql_filters: allSqlFilters,
                             model_type: 'DOCUMENT_PROCESSING',
                             iou_threshold: 0.9,
                             group_by: ['groundtruth.class_name']
                         })
-                    ]}
+                    ])}
                 />
             </div>
         </>

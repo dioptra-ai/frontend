@@ -1,8 +1,6 @@
 import {useState} from 'react';
 import {useHistory, useParams} from 'react-router-dom';
-import {Button, Container, OverlayTrigger, Tooltip} from 'react-bootstrap';
-import {AiOutlineDelete} from 'react-icons/ai';
-import {saveAs} from 'file-saver';
+import {Button, Container} from 'react-bootstrap';
 import Form from 'react-bootstrap/Form';
 
 import LoadingForm from 'components/loading-form';
@@ -10,7 +8,6 @@ import Async from 'components/async';
 import Menu from 'components/menu';
 import TopBar from 'pages/common/top-bar';
 import baseJSONClient from 'clients/base-json-client';
-import metricsClient from 'clients/metrics';
 import {DatasetCommitModal, DatasetEditModal} from 'components/dataset-modal';
 import Select from 'components/select';
 import {DatasetVersionViewer} from './dataset-version';
@@ -20,7 +17,6 @@ const Dataset = () => {
     const history = useHistory();
     const [isDatasetEditOpen, setIsDatasetEditOpen] = useState(false);
     const [isDatasetCommitOpen, setIsDatasetCommitVersionOpen] = useState(false);
-    const [selectedEvents, setSelectedEvents] = useState([]);
     const [lastUpdatedOn, setLastUpdatedOn] = useState(new Date());
 
     return (
@@ -32,7 +28,7 @@ const Dataset = () => {
                 renderData={(dataset) => (
                     <>
                         <div className='bg-white-blue text-dark p-3'>
-                            <h4>{dataset['display_name']}</h4>
+                            <h4>Dataset: {dataset['display_name']}</h4>
                             <Async
                                 fetchData={() => baseJSONClient(`/api/dataset/${datasetId}/versions`)}
                                 refetchOnChanged={[datasetId, lastUpdatedOn]}
@@ -83,7 +79,7 @@ const Dataset = () => {
 
                                                 history.push(`/dataset/version/${versionId}`);
                                             }}>
-                                                View
+                                                View/Download Version
                                             </Button>
                                             <LoadingForm.Button type='submit' variant='secondary' size='s' className='text-nowrap' name='action' value='checkout'>
                                                 Checkout
@@ -96,23 +92,6 @@ const Dataset = () => {
                                 &nbsp;|&nbsp;
                             <a href='#' onClick={() => setIsDatasetCommitVersionOpen(true)}>Commit</a>
                                 &nbsp;|&nbsp;
-                            <a href='#' onClick={async () => {
-                                const datapoints = await baseJSONClient(`/api/dataset/${datasetId}/datapoints`);
-                                const data = await metricsClient('select', {
-                                    select: '"uuid", "is_annotation", "timestamp", "request_id" as "datapoint_id", "model_id", "model_version", "image_metadata", "text_metadata", "video_metadata", "text", "tags", "features", "groundtruth", "prediction"',
-                                    filters: [{
-                                        left: 'request_id',
-                                        op: 'in',
-                                        right: datapoints.map((datapoint) => datapoint['request_id'])
-                                    }],
-                                    rm_fields: ['embeddings', 'logits', 'feature_heatmap'],
-                                    as_csv: true
-                                }, false);
-
-                                saveAs(new Blob([data], {type: 'text/csv;charset=utf-8'}), `${dataset['display_name']}-${new Date().toISOString()}.csv`);
-
-                            }}>Download as CSV</a>
-                                &nbsp;|&nbsp;
                             <a href='#' style={{color: 'red'}} onClick={async () => {
                                 if (window.confirm('Do you really want to delete this dataset?\nThis action cannot be undone.')) {
                                     await baseJSONClient(`/api/dataset/${datasetId}`, {
@@ -123,8 +102,7 @@ const Dataset = () => {
                                 }
                             }}>Delete</a>
                             {(isDatasetEditOpen) ? (
-                                <DatasetEditModal
-                                    isOpen
+                                <DatasetEditModal isOpen dataset={dataset}
                                     onClose={() => {
                                         setIsDatasetEditOpen(false);
                                     }}
@@ -133,12 +111,10 @@ const Dataset = () => {
                                         setLastUpdatedOn(new Date());
                                         history.push(`/dataset/${uuid}`);
                                     }}
-                                    dataset={dataset}
                                 />
                             ) : null}
                             {(isDatasetCommitOpen) ? (
-                                <DatasetCommitModal
-                                    isOpen
+                                <DatasetCommitModal isOpen datasetId={datasetId}
                                     onClose={() => {
                                         setIsDatasetCommitVersionOpen(false);
                                     }}
@@ -146,7 +122,6 @@ const Dataset = () => {
                                         setIsDatasetCommitVersionOpen(false);
                                         setLastUpdatedOn(new Date());
                                     }}
-                                    datasetId={datasetId}
                                 />
                             ) : null}
                         </div>
@@ -158,40 +133,9 @@ const Dataset = () => {
                     fetchData={() => baseJSONClient(`/api/dataset/${datasetId}/uncommitted-version`)}
                     refetchOnChanged={[datasetId, lastUpdatedOn]}
                     renderData={(uncommittedVersion) => {
-                        const handleRemoveSelectedEvents = async (e) => {
-                            e.preventDefault();
-                            if (window.confirm('Do you really want to remove the selected datapoints?')) {
-                                const datapoints = await baseJSONClient(`/api/dataset/${datasetId}/datapoints`);
-
-                                await baseJSONClient(`/api/dataset/${datasetId}/remove`, {
-                                    method: 'POST',
-                                    body: {
-                                        datapointIds: selectedEvents.map((e) => datapoints.find((d) => d['request_id'] === e['request_id'])['id'])
-                                    }
-                                });
-
-                                setSelectedEvents([]);
-                                setLastUpdatedOn(new Date());
-                            }
-                        };
 
                         return (
-                            <DatasetVersionViewer
-                                versionId={uncommittedVersion['uuid']}
-                                dataViewerProps={{
-                                    onSelectedChange: setSelectedEvents,
-                                    renderButtons: () => (
-                                        <OverlayTrigger overlay={<Tooltip>Remove {selectedEvents.length} from dataset</Tooltip>}>
-                                            <button
-                                                disabled={!selectedEvents.length}
-                                                className='d-flex text-dark border-0 bg-transparent click-down' onClick={handleRemoveSelectedEvents}
-                                            >
-                                                <AiOutlineDelete className='fs-3 cursor-pointer' />
-                                            </button>
-                                        </OverlayTrigger>
-                                    )
-                                }}
-                            />
+                            <DatasetVersionViewer versionId={uncommittedVersion['uuid']} showDatapointActions/>
                         );
                     }}
                 />

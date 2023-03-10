@@ -4,7 +4,7 @@ import {IoCloseOutline} from 'react-icons/io5';
 
 Modal.setAppElement('#root');
 
-const ModalComponent = ({onClose, isOpen = true, title, closeButton, children}) => {
+const ModalComponent = ({onClose, isOpen = true, title = ' ', closeButton, children}) => {
     return (
         <Modal isOpen={isOpen} onRequestClose={onClose} style={{
             content: {
@@ -16,27 +16,25 @@ const ModalComponent = ({onClose, isOpen = true, title, closeButton, children}) 
                 transform: 'translate(-50%, -50%)',
                 maxHeight: '90vh',
                 maxWidth: '90vw',
-                minWidth: '20vw',
-                ...(title ? {paddingTop: 0} : null)
+                minWidth: '30vw',
+                paddingTop: 0
             },
             overlay: {
                 zIndex: 20
             }
         }}>
             <div className='d-flex flex-column p-3'>
-                {title !== undefined ? (
-                    <div
-                        className='d-flex align-items-center bg-white position-sticky top-0'
-                        style={{zIndex: 1}}
-                    >
-                        <div className='text-dark m-0 bold-text flex-grow-1 fs-4'>{title}</div>
-                        {closeButton ? closeButton : (
-                            <button className='text-dark border-0 bg-white fs-2 p-0 ps-3' onClick={onClose}>
-                                <IoCloseOutline/>
-                            </button>
-                        )}
-                    </div>
-                ) : null}
+                <div
+                    className='d-flex justify-content-between align-items-center position-sticky top-0'
+                    style={{zIndex: 1}}
+                >
+                    <div className='text-dark m-0 bold-text flex-grow-1 fs-4'>{title}</div>
+                    {closeButton ? closeButton : (
+                        <button className='text-dark border-0 bg-white fs-2' onClick={onClose}>
+                            <IoCloseOutline/>
+                        </button>
+                    )}
+                </div>
                 <div className='flex-grow-1'>
                     {children}
                 </div>
@@ -49,7 +47,7 @@ ModalComponent.propTypes = {
     children: PropTypes.node,
     isOpen: PropTypes.bool,
     onClose: PropTypes.func,
-    title: PropTypes.string,
+    title: PropTypes.node,
     closeButton: PropTypes.node
 };
 

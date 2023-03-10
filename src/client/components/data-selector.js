@@ -16,7 +16,7 @@ const DataSelector = ({value = {}, onChange, emptyOnUnfiltered}) => {
 
     return (
         <>
-            <Row classname='g-2'>
+            <Row className='g-2'>
                 <Col>
                     <InputGroup className='mt-1 d-flex flex-column'>
                         <FilterInput onChange={(filters) => onChange({

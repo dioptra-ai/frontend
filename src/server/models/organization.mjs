@@ -1,11 +1,5 @@
 import mongoose from 'mongoose';
 
-const precannedOrgId = process.env['PRECANNED_ORG_ID'];
-
-if (!precannedOrgId) {
-    console.error('No PRECANNED_ORG_ID in the environment - new orgs will be empty!');
-}
-
 const Schema = mongoose.Schema;
 const organizationSchema = new Schema({
     _id: {
@@ -30,28 +24,39 @@ organizationSchema.virtual('mlModels', {
     foreignField: 'organization'
 });
 
-organizationSchema.pre('save', async function () {
+organizationSchema.statics.createWithMember = async (orgProps, userId) => {
+    const OrganizationMembership = mongoose.model('OrganizationMembership');
+    const User = mongoose.model('User');
+    const user = await User.findById(userId);
+    const org = await Organization.create(orgProps);
+    const orgMembership = await OrganizationMembership.create({
+        user: userId,
+        organization: org._id
+    });
 
-    try {
-        if (this.isNew && precannedOrgId) { // eslint-disable-line no-invalid-this
-            const MlModel = mongoose.model('MlModel');
-            const precannedMlModels = await MlModel.find({
-                organization: precannedOrgId
-            }).select('-_id').lean();
+    user.activeOrganizationMembership = orgMembership;
 
-            return Promise.all(
-                precannedMlModels.map((precannedMlModel) => MlModel.create({
-                    ...precannedMlModel,
-                    organization: this._id // eslint-disable-line no-invalid-this
-                }))
-            );
-        } else return null;
-    } catch (e) {
-        console.error(e);
+    await user.save();
 
-        return null;
-    }
-});
+    return org;
+};
+
+organizationSchema.statics.createWithMember = async (orgProps, userId) => {
+    const OrganizationMembership = mongoose.model('OrganizationMembership');
+    const User = mongoose.model('User');
+    const user = await User.findById(userId);
+    const org = await Organization.create(orgProps);
+    const orgMembership = await OrganizationMembership.create({
+        user: userId,
+        organization: org._id
+    });
+
+    user.activeOrganizationMembership = orgMembership;
+
+    await user.save();
+
+    return org;
+};
 
 organizationSchema.statics.createWithMember = async (orgProps, userId) => {
     const OrganizationMembership = mongoose.model('OrganizationMembership');

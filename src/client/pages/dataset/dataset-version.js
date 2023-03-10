@@ -1,61 +1,66 @@
 import PropTypes from 'prop-types';
 import {Button, Col, Row} from 'react-bootstrap';
+import {saveAs} from 'file-saver';
 import {Link, useHistory, useParams} from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
 
 import Select from 'components/select';
 import BarGraph from 'components/bar-graph';
 import {getHexColor} from 'helpers/color-helper';
-import DataViewer from './data-viewer';
 import Async from 'components/async';
 import baseJSONClient from 'clients/base-json-client';
 import Menu from 'components/menu';
 import TopBar from 'pages/common/top-bar';
+import DatapointsViewer from 'components/datapoints-viewer';
 
-const DatasetVersionViewer = ({dataViewerProps, versionId}) => {
+const DatasetVersionViewer = ({versionId, showDatapointActions}) => {
+    // Defining histogram function to be used in the renderData assignment
+    const getHistogram = (values, getClassName) => values.reduce((acc, value) => {
+        const name = getClassName(value);
+
+        if (name) {
+            if (!acc[name]) {
+                acc[name] = 0;
+            }
+            acc[name] += 1;
+        }
+
+        return acc;
+    }, {});
 
     return (
         <Async
-            fetchData={() => baseJSONClient(`/api/dataset/version/${versionId}/datapoints`)}
+            fetchData={() => baseJSONClient(`/api/dataset/version/${versionId}/datapoint-ids`)}
             refetchOnChanged={[versionId]}
-            renderData={(datapoints) => {
-                const datapointIds = datapoints.map((datapoint) => datapoint['id']);
+            renderData={(datapointIds) => {
 
                 return (
                     <>
                         <Async
-                            fetchData={() => baseJSONClient('/api/datapoints/_legacy-get-groundtruth-prediction-events', {
-                                method: 'post',
-                                body: {datapointIds}
-                            })}
+                            fetchData={() => Promise.all([
+                                baseJSONClient('/api/groundtruths/get', {
+                                    method: 'post',
+                                    body: {datapointIds}
+                                }),
+                                baseJSONClient('/api/predictions/get', {
+                                    method: 'post',
+                                    body: {datapointIds}
+                                })
+                            ])}
                             refetchOnChanged={[datapointIds]}
-                            renderData={(events) => {
-                                const getHistogram = (events, getClassName) => events.reduce((acc, event) => {
-                                    const name = getClassName(event);
-
-                                    if (name) {
-                                        if (!acc[name]) {
-                                            acc[name] = 0;
-                                        }
-                                        acc[name] += 1;
-                                    }
-
-                                    return acc;
-                                }, {});
-                                const groundtruths = getHistogram(events, (event) => event['groundtruth']?.['class_name']);
-                                const predictions = getHistogram(events, (event) => event['prediction']?.['class_name']);
+                            renderData={([groundtruths, predictions]) => {
+                                const groundtruthsHist = getHistogram(groundtruths, (groundtruth) => groundtruth?.['class_name']);
+                                const predictionsHist = getHistogram(predictions, (prediction) => prediction?.['class_name']);
 
                                 return (
                                     <Row className='g-2 my-2'>
                                         {
-                                            Object.keys(groundtruths).length ? (
+                                            Object.keys(groundtruthsHist).length ? (
                                                 <Col>
                                                     <BarGraph
                                                         title='Groundtruths'
-                                                        bars={Object.entries(groundtruths).map(([name, value]) => ({
-                                                            name,
-                                                            value,
-                                                            fill: getHexColor(name)
+                                                        bars={Object.entries(groundtruthsHist).map(([name, value]) => ({
+                                                            name, value, fill: getHexColor(name)
                                                         }))}
                                                         yAxisTickFormatter={(v) => Number(v).toLocaleString()}
                                                     />
@@ -63,14 +68,12 @@ const DatasetVersionViewer = ({dataViewerProps, versionId}) => {
                                             ) : null
                                         }
                                         {
-                                            Object.keys(predictions).length ? (
+                                            Object.keys(predictionsHist).length ? (
                                                 <Col>
                                                     <BarGraph
                                                         title='Predictions'
-                                                        bars={Object.entries(predictions).map(([name, value]) => ({
-                                                            name,
-                                                            value,
-                                                            fill: getHexColor(name)
+                                                        bars={Object.entries(predictionsHist).map(([name, value]) => ({
+                                                            name, value, fill: getHexColor(name)
                                                         }))}
                                                         yAxisTickFormatter={(v) => Number(v).toLocaleString()}
                                                     />
@@ -81,7 +84,31 @@ const DatasetVersionViewer = ({dataViewerProps, versionId}) => {
                                 );
                             }}
                         />
-                        <DataViewer datapointIds={datapointIds} {...dataViewerProps}/>
+                        <div className='mt-3'>
+                            <DatapointsViewer
+                                filters={[{
+                                    left: 'datapoints.id',
+                                    op: 'in',
+                                    right: datapointIds
+                                }]}
+                                renderActionButtons={showDatapointActions ? ({selectedDatapoints}) => {
+
+                                    return selectedDatapoints.size ? (
+                                        <a onClick={async () => {
+                                            if (confirm('Are you sure you want to remove the selected datapoints from this dataset?')) {
+                                                const datasetVersion = await baseJSONClient.get(`/api/dataset/version/${versionId}`);
+
+                                                await baseJSONClient.post(`/api/dataset/${datasetVersion['dataset_uuid']}/remove`, {
+                                                    datapointIds: Array.from(selectedDatapoints)
+                                                });
+
+                                                history.go(0);
+                                            }
+                                        }} style={{color: 'red'}}>Remove selected datapoints</a>
+                                    ) : null;
+                                } : null}
+                            />
+                        </div>
                     </>
                 );
             }}
@@ -91,7 +118,7 @@ const DatasetVersionViewer = ({dataViewerProps, versionId}) => {
 
 DatasetVersionViewer.propTypes = {
     versionId: PropTypes.string.isRequired,
-    dataViewerProps: PropTypes.object
+    showDatapointActions: PropTypes.bool
 };
 
 export {DatasetVersionViewer};
@@ -110,19 +137,42 @@ const DatasetVersion = () => {
                     renderData={(version) => (
                         <>
                             <Async
-                                fetchData={() => baseJSONClient(`/api/dataset/${version['dataset_uuid']}`)}
+                                fetchData={() => baseJSONClient.get(`/api/dataset/${version['dataset_uuid']}`)}
                                 refetchOnChanged={[version['dataset_uuid']]}
                                 renderData={(dataset) => (
-                                    <h4 className='d-flex align-items-baseline'>
-                                        <Link to={`/dataset/${dataset['uuid']}`}>{dataset['display_name']}</Link>
-                                        &nbsp;
-                                        <div className='fs-5'>version: <span style={{fontFamily: 'monospace'}}>{version['uuid']}</span></div>
-                                    </h4>
+                                    <>
+                                        <h4 className='d-flex align-items-baseline'>
+                                            Dataset Version:&nbsp;{dataset['display_name']}
+                                        </h4>
+                                        <div>Version id: <span style={{fontFamily: 'monospace'}}>{version['uuid']}</span></div>
+                                        <div>Version commit message: <span style={{fontFamily: 'monospace'}}>{
+                                            version['committed'] ? `"${version['message']}"` : '<Uncommitted>'
+                                        }</span></div>
+                                        <div>
+                                            <Link to={`/dataset/${dataset['uuid']}`}>Go to dataset</Link>
+                                            &nbsp;|&nbsp;
+                                            <a href='#' onClick={async () => {
+                                                const datapointIds = await baseJSONClient(`/api/dataset/version/${versionId}/datapoint-ids`);
+                                                const data = await baseJSONClient.post('/api/datapoints/select', {
+                                                    selectColumns: [
+                                                        'id', 'metadata', 'type', 'text',
+                                                        'tags.name', 'tags.value',
+                                                        'groundtruths.task_type', 'groundtruths.class_name', 'groundtruths.top', 'groundtruths.left', 'groundtruths.width', 'groundtruths.height',
+                                                        'predictions.task_type', 'predictions.class_name', 'predictions.top', 'predictions.left', 'predictions.width', 'predictions.height', 'predictions.confidence', 'predictions.model_name', 'predictions.metrics'
+                                                    ],
+                                                    filters: [{
+                                                        left: 'datapoints.id',
+                                                        op: 'in',
+                                                        right: datapointIds
+                                                    }]
+                                                });
+
+                                                saveAs(new Blob([JSON.stringify(data)], {type: 'application/json;charset=utf-8'}), `${dataset['display_name']}-${new Date().toISOString()}.json`);
+                                            }}>Download version (JSON)</a>
+                                        </div>
+                                    </>
                                 )}
                             />
-                            <div>Version commit message: <span style={{fontFamily: 'monospace'}}>{
-                                version['committed'] ? `"${version['message']}"` : '<Uncommitted>'
-                            }</span></div>
                             <Async
                                 fetchData={() => baseJSONClient(`/api/dataset/${version['dataset_uuid']}/versions`)}
                                 refetchOnChanged={[version['dataset_uuid']]}
@@ -133,7 +183,7 @@ const DatasetVersion = () => {
 
                                         history.push(`/dataset/diff/${otherVersionId}/${versionId}`);
                                     }}>
-                                        <Form.Label column className='mb-0 text-nowrap'>Versions:</Form.Label>
+                                        <Form.Label column className='mb-0 text-nowrap'>Other Versions:</Form.Label>
                                         <Select name='versionId' className='ms-1 me-2' defaultValue={versionId}>
                                             {
                                                 versions.map((version) => (

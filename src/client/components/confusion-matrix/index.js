@@ -178,20 +178,20 @@ const ConfusionMatrix = () => {
                             </>
                         );
                     }}
-                    fetchData={[
-                        () => metricsClient('confusion-matrix', {
+                    fetchData={() => Promise.all([
+                        metricsClient('confusion-matrix', {
                             iou,
                             filters: allFilters,
                             model_type: model.mlModelType,
                             limit: 101
                         }),
-                        () => metricsClient('confusion-matrix', {
+                        metricsClient('confusion-matrix', {
                             iou,
                             filters: allFilters, // TODO: implement useAllFilters({useReferenceFilters: true})
                             model_type: model.mlModelType,
                             limit: 101
                         })
-                    ]}
+                    ])}
                     refetchOnChanged={[iou, allSqlFilters, sqlFiltersWithModelTime]}
                 />
                 {selectedCell ? (

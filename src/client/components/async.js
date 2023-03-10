@@ -32,10 +32,7 @@ const Async = ({
             setLoading(true);
 
             try {
-                const fetchAllData = Array.isArray(fetchData) ?
-                    Promise.all(fetchData.map((f) => f())) :
-                    fetchData();
-                const data = await fetchAllData;
+                const data = await fetchData();
 
                 if (requestId === inFlightRequest.current) {
                     setData(data);

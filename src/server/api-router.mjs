@@ -13,6 +13,9 @@ import InfrastructureRouter from './controllers/infrastructure.mjs';
 import TasksRouter from './controllers/tasks.mjs';
 import DatasetRouter from './controllers/dataset.mjs';
 import DatapointsRouter from './controllers/datapoints.mjs';
+import GroundtruthsRouter from './controllers/groundtruth.mjs';
+import PredictionsRouter from './controllers/prediction.mjs';
+import SuggestionsRouter from './controllers/suggestion.mjs';
 import EventsRouter from './controllers/events.mjs';
 
 const ApiRouter = express.Router();
@@ -30,6 +33,9 @@ ApiRouter.use('/integration', IntegrationRouter);
 ApiRouter.use('/ingestion', IngestionRouter);
 ApiRouter.use('/infrastructure', InfrastructureRouter);
 ApiRouter.use('/datapoints', DatapointsRouter);
+ApiRouter.use('/groundtruths', GroundtruthsRouter);
+ApiRouter.use('/predictions', PredictionsRouter);
+ApiRouter.use('/suggestions', SuggestionsRouter);
 ApiRouter.use('/dataset', DatasetRouter);
 ApiRouter.use('/events', EventsRouter);
 

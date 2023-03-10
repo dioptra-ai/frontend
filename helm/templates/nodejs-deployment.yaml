@@ -56,9 +56,9 @@ spec:
             - name: AWS_S3_CUSTOMER_BUCKET_REGION
               value: "us-east-2"
             - name: PORT
-              value: "4004"
-            - name: PRECANNED_ORG_ID
-              value: {{ .Values.precannedOrgId }}
+              value: {{ .Values.app.port }}
+            - name: INTERNAL_PORT
+              value: {{ .Values.app.internalPort }}
             - name: AWS_API_GATEWAY_PLAN_ID
               value: "{{ .Values.app.awsApiGatewayPlanId }}"
             - name: AWS_ACCESS_KEY_ID

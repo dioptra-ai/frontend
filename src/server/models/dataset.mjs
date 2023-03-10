@@ -27,8 +27,8 @@ class Dataset {
         if (parentVersionUuid) {
             // Copy datapoints from parent.
             await transaction.query(
-                `INSERT INTO dataset_to_datapoints (dataset_version, datapoint)
-                SELECT $1, datapoint FROM dataset_to_datapoints WHERE dataset_version = $2`,
+                `INSERT INTO dataset_to_datapoints (dataset_version, datapoint, organization_id)
+                SELECT $1, datapoint, organization_id FROM dataset_to_datapoints WHERE dataset_version = $2`,
                 [datasetVersion.uuid, parentVersionUuid]
             );
 
@@ -75,21 +75,25 @@ class Dataset {
         return uncommittedVersion;
     }
 
+    static async findDatapointIdsByVersion(organizationId, versionId) {
+        const {rows} = await postgresClient.query(
+            `SELECT datapoint AS id FROM dataset_to_datapoints
+                WHERE dataset_version = $1 AND organization_id = $2`,
+            [versionId, organizationId]
+        );
+
+        return rows.map(({id}) => id);
+    }
+
     static async findDatapointsByVersion(organizationId, versionId) {
         const {rows} = await postgresClient.query(
             `SELECT datapoints.* FROM dataset_to_datapoints
-            INNER JOIN datapoints ON dataset_to_datapoints.datapoint = datapoints.id
-            WHERE dataset_to_datapoints.dataset_version = $1 AND datapoints.organization_id = $2`,
+                INNER JOIN datapoints ON datapoints.id = dataset_to_datapoints.datapoint
+                WHERE dataset_version = $1 AND dataset_to_datapoints.organization_id = $2`,
             [versionId, organizationId]
         );
 
         return rows;
-    }
-
-    static async findDatapoints(organizationId, id) {
-        const uncommittedVersion = await Dataset.findUncommittedVersion(organizationId, id);
-
-        return Dataset.findDatapointsByVersion(organizationId, uncommittedVersion.uuid);
     }
 
     static async findVersions(organizationId, id) {
@@ -174,8 +178,9 @@ class Dataset {
 
             // Add datapoints to uncommitted version.
             await transactionClient.query(
-                `INSERT INTO dataset_to_datapoints (dataset_version, datapoint) VALUES ${datapointIds.map((_, index) => `($1, $${index + 2})`).join(', ')} ON CONFLICT DO NOTHING`,
-                [uncommittedVersion.uuid, ...datapointIds]
+                `INSERT INTO dataset_to_datapoints (dataset_version, datapoint, organization_id)
+                (SELECT * FROM UNNEST($1::uuid[], $2::uuid[], $3::text[])) ON CONFLICT DO NOTHING`,
+                [datapointIds.map(() => uncommittedVersion.uuid), datapointIds, datapointIds.map(() => organizationId)]
             );
 
             // Mark uncommitted version as dirty.
@@ -188,7 +193,6 @@ class Dataset {
 
     static remove(organizationId, id, datapointIds) {
 
-
         return postgresTransaction(async (transactionClient) => {
             // Get uncommitted version.
             const {rows: [uncommittedVersion]} = await transactionClient.query(
@@ -198,8 +202,8 @@ class Dataset {
 
             // Remove datapoints from uncommitted version.
             await transactionClient.query(
-                `DELETE FROM dataset_to_datapoints WHERE dataset_version = $1 AND datapoint IN (${datapointIds.map((datapointId, index) => `$${index + 2}`).join(', ')})`,
-                [uncommittedVersion.uuid, ...datapointIds]
+                'DELETE FROM dataset_to_datapoints WHERE dataset_version = $1 AND datapoint = ANY($2)',
+                [uncommittedVersion.uuid, datapointIds]
             );
 
             // Mark uncommitted version as dirty.

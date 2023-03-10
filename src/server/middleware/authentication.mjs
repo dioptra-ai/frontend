@@ -1,12 +1,9 @@
 import mongoose from 'mongoose';
 import passport from 'passport';
 import {Strategy as LocalStrategy} from 'passport-local';
-import * as passportHttp from 'passport-http';
 import PassportStrategy from 'passport-strategy';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
-
-const {BASIC_USERNAME, BASIC_PASSWORD} = process.env;
 
 const sessionStore = new MongoStore({
     mongoUrl: process.env.DB_CONNECTION_URI,
@@ -24,26 +21,8 @@ export const sessionHandler = session({
 });
 
 export const isAuthenticated = [
-    passport.authenticate('optional-apikey'),
-    (req, res, next) => {
-        if (req.user) {
-            next();
-        } else {
-
-            res.sendStatus(401);
-        }
-    }
-];
-
-export const isbasicAuthenticated = [
-    passport.authenticate('optional-apikey'),
-    (req, res, next) => {
-        if (req.user) {
-            next();
-        } else {
-            passport.authenticate('basic', {session: false})(req, res, next);
-        }
-    },
+    passport.authenticate('internal-port'),
+    passport.authenticate('aws-apikey'),
     (req, res, next) => {
         if (req.user) {
             next();
@@ -100,18 +79,23 @@ passport.use(new LocalStrategy({
     }
 }));
 
-passport.use(new passportHttp.BasicStrategy(
-    (username, password, done) => {
-        if (username === BASIC_USERNAME && password === BASIC_PASSWORD) {
-            return done(null, {username});
+class InternalPortStrategy extends PassportStrategy {
+    name = 'internal-port';
+
+    authenticate(req) {
+        if (req.socket.localPort === Number(process.env.INTERNAL_PORT)) {
+            this.success({
+                _id: 'internal',
+                requestOrganizationId: req.headers['x-organization-id']
+            });
         } else {
-            return done(null, false);
+            this.pass();
         }
     }
-));
+}
 
-class OptionalApiKeyStrategy extends PassportStrategy {
-    name = 'optional-apikey';
+class AWSApiKeyStrategy extends PassportStrategy {
+    name = 'aws-apikey';
 
     async authenticate(req) {
         if (req.user) {
@@ -148,4 +132,5 @@ class OptionalApiKeyStrategy extends PassportStrategy {
     }
 }
 
-passport.use(new OptionalApiKeyStrategy());
+passport.use(new InternalPortStrategy());
+passport.use(new AWSApiKeyStrategy());
