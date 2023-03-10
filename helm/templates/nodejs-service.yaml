@@ -34,8 +34,8 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-    - name: {{ .Values.app.internalPort }}}
-      port: {{ .Values.app.internalPort }}}
-      targetPort: {{ .Values.app.internalPort }}}
+    - name: frontend-internal
+      port: {{ .Values.app.internalPort }}
+      targetPort: {{ .Values.app.internalPort }}
   selector:
     io.kompose.service: frontend-internal
