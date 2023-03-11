@@ -38,4 +38,4 @@ spec:
       port: {{ .Values.app.internalPort }}
       targetPort: {{ .Values.app.internalPort }}
   selector:
-    io.kompose.service: frontend-internal
+    io.kompose.service: {{ .Release.Name }}-{{ .Values.environment }}-dioptra-app
