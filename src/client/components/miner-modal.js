@@ -33,6 +33,9 @@ const MinerModal = ({isOpen, onClose, onMinerSaved, defaultMiner = {}}) => {
         value: 'ENTROPY',
         name: 'N Highest Entropy'
     }, {
+        value: 'VARIANCE',
+        name: 'N Highest Variance'
+    }, {
         value: 'ACTIVATION',
         name: 'N Lowest Activation'
     }];
@@ -99,6 +102,9 @@ const MinerModal = ({isOpen, onClose, onMinerSaved, defaultMiner = {}}) => {
             }
             break;
         case 'ENTROPY':
+            setMinerAnalysisSpace(null);
+            break;
+        case 'VARIANCE':
             setMinerAnalysisSpace(null);
             break;
         default:
