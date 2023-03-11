@@ -84,6 +84,7 @@ spec:
           name: dioptra-frontend
           ports:
             - containerPort: 4004
+            - containerPort: 4005
           resources: {}
       restartPolicy: Always
 status: {}

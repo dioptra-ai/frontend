@@ -34,7 +34,7 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-    - name: frontend-internal
+    - name: "{{ .Values.app.internalPort }}"
       port: {{ .Values.app.internalPort }}
       targetPort: {{ .Values.app.internalPort }}
   selector:
