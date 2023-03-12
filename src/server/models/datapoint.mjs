@@ -81,7 +81,17 @@ const getSafeFrom = (canonicalColumnTables) => {
 
     return `FROM datapoints ${Array.from(new Set(canonicalColumnTables))
         .filter((table) => table !== 'datapoints')
-        .map((table) => pgFormat('LEFT JOIN %I ON datapoints.id = %I.datapoint', table, table))
+        .map((table) => {
+            const [tableName, tableAlias] = table.toLowerCase().split(' as ');
+
+            if (tableAlias) {
+
+                return pgFormat('LEFT JOIN %I AS %I ON datapoints.id = %I.datapoint', tableName, tableAlias, tableAlias);
+            } else {
+
+                return pgFormat('LEFT JOIN %I ON datapoints.id = %I.datapoint', table, table);
+            }
+        })
         .join(' ')}`;
 };
 
@@ -174,7 +184,48 @@ class Datapoint {
             return acc;
         }, []);
         const canonicalSelectTables = canonicalSelectColumns.map(getCanonicalColumnTable);
-        const canonicalFilterTables = canonicalFilters.map((filter) => getCanonicalColumnTable(filter['left']));
+        const filtersPerColumn = canonicalFilters.reduce((acc, filter) => {
+            const column = filter['left'];
+
+            if (!acc[column]) {
+                acc[column] = [];
+            }
+
+            acc[column].push(filter);
+
+            return acc;
+        }, {});
+        const aliasedFilters = Object.values(filtersPerColumn).reduce((acc, columnFilters) => {
+            if (columnFilters.length > 1) {
+                columnFilters.forEach((filter, i) => {
+                    const tableName = getCanonicalColumnTable(filter['left']);
+                    const columnName = filter['left'].split('.')[1];
+
+                    acc.push({
+                        'left': `${tableName}_${i}.${columnName}`,
+                        'op': filter['op'],
+                        'right': filter['right']
+                    });
+                });
+            } else {
+                acc.push(columnFilters[0]);
+            }
+
+            return acc;
+        }, []);
+        const aliasedTables = Object.values(filtersPerColumn).reduce((acc, columnFilters) => {
+            if (columnFilters.length > 1) {
+                columnFilters.forEach((filter, i) => {
+                    const tableName = getCanonicalColumnTable(filter['left']);
+
+                    acc.push(`${tableName} AS ${tableName}_${i}`);
+                });
+            } else {
+                acc.push(getCanonicalColumnTable(columnFilters[0]['left']));
+            }
+
+            return acc;
+        }, []);
 
         return `
             SELECT ${safeSelects.join(', ')}
@@ -182,8 +233,8 @@ class Datapoint {
             WHERE datapoints.id IN (
                 SELECT id FROM (
                     SELECT DISTINCT datapoints.id, ${getSafeColumn(orderBy)}
-                    ${getSafeFrom(canonicalFilterTables)}
-                    WHERE ${getSafeWhere(canonicalFilters)}
+                    ${getSafeFrom(aliasedTables)}
+                    WHERE ${getSafeWhere(aliasedFilters)}
                     GROUP BY datapoints.id
                     ORDER BY ${getSafeColumn(orderBy)} ${desc ? 'DESC' : 'ASC'}
                     LIMIT ${pgFormat.literal(limit)}
