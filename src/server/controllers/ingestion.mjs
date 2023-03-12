@@ -16,11 +16,27 @@ IngestionRouter.get('/executions/:id', async (req, res, next) => {
             executionArn: Buffer.from(req.params.id, 'base64').toString('utf-8')
         }));
 
+        let errorMessage = '';
+
+        if (execution.cause) {
+            try {
+                const cause = JSON.parse(execution.cause);
+
+                if (cause.errorMessage) {
+                    errorMessage = cause.errorMessage;
+                } else if (cause.error) {
+                    errorMessage = cause.error;
+                }
+            } catch (e) {
+                errorMessage = execution.cause;
+            }
+        }
+
         res.json({
             input: JSON.parse(execution.input),
             output: execution.output ? JSON.parse(execution.output) : undefined,
             status: execution.status,
-            errorMessage: execution.cause ? JSON.parse(execution.cause).errorMessage : undefined,
+            errorMessage,
             startDate: execution.startDate,
             stopDate: execution.stopDate,
             durationMs: execution.stopDate ? execution.stopDate - execution.startDate : undefined
