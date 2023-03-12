@@ -4,11 +4,8 @@ import Container from 'react-bootstrap/Container';
 import {saveAs} from 'file-saver';
 import slugify from 'slugify';
 
-import Select from 'components/select';
 import MinerModal from 'components/miner-modal';
 import {DatasetEditModal} from 'components/dataset-modal';
-import OutliersOrDrift from 'pages/common/outliers-or-drift';
-import ClustersAnalysis from 'pages/common/clusters-analysis';
 import Menu from 'components/menu';
 import Async from 'components/async';
 import PreviewDetails from 'components/preview-details';
@@ -17,19 +14,11 @@ import baseJSONClient from 'clients/base-json-client';
 import DatasetSelector from 'pages/dataset/dataset-selector';
 import DatapointsViewer from 'components/datapoints-viewer';
 
-const ANALYSES = {
-    DATA_VIEWER: 'Data Viewer',
-    CLUSTERING: 'Clustering',
-    OUTLIER: 'Outlier Detection'
-};
-
 const Miner = () => {
     const history = useHistory();
     const {minerId} = useParams();
     const [isMinerModalOpen, setIsMinerModalOpen] = useState(false);
     const [lastRequestedRefresh, setLastRequestedRefresh] = useState(0);
-    const analysesKeys = Object.keys(ANALYSES);
-    const [selectedAnalysis, setSelectedAnalysis] = useState(analysesKeys[0]);
     const [isDatasetModalOpen, setIsDatasetModalOpen] = useState(false);
     const handleRunMiner = async () => {
         await baseJSONClient('/api/tasks/miner/run', {
@@ -125,52 +114,16 @@ const Miner = () => {
                                                 {
                                                     task['status'] === 'SUCCESS' ? (
                                                         <>
-                                                            <hr/>
-                                                            <Select required defaultValue={selectedAnalysis} onChange={setSelectedAnalysis}>
-                                                                {
-                                                                    analysesKeys.map((k) => (
-                                                                        <option value={k} key={k}>{ANALYSES[k]}</option>
-                                                                    ))
-                                                                }
-                                                            </Select>
+                                                            <hr />
                                                             <div className='my-3'>
-                                                                {
-                                                                    task['result'].length ? (
-                                                                        selectedAnalysis === 'OUTLIER' ? (
-                                                                            <OutliersOrDrift
-                                                                                filters={[{
-                                                                                    left: 'id',
-                                                                                    op: 'in',
-                                                                                    right: task['result']
-                                                                                }]}
-                                                                                embeddingsField={miner['embeddings_field']}
-                                                                            />
-                                                                        ) :
-                                                                            selectedAnalysis === 'CLUSTERING' ? (
-                                                                                <ClustersAnalysis
-                                                                                    filters={[{
-                                                                                        left: 'id',
-                                                                                        op: 'in',
-                                                                                        right: task['result']
-                                                                                    }]}
-                                                                                    embeddingsField={miner['embeddings_field']}
-                                                                                />
-                                                                            ) : (
-                                                                                <div className='my-3'>
-                                                                                    <DatapointsViewer filters={[{left: 'id', op: 'in', right: task['result']}]} renderActionButtons={({selectedDatapoints}) => selectedDatapoints.size ? (
-                                                                                        <DatasetSelector allowNew title='Add selected to dataset' onChange={async (datasetId) => {
-                                                                                            await baseJSONClient.post(`/api/dataset/${datasetId}/add`, {datapointIds: Array.from(selectedDatapoints)});
-                                                                                            history.push(`/dataset/${datasetId}`);
-                                                                                        }}>
-                                                                                            Add selected to dataset
-                                                                                        </DatasetSelector>
-                                                                                    ) : null} />
-                                                                                </div>
-                                                                            )
-                                                                    ) : (
-                                                                        <h5>Empty Result</h5>
-                                                                    )
-                                                                }
+                                                                <DatapointsViewer filters={[{left: 'id', op: 'in', right: task['result']}]} renderActionButtons={({selectedDatapoints}) => selectedDatapoints.size ? (
+                                                                    <DatasetSelector allowNew title='Add selected to dataset' onChange={async (datasetId) => {
+                                                                        await baseJSONClient.post(`/api/dataset/${datasetId}/add`, {datapointIds: Array.from(selectedDatapoints)});
+                                                                        history.push(`/dataset/${datasetId}`);
+                                                                    }}>
+                                                                        Add selected to dataset
+                                                                    </DatasetSelector>
+                                                                ) : null} />
                                                             </div>
                                                         </>
                                                     ) : null
