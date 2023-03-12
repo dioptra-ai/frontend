@@ -9,6 +9,8 @@ import Modal from 'components/modal';
 import Select from 'components/select';
 import baseJSONClient from 'clients/base-json-client';
 
+const NO_ID = '';
+
 const DatasetSelector = ({as = 'a', title = 'Select Dataset', onChange, defaultValue, children = 'Select dataset', allowNew, ...rest}) => {
     const [modalOpen, setModalOpen] = useState(false);
     const [selectedDataset, setSelectedDataset] = useState(defaultValue);
@@ -17,7 +19,7 @@ const DatasetSelector = ({as = 'a', title = 'Select Dataset', onChange, defaultV
         event.preventDefault();
         let datasetId = event.target.datasetId.value;
 
-        if (datasetId === '') {
+        if (!datasetId) {
             const response = await baseJSONClient.post('/api/dataset', {
                 displayName: event.target.displayName.value
             });
@@ -45,7 +47,7 @@ const DatasetSelector = ({as = 'a', title = 'Select Dataset', onChange, defaultV
                     renderData={(datasets) => (
                         <LoadingForm onSubmit={handleSubmit}>
                             <Form.Group className='mb-3'>
-                                <Select name='datasetId' defaultValue={selectedDataset} onChange={(value) => {
+                                <Select name='datasetId' defaultValue={datasets[0]?.['uuid'] || selectedDataset} onChange={(value) => {
                                     setSelectedDataset(value);
                                 }}>
                                     {datasets.map((dataset) => (
@@ -55,7 +57,7 @@ const DatasetSelector = ({as = 'a', title = 'Select Dataset', onChange, defaultV
                                     ))}
                                     {
                                         allowNew && (
-                                            <option value=''>{'<new dataset>'}</option>
+                                            <option value={NO_ID}>{'<new dataset>'}</option>
                                         )
                                     }
                                 </Select>
@@ -67,7 +69,7 @@ const DatasetSelector = ({as = 'a', title = 'Select Dataset', onChange, defaultV
                                     )
                                 }
                             </Form.Group>
-                            {selectedDataset === '' && (
+                            {selectedDataset ? null : (
                                 <Form.Group className='mb-3'>
                                     <Form.Label>New Dataset Name</Form.Label>
                                     <Form.Control type='text' name='displayName' required/>
