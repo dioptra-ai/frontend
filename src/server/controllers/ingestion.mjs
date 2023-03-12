@@ -20,6 +20,8 @@ IngestionRouter.get('/executions/:id', async (req, res, next) => {
             input: JSON.parse(execution.input),
             output: execution.output ? JSON.parse(execution.output) : undefined,
             status: execution.status,
+            error: execution.error,
+            cause: execution.cause,
             startDate: execution.startDate,
             stopDate: execution.stopDate,
             durationMs: execution.stopDate ? execution.stopDate - execution.startDate : undefined
