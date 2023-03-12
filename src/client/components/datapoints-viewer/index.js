@@ -334,21 +334,45 @@ const DatapointsPage = ({datapoints, selectedDatapoints, onSelectedDatapointsCha
                     </Col>
                 ))}
             </Row>
-            <Modal isOpen={Boolean(datapointInModal)} onClose={() => setDatapointIndexInModal(-1)}
-                title={selectedDatapoints ? (
-                    <DatapointSelector datapoint={datapointInModal} selectedDatapoints={selectedDatapoints} onSelectedDatapointsChange={onSelectedDatapointsChange} />
-                ) : null}
-            >
-                <div className='d-flex'>
-                    <div className='fs-1 p-4 bg-white-blue cursor-pointer d-flex align-items-center mx-2' onClick={handleModalprevious}>
-                        <GrPrevious />
+            {datapointInModal ? (
+                <Modal isOpen onClose={() => setDatapointIndexInModal(-1)}
+                    title={selectedDatapoints ? (
+                        <DatapointSelector datapoint={datapointInModal} selectedDatapoints={selectedDatapoints} onSelectedDatapointsChange={onSelectedDatapointsChange} />
+                    ) : null}
+                >
+                    <div className='d-flex'>
+                        <div className='fs-1 p-4 bg-white-blue cursor-pointer d-flex align-items-center mx-2' onClick={handleModalprevious}>
+                            <GrPrevious />
+                        </div>
+                        <Async
+                            fetchData={() => baseJSONClient.post('/api/datapoints/select', {
+                                filters: [{
+                                    'left': 'id',
+                                    'op': '=',
+                                    'right': datapointInModal.id
+                                }],
+                                selectColumns: [
+                                    'id', 'metadata', 'type', 'text',
+                                    'tags.name', 'tags.value',
+                                    'predictions.segmentation_class_mask',
+                                    'predictions.class_name', 'predictions.class_names',
+                                    'predictions.confidence', 'predictions.confidences',
+                                    'predictions.model_name',
+                                    'predictions.top', 'predictions.left', 'predictions.width', 'predictions.height',
+                                    'groundtruths.segmentation_class_mask',
+                                    'groundtruths.class_name', 'groundtruths.class_names',
+                                    'groundtruths.top', 'groundtruths.left', 'groundtruths.width', 'groundtruths.height'
+                                ]
+                            })}
+                            refetchOnChanged={[datapointInModal.id]}
+                            renderData={([datapoint]) => (<DatapointCard datapoint={datapoint} maxHeight={600} zoomable showDetails />)}
+                        />
+                        <div className='fs-1 p-4 bg-white-blue cursor-pointer d-flex align-items-center mx-2' onClick={handleModalNext}>
+                            <GrNext />
+                        </div>
                     </div>
-                    <DatapointCard datapoint={datapointInModal} maxHeight={600} zoomable showDetails />
-                    <div className='fs-1 p-4 bg-white-blue cursor-pointer d-flex align-items-center mx-2' onClick={handleModalNext}>
-                        <GrNext />
-                    </div>
-                </div>
-            </Modal>
+                </Modal>
+            ) : null}
         </>
     );
 };
@@ -470,14 +494,9 @@ const DatapointsViewer = ({filters, renderActionButtons}) => {
             <Async
                 fetchData={() => baseJSONClient.post('/api/datapoints/select', {
                     selectColumns: [
-                        'id', 'metadata', 'type',
-                        'tags.name', 'tags.value',
-                        'predictions.class_name', 'predictions.class_names',
-                        'predictions.confidence', 'predictions.confidences',
-                        'predictions.model_name',
-                        'predictions.segmentation_class_mask', 'predictions.top', 'predictions.left', 'predictions.width', 'predictions.height',
-                        'groundtruths.class_name', 'groundtruths.class_names',
-                        'groundtruths.segmentation_class_mask', 'groundtruths.top', 'groundtruths.left', 'groundtruths.width', 'groundtruths.height'
+                        'id', 'metadata', 'type', 'text',
+                        'groundtruths.class_name',
+                        'groundtruths.top', 'groundtruths.left', 'groundtruths.width', 'groundtruths.height'
                     ],
                     filters,
                     offset,
