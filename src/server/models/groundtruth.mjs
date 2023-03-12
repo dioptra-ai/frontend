@@ -1,14 +1,18 @@
 import {postgresClient} from './index.mjs';
 
 class Groundtruth {
-    static async findByDatapointIds(organizationId, datapointIds) {
+    static async findByDatapointIds(organizationId, datapointIds, fields) {
         if (!datapointIds.length) {
-
             return [];
         } else {
+            if (fields == null){
+                sql_fields = '*'
+            } else {
+                sql_fields = fields.join(', ')
+            }
             const {rows} = await postgresClient.query(
-                'SELECT * FROM groundtruths WHERE organization_id = $1 AND datapoint = ANY($2)',
-                [organizationId, datapointIds]
+                'SELECT $3 FROM groundtruths WHERE organization_id = $1 AND datapoint = ANY($2)',
+                [organizationId, datapointIds, sql_fields]
             );
 
             return rows;
