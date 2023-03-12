@@ -33,7 +33,7 @@ const DatapointCard = ({datapoint = {}, onClick, zoomable, showDetails, maxHeigh
     const confidencesPerClass = predictions.reduce((acc, p) => {
         const {class_names, confidences} = p;
 
-        class_names.forEach((c, i) => {
+        class_names?.forEach((c, i) => {
             acc[c] = acc[c] || [];
             acc[c].push(confidences[i]);
         });
