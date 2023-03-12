@@ -8,8 +8,7 @@ GroundtruthsRouter.all('*', isAuthenticated);
 
 GroundtruthsRouter.post('/get', async (req, res, next) => {
     try {
-        const groundtruths = await Groundtruth.findByDatapointIds(
-            req.user.requestOrganizationId, req.body.datapointIds, req.body.fields);
+        const groundtruths = await Groundtruth.findByDatapointIds(req.user.requestOrganizationId, req.body.datapointIds);
 
         res.json(groundtruths);
     } catch (e) {
