@@ -25,13 +25,17 @@ const DatasetVersionViewer = ({versionId, showDatapointActions}) => {
                     <>
                         <Async
                             fetchData={() => Promise.all([
-                                baseJSONClient('/api/groundtruths/distribution', {
+                                baseJSONClient('/api/metrics/distribution/groundtruths', {
                                     method: 'post',
-                                    body: {datapointIds}
+                                    body: {
+                                        datapoint_ids: datapointIds
+                                    }
                                 }),
-                                baseJSONClient('/api/predictions/distribution', {
+                                baseJSONClient('/api/metrics/distribution/predictions', {
                                     method: 'post',
-                                    body: {datapointIds}
+                                    body: {
+                                        datapoint_ids: datapointIds
+                                    }
                                 })
                             ])}
                             refetchOnChanged={[datapointIds]}
