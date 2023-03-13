@@ -62,19 +62,21 @@ class Groundtruth {
                 datapointBatches.push(datapointIds.slice(i, i + 100));
             }
 
-            const histograms = await Promise.all(datapointBatches.map(getHistogramForDatapointIds));
+            const histogram = {};
+
+            for (const batch of datapointBatches) {
+                const batchHist = await getHistogramForDatapointIds(batch); // eslint-disable-line no-await-in-loop
+
+                Object.keys(batchHist).forEach((key) => {
+                    if (!histogram[key]) {
+                        histogram[key] = 0;
+                    }
+                    histogram[key] += batchHist[key];
+                });
+            }
 
             return {
-                histogram: histograms.reduce((acc, histogram) => {
-                    Object.keys(histogram).forEach((key) => {
-                        if (!acc[key]) {
-                            acc[key] = 0;
-                        }
-                        acc[key] += histogram[key];
-                    });
-
-                    return acc;
-                }),
+                histogram,
                 taskType: 'SEGMENTATION'
             };
         } else {
