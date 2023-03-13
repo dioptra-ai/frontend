@@ -7,7 +7,9 @@ class Groundtruth {
             return [];
         } else {
             const {rows} = await postgresClient.query(
-                'SELECT * FROM groundtruths WHERE organization_id = $1 AND datapoint = ANY($2)',
+                `SELECT id, datapoint, task_type, class_name, class_names, 
+                        segmentation_class_mask, top, "left", height, width
+                 FROM groundtruths WHERE organization_id = $1 AND datapoint = ANY($2)`,
                 [organizationId, datapointIds]
             );
 

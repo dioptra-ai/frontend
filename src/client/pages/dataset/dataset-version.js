@@ -49,17 +49,39 @@ const DatasetVersionViewer = ({versionId, showDatapointActions}) => {
                             ])}
                             refetchOnChanged={[datapointIds]}
                             renderData={([groundtruths, predictions]) => {
-                                const groundtruthsHist = getHistogram(groundtruths, (groundtruth) => groundtruth?.['class_name']);
-                                const predictionsHist = getHistogram(predictions, (prediction) => prediction?.['class_name']);
+                                let groundtruthsHistogram = null;
+
+                                let predictionsHistogram = null;
+                                const segmentationGroundtruth = groundtruths.find((groundtruth) => groundtruth['segmentation_class_mask']);
+
+                                if (segmentationGroundtruth) {
+                                    groundtruthsHistogram = getHistogram(
+                                        segmentationGroundtruth['segmentation_class_mask'].flat(),
+                                        (i) => segmentationGroundtruth['class_names'][i]
+                                    );
+                                } else {
+                                    groundtruthsHistogram = getHistogram(groundtruths, (groundtruth) => groundtruth?.['class_name']);
+                                }
+
+                                const segmentationPrediction = predictions.find((prediction) => prediction['segmentation_class_mask']);
+
+                                if (segmentationPrediction) {
+                                    predictionsHistogram = getHistogram(
+                                        segmentationPrediction['segmentation_class_mask'].flat(),
+                                        (i) => segmentationPrediction['class_names'][i]
+                                    );
+                                } else {
+                                    predictionsHistogram = getHistogram(predictions, (prediction) => prediction?.['class_name']);
+                                }
 
                                 return (
                                     <Row className='g-2 my-2'>
                                         {
-                                            Object.keys(groundtruthsHist).length ? (
+                                            Object.keys(groundtruthsHistogram).length ? (
                                                 <Col>
                                                     <BarGraph
                                                         title='Groundtruths'
-                                                        bars={Object.entries(groundtruthsHist).map(([name, value]) => ({
+                                                        bars={Object.entries(groundtruthsHistogram).map(([name, value]) => ({
                                                             name, value, fill: getHexColor(name)
                                                         }))}
                                                         yAxisTickFormatter={(v) => Number(v).toLocaleString()}
@@ -68,11 +90,11 @@ const DatasetVersionViewer = ({versionId, showDatapointActions}) => {
                                             ) : null
                                         }
                                         {
-                                            Object.keys(predictionsHist).length ? (
+                                            Object.keys(predictionsHistogram).length ? (
                                                 <Col>
                                                     <BarGraph
                                                         title='Predictions'
-                                                        bars={Object.entries(predictionsHist).map(([name, value]) => ({
+                                                        bars={Object.entries(predictionsHistogram).map(([name, value]) => ({
                                                             name, value, fill: getHexColor(name)
                                                         }))}
                                                         yAxisTickFormatter={(v) => Number(v).toLocaleString()}
