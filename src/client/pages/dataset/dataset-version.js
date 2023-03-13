@@ -14,19 +14,6 @@ import TopBar from 'pages/common/top-bar';
 import DatapointsViewer from 'components/datapoints-viewer';
 
 const DatasetVersionViewer = ({versionId, showDatapointActions}) => {
-    // Defining histogram function to be used in the renderData assignment
-    const getHistogram = (values, getClassName) => values.reduce((acc, value) => {
-        const name = getClassName(value);
-
-        if (name) {
-            if (!acc[name]) {
-                acc[name] = 0;
-            }
-            acc[name] += 1;
-        }
-
-        return acc;
-    }, {});
 
     return (
         <Async
@@ -38,50 +25,26 @@ const DatasetVersionViewer = ({versionId, showDatapointActions}) => {
                     <>
                         <Async
                             fetchData={() => Promise.all([
-                                baseJSONClient('/api/groundtruths/get', {
+                                baseJSONClient('/api/groundtruths/distribution', {
                                     method: 'post',
                                     body: {datapointIds}
                                 }),
-                                baseJSONClient('/api/predictions/get', {
+                                baseJSONClient('/api/predictions/distribution', {
                                     method: 'post',
                                     body: {datapointIds}
                                 })
                             ])}
                             refetchOnChanged={[datapointIds]}
-                            renderData={([groundtruths, predictions]) => {
-                                let groundtruthsHistogram = null;
-
-                                let predictionsHistogram = null;
-                                const segmentationGroundtruth = groundtruths.find((groundtruth) => groundtruth['segmentation_class_mask']);
-
-                                if (segmentationGroundtruth) {
-                                    groundtruthsHistogram = getHistogram(
-                                        segmentationGroundtruth['segmentation_class_mask'].flat(),
-                                        (i) => segmentationGroundtruth['class_names'][i]
-                                    );
-                                } else {
-                                    groundtruthsHistogram = getHistogram(groundtruths, (groundtruth) => groundtruth?.['class_name']);
-                                }
-
-                                const segmentationPrediction = predictions.find((prediction) => prediction['segmentation_class_mask']);
-
-                                if (segmentationPrediction) {
-                                    predictionsHistogram = getHistogram(
-                                        segmentationPrediction['segmentation_class_mask'].flat(),
-                                        (i) => segmentationPrediction['class_names'][i]
-                                    );
-                                } else {
-                                    predictionsHistogram = getHistogram(predictions, (prediction) => prediction?.['class_name']);
-                                }
+                            renderData={([groundtruthDistribution, predictionDistribution]) => {
 
                                 return (
                                     <Row className='g-2 my-2'>
                                         {
-                                            Object.keys(groundtruthsHistogram).length ? (
+                                            groundtruthDistribution.histogram && Object.keys(groundtruthDistribution.histogram).length ? (
                                                 <Col>
                                                     <BarGraph
                                                         title='Groundtruths'
-                                                        bars={Object.entries(groundtruthsHistogram).map(([name, value]) => ({
+                                                        bars={Object.entries(groundtruthDistribution.histogram).map(([name, value]) => ({
                                                             name, value, fill: getHexColor(name)
                                                         }))}
                                                         yAxisTickFormatter={(v) => Number(v).toLocaleString()}
@@ -90,11 +53,11 @@ const DatasetVersionViewer = ({versionId, showDatapointActions}) => {
                                             ) : null
                                         }
                                         {
-                                            Object.keys(predictionsHistogram).length ? (
+                                            predictionDistribution.histogram && Object.keys(predictionDistribution.histogram).length ? (
                                                 <Col>
                                                     <BarGraph
                                                         title='Predictions'
-                                                        bars={Object.entries(predictionsHistogram).map(([name, value]) => ({
+                                                        bars={Object.entries(predictionDistribution.histogram).map(([name, value]) => ({
                                                             name, value, fill: getHexColor(name)
                                                         }))}
                                                         yAxisTickFormatter={(v) => Number(v).toLocaleString()}

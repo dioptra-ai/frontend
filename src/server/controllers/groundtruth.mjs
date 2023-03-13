@@ -26,4 +26,14 @@ GroundtruthsRouter.post('/delete', async (req, res, next) => {
     }
 });
 
+GroundtruthsRouter.post('/distribution', async (req, res, next) => {
+    try {
+        const groundtruths = await Groundtruth.getDistribution(req.user.requestOrganizationId, req.body.datapointIds);
+
+        res.json(groundtruths);
+    } catch (e) {
+        next(e);
+    }
+});
+
 export default GroundtruthsRouter;

@@ -26,4 +26,14 @@ PredictionsRouter.post('/delete', async (req, res, next) => {
     }
 });
 
+PredictionsRouter.post('/distribution', async (req, res, next) => {
+    try {
+        const predictions = await Prediction.getDistribution(req.user.requestOrganizationId, req.body.datapointIds);
+
+        res.json(predictions);
+    } catch (e) {
+        next(e);
+    }
+});
+
 export default PredictionsRouter;
