@@ -1,7 +1,7 @@
 import pgFormat from 'pg-format';
 
 import {postgresClient} from './index.mjs';
-import {getCanonicalColumnTable, getSafeColumn} from './datapoint.mjs';
+import {getColumnTable, getSafeColumn} from './datapoint.mjs';
 
 const OMITTED_COLUMNS = ['organization_id'];
 
@@ -42,7 +42,7 @@ class Suggestion {
     }
 
     static async findValueSuggestions(organizationId, key, value = '') {
-        const tableName = getCanonicalColumnTable(key);
+        const tableName = getColumnTable(key);
         const safeColumn = getSafeColumn(key);
 
         const {rows} = await postgresClient.query(
