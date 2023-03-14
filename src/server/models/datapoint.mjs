@@ -7,7 +7,7 @@ const SAFE_OPS = new Set(['=', '!=', '<', '>', '<=', '>=', 'LIKE', 'NOT LIKE', '
 const isSafeOp = (op) => SAFE_OPS.has(op.toUpperCase());
 const SAFE_IDENTIFIERS = new Set(['*', 'RANDOM()']);
 const isSafeIdentifier = (identifier) => SAFE_IDENTIFIERS.has(identifier.toUpperCase());
-const JSONB_ROOT_COLUMNS = new Set(['metadata']);
+const JSONB_ROOT_COLUMNS = new Set(['metadata', 'metrics']);
 const isJSONBRootColumn = (column) => JSONB_ROOT_COLUMNS.has(column);
 
 const getCanonicalColumn = (column) => {
@@ -30,7 +30,9 @@ const getCanonicalFilters = (filters) => filters.map((filter) => ({
     'right': filter['right']
 }));
 
-export const getCanonicalColumnTable = (column) => column.split('.')[0];
+export const getColumnTable = (column) => getCanonicalColumn(column).split('.')[0];
+const getColumnName = (column) => getCanonicalColumn(column).split('.').slice(1).join('.');
+
 export const getSafeColumn = (column, withAliasForJSONB = false) => {
     const path = column.split('.');
     const isChildOfJSONB = (i) => {
@@ -77,9 +79,9 @@ const getSafeWhere = (canonicalFilters) => {
         }
     }).join(' AND ');
 };
-const getSafeFrom = (canonicalColumnTables) => {
+const getSafeJoin = (canonicalColumnTables) => {
 
-    return `FROM datapoints ${Array.from(new Set(canonicalColumnTables))
+    return `datapoints ${Array.from(new Set(canonicalColumnTables))
         .filter((table) => table !== 'datapoints')
         .map((table) => {
             const [tableName, tableAlias] = table.toLowerCase().split(' as ');
@@ -145,7 +147,7 @@ class Datapoint {
             'right': organizationId
         }));
         const canonicalSelectColumnsPerTable = canonicalSelectColumns.reduce((acc, column) => {
-            const tableName = getCanonicalColumnTable(column);
+            const tableName = getColumnTable(column);
 
             if (!acc[tableName]) {
                 acc[tableName] = [];
@@ -156,7 +158,6 @@ class Datapoint {
             return acc;
         }, {});
         const safeSelects = Object.entries(canonicalSelectColumnsPerTable).reduce((acc, [tableName, columns]) => {
-            const getColumnName = (c) => c.split('.').slice(1).join('.');
 
             if (tableName === 'datapoints') {
                 acc.push(...columns.map((c) => getSafeColumn(c, true)));
@@ -183,7 +184,7 @@ class Datapoint {
 
             return acc;
         }, []);
-        const canonicalSelectTables = canonicalSelectColumns.map(getCanonicalColumnTable);
+        const canonicalSelectTables = canonicalSelectColumns.map(getColumnTable);
         const filtersPerColumn = canonicalFilters.reduce((acc, filter) => {
             const column = filter['left'];
 
@@ -198,7 +199,7 @@ class Datapoint {
         const aliasedFilters = Object.values(filtersPerColumn).reduce((acc, columnFilters) => {
             if (columnFilters.length > 1) {
                 columnFilters.forEach((filter, i) => {
-                    const tableName = getCanonicalColumnTable(filter['left']);
+                    const tableName = getColumnTable(filter['left']);
                     const columnName = filter['left'].split('.')[1];
 
                     acc.push({
@@ -216,12 +217,12 @@ class Datapoint {
         const aliasedTables = Object.values(filtersPerColumn).reduce((acc, columnFilters) => {
             if (columnFilters.length > 1) {
                 columnFilters.forEach((filter, i) => {
-                    const tableName = getCanonicalColumnTable(filter['left']);
+                    const tableName = getColumnTable(filter['left']);
 
                     acc.push(`${tableName} AS ${tableName}_${i}`);
                 });
             } else {
-                acc.push(getCanonicalColumnTable(columnFilters[0]['left']));
+                acc.push(getColumnTable(columnFilters[0]['left']));
             }
 
             return acc;
@@ -229,11 +230,11 @@ class Datapoint {
 
         return `
             SELECT ${safeSelects.join(', ')}
-            ${getSafeFrom(canonicalSelectTables)}
+            FROM ${getSafeJoin(canonicalSelectTables)}
             WHERE datapoints.id IN (
                 SELECT id FROM (
                     SELECT DISTINCT datapoints.id, ${getSafeColumn(orderBy)}
-                    ${getSafeFrom(aliasedTables)}
+                    FROM ${getSafeJoin(aliasedTables.concat([getColumnTable(orderBy)]))}
                     WHERE ${getSafeWhere(aliasedFilters)}
                     GROUP BY datapoints.id
                     ORDER BY ${getSafeColumn(orderBy)} ${desc ? 'DESC' : 'ASC'}

@@ -72,7 +72,7 @@ const MinerModal = ({isOpen, onClose, onMinerSaved, defaultMiner = {}}) => {
 
     useEffect(() => {
         if (minerAnalysisSpace) {
-            const notNullFilter = minerFilters.find((f) => f['op'] === 'is not null');
+            const notNullFilter = minerFilters.find((f) => f['op'] === 'is not' && f['right'] === null);
 
             if (notNullFilter) {
                 notNullFilter['left'] = minerAnalysisSpace;
@@ -80,11 +80,12 @@ const MinerModal = ({isOpen, onClose, onMinerSaved, defaultMiner = {}}) => {
             } else {
                 setMinerFilters([...minerFilters, {
                     left: minerAnalysisSpace,
-                    op: 'is not null'
+                    op: 'is not',
+                    right: null
                 }]);
             }
         } else {
-            setMinerFilters(minerFilters.filter((f) => f['op'] !== 'is not null'));
+            setMinerFilters(minerFilters.filter((f) => f['op'] !== 'is not' || f['right'] !== null));
         }
     }, [minerAnalysisSpace]);
 
