@@ -36,7 +36,7 @@ app.use(express.static(join(basePath, 'build')));
 app.use(express.json({limit: '50mb'}));
 app.use(express.urlencoded({extended: true}));
 
-app.use(morgan(ENVIRONMENT === 'local-dev' ? 'dev' : 'combined'));
+app.use(morgan(ENVIRONMENT === 'local-dev' ? 'dev' : ':remote-addr - [:date[iso]] ":method :url" status: :status, length: :res[content-length] B ttfb: :response-time ms., ttlb: :total-time ms., UA: :user-agent'));
 
 // Register all controller routes to /api/ basepath
 app.use('/api', rateLimit, ApiRouter);
