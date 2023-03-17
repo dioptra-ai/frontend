@@ -64,8 +64,7 @@ IngestionRouter.get('/executions', async (req, res, next) => {
             for (const e of page.executions) {
                 if (executions.length >= 100) {
                     break;
-                } else if (e['name'].startsWith('ingestion-63fd77b57ff5d1ce640ee72a')) {
-                // } else if (e['name'].startsWith(`ingestion-${req.user.requestOrganizationId}`)) {
+                } else if (e['name'].startsWith(`ingestion-${req.user.requestOrganizationId}`)) {
                     executions.push({
                         id: Buffer.from(e['executionArn']).toString('base64'),
                         status: e['status'],
