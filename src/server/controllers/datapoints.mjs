@@ -57,24 +57,6 @@ DatapointsRouter.post('/count', async (req, res, next) => {
     }
 });
 
-DatapointsRouter.post('/select', async (req, res, next) => {
-    try {
-        const datapoints = await Datapoint.select({
-            organizationId: req.user.requestOrganizationId,
-            selectColumns: req.body.selectColumns,
-            filters: req.body.filters,
-            orderBy: req.body.orderBy,
-            desc: req.body.desc,
-            limit: req.body.limit,
-            offset: req.body.offset
-        });
-
-        res.json(datapoints);
-    } catch (e) {
-        next(e);
-    }
-});
-
 DatapointsRouter.post('/count', async (req, res, next) => {
     try {
         const count = await Datapoint.count({

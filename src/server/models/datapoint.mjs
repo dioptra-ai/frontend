@@ -136,7 +136,7 @@ class Datapoint {
     }
 
     static _getSafeSelectQuery({
-        organizationId, selectColumns = [], filters = [],
+        organizationId, selectColumns = [], filters,
         orderBy = 'datapoints.created_at', desc = false, limit = 1000000, offset = 0
     }) {
         assert(organizationId, 'organizationId is required');
