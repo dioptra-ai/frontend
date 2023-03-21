@@ -1,21 +1,32 @@
 # See: https://circleci.com/docs/2.0/configuration-reference
 version: 2.1
 
+orbs:
+  aws-ecr: circleci/aws-ecr@8.1.3
+  docker: circleci/docker@2.1.3
+  helm: circleci/helm@1.2.0
+  aws-eks: circleci/aws-eks@2.1.2
+  node: circleci/node@4.5
+
 jobs:
   run-integration-tests:
     parameters:
       environment:
         type: string
-    docker:
-      - image: cimg/base:2021.10
+    executor:
+      name: docker/machine
+      dlc: true
     steps:
+      - aws-ecr/ecr-login
       - run:
           command: |
-            curl -X POST https://circleci.com/api/v2/project/github/dioptra-ai/integration-tests/pipeline \
-            -H "Content-Type: application/json" \
-            -H "Accept: application/json" \
-            -H "Circle-Token: ${CIRCLE_TOKEN}" \
-            -d '{"parameters": {"environment": "<<parameters.environment>>"}}'
+            docker run -it --pull=always \
+              -v $(pwd)/test-results:/opt/dioptra/test-results \
+              -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
+              -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
+              641017132295.dkr.ecr.us-east-2.amazonaws.com/integration-tests:<<parameters.environment>>
+      - store_test_results:
+          path: test-results
 
   build-and-push-image:
     executor:
@@ -77,13 +88,6 @@ jobs:
           values: <<parameters.helm-values>>
           values-to-override: imageTag=<<parameters.image-tag>>
 
-orbs:
-  aws-ecr: circleci/aws-ecr@8.1.3
-  docker: circleci/docker@2.1.3
-  helm: circleci/helm@1.2.0
-  aws-eks: circleci/aws-eks@2.1.2
-  node: circleci/node@4.5
-
 workflows:
   'Build Branch':
     when:
@@ -128,7 +132,7 @@ workflows:
             - helm-upgrade
           environment: dev
           context:
-            - circleci-creds
+            - aws-creds
 
   'Release to Prod':
     jobs:
@@ -155,5 +159,5 @@ workflows:
             - helm-upgrade
           environment: prod
           context:
-            - circleci-creds
+            - aws-creds
           filters: *prod-filters
