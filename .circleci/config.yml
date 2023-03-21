@@ -78,6 +78,7 @@ jobs:
       name: docker/machine
       dlc: true
     steps:
+      - aws-ecr/ecr-login
       - run:
           command: |
             docker run -it --pull=always \
