@@ -9,24 +9,6 @@ orbs:
   node: circleci/node@4.5
 
 jobs:
-  run-integration-tests:
-    parameters:
-      environment:
-        type: string
-    executor:
-      name: docker/machine
-      dlc: true
-    steps:
-      - aws-ecr/ecr-login
-      - run:
-          command: |
-            docker run -it --pull=always \
-              -v $(pwd)/test-results:/opt/dioptra/test-results \
-              -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
-              -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
-              641017132295.dkr.ecr.us-east-2.amazonaws.com/integration-tests:<<parameters.environment>>
-      - store_test_results:
-          path: test-results
 
   build-and-push-image:
     executor:
@@ -59,7 +41,7 @@ jobs:
           source-tag: <<pipeline.git.revision>>
           target-tag: <<pipeline.git.tag>>
 
-  helm-upgrade:
+  deploy:
     parameters:
       cluster-name:
         type: string
@@ -73,7 +55,7 @@ jobs:
         default: <<pipeline.git.revision>>
     circleci_ip_ranges: true
     docker:
-      - image: 'cimg/python:3.10'
+      - image: cimg/aws:2022.11
     steps:
       - aws-eks/update-kubeconfig-with-authenticator:
           cluster-name: <<parameters.cluster-name>>
@@ -87,6 +69,24 @@ jobs:
           update-repositories: false
           values: <<parameters.helm-values>>
           values-to-override: imageTag=<<parameters.image-tag>>
+
+  run-tests:
+    parameters:
+      tests-tag:
+        type: string
+    executor:
+      name: docker/machine
+      dlc: true
+    steps:
+      - run:
+          command: |
+            docker run -it --pull=always \
+              -v $(pwd)/test-results:/opt/dioptra/test-results \
+              -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
+              -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
+              641017132295.dkr.ecr.us-east-2.amazonaws.com/integration-tests:<<parameters.tests-tag>>
+      - store_test_results:
+          path: test-results
 
 workflows:
   'Build Branch':
@@ -119,7 +119,7 @@ workflows:
             - node/test
           context:
             - aws-creds
-      - helm-upgrade:
+      - deploy:
           requires:
             - build-and-push-image
           cluster-name: dioptra-dev-eks
@@ -127,10 +127,10 @@ workflows:
           image-tag: <<pipeline.git.revision>>
           context:
             - aws-creds
-      - run-integration-tests:
+      - run-tests:
           requires:
-            - helm-upgrade
-          environment: dev
+            - deploy
+          tests-tag: dev
           context:
             - aws-creds
 
@@ -145,7 +145,7 @@ workflows:
                 - /^v.*/
             branches:
               ignore: /.*/
-      - helm-upgrade:
+      - deploy:
           requires:
             - tag-image
           cluster-name: dioptra-prod-eks
@@ -154,10 +154,10 @@ workflows:
           context:
             - aws-creds
           filters: *prod-filters
-      - run-integration-tests:
+      - run-tests:
           requires:
-            - helm-upgrade
-          environment: prod
+            - deploy
+          tests-tag: prod
           context:
             - aws-creds
           filters: *prod-filters
