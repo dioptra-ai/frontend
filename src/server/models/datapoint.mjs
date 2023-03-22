@@ -24,11 +24,15 @@ const getCanonicalColumn = (column) => {
         return `datapoints.${column}`;
     }
 };
-const getCanonicalFilters = (filters) => filters.map((filter) => ({
-    'left': getCanonicalColumn(filter['left']),
-    'op': filter['op'],
-    'right': filter['right']
-}));
+const getCanonicalFilters = (filters) => filters.map((filter) => {
+    assert(filter, `${filter} is not a valid filter`);
+
+    return {
+        'left': getCanonicalColumn(filter['left']),
+        'op': filter['op'],
+        'right': filter['right']
+    };
+});
 
 export const getColumnTable = (column) => getCanonicalColumn(column).split('.')[0];
 const getColumnName = (column) => getCanonicalColumn(column).split('.').slice(1).join('.');
@@ -64,18 +68,22 @@ export const getSafeColumn = (column, withAliasForJSONB = false) => {
 const getSafeWhere = (canonicalFilters) => {
 
     return canonicalFilters.map((filter) => {
-        assert(isSafeOp(filter['op']), `Unsafe op: ${filter['op']}`);
+        const op = filter['op'].toUpperCase();
 
-        switch (filter['op'].toUpperCase()) {
+        assert(isSafeOp(op), `Unsafe op: "${op}"`);
+
+        switch (op) {
         case 'IN':
         case 'NOT IN':
+            assert(Array.isArray(filter['right']), `Right side of "${op}" must be an array`);
+
             if (filter['right'].length === 0) {
-                return 'FALSE';
+                return op === 'IN' ? 'FALSE' : 'TRUE';
             } else {
-                return `${getSafeColumn(filter['left'])} ${filter['op']} (${pgFormat.literal(filter['right'])})`;
+                return `${getSafeColumn(filter['left'])} ${op} (${pgFormat.literal(filter['right'])})`;
             }
         default:
-            return `${getSafeColumn(filter['left'])} ${filter['op']} ${pgFormat.literal(filter['right'])}`;
+            return `${getSafeColumn(filter['left'])} ${op} ${pgFormat.literal(filter['right'])}`;
         }
     }).join(' AND ');
 };
