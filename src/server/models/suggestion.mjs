@@ -1,7 +1,9 @@
 import pgFormat from 'pg-format';
 
 import {postgresClient} from './index.mjs';
-import {getColumnTable, getSafeColumn} from './datapoint.mjs';
+import Datapoint from './datapoint.mjs';
+
+const {getColumnTable, getSafeColumn} = Datapoint;
 
 const OMITTED_COLUMNS = ['organization_id'];
 

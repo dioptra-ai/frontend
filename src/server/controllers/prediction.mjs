@@ -16,9 +16,34 @@ PredictionsRouter.post('/get', async (req, res, next) => {
     }
 });
 
+PredictionsRouter.post('/select', async (req, res, next) => {
+    try {
+        const predictions = await Prediction.select({
+            organizationId: req.user.requestOrganizationId,
+            selectColumns: req.body.selectColumns,
+            filters: req.body.filters,
+            orderBy: req.body.orderBy,
+            desc: req.body.desc,
+            limit: req.body.limit,
+            offset: req.body.offset
+        });
+
+        res.json(predictions);
+    } catch (e) {
+        next(e);
+    }
+});
+
 PredictionsRouter.post('/delete', async (req, res, next) => {
     try {
-        const predictions = await Prediction.deleteByIds(req.user.requestOrganizationId, req.body.predictionIds);
+        const predictions = await Prediction.deleteByFilters(
+            req.user.requestOrganizationId,
+            req.body.predictionIds.map((id) => ({
+                'left': 'id',
+                'op': '=',
+                'right': id
+            }))
+        );
 
         res.json(predictions);
     } catch (e) {

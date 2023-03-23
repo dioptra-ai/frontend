@@ -1,6 +1,12 @@
 import {postgresClient} from './index.mjs';
 
-class Prediction {
+import SelectableModel from './selectable-model.mjs';
+
+class Prediction extends SelectableModel {
+    static getTableName() {
+        return 'predictions';
+    }
+
     static async findByDatapointIds(organizationId, datapointIds) {
         if (!datapointIds.length) {
 
@@ -15,15 +21,6 @@ class Prediction {
 
             return rows;
         }
-    }
-
-    static async deleteByIds(organizationId, ids) {
-        const {rows} = await postgresClient.query(
-            'DELETE FROM predictions WHERE id = ANY($1) AND organization_id = $2 RETURNING *',
-            [ids, organizationId]
-        );
-
-        return rows;
     }
 }
 

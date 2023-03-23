@@ -1,6 +1,12 @@
 import {postgresClient} from './index.mjs';
 
-class Groundtruth {
+import SelectableModel from './selectable-model.mjs';
+
+class Groundtruth extends SelectableModel {
+    static getTableName() {
+        return 'groundtruths';
+    }
+
     static async findByDatapointIds(organizationId, datapointIds) {
         if (!datapointIds.length) {
 
@@ -15,15 +21,6 @@ class Groundtruth {
 
             return rows;
         }
-    }
-
-    static async deleteByIds(organizationId, ids) {
-        const {rows} = await postgresClient.query(
-            'DELETE FROM groundtruths WHERE id = ANY($1) AND organization_id = $2 RETURNING *',
-            [ids, organizationId]
-        );
-
-        return rows;
     }
 }
 
