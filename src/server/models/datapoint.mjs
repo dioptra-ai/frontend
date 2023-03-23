@@ -15,6 +15,16 @@ class Datapoint extends SelectableModel {
 
         return rows;
     }
+
+    static async upsert(organizationId, requestIds) {
+        const {rows} = await postgresClient.query(
+            // Using a DO UPDATE so RETURNING returns the rows.
+            `INSERT INTO datapoints (organization_id, request_id) VALUES ${requestIds.map((_, i) => `($1, $${i + 2})`).join(',')} ON CONFLICT ON CONSTRAINT datapoints_organization_id_request_id_unique DO UPDATE SET request_id = EXCLUDED.request_id RETURNING *`,
+            [organizationId, ...requestIds]
+        );
+
+        return rows;
+    }
 }
 
 export default Datapoint;

@@ -13,6 +13,12 @@ class SelectableModel {
         throw new Error('SelectableModel is an abstract class');
     }
 
+    static getForeignKeyName() {
+        // By convention, le foreign key name is the singular of the table name.
+        // Example: datapoints -> datapoint
+        return this.getTableName().replace(/s$/, '');
+    }
+
     static isJSONBRootColumn(column) {
         return JSONB_ROOT_COLUMNS.has(column);
     }
@@ -28,7 +34,7 @@ class SelectableModel {
         case 'feature_vectors':
             return column;
         default:
-            return `datapoints.${column}`;
+            return `${this.getTableName()}.${column}`;
         }
     }
 
@@ -56,7 +62,7 @@ class SelectableModel {
     }
 
     static getSafeColumn(column, withAliasForJSONB = false) {
-        const path = column.split('.');
+        const path = this.getCanonicalColumn(column).split('.');
         const isChildOfJSONB = (i) => {
             if (i === 0) {
                 return false;
@@ -108,18 +114,20 @@ class SelectableModel {
     }
 
     static getSafeJoin(canonicalColumnTables) {
+        const primaryTable = this.getTableName();
+        const foreignKeyName = this.getForeignKeyName();
 
-        return `datapoints ${Array.from(new Set(canonicalColumnTables))
-            .filter((table) => table !== 'datapoints')
+        return `${primaryTable} ${Array.from(new Set(canonicalColumnTables))
+            .filter((table) => table !== primaryTable)
             .map((table) => {
                 const [tableName, tableAlias] = table.toLowerCase().split(' as ');
 
                 if (tableAlias) {
 
-                    return pgFormat('LEFT JOIN %I AS %I ON datapoints.id = %I.datapoint', tableName, tableAlias, tableAlias);
+                    return pgFormat(`LEFT JOIN %I AS %I ON ${primaryTable}.id = %I.${foreignKeyName}`, tableName, tableAlias, tableAlias);
                 } else {
 
-                    return pgFormat('LEFT JOIN %I ON datapoints.id = %I.datapoint', table, table);
+                    return pgFormat(`LEFT JOIN %I ON ${primaryTable}.id = %I.${foreignKeyName}`, table, table);
                 }
             })
             .join(' ')}`;
@@ -127,7 +135,7 @@ class SelectableModel {
 
     static async findAll(organizationId) {
         const {rows} = await postgresClient.query(
-            'SELECT * FROM datapoints WHERE organization_id = $1',
+            `SELECT * FROM ${this.getTableName()} WHERE organization_id = $1`,
             [organizationId]
         );
 
@@ -136,7 +144,7 @@ class SelectableModel {
 
     static async findById(organizationId, id) {
         const {rows} = await postgresClient.query(
-            'SELECT * FROM datapoints WHERE id = $1 AND organization_id = $2',
+            `SELECT * FROM ${this.getTableName()} WHERE id = $1 AND organization_id = $2`,
             [id, organizationId]
         );
 
@@ -144,13 +152,12 @@ class SelectableModel {
     }
 
     static async count({organizationId, filters = []}) {
+        const primaryTable = this.getTableName();
         const {rows} = await postgresClient.query(`
-            SELECT COUNT(DISTINCT id) as count
-            FROM (${this._getSafeSelectQuery({
-        selectColumns: ['id'],
-        organizationId,
-        filters
-    })}) AS datapoints
+            SELECT COUNT(DISTINCT ${primaryTable}.id) as count
+            FROM (
+                ${this._getSafeSelectQuery({selectColumns: [`${primaryTable}.id`], organizationId, filters})}
+            ) AS ${this.getTableName()}
         `);
 
         return Number(rows[0]['count']);
@@ -164,9 +171,10 @@ class SelectableModel {
 
     static _getSafeSelectQuery({
         organizationId, selectColumns = [], filters,
-        orderBy = 'datapoints.created_at', desc = false, limit = 1000000, offset = 0
+        orderBy, desc = false, limit = 1000000, offset = 0
     }) {
         assert(organizationId, 'organizationId is required');
+        const primaryTable = this.getTableName();
         const canonicalSelectColumns = selectColumns.map(this.getCanonicalColumn.bind(this));
         const canonicalFilters = this.getCanonicalFilters(filters.concat({
             'left': 'organization_id',
@@ -186,7 +194,7 @@ class SelectableModel {
         }, {});
         const safeSelects = Object.entries(canonicalSelectColumnsPerTable).reduce((acc, [tableName, columns]) => {
 
-            if (tableName === 'datapoints') {
+            if (tableName === primaryTable) {
                 acc.push(...columns.map((c) => this.getSafeColumn(c, true)));
             } else {
                 // Aggregate distinct JSONB objects with column values of tableName.
@@ -254,38 +262,29 @@ class SelectableModel {
 
             return acc;
         }, []);
+        const safeOrderBy = orderBy ? `ORDER BY ${this.getSafeColumn(orderBy) + (desc ? ' DESC' : ' ASC')}` : '';
 
         return `
             SELECT ${safeSelects.join(', ')}
             FROM ${this.getSafeJoin(canonicalSelectTables)}
-            WHERE datapoints.id IN (
+            WHERE ${primaryTable}.id IN (
                 SELECT id FROM (
-                    SELECT DISTINCT datapoints.id, ${this.getSafeColumn(orderBy)}
-                    FROM ${this.getSafeJoin(aliasedTables.concat([this.getColumnTable(orderBy)]))}
+                    SELECT DISTINCT ${primaryTable}.id ${orderBy ? `, ${this.getSafeColumn(orderBy)}` : ''}
+                    FROM ${this.getSafeJoin(aliasedTables.concat(orderBy ? [this.getColumnTable(orderBy)] : []))}
                     WHERE ${this.getSafeWhere(aliasedFilters)}
-                    GROUP BY datapoints.id
-                    ORDER BY ${this.getSafeColumn(orderBy)} ${desc ? 'DESC' : 'ASC'}
+                    GROUP BY ${primaryTable}.id
+                    ${safeOrderBy}
                     LIMIT ${pgFormat.literal(limit)}
                     OFFSET ${pgFormat.literal(offset)}
                 ) as filtered_datapoints
             )
-            GROUP BY datapoints.id
+            GROUP BY ${primaryTable}.id
         `;
-    }
-
-    static async upsert(organizationId, requestIds) {
-        const {rows} = await postgresClient.query(
-            // Using a DO UPDATE so RETURNING returns the rows.
-            `INSERT INTO datapoints (organization_id, request_id) VALUES ${requestIds.map((_, i) => `($1, $${i + 2})`).join(',')} ON CONFLICT ON CONSTRAINT datapoints_organization_id_request_id_unique DO UPDATE SET request_id = EXCLUDED.request_id RETURNING *`,
-            [organizationId, ...requestIds]
-        );
-
-        return rows;
     }
 
     static async deleteById(organizationId, id) {
         const {rows} = await postgresClient.query(
-            'DELETE FROM datapoints WHERE id = $1 AND organization_id = $2 RETURNING *',
+            `DELETE FROM ${this.getTableName()} WHERE id = $1 AND organization_id = $2 RETURNING *`,
             [id, organizationId]
         );
 
@@ -293,8 +292,9 @@ class SelectableModel {
     }
 
     static async deleteByFilters(organizationId, filters) {
+        const primaryTable = this.getTableName();
         const {rows} = await postgresClient.query(
-            `DELETE FROM datapoints WHERE organization_id = $1 AND id IN (${this._getSafeSelectQuery({organizationId, filters, selectColumns: ['datapoints.id']})}) RETURNING *`,
+            `DELETE FROM ${primaryTable} WHERE organization_id = $1 AND id IN (${this._getSafeSelectQuery({organizationId, filters, selectColumns: [`${primaryTable}.id`]})}) RETURNING *`,
             [organizationId]
         );
 
