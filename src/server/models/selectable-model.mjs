@@ -4,8 +4,10 @@ import {postgresClient} from './index.mjs';
 
 const SAFE_OPS = new Set(['=', '!=', '<', '>', '<=', '>=', 'LIKE', 'NOT LIKE', 'ILIKE', 'NOT ILIKE', 'SIMILAR TO', 'NOT SIMILAR TO', 'IS', 'IS NOT', 'IS NULL', 'IS NOT NULL', 'IN', 'NOT IN', 'ANY', 'ALL', 'BETWEEN', 'NOT BETWEEN', 'IS DISTINCT FROM', 'IS NOT DISTINCT FROM']);
 const isSafeOp = (op) => SAFE_OPS.has(op.toUpperCase());
-const SAFE_IDENTIFIERS = new Set(['*', 'RANDOM()']);
+const SAFE_IDENTIFIERS = new Set(['*']);
+const SAFE_GLOBAL_IDENTIFIERS = new Set(['RANDOM()']);
 const isSafeIdentifier = (identifier) => SAFE_IDENTIFIERS.has(identifier.toUpperCase());
+const isSafeGlobalIdentifier = (identifier) => SAFE_GLOBAL_IDENTIFIERS.has(identifier.toUpperCase());
 const JSONB_ROOT_COLUMNS = new Set(['metadata', 'metrics']);
 
 class SelectableModel {
@@ -24,6 +26,10 @@ class SelectableModel {
     }
 
     static getCanonicalColumn(column) {
+        if (isSafeGlobalIdentifier(column)) {
+            return column;
+        }
+
         const paths = column.split('.');
 
         switch (paths[0]) {
@@ -74,7 +80,7 @@ class SelectableModel {
         return pgFormat(
             path.map((c, i) => {
 
-                if (isSafeIdentifier(c)) {
+                if (isSafeIdentifier(c) || isSafeGlobalIdentifier(c)) {
                     return i === 0 ? '%s' : '.%s';
                 } else if (isChildOfJSONB(i)) {
                     if (withAliasForJSONB && i === path.length - 1) {
@@ -263,6 +269,7 @@ class SelectableModel {
             return acc;
         }, []);
         const safeOrderBy = orderBy ? `ORDER BY ${this.getSafeColumn(orderBy) + (desc ? ' DESC' : ' ASC')}` : '';
+        const tablesToJoinForFiltering = aliasedTables.concat(orderBy && !isSafeGlobalIdentifier(orderBy) ? [this.getColumnTable(orderBy)] : []);
 
         return `
             SELECT ${safeSelects.join(', ')}
@@ -270,7 +277,7 @@ class SelectableModel {
             WHERE ${primaryTable}.id IN (
                 SELECT id FROM (
                     SELECT DISTINCT ${primaryTable}.id ${orderBy ? `, ${this.getSafeColumn(orderBy)}` : ''}
-                    FROM ${this.getSafeJoin(aliasedTables.concat(orderBy ? [this.getColumnTable(orderBy)] : []))}
+                    FROM ${this.getSafeJoin(tablesToJoinForFiltering)}
                     WHERE ${this.getSafeWhere(aliasedFilters)}
                     GROUP BY ${primaryTable}.id
                     ${safeOrderBy}
