@@ -354,12 +354,10 @@ const DatapointsPage = ({datapoints, selectedDatapoints, onSelectedDatapointsCha
                                 selectColumns: [
                                     'id', 'metadata', 'type', 'text',
                                     'tags.name', 'tags.value',
-                                    'predictions.segmentation_class_mask',
                                     'predictions.class_name', 'predictions.class_names',
                                     'predictions.confidence', 'predictions.confidences',
                                     'predictions.model_name',
                                     'predictions.top', 'predictions.left', 'predictions.width', 'predictions.height',
-                                    'groundtruths.segmentation_class_mask',
                                     'groundtruths.class_name', 'groundtruths.class_names',
                                     'groundtruths.top', 'groundtruths.left', 'groundtruths.width', 'groundtruths.height'
                                 ]

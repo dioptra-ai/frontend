@@ -14,7 +14,7 @@ class Prediction extends SelectableModel {
         } else {
             const {rows} = await postgresClient.query(
                 `SELECT id, datapoint, task_type, class_name, class_names,
-                    confidence, confidences, segmentation_class_mask, top, "left", height, width, metrics, model_name
+                    confidence, confidences, top, "left", height, width, metrics, model_name
                  FROM predictions WHERE organization_id = $1 AND datapoint = ANY($2)`,
                 [organizationId, datapointIds]
             );
