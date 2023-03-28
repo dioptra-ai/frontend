@@ -52,8 +52,8 @@ const DatapointCard = ({datapoint = {}, onClick, zoomable, showDetails, maxHeigh
         const imageW = metadata.width;
         const imageObject = metadata.object;
         const someHeatMap = predictions.some((p) => p['feature_heatmap']);
-        const somePredictionMask = predictions.some((p) => p['segmentation_class_mask']);
-        const someGroundtruthMask = groundtruths.some((g) => g['segmentation_class_mask']);
+        const somePredictionMask = predictions.some((p) => p['encoded_resized_segmentation_class_mask']);
+        const someGroundtruthMask = groundtruths.some((g) => g['encoded_resized_segmentation_class_mask']);
 
         return (
             <Row onClick={onClick} className='g-2'>
@@ -117,24 +117,24 @@ const DatapointCard = ({datapoint = {}, onClick, zoomable, showDetails, maxHeigh
                                     {
                                         // Segmentation predictions segmentation_class_mask.
                                         // More than one of them would overlap and would not really make sense.
-                                        showPredictionMask ? predictions.filter((p) => p['segmentation_class_mask']).map((p, i) => (
+                                        showPredictionMask ? predictions.filter((p) => p['encoded_resized_segmentation_class_mask']).map((p, i) => (
                                             <div key={i} className='position-absolute h-100 w-100'>
-                                                <SegmentationMask mask={p['segmentation_class_mask']} classNames={p['class_names']} />
+                                                <SegmentationMask encodedMask={p['encoded_resized_segmentation_class_mask']} classNames={p['class_names']} />
                                             </div>
                                         )) : null
                                     }
                                     {
                                         // Segmentation groundtruths segmentation_class_mask.
                                         // More than one of them would overlap and would not really make sense.
-                                        showGroundtruthMask ? groundtruths.filter((g) => g['segmentation_class_mask']).map((g, i) => (
+                                        showGroundtruthMask ? groundtruths.filter((g) => g['encoded_resized_segmentation_class_mask']).map((g, i) => (
                                             <div key={i} className='position-absolute h-100 w-100'>
-                                                <SegmentationMask mask={g['segmentation_class_mask']} classNames={g['class_names']} />
+                                                <SegmentationMask encodedMask={g['encoded_resized_segmentation_class_mask']} classNames={g['class_names']} />
                                             </div>
                                         )) : null
                                     }
                                     {
                                         // Object detection predictions bounding boxes.
-                                        predictions.filter((p) => !p['segmentation_class_mask']).map((p, i) => {
+                                        predictions.filter((p) => !p['encoded_resized_segmentation_class_mask']).map((p, i) => {
                                             const box = imageObject || p;
                                             const scale = viewportHeight / imageH;
                                             const heatmap = p['feature_heatmap'];
@@ -192,7 +192,7 @@ const DatapointCard = ({datapoint = {}, onClick, zoomable, showDetails, maxHeigh
                                     }
                                     {
                                         // Object detection groundtruths bounding boxes.
-                                        groundtruths.filter((g) => !g['segmentation_class_mask']).map((g, i) => {
+                                        groundtruths.filter((g) => !g['encoded_resized_segmentation_class_mask']).map((g, i) => {
                                             const box = imageObject || g;
                                             const scale = viewportHeight / imageH;
                                             const hasBoxTop = box['top'] !== null && !isNaN(box['top']);
@@ -354,10 +354,12 @@ const DatapointsPage = ({datapoints, selectedDatapoints, onSelectedDatapointsCha
                                 selectColumns: [
                                     'id', 'metadata', 'type', 'text',
                                     'tags.name', 'tags.value',
+                                    'predictions.encoded_resized_segmentation_class_mask',
                                     'predictions.class_name', 'predictions.class_names',
                                     'predictions.confidence', 'predictions.confidences',
                                     'predictions.model_name',
                                     'predictions.top', 'predictions.left', 'predictions.width', 'predictions.height',
+                                    'groundtruths.encoded_resized_segmentation_class_mask',
                                     'groundtruths.class_name', 'groundtruths.class_names',
                                     'groundtruths.top', 'groundtruths.left', 'groundtruths.width', 'groundtruths.height'
                                 ]
