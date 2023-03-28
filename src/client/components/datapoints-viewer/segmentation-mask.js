@@ -43,37 +43,38 @@ const SegmentationMask = ({encodedMask, classNames}) => {
     };
 
     useEffect(() => {
-        const canvas = canvasRef.current;
-        const rect = canvas.getBoundingClientRect();
-        // Compute the name of the class under the mouse. Should also work when the canvas is zoomed in.
-        const canvasHeight = rect.bottom - rect.top;
-        const canvasWidth = rect.right - rect.left;
-        const row = Math.max(0, Math.floor((mouseY - rect.top) / canvasHeight * numRows));
-        const col = Math.max(0, Math.floor((mouseX - rect.left) / canvasWidth * numCols));
-        const className = getClassName(row, col);
+        if (mouseX && mouseY) {
+            const canvas = canvasRef.current;
+            const rect = canvas.getBoundingClientRect();
+            // Compute the name of the class under the mouse. Should also work when the canvas is zoomed in.
+            const canvasHeight = rect.bottom - rect.top;
+            const canvasWidth = rect.right - rect.left;
+            const row = Math.max(0, Math.floor((mouseY - rect.top) / canvasHeight * numRows));
+            const col = Math.max(0, Math.floor((mouseX - rect.left) / canvasWidth * numCols));
+            const className = getClassName(row, col);
 
-        // If the class name under the mouse has not changed, do nothing.
-        if (currentClassName !== className) {
-            const canvasContext = canvas.getContext('2d');
+            // If the class name under the mouse has not changed, do nothing.
+            if (currentClassName !== className) {
+                const canvasContext = canvas.getContext('2d');
+                const classColor = getHexColor(className, HOVER_OPACITY);
 
-            canvasContext.clearRect(0, 0, canvas.width, canvas.height);
+                canvasContext.clearRect(0, 0, canvas.width, canvas.height);
+                canvasContext.fillStyle = classColor;
 
-            // For each pixel in the mask, if it is part of the class
-            // under the mouse, draw it with a 50% opacity. Otherwise,
-            // draw it with a 0% opacity.
+                // For each pixel in the mask, if it is part of the class
+                // under the mouse, draw it with a 50% opacity. Otherwise,
+                // draw it with a 0% opacity.
 
-            mask.forEach((row, i) => {
-                row.forEach((col, j) => {
-                    const currentClassName = getClassName(i, j);
-
-                    if (currentClassName === className) {
-                        canvasContext.fillStyle = getHexColor(currentClassName, HOVER_OPACITY);
-                        canvasContext.fillRect(j, i, 1, 1);
-                    }
+                mask.forEach((row, i) => {
+                    row.forEach((col, j) => {
+                        if (getClassName(i, j) === className) {
+                            canvasContext.fillRect(j, i, 1, 1);
+                        }
+                    });
                 });
-            });
 
-            setCurrentClassName(className);
+                setCurrentClassName(className);
+            }
         }
     }, [mouseX, mouseY]);
 
@@ -93,6 +94,8 @@ const SegmentationMask = ({encodedMask, classNames}) => {
                     setMouseY(e.clientY);
                 }}
                 onMouseLeave={() => {
+                    setMouseX(null);
+                    setMouseY(null);
                     resetCanvas();
                     setCurrentClassName(null);
                 }}
