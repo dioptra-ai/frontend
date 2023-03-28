@@ -42,6 +42,8 @@ const SegmentationMask = ({encodedMask, classNames}) => {
         });
     };
 
+    useEffect(resetCanvas, [encodedMask]);
+
     useEffect(() => {
         if (mouseX && mouseY) {
             const canvas = canvasRef.current;
