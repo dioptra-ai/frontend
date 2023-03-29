@@ -5,7 +5,6 @@ import {saveAs} from 'file-saver';
 import slugify from 'slugify';
 
 import MinerModal from 'components/miner-modal';
-import {DatasetEditModal} from 'components/dataset-modal';
 import Menu from 'components/menu';
 import Async from 'components/async';
 import PreviewDetails from 'components/preview-details';
@@ -19,7 +18,6 @@ const Miner = () => {
     const {minerId} = useParams();
     const [isMinerModalOpen, setIsMinerModalOpen] = useState(false);
     const [lastRequestedRefresh, setLastRequestedRefresh] = useState(0);
-    const [isDatasetModalOpen, setIsDatasetModalOpen] = useState(false);
     const handleRunMiner = async () => {
         await baseJSONClient('/api/tasks/miner/run', {
             method: 'post',
@@ -101,15 +99,12 @@ const Miner = () => {
                                         renderData={({task}) => task ? (
                                             <>
                                                 {task['result'] ? (
-                                                    <>
-                                                        <a onClick={() => setIsDatasetModalOpen(true)}>Export to Dataset</a>
-                                                    &nbsp;|&nbsp;
-                                                        <a onClick={async () => {
-                                                            const datapoints = await baseJSONClient(`/api/tasks/miners/results/${minerId}?as_csv=true`);
+                                                    <a onClick={async () => {
+                                                        const datapoints = await baseJSONClient(`/api/tasks/miners/results/${minerId}?as_csv=true`);
 
-                                                            saveAs(new Blob([datapoints], {type: 'text/csv;charset=utf-8'}), `${slugify(miner['display_name'])}.csv`);
-                                                        }}>Download as CSV</a>
-                                                    </>) : null}
+                                                        saveAs(new Blob([datapoints], {type: 'text/csv;charset=utf-8'}), `${slugify(miner['display_name'])}.csv`);
+                                                    }}>Download as CSV</a>
+                                                ) : null}
                                                 <PreviewDetails datapoint={task}/>
                                                 {
                                                     task['status'] === 'SUCCESS' ? (
@@ -128,16 +123,6 @@ const Miner = () => {
                                                         </>
                                                     ) : null
                                                 }
-                                                {isDatasetModalOpen ? (
-                                                    <DatasetEditModal
-                                                        isOpen
-                                                        onDatasetSaved={(dataset) => {
-                                                            setIsDatasetModalOpen(false);
-                                                            history.push(`/dataset/${dataset['uuid']}`);
-                                                        }}
-                                                        onClose={() => setIsDatasetModalOpen(false)}
-                                                    />
-                                                ) : null}
                                             </>
                                         ) : <span>Miner not Run</span>
                                         }
