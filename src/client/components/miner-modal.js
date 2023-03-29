@@ -1,26 +1,28 @@
 /* eslint-disable complexity */
 import PropTypes from 'prop-types';
+import {setupComponent} from 'helpers/component-helper';
 import Modal from 'components/modal';
 import Select from 'components/select';
-import {useEffect, useState} from 'react';
+import {useState} from 'react';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import InputGroup from 'react-bootstrap/InputGroup';
-import {setupComponent} from 'helpers/component-helper';
 import baseJSONClient from 'clients/base-json-client';
 import DataSelector from './data-selector';
 import {Container} from 'react-bootstrap';
+import Async from 'components/async';
 
 const MinerModal = ({isOpen, onClose, onMinerSaved, defaultMiner = {}}) => {
     const {
-        display_name, select, select_reference, size, metric, embeddings_field, strategy
+        display_name, select, select_reference, size, metric, embeddings_field, strategy, model_name
     } = defaultMiner;
     const [minerName, setMinerName] = useState(display_name);
     const [minerMetric, setMinerMetric] = useState(metric || 'euclidean');
     const [minerAnalysisSpace, setMinerAnalysisSpace] = useState(embeddings_field);
     const [minerSize, setMinerSize] = useState(size);
+    const [minerModelName, setMinerModelName] = useState(model_name || select?.model_name || '');
     const [minerFilters, setMinerFilters] = useState(select?.filters || []);
     const [referenceFilters, setReferenceFilters] = useState(select_reference?.filters || []);
     const minerStrategyOptions = [{
@@ -47,7 +49,10 @@ const MinerModal = ({isOpen, onClose, onMinerSaved, defaultMiner = {}}) => {
             strategy: minerStrategy,
             metric: minerMetric,
             size: minerSize,
-            embeddings_field: minerAnalysisSpace,
+            ...((minerStrategy === 'NEAREST_NEIGHBORS' || minerStrategy === 'ACTIVATION' || minerStrategy === 'CORESET' ? ({
+                embeddings_field: minerAnalysisSpace,
+                model_name: minerModelName
+            }) : {})),
             select: {
                 ...defaultMiner.select,
                 filters: minerFilters
@@ -66,52 +71,9 @@ const MinerModal = ({isOpen, onClose, onMinerSaved, defaultMiner = {}}) => {
                 body: payload
             });
 
-            if (onMinerSaved) {
-
-                onMinerSaved(miner['miner_id']);
-            }
+            onMinerSaved?.(miner['miner_id']);
         }
     };
-
-    useEffect(() => {
-        if (minerAnalysisSpace) {
-            const notNullFilter = minerFilters.find((f) => f['op'] === 'is not' && f['right'] === null);
-
-            if (notNullFilter) {
-                notNullFilter['left'] = minerAnalysisSpace;
-                setMinerFilters([...minerFilters]);
-            } else {
-                setMinerFilters([...minerFilters, {
-                    left: minerAnalysisSpace,
-                    op: 'is not',
-                    right: null
-                }]);
-            }
-        } else {
-            setMinerFilters(minerFilters.filter((f) => f['op'] !== 'is not' || f['right'] !== null));
-        }
-    }, [minerAnalysisSpace]);
-
-    useEffect(() => {
-        switch (minerStrategy) {
-        case 'NEAREST_NEIGHBORS':
-        case 'CORESET':
-        case 'ACTIVATION':
-            if (!minerAnalysisSpace) {
-                setMinerAnalysisSpace('embeddings');
-            }
-            break;
-        case 'ENTROPY':
-            setMinerAnalysisSpace(null);
-            break;
-        case 'VARIANCE':
-            setMinerAnalysisSpace(null);
-            break;
-        default:
-            break;
-        }
-    }, [minerStrategy]);
-
 
     return (
         <Modal
@@ -172,10 +134,10 @@ const MinerModal = ({isOpen, onClose, onMinerSaved, defaultMiner = {}}) => {
                         </Col>
                     </Row>
                     <Row classname='g-2'>
-                        <Col>
-                            {
-                                minerStrategy === 'NEAREST_NEIGHBORS' || minerStrategy === 'ACTIVATION' || minerStrategy === 'CORESET' ? (
-                                    <>
+                        {
+                            minerStrategy === 'NEAREST_NEIGHBORS' || minerStrategy === 'ACTIVATION' || minerStrategy === 'CORESET' ? (
+                                <>
+                                    <Col>
                                         <Form.Label className='mt-3 mb-0 w-100'>Analysis Space</Form.Label>
                                         <InputGroup className='mt-1 flex-column'>
                                             <Form.Control as='select' className={'form-select w-100'} required
@@ -186,23 +148,50 @@ const MinerModal = ({isOpen, onClose, onMinerSaved, defaultMiner = {}}) => {
                                             >
                                                 <option disabled>Select Analysis Space</option>
                                                 <option value='embeddings'>
-                                            Embeddings
+                                                        Embeddings
                                                 </option>
-                                                <option value='prediction.embeddings'>
-                                            Prediction Embeddings
+                                                <option value='prediction.embeddings' disabled>
+                                                        Prediction Embeddings
                                                 </option>
-                                                <option value='groundtruth.embeddings'>
-                                            Groundtruth Embeddings
-                                                </option>
-                                                <option value='prediction.logits'>
-                                            Prediction Logits
+                                                <option value='prediction.logits' disabled>
+                                                        Prediction Logits
                                                 </option>
                                             </Form.Control>
                                         </InputGroup>
-                                    </>
-                                ) : null
-                            }
-                        </Col>
+                                    </Col>
+                                    <Col>
+                                        <Form.Label className='mt-3 mb-0 w-100'>Model Name</Form.Label>
+                                        <InputGroup className='mt-1'>
+                                            <Async fetchData={() => baseJSONClient.post('/api/predictions/select-distinct', {
+                                                filters: minerFilters,
+                                                column: 'model_name',
+                                                limit: 100
+                                            })}
+                                            refetchOnChanged={[minerFilters]}
+                                            renderData={(data) => {
+                                                return (
+                                                    <Form.Control as='select' className={'form-select w-100'} required
+                                                        value={minerModelName}
+                                                        onChange={(e) => {
+                                                            setMinerModelName(e.target.value);
+                                                        }}
+                                                    >
+                                                        <option disabled>Select Model Name</option>
+                                                        {
+                                                            data.map(({model_name}) => (
+                                                                <option value={model_name} key={model_name}>
+                                                                    {model_name}
+                                                                </option>
+                                                            ))
+                                                        }
+                                                    </Form.Control>
+                                                );
+                                            }} />
+                                        </InputGroup>
+                                    </Col>
+                                </>
+                            ) : null
+                        }
                         <Col>
                             {
                                 minerStrategy === 'NEAREST_NEIGHBORS' || minerStrategy === 'CORESET' ? (
