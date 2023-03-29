@@ -34,6 +34,24 @@ PredictionsRouter.post('/select', async (req, res, next) => {
     }
 });
 
+PredictionsRouter.post('/select-distinct', async (req, res, next) => {
+    try {
+        const predictions = await Prediction.selectDistinct({
+            organizationId: req.user.requestOrganizationId,
+            column: req.body.column,
+            filters: req.body.filters,
+            orderBy: req.body.orderBy,
+            desc: req.body.desc,
+            limit: req.body.limit,
+            offset: req.body.offset
+        });
+
+        res.json(predictions);
+    } catch (e) {
+        next(e);
+    }
+});
+
 PredictionsRouter.post('/delete', async (req, res, next) => {
     try {
         const predictions = await Prediction.deleteByFilters(

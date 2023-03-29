@@ -3,8 +3,6 @@ import pgFormat from 'pg-format';
 import {postgresClient} from './index.mjs';
 import Datapoint from './datapoint.mjs';
 
-const {getColumnTable, getSafeColumn} = Datapoint;
-
 const OMITTED_COLUMNS = ['organization_id'];
 
 class Suggestion {
@@ -44,11 +42,11 @@ class Suggestion {
     }
 
     static async findValueSuggestions(organizationId, key, value = '') {
-        const tableName = getColumnTable(key);
-        const safeColumn = getSafeColumn(key);
+        const tableName = Datapoint.getColumnTable(key);
+        const safeColumn = Datapoint.getSafeColumn(key);
 
         const {rows} = await postgresClient.query(
-            pgFormat(`SELECT DISTINCT ${safeColumn} AS value FROM %I WHERE organization_id = $1 AND ${safeColumn} LIKE $2`, tableName),
+            pgFormat(`SELECT DISTINCT ${safeColumn} AS value FROM %I WHERE organization_id = $1 AND ${safeColumn}::TEXT LIKE $2`, tableName),
             [organizationId, `%${value}%`]
         );
 

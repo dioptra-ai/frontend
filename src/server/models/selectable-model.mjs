@@ -289,6 +289,17 @@ class SelectableModel {
         `;
     }
 
+    static async selectDistinct({organizationId, filters = [], column, orderBy, desc = false, limit = 1000000, offset = 0}) {
+        const primaryTable = this.getTableName();
+        const {rows} = await postgresClient.query(`
+            SELECT DISTINCT ${this.getSafeColumn(column)} FROM (
+                ${this._getSafeSelectQuery({selectColumns: [column], organizationId, filters, orderBy, desc, limit, offset})}
+            ) AS ${primaryTable}
+        `);
+
+        return rows;
+    }
+
     static async deleteById(organizationId, id) {
         const {rows} = await postgresClient.query(
             `DELETE FROM ${this.getTableName()} WHERE id = $1 AND organization_id = $2 RETURNING *`,
