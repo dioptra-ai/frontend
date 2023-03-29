@@ -86,7 +86,7 @@ const MinerModal = ({isOpen, onClose, onMinerSaved, defaultMiner = {}}) => {
                 saveMiner();
             }}>
                 <Container fluid>
-                    <Row classname='g-2'>
+                    <Row className='g-2'>
                         <Col>
                             <Form.Label className='mt-3 mb-0 w-100'>Miner Name</Form.Label>
                             <InputGroup className='mt-1'>
@@ -117,7 +117,7 @@ const MinerModal = ({isOpen, onClose, onMinerSaved, defaultMiner = {}}) => {
                             </InputGroup>
                         </Col>
                     </Row>
-                    <Row classname='g-2'>
+                    <Row className='g-2'>
                         <Col>
                             <Form.Label className='mt-3 mb-0 w-100'>Strategy</Form.Label>
                             <InputGroup className='mt-1'>
@@ -133,7 +133,7 @@ const MinerModal = ({isOpen, onClose, onMinerSaved, defaultMiner = {}}) => {
                             </InputGroup>
                         </Col>
                     </Row>
-                    <Row classname='g-2'>
+                    <Row className='g-2'>
                         {
                             minerStrategy === 'NEAREST_NEIGHBORS' || minerStrategy === 'ACTIVATION' || minerStrategy === 'CORESET' ? (
                                 <>
@@ -162,9 +162,8 @@ const MinerModal = ({isOpen, onClose, onMinerSaved, defaultMiner = {}}) => {
                                     <Col>
                                         <Form.Label className='mt-3 mb-0 w-100'>Model Name</Form.Label>
                                         <InputGroup className='mt-1'>
-                                            <Async fetchData={() => baseJSONClient.post('/api/predictions/select-distinct', {
-                                                filters: minerFilters,
-                                                column: 'model_name',
+                                            <Async fetchData={() => baseJSONClient.post('/api/predictions/select-distinct-model-names', {
+                                                datapointFilters: minerFilters,
                                                 limit: 100
                                             })}
                                             refetchOnChanged={[minerFilters]}
@@ -219,7 +218,7 @@ const MinerModal = ({isOpen, onClose, onMinerSaved, defaultMiner = {}}) => {
                         </Col>
                     </Row>
                     <hr/>
-                    <Row classname='g-2'>
+                    <Row className='g-2'>
                         <Col>
                             <Form.Label className='mt-3 mb-0 w-100'>Mined Data</Form.Label>
                             <DataSelector

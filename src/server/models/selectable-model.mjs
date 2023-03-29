@@ -162,7 +162,7 @@ class SelectableModel {
         const {rows} = await postgresClient.query(`
             SELECT COUNT(DISTINCT ${primaryTable}.id) as count
             FROM (
-                ${this._getSafeSelectQuery({selectColumns: [`${primaryTable}.id`], organizationId, filters})}
+                ${this.getSafeSelectQuery({selectColumns: [`${primaryTable}.id`], organizationId, filters})}
             ) AS ${this.getTableName()}
         `);
 
@@ -170,12 +170,12 @@ class SelectableModel {
     }
 
     static async select(...args) {
-        const {rows} = await postgresClient.query(this._getSafeSelectQuery(...args));
+        const {rows} = await postgresClient.query(this.getSafeSelectQuery(...args));
 
         return rows;
     }
 
-    static _getSafeSelectQuery({
+    static getSafeSelectQuery({
         organizationId, selectColumns = [], filters,
         orderBy, desc = false, limit = 1000000, offset = 0
     }) {
@@ -293,7 +293,7 @@ class SelectableModel {
         const primaryTable = this.getTableName();
         const {rows} = await postgresClient.query(`
             SELECT DISTINCT ${this.getSafeColumn(column)} FROM (
-                ${this._getSafeSelectQuery({selectColumns: [column], organizationId, filters, orderBy, desc, limit, offset})}
+                ${this.getSafeSelectQuery({selectColumns: [column], organizationId, filters, orderBy, desc, limit, offset})}
             ) AS ${primaryTable}
         `);
 
@@ -312,7 +312,7 @@ class SelectableModel {
     static async deleteByFilters(organizationId, filters) {
         const primaryTable = this.getTableName();
         const {rows} = await postgresClient.query(
-            `DELETE FROM ${primaryTable} WHERE organization_id = $1 AND id IN (${this._getSafeSelectQuery({organizationId, filters, selectColumns: [`${primaryTable}.id`]})}) RETURNING *`,
+            `DELETE FROM ${primaryTable} WHERE organization_id = $1 AND id IN (${this.getSafeSelectQuery({organizationId, filters, selectColumns: [`${primaryTable}.id`]})}) RETURNING *`,
             [organizationId]
         );
 

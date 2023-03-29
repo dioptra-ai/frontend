@@ -83,7 +83,7 @@ export const RenderDatapoint = ({datapoint, parentIndex = 0}) => {
 };
 
 RenderDatapoint.propTypes = {
-    datapoint: PropTypes.any.isRequired,
+    datapoint: PropTypes.any,
     parentIndex: PropTypes.number
 };
 

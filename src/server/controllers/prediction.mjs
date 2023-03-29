@@ -34,14 +34,11 @@ PredictionsRouter.post('/select', async (req, res, next) => {
     }
 });
 
-PredictionsRouter.post('/select-distinct', async (req, res, next) => {
+PredictionsRouter.post('/select-distinct-model-names', async (req, res, next) => {
     try {
-        const predictions = await Prediction.selectDistinct({
+        const predictions = await Prediction.selectDistinctModelNames({
             organizationId: req.user.requestOrganizationId,
-            column: req.body.column,
-            filters: req.body.filters,
-            orderBy: req.body.orderBy,
-            desc: req.body.desc,
+            datapointFilters: req.body.datapointFilters,
             limit: req.body.limit,
             offset: req.body.offset
         });

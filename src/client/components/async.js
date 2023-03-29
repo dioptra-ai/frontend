@@ -39,7 +39,7 @@ const Async = ({
                 }
             } catch (err) {
                 if (requestId === inFlightRequest.current) {
-                    setData(null);
+                    setData();
                     setError(err);
                 }
 
@@ -60,9 +60,9 @@ const Async = ({
     } else if (error) {
 
         content = renderError(error);
-    } else if (data || defaultData) {
+    } else if (data !== undefined || defaultData) {
 
-        content = renderData(data || defaultData);
+        content = renderData(data !== undefined ? data : defaultData);
     }
 
     return (

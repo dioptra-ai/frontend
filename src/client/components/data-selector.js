@@ -4,13 +4,11 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import {Col, Form, Row} from 'react-bootstrap';
 
 import FilterInput from 'pages/common/filter-input';
-import metricsClient from 'clients/metrics';
-import Async from 'components/async';
-import EventsViewer from './events-viewer';
-import CountEvents from './count-events';
+import DatapointsViewer from 'components/datapoints-viewer';
+import CountDatapoints from './count-datapoints';
 
 const DataSelector = ({value = {}, onChange, emptyOnUnfiltered}) => {
-    const {filters = [], limit = 12} = value;
+    const {filters = []} = value;
     const [collapsedPreview, setCollapsedPreview] = useState(true);
     const unfilteredEmpty = emptyOnUnfiltered && filters.length === 0;
 
@@ -29,7 +27,7 @@ const DataSelector = ({value = {}, onChange, emptyOnUnfiltered}) => {
             <Row className='g-2 mb-2'>
                 <Col>
                     <Form.Text className='text-muted'>
-                        Total {unfilteredEmpty ? 0 : <CountEvents filters={filters} className='d-inline' />} datapoints&nbsp;
+                        Total {unfilteredEmpty ? 0 : <CountDatapoints filters={filters} className='d-inline' />} datapoints&nbsp;
                     </Form.Text>
                     <Form.Text className='text-muted cursor-pointer text-decoration-underline' onClick={() => setCollapsedPreview(!collapsedPreview)}>
                         ({collapsedPreview ? 'Preview' : 'Hide Preview'})
@@ -40,19 +38,7 @@ const DataSelector = ({value = {}, onChange, emptyOnUnfiltered}) => {
                 <Row className='g-2'>
                     <Col>
                         {
-                            unfilteredEmpty ? null : (
-                                <Async
-                                    fetchData={() => metricsClient('select', {
-                                        select: '"timestamp", "uuid", "request_id", "image_metadata", "text_metadata", "video_metadata","text", "tags"',
-                                        filters,
-                                        limit
-                                    })}
-                                    refetchOnChanged={[filters]}
-                                    renderData={(events) => (
-                                        <EventsViewer events={events} />
-                                    )}
-                                />
-                            )
+                            unfilteredEmpty ? null : <DatapointsViewer filters={filters} />
                         }
                     </Col>
                 </Row>
