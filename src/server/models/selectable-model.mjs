@@ -176,7 +176,7 @@ class SelectableModel {
     }
 
     static getSafeSelectQuery({
-        organizationId, selectColumns = [], filters,
+        organizationId, selectColumns = [], filters = [],
         orderBy, desc = false, limit = 1000000, offset = 0
     }) {
         assert(organizationId, 'organizationId is required');

@@ -57,14 +57,20 @@ DatapointsRouter.post('/count', async (req, res, next) => {
     }
 });
 
-DatapointsRouter.post('/count', async (req, res, next) => {
+DatapointsRouter.post('/find-vector-ids', async (req, res, next) => {
     try {
-        const count = await Datapoint.count({
-            organizationId: req.user.requestOrganizationId,
-            filters: req.body.filters
-        });
+        const vectorIds = await Datapoint.findVectorIds(
+            req.user.requestOrganizationId,
+            req.body.filters,
+            req.body.orderBy,
+            req.body.desc,
+            req.body.limit,
+            req.body.offset,
+            req.body.type,
+            req.body.modelName
+        );
 
-        res.json(count);
+        res.json(vectorIds);
     } catch (e) {
         next(e);
     }
