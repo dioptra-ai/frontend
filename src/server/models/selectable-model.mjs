@@ -272,7 +272,7 @@ class SelectableModel {
         const tablesToJoinForFiltering = aliasedTables.concat(orderBy && !isSafeGlobalIdentifier(orderBy) ? [this.getColumnTable(orderBy)] : []);
 
         return `
-            SELECT ${safeSelects.join(', ')}
+            SELECT ${safeSelects.join(', ')} ${orderBy ? `, ${this.getSafeColumn(orderBy)}` : ''}
             FROM ${this.getSafeJoin(canonicalSelectTables)}
             WHERE ${primaryTable}.id IN (
                 SELECT id FROM (
@@ -286,6 +286,7 @@ class SelectableModel {
                 ) as filtered_datapoints
             )
             GROUP BY ${primaryTable}.id
+            ${safeOrderBy}
         `;
     }
 
@@ -312,7 +313,9 @@ class SelectableModel {
     static async deleteByFilters(organizationId, filters) {
         const primaryTable = this.getTableName();
         const {rows} = await postgresClient.query(
-            `DELETE FROM ${primaryTable} WHERE organization_id = $1 AND id IN (${this.getSafeSelectQuery({organizationId, filters, selectColumns: [`${primaryTable}.id`]})}) RETURNING *`,
+            `DELETE FROM ${primaryTable} WHERE organization_id = $1 AND id IN (
+                SELECT id FROM (${this.getSafeSelectQuery({organizationId, filters, selectColumns: [`${primaryTable}.id`]})}) as subquery
+            ) RETURNING *`,
             [organizationId]
         );
 

@@ -32,7 +32,9 @@ class Datapoint extends SelectableModel {
                 FROM feature_vectors 
                 INNER JOIN predictions ON feature_vectors.prediction = predictions.id
                 WHERE predictions.datapoint IN (
-                    ${this.getSafeSelectQuery({organizationId, filters, orderBy, desc, limit, offset, selectColumns: ['datapoints.id']})}
+                    SELECT id FROM (
+                        ${this.getSafeSelectQuery({organizationId, filters, orderBy, desc, limit, offset, selectColumns: ['datapoints.id']})}
+                    ) AS subquery
                 )
                 AND feature_vectors.type = $1
                 AND feature_vectors.model_name = $2`,

@@ -13,7 +13,9 @@ class Prediction extends SelectableModel {
             `SELECT DISTINCT model_name
                 FROM predictions
                 WHERE organization_id = $1 AND datapoint IN (
+                    SELECT id FROM (
                     ${Datapoint.getSafeSelectQuery({organizationId, selectColumns: ['id'], filters: datapointFilters})}
+                    ) AS subquery
                 )
                 ORDER BY model_name ${desc ? 'DESC' : 'ASC'}
                 LIMIT $2 OFFSET $3`,
