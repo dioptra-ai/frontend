@@ -43,6 +43,19 @@ class Datapoint extends SelectableModel {
 
         return rows.map((row) => row['id']);
     }
+
+    static async selectInDataset({organizationId, filters, orderBy, desc, limit, offset, selectColumns, datasetId}) {
+        const {rows} = await postgresClient.query(
+            `SELECT filtered_datapoints.* FROM (
+                ${this.getSafeSelectQuery({organizationId, filters, orderBy, desc, limit, offset, selectColumns})}
+                ) AS filtered_datapoints
+                INNER JOIN dataset_to_datapoints ON filtered_datapoints.id = dataset_to_datapoints.datapoint
+                WHERE dataset_to_datapoints.dataset = $1 AND dataset_to_datapoints.organization_id = $2`,
+            [datasetId, organizationId]
+        );
+
+        return rows;
+    }
 }
 
 export default Datapoint;

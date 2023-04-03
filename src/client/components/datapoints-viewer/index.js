@@ -493,11 +493,7 @@ const DatapointsViewer = ({filters, renderActionButtons}) => {
         <>
             <Async
                 fetchData={() => baseJSONClient.post('/api/datapoints/select', {
-                    selectColumns: [
-                        'id', 'metadata', 'type', 'text',
-                        'groundtruths.class_name',
-                        'groundtruths.top', 'groundtruths.left', 'groundtruths.width', 'groundtruths.height'
-                    ],
+                    selectColumns: ['id', 'metadata', 'type', 'text'],
                     filters,
                     offset,
                     limit: PAGE_SIZE
