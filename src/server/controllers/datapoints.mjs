@@ -45,6 +45,25 @@ DatapointsRouter.post('/select', async (req, res, next) => {
     }
 });
 
+DatapointsRouter.post('/select-in-dataset', async (req, res, next) => {
+    try {
+        const datapoints = await Datapoint.selectInDataset({
+            organizationId: req.user.requestOrganizationId,
+            selectColumns: req.body.selectColumns,
+            filters: req.body.filters,
+            orderBy: req.body.orderBy,
+            desc: req.body.desc,
+            limit: req.body.limit,
+            offset: req.body.offset,
+            datasetId: req.body.datasetId
+        });
+
+        res.json(datapoints);
+    } catch (e) {
+        next(e);
+    }
+});
+
 DatapointsRouter.post('/count', async (req, res, next) => {
     try {
         const count = await Datapoint.count({
