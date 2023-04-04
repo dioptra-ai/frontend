@@ -177,7 +177,7 @@ class SelectableModel {
 
     static getSafeSelectQuery({
         organizationId, selectColumns = [], filters = [],
-        orderBy, desc = false, limit = 1000000, offset = 0
+        orderBy, desc = false, limit, offset = 0
     }) {
         assert(organizationId, 'organizationId is required');
         const primaryTable = this.getTableName();

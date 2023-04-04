@@ -383,7 +383,7 @@ DatapointsPage.propTypes = {
     onSelectedDatapointsChange: PropTypes.func
 };
 
-const DatapointsPageActions = ({filters, datapoints, selectedDatapoints, onSelectedDatapointsChange, renderActionButtons}) => {
+const DatapointsPageActions = ({filters, datasetId, datapoints, selectedDatapoints, onSelectedDatapointsChange, renderActionButtons}) => {
     const selectAllRef = useRef();
     const handleSelectedDatapointsChange = (d) => {
         onSelectedDatapointsChange(new Set(d));
@@ -391,7 +391,7 @@ const DatapointsPageActions = ({filters, datapoints, selectedDatapoints, onSelec
     const handleSelectAllDataPoints = async () => {
         const allDatapoints = await baseJSONClient.post('/api/datapoints/select', {
             selectColumns: ['id'],
-            filters
+            filters, datasetId
         });
 
         onSelectedDatapointsChange(new Set(allDatapoints.map((d) => d.id)));
@@ -400,7 +400,7 @@ const DatapointsPageActions = ({filters, datapoints, selectedDatapoints, onSelec
     // Reset selected datapoints when filters change.
     useEffect(() => {
         onSelectedDatapointsChange(new Set());
-    }, [filters]);
+    }, [filters, datasetId]);
 
     // Update select all checkbox when selected datapoints change.
     useEffect(() => {
@@ -432,7 +432,8 @@ const DatapointsPageActions = ({filters, datapoints, selectedDatapoints, onSelec
                 selectedDatapoints.size ? (
                     <Col xs={12} className='d-flex justify-content-between'>
                         <div>
-                            <Async fetchData={() => baseJSONClient.post('/api/datapoints/count', {filters}, {memoized: 1000})}
+                            <Async fetchData={() => baseJSONClient.post('/api/datapoints/count', {filters, datasetId}, {memoized: 1000})}
+                                refetchOnChanged={[JSON.stringify(filters), datasetId]}
                                 renderData={(totalCount) => {
                                     const allDatapointsSelected = totalCount === selectedDatapoints.size;
 
@@ -457,7 +458,6 @@ const DatapointsPageActions = ({filters, datapoints, selectedDatapoints, onSelec
                                         </div>
                                     );
                                 }}
-                                refetchOnChanged={[JSON.stringify(filters)]}
                             />
                         </div>
                         <div>
@@ -472,6 +472,7 @@ const DatapointsPageActions = ({filters, datapoints, selectedDatapoints, onSelec
 
 DatapointsPageActions.propTypes = {
     filters: PropTypes.array.isRequired,
+    datasetId: PropTypes.string.isRequired,
     datapoints: PropTypes.array.isRequired,
     selectedDatapoints: PropTypes.instanceOf(Set).isRequired,
     onSelectedDatapointsChange: PropTypes.func,
@@ -480,7 +481,7 @@ DatapointsPageActions.propTypes = {
 
 const PAGE_SIZE = 50;
 
-const DatapointsViewer = ({filters, renderActionButtons}) => {
+const DatapointsViewer = ({filters, datasetId, renderActionButtons}) => {
     const [offset, setOffset] = useState(0);
     const [selectedDatapoints, setSelectedDatapoints] = useState(renderActionButtons ? new Set() : null);
 
@@ -492,19 +493,24 @@ const DatapointsViewer = ({filters, renderActionButtons}) => {
     return (
         <>
             <Async
-                fetchData={() => baseJSONClient.post('/api/datapoints/select', {
-                    selectColumns: ['id', 'metadata', 'type', 'text'],
-                    filters,
-                    offset,
-                    limit: PAGE_SIZE
-                })}
-                refetchOnChanged={[JSON.stringify(filters), offset]}
+                fetchData={() => {
+                    const payload = {
+                        selectColumns: ['id', 'metadata', 'type', 'text'],
+                        filters,
+                        offset,
+                        limit: PAGE_SIZE,
+                        datasetId
+                    };
+
+                    return baseJSONClient.post('/api/datapoints/select', payload);
+                }}
+                refetchOnChanged={[JSON.stringify(filters), offset, datasetId]}
                 renderData={(datapointsPage) => (
                     <Row className='g-2'>
                         {renderActionButtons ? (
                             <Col xs={12}>
                                 <DatapointsPageActions
-                                    filters={filters} datapoints={datapointsPage}
+                                    filters={filters} datapoints={datapointsPage} datasetId={datasetId}
                                     onSelectedDatapointsChange={setSelectedDatapoints}
                                     selectedDatapoints={selectedDatapoints}
                                     renderActionButtons={renderActionButtons}
@@ -522,8 +528,8 @@ const DatapointsViewer = ({filters, renderActionButtons}) => {
             />
             <Async
                 spinner={false}
-                fetchData={() => baseJSONClient.post('/api/datapoints/count', {filters}, {memoized: 1000})}
-                refetchOnChanged={[JSON.stringify(filters)]}
+                fetchData={() => baseJSONClient.post('/api/datapoints/count', {filters, datasetId}, {memoized: 1000})}
+                refetchOnChanged={[JSON.stringify(filters), datasetId]}
             >{
                     ({data: totalCount, loading}) => (
                         <div className='d-flex justify-content-center my-5 align-items-center'>
@@ -558,6 +564,7 @@ const DatapointsViewer = ({filters, renderActionButtons}) => {
 
 DatapointsViewer.propTypes = {
     filters: PropTypes.arrayOf(PropTypes.object),
+    datasetId: PropTypes.string,
     renderActionButtons: PropTypes.func
 };
 
