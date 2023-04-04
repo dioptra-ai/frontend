@@ -12,6 +12,8 @@ import {setupComponent} from 'helpers/component-helper';
 import Select from 'components/select';
 import Async from 'components/async';
 
+import Metrics from './metrics';
+
 const DataLake = () => {
     const [filters, setFilters] = useQueryParam('filters', JsonParam);
     const [datasetId, setDatasetId] = useQueryParam('datasetId', StringParam);
@@ -40,6 +42,11 @@ const DataLake = () => {
                     </Col>
                     <Col>
                         <FilterInput value={filters} onChange={setFilters} />
+                    </Col>
+                </Row>
+                <Row>
+                    <Col>
+                        <Metrics filters={filters} datasetId={datasetId} />
                     </Col>
                 </Row>
                 <DatapointsViewer filters={filters} datasetId={datasetId} renderActionButtons={({selectedDatapoints}) => selectedDatapoints.size ? (

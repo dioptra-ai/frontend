@@ -240,7 +240,7 @@ const DatapointCard = ({datapoint = {}, onClick, zoomable, showDetails, maxHeigh
                 </Col>
                 {showDetails && Object.keys(averageConfidencePerClass).length > 0 ? (
                     <Col xs={12}>
-                        <PerformanceBox minHeight={50} data={Object.entries(averageConfidencePerClass).map(([label, value]) => ({label, value}))} />
+                        <PerformanceBox title='Confidence' minHeight={50} data={Object.entries(averageConfidencePerClass).map(([label, value]) => ({label, value}))} />
                     </Col>
                 ) : null}
                 {

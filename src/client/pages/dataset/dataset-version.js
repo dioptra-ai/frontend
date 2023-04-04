@@ -138,7 +138,7 @@ const DatasetVersion = () => {
                                             version['committed'] ? `"${version['message']}"` : '<Uncommitted>'
                                         }</span></div>
                                         <div>
-                                            <Link to={`/dataset/${dataset['uuid']}`}>Go to dataset</Link>
+                                            <Link to={`/dataset/${dataset['uuid']}`}>See Dataset</Link>
                                             &nbsp;|&nbsp;
                                             <a href='#' onClick={async () => {
                                                 const datapointIds = await baseJSONClient(`/api/dataset/version/${versionId}/datapoint-ids`);
@@ -172,7 +172,7 @@ const DatasetVersion = () => {
 
                                         history.push(`/dataset/diff/${otherVersionId}/${versionId}`);
                                     }}>
-                                        <Form.Label column className='mb-0 text-nowrap'>Other Versions:</Form.Label>
+                                        <Form.Label column className='mb-0 text-nowrap'>Versions:</Form.Label>
                                         <Select name='versionId' className='ms-1 me-2' defaultValue={versionId}>
                                             {
                                                 versions.map((version) => (
@@ -182,6 +182,11 @@ const DatasetVersion = () => {
                                                 ))
                                             }
                                         </Select>
+                                        <Button variant='secondary' size='s' className='text-nowrap me-2' onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            history.push(`/dataset/version/${e.target.parentElement.elements['versionId'].value}`);
+                                        }}>View</Button>
                                         <Button type='submit' variant='secondary' size='s' className='text-nowrap me-2'>{'->'} Diff</Button>
                                     </Form>
                                 )}
