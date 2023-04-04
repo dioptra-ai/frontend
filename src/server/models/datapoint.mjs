@@ -47,23 +47,27 @@ class Datapoint extends SelectableModel {
         return rows.map((row) => row['id']);
     }
 
+    static async getSafeSelectQueryWithDatasetId({organizationId, filters, orderBy, desc, limit, offset, selectColumns, datasetId}) {
+        const version = await Dataset.findUncommittedVersion(organizationId, datasetId);
+        const safeOrderBy = orderBy ? `ORDER BY ${this.getSafeColumn(orderBy) + (desc ? ' DESC' : ' ASC')}` : '';
+
+        return `
+            SELECT filtered_datapoints.* FROM (
+                ${super.getSafeSelectQuery({organizationId, filters, selectColumns})}
+            ) AS filtered_datapoints
+            INNER JOIN dataset_to_datapoints ON filtered_datapoints.id = dataset_to_datapoints.datapoint
+            WHERE dataset_to_datapoints.dataset_version = ${pgFormat.literal(version['uuid'])} AND dataset_to_datapoints.organization_id = ${pgFormat.literal(organizationId)}
+            ${safeOrderBy}
+            LIMIT ${pgFormat.literal(limit)}
+            OFFSET ${pgFormat.literal(offset)}
+        `;
+    }
+
     static async select({organizationId, filters, orderBy, desc, limit, offset, selectColumns, datasetId}) {
 
         if (datasetId) {
-            const version = await Dataset.findUncommittedVersion(organizationId, datasetId);
-            const safeOrderBy = orderBy ? `ORDER BY ${this.getSafeColumn(orderBy) + (desc ? ' DESC' : ' ASC')}` : '';
-            const {rows} = await postgresClient.query(
-                `SELECT filtered_datapoints.* FROM (
-                    ${this.getSafeSelectQuery({organizationId, filters, selectColumns})}
-                ) AS filtered_datapoints
-                INNER JOIN dataset_to_datapoints ON filtered_datapoints.id = dataset_to_datapoints.datapoint
-                WHERE dataset_to_datapoints.dataset_version = $1 AND dataset_to_datapoints.organization_id = $2
-                ${safeOrderBy}
-                LIMIT ${pgFormat.literal(limit)}
-                OFFSET ${pgFormat.literal(offset)}
-                `,
-                [version['uuid'], organizationId]
-            );
+            const safeSelectQuery = await this.getSafeSelectQueryWithDatasetId({organizationId, filters, orderBy, desc, limit, offset, selectColumns, datasetId});
+            const {rows} = await postgresClient.query(safeSelectQuery);
 
             return rows;
         } else {

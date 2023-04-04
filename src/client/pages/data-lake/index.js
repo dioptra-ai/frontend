@@ -1,5 +1,6 @@
+import {useEffect} from 'react';
 import {useHistory} from 'react-router-dom';
-import {JsonParam, StringParam, useQueryParam} from 'use-query-params';
+import {ArrayParam, JsonParam, StringParam, useQueryParam} from 'use-query-params';
 import {Col, Row} from 'react-bootstrap';
 
 import baseJSONClient from 'clients/base-json-client';
@@ -17,7 +18,15 @@ import Metrics from './metrics';
 const DataLake = () => {
     const [filters, setFilters] = useQueryParam('filters', JsonParam);
     const [datasetId, setDatasetId] = useQueryParam('datasetId', StringParam);
+    const [modelNames, setModelNames] = useQueryParam('modelNames', ArrayParam);
     const history = useHistory();
+
+    useEffect(() => {
+        if (!datasetId) {
+            setModelNames(undefined);
+        }
+    }, [datasetId]);
+
 
     return (
         <Menu>
@@ -25,7 +34,10 @@ const DataLake = () => {
             <div className='text-dark p-3'>
                 <h4>Data Lake</h4>
                 <Row className='g-2'>
-                    <Col sm={2}>
+                    <Col>
+                        <FilterInput value={filters} onChange={setFilters} />
+                    </Col>
+                    <Col md={2}>
                         <Async
                             fetchData={() => baseJSONClient('/api/dataset')}
                             renderData={(datasets) => (
@@ -40,23 +52,52 @@ const DataLake = () => {
                             )}
                         />
                     </Col>
-                    <Col>
-                        <FilterInput value={filters} onChange={setFilters} />
-                    </Col>
+                    {
+                        datasetId ? (
+                            <Col md={3}>
+                                <Async
+                                    fetchData={() => baseJSONClient.post('/api/predictions/select-distinct-model-names', {
+                                        datapointFilters: filters,
+                                        datasetId,
+                                        limit: 100
+                                    })}
+                                    renderData={(allModelNames) => (
+                                        <Select multiple value={modelNames} onChange={setModelNames} disabled={!datasetId}>
+                                            <option value=''>No Model Names</option>
+                                            {allModelNames.map((modelName) => (
+                                                <option key={modelName} value={modelName}>
+                                                    {modelName}
+                                                </option>
+                                            ))}
+                                        </Select>
+                                    )}
+                                />
+                            </Col>
+                        ) : null
+                    }
                 </Row>
                 <Row>
-                    <Col>
+                    <Col md={datasetId && modelNames && modelNames.length ? 9 : 12}>
                         <Metrics filters={filters} datasetId={datasetId} />
+                        <DatapointsViewer filters={filters} datasetId={datasetId} renderActionButtons={({selectedDatapoints}) => selectedDatapoints.size ? (
+                            <DatasetSelector allowNew title='Add selected to dataset' onChange={async (datasetId) => {
+                                await baseJSONClient.post(`/api/dataset/${datasetId}/add`, {datapointIds: Array.from(selectedDatapoints)});
+                                history.push(`/dataset/${datasetId}`);
+                            }}>
+                                Add selected to dataset
+                            </DatasetSelector>
+                        ) : null} />
                     </Col>
+                    {
+                        (datasetId && modelNames && modelNames.length) ? (
+                            <Col md={3}>
+                                <Row className='g-2 my-2'>
+                                    MODEL METRICS
+                                </Row>
+                            </Col>
+                        ) : null
+                    }
                 </Row>
-                <DatapointsViewer filters={filters} datasetId={datasetId} renderActionButtons={({selectedDatapoints}) => selectedDatapoints.size ? (
-                    <DatasetSelector allowNew title='Add selected to dataset' onChange={async (datasetId) => {
-                        await baseJSONClient.post(`/api/dataset/${datasetId}/add`, {datapointIds: Array.from(selectedDatapoints)});
-                        history.push(`/dataset/${datasetId}`);
-                    }}>
-                        Add selected to dataset
-                    </DatasetSelector>
-                ) : null} />
             </div>
         </Menu>
     );

@@ -9,12 +9,12 @@ import baseJSONClient from 'clients/base-json-client';
 const Metrics = ({filters, datasetId}) => {
 
     if (!datasetId) {
-        return null;
+        return <div className='text-secondary mt-2 text-center' key='nope'>Select a Dataset for Metrics</div>;
     }
 
     return (
         <Row className='g-2 my-2'>
-            <Col>
+            <Col>{
                 <Async fetchData={async () => {
                     const datapoints = await baseJSONClient.post('/api/datapoints/select', {
                         filters, datasetId, selectColumns: ['id']
@@ -36,7 +36,8 @@ const Metrics = ({filters, datasetId}) => {
                         />
                     </Col>
                 ) : null
-                }/>
+                } />
+            }
             </Col>
         </Row>
     );

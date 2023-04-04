@@ -177,9 +177,9 @@ const MinerModal = ({isOpen, onClose, onMinerSaved, defaultMiner = {}}) => {
                                                     >
                                                         <option disabled>Select Model Name</option>
                                                         {
-                                                            data.map(({model_name}) => (
-                                                                <option value={model_name} key={model_name}>
-                                                                    {model_name}
+                                                            data.map((modelName) => (
+                                                                <option value={modelName} key={modelName}>
+                                                                    {modelName}
                                                                 </option>
                                                             ))
                                                         }

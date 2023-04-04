@@ -5,7 +5,13 @@ const Select = ({options = [], onChange, children, className, ...rest}) => {
 
     return (
         <Form.Control as='select' className={`${className} form-select w-100`} {...rest} onChange={(e) => {
-            onChange?.(e.target.value);
+            if (onChange) {
+                if (rest.multiple) {
+                    onChange(Array.from(e.target.selectedOptions).map(({value}) => value));
+                } else {
+                    onChange(e.target.value);
+                }
+            }
         }}>
             {
                 children || options.map(({name, value}) => (
