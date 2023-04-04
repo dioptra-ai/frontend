@@ -135,7 +135,7 @@ const Dataset = () => {
                     renderData={(uncommittedVersion) => {
 
                         return (
-                            <DatasetVersionViewer versionId={uncommittedVersion['uuid']} showDatapointActions/>
+                            <DatasetVersionViewer versionId={uncommittedVersion['uuid']} showDatapointActions showGroundtruthsInModal />
                         );
                     }}
                 />

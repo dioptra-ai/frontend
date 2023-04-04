@@ -117,20 +117,24 @@ const DatapointCard = ({datapoint = {}, onClick, zoomable, showDetails, maxHeigh
                                     {
                                         // Segmentation predictions segmentation_class_mask.
                                         // More than one of them would overlap and would not really make sense.
-                                        showPredictionMask ? predictions.filter((p) => p['encoded_resized_segmentation_class_mask']).map((p, i) => (
-                                            <div key={i} className='position-absolute h-100 w-100'>
-                                                <SegmentationMask encodedMask={p['encoded_resized_segmentation_class_mask']} classNames={p['class_names']} />
-                                            </div>
-                                        )) : null
+                                        showPredictionMask ? predictions.filter((p) => p['encoded_resized_segmentation_class_mask'])
+                                            .filter((_, i) => i === 0)
+                                            .map((p, i) => (
+                                                <div key={i} className='position-absolute h-100 w-100'>
+                                                    <SegmentationMask encodedMask={p['encoded_resized_segmentation_class_mask']} classNames={p['class_names']} />
+                                                </div>
+                                            )) : null
                                     }
                                     {
                                         // Segmentation groundtruths segmentation_class_mask.
                                         // More than one of them would overlap and would not really make sense.
-                                        showGroundtruthMask ? groundtruths.filter((g) => g['encoded_resized_segmentation_class_mask']).map((g, i) => (
-                                            <div key={i} className='position-absolute h-100 w-100'>
-                                                <SegmentationMask encodedMask={g['encoded_resized_segmentation_class_mask']} classNames={g['class_names']} />
-                                            </div>
-                                        )) : null
+                                        showGroundtruthMask ? groundtruths.filter((g) => g['encoded_resized_segmentation_class_mask'])
+                                            .filter((_, i) => i === 0)
+                                            .map((g, i) => (
+                                                <div key={i} className='position-absolute h-100 w-100'>
+                                                    <SegmentationMask encodedMask={g['encoded_resized_segmentation_class_mask']} classNames={g['class_names']} />
+                                                </div>
+                                            )) : null
                                     }
                                     {
                                         // Object detection predictions bounding boxes.
@@ -289,7 +293,7 @@ DatapointSelector.propTypes = {
     onSelectedDatapointsChange: PropTypes.func
 };
 
-const DatapointsPage = ({datapoints, selectedDatapoints, onSelectedDatapointsChange}) => {
+const DatapointsPage = ({datapoints, showGroundtruthsInModal, selectedDatapoints, onSelectedDatapointsChange}) => {
     const [datapointIndexInModal, setDatapointIndexInModal] = useState(-1);
     const datapointInModal = datapoints[datapointIndexInModal];
     const handleModalprevious = () => {
@@ -359,9 +363,11 @@ const DatapointsPage = ({datapoints, selectedDatapoints, onSelectedDatapointsCha
                                     'predictions.confidence', 'predictions.confidences',
                                     'predictions.model_name',
                                     'predictions.top', 'predictions.left', 'predictions.width', 'predictions.height',
-                                    'groundtruths.encoded_resized_segmentation_class_mask',
-                                    'groundtruths.class_name', 'groundtruths.class_names',
-                                    'groundtruths.top', 'groundtruths.left', 'groundtruths.width', 'groundtruths.height'
+                                    ...(showGroundtruthsInModal ? [
+                                        'groundtruths.encoded_resized_segmentation_class_mask',
+                                        'groundtruths.class_name', 'groundtruths.class_names',
+                                        'groundtruths.top', 'groundtruths.left', 'groundtruths.width', 'groundtruths.height'
+                                    ] : [])
                                 ]
                             })}
                             refetchOnChanged={[datapointInModal.id]}
@@ -379,6 +385,7 @@ const DatapointsPage = ({datapoints, selectedDatapoints, onSelectedDatapointsCha
 
 DatapointsPage.propTypes = {
     datapoints: PropTypes.array.isRequired,
+    showGroundtruthsInModal: PropTypes.bool,
     selectedDatapoints: PropTypes.instanceOf(Set),
     onSelectedDatapointsChange: PropTypes.func
 };
@@ -519,6 +526,7 @@ const DatapointsViewer = ({filters, datasetId, renderActionButtons}) => {
                         ) : null}
                         <Col xs={12}>
                             <DatapointsPage datapoints={datapointsPage}
+                                showGroundtruthsInModal={Boolean(datasetId)}
                                 selectedDatapoints={selectedDatapoints}
                                 onSelectedDatapointsChange={setSelectedDatapoints}
                             />
