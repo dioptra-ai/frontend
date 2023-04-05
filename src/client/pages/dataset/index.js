@@ -1,5 +1,5 @@
 import {useState} from 'react';
-import {useHistory, useParams} from 'react-router-dom';
+import {Link, useHistory, useParams} from 'react-router-dom';
 import {Button, Container} from 'react-bootstrap';
 import Form from 'react-bootstrap/Form';
 
@@ -88,6 +88,8 @@ const Dataset = () => {
                                     );
                                 }}
                             />
+                            <Link to={`/data-lake?datasetId=${datasetId}`} >See Metrics</Link>
+                                &nbsp;|&nbsp;
                             <a href='#' onClick={() => setIsDatasetEditOpen(true)}>Edit Name</a>
                                 &nbsp;|&nbsp;
                             <a href='#' onClick={() => setIsDatasetCommitVersionOpen(true)}>Commit</a>
@@ -135,7 +137,7 @@ const Dataset = () => {
                     renderData={(uncommittedVersion) => {
 
                         return (
-                            <DatasetVersionViewer versionId={uncommittedVersion['uuid']} showDatapointActions/>
+                            <DatasetVersionViewer versionId={uncommittedVersion['uuid']} showDatapointActions showGroundtruthsInModal />
                         );
                     }}
                 />

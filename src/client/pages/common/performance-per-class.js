@@ -34,7 +34,6 @@ export const PerformanceBox = ({
 
     return (
         <div className='p-2'>
-            <span className='text-dark bold-text fs-5'>{title}</span>
             {subtext && (
                 <span className='text-primary mx-1 d-inline-flex'>(n={subtext})</span>
             )}

@@ -117,20 +117,24 @@ const DatapointCard = ({datapoint = {}, onClick, zoomable, showDetails, maxHeigh
                                     {
                                         // Segmentation predictions segmentation_class_mask.
                                         // More than one of them would overlap and would not really make sense.
-                                        showPredictionMask ? predictions.filter((p) => p['encoded_resized_segmentation_class_mask']).map((p, i) => (
-                                            <div key={i} className='position-absolute h-100 w-100'>
-                                                <SegmentationMask encodedMask={p['encoded_resized_segmentation_class_mask']} classNames={p['class_names']} />
-                                            </div>
-                                        )) : null
+                                        showPredictionMask ? predictions.filter((p) => p['encoded_resized_segmentation_class_mask'])
+                                            .filter((_, i) => i === 0)
+                                            .map((p, i) => (
+                                                <div key={i} className='position-absolute h-100 w-100'>
+                                                    <SegmentationMask encodedMask={p['encoded_resized_segmentation_class_mask']} classNames={p['class_names']} />
+                                                </div>
+                                            )) : null
                                     }
                                     {
                                         // Segmentation groundtruths segmentation_class_mask.
                                         // More than one of them would overlap and would not really make sense.
-                                        showGroundtruthMask ? groundtruths.filter((g) => g['encoded_resized_segmentation_class_mask']).map((g, i) => (
-                                            <div key={i} className='position-absolute h-100 w-100'>
-                                                <SegmentationMask encodedMask={g['encoded_resized_segmentation_class_mask']} classNames={g['class_names']} />
-                                            </div>
-                                        )) : null
+                                        showGroundtruthMask ? groundtruths.filter((g) => g['encoded_resized_segmentation_class_mask'])
+                                            .filter((_, i) => i === 0)
+                                            .map((g, i) => (
+                                                <div key={i} className='position-absolute h-100 w-100'>
+                                                    <SegmentationMask encodedMask={g['encoded_resized_segmentation_class_mask']} classNames={g['class_names']} />
+                                                </div>
+                                            )) : null
                                     }
                                     {
                                         // Object detection predictions bounding boxes.
@@ -236,7 +240,7 @@ const DatapointCard = ({datapoint = {}, onClick, zoomable, showDetails, maxHeigh
                 </Col>
                 {showDetails && Object.keys(averageConfidencePerClass).length > 0 ? (
                     <Col xs={12}>
-                        <PerformanceBox minHeight={50} data={Object.entries(averageConfidencePerClass).map(([label, value]) => ({label, value}))} />
+                        <PerformanceBox title='Confidence' minHeight={50} data={Object.entries(averageConfidencePerClass).map(([label, value]) => ({label, value}))} />
                     </Col>
                 ) : null}
                 {
@@ -289,7 +293,7 @@ DatapointSelector.propTypes = {
     onSelectedDatapointsChange: PropTypes.func
 };
 
-const DatapointsPage = ({datapoints, selectedDatapoints, onSelectedDatapointsChange}) => {
+const DatapointsPage = ({datapoints, showGroundtruthsInModal, selectedDatapoints, onSelectedDatapointsChange}) => {
     const [datapointIndexInModal, setDatapointIndexInModal] = useState(-1);
     const datapointInModal = datapoints[datapointIndexInModal];
     const handleModalprevious = () => {
@@ -359,9 +363,11 @@ const DatapointsPage = ({datapoints, selectedDatapoints, onSelectedDatapointsCha
                                     'predictions.confidence', 'predictions.confidences',
                                     'predictions.model_name',
                                     'predictions.top', 'predictions.left', 'predictions.width', 'predictions.height',
-                                    'groundtruths.encoded_resized_segmentation_class_mask',
-                                    'groundtruths.class_name', 'groundtruths.class_names',
-                                    'groundtruths.top', 'groundtruths.left', 'groundtruths.width', 'groundtruths.height'
+                                    ...(showGroundtruthsInModal ? [
+                                        'groundtruths.encoded_resized_segmentation_class_mask',
+                                        'groundtruths.class_name', 'groundtruths.class_names',
+                                        'groundtruths.top', 'groundtruths.left', 'groundtruths.width', 'groundtruths.height'
+                                    ] : [])
                                 ]
                             })}
                             refetchOnChanged={[datapointInModal.id]}
@@ -379,11 +385,12 @@ const DatapointsPage = ({datapoints, selectedDatapoints, onSelectedDatapointsCha
 
 DatapointsPage.propTypes = {
     datapoints: PropTypes.array.isRequired,
+    showGroundtruthsInModal: PropTypes.bool,
     selectedDatapoints: PropTypes.instanceOf(Set),
     onSelectedDatapointsChange: PropTypes.func
 };
 
-const DatapointsPageActions = ({filters, datapoints, selectedDatapoints, onSelectedDatapointsChange, renderActionButtons}) => {
+const DatapointsPageActions = ({filters, datasetId, datapoints, selectedDatapoints, onSelectedDatapointsChange, renderActionButtons}) => {
     const selectAllRef = useRef();
     const handleSelectedDatapointsChange = (d) => {
         onSelectedDatapointsChange(new Set(d));
@@ -391,7 +398,7 @@ const DatapointsPageActions = ({filters, datapoints, selectedDatapoints, onSelec
     const handleSelectAllDataPoints = async () => {
         const allDatapoints = await baseJSONClient.post('/api/datapoints/select', {
             selectColumns: ['id'],
-            filters
+            filters, datasetId
         });
 
         onSelectedDatapointsChange(new Set(allDatapoints.map((d) => d.id)));
@@ -400,7 +407,7 @@ const DatapointsPageActions = ({filters, datapoints, selectedDatapoints, onSelec
     // Reset selected datapoints when filters change.
     useEffect(() => {
         onSelectedDatapointsChange(new Set());
-    }, [filters]);
+    }, [filters, datasetId]);
 
     // Update select all checkbox when selected datapoints change.
     useEffect(() => {
@@ -432,7 +439,8 @@ const DatapointsPageActions = ({filters, datapoints, selectedDatapoints, onSelec
                 selectedDatapoints.size ? (
                     <Col xs={12} className='d-flex justify-content-between'>
                         <div>
-                            <Async fetchData={() => baseJSONClient.post('/api/datapoints/count', {filters}, {memoized: 1000})}
+                            <Async fetchData={() => baseJSONClient.post('/api/datapoints/count', {filters, datasetId}, {memoized: 1000})}
+                                refetchOnChanged={[JSON.stringify(filters), datasetId]}
                                 renderData={(totalCount) => {
                                     const allDatapointsSelected = totalCount === selectedDatapoints.size;
 
@@ -457,7 +465,6 @@ const DatapointsPageActions = ({filters, datapoints, selectedDatapoints, onSelec
                                         </div>
                                     );
                                 }}
-                                refetchOnChanged={[JSON.stringify(filters)]}
                             />
                         </div>
                         <div>
@@ -472,6 +479,7 @@ const DatapointsPageActions = ({filters, datapoints, selectedDatapoints, onSelec
 
 DatapointsPageActions.propTypes = {
     filters: PropTypes.array.isRequired,
+    datasetId: PropTypes.string.isRequired,
     datapoints: PropTypes.array.isRequired,
     selectedDatapoints: PropTypes.instanceOf(Set).isRequired,
     onSelectedDatapointsChange: PropTypes.func,
@@ -480,7 +488,7 @@ DatapointsPageActions.propTypes = {
 
 const PAGE_SIZE = 50;
 
-const DatapointsViewer = ({filters, renderActionButtons}) => {
+const DatapointsViewer = ({filters, datasetId, renderActionButtons}) => {
     const [offset, setOffset] = useState(0);
     const [selectedDatapoints, setSelectedDatapoints] = useState(renderActionButtons ? new Set() : null);
 
@@ -493,22 +501,19 @@ const DatapointsViewer = ({filters, renderActionButtons}) => {
         <>
             <Async
                 fetchData={() => baseJSONClient.post('/api/datapoints/select', {
-                    selectColumns: [
-                        'id', 'metadata', 'type', 'text',
-                        'groundtruths.class_name',
-                        'groundtruths.top', 'groundtruths.left', 'groundtruths.width', 'groundtruths.height'
-                    ],
+                    selectColumns: ['id', 'metadata', 'type', 'text'],
                     filters,
                     offset,
-                    limit: PAGE_SIZE
+                    limit: PAGE_SIZE,
+                    datasetId
                 })}
-                refetchOnChanged={[JSON.stringify(filters), offset]}
+                refetchOnChanged={[JSON.stringify(filters), offset, datasetId]}
                 renderData={(datapointsPage) => (
                     <Row className='g-2'>
                         {renderActionButtons ? (
                             <Col xs={12}>
                                 <DatapointsPageActions
-                                    filters={filters} datapoints={datapointsPage}
+                                    filters={filters} datapoints={datapointsPage} datasetId={datasetId}
                                     onSelectedDatapointsChange={setSelectedDatapoints}
                                     selectedDatapoints={selectedDatapoints}
                                     renderActionButtons={renderActionButtons}
@@ -517,6 +522,7 @@ const DatapointsViewer = ({filters, renderActionButtons}) => {
                         ) : null}
                         <Col xs={12}>
                             <DatapointsPage datapoints={datapointsPage}
+                                showGroundtruthsInModal={Boolean(datasetId)}
                                 selectedDatapoints={selectedDatapoints}
                                 onSelectedDatapointsChange={setSelectedDatapoints}
                             />
@@ -526,8 +532,8 @@ const DatapointsViewer = ({filters, renderActionButtons}) => {
             />
             <Async
                 spinner={false}
-                fetchData={() => baseJSONClient.post('/api/datapoints/count', {filters}, {memoized: 1000})}
-                refetchOnChanged={[JSON.stringify(filters)]}
+                fetchData={() => baseJSONClient.post('/api/datapoints/count', {filters, datasetId}, {memoized: 1000})}
+                refetchOnChanged={[JSON.stringify(filters), datasetId]}
             >{
                     ({data: totalCount, loading}) => (
                         <div className='d-flex justify-content-center my-5 align-items-center'>
@@ -562,6 +568,7 @@ const DatapointsViewer = ({filters, renderActionButtons}) => {
 
 DatapointsViewer.propTypes = {
     filters: PropTypes.arrayOf(PropTypes.object),
+    datasetId: PropTypes.string,
     renderActionButtons: PropTypes.func
 };
 

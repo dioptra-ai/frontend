@@ -25,65 +25,54 @@ class SelectableModel {
         return JSONB_ROOT_COLUMNS.has(column);
     }
 
-    static getCanonicalColumn(column) {
-        if (isSafeGlobalIdentifier(column)) {
-            return column;
-        }
-
-        const paths = column.split('.');
-
-        switch (paths[0]) {
-        case 'tags':
-        case 'predictions':
-        case 'groundtruths':
-        case 'datapoints':
-        case 'feature_vectors':
-            return column;
-        default:
-            return `${this.getTableName()}.${column}`;
-        }
-    }
-
-    static getCanonicalFilters(filters) {
+    static getSafeFilters(filters) {
 
         return filters.map((filter) => {
             assert(filter, `${filter} is not a valid filter`);
+            assert(isSafeOp(filter['op']), `Unsafe op: "${filter['op']}"`);
 
             return {
-                'left': this.getCanonicalColumn(filter['left']),
+                'left': this.getSafeColumn(filter['left']),
                 'op': filter['op'],
-                'right': filter['right']
+                'right': Array.isArray(filter['right']) ? filter['right'].map(pgFormat.literal) : pgFormat.literal(filter['right'])
             };
         });
     }
 
     static getColumnTable(column) {
 
-        return this.getCanonicalColumn(column).split('.')[0];
+        return this.getSafeColumn(column).split('.')[0];
     }
 
     static getColumnName(column) {
 
-        return this.getCanonicalColumn(column).split('.').slice(1).join('.');
+        return this.getSafeColumn(column).split('.').slice(1).join('.');
     }
 
     static getSafeColumn(column, withAliasForJSONB = false) {
-        const path = this.getCanonicalColumn(column).split('.');
+        if (isSafeGlobalIdentifier(column)) {
+
+            return column;
+        }
+
+        const paths = column.split('.');
+        const canonicalColumn = (['tags', 'predictions', 'groundtruths', 'datapoints', 'feature_vectors'].includes(paths[0])) ? column : `${this.getTableName()}.${column}`;
+        const canonicalPath = canonicalColumn.split('.');
         const isChildOfJSONB = (i) => {
             if (i === 0) {
                 return false;
             } else {
-                return this.isJSONBRootColumn(path[i - 1]) || isChildOfJSONB(i - 1);
+                return this.isJSONBRootColumn(canonicalPath[i - 1]) || isChildOfJSONB(i - 1);
             }
         };
 
         return pgFormat(
-            path.map((c, i) => {
+            canonicalPath.map((c, i) => {
 
                 if (isSafeIdentifier(c) || isSafeGlobalIdentifier(c)) {
                     return i === 0 ? '%s' : '.%s';
                 } else if (isChildOfJSONB(i)) {
-                    if (withAliasForJSONB && i === path.length - 1) {
+                    if (withAliasForJSONB && i === canonicalPath.length - 1) {
                         return `->>%L AS ${pgFormat.ident(column)}`;
                     } else {
                         return '->>%L';
@@ -92,29 +81,27 @@ class SelectableModel {
                     return i === 0 ? '%I' : '.%I';
                 }
             }).join(''),
-            ...path
+            ...canonicalPath
         );
     }
 
-    static getSafeWhere(canonicalFilters) {
+    static getSafeWhere(safeFilters) {
 
-        return canonicalFilters.map((filter) => {
-            const op = filter['op'].toUpperCase();
-
-            assert(isSafeOp(op), `Unsafe op: "${op}"`);
+        return safeFilters.map((safeFilter) => {
+            const op = safeFilter['op'].toUpperCase();
 
             switch (op) {
             case 'IN':
             case 'NOT IN':
-                assert(Array.isArray(filter['right']), `Right side of "${op}" must be an array`);
+                assert(Array.isArray(safeFilter['right']), `Right side of "${op}" must be an array`);
 
-                if (filter['right'].length === 0) {
+                if (safeFilter['right'].length === 0) {
                     return op === 'IN' ? 'FALSE' : 'TRUE';
                 } else {
-                    return `${this.getSafeColumn(filter['left'])} ${op} (${pgFormat.literal(filter['right'])})`;
+                    return `${safeFilter['left']} ${op} (${safeFilter['right']})`;
                 }
             default:
-                return `${this.getSafeColumn(filter['left'])} ${op} ${pgFormat.literal(filter['right'])}`;
+                return `${safeFilter['left']} ${op} ${safeFilter['right']}`;
             }
         }).join(' AND ');
     }
@@ -177,12 +164,12 @@ class SelectableModel {
 
     static getSafeSelectQuery({
         organizationId, selectColumns = [], filters = [],
-        orderBy, desc = false, limit = 1000000, offset = 0
+        orderBy, desc = false, limit, offset = 0
     }) {
         assert(organizationId, 'organizationId is required');
         const primaryTable = this.getTableName();
-        const canonicalSelectColumns = selectColumns.map(this.getCanonicalColumn.bind(this));
-        const canonicalFilters = this.getCanonicalFilters(filters.concat({
+        const canonicalSelectColumns = selectColumns.map(this.getSafeColumn.bind(this));
+        const canonicalFilters = this.getSafeFilters(filters.concat({
             'left': 'organization_id',
             'op': '=',
             'right': organizationId

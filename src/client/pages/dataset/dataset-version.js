@@ -1,12 +1,10 @@
 import PropTypes from 'prop-types';
-import {Button, Col, Row} from 'react-bootstrap';
+import {Button} from 'react-bootstrap';
 import {saveAs} from 'file-saver';
 import {Link, useHistory, useParams} from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
 
 import Select from 'components/select';
-import BarGraph from 'components/bar-graph';
-import {getHexColor} from 'helpers/color-helper';
 import Async from 'components/async';
 import baseJSONClient from 'clients/base-json-client';
 import Menu from 'components/menu';
@@ -22,83 +20,31 @@ const DatasetVersionViewer = ({versionId, showDatapointActions}) => {
             renderData={(datapointIds) => {
 
                 return (
-                    <>
-                        <Async
-                            fetchData={() => Promise.all([
-                                baseJSONClient('/api/metrics/distribution/groundtruths', {
-                                    method: 'post',
-                                    body: {
-                                        datapoint_ids: datapointIds
-                                    }
-                                }),
-                                baseJSONClient('/api/metrics/distribution/predictions', {
-                                    method: 'post',
-                                    body: {
-                                        datapoint_ids: datapointIds
-                                    }
-                                })
-                            ])}
-                            refetchOnChanged={[datapointIds]}
-                            renderData={([groundtruthDistribution, predictionDistribution]) => {
+                    <div className='mt-3'>
+                        <DatapointsViewer
+                            filters={[{
+                                left: 'datapoints.id',
+                                op: 'in',
+                                right: datapointIds
+                            }]}
+                            renderActionButtons={showDatapointActions ? ({selectedDatapoints}) => {
 
-                                return (
-                                    <Row className='g-2 my-2'>
-                                        {
-                                            groundtruthDistribution.histogram && Object.keys(groundtruthDistribution.histogram).length ? (
-                                                <Col>
-                                                    <BarGraph
-                                                        title='Groundtruths'
-                                                        bars={Object.entries(groundtruthDistribution.histogram).map(([name, value]) => ({
-                                                            name, value, fill: getHexColor(name)
-                                                        }))}
-                                                        yAxisTickFormatter={(v) => Number(v).toLocaleString()}
-                                                    />
-                                                </Col>
-                                            ) : null
+                                return selectedDatapoints.size ? (
+                                    <a onClick={async () => {
+                                        if (confirm('Are you sure you want to remove the selected datapoints from this dataset?')) {
+                                            const datasetVersion = await baseJSONClient.get(`/api/dataset/version/${versionId}`);
+
+                                            await baseJSONClient.post(`/api/dataset/${datasetVersion['dataset_uuid']}/remove`, {
+                                                datapointIds: Array.from(selectedDatapoints)
+                                            });
+
+                                            history.go(0);
                                         }
-                                        {
-                                            predictionDistribution.histogram && Object.keys(predictionDistribution.histogram).length ? (
-                                                <Col>
-                                                    <BarGraph
-                                                        title='Predictions'
-                                                        bars={Object.entries(predictionDistribution.histogram).map(([name, value]) => ({
-                                                            name, value, fill: getHexColor(name)
-                                                        }))}
-                                                        yAxisTickFormatter={(v) => Number(v).toLocaleString()}
-                                                    />
-                                                </Col>
-                                            ) : null
-                                        }
-                                    </Row>
-                                );
-                            }}
+                                    }} style={{color: 'red'}}>Remove selected datapoints</a>
+                                ) : null;
+                            } : null}
                         />
-                        <div className='mt-3'>
-                            <DatapointsViewer
-                                filters={[{
-                                    left: 'datapoints.id',
-                                    op: 'in',
-                                    right: datapointIds
-                                }]}
-                                renderActionButtons={showDatapointActions ? ({selectedDatapoints}) => {
-
-                                    return selectedDatapoints.size ? (
-                                        <a onClick={async () => {
-                                            if (confirm('Are you sure you want to remove the selected datapoints from this dataset?')) {
-                                                const datasetVersion = await baseJSONClient.get(`/api/dataset/version/${versionId}`);
-
-                                                await baseJSONClient.post(`/api/dataset/${datasetVersion['dataset_uuid']}/remove`, {
-                                                    datapointIds: Array.from(selectedDatapoints)
-                                                });
-
-                                                history.go(0);
-                                            }
-                                        }} style={{color: 'red'}}>Remove selected datapoints</a>
-                                    ) : null;
-                                } : null}
-                            />
-                        </div>
-                    </>
+                    </div>
                 );
             }}
         />
@@ -138,7 +84,7 @@ const DatasetVersion = () => {
                                             version['committed'] ? `"${version['message']}"` : '<Uncommitted>'
                                         }</span></div>
                                         <div>
-                                            <Link to={`/dataset/${dataset['uuid']}`}>Go to dataset</Link>
+                                            <Link to={`/dataset/${dataset['uuid']}`}>See Dataset</Link>
                                             &nbsp;|&nbsp;
                                             <a href='#' onClick={async () => {
                                                 const datapointIds = await baseJSONClient(`/api/dataset/version/${versionId}/datapoint-ids`);
@@ -172,7 +118,7 @@ const DatasetVersion = () => {
 
                                         history.push(`/dataset/diff/${otherVersionId}/${versionId}`);
                                     }}>
-                                        <Form.Label column className='mb-0 text-nowrap'>Other Versions:</Form.Label>
+                                        <Form.Label column className='mb-0 text-nowrap'>Versions:</Form.Label>
                                         <Select name='versionId' className='ms-1 me-2' defaultValue={versionId}>
                                             {
                                                 versions.map((version) => (
@@ -182,6 +128,11 @@ const DatasetVersion = () => {
                                                 ))
                                             }
                                         </Select>
+                                        <Button variant='secondary' size='s' className='text-nowrap me-2' onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            history.push(`/dataset/version/${e.target.parentElement.elements['versionId'].value}`);
+                                        }}>View</Button>
                                         <Button type='submit' variant='secondary' size='s' className='text-nowrap me-2'>{'->'} Diff</Button>
                                     </Form>
                                 )}

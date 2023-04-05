@@ -4,6 +4,8 @@ import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 import {BrowserRouter as Router} from 'react-router-dom';
 import {Provider as StateProvider} from 'mobx-react';
+import {ReactRouter5Adapter} from 'use-query-params/adapters/react-router-5';
+import {QueryParamProvider} from 'use-query-params';
 import Button from 'react-bootstrap/Button';
 
 import App from './app';
@@ -55,9 +57,11 @@ state.initializeStores().then(() => {
     ReactDOM.render(
         <Index>
             <Router>
-                <StateProvider {...state}>
-                    <App />
-                </StateProvider>
+                <QueryParamProvider adapter={ReactRouter5Adapter}>
+                    <StateProvider {...state}>
+                        <App />
+                    </StateProvider>
+                </QueryParamProvider>
             </Router>
         </Index>,
         document.getElementById('root')
