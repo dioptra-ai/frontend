@@ -13,7 +13,8 @@ import {setupComponent} from 'helpers/component-helper';
 import Select from 'components/select';
 import Async from 'components/async';
 
-import Metrics from './metrics';
+import DatasetMetrics from './dataset-metrics';
+import ModelMetrics from './model-metrics';
 
 const DataLake = () => {
     const [filters, setFilters] = useQueryParam('filters', JsonParam);
@@ -77,8 +78,8 @@ const DataLake = () => {
                     }
                 </Row>
                 <Row>
-                    <Col md={datasetId && modelNames && modelNames.length ? 9 : 12}>
-                        <Metrics filters={filters} datasetId={datasetId} />
+                    <Col md={datasetId && modelNames && modelNames.length ? 7 : 12}>
+                        {datasetId ? <DatasetMetrics filters={filters} datasetId={datasetId} /> : <div className='text-secondary mt-2 text-center'>Select a Dataset for Metrics</div>}
                         <DatapointsViewer filters={filters} datasetId={datasetId} renderActionButtons={({selectedDatapoints}) => selectedDatapoints.size ? (
                             <DatasetSelector allowNew title='Add selected to dataset' onChange={async (datasetId) => {
                                 await baseJSONClient.post(`/api/dataset/${datasetId}/add`, {datapointIds: Array.from(selectedDatapoints)});
@@ -90,9 +91,9 @@ const DataLake = () => {
                     </Col>
                     {
                         (datasetId && modelNames && modelNames.length) ? (
-                            <Col md={3}>
+                            <Col md={5}>
                                 <Row className='g-2 my-2'>
-                                    MODEL METRICS
+                                    <ModelMetrics filters={filters} datasetId={datasetId} modelNames={modelNames} />
                                 </Row>
                             </Col>
                         ) : null
