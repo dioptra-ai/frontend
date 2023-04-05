@@ -500,17 +500,13 @@ const DatapointsViewer = ({filters, datasetId, renderActionButtons}) => {
     return (
         <>
             <Async
-                fetchData={() => {
-                    const payload = {
-                        selectColumns: ['id', 'metadata', 'type', 'text'],
-                        filters,
-                        offset,
-                        limit: PAGE_SIZE,
-                        datasetId
-                    };
-
-                    return baseJSONClient.post('/api/datapoints/select', payload);
-                }}
+                fetchData={() => baseJSONClient.post('/api/datapoints/select', {
+                    selectColumns: ['id', 'metadata', 'type', 'text'],
+                    filters,
+                    offset,
+                    limit: PAGE_SIZE,
+                    datasetId
+                })}
                 refetchOnChanged={[JSON.stringify(filters), offset, datasetId]}
                 renderData={(datapointsPage) => (
                     <Row className='g-2'>

@@ -62,6 +62,7 @@ const DataLake = () => {
                                         datasetId,
                                         limit: 100
                                     })}
+                                    refetchOnChanged={[filters, datasetId]}
                                     renderData={(allModelNames) => (
                                         <Select multiple value={modelNames} onChange={setModelNames} disabled={!datasetId}>
                                             <option value=''>No Model Names</option>

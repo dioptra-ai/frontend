@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types';
-import {useState} from 'react';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import {Bar, Tooltip} from 'recharts';
+import {StringParam, useQueryParam, withDefault} from 'use-query-params';
 
 import {getName} from 'helpers/name-helper';
 import {getHexColor} from 'helpers/color-helper';
@@ -12,18 +12,21 @@ import Select from 'components/select';
 import metricsClient from 'clients/metrics';
 
 const SELECTABLE_METRICS = [
-    'ACCURACY'
+    'ACCURACY',
+    'MEAN_IOU'
 ];
 
+const MetricParam = withDefault(StringParam, SELECTABLE_METRICS[0]);
+
 const ModelMetrics = ({modelNames, datasetId, filters}) => {
-    const [userSelectedMetric, setUserSelectedMetric] = useState(SELECTABLE_METRICS[0]);
+    const [userSelectedMetric, setUserSelectedMetric] = useQueryParam('metric', MetricParam);
     const metricSpecs = modelNames.map((modelName) => useMetric(userSelectedMetric, modelName, filters, datasetId));
     const fetchAllData = () => Promise.all(metricSpecs.map((metricSpec) => metricSpec.fetchData()));
 
     return (
         <Row className='g-2 my-2'>
             <Col xs={12}>
-                <Select onChange={setUserSelectedMetric}>
+                <Select value={userSelectedMetric} onChange={setUserSelectedMetric}>
                     {SELECTABLE_METRICS.map((metric) => (
                         <option key={metric} value={metric}>{getName(metric)}</option>
                     ))}
@@ -37,7 +40,7 @@ const ModelMetrics = ({modelNames, datasetId, filters}) => {
                         <BarGraph
                             bars={modelMetrics.map((modelMetric, index) => ({
                                 name: modelNames[index],
-                                value: modelMetric['accuracy'],
+                                value: modelMetric['value'],
                                 fill: getHexColor(modelNames[index])
                             }))}
                             title={`${getName(userSelectedMetric)} per Model`}
@@ -52,7 +55,7 @@ const ModelMetrics = ({modelNames, datasetId, filters}) => {
                     fetchData={fetchAllData}
                     refetchOnChanged={[filters, datasetId, modelNames, userSelectedMetric]}
                     renderData={(modelMetrics) => {
-                        const classes = Array.from(new Set(modelMetrics.flatMap((modelMetric) => Object.keys(modelMetric['accuracy_per_class'])))).sort();
+                        const classes = Array.from(new Set(modelMetrics.flatMap((modelMetric) => Object.keys(modelMetric['value_per_class'])))).sort();
                         const unit = metricSpecs[0].unit;
 
                         return (
@@ -61,7 +64,7 @@ const ModelMetrics = ({modelNames, datasetId, filters}) => {
                                     name: className,
                                     ...modelMetrics.reduce((acc, modelMetric, index) => ({
                                         ...acc,
-                                        [modelNames[index]]: modelMetric['accuracy_per_class'][className]
+                                        [modelNames[index]]: modelMetric['value_per_class'][className]
                                     }), {})
                                 }))}
                                 title={`${getName(userSelectedMetric)} per Class`}
@@ -96,6 +99,17 @@ const useMetric = (metric, modelName, filters, datasetId) => {
             fetchData: () => {
 
                 return metricsClient('evaluate/accuracy', {
+                    model_name: modelName,
+                    datapoint_filters: filters,
+                    dataset_id: datasetId
+                });
+            },
+            unit: '%'
+        },
+        MEAN_IOU: {
+            fetchData: () => {
+
+                return metricsClient('evaluate/mean-iou', {
                     model_name: modelName,
                     datapoint_filters: filters,
                     dataset_id: datasetId
