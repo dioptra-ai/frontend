@@ -13,8 +13,10 @@ import metricsClient from 'clients/metrics';
 
 const SELECTABLE_METRICS = [
     'ACCURACY',
-    'MEAN_IOU',
-    'F1_SCORE'
+    'PRECISION',
+    'RECALL',
+    'F1_SCORE',
+    'MEAN_IOU'
 ];
 
 const MetricParam = withDefault(StringParam, SELECTABLE_METRICS[0]);
@@ -113,7 +115,23 @@ const useMetric = (metric, modelName, filters, datasetId) => {
             unit: '%'
         },
         F1_SCORE: {
-            fetchData: () => metricsClient('evaluate/f1-score', {
+            fetchData: () => metricsClient('evaluate/f1', {
+                model_name: modelName,
+                datapoint_filters: filters,
+                dataset_id: datasetId
+            }),
+            unit: '%'
+        },
+        PRECISION: {
+            fetchData: () => metricsClient('evaluate/precision', {
+                model_name: modelName,
+                datapoint_filters: filters,
+                dataset_id: datasetId
+            }),
+            unit: '%'
+        },
+        RECALL: {
+            fetchData: () => metricsClient('evaluate/recall', {
                 model_name: modelName,
                 datapoint_filters: filters,
                 dataset_id: datasetId
