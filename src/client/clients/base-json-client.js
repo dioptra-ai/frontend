@@ -22,15 +22,15 @@ const jsonFetch = async (...args) => {
         throw new Error(responseBody || res.statusText);
     }
 };
-const getMemoizedfetch = (maxAge) => mem(jsonFetch, {
+const memoizedFetch = mem(jsonFetch, {
     cacheKey: JSON.stringify,
-    maxAge: Number.isInteger(maxAge) ? maxAge : 1000 * 60 * 5 //
+    maxAge: 1000 * 60 * 60 // 1 hour
 });
 const baseJSONClient = (
     url,
     {method = 'get', body, headers = {'content-type': 'application/json'}, memoized = false, ...rest} = {}
 ) => {
-    const fetch = memoized ? getMemoizedfetch(memoized) : jsonFetch;
+    const fetch = memoized ? memoizedFetch : jsonFetch;
 
     return fetch(url, {
         retries: 15,

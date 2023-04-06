@@ -1,7 +1,5 @@
 import {useEffect} from 'react';
-import {useEffect} from 'react';
 import {useHistory} from 'react-router-dom';
-import {ArrayParam, JsonParam, StringParam, useQueryParam} from 'use-query-params';
 import {ArrayParam, JsonParam, StringParam, useQueryParam} from 'use-query-params';
 import {Col, Row} from 'react-bootstrap';
 
@@ -21,7 +19,6 @@ import ModelMetrics from './model-metrics';
 const DataLake = () => {
     const [filters, setFilters] = useQueryParam('filters', JsonParam);
     const [datasetId, setDatasetId] = useQueryParam('datasetId', StringParam);
-    const [modelNames, setModelNames] = useQueryParam('modelNames', ArrayParam);
     const [modelNames, setModelNames] = useQueryParam('modelNames', ArrayParam);
     const history = useHistory();
 
@@ -45,10 +42,6 @@ const DataLake = () => {
             <div className='text-dark p-3'>
                 <h4>Data Lake</h4>
                 <Row className='g-2'>
-                    <Col>
-                        <FilterInput value={filters} onChange={setFilters} />
-                    </Col>
-                    <Col md={2}>
                     <Col>
                         <FilterInput value={filters} onChange={setFilters} />
                     </Col>

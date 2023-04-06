@@ -47,6 +47,8 @@ const UploadData = ({onDone}) => {
 
             onDone();
             alert('Data upload submitted.');
+            // Reload the page to empty all memoized calls.
+            window.location.reload();
         } catch (e) {
             alert(e.message);
         } finally {

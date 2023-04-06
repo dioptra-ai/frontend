@@ -41,7 +41,7 @@ const Settings = () => {
                                         <Route path='/settings/uploads' exact>
                                             <Async
                                                 key='/settings/uploads'
-                                                fetchData={() => baseJSONClient('/api/ingestion/executions', {memoized: true})}
+                                                fetchData={() => baseJSONClient('/api/ingestion/executions')}
                                                 renderData={(executions) => (
                                                     <>
                                                         <h4>Recent Uploads</h4>
