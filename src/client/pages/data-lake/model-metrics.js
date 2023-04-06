@@ -13,7 +13,8 @@ import metricsClient from 'clients/metrics';
 
 const SELECTABLE_METRICS = [
     'ACCURACY',
-    'MEAN_IOU'
+    'MEAN_IOU',
+    'F1_SCORE'
 ];
 
 const MetricParam = withDefault(StringParam, SELECTABLE_METRICS[0]);
@@ -96,25 +97,27 @@ const useMetric = (metric, modelName, filters, datasetId) => {
 
     return {
         ACCURACY: {
-            fetchData: () => {
-
-                return metricsClient('evaluate/accuracy', {
-                    model_name: modelName,
-                    datapoint_filters: filters,
-                    dataset_id: datasetId
-                });
-            },
+            fetchData: () => metricsClient('evaluate/accuracy', {
+                model_name: modelName,
+                datapoint_filters: filters,
+                dataset_id: datasetId
+            }),
             unit: '%'
         },
         MEAN_IOU: {
-            fetchData: () => {
-
-                return metricsClient('evaluate/mean-iou', {
-                    model_name: modelName,
-                    datapoint_filters: filters,
-                    dataset_id: datasetId
-                });
-            },
+            fetchData: () => metricsClient('evaluate/mean-iou', {
+                model_name: modelName,
+                datapoint_filters: filters,
+                dataset_id: datasetId
+            }),
+            unit: '%'
+        },
+        F1_SCORE: {
+            fetchData: () => metricsClient('evaluate/f1-score', {
+                model_name: modelName,
+                datapoint_filters: filters,
+                dataset_id: datasetId
+            }),
             unit: '%'
         }
     }[metric];
