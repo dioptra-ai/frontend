@@ -67,4 +67,7 @@ b {
     background-color: #ffffff00;
     border: 1px solid theme-color('dark');
     color: theme-color('dark') !important;
+    &:disabled {
+        background: #F1F4F5 !important;
+    }
 }

@@ -13,6 +13,7 @@ const Async = ({
     renderError,
     fetchData,
     refetchOnChanged = [],
+    fetchInitially = true,
     defaultData,
     spinner = true,
     ...rest
@@ -21,35 +22,40 @@ const Async = ({
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const inFlightRequest = useRef(null);
+    const triedFetchingOnce = useRef(false);
 
     useEffect(() => {
-        (async () => {
-            const requestId = Date.now();
+        if (!fetchInitially && !triedFetchingOnce.current) {
+            triedFetchingOnce.current = true;
+        } else {
+            (async () => {
+                const requestId = Date.now();
 
-            inFlightRequest.current = requestId;
+                inFlightRequest.current = requestId;
 
-            setError(null);
-            setLoading(true);
+                setError(null);
+                setLoading(true);
 
-            try {
-                const data = await fetchData();
+                try {
+                    const data = await fetchData();
 
-                if (requestId === inFlightRequest.current) {
-                    setData(data);
+                    if (requestId === inFlightRequest.current) {
+                        setData(data);
+                    }
+                } catch (err) {
+                    if (requestId === inFlightRequest.current) {
+                        setData();
+                        setError(err);
+                    }
+
+                    Sentry.captureException(err);
+                } finally {
+                    if (requestId === inFlightRequest.current) {
+                        setLoading(false);
+                    }
                 }
-            } catch (err) {
-                if (requestId === inFlightRequest.current) {
-                    setData();
-                    setError(err);
-                }
-
-                Sentry.captureException(err);
-            } finally {
-                if (requestId === inFlightRequest.current) {
-                    setLoading(false);
-                }
-            }
-        })();
+            })();
+        }
     }, refetchOnChanged.map((r) => JSON.stringify(r) || r));
 
     let content = null;
@@ -87,6 +93,7 @@ Async.propTypes = {
         PropTypes.arrayOf(PropTypes.func)
     ]),
     refetchOnChanged: PropTypes.array,
+    fetchInitially: PropTypes.bool,
     defaultData: PropTypes.any,
     spinner: PropTypes.bool
 };

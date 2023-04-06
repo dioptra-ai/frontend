@@ -1,6 +1,8 @@
+import {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import Button from 'react-bootstrap/Button';
 import {Bar, Tooltip} from 'recharts';
 import {StringParam, useQueryParam, withDefault} from 'use-query-params';
 
@@ -23,8 +25,26 @@ const MetricParam = withDefault(StringParam, SELECTABLE_METRICS[0]);
 
 const ModelMetrics = ({modelNames, datasetId, filters}) => {
     const [userSelectedMetric, setUserSelectedMetric] = useQueryParam('metric', MetricParam);
+    const [areMetricsStale, setAreMetricsStale] = useState(true);
+    const [lastEvaluationRequested, setLastEvaluationRequested] = useState(null);
     const metricSpecs = modelNames.map((modelName) => useMetric(userSelectedMetric, modelName, filters, datasetId));
     const fetchAllData = () => Promise.all(metricSpecs.map((metricSpec) => metricSpec.fetchData()));
+    const screenComponent = (
+        <div style={{
+            position: 'absolute',
+            inset: 0,
+            backgroundColor: 'rgba(255, 255, 255, 0.7)',
+            display: areMetricsStale ? 'flex' : 'none'
+        }} />
+    );
+
+    useEffect(() => {
+        setAreMetricsStale(true);
+    }, [filters, datasetId, modelNames, userSelectedMetric]);
+
+    useEffect(() => {
+        setAreMetricsStale(!lastEvaluationRequested);
+    }, [lastEvaluationRequested]);
 
     return (
         <Row className='g-2 my-2'>
@@ -36,27 +56,37 @@ const ModelMetrics = ({modelNames, datasetId, filters}) => {
                 </Select>
             </Col>
             <Col xs={12}>
+                <Button
+                    onClick={() => setLastEvaluationRequested(Date.now())}
+                    variant='secondary' size='s' className='text-nowrap w-100'
+                    disabled={!areMetricsStale}
+                >Evaluate</Button>
+            </Col>
+            <Col xs={12} className='position-relative'>
                 <Async
                     fetchData={fetchAllData}
-                    refetchOnChanged={[filters, datasetId, modelNames, userSelectedMetric]}
+                    refetchOnChanged={[lastEvaluationRequested]}
+                    fetchInitially={false}
                     renderData={(modelMetrics) => (
                         <BarGraph
                             bars={modelMetrics.map((modelMetric, index) => ({
-                                name: modelNames[index],
+                                name: areMetricsStale ? '-' : modelNames[index],
                                 value: modelMetric['value'],
-                                fill: getHexColor(modelNames[index])
+                                fill: areMetricsStale ? '#ccc' : getHexColor(modelNames[index])
                             }))}
-                            title={`${getName(userSelectedMetric)} per Model`}
+                            title={areMetricsStale ? 'Click evaluate to refresh...' : getName(userSelectedMetric)}
                             unit={metricSpecs[0].unit}
                             yAxisTickFormatter={metricSpecs[0].formatter}
                         />
                     )}
                 />
+                {screenComponent}
             </Col>
-            <Col xs={12}>
+            <Col xs={12} className='position-relative'>
                 <Async
                     fetchData={fetchAllData}
-                    refetchOnChanged={[filters, datasetId, modelNames, userSelectedMetric]}
+                    refetchOnChanged={[lastEvaluationRequested]}
+                    fetchInitially={false}
                     renderData={(modelMetrics) => {
                         const classes = Array.from(new Set(modelMetrics.flatMap((modelMetric) => Object.keys(modelMetric['value_per_class'])))).sort();
                         const unit = metricSpecs[0].unit;
@@ -70,18 +100,23 @@ const ModelMetrics = ({modelNames, datasetId, filters}) => {
                                         [modelNames[index]]: modelMetric['value_per_class'][className]
                                     }), {})
                                 }))}
-                                title={`${getName(userSelectedMetric)} per Class`}
+                                title={areMetricsStale ? 'Click evaluate to refresh...' : `${getName(userSelectedMetric)} per Class`}
                                 unit={unit}
                                 yAxisTickFormatter={metricSpecs[0].formatter}
                             >
                                 <Tooltip animationDuration={200} content={<CustomTooltip unit={unit} />} />
                                 {modelNames.map((modelName) => (
-                                    <Bar dataKey={modelName} maxBarSize={50} minPointSize={2} fill={getHexColor(modelName)} key={modelName}/>
+                                    <Bar
+                                        dataKey={modelName} maxBarSize={50} minPointSize={2}
+                                        fill={areMetricsStale ? '#ccc' : getHexColor(modelName)}
+                                        key={modelName}
+                                    />
                                 ))}
                             </BarGraph>
                         );
                     }}
                 />
+                {screenComponent}
             </Col>
         </Row>
     );
