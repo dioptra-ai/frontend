@@ -57,30 +57,41 @@ const ModelMetrics = ({modelNames, datasetId, filters}) => {
                             filters, datasetId, selectColumns: ['id']
                         });
 
-                        return baseJSONClient.post('/api/metrics/distribution/predictions', {
+                        return Promise.all(modelNames.map((modelName) => baseJSONClient.post('/api/metrics/distribution/predictions', {
                             filters: [{
                                 left: 'datapoint',
                                 op: 'in',
                                 right: datapoints.map((datapoint) => datapoint.id)
                             }, {
                                 left: 'model_name',
-                                op: 'in',
-                                right: modelNames
+                                op: '=',
+                                right: modelName
                             }]
-                        });
+                        })));
                     }}
                     refetchOnChanged={[filters, datasetId]}
-                    renderData={(groundtruthDistribution) => groundtruthDistribution.histogram && Object.keys(groundtruthDistribution.histogram).length ? (
-                        <BarGraph
-                            title='Predictions'
-                            verticalIfMoreThan={10}
-                            bars={Object.entries(groundtruthDistribution.histogram).map(([name, value]) => ({
-                                name, value, fill: getHexColor(name)
-                            }))}
-                            yAxisTickFormatter={(v) => Number(v).toLocaleString()}
-                        />
-                    ) : null
-                    } />
+                    renderData={(predictionDistributions) => {
+                        const classes = Array.from(new Set(predictionDistributions.flatMap((predictionDistribution) => Object.keys(predictionDistribution.histogram))));
+
+                        return (
+                            <BarGraph
+                                title='Predictions'
+                                verticalIfMoreThan={10}
+                                bars={classes.map((className) => ({
+                                    name: className,
+                                    ...predictionDistributions.reduce((acc, predictionDistribution, i) => ({
+                                        ...acc,
+                                        [modelNames[i]]: predictionDistribution.histogram[className]
+                                    }), {})
+                                }))}
+                            >
+                                <Tooltip content={<CustomTooltip />} />
+                                {modelNames.map((modelName) => (
+                                    <Bar key={modelName} maxBarSize={50} minPointSize={2} dataKey={modelName} fill={getHexColor(modelName)} />
+                                ))}
+                            </BarGraph>
+                        );
+                    }} />
                 </Col>
                 <Col xs={12}>
                     <Select value={userSelectedMetric} onChange={setUserSelectedMetric}>
@@ -127,6 +138,7 @@ const ModelMetrics = ({modelNames, datasetId, filters}) => {
 
                             return (
                                 <BarGraph
+                                    verticalIfMoreThan={10}
                                     bars={classes.map((className) => ({
                                         name: className,
                                         ...modelMetrics.reduce((acc, modelMetric, index) => ({

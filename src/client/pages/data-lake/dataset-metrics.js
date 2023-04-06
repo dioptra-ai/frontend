@@ -32,7 +32,6 @@ const Metrics = ({filters, datasetId}) => {
                         bars={Object.entries(groundtruthDistribution.histogram).map(([name, value]) => ({
                             name, value, fill: getHexColor(name)
                         }))}
-                        yAxisTickFormatter={(v) => Number(v).toLocaleString()}
                     />
                 ) : null
                 } />
