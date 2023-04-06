@@ -293,7 +293,7 @@ DatapointSelector.propTypes = {
     onSelectedDatapointsChange: PropTypes.func
 };
 
-const DatapointsPage = ({datapoints, showGroundtruthsInModal, selectedDatapoints, onSelectedDatapointsChange}) => {
+const DatapointsPage = ({datapoints, showGroundtruthsInModal, modelNames, selectedDatapoints, onSelectedDatapointsChange}) => {
     const [datapointIndexInModal, setDatapointIndexInModal] = useState(-1);
     const datapointInModal = datapoints[datapointIndexInModal];
     const handleModalprevious = () => {
@@ -349,29 +349,58 @@ const DatapointsPage = ({datapoints, showGroundtruthsInModal, selectedDatapoints
                             <GrPrevious />
                         </div>
                         <Async
-                            fetchData={() => baseJSONClient.post('/api/datapoints/select', {
-                                filters: [{
-                                    'left': 'id',
-                                    'op': '=',
-                                    'right': datapointInModal.id
-                                }],
-                                selectColumns: [
-                                    'id', 'metadata', 'type', 'text',
-                                    'tags.name', 'tags.value',
-                                    'predictions.encoded_resized_segmentation_class_mask',
-                                    'predictions.class_name', 'predictions.class_names',
-                                    'predictions.confidence', 'predictions.confidences',
-                                    'predictions.model_name',
-                                    'predictions.top', 'predictions.left', 'predictions.width', 'predictions.height',
-                                    ...(showGroundtruthsInModal ? [
+                            fetchData={() => Promise.all([
+                                baseJSONClient.post('/api/datapoints/select', {
+                                    filters: [{
+                                        'left': 'id',
+                                        'op': '=',
+                                        'right': datapointInModal.id
+                                    }],
+                                    selectColumns: [
+                                        'id', 'metadata', 'type', 'text',
+                                        'tags.name', 'tags.value'
+                                    ]
+                                }),
+                                modelNames ? baseJSONClient.post('/api/predictions/select', {
+                                    filters: [{
+                                        'left': 'datapoint',
+                                        'op': '=',
+                                        'right': datapointInModal.id
+                                    }, {
+                                        'left': 'model_name',
+                                        'op': 'in',
+                                        'right': modelNames
+                                    }],
+                                    selectColumns: [
+                                        'predictions.encoded_resized_segmentation_class_mask',
+                                        'predictions.class_name', 'predictions.class_names',
+                                        'predictions.confidence', 'predictions.confidences',
+                                        'predictions.model_name', 'predictions.task_type',
+                                        'predictions.top', 'predictions.left', 'predictions.width', 'predictions.height'
+                                    ]
+                                }) : Promise.resolve(null),
+                                showGroundtruthsInModal ? baseJSONClient.post('/api/groundtruths/select', {
+                                    filters: [{
+                                        'left': 'datapoint',
+                                        'op': '=',
+                                        'right': datapointInModal.id
+                                    }],
+                                    selectColumns: [
                                         'groundtruths.encoded_resized_segmentation_class_mask',
                                         'groundtruths.class_name', 'groundtruths.class_names',
+                                        'groundtruths.task_type',
                                         'groundtruths.top', 'groundtruths.left', 'groundtruths.width', 'groundtruths.height'
-                                    ] : [])
-                                ]
-                            })}
+                                    ]
+                                }) : Promise.resolve(null)
+                            ])}
                             refetchOnChanged={[datapointInModal.id]}
-                            renderData={([datapoint]) => (<DatapointCard datapoint={datapoint} maxHeight={600} zoomable showDetails />)}
+                            renderData={([[datapoint], predictions, groundtruths]) => (
+                                <DatapointCard maxHeight={600} zoomable showDetails datapoint={{
+                                    ...datapoint,
+                                    ...(predictions ? {predictions} : {}),
+                                    ...(groundtruths ? {groundtruths} : {})
+                                }}/>
+                            )}
                         />
                         <div className='fs-1 p-4 bg-white-blue cursor-pointer d-flex align-items-center mx-2' onClick={handleModalNext}>
                             <GrNext />
@@ -385,6 +414,7 @@ const DatapointsPage = ({datapoints, showGroundtruthsInModal, selectedDatapoints
 
 DatapointsPage.propTypes = {
     datapoints: PropTypes.array.isRequired,
+    modelNames: PropTypes.array,
     showGroundtruthsInModal: PropTypes.bool,
     selectedDatapoints: PropTypes.instanceOf(Set),
     onSelectedDatapointsChange: PropTypes.func
@@ -488,7 +518,7 @@ DatapointsPageActions.propTypes = {
 
 const PAGE_SIZE = 50;
 
-const DatapointsViewer = ({filters, datasetId, renderActionButtons}) => {
+const DatapointsViewer = ({filters, datasetId, modelNames, renderActionButtons}) => {
     const [offset, setOffset] = useState(0);
     const [selectedDatapoints, setSelectedDatapoints] = useState(renderActionButtons ? new Set() : null);
 
@@ -523,6 +553,7 @@ const DatapointsViewer = ({filters, datasetId, renderActionButtons}) => {
                         <Col xs={12}>
                             <DatapointsPage datapoints={datapointsPage}
                                 showGroundtruthsInModal={Boolean(datasetId)}
+                                modelNames={modelNames}
                                 selectedDatapoints={selectedDatapoints}
                                 onSelectedDatapointsChange={setSelectedDatapoints}
                             />
@@ -569,6 +600,7 @@ const DatapointsViewer = ({filters, datasetId, renderActionButtons}) => {
 DatapointsViewer.propTypes = {
     filters: PropTypes.arrayOf(PropTypes.object),
     datasetId: PropTypes.string,
+    modelNames: PropTypes.arrayOf(PropTypes.string),
     renderActionButtons: PropTypes.func
 };
 

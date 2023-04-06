@@ -1,6 +1,6 @@
 import {useEffect} from 'react';
 import {useHistory} from 'react-router-dom';
-import {ArrayParam, JsonParam, StringParam, useQueryParam} from 'use-query-params';
+import {ArrayParam, StringParam, useQueryParam, withDefault} from 'use-query-params';
 import {Col, Row} from 'react-bootstrap';
 
 import baseJSONClient from 'clients/base-json-client';
@@ -16,11 +16,18 @@ import Async from 'components/async';
 import DatasetMetrics from './dataset-metrics';
 import ModelMetrics from './model-metrics';
 
+const ArrayParamDefaultEmpty = withDefault(ArrayParam, []);
+
 const DataLake = () => {
-    const [filters, setFilters] = useQueryParam('filters', JsonParam);
+    const [filters, setFilters] = useQueryParam('filters', ArrayParamDefaultEmpty);
     const [datasetId, setDatasetId] = useQueryParam('datasetId', StringParam);
-    const [modelNames, setModelNames] = useQueryParam('modelNames', ArrayParam);
+    const [modelNames, setModelNames] = useQueryParam('modelNames', ArrayParamDefaultEmpty);
     const history = useHistory();
+    const filtersWithModelNames = modelNames.length ? filters.concat([{
+        left: 'predictions.model_name',
+        op: 'in',
+        right: modelNames
+    }]) : filters;
 
     useEffect(() => {
         if (!datasetId) {
@@ -87,21 +94,27 @@ const DataLake = () => {
                 </Row>
                 <Row>
                     <Col md={datasetId && modelNames && modelNames.length ? 7 : 12}>
-                        {datasetId ? <DatasetMetrics filters={filters} datasetId={datasetId} /> : <div className='text-secondary mt-2 text-center'>Select a Dataset for Metrics</div>}
-                        <DatapointsViewer filters={filters} datasetId={datasetId} renderActionButtons={({selectedDatapoints}) => selectedDatapoints.size ? (
-                            <DatasetSelector allowNew title='Add selected to dataset' onChange={async (datasetId) => {
-                                await baseJSONClient.post(`/api/dataset/${datasetId}/add`, {datapointIds: Array.from(selectedDatapoints)});
-                                history.push(`/dataset/${datasetId}`);
-                            }}>
-                                Add selected to dataset
-                            </DatasetSelector>
-                        ) : null} />
+                        {datasetId ? <DatasetMetrics filters={filtersWithModelNames} datasetId={datasetId} /> : <div className='text-secondary mt-2 text-center'>Select a Dataset for Metrics</div>}
+                        <DatapointsViewer
+                            filters={filtersWithModelNames} datasetId={datasetId} modelNames={modelNames}
+                            renderActionButtons={({selectedDatapoints}) => selectedDatapoints.size ? (
+                                <DatasetSelector
+                                    allowNew title='Add selected to dataset'
+                                    onChange={async (datasetId) => {
+                                        await baseJSONClient.post(`/api/dataset/${datasetId}/add`, {datapointIds: Array.from(selectedDatapoints)});
+                                        history.push(`/dataset/${datasetId}`);
+                                    }}
+                                >
+                                    Add selected to dataset
+                                </DatasetSelector>
+                            ) : null}
+                        />
                     </Col>
                     {
                         (datasetId && modelNames && modelNames.length) ? (
                             <Col md={5}>
                                 <Row className='g-2 my-2'>
-                                    <ModelMetrics filters={filters} datasetId={datasetId} modelNames={modelNames} />
+                                    <ModelMetrics filters={filtersWithModelNames} datasetId={datasetId} modelNames={modelNames} />
                                 </Row>
                             </Col>
                         ) : null
