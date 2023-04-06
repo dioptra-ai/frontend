@@ -361,7 +361,7 @@ const DatapointsPage = ({datapoints, showGroundtruthsInModal, modelNames, select
                                         'tags.name', 'tags.value'
                                     ]
                                 }),
-                                modelNames ? baseJSONClient.post('/api/predictions/select', {
+                                modelNames?.length ? baseJSONClient.post('/api/predictions/select', {
                                     filters: [{
                                         'left': 'datapoint',
                                         'op': '=',
