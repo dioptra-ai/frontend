@@ -49,7 +49,7 @@ class SelectableModel {
         return this.getSafeColumn(column).split('.').slice(1).join('.');
     }
 
-    static getSafeColumn(column, withAliasForJSONB = false) {
+    static getSafeColumn(column, withAliasForJSONB = false, inputIsSafe = false) {
         if (isSafeGlobalIdentifier(column)) {
 
             return column;
@@ -73,12 +73,12 @@ class SelectableModel {
                     return i === 0 ? '%s' : '.%s';
                 } else if (isChildOfJSONB(i)) {
                     if (withAliasForJSONB && i === canonicalPath.length - 1) {
-                        return `->>%L AS ${pgFormat.ident(column)}`;
+                        return `->>${inputIsSafe ? '%s' : '%L'} AS ${pgFormat.ident(column)}`;
                     } else {
-                        return '->>%L';
+                        return `->>${inputIsSafe ? '%s' : '%L'}`;
                     }
                 } else {
-                    return i === 0 ? '%I' : '.%I';
+                    return i === 0 ? (inputIsSafe ? '%s' : '%I') : (inputIsSafe ? '.%s' : '.%I');
                 }
             }).join(''),
             ...canonicalPath
@@ -168,13 +168,13 @@ class SelectableModel {
     }) {
         assert(organizationId, 'organizationId is required');
         const primaryTable = this.getTableName();
-        const canonicalSelectColumns = selectColumns.map(this.getSafeColumn.bind(this));
+        const safeSelectColumns = selectColumns.map(this.getSafeColumn.bind(this));
         const canonicalFilters = this.getSafeFilters(filters.concat({
             'left': 'organization_id',
             'op': '=',
             'right': organizationId
         }));
-        const canonicalSelectColumnsPerTable = canonicalSelectColumns.reduce((acc, column) => {
+        const canonicalSelectColumnsPerTable = safeSelectColumns.reduce((acc, column) => {
             const tableName = this.getColumnTable(column);
 
             if (!acc[tableName]) {
@@ -188,7 +188,7 @@ class SelectableModel {
         const safeSelects = Object.entries(canonicalSelectColumnsPerTable).reduce((acc, [tableName, columns]) => {
 
             if (tableName === primaryTable) {
-                acc.push(...columns.map((c) => this.getSafeColumn(c, true)));
+                acc.push(...columns.map((c) => this.getSafeColumn(c, true, true)));
             } else {
                 // Aggregate distinct JSONB objects with column values of tableName.
                 // Example: JSONB_BUILD_OBJECT('class_name', predictions.class_name, 'confidence', predictions.confidence, ...)
@@ -201,18 +201,18 @@ class SelectableModel {
                             ARRAY_AGG(DISTINCT 
                                 ${''/* ex: JSONB_BUILD_OBJECT('class_name', predictions.class_name, 'confidence', predictions.confidence, ...)*/}
                                 JSONB_BUILD_OBJECT(
-                                    ${columns.map((c) => [pgFormat.literal(this.getColumnName(c)), this.getSafeColumn(c, true)]).flat().join(', ')}
+                                    ${columns.map((c) => [`'${this.getColumnName(c)}'`, this.getSafeColumn(c, true, true)]).flat().join(', ')}
                                 )
                             ), 
                             ${''/* ex: {"class_name": null, "confidence": null, ...} */}
-                            '{${columns.map((c) => pgFormat.literal(this.getColumnName(c)).replaceAll('\'', '')).map((cc) => `"${cc}": null`)}}'
+                            '{${columns.map((c) => this.getColumnName(c).replaceAll(/['"]/gm, '')).map((cc) => `"${cc}": null`)}}'
                         ) AS %I`, tableName)
                 );
             }
 
             return acc;
         }, []);
-        const canonicalSelectTables = canonicalSelectColumns.map(this.getColumnTable.bind(this));
+        const canonicalSelectTables = safeSelectColumns.map(this.getColumnTable.bind(this));
         const filtersPerColumn = canonicalFilters.reduce((acc, filter) => {
             const column = filter['left'];
 
