@@ -1,6 +1,7 @@
 import assert from 'assert';
 import pgFormat from 'pg-format';
 import {postgresClient} from './index.mjs';
+import {deepDropNulls} from '../common/utils.mjs';
 
 const SAFE_OPS = new Set(['=', '!=', '<', '>', '<=', '>=', 'LIKE', 'NOT LIKE', 'ILIKE', 'NOT ILIKE', 'SIMILAR TO', 'NOT SIMILAR TO', 'IS', 'IS NOT', 'IS NULL', 'IS NOT NULL', 'IN', 'NOT IN', 'ANY', 'ALL', 'BETWEEN', 'NOT BETWEEN', 'IS DISTINCT FROM', 'IS NOT DISTINCT FROM']);
 const isSafeOp = (op) => SAFE_OPS.has(op.toUpperCase());
@@ -159,7 +160,7 @@ class SelectableModel {
     static async select(...args) {
         const {rows} = await postgresClient.query(this.getSafeSelectQuery(...args));
 
-        return rows;
+        return deepDropNulls(rows);
     }
 
     static getSafeSelectQuery({

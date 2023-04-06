@@ -3,6 +3,7 @@ import pgFormat from 'pg-format';
 import {postgresClient} from './index.mjs';
 import SelectableModel from './selectable-model.mjs';
 import Dataset from './dataset.mjs';
+import {deepDropNulls} from '../common/utils.mjs';
 
 class Datapoint extends SelectableModel {
     static getTableName() {
@@ -69,7 +70,7 @@ class Datapoint extends SelectableModel {
             const safeSelectQuery = await this.getSafeSelectQueryWithDatasetId({organizationId, filters, orderBy, desc, limit, offset, selectColumns, datasetId});
             const {rows} = await postgresClient.query(safeSelectQuery);
 
-            return rows;
+            return deepDropNulls(rows);
         } else {
             return super.select({organizationId, filters, orderBy, desc, limit, offset, selectColumns});
         }
