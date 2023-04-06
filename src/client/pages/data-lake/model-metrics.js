@@ -12,6 +12,7 @@ import BarGraph, {Tooltip as CustomTooltip} from 'components/bar-graph';
 import Async from 'components/async';
 import Select from 'components/select';
 import metricsClient from 'clients/metrics';
+import baseJSONClient from 'clients/base-json-client';
 
 const SELECTABLE_METRICS = [
     'ACCURACY',
@@ -28,7 +29,7 @@ const ModelMetrics = ({modelNames, datasetId, filters}) => {
     const [areMetricsStale, setAreMetricsStale] = useState(true);
     const [lastEvaluationRequested, setLastEvaluationRequested] = useState(null);
     const metricSpecs = modelNames.map((modelName) => useMetric(userSelectedMetric, modelName, filters, datasetId));
-    const fetchAllData = () => Promise.all(metricSpecs.map((metricSpec) => metricSpec.fetchData()));
+    const fetchAllMetricsData = () => Promise.all(metricSpecs.map((metricSpec) => metricSpec.fetchData()));
     const screenComponent = (
         <div style={{
             position: 'absolute',
@@ -47,78 +48,112 @@ const ModelMetrics = ({modelNames, datasetId, filters}) => {
     }, [lastEvaluationRequested]);
 
     return (
-        <Row className='g-2 my-2'>
-            <Col xs={12}>
-                <Select value={userSelectedMetric} onChange={setUserSelectedMetric}>
-                    {SELECTABLE_METRICS.map((metric) => (
-                        <option key={metric} value={metric}>{getName(metric)}</option>
-                    ))}
-                </Select>
-            </Col>
-            <Col xs={12}>
-                <Button
-                    onClick={() => setLastEvaluationRequested(Date.now())}
-                    variant='secondary' size='s' className='text-nowrap w-100'
-                    disabled={!areMetricsStale}
-                >Evaluate</Button>
-            </Col>
-            <Col xs={12} className='position-relative'>
-                <Async
-                    fetchData={fetchAllData}
-                    refetchOnChanged={[lastEvaluationRequested]}
-                    fetchInitially={false}
-                    renderData={(modelMetrics) => (
-                        <BarGraph
-                            bars={modelMetrics.map((modelMetric, index) => ({
-                                name: areMetricsStale ? '-' : modelNames[index],
-                                value: modelMetric['value'],
-                                fill: areMetricsStale ? '#ccc' : getHexColor(modelNames[index])
-                            }))}
-                            title={areMetricsStale ? 'Click evaluate to refresh...' : getName(userSelectedMetric)}
-                            unit={metricSpecs[0].unit}
-                            yAxisTickFormatter={metricSpecs[0].formatter}
-                        />
-                    )}
-                />
-                {screenComponent}
-            </Col>
-            <Col xs={12} className='position-relative'>
-                <Async
-                    fetchData={fetchAllData}
-                    refetchOnChanged={[lastEvaluationRequested]}
-                    fetchInitially={false}
-                    renderData={(modelMetrics) => {
-                        const classes = Array.from(new Set(modelMetrics.flatMap((modelMetric) => Object.keys(modelMetric['value_per_class'])))).sort();
-                        const unit = metricSpecs[0].unit;
+        <>
+            <Row className='g-2 my-2'>
 
-                        return (
-                            <BarGraph
-                                bars={classes.map((className) => ({
-                                    name: className,
-                                    ...modelMetrics.reduce((acc, modelMetric, index) => ({
-                                        ...acc,
-                                        [modelNames[index]]: modelMetric['value_per_class'][className]
-                                    }), {})
-                                }))}
-                                title={areMetricsStale ? 'Click evaluate to refresh...' : `${getName(userSelectedMetric)} per Class`}
-                                unit={unit}
-                                yAxisTickFormatter={metricSpecs[0].formatter}
-                            >
-                                <Tooltip animationDuration={200} content={<CustomTooltip unit={unit} />} />
-                                {modelNames.map((modelName) => (
-                                    <Bar
-                                        dataKey={modelName} maxBarSize={50} minPointSize={2}
-                                        fill={areMetricsStale ? '#ccc' : getHexColor(modelName)}
-                                        key={modelName}
-                                    />
-                                ))}
-                            </BarGraph>
-                        );
+                <Col>
+                    <Async fetchData={async () => {
+                        const datapoints = await baseJSONClient.post('/api/datapoints/select', {
+                            filters, datasetId, selectColumns: ['id']
+                        });
+
+                        return baseJSONClient.post('/api/metrics/distribution/predictions', {
+                            filters: [{
+                                left: 'datapoint',
+                                op: 'in',
+                                right: datapoints.map((datapoint) => datapoint.id)
+                            }, {
+                                left: 'model_name',
+                                op: 'in',
+                                right: modelNames
+                            }]
+                        });
                     }}
-                />
-                {screenComponent}
-            </Col>
-        </Row>
+                    refetchOnChanged={[filters, datasetId]}
+                    renderData={(groundtruthDistribution) => groundtruthDistribution.histogram && Object.keys(groundtruthDistribution.histogram).length ? (
+                        <BarGraph
+                            title='Predictions'
+                            verticalIfMoreThan={10}
+                            bars={Object.entries(groundtruthDistribution.histogram).map(([name, value]) => ({
+                                name, value, fill: getHexColor(name)
+                            }))}
+                            yAxisTickFormatter={(v) => Number(v).toLocaleString()}
+                        />
+                    ) : null
+                    } />
+                </Col>
+                <Col xs={12}>
+                    <Select value={userSelectedMetric} onChange={setUserSelectedMetric}>
+                        {SELECTABLE_METRICS.map((metric) => (
+                            <option key={metric} value={metric}>{getName(metric)}</option>
+                        ))}
+                    </Select>
+                </Col>
+                <Col xs={12}>
+                    <Button
+                        onClick={() => setLastEvaluationRequested(Date.now())}
+                        variant='secondary' size='s' className='text-nowrap w-100'
+                        disabled={!areMetricsStale}
+                    >Evaluate</Button>
+                </Col>
+                <Col xs={12} className='position-relative'>
+                    <Async
+                        fetchData={fetchAllMetricsData}
+                        refetchOnChanged={[lastEvaluationRequested]}
+                        fetchInitially={false}
+                        renderData={(modelMetrics) => (
+                            <BarGraph
+                                bars={modelMetrics.map((modelMetric, index) => ({
+                                    name: areMetricsStale ? '-' : modelNames[index],
+                                    value: modelMetric['value'],
+                                    fill: areMetricsStale ? '#ccc' : getHexColor(modelNames[index])
+                                }))}
+                                title={areMetricsStale ? 'Click evaluate to refresh...' : getName(userSelectedMetric)}
+                                unit={metricSpecs[0].unit}
+                                yAxisTickFormatter={metricSpecs[0].formatter}
+                            />
+                        )}
+                    />
+                    {screenComponent}
+                </Col>
+                <Col xs={12} className='position-relative'>
+                    <Async
+                        fetchData={fetchAllMetricsData}
+                        refetchOnChanged={[lastEvaluationRequested]}
+                        fetchInitially={false}
+                        renderData={(modelMetrics) => {
+                            const classes = Array.from(new Set(modelMetrics.flatMap((modelMetric) => Object.keys(modelMetric['value_per_class'])))).sort();
+                            const unit = metricSpecs[0].unit;
+
+                            return (
+                                <BarGraph
+                                    bars={classes.map((className) => ({
+                                        name: className,
+                                        ...modelMetrics.reduce((acc, modelMetric, index) => ({
+                                            ...acc,
+                                            [modelNames[index]]: modelMetric['value_per_class'][className]
+                                        }), {})
+                                    }))}
+                                    title={areMetricsStale ? 'Click evaluate to refresh...' : `${getName(userSelectedMetric)} per Class`}
+                                    unit={unit}
+                                    yAxisTickFormatter={metricSpecs[0].formatter}
+                                >
+                                    <Tooltip animationDuration={200} content={<CustomTooltip unit={unit} />} />
+                                    {modelNames.map((modelName) => (
+                                        <Bar
+                                            dataKey={modelName} maxBarSize={50} minPointSize={2}
+                                            fill={areMetricsStale ? '#ccc' : getHexColor(modelName)}
+                                            key={modelName}
+                                        />
+                                    ))}
+                                </BarGraph>
+                            );
+                        }}
+                    />
+                    {screenComponent}
+                </Col>
+            </Row>
+        </>
     );
 };
 

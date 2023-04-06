@@ -10,30 +10,32 @@ const Metrics = ({filters, datasetId}) => {
 
     return (
         <Row className='g-2 my-2'>
-            <Col>{
+            <Col>
                 <Async fetchData={async () => {
                     const datapoints = await baseJSONClient.post('/api/datapoints/select', {
                         filters, datasetId, selectColumns: ['id']
                     });
 
                     return baseJSONClient.post('/api/metrics/distribution/groundtruths', {
-                        datapoint_ids: datapoints.map((datapoint) => datapoint.id)
+                        filters: [{
+                            left: 'datapoint',
+                            op: 'in',
+                            right: datapoints.map((datapoint) => datapoint.id)
+                        }]
                     });
                 }}
                 refetchOnChanged={[filters, datasetId]}
                 renderData={(groundtruthDistribution) => groundtruthDistribution.histogram && Object.keys(groundtruthDistribution.histogram).length ? (
-                    <Col>
-                        <BarGraph
-                            title='Groundtruths'
-                            bars={Object.entries(groundtruthDistribution.histogram).map(([name, value]) => ({
-                                name, value, fill: getHexColor(name)
-                            }))}
-                            yAxisTickFormatter={(v) => Number(v).toLocaleString()}
-                        />
-                    </Col>
+                    <BarGraph
+                        title='Groundtruths'
+                        verticalIfMoreThan={10}
+                        bars={Object.entries(groundtruthDistribution.histogram).map(([name, value]) => ({
+                            name, value, fill: getHexColor(name)
+                        }))}
+                        yAxisTickFormatter={(v) => Number(v).toLocaleString()}
+                    />
                 ) : null
                 } />
-            }
             </Col>
         </Row>
     );

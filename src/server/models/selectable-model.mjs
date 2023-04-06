@@ -50,7 +50,7 @@ class SelectableModel {
         return this.getSafeColumn(column).split('.').slice(1).join('.');
     }
 
-    static getSafeColumn(column, withAliasForJSONB = false, inputIsSafe = false) {
+    static getSafeColumn(column) {
         if (isSafeGlobalIdentifier(column)) {
 
             return column;
@@ -73,17 +73,19 @@ class SelectableModel {
                 if (isSafeIdentifier(c) || isSafeGlobalIdentifier(c)) {
                     return i === 0 ? '%s' : '.%s';
                 } else if (isChildOfJSONB(i)) {
-                    if (withAliasForJSONB && i === canonicalPath.length - 1) {
-                        return `->>${inputIsSafe ? '%s' : '%L'} AS ${pgFormat.ident(column)}`;
-                    } else {
-                        return `->>${inputIsSafe ? '%s' : '%L'}`;
-                    }
+                    return '->>%L';
                 } else {
-                    return i === 0 ? (inputIsSafe ? '%s' : '%I') : (inputIsSafe ? '.%s' : '.%I');
+                    return i === 0 ? '%I' : '.%I';
                 }
             }).join(''),
             ...canonicalPath
         );
+    }
+
+    static getAliasedColumn(safeColumn) {
+        const paths = safeColumn.split(/(\.|->>|->)/);
+
+        return `${safeColumn} AS "${paths[paths.length - 1].replaceAll(/'/g, '')}"`;
     }
 
     static getSafeWhere(safeFilters) {
@@ -189,7 +191,7 @@ class SelectableModel {
         const safeSelects = Object.entries(canonicalSelectColumnsPerTable).reduce((acc, [tableName, columns]) => {
 
             if (tableName === primaryTable) {
-                acc.push(...columns.map((c) => this.getSafeColumn(c, true, true)));
+                acc.push(...columns.map((c) => this.getAliasedColumn(c)));
             } else {
                 // Aggregate distinct JSONB objects with column values of tableName.
                 // Example: JSONB_BUILD_OBJECT('class_name', predictions.class_name, 'confidence', predictions.confidence, ...)
@@ -202,7 +204,7 @@ class SelectableModel {
                             ARRAY_AGG(DISTINCT 
                                 ${''/* ex: JSONB_BUILD_OBJECT('class_name', predictions.class_name, 'confidence', predictions.confidence, ...)*/}
                                 JSONB_BUILD_OBJECT(
-                                    ${columns.map((c) => [`'${this.getColumnName(c)}'`, this.getSafeColumn(c, true, true)]).flat().join(', ')}
+                                    ${columns.map((c) => [`'${this.getColumnName(c)}'`, c]).flat().join(', ')}
                                 )
                             ), 
                             ${''/* ex: {"class_name": null, "confidence": null, ...} */}

@@ -41,7 +41,7 @@ CustomTooltip.propTypes = {
     unit: PropTypes.string
 };
 const BarGraph = ({
-    title, bars, unit, yAxisName, xAxisName,
+    title, bars, unit, yAxisName, xAxisName, verticalIfMoreThan = 10,
     yAxisDomain = ([dataMin, dataMax]) => [Math.min(0, dataMin), Math.max(0, dataMax)],
     // Probably should be this instead:
     // yAxisTickFormatter={(v) => Number(v).toLocaleString()}
@@ -49,6 +49,8 @@ const BarGraph = ({
     className = '', onClick, children, height, ...rest
 }) => {
     const dataMax = Math.max(...bars.map((i) => i.value));
+    const numCategories = Array.from(new Set(bars.map((i) => i.name))).length;
+    const horizontalLayout = numCategories <= verticalIfMoreThan;
 
     return (
         <div className={`border rounded p-3 pe-5 w-100 ${className}`}>
@@ -56,28 +58,35 @@ const BarGraph = ({
                 <div className='text-dark bold-text fs-4 px-3 mb-3'>{title}</div>
                 <div style={{height: height || '300px'}}>
                     <ResponsiveContainer height='100%' width='100%'>
-                        <BarChart data={bars} height={250} width={730} {...rest}>
+                        <BarChart data={bars} height={250} width={730}
+                            layout={horizontalLayout ? 'horizontal' : 'vertical'}
+                            {...rest}
+                        >
                             <CartesianGrid strokeDasharray='3 3' />
                             <XAxis
-                                orientation={dataMax <= 0 ? 'top' : 'bottom'}
-                                dataKey='name'
+                                domain={horizontalLayout ? undefined : yAxisDomain}
+                                orientation={horizontalLayout ? (dataMax <= 0 ? 'top' : 'bottom') : undefined}
+                                dataKey={horizontalLayout ? 'name' : undefined}
                                 label={{
-                                    value: xAxisName,
+                                    value: horizontalLayout ? xAxisName : yAxisName,
                                     fontSize: fontSizes.fs_7
                                 }}
                                 tick={{fontSize: fontSizes.fs_7}}
+                                unit={horizontalLayout ? undefined : unit}
+                                type={horizontalLayout ? 'category' : 'number'}
                             />
                             <YAxis
-                                domain={yAxisDomain}
+                                domain={horizontalLayout ? yAxisDomain : undefined}
                                 label={{
-                                    value: yAxisName,
+                                    value: horizontalLayout ? yAxisName : xAxisName,
                                     angle: -90,
                                     dx: -20,
                                     fontSize: fontSizes.fs_7
                                 }}
-                                tickFormatter={yAxisTickFormatter}
+                                tickFormatter={horizontalLayout ? yAxisTickFormatter : undefined}
                                 tick={{fontSize: fontSizes.fs_7}}
-                                unit={unit}
+                                unit={horizontalLayout ? unit : undefined}
+                                type={horizontalLayout ? 'number' : 'category'}
                             />
                             {children ||
                                 <>
@@ -107,7 +116,8 @@ BarGraph.propTypes = {
     onClick: PropTypes.func,
     height: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     children: PropTypes.node,
-    yAxisTickFormatter: PropTypes.func
+    yAxisTickFormatter: PropTypes.func,
+    verticalIfMoreThan: PropTypes.number
 };
 
 export default BarGraph;

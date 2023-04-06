@@ -28,7 +28,7 @@ const memoizedFetch = mem(jsonFetch, {
 });
 const baseJSONClient = (
     url,
-    {method = 'get', body, headers = {'content-type': 'application/json'}, memoized = false, ...rest} = {}
+    {method = 'get', body, headers = {'content-type': 'application/json'}, memoized = true, ...rest} = {}
 ) => {
     const fetch = memoized ? memoizedFetch : jsonFetch;
 

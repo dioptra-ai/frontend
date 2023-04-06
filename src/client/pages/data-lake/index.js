@@ -93,7 +93,7 @@ const DataLake = () => {
                     }
                 </Row>
                 <Row>
-                    <Col md={datasetId && modelNames && modelNames.length ? 7 : 12}>
+                    <Col md={datasetId && modelNames && modelNames.length ? 6 : 12}>
                         {datasetId ? <DatasetMetrics filters={filtersWithModelNames} datasetId={datasetId} /> : <div className='text-secondary mt-2 text-center'>Select a Dataset for Metrics</div>}
                         <DatapointsViewer
                             filters={filtersWithModelNames} datasetId={datasetId} modelNames={modelNames}
@@ -112,10 +112,8 @@ const DataLake = () => {
                     </Col>
                     {
                         (datasetId && modelNames && modelNames.length) ? (
-                            <Col md={5}>
-                                <Row className='g-2 my-2'>
-                                    <ModelMetrics filters={filtersWithModelNames} datasetId={datasetId} modelNames={modelNames} />
-                                </Row>
+                            <Col md={6}>
+                                <ModelMetrics filters={filtersWithModelNames} datasetId={datasetId} modelNames={modelNames} />
                             </Col>
                         ) : null
                     }
