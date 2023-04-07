@@ -15,6 +15,7 @@ import Async from 'components/async';
 
 import DataLakeDistributions from './distributions';
 import ModelMetrics from './model-metrics';
+import {getHexColor} from 'helpers/color-helper';
 
 const ArrayParamDefaultEmpty = withDefault(ArrayParam, []);
 
@@ -79,7 +80,7 @@ const DataLake = () => {
                                 <Select multiple value={modelNames} onChange={setModelNames} disabled={!datasetId}>
                                     <option value=''>{datasetId ? 'All models' : 'Select a dataset for models'}</option>
                                     {allModelNames.map((modelName) => (
-                                        <option key={modelName} value={modelName}>
+                                        <option key={modelName} value={modelName} style={{color: getHexColor(modelName)}}>
                                             {modelName}
                                         </option>
                                     ))}

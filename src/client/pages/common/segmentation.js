@@ -27,7 +27,6 @@ import useAllSqlFilters from 'hooks/use-all-sql-filters';
 import Async from 'components/async';
 import AsyncSegmentationFields from 'components/async-segmentation-fields';
 import metricsClient from 'clients/metrics';
-import {Tooltip as BarTooltip} from 'components/bar-graph';
 import useAllFilters from 'hooks/use-all-filters';
 
 const AddColumnModal = ({onApply, allColumns, initiallyselected}) => {
@@ -140,7 +139,7 @@ const _DistributionCell = ({row, segmentationStore}) => {
             ) : (
                 <ResponsiveContainer height={150} width='100%'>
                     <BarChart data={distributionData.map((d) => ({...d, value: d.value}))}>
-                        <Tooltip content={<BarTooltip/>}/>
+                        <Tooltip/>
                         <Bar background={false} dataKey='value' minPointSize={2}>
                             {distributionData.map((d, i) => (
                                 <Cell accentHeight='0px' fill={getHexColor(d.name, 0.65)} key={i} />

@@ -6,7 +6,6 @@ import {Bar, BarChart, Cell, ResponsiveContainer, Tooltip, XAxis} from 'recharts
 import metricsClient from 'clients/metrics';
 import Async from 'components/async';
 import useAllFilters from 'hooks/use-all-filters';
-import {Tooltip as BarTooltip} from 'components/bar-graph';
 import theme from 'styles/theme.module.scss';
 import Table from 'components/table';
 
@@ -145,7 +144,7 @@ const HistogramCell = ({cell}) => {
                     name: `${Number(bins[i]).toFixed(2)} - ${Number(bins[i + 1]).toFixed(2)}`,
                     value: v
                 }))}>
-                    <Tooltip content={<BarTooltip />} />
+                    <Tooltip/>
                     <Bar background={false} dataKey='value' minPointSize={2}>
                         {hist.map((v, i) => (
                             <Cell accentHeight='0px' fill={theme.primary} key={i} />

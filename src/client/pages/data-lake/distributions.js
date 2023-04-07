@@ -8,38 +8,87 @@ import Async from 'components/async';
 import baseJSONClient from 'clients/base-json-client';
 
 const DataLakeDistributions = ({datapointFilters, datasetId, modelNames}) => (
-    <Row className='g-2 mt-4'>
-        <Col md={modelNames?.length ? 6 : 12}>
-            <Async fetchData={async () => {
-                const datapoints = await baseJSONClient.post('/api/datapoints/select', {
-                    filters: datapointFilters,
-                    datasetId,
-                    selectColumns: ['id']
-                });
+    <>
+        <Row className='g-2 mt-4'>
+            <Col md={modelNames?.length ? 6 : 12}>
+                <Async fetchData={async () => {
+                    const datapoints = await baseJSONClient.post('/api/datapoints/select', {
+                        filters: datapointFilters,
+                        datasetId,
+                        selectColumns: ['id']
+                    });
 
-                return baseJSONClient.post('/api/metrics/distribution/groundtruths', {
-                    filters: [{
-                        left: 'datapoint',
-                        op: 'in',
-                        right: datapoints.map((datapoint) => datapoint.id)
-                    }]
-                });
-            }}
-            refetchOnChanged={[datapointFilters, datasetId]}
-            renderData={(groundtruthDistribution) => groundtruthDistribution.histogram && Object.keys(groundtruthDistribution.histogram).length ? (
-                <BarGraph
-                    title='Groundtruths'
-                    verticalIfMoreThan={10}
-                    bars={Object.entries(groundtruthDistribution.histogram).map(([name, value]) => ({
-                        name, value, fill: getHexColor(name)
-                    }))}
-                />
-            ) : null
-            } />
-        </Col>
+                    return baseJSONClient.post('/api/metrics/distribution/groundtruths', {
+                        filters: [{
+                            left: 'datapoint',
+                            op: 'in',
+                            right: datapoints.map((datapoint) => datapoint.id)
+                        }]
+                    });
+                }}
+                refetchOnChanged={[datapointFilters, datasetId]}
+                renderData={(groundtruthDistribution) => groundtruthDistribution.histogram && Object.keys(groundtruthDistribution.histogram).length ? (
+                    <BarGraph
+                        title='Groundtruths'
+                        verticalIfMoreThan={10}
+                        bars={Object.entries(groundtruthDistribution.histogram).map(([name, value]) => ({
+                            name, value, fill: getHexColor(name)
+                        }))}
+                    />
+                ) : null
+                } />
+            </Col>
+            {
+                modelNames?.length ? (
+                    <Col md={6}>
+                        <Async fetchData={async () => {
+                            const datapoints = await baseJSONClient.post('/api/datapoints/select', {
+                                filters: datapointFilters,
+                                datasetId,
+                                selectColumns: ['id']
+                            });
+
+                            return Promise.all(modelNames.map((modelName) => baseJSONClient.post('/api/metrics/distribution/predictions', {
+                                filters: [{
+                                    left: 'datapoint',
+                                    op: 'in',
+                                    right: datapoints.map((datapoint) => datapoint.id)
+                                }, {
+                                    left: 'model_name',
+                                    op: '=',
+                                    right: modelName
+                                }]
+                            })));
+                        }}
+                        refetchOnChanged={[datapointFilters, datasetId, modelNames]}
+                        renderData={(distributions) => {
+                            const classes = Array.from(new Set(distributions.flatMap((distribution) => Object.keys(distribution.histogram))));
+
+                            return (
+                                <BarGraph
+                                    title='Predictions'
+                                    verticalIfMoreThan={10}
+                                    bars={classes.map((className) => ({
+                                        name: className,
+                                        ...distributions.reduce((acc, distribution, i) => ({
+                                            ...acc,
+                                            [modelNames[i]]: distribution.histogram[className]
+                                        }), {})
+                                    }))}
+                                >
+                                    {modelNames.map((modelName) => (
+                                        <Bar key={modelName} maxBarSize={50} minPointSize={2} dataKey={modelName} fill={getHexColor(modelName)} />
+                                    ))}
+                                </BarGraph>
+                            );
+                        }} />
+                    </Col>
+                ) : null
+            }
+        </Row>
         {
             modelNames?.length ? (
-                <Col md={6}>
+                <div className='mt-2'>
                     <Async fetchData={async () => {
                         const datapoints = await baseJSONClient.post('/api/datapoints/select', {
                             filters: datapointFilters,
@@ -47,7 +96,7 @@ const DataLakeDistributions = ({datapointFilters, datasetId, modelNames}) => (
                             selectColumns: ['id']
                         });
 
-                        return Promise.all(modelNames.map((modelName) => baseJSONClient.post('/api/metrics/distribution/predictions', {
+                        return Promise.all(modelNames.map((modelName) => baseJSONClient.post('/api/metrics/distribution/entropy', {
                             filters: [{
                                 left: 'datapoint',
                                 op: 'in',
@@ -59,19 +108,18 @@ const DataLakeDistributions = ({datapointFilters, datasetId, modelNames}) => (
                             }]
                         })));
                     }}
-                    refetchOnChanged={[datapointFilters, datasetId]}
-                    renderData={(predictionDistributions) => {
-                        const classes = Array.from(new Set(predictionDistributions.flatMap((predictionDistribution) => Object.keys(predictionDistribution.histogram))));
+                    refetchOnChanged={[datapointFilters, datasetId, modelNames]}
+                    renderData={(distributions) => {
+                        const bins = Array.from(new Set(distributions.flatMap((distribution) => Object.keys(distribution.histogram))));
 
                         return (
                             <BarGraph
-                                title='Predictions'
-                                verticalIfMoreThan={10}
-                                bars={classes.map((className) => ({
-                                    name: className,
-                                    ...predictionDistributions.reduce((acc, predictionDistribution, i) => ({
+                                title='Entropies'
+                                bars={bins.map((bin) => ({
+                                    name: bin,
+                                    ...distributions.reduce((acc, distribution, i) => ({
                                         ...acc,
-                                        [modelNames[i]]: predictionDistribution.histogram[className]
+                                        [modelNames[i]]: distribution.histogram[bin]
                                     }), {})
                                 }))}
                             >
@@ -81,10 +129,10 @@ const DataLakeDistributions = ({datapointFilters, datasetId, modelNames}) => (
                             </BarGraph>
                         );
                     }} />
-                </Col>
+                </div>
             ) : null
         }
-    </Row>
+    </>
 );
 
 DataLakeDistributions.propTypes = {
