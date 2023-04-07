@@ -357,7 +357,7 @@ const DatapointsPage = ({datapoints, showGroundtruthsInModal, modelNames, select
                                         'right': datapointInModal.id
                                     }],
                                     selectColumns: [
-                                        'id', 'metadata', 'type', 'text',
+                                        'id', 'created_at', 'metadata', 'type', 'text',
                                         'tags.name', 'tags.value'
                                     ]
                                 }),
@@ -372,11 +372,11 @@ const DatapointsPage = ({datapoints, showGroundtruthsInModal, modelNames, select
                                         'right': modelNames
                                     }],
                                     selectColumns: [
-                                        'predictions.encoded_resized_segmentation_class_mask',
-                                        'predictions.class_name', 'predictions.class_names',
-                                        'predictions.confidence', 'predictions.confidences',
-                                        'predictions.model_name', 'predictions.task_type',
-                                        'predictions.top', 'predictions.left', 'predictions.width', 'predictions.height'
+                                        'created_at', 'task_type', 'model_name',
+                                        'encoded_resized_segmentation_class_mask',
+                                        'class_name', 'class_names',
+                                        'confidence', 'confidences',
+                                        'top', 'left', 'width', 'height'
                                     ]
                                 }) : Promise.resolve(null),
                                 showGroundtruthsInModal ? baseJSONClient.post('/api/groundtruths/select', {
@@ -386,10 +386,10 @@ const DatapointsPage = ({datapoints, showGroundtruthsInModal, modelNames, select
                                         'right': datapointInModal.id
                                     }],
                                     selectColumns: [
-                                        'groundtruths.encoded_resized_segmentation_class_mask',
-                                        'groundtruths.class_name', 'groundtruths.class_names',
-                                        'groundtruths.task_type',
-                                        'groundtruths.top', 'groundtruths.left', 'groundtruths.width', 'groundtruths.height'
+                                        'created_at', 'task_type',
+                                        'encoded_resized_segmentation_class_mask',
+                                        'class_name', 'class_names',
+                                        'top', 'left', 'width', 'height'
                                     ]
                                 }) : Promise.resolve(null)
                             ])}
