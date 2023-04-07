@@ -73,7 +73,7 @@ class SelectableModel {
                 if (isSafeIdentifier(c) || isSafeGlobalIdentifier(c)) {
                     return i === 0 ? '%s' : '.%s';
                 } else if (isChildOfJSONB(i)) {
-                    return '->>%L';
+                    return '->%L';
                 } else {
                     return i === 0 ? '%I' : '.%I';
                 }
@@ -82,10 +82,16 @@ class SelectableModel {
         );
     }
 
-    static getAliasedColumn(safeColumn) {
-        const paths = safeColumn.split(/(\.|->>|->)/);
+    static getAliasedColumnForJSONB(safeColumn) {
+        const paths = safeColumn.split(/(->>|->)/);
 
-        return `${safeColumn} AS "${paths[paths.length - 1].replaceAll(/'/g, '')}"`;
+        if (paths.length > 1) {
+            const name = paths[paths.length - 1].replaceAll(/['"]/g, '');
+
+            return `${safeColumn} AS ${pgFormat.ident(name)}`;
+        } else {
+            return safeColumn;
+        }
     }
 
     static getSafeWhere(safeFilters) {
@@ -191,7 +197,7 @@ class SelectableModel {
         const safeSelects = Object.entries(canonicalSelectColumnsPerTable).reduce((acc, [tableName, columns]) => {
 
             if (tableName === primaryTable) {
-                acc.push(...columns.map((c) => this.getAliasedColumn(c)));
+                acc.push(...columns.map((c) => this.getAliasedColumnForJSONB(c)));
             } else {
                 // Aggregate distinct JSONB objects with column values of tableName.
                 // Example: JSONB_BUILD_OBJECT('class_name', predictions.class_name, 'confidence', predictions.confidence, ...)
