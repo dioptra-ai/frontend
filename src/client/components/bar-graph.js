@@ -1,3 +1,4 @@
+import {useMemo} from 'react';
 import {Bar, BarChart, Brush, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis} from 'recharts';
 import PropTypes from 'prop-types';
 import fontSizes from '../styles/font-sizes.module.scss';
@@ -41,7 +42,7 @@ CustomTooltip.propTypes = {
     unit: PropTypes.string
 };
 const BarGraph = ({
-    title, bars, unit, yAxisName, xAxisName, verticalIfMoreThan = 10,
+    title, bars, unit, yAxisName, xAxisName, verticalIfMoreThan = 10, sortBy = 'name',
     yAxisDomain = ([dataMin, dataMax]) => [Math.min(0, dataMin), Math.max(0, dataMax)],
     // Probably should be this instead:
     // yAxisTickFormatter={(v) => Number(v).toLocaleString()}
@@ -52,13 +53,17 @@ const BarGraph = ({
     const numCategories = Array.from(new Set(bars.map((i) => i.name))).length;
     const horizontalLayout = numCategories <= verticalIfMoreThan;
 
+    const sortedBars = sortBy ? useMemo(() => {
+        return bars.sort((a, b) => a[sortBy] > b[sortBy] ? 1 : -1);
+    }, [bars, sortBy]) : bars;
+
     return (
         <div className={`border rounded p-3 pe-5 w-100 ${className}`}>
             <SpinnerWrapper>
                 <div className='text-dark bold-text fs-4 px-3 mb-3'>{title}</div>
                 <div style={{height: height || horizontalLayout ? 300 : Math.max(300, 25 * numCategories)}}>
                     <ResponsiveContainer height='100%' width='100%'>
-                        <BarChart data={bars}
+                        <BarChart data={sortedBars}
                             layout={horizontalLayout ? 'horizontal' : 'vertical'}
                             {...rest}
                         >
@@ -117,7 +122,8 @@ BarGraph.propTypes = {
     height: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     children: PropTypes.node,
     yAxisTickFormatter: PropTypes.func,
-    verticalIfMoreThan: PropTypes.number
+    verticalIfMoreThan: PropTypes.number,
+    sortBy: PropTypes.string
 };
 
 export default BarGraph;
