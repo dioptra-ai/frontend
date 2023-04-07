@@ -13,7 +13,7 @@ import {setupComponent} from 'helpers/component-helper';
 import Select from 'components/select';
 import Async from 'components/async';
 
-import DatasetMetrics from './dataset-metrics';
+import DataLakeDistributions from './distributions';
 import ModelMetrics from './model-metrics';
 
 const ArrayParamDefaultEmpty = withDefault(ArrayParam, []);
@@ -67,34 +67,30 @@ const DataLake = () => {
                             )}
                         />
                     </Col>
-                    {
-                        datasetId ? (
-                            <Col md={3}>
-                                <Async
-                                    fetchData={() => baseJSONClient.post('/api/predictions/select-distinct-model-names', {
-                                        datapointFilters: filters,
-                                        datasetId,
-                                        limit: 100
-                                    })}
-                                    refetchOnChanged={[filters, datasetId]}
-                                    renderData={(allModelNames) => (
-                                        <Select multiple value={modelNames} onChange={setModelNames} disabled={!datasetId}>
-                                            <option value=''>No Model Names</option>
-                                            {allModelNames.map((modelName) => (
-                                                <option key={modelName} value={modelName}>
-                                                    {modelName}
-                                                </option>
-                                            ))}
-                                        </Select>
-                                    )}
-                                />
-                            </Col>
-                        ) : null
-                    }
+                    <Col md={3}>
+                        <Async
+                            fetchData={() => datasetId ? baseJSONClient.post('/api/predictions/select-distinct-model-names', {
+                                datapointFilters: filters,
+                                datasetId,
+                                limit: 100
+                            }) : Promise.resolve([])}
+                            refetchOnChanged={[filters, datasetId]}
+                            renderData={(allModelNames) => (
+                                <Select multiple value={modelNames} onChange={setModelNames} disabled={!datasetId}>
+                                    <option value=''>{datasetId ? 'All models' : 'Select a dataset for models'}</option>
+                                    {allModelNames.map((modelName) => (
+                                        <option key={modelName} value={modelName}>
+                                            {modelName}
+                                        </option>
+                                    ))}
+                                </Select>
+                            )}
+                        />
+                    </Col>
                 </Row>
                 <Row>
-                    <Col md={datasetId && modelNames && modelNames.length ? 6 : 12}>
-                        {datasetId ? <DatasetMetrics filters={filtersWithModelNames} datasetId={datasetId} /> : <div className='text-secondary mt-2 text-center'>Select a Dataset for Metrics</div>}
+                    <Col md={datasetId ? 6 : 12}>
+                        {datasetId ? null : <div className='text-secondary mt-2 text-center'>Select a dataset for metrics</div>}
                         <DatapointsViewer
                             filters={filtersWithModelNames} datasetId={datasetId} modelNames={modelNames}
                             renderActionButtons={({selectedDatapoints}) => selectedDatapoints.size ? (
@@ -111,9 +107,14 @@ const DataLake = () => {
                         />
                     </Col>
                     {
-                        (datasetId && modelNames && modelNames.length) ? (
+                        datasetId ? (
                             <Col md={6}>
-                                <ModelMetrics filters={filtersWithModelNames} datasetId={datasetId} modelNames={modelNames} />
+                                <DataLakeDistributions datapointFilters={filtersWithModelNames} datasetId={datasetId} modelNames={modelNames} />
+                                {
+                                    modelNames?.length ? (
+                                        <ModelMetrics datapointFilters={filtersWithModelNames} datasetId={datasetId} modelNames={modelNames} />
+                                    ) : null
+                                }
                             </Col>
                         ) : null
                     }

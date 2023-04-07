@@ -5,42 +5,6 @@ import fontSizes from '../styles/font-sizes.module.scss';
 import {SpinnerWrapper} from 'components/spinner';
 import theme from 'styles/theme.module.scss';
 
-const CustomTooltip = ({payload, label, unit}) => {
-    if (payload && payload.length) {
-
-        return (
-            <div className='line-graph-tooltip bg-white p-3'>
-                <p className='text-dark bold-text fs-5 m-0'>{Number(payload[0].value).toLocaleString()}{unit}</p>
-                <p className='text-secondary m-0 fs-7' style={{
-                    textOverflow: 'ellipsis',
-                    overflow: 'hidden',
-                    whiteSpace: 'nowrap',
-                    maxWidth: 200
-                }}>
-                    {label}
-                </p>
-                {payload[0]?.payload?.size ?
-                    <p className='text-secondary m-0 fs-7' style={{
-                        textOverflow: 'ellipsis',
-                        overflow: 'hidden',
-                        whiteSpace: 'nowrap',
-                        maxWidth: 200
-                    }}>
-                    Size: {payload[0].payload.size}
-                    </p> :
-                    null}
-            </div>
-        );
-    } else return null;
-};
-
-export {CustomTooltip as Tooltip};
-
-CustomTooltip.propTypes = {
-    label: PropTypes.any,
-    payload: PropTypes.array,
-    unit: PropTypes.string
-};
 const BarGraph = ({
     title, bars, unit, yAxisName, xAxisName, verticalIfMoreThan = 10, sortBy = 'name',
     yAxisDomain = ([dataMin, dataMax]) => [Math.min(0, dataMin), Math.max(0, dataMax)],
@@ -93,9 +57,13 @@ const BarGraph = ({
                                 unit={horizontalLayout ? unit : undefined}
                                 type={horizontalLayout ? 'number' : 'category'}
                             />
+                            <Tooltip
+                                contentStyle={{borderRadius: 3, border: 'none', boxShadow: '0px 5px 20px rgba(0, 0, 0, 0.1)'}}
+                                wrapperStyle={{outline: 'none'}}
+                                formatter={(value) => Number(value).toLocaleString() + (unit || '')}
+                            />
                             {children ||
                                 <>
-                                    <Tooltip animationDuration={200} content={<CustomTooltip unit={unit}/>}/>
                                     <Bar cursor={onClick ? 'pointer' : 'default'} onClick={onClick} dataKey='value' fill={theme.primary} maxBarSize={50} minPointSize={2}/>
                                 </>
                             }
