@@ -71,7 +71,7 @@ const BarGraph = ({
                                     <Bar cursor={onClick ? 'pointer' : 'default'} onClick={onClick} dataKey='value' fill={theme.primary} maxBarSize={50} minPointSize={2}/>
                                 </>
                             }
-                            {bars.length > 100 ? (
+                            {bars.length > 100 && horizontalLayout ? (
                                 <Brush dataKey='name' height={30} stroke={theme.primary}/>
                             ) : null}
                         </BarChart>
