@@ -1,7 +1,31 @@
 import mem from 'p-memoize';
+import * as fastq from 'fastq';
+
+// Priority queue for fetch requests. This is to prevent the browser from
+// clogging up with requests that are not important.
+const lowPriorityQueue = [];
+const mediumPriorityQueue = [];
+const highPriorityQueue = [];
+const fetchQueue = fastq.promise((fn, priority) => {
+    if (priority === 'high') {
+        highPriorityQueue.push(fn);
+    } else if (priority === 'low') {
+        lowPriorityQueue.push(fn);
+    } else {
+        mediumPriorityQueue.push(fn);
+    }
+
+    if (highPriorityQueue.length) {
+        return highPriorityQueue.shift()();
+    } else if (mediumPriorityQueue.length) {
+        return mediumPriorityQueue.shift()();
+    } else if (lowPriorityQueue.length) {
+        return lowPriorityQueue.shift()();
+    } else throw new Error('Empty fetch queue...');
+});
 
 const jsonFetch = async (...args) => {
-    const res = await fetch(...args);
+    const res = await fetchQueue.push(() => fetch(...args), args[1]?.priority);
 
     let responseBody = await res.text();
 

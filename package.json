@@ -73,6 +73,7 @@
     "express-rate-limit": "^6.7.0",
     "express-session": "^1.17.2",
     "express-validator": "^6.13.0",
+    "fastq": "^1.15.0",
     "file-saver": "^2.0.5",
     "formik": "^2.2.9",
     "i": "^0.3.7",

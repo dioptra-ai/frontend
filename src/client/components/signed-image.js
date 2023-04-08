@@ -26,7 +26,7 @@ const SignedImage = ({rawUrl, ...rest}) => {
                 await new Promise((resolve) => setTimeout(resolve, 100));
                 const s = await metricsClient('/signed-url', {
                     url: rawUrl
-                });
+                }, {priority: 'low'});
 
                 setSignedUrl(s);
             } catch (e) {
