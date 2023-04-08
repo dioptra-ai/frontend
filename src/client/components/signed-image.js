@@ -21,6 +21,9 @@ const SignedImage = ({rawUrl, ...rest}) => {
     const handleLoadError = async () => {
         if (!signedImageRequested) {
             try {
+                // Wait for more important calls to be made before clogging the browser with
+                // this noisy call.
+                await new Promise((resolve) => setTimeout(resolve, 100));
                 const s = await metricsClient('/signed-url', {
                     url: rawUrl
                 });
