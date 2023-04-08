@@ -1,6 +1,6 @@
 import {useEffect} from 'react';
 import {useHistory} from 'react-router-dom';
-import {ArrayParam, StringParam, useQueryParam, withDefault} from 'use-query-params';
+import {ArrayParam, JsonParam, StringParam, useQueryParam, withDefault} from 'use-query-params';
 import {Col, Row} from 'react-bootstrap';
 
 import baseJSONClient from 'clients/base-json-client';
@@ -18,9 +18,10 @@ import ModelMetrics from './model-metrics';
 import {getHexColor} from 'helpers/color-helper';
 
 const ArrayParamDefaultEmpty = withDefault(ArrayParam, []);
+const JsonParamDefaultEmptyArray = withDefault(JsonParam, []);
 
 const DataLake = () => {
-    const [filters, setFilters] = useQueryParam('filters', ArrayParamDefaultEmpty);
+    const [filters, setFilters] = useQueryParam('filters', JsonParamDefaultEmptyArray);
     const [datasetId, setDatasetId] = useQueryParam('datasetId', StringParam);
     const [modelNames, setModelNames] = useQueryParam('modelNames', ArrayParamDefaultEmpty);
     const history = useHistory();
