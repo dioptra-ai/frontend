@@ -24,8 +24,10 @@ import SegmentationMask from './segmentation-mask';
 const DatapointCard = ({datapoint = {}, onClick, zoomable, showDetails, maxHeight}) => {
     const {predictions = [], groundtruths = [], type, metadata = {}} = datapoint;
     const [viewportHeight, setViewportHeight] = useState(0);
+    const [viewportLoaded, setViewportLoaded] = useState(false);
     const handleViewportLoad = (e) => {
         setViewportHeight(e.target.offsetHeight);
+        setViewportLoaded(true);
     };
     const [showHeatMap, setShowHeatMap] = useState(false);
     const [showPredictionMask, setShowPredictionMask] = useState(false);
@@ -45,6 +47,10 @@ const DatapointCard = ({datapoint = {}, onClick, zoomable, showDetails, maxHeigh
 
         return acc;
     }, {});
+
+    useEffect(() => {
+        setViewportLoaded(false);
+    }, [datapoint]);
 
     switch (type) {
     case 'IMAGE': {
@@ -117,7 +123,7 @@ const DatapointCard = ({datapoint = {}, onClick, zoomable, showDetails, maxHeigh
                                     {
                                         // Segmentation predictions segmentation_class_mask.
                                         // More than one of them would overlap and would not really make sense.
-                                        showPredictionMask ? predictions.filter((p) => p['encoded_resized_segmentation_class_mask'])
+                                        showPredictionMask && viewportLoaded ? predictions.filter((p) => p['encoded_resized_segmentation_class_mask'])
                                             .filter((_, i) => i === 0)
                                             .map((p, i) => (
                                                 <div key={i} className='position-absolute h-100 w-100'>
@@ -128,7 +134,7 @@ const DatapointCard = ({datapoint = {}, onClick, zoomable, showDetails, maxHeigh
                                     {
                                         // Segmentation groundtruths segmentation_class_mask.
                                         // More than one of them would overlap and would not really make sense.
-                                        showGroundtruthMask ? groundtruths.filter((g) => g['encoded_resized_segmentation_class_mask'])
+                                        showGroundtruthMask && viewportLoaded ? groundtruths.filter((g) => g['encoded_resized_segmentation_class_mask'])
                                             .filter((_, i) => i === 0)
                                             .map((g, i) => (
                                                 <div key={i} className='position-absolute h-100 w-100'>
@@ -509,7 +515,7 @@ const DatapointsPageActions = ({filters, datasetId, datapoints, selectedDatapoin
 
 DatapointsPageActions.propTypes = {
     filters: PropTypes.array.isRequired,
-    datasetId: PropTypes.string.isRequired,
+    datasetId: PropTypes.string,
     datapoints: PropTypes.array.isRequired,
     selectedDatapoints: PropTypes.instanceOf(Set).isRequired,
     onSelectedDatapointsChange: PropTypes.func,
