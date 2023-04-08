@@ -26,8 +26,15 @@ const BarGraph = ({
         <div className={`border rounded p-3 w-100 ${className}`}>
             <SpinnerWrapper>
                 <div className='text-dark bold-text fs-4 px-3 mb-3'>{title}</div>
-                <div style={{height: height || horizontalLayout ? 300 : Math.max(300, 25 * numCategories)}}>
-                    <ResponsiveContainer height='100%' width='100%'>
+                <div style={{
+                    height: height || horizontalLayout ? 300 : Math.max(300, 25 * numCategories),
+                    maxHeight: '50vh',
+                    overflowY: 'auto'
+                }}>
+                    <ResponsiveContainer
+                        height={height || horizontalLayout ? 300 : Math.max(300, 25 * numCategories)}
+                        width='100%'
+                    >
                         <BarChart data={sortedBars}
                             layout={horizontalLayout ? 'horizontal' : 'vertical'}
                             {...rest}
