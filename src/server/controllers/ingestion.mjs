@@ -59,8 +59,8 @@ IngestionRouter.get('/executions', async (req, res, next) => {
 
         for await (const page of paginator) {
             for (const e of page.executions) {
-                // Break if we already have 20 executions or if the execution is older than 24 hours
-                if (executions.length >= 20 || new Date().getTime() - new Date(e['startDate']).getTime() > 24 * 60 * 60 * 1000) {
+                // Break if we already have 100 executions or if the execution is older than 24 hours
+                if (executions.length >= 100 || new Date().getTime() - new Date(e['startDate']).getTime() > 24 * 60 * 60 * 1000) {
 
                     res.json(executions);
 
