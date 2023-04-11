@@ -72,7 +72,7 @@ const Settings = () => {
                                                                             </td>
                                                                         </tr>
                                                                     );
-                                                                })}
+                                                                }) || <div className='text-secondary'>No recent uploads</div>}
                                                             </tbody>
                                                         </Table>
                                                     </>

@@ -58,11 +58,9 @@ IngestionRouter.get('/executions', async (req, res, next) => {
         const executions = [];
 
         for await (const page of paginator) {
-            if (executions.length >= 100) {
-                break;
-            }
             for (const e of page.executions) {
-                if (executions.length >= 100) {
+                // Break if we already have 20 executions or if the execution is older than 24 hours
+                if (executions.length >= 20 || new Date().getTime() - new Date(e['startDate']).getTime() > 24 * 60 * 60 * 1000) {
                     break;
                 } else if (e['name'].startsWith(`ingestion-${req.user.requestOrganizationId}`)) {
                     executions.push({
@@ -72,6 +70,9 @@ IngestionRouter.get('/executions', async (req, res, next) => {
                         stopDate: e['stopDate']
                     });
                 }
+            }
+            if (executions.length >= 20) {
+                break;
             }
         }
 
