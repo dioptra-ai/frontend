@@ -23,7 +23,7 @@ const DataLakeDistributions = ({filters, datasetId, modelNames}) => {
                             filters: filtersWithModelNames,
                             datasetId,
                             selectColumns: ['id']
-                        });
+                        }, {memoized: true});
 
                         return baseJSONClient.post('/api/metrics/distribution/groundtruths', {
                             filters: [{
@@ -31,7 +31,7 @@ const DataLakeDistributions = ({filters, datasetId, modelNames}) => {
                                 op: 'in',
                                 right: datapoints.map((datapoint) => datapoint.id)
                             }]
-                        });
+                        }, {memoized: true});
                     }}
                     refetchOnChanged={[filtersWithModelNames, datasetId]}
                     renderData={(groundtruthDistribution) => groundtruthDistribution.histogram && Object.keys(groundtruthDistribution.histogram).length ? (
@@ -53,7 +53,7 @@ const DataLakeDistributions = ({filters, datasetId, modelNames}) => {
                                     filters: filtersWithModelNames,
                                     datasetId,
                                     selectColumns: ['id']
-                                });
+                                }, {memoized: true});
 
                                 return Promise.all(modelNames.map((modelName) => baseJSONClient.post('/api/metrics/distribution/predictions', {
                                     filters: [{
@@ -65,7 +65,7 @@ const DataLakeDistributions = ({filters, datasetId, modelNames}) => {
                                         op: '=',
                                         right: modelName
                                     }]
-                                })));
+                                }, {memoized: true})));
                             }}
                             refetchOnChanged={[filters, datasetId, modelNames]}
                             renderData={(distributions) => {
@@ -101,7 +101,7 @@ const DataLakeDistributions = ({filters, datasetId, modelNames}) => {
                                 filters: filtersWithModelNames,
                                 datasetId,
                                 selectColumns: ['id']
-                            });
+                            }, {memoized: true});
 
                             return Promise.all(modelNames.map((modelName) => baseJSONClient.post('/api/metrics/distribution/entropy', {
                                 filters: [{
@@ -113,7 +113,7 @@ const DataLakeDistributions = ({filters, datasetId, modelNames}) => {
                                     op: '=',
                                     right: modelName
                                 }]
-                            })));
+                            }, {memoized: true})));
                         }}
                         refetchOnChanged={[filters, datasetId, modelNames]}
                         renderData={(distributions) => {

@@ -13,67 +13,29 @@ import baseJSONClient from 'clients/base-json-client';
 import DataSelector from './data-selector';
 import {Container} from 'react-bootstrap';
 import Async from 'components/async';
+import LoadingForm from 'components/loading-form';
+
+const minerStrategyOptions = [{
+    value: 'NEAREST_NEIGHBORS',
+    name: 'N Nearest Neighbors'
+}, {
+    value: 'CORESET',
+    name: 'Coreset'
+}, {
+    value: 'ENTROPY',
+    name: 'N Highest Entropy'
+}, {
+    value: 'VARIANCE',
+    name: 'N Highest Variance'
+}, {
+    value: 'ACTIVATION',
+    name: 'N Lowest Activation'
+}];
 
 const MinerModal = ({isOpen, onClose, onMinerSaved, defaultMiner = {}}) => {
-    const {
-        display_name, select, select_reference, size, metric, embeddings_field, strategy, model_name
-    } = defaultMiner;
-    const [minerName, setMinerName] = useState(display_name);
-    const [minerMetric, setMinerMetric] = useState(metric || 'euclidean');
-    const [minerAnalysisSpace, setMinerAnalysisSpace] = useState(embeddings_field);
-    const [minerSize, setMinerSize] = useState(size);
-    const [minerModelName, setMinerModelName] = useState(model_name || select?.model_name || '');
-    const [minerFilters, setMinerFilters] = useState(select?.filters || []);
-    const [referenceFilters, setReferenceFilters] = useState(select_reference?.filters || []);
-    const minerStrategyOptions = [{
-        value: 'NEAREST_NEIGHBORS',
-        name: 'N Nearest Neighbors'
-    }, {
-        value: 'CORESET',
-        name: 'Coreset'
-    }, {
-        value: 'ENTROPY',
-        name: 'N Highest Entropy'
-    }, {
-        value: 'VARIANCE',
-        name: 'N Highest Variance'
-    }, {
-        value: 'ACTIVATION',
-        name: 'N Lowest Activation'
-    }];
-    const [minerStrategy, setMinerStrategy] = useState(strategy || minerStrategyOptions[0].value);
-    const saveMiner = async () => {
-        const payload = {
-            _id: defaultMiner?._id,
-            display_name: minerName,
-            strategy: minerStrategy,
-            metric: minerMetric,
-            size: minerSize,
-            ...((minerStrategy === 'NEAREST_NEIGHBORS' || minerStrategy === 'ACTIVATION' || minerStrategy === 'CORESET' ? ({
-                embeddings_field: minerAnalysisSpace,
-                model_name: minerModelName
-            }) : {})),
-            select: {
-                ...defaultMiner.select,
-                filters: minerFilters
-            },
-            ...((minerStrategy === 'NEAREST_NEIGHBORS' || minerStrategy === 'CORESET') && referenceFilters.length ? {
-                select_reference: {
-                    ...defaultMiner.select_reference,
-                    filters: referenceFilters
-                }
-            } : {})
-        };
-
-        if (!payload['_id'] || window.confirm('Changing the miner configuration will delete the current results. Do you really want to continue?')) {
-            const miner = await baseJSONClient('/api/tasks/miners', {
-                method: 'post',
-                body: payload
-            });
-
-            onMinerSaved?.(miner['miner_id']);
-        }
-    };
+    const [minerFilters, setMinerFilters] = useState(defaultMiner['select']?.filters || []);
+    const [referenceFilters, setReferenceFilters] = useState(defaultMiner['select_reference']?.filters || []);
+    const [minerStrategy, setMinerStrategy] = useState(defaultMiner['strategy']?.strategy || minerStrategyOptions[0].value);
 
     return (
         <Modal
@@ -81,9 +43,23 @@ const MinerModal = ({isOpen, onClose, onMinerSaved, defaultMiner = {}}) => {
             onClose={() => onClose()}
             title='Edit Miner'
         >
-            <Form style={{minWidth: 900}} onSubmit={(e) => {
+            <LoadingForm style={{minWidth: 900}} onSubmit={async (e, values) => {
                 e.preventDefault();
-                saveMiner();
+
+                if (!defaultMiner['_id'] || window.confirm('Changing the miner configuration will delete the current results. Do you really want to continue?')) {
+                    const miner = await baseJSONClient.post('/api/tasks/miners', {
+                        ...defaultMiner,
+                        ...values,
+                        select: {
+                            filters: minerFilters
+                        },
+                        select_reference: {
+                            filters: referenceFilters
+                        }
+                    });
+
+                    onMinerSaved?.(miner['miner_id']);
+                }
             }}>
                 <Container fluid>
                     <Row className='g-2'>
@@ -92,27 +68,31 @@ const MinerModal = ({isOpen, onClose, onMinerSaved, defaultMiner = {}}) => {
                             <InputGroup className='mt-1'>
                                 <Form.Control
                                     required
-                                    onChange={(e) => {
-                                        setMinerName(e.target.value);
-                                    }}
-                                    value={minerName}
+                                    name='display_name'
+                                    defaultValue={defaultMiner.display_name}
                                 />
                             </InputGroup>
                         </Col>
                         <Col>
                             <Form.Label className='mt-3 mb-0 w-100'>Schedule</Form.Label>
                             <InputGroup className='mt-1'>
-                                <Select>
-                                    <option>One time</option>
-                                    <option>Every 5 mins</option>
-                                    <option>Every 15 mins</option>
-                                    <option>Every 30 mins</option>
-                                    <option>Every 1 hour</option>
-                                    <option>Every 6 hours</option>
-                                    <option>Every 12 hours</option>
-                                    <option>Every 24 hours</option>
-                                    <option>Every 3 days</option>
-                                    <option>Every 7 days</option>
+                                <Select name='evaluation_period' defaultValue={defaultMiner.evaluation_period}>
+                                    <option value=''>One time</option>
+                                    <option value='PT5M'>Every 5 mins</option>
+                                    <option value='PT15M'>Every 15 mins</option>
+                                    <option value='PT30M'>Every 30 mins</option>
+                                    <option value='PT1H'>Every 1 hour</option>
+                                    <option value='PT2H'>Every 2 hours</option>
+                                    <option value='PT4H'>Every 4 hours</option>
+                                    <option value='PT8H'>Every 8 hours</option>
+                                    <option value='PT12H'>Every 12 hours</option>
+                                    <option value='P1D'>Every 1 day</option>
+                                    <option value='P2D'>Every 2 days</option>
+                                    <option value='P3D'>Every 3 days</option>
+                                    <option value='P4D'>Every 4 days</option>
+                                    <option value='P5D'>Every 5 days</option>
+                                    <option value='P6D'>Every 6 days</option>
+                                    <option value='P7D'>Every 7 days</option>
                                 </Select>
                             </InputGroup>
                         </Col>
@@ -121,101 +101,90 @@ const MinerModal = ({isOpen, onClose, onMinerSaved, defaultMiner = {}}) => {
                         <Col>
                             <Form.Label className='mt-3 mb-0 w-100'>Strategy</Form.Label>
                             <InputGroup className='mt-1'>
-                                <Select onChange={setMinerStrategy} value={minerStrategy} options={minerStrategyOptions} />
+                                <Select name='strategy' value={minerStrategy} onChange={(e) => setMinerStrategy(e.target.value)}>
+                                    {minerStrategyOptions.map((option) => (
+                                        <option key={option.value} value={option.value}>{option.name}</option>
+                                    ))}
+                                </Select>
                             </InputGroup>
                         </Col>
                         <Col>
-                            <Form.Label className='mt-3 mb-0 w-100'>Select up to {minerSize || '-'} datapoints.</Form.Label>
+                            <Form.Label className='mt-3 mb-0 w-100'>Select N datapoints.</Form.Label>
                             <InputGroup className='mt-1'>
-                                <Form.Control required placeholder='N' type='number' min={1} value={minerSize} onChange={(e) => {
-                                    setMinerSize(Number(e.target.value));
-                                }} />
+                                <Form.Control required placeholder='N' type='number' min={1} name='size' defaultValue={defaultMiner['size']} />
                             </InputGroup>
                         </Col>
                     </Row>
                     <Row className='g-2'>
+                        <Col>
+                            <Form.Label className='mt-3 mb-0 w-100'>Model Name</Form.Label>
+                            <InputGroup className='mt-1'>
+                                <Async fetchData={() => baseJSONClient.post('/api/predictions/select-distinct-model-names', {
+                                    datapointFilters: minerFilters,
+                                    limit: 100
+                                })}
+                                refetchOnChanged={[minerFilters]}
+                                renderData={(data) => {
+                                    return (
+                                        <Form.Control as='select' className={'form-select w-100'} required
+                                            name='model_name'
+                                            defaultValue={defaultMiner['model_name']}
+                                        >
+                                            <option disabled>Select Model Name</option>
+                                            {
+                                                data.map((modelName) => (
+                                                    <option value={modelName} key={modelName}>
+                                                        {modelName}
+                                                    </option>
+                                                ))
+                                            }
+                                        </Form.Control>
+                                    );
+                                }} />
+                            </InputGroup>
+                        </Col>
                         {
                             minerStrategy === 'NEAREST_NEIGHBORS' || minerStrategy === 'ACTIVATION' || minerStrategy === 'CORESET' ? (
-                                <>
-                                    <Col>
-                                        <Form.Label className='mt-3 mb-0 w-100'>Analysis Space</Form.Label>
-                                        <InputGroup className='mt-1 flex-column'>
-                                            <Form.Control as='select' className={'form-select w-100'} required
-                                                value={minerAnalysisSpace}
-                                                onChange={(e) => {
-                                                    setMinerAnalysisSpace(e.target.value);
-                                                }}
-                                            >
-                                                <option disabled>Select Analysis Space</option>
-                                                <option value='embeddings'>
-                                                        Embeddings
-                                                </option>
-                                                <option value='prediction.embeddings' disabled>
-                                                        Prediction Embeddings
-                                                </option>
-                                                <option value='prediction.logits' disabled>
-                                                        Prediction Logits
-                                                </option>
-                                            </Form.Control>
-                                        </InputGroup>
-                                    </Col>
-                                    <Col>
-                                        <Form.Label className='mt-3 mb-0 w-100'>Model Name</Form.Label>
-                                        <InputGroup className='mt-1'>
-                                            <Async fetchData={() => baseJSONClient.post('/api/predictions/select-distinct-model-names', {
-                                                datapointFilters: minerFilters,
-                                                limit: 100
-                                            })}
-                                            refetchOnChanged={[minerFilters]}
-                                            renderData={(data) => {
-                                                return (
-                                                    <Form.Control as='select' className={'form-select w-100'} required
-                                                        value={minerModelName}
-                                                        onChange={(e) => {
-                                                            setMinerModelName(e.target.value);
-                                                        }}
-                                                    >
-                                                        <option disabled>Select Model Name</option>
-                                                        {
-                                                            data.map((modelName) => (
-                                                                <option value={modelName} key={modelName}>
-                                                                    {modelName}
-                                                                </option>
-                                                            ))
-                                                        }
-                                                    </Form.Control>
-                                                );
-                                            }} />
-                                        </InputGroup>
-                                    </Col>
-                                </>
+                                <Col>
+                                    <Form.Label className='mt-3 mb-0 w-100'>Analysis Space</Form.Label>
+                                    <InputGroup className='mt-1 flex-column'>
+                                        <Form.Control as='select' className={'form-select w-100'} required
+                                            name='embeddings_field'
+                                            defaultValue={defaultMiner['embeddings_field']}
+                                        >
+                                            <option disabled>Select Analysis Space</option>
+                                            <option value='embeddings'>
+                                                Embeddings
+                                            </option>
+                                            <option value='logits'>
+                                                Logits
+                                            </option>
+                                        </Form.Control>
+                                    </InputGroup>
+                                </Col>
                             ) : null
                         }
-                        <Col>
-                            {
-                                minerStrategy === 'NEAREST_NEIGHBORS' || minerStrategy === 'CORESET' ? (
-                                    <>
-                                        <Form.Label className='mt-3 mb-0 w-100'>Metric</Form.Label>
-                                        <InputGroup className='mt-1 flex-column'>
-                                            <Form.Control as='select' className={'form-select w-100'} required
-                                                value={minerMetric}
-                                                onChange={(e) => {
-                                                    setMinerMetric(e.target.value);
-                                                }}
-                                            >
-                                                <option disabled>Select Metric</option>
-                                                <option value='euclidean'>
-                                                    Euclidean
-                                                </option>
-                                                <option value='cosine'>
-                                                    Cosine
-                                                </option>
-                                            </Form.Control>
-                                        </InputGroup>
-                                    </>
-                                ) : null
-                            }
-                        </Col>
+                        {
+                            minerStrategy === 'NEAREST_NEIGHBORS' || minerStrategy === 'CORESET' ? (
+                                <Col>
+                                    <Form.Label className='mt-3 mb-0 w-100'>Metric</Form.Label>
+                                    <InputGroup className='mt-1 flex-column'>
+                                        <Form.Control as='select' className={'form-select w-100'} required
+                                            name='metric'
+                                            defaultValue={defaultMiner['metric']}
+                                        >
+                                            <option disabled>Select Metric</option>
+                                            <option value='euclidean'>
+                                                Euclidean
+                                            </option>
+                                            <option value='cosine'>
+                                                Cosine
+                                            </option>
+                                        </Form.Control>
+                                    </InputGroup>
+                                </Col>
+                            ) : null
+                        }
                     </Row>
                     <hr/>
                     <Row className='g-2'>
@@ -252,7 +221,7 @@ const MinerModal = ({isOpen, onClose, onMinerSaved, defaultMiner = {}}) => {
                 >
                     {defaultMiner?._id ? 'Update Miner' : 'Create Miner'}
                 </Button>
-            </Form>
+            </LoadingForm>
         </Modal>
     );
 };

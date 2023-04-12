@@ -138,7 +138,7 @@ const useMetric = (metric, modelName, datapointFilters, datasetId) => {
                 model_name: modelName,
                 datapoint_filters: datapointFilters,
                 dataset_id: datasetId
-            }),
+            }, {memoized: true}),
             unit: '%'
         },
         MEAN_IOU: {
@@ -146,7 +146,7 @@ const useMetric = (metric, modelName, datapointFilters, datasetId) => {
                 model_name: modelName,
                 datapoint_filters: datapointFilters,
                 dataset_id: datasetId
-            }),
+            }, {memoized: true}),
             unit: '%'
         },
         F1_SCORE: {
@@ -154,7 +154,7 @@ const useMetric = (metric, modelName, datapointFilters, datasetId) => {
                 model_name: modelName,
                 datapoint_filters: datapointFilters,
                 dataset_id: datasetId
-            }),
+            }, {memoized: true}),
             unit: '%'
         },
         PRECISION: {
@@ -162,7 +162,7 @@ const useMetric = (metric, modelName, datapointFilters, datasetId) => {
                 model_name: modelName,
                 datapoint_filters: datapointFilters,
                 dataset_id: datasetId
-            }),
+            }, {memoized: true}),
             unit: '%'
         },
         RECALL: {
@@ -170,7 +170,7 @@ const useMetric = (metric, modelName, datapointFilters, datasetId) => {
                 model_name: modelName,
                 datapoint_filters: datapointFilters,
                 dataset_id: datasetId
-            }),
+            }, {memoized: true}),
             unit: '%'
         }
     }[metric];

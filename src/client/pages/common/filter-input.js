@@ -225,7 +225,6 @@ const FilterInput = ({
                         type='search'
                         autoComplete='off'
                         value={newFilter.toString()}
-                        name='filter' // to hint chrome to stop password-filling
                     />
                     <Button
                         className='bg-dark text-white border-0 bold-text fs-7'

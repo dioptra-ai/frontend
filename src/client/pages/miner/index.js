@@ -47,7 +47,7 @@ const Miner = () => {
         <Menu>
             <TopBar hideTimePicker/>
             <Async
-                fetchData={() => baseJSONClient(`/api/tasks/miners/${minerId}`)}
+                fetchData={() => baseJSONClient(`/api/tasks/miners/${minerId}`, {memoized: false})}
                 refetchOnChanged={[minerId, lastRequestedRefresh]}
                 renderData={(miner) => (
                     <>
