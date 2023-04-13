@@ -1,6 +1,7 @@
 environment: prod
 app:
   awsLoadBalancerSubnets:
+  awsLoadBalancerEipAllocations:
   awsApiGatewayPlanId: 'ujyzsg'
 postgres:
   host: prod-postgresql-cluster.cluster-c58vxsd50oik.us-east-2.rds.amazonaws.com
