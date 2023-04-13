@@ -1,7 +1,7 @@
 environment: dev
 app:
   awsLoadBalancerSubnets:
-  awsLoadBalancerEipAllocations: eipalloc-02b2e8cafd85589ba
+  awsLoadBalancerEipAllocations: eipalloc-02b2e8cafd85589ba, eipalloc-08bf7b5e51dd744f9
   awsApiGatewayPlanId: 'w0ffue'
 postgres:
   host: dev-postgresql-cluster.cluster-c58vxsd50oik.us-east-2.rds.amazonaws.com
