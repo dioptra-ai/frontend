@@ -30,6 +30,9 @@ const minerStrategyOptions = [{
 }, {
     value: 'ACTIVATION',
     name: 'N Lowest Activation'
+}, {
+    value: 'RANDOM',
+    name: 'N at Random'
 }];
 
 const MinerModal = ({isOpen, onClose, onMinerSaved, defaultMiner = {}}) => {
@@ -101,7 +104,7 @@ const MinerModal = ({isOpen, onClose, onMinerSaved, defaultMiner = {}}) => {
                         <Col>
                             <Form.Label className='mt-3 mb-0 w-100'>Strategy</Form.Label>
                             <InputGroup className='mt-1'>
-                                <Select name='strategy' value={minerStrategy} onChange={(e) => setMinerStrategy(e.target.value)}>
+                                <Select name='strategy' value={minerStrategy} onChange={setMinerStrategy}>
                                     {minerStrategyOptions.map((option) => (
                                         <option key={option.value} value={option.value}>{option.name}</option>
                                     ))}

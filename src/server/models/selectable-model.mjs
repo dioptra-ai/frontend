@@ -1,7 +1,6 @@
 import assert from 'assert';
 import pgFormat from 'pg-format';
 import {postgresClient} from './index.mjs';
-import {deepDropNulls} from '../common/utils.mjs';
 
 const SAFE_OPS = new Set(['=', '!=', '<', '>', '<=', '>=', 'LIKE', 'NOT LIKE', 'ILIKE', 'NOT ILIKE', 'SIMILAR TO', 'NOT SIMILAR TO', 'IS', 'IS NOT', 'IS NULL', 'IS NOT NULL', 'IN', 'NOT IN', 'ANY', 'ALL', 'BETWEEN', 'NOT BETWEEN', 'IS DISTINCT FROM', 'IS NOT DISTINCT FROM']);
 const isSafeOp = (op) => SAFE_OPS.has(op.toUpperCase());
@@ -10,6 +9,7 @@ const SAFE_GLOBAL_IDENTIFIERS = new Set(['RANDOM()']);
 const isSafeIdentifier = (identifier) => SAFE_IDENTIFIERS.has(identifier.toUpperCase());
 const isSafeGlobalIdentifier = (identifier) => SAFE_GLOBAL_IDENTIFIERS.has(identifier.toUpperCase());
 const JSONB_ROOT_COLUMNS = new Set(['metadata', 'metrics']);
+const ALL_TABLE_NAMES = new Set(['datapoints', 'predictions', 'groundtruths', 'feature_vectors', 'tags', 'bboxes']);
 
 class SelectableModel {
     static getTableName() {
@@ -57,7 +57,7 @@ class SelectableModel {
         }
 
         const paths = column.split('.');
-        const canonicalColumn = (['tags', 'predictions', 'groundtruths', 'datapoints', 'feature_vectors'].includes(paths[0])) ? column : `${this.getTableName()}.${column}`;
+        const canonicalColumn = ALL_TABLE_NAMES.has(paths[0]) ? column : `${this.getTableName()}.${column}`;
         const canonicalPath = canonicalColumn.split('.');
         const isChildOfJSONB = (i) => {
             if (i === 0) {
@@ -78,7 +78,7 @@ class SelectableModel {
                     return i === 0 ? '%I' : '.%I';
                 }
             }).join(''),
-            ...canonicalPath
+            ...canonicalPath.map((c) => c.replaceAll(/['"]/g, ''))
         );
     }
 
@@ -168,7 +168,7 @@ class SelectableModel {
     static async select(...args) {
         const {rows} = await postgresClient.query(this.getSafeSelectQuery(...args));
 
-        return deepDropNulls(rows);
+        return rows;
     }
 
     static getSafeSelectQuery({
@@ -198,6 +198,8 @@ class SelectableModel {
 
             if (tableName === primaryTable) {
                 acc.push(...columns.map((c) => this.getAliasedColumnForJSONB(c)));
+            } else if (columns.length === 1 && this.getColumnName(columns[0]) === '*') {
+                acc.push(pgFormat('ARRAY_AGG(to_jsonb(%I)) AS %I', tableName, tableName));
             } else {
                 // Aggregate distinct JSONB objects with column values of tableName.
                 // Example: JSONB_BUILD_OBJECT('class_name', predictions.class_name, 'confidence', predictions.confidence, ...)
@@ -207,10 +209,10 @@ class SelectableModel {
                 acc.push(
                     pgFormat(`
                         ARRAY_REMOVE(
-                            ARRAY_AGG(DISTINCT 
+                            ARRAY_AGG( 
                                 ${''/* ex: JSONB_BUILD_OBJECT('class_name', predictions.class_name, 'confidence', predictions.confidence, ...)*/}
                                 JSONB_BUILD_OBJECT(
-                                    ${columns.map((c) => [`'${this.getColumnName(c)}'`, c]).flat().join(', ')}
+                                    ${columns.map((c) => [`'${this.getColumnName(c).replaceAll(/['"]/gm, '')}'`, c]).flat().join(', ')}
                                 )
                             ), 
                             ${''/* ex: {"class_name": null, "confidence": null, ...} */}

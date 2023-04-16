@@ -23,10 +23,12 @@ const SegmentationMask = ({encodedMask, classNames}) => {
     const canvasRef = useRef(null);
     const [currentClassName, setCurrentClassName] = useState(null);
     const getClassName = (row, col) => {
-        if (classNames?.[mask[row][col]]) {
-            return classNames[mask[row][col]];
+        const classValue = mask[row][col];
+
+        if (classNames) {
+            return classNames[classValue];
         } else {
-            return String(mask[row][col]);
+            return String(classValue);
         }
     };
 
@@ -36,7 +38,13 @@ const SegmentationMask = ({encodedMask, classNames}) => {
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
         mask.forEach((row, i) => {
             row.forEach((col, j) => {
-                ctx.fillStyle = getHexColor(getClassName(i, j), HOVER_OPACITY);
+                const className = getClassName(i, j);
+
+                if (!className) {
+                    return;
+                }
+
+                ctx.fillStyle = getHexColor(className, HOVER_OPACITY);
                 ctx.fillRect(j, i, 1, 1);
             });
         });
@@ -56,7 +64,7 @@ const SegmentationMask = ({encodedMask, classNames}) => {
             const className = getClassName(row, col);
 
             // If the class name under the mouse has not changed, do nothing.
-            if (currentClassName !== className) {
+            if (className && currentClassName !== className) {
                 const canvasContext = canvas.getContext('2d');
                 const classColor = getHexColor(className, HOVER_OPACITY);
 
@@ -69,7 +77,9 @@ const SegmentationMask = ({encodedMask, classNames}) => {
 
                 mask.forEach((row, i) => {
                     row.forEach((col, j) => {
-                        if (getClassName(i, j) === className) {
+                        const pixelClassName = getClassName(i, j);
+
+                        if (pixelClassName && pixelClassName === className) {
                             canvasContext.fillRect(j, i, 1, 1);
                         }
                     });

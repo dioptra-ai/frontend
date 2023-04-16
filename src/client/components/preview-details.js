@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import {default as truncate} from 'truncate';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import isUrl from 'is-url';
@@ -79,7 +80,11 @@ export const RenderDatapoint = ({datapoint, parentIndex = 0}) => {
         return (
             <a href={datapoint} target='_blank' rel='noreferrer' onClick={(e) => e.stopPropagation()}>{datapoint}&nbsp;<sup><FiExternalLink className='fs-7' /></sup></a>
         );
-    } else return String(datapoint);
+    } else {
+        const datapointStr = String(datapoint);
+
+        return truncate(datapointStr, 100, {ellipsis: `…(${datapointStr.length - 100} characters truncated)`});
+    }
 };
 
 RenderDatapoint.propTypes = {

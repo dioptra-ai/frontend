@@ -2,7 +2,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import PropTypes from 'prop-types';
 import {Button} from 'react-bootstrap';
 import {TransformComponent, TransformWrapper} from 'react-zoom-pan-pinch';
-import {VscDiscard, VscZoomIn, VscZoomOut} from 'react-icons/vsc';
+import {TbZoomCancel, TbZoomIn, TbZoomOut} from 'react-icons/tb';
 import {GrNext, GrPrevious} from 'react-icons/gr';
 import {MdOutlineVerifiedUser} from 'react-icons/md';
 import Col from 'react-bootstrap/Col';
@@ -30,8 +30,8 @@ const DatapointCard = ({datapoint = {}, onClick, zoomable, showDetails, maxHeigh
         setViewportLoaded(true);
     };
     const [showHeatMap, setShowHeatMap] = useState(false);
-    const [showPredictionMask, setShowPredictionMask] = useState(false);
-    const [showGroundtruthMask, setShowGroundtruthMask] = useState(false);
+    const [showPredictions, setShowPredictions] = useState(groundtruths.length === 0);
+    const [showGroundtruths, setShowGroundtruths] = useState(groundtruths.length > 0);
     const confidencesPerClass = predictions.reduce((acc, p) => {
         const {class_names, confidences} = p;
 
@@ -56,10 +56,8 @@ const DatapointCard = ({datapoint = {}, onClick, zoomable, showDetails, maxHeigh
     case 'IMAGE': {
         const imageH = metadata.height;
         const imageW = metadata.width;
-        const imageObject = metadata.object;
-        const someHeatMap = predictions.some((p) => p['feature_heatmap']);
-        const somePredictionMask = predictions.some((p) => p['encoded_resized_segmentation_class_mask']);
-        const someGroundtruthMask = groundtruths.some((g) => g['encoded_resized_segmentation_class_mask']);
+        const scale = viewportHeight / imageH;
+        const someHeatMap = predictions.some((p) => p.bboxes?.some((b) => b['feature_heatmap']));
 
         return (
             <Row onClick={onClick} className='g-2'>
@@ -69,9 +67,9 @@ const DatapointCard = ({datapoint = {}, onClick, zoomable, showDetails, maxHeigh
                             <div className={`${onClick ? 'cursor-pointer' : zoomable ? 'cursor-grab' : ''} d-flex flex-column align-items-center overflow-hidden`} style={{backgroundColor: '#18191B'}}>
                                 {zoomable ? (
                                     <div className='position-absolute bg-white px-2 d-flex align-items-center' style={{zIndex: 1, top: -1, left: -1}}>
-                                        <VscZoomOut className='cursor-pointer fs-2' onClick={() => zoomOut()} />
-                                        <VscZoomIn className='cursor-pointer fs-2' onClick={() => zoomIn()} />
-                                        <VscDiscard className='cursor-pointer fs-2' onClick={() => resetTransform()} />
+                                        <TbZoomOut className='cursor-pointer fs-2' onClick={() => zoomOut()} />
+                                        <TbZoomIn className='cursor-pointer fs-2' onClick={() => zoomIn()} />
+                                        <TbZoomCancel className='cursor-pointer fs-2' onClick={() => resetTransform()} />
                                         {someHeatMap ? (
                                             <Form.Label className='mb-0 d-flex cursor-pointer'>
                                                 <Form.Check type='checkbox'
@@ -81,28 +79,26 @@ const DatapointCard = ({datapoint = {}, onClick, zoomable, showDetails, maxHeigh
                                                     HeatMap
                                             </Form.Label>
                                         ) : null}
-                                        {somePredictionMask ? (
+                                        {predictions.length ? (
                                             <Form.Label className='mb-0 me-2 d-flex cursor-pointer'>
                                                 <Form.Check type='checkbox'
                                                     onChange={(e) => {
-                                                        setShowPredictionMask(e.target.checked);
-                                                        setShowGroundtruthMask(false);
+                                                        setShowPredictions(e.target.checked);
                                                     }}
-                                                    checked={showPredictionMask}
+                                                    checked={showPredictions}
                                                 />
-                                                    Prediction Mask
+                                                    Show Predictions
                                             </Form.Label>
                                         ) : null}
-                                        {someGroundtruthMask ? (
+                                        {groundtruths.length ? (
                                             <Form.Label className='mb-0 d-flex cursor-pointer'>
                                                 <Form.Check type='checkbox'
                                                     onChange={(e) => {
-                                                        setShowGroundtruthMask(e.target.checked);
-                                                        setShowPredictionMask(false);
+                                                        setShowGroundtruths(e.target.checked);
                                                     }}
-                                                    checked={showGroundtruthMask}
+                                                    checked={showGroundtruths}
                                                 />
-                                                    Groundtruth Mask
+                                                    Show Groundtruths
                                             </Form.Label>
                                         ) : null}
                                     </div>
@@ -121,123 +117,133 @@ const DatapointCard = ({datapoint = {}, onClick, zoomable, showDetails, maxHeigh
                                         }
                                     `}</style>
                                     {
-                                        // Segmentation predictions segmentation_class_mask.
-                                        // More than one of them would overlap and would not really make sense.
-                                        showPredictionMask && viewportLoaded ? predictions.filter((p) => p['encoded_resized_segmentation_class_mask'])
-                                            .filter((_, i) => i === 0)
-                                            .map((p, i) => (
-                                                <div key={i} className='position-absolute h-100 w-100'>
-                                                    <SegmentationMask encodedMask={p['encoded_resized_segmentation_class_mask']} classNames={p['class_names']} />
-                                                </div>
-                                            )) : null
+                                        showPredictions && viewportLoaded ? predictions.map((p, i) => (
+                                            <>
+                                                {
+                                                    p['encoded_resized_segmentation_class_mask'] ? (
+                                                        <div key={`pred-${i}`} className='position-absolute h-100 w-100'>
+                                                            <SegmentationMask encodedMask={p['encoded_resized_segmentation_class_mask']} classNames={p['class_names']} />
+                                                        </div>
+                                                    ) : null
+                                                }
+                                                {
+                                                    // Bounding Boxes.
+                                                    p.bboxes?.map((bbox, j) => {
+                                                        const heatmap = bbox['feature_heatmap'];
+                                                        const heatMapMax = heatmap && Math.max(...heatmap.flat());
+
+                                                        return (
+                                                            <>
+                                                                <div key={`pred-${i}-${j}`} className='position-absolute h-100 w-100'>
+                                                                    <SegmentationMask
+                                                                        encodedMask={bbox['encoded_resized_segmentation_mask']}
+                                                                        classNames={[null, bbox['class_name']]}
+                                                                        top={bbox['top']}
+                                                                        left={bbox['left']}
+                                                                        height={bbox['height']}
+                                                                        width={bbox['width']}
+                                                                    />
+                                                                </div>
+                                                                <div key={`pred-bbox-${i}-${j}`}
+                                                                    className='position-absolute hover-fade'
+                                                                    style={{
+                                                                        height: bbox['height'] * scale,
+                                                                        width: bbox['width'] * scale,
+                                                                        top: bbox['top'] * scale,
+                                                                        left: bbox['left'] * scale,
+                                                                        border: '1px dashed',
+                                                                        borderColor: getHexColor(bbox['class_name']),
+                                                                        boxSizing: 'content-box'
+                                                                    }}
+                                                                >
+                                                                    <span className='fs-7 position-absolute px-1 text-nowrap' style={{
+                                                                        backgroundColor: getHexColor(bbox['class_name']),
+                                                                        bottom: bbox['top'] > imageH - bbox['top'] - bbox['height'] ? '100%' : 'unset',
+                                                                        top: bbox['top'] > imageH - bbox['top'] - bbox['height'] ? 'unset' : '100%',
+                                                                        left: bbox['left'] < imageW - bbox['left'] - bbox['width'] ? '100%' : 'unset',
+                                                                        right: bbox['left'] < imageW - bbox['left'] - bbox['width'] ? 'unset' : '100%'
+                                                                    }}
+                                                                    >{bbox['class_name']}</span>
+                                                                    {
+                                                                        heatmap && showHeatMap ? (
+
+                                                                            <Canvas draw={(ctx) => {
+                                                                                const numRows = heatmap.length;
+                                                                                const numCols = heatmap[0].length;
+
+                                                                                ctx.canvas.width = numCols;
+                                                                                ctx.canvas.height = numRows;
+
+                                                                                heatmap.forEach((row, i) => {
+                                                                                    row.forEach((col, j) => {
+                                                                                        ctx.fillStyle = `hsla(${(1 - col / heatMapMax) * 240}, 100%, 50%, 0.3)`;
+                                                                                        ctx.fillRect(j, i, 1, 1);
+                                                                                    });
+                                                                                });
+                                                                            }} />
+                                                                        ) : null
+                                                                    }
+                                                                </div>
+                                                            </>
+                                                        );
+                                                    })
+                                                }
+                                            </>
+                                        )) : null
                                     }
                                     {
-                                        // Segmentation groundtruths segmentation_class_mask.
-                                        // More than one of them would overlap and would not really make sense.
-                                        showGroundtruthMask && viewportLoaded ? groundtruths.filter((g) => g['encoded_resized_segmentation_class_mask'])
-                                            .filter((_, i) => i === 0)
-                                            .map((g, i) => (
-                                                <div key={i} className='position-absolute h-100 w-100'>
-                                                    <SegmentationMask encodedMask={g['encoded_resized_segmentation_class_mask']} classNames={g['class_names']} />
-                                                </div>
-                                            )) : null
-                                    }
-                                    {
-                                        // Object detection predictions bounding boxes.
-                                        predictions.filter((p) => !p['encoded_resized_segmentation_class_mask']).map((p, i) => {
-                                            const box = imageObject || p;
-                                            const scale = viewportHeight / imageH;
-                                            const heatmap = p['feature_heatmap'];
-                                            const heatMapMax = heatmap && Math.max(...heatmap.flat());
-                                            const hasBoxTop = box['top'] !== null && !isNaN(box['top']);
+                                        showGroundtruths && viewportLoaded ? groundtruths.map((g, i) => (
+                                            <>
+                                                {
+                                                    g['encoded_resized_segmentation_class_mask'] ? (
+                                                        <div key={`gt-${i}`} className='position-absolute h-100 w-100'>
+                                                            <SegmentationMask encodedMask={g['encoded_resized_segmentation_class_mask']} classNames={g['class_names']} />
+                                                        </div>
+                                                    ) : null
+                                                }
+                                                {
+                                                    // Instance Segmentation groundtruths bounding boxes.
+                                                    g.bboxes?.map((bbox, j) => {
 
-                                            return (
-                                                <div key={i}
-                                                    className='position-absolute hover-fade'
-                                                    style={hasBoxTop ? {
-                                                        height: box['height'] * scale,
-                                                        width: box['width'] * scale,
-                                                        top: box['top'] * scale,
-                                                        left: box['left'] * scale,
-                                                        border: '1px dashed',
-                                                        borderColor: getHexColor(p['class_name']),
-                                                        boxSizing: 'content-box'
-                                                    } : {
-                                                        top: 0,
-                                                        display: predictions.length > 1 && !hasBoxTop ? 'none' : 'block'
-                                                    }}
-                                                >
-                                                    <span className='fs-7 position-absolute px-1 text-nowrap' style={{
-                                                        backgroundColor: getHexColor(p['class_name']),
-                                                        ...(hasBoxTop ? {
-                                                            bottom: box['top'] > imageH - box['top'] - box['height'] ? '100%' : 'unset',
-                                                            top: box['top'] > imageH - box['top'] - box['height'] ? 'unset' : '100%',
-                                                            left: box['left'] < imageW - box['left'] - box['width'] ? '100%' : 'unset',
-                                                            right: box['left'] < imageW - box['left'] - box['width'] ? 'unset' : '100%'
-                                                        } : {})
-                                                    }}
-                                                    >{p['class_name']}</span>
-                                                    {
-                                                        heatmap && showHeatMap ? (
-
-                                                            <Canvas draw={(ctx) => {
-                                                                const numRows = heatmap.length;
-                                                                const numCols = heatmap[0].length;
-
-                                                                ctx.canvas.width = numCols;
-                                                                ctx.canvas.height = numRows;
-
-                                                                heatmap.forEach((row, i) => {
-                                                                    row.forEach((col, j) => {
-                                                                        ctx.fillStyle = `hsla(${(1 - col / heatMapMax) * 240}, 100%, 50%, 0.3)`;
-                                                                        ctx.fillRect(j, i, 1, 1);
-                                                                    });
-                                                                });
-                                                            }} />
-                                                        ) : null
-                                                    }
-                                                </div>
-                                            );
-                                        })
-                                    }
-                                    {
-                                        // Object detection groundtruths bounding boxes.
-                                        groundtruths.filter((g) => !g['encoded_resized_segmentation_class_mask']).map((g, i) => {
-                                            const box = imageObject || g;
-                                            const scale = viewportHeight / imageH;
-                                            const hasBoxTop = box['top'] !== null && !isNaN(box['top']);
-
-                                            return (
-                                                <div key={i}
-                                                    className='position-absolute hover-fade'
-                                                    style={hasBoxTop ? {
-                                                        height: box['height'] * scale,
-                                                        width: box['width'] * scale,
-                                                        top: box['top'] * scale,
-                                                        left: box['left'] * scale,
-                                                        border: '1px solid',
-                                                        borderColor: getHexColor(g['class_name']),
-                                                        boxSizing: 'content-box'
-                                                    } : {
-                                                        bottom: 0,
-                                                        display: groundtruths.length > 1 && !hasBoxTop ? 'none' : 'block'
-                                                    }}
-                                                >
-                                                    <span className='fs-7 position-absolute px-1 text-nowrap' style={{
-                                                        backgroundColor: getHexColor(g['class_name']),
-                                                        ...(hasBoxTop ? {
-                                                            bottom: box['top'] > imageH - box['top'] - box['height'] ? '100%' : 'unset',
-                                                            top: box['top'] > imageH - box['top'] - box['height'] ? 'unset' : '100%',
-                                                            left: box['left'] < imageW - box['left'] - box['width'] ? '100%' : 'unset',
-                                                            right: box['left'] < imageW - box['left'] - box['width'] ? 'unset' : '100%'
-                                                        } : {
-                                                            bottom: 0
-                                                        })
-                                                    }}
-                                                    >{g['class_name']} {g['class_name'] ? <MdOutlineVerifiedUser /> : ''}</span>
-                                                </div>
-                                            );
-                                        })
+                                                        return (
+                                                            <>
+                                                                <div key={`gt-${i}-${j}`} className='position-absolute h-100 w-100'>
+                                                                    <SegmentationMask
+                                                                        encodedMask={bbox['encoded_resized_segmentation_mask']}
+                                                                        classNames={[null, bbox['class_name']]}
+                                                                        top={bbox['top']}
+                                                                        left={bbox['left']}
+                                                                        height={bbox['height']}
+                                                                        width={bbox['width']}
+                                                                    />
+                                                                </div>
+                                                                <div key={`gt-bbox-${i}-${j}`}
+                                                                    className='position-absolute'
+                                                                    style={{
+                                                                        height: bbox['height'] * scale,
+                                                                        width: bbox['width'] * scale,
+                                                                        top: bbox['top'] * scale,
+                                                                        left: bbox['left'] * scale,
+                                                                        border: '1px dashed',
+                                                                        borderColor: getHexColor(bbox['class_name']),
+                                                                        boxSizing: 'content-box'
+                                                                    }}
+                                                                >
+                                                                    <span className='fs-7 position-absolute px-1 text-nowrap' style={{
+                                                                        backgroundColor: getHexColor(bbox['class_name']),
+                                                                        bottom: bbox['top'] > imageH - bbox['top'] - bbox['height'] ? '100%' : 'unset',
+                                                                        top: bbox['top'] > imageH - bbox['top'] - bbox['height'] ? 'unset' : '100%',
+                                                                        left: bbox['left'] < imageW - bbox['left'] - bbox['width'] ? '100%' : 'unset',
+                                                                        right: bbox['left'] < imageW - bbox['left'] - bbox['width'] ? 'unset' : '100%'
+                                                                    }}
+                                                                    ><MdOutlineVerifiedUser />{bbox['class_name']}</span>
+                                                                </div>
+                                                            </>
+                                                        );
+                                                    })
+                                                }
+                                            </>
+                                        )) : null
                                     }
                                 </TransformComponent>
                             </div>
@@ -382,7 +388,8 @@ const DatapointsPage = ({datapoints, showGroundtruthsInModal, modelNames, select
                                         'encoded_resized_segmentation_class_mask',
                                         'class_name', 'class_names',
                                         'confidence', 'confidences',
-                                        'top', 'left', 'width', 'height'
+                                        'bboxes.class_name', 'bboxes.confidence', 'bboxes.encoded_resized_segmentation_mask',
+                                        'bboxes.top', 'bboxes.left', 'bboxes.width', 'bboxes.height'
                                     ]
                                 }) : Promise.resolve(null),
                                 showGroundtruthsInModal ? baseJSONClient.post('/api/groundtruths/select', {
@@ -395,7 +402,8 @@ const DatapointsPage = ({datapoints, showGroundtruthsInModal, modelNames, select
                                         'created_at', 'task_type',
                                         'encoded_resized_segmentation_class_mask',
                                         'class_name', 'class_names',
-                                        'top', 'left', 'width', 'height'
+                                        'bboxes.class_name', 'bboxes.encoded_resized_segmentation_mask',
+                                        'bboxes.top', 'bboxes.left', 'bboxes.width', 'bboxes.height'
                                     ]
                                 }) : Promise.resolve(null)
                             ])}

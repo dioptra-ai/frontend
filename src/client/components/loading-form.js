@@ -20,7 +20,16 @@ const LoadingForm = ({onSubmit, ...rest}) => {
             setLoading(true);
             const values = Array.from(e.target.elements).reduce((acc, el) => {
                 if (el.name) {
-                    acc[el.name] = el.value;
+                    switch (el.type) {
+                    case 'checkbox':
+                        acc[el.name] = el.checked;
+                        break;
+                    case 'number':
+                        acc[el.name] = Number(el.value);
+                        break;
+                    default:
+                        acc[el.name] = el.value;
+                    }
                 }
 
                 return acc;

@@ -69,7 +69,7 @@ class Dataset {
 
         // There must be an uncommitted version.
         if (!uncommittedVersion) {
-            throw new Error('Uncommitted version not found.');
+            throw new Error('Could not find the latest version of this dataset.');
         }
 
         return uncommittedVersion;
