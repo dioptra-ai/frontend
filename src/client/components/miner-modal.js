@@ -38,7 +38,7 @@ const minerStrategyOptions = [{
 const MinerModal = ({isOpen, onClose, onMinerSaved, defaultMiner = {}}) => {
     const [minerFilters, setMinerFilters] = useState(defaultMiner['select']?.filters || []);
     const [referenceFilters, setReferenceFilters] = useState(defaultMiner['select_reference']?.filters || []);
-    const [minerStrategy, setMinerStrategy] = useState(defaultMiner['strategy']?.strategy || minerStrategyOptions[0].value);
+    const [minerStrategy, setMinerStrategy] = useState(defaultMiner['strategy'] || minerStrategyOptions[0].value);
 
     return (
         <Modal
@@ -49,7 +49,7 @@ const MinerModal = ({isOpen, onClose, onMinerSaved, defaultMiner = {}}) => {
             <LoadingForm style={{minWidth: 900}} onSubmit={async (e, values) => {
                 e.preventDefault();
 
-                if (!defaultMiner['_id'] || window.confirm('Changing the miner configuration will delete the current results. Do you really want to continue?')) {
+                if (!defaultMiner['_id'] || window.confirm('Changing the miner configuration will reset the miner and delete the results. Do you really want to continue?')) {
                     const miner = await baseJSONClient.post('/api/tasks/miners', {
                         ...defaultMiner,
                         ...values,

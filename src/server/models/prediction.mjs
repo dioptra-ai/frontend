@@ -8,27 +8,44 @@ class Prediction extends SelectableModel {
         return 'predictions';
     }
 
-    static async selectDistinctModelNames({organizationId, datapointFilters, desc, limit, offset, datasetId}) {
+    static async selectDistinctModelNames({organizationId, datapointFilters, filters, desc, limit, offset, datasetId}) {
         let safeSelectQuery = null;
 
-        if (datasetId) {
-            safeSelectQuery = await Datapoint.getSafeSelectQueryWithDatasetId({organizationId, selectColumns: ['id'], filters: datapointFilters, datasetId});
+        if (datasetId || datapointFilters) {
+            if (datasetId) {
+                safeSelectQuery = await Datapoint.getSafeSelectQueryWithDatasetId({organizationId, selectColumns: ['id'], filters: datapointFilters, datasetId});
+            } else {
+                safeSelectQuery = Datapoint.getSafeSelectQuery({organizationId, selectColumns: ['id'], filters: datapointFilters});
+            }
+
+            const {rows} = await postgresClient.query(
+                `SELECT DISTINCT model_name
+                    FROM predictions
+                    WHERE organization_id = $1 AND datapoint IN (
+                        SELECT id FROM (${safeSelectQuery}) AS subquery
+                    )
+                    ORDER BY model_name ${desc ? 'DESC' : 'ASC'}
+                    LIMIT $2 OFFSET $3`,
+                [organizationId, limit, offset]
+            );
+
+            return rows.map((row) => row['model_name']);
         } else {
-            safeSelectQuery = Datapoint.getSafeSelectQuery({organizationId, selectColumns: ['id'], filters: datapointFilters});
+            safeSelectQuery = Prediction.getSafeSelectQuery({organizationId, selectColumns: ['id'], filters});
+
+            const {rows} = await postgresClient.query(
+                `SELECT DISTINCT model_name
+                    FROM predictions
+                    WHERE organization_id = $1 AND id IN (
+                        SELECT id FROM (${safeSelectQuery}) AS subquery
+                    )
+                    ORDER BY model_name ${desc ? 'DESC' : 'ASC'}
+                    LIMIT $2 OFFSET $3`,
+                [organizationId, limit, offset]
+            );
+
+            return rows.map((row) => row['model_name']);
         }
-
-        const {rows} = await postgresClient.query(
-            `SELECT DISTINCT model_name
-                FROM predictions
-                WHERE organization_id = $1 AND datapoint IN (
-                    SELECT id FROM (${safeSelectQuery}) AS subquery
-                )
-                ORDER BY model_name ${desc ? 'DESC' : 'ASC'}
-                LIMIT $2 OFFSET $3`,
-            [organizationId, limit, offset]
-        );
-
-        return rows.map((row) => row['model_name']);
     }
 
     static async findByDatapointIds(organizationId, datapointIds) {

@@ -104,15 +104,8 @@ const DataLakeDistributions = ({filters, datasetId, modelNames}) => {
                             }, {memoized: true});
 
                             return Promise.all(modelNames.map((modelName) => baseJSONClient.post('/api/metrics/distribution/entropy', {
-                                filters: [{
-                                    left: 'datapoint',
-                                    op: 'in',
-                                    right: datapoints.map((datapoint) => datapoint.id)
-                                }, {
-                                    left: 'model_name',
-                                    op: '=',
-                                    right: modelName
-                                }]
+                                datapoint_ids: datapoints.map((datapoint) => datapoint.id),
+                                model_name: modelName
                             }, {memoized: true})));
                         }}
                         refetchOnChanged={[filters, datasetId, modelNames]}

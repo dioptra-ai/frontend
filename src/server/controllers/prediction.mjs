@@ -35,10 +35,12 @@ PredictionsRouter.post('/select', async (req, res, next) => {
 });
 
 PredictionsRouter.post('/select-distinct-model-names', async (req, res, next) => {
+
     try {
         const predictions = await Prediction.selectDistinctModelNames({
             organizationId: req.user.requestOrganizationId,
             datapointFilters: req.body.datapointFilters,
+            filters: req.body.filters,
             datasetId: req.body.datasetId,
             limit: req.body.limit,
             offset: req.body.offset

@@ -25,12 +25,14 @@ const Miner = () => {
         });
         setLastRequestedRefresh(Date.now());
     };
-    const handleResetMiner = async () => {
-        await baseJSONClient('/api/tasks/miner/reset', {
-            method: 'post',
-            body: {miner_id: minerId}
-        });
-        setLastRequestedRefresh(Date.now());
+    const handleResetMiner = async (confirmed) => {
+        if (confirmed || window.confirm('Do you really want to reset this miner?\nThis will delete the results.')) {
+            await baseJSONClient('/api/tasks/miner/reset', {
+                method: 'post',
+                body: {miner_id: minerId}
+            });
+            setLastRequestedRefresh(Date.now());
+        }
     };
     const handleDeleteMiner = async () => {
 
@@ -56,7 +58,7 @@ const Miner = () => {
                                 isOpen
                                 onMinerSaved={() => {
                                     setIsMinerModalOpen(false);
-                                    handleResetMiner();
+                                    handleResetMiner(true);
                                 }}
                                 onClose={() => setIsMinerModalOpen(false)}
                                 defaultMiner={miner}
@@ -68,7 +70,7 @@ const Miner = () => {
                             &nbsp;|&nbsp;
                             <a href='#' onClick={handleRunMiner}>Run</a>
                             &nbsp;|&nbsp;
-                            <a href='#' onClick={handleResetMiner}>Reset</a>
+                            <a href='#' onClick={() => handleResetMiner(false)}>Reset</a>
                             &nbsp;|&nbsp;
                             <a href='#' style={{color: 'red'}} onClick={handleDeleteMiner}>Delete</a>
                         </div>
