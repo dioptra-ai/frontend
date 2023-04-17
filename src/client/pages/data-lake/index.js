@@ -1,7 +1,7 @@
-import {useEffect} from 'react';
+import {useEffect, useState} from 'react';
 import {useHistory} from 'react-router-dom';
 import {ArrayParam, JsonParam, StringParam, useQueryParam, withDefault} from 'use-query-params';
-import {Col, Row} from 'react-bootstrap';
+import {Button, Col, Row} from 'react-bootstrap';
 
 import baseJSONClient from 'clients/base-json-client';
 import DatapointsViewer from 'components/datapoints-viewer';
@@ -12,6 +12,8 @@ import FilterInput from 'pages/common/filter-input';
 import {setupComponent} from 'helpers/component-helper';
 import Select from 'components/select';
 import Async from 'components/async';
+import ModalComponent from 'components/modal';
+import UploadData from 'components/upload-data';
 
 import DataLakeDistributions from './distributions';
 import ModelMetrics from './model-metrics';
@@ -24,6 +26,7 @@ const DataLake = () => {
     const [filters, setFilters] = useQueryParam('filters', JsonParamDefaultEmptyArray);
     const [datasetId, setDatasetId] = useQueryParam('datasetId', StringParam);
     const [modelNames, setModelNames] = useQueryParam('modelNames', ArrayParamDefaultEmpty);
+    const [showUploadDataModal, setShowUploadDataModal] = useState(false);
     const history = useHistory();
     const filtersWithModelNames = modelNames.length ? filters.concat([{
         left: 'predictions.model_name',
@@ -49,7 +52,16 @@ const DataLake = () => {
         <Menu>
             <TopBar hideTimePicker />
             <div className='text-dark p-3'>
-                <h4>Data Lake</h4>
+                <div className='d-flex justify-content-between align-items-center mb-2'>
+                    <h4 className='0'>Data Lake</h4>
+                    <Button
+                        onClick={() => setShowUploadDataModal(true)}
+                        variant='secondary' size='s' className='text-nowrap'
+                    >Upload Data</Button>
+                    <ModalComponent isOpen={showUploadDataModal} onClose={() => setShowUploadDataModal(false)} title='Upload Data'>
+                        <UploadData onDone={() => setShowUploadDataModal(false)} />
+                    </ModalComponent>
+                </div>
                 <Row className='g-2'>
                     <Col>
                         <FilterInput value={filters} onChange={setFilters} />

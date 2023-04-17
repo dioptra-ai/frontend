@@ -2,10 +2,26 @@ import fetch from 'node-fetch';
 import express from 'express';
 import mongoose from 'mongoose';
 import {DescribeExecutionCommand, SFNClient, paginateListExecutions} from '@aws-sdk/client-sfn';
+import md5 from 'md5';
+import {GetObjectCommand, PutObjectCommand, S3Client} from '@aws-sdk/client-s3';
+import {getSignedUrl} from '@aws-sdk/s3-request-presigner';
+import multer from 'multer';
 
 import {isAuthenticated} from '../middleware/authentication.mjs';
 
-const {INGESTION_ENDPOINT, AWS_INGESTION_STATE_MACHINE_ARN} = process.env;
+// Configure multer to handle multipart form data
+const upload = multer();
+
+const {
+    AWS_S3_CUSTOMER_BUCKET,
+    AWS_S3_CUSTOMER_BUCKET_REGION = 'us-east-2',
+    AWS_S3_CUSTOMER_UPLOAD_EXPIRATION_SECONDS = 3600,
+    ENVIRONMENT,
+    INGESTION_ENDPOINT,
+    AWS_INGESTION_STATE_MACHINE_ARN
+} = process.env;
+const s3Client = new S3Client({region: AWS_S3_CUSTOMER_BUCKET_REGION});
+
 const IngestionRouter = express.Router();
 
 IngestionRouter.all('*', isAuthenticated);
@@ -82,7 +98,46 @@ IngestionRouter.get('/executions', async (req, res, next) => {
     }
 });
 
-IngestionRouter.post('*', async (req, res, next) => {
+// TODO: use this to stream: https://github.com/anacronw/multer-s3
+IngestionRouter.post('/upload', upload.single('file'), async (req, res, next) => {
+    try {
+        const key = `${ENVIRONMENT}/${req.user.requestOrganizationId}/${md5(Math.random().toString())}.ndjson`;
+        const [putUrl, getUrl] = await Promise.all([
+            getSignedUrl(s3Client, new PutObjectCommand({
+                Bucket: AWS_S3_CUSTOMER_BUCKET,
+                Key: key
+            }), {
+                expiresIn: AWS_S3_CUSTOMER_UPLOAD_EXPIRATION_SECONDS
+            }),
+            getSignedUrl(s3Client, new GetObjectCommand({
+                Bucket: AWS_S3_CUSTOMER_BUCKET,
+                Key: key
+            }), {
+                expiresIn: AWS_S3_CUSTOMER_UPLOAD_EXPIRATION_SECONDS
+            })
+        ]);
+
+        const response = await fetch(putUrl, {
+            method: 'put',
+            headers: {
+                'content-type': req.file.mimetype,
+                'content-length': req.file.size
+            },
+            body: req.file.buffer
+        });
+
+        if (!response.ok) {
+            console.error(await response.text());
+            throw new Error(response.statusText);
+        }
+
+        res.end(getUrl);
+    } catch (e) {
+        next(e);
+    }
+});
+
+IngestionRouter.post('/ingest', async (req, res, next) => {
     try {
         const firstKey = await mongoose.model('ApiKey').findOne({
             user: req.user._id,
@@ -94,7 +149,7 @@ IngestionRouter.post('*', async (req, res, next) => {
             throw new Error('At least one API key is needed to ingest data, but none was found for this user.');
         }
 
-        const ingestionResponse = await fetch(`${INGESTION_ENDPOINT}${req.url}`, {
+        const ingestionResponse = await fetch(INGESTION_ENDPOINT, {
             headers: {
                 'content-type': 'application/json;charset=UTF-8',
                 'x-api-key': firstKey.awsApiKey
