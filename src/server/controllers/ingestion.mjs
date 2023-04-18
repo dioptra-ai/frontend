@@ -110,25 +110,28 @@ IngestionRouter.post('/upload', (req, res, next) => {
                 return;
             }
 
-            console.log('~/dioptra/services/frontend/src/server/controllers/ingestion.mjs:112 > ', files);
+            try {
+                const file = files['file'][0];
+                const fileStream = fs.createReadStream(file.path);
 
-            const file = files['file'][0];
-            const fileStream = fs.createReadStream(file.path);
+                await s3Client.send(new PutObjectCommand({
+                    Bucket: AWS_S3_CUSTOMER_BUCKET,
+                    Key: key,
+                    Body: fileStream,
+                    ContentType: 'application/json'
+                }));
 
-            await s3Client.send(new PutObjectCommand({
-                Bucket: AWS_S3_CUSTOMER_BUCKET,
-                Key: key,
-                Body: fileStream,
-                ContentType: 'application/json'
-            }));
-
-            res.end(await getSignedUrl(s3Client, new GetObjectCommand({
-                Bucket: AWS_S3_CUSTOMER_BUCKET,
-                Key: key
-            }), {
-                expiresIn: AWS_S3_CUSTOMER_UPLOAD_EXPIRATION_SECONDS
-            }));
+                res.end(await getSignedUrl(s3Client, new GetObjectCommand({
+                    Bucket: AWS_S3_CUSTOMER_BUCKET,
+                    Key: key
+                }), {
+                    expiresIn: AWS_S3_CUSTOMER_UPLOAD_EXPIRATION_SECONDS
+                }));
+            } catch (e) {
+                next(e);
+            }
         });
+
     } catch (e) {
         console.error('Error while uploading file: ', e);
         next(e);

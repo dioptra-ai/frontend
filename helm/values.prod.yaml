@@ -9,5 +9,5 @@ postgres:
   secret:
     name: "dioptra-postgres"
     key: "password"
-ingestionEndpoint: https://api.dioptra.ai/
+ingestionEndpoint: https://api.dioptra.ai/events
 awsIngestionStateMachineArn: arn:aws:states:us-east-2:641017132295:stateMachine:IngestionStateMachine-sfGkLYnxTHfT
