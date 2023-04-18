@@ -1,16 +1,16 @@
 import fetch from 'node-fetch';
 import express from 'express';
+import multiparty from 'multiparty';
 import mongoose from 'mongoose';
 import {DescribeExecutionCommand, SFNClient, paginateListExecutions} from '@aws-sdk/client-sfn';
-import md5 from 'md5';
-import {GetObjectCommand, PutObjectCommand, S3Client} from '@aws-sdk/client-s3';
 import {getSignedUrl} from '@aws-sdk/s3-request-presigner';
-import multer from 'multer';
+import md5 from 'md5';
+import {
+    AbortMultipartUploadCommand, CompleteMultipartUploadCommand,
+    CreateMultipartUploadCommand, GetObjectCommand, S3Client, UploadPartCommand
+} from '@aws-sdk/client-s3';
 
 import {isAuthenticated} from '../middleware/authentication.mjs';
-
-// Configure multer to handle multipart form data
-const upload = multer();
 
 const {
     AWS_S3_CUSTOMER_BUCKET,
@@ -98,40 +98,81 @@ IngestionRouter.get('/executions', async (req, res, next) => {
     }
 });
 
-// TODO: use this to stream: https://github.com/anacronw/multer-s3
-IngestionRouter.post('/upload', upload.single('file'), async (req, res, next) => {
+IngestionRouter.post('/upload', async (req, res, next) => {
     try {
         const key = `${ENVIRONMENT}/${req.user.requestOrganizationId}/${md5(Math.random().toString())}.ndjson`;
-        const [putUrl, getUrl] = await Promise.all([
-            getSignedUrl(s3Client, new PutObjectCommand({
-                Bucket: AWS_S3_CUSTOMER_BUCKET,
-                Key: key
-            }), {
-                expiresIn: AWS_S3_CUSTOMER_UPLOAD_EXPIRATION_SECONDS
-            }),
-            getSignedUrl(s3Client, new GetObjectCommand({
-                Bucket: AWS_S3_CUSTOMER_BUCKET,
-                Key: key
-            }), {
-                expiresIn: AWS_S3_CUSTOMER_UPLOAD_EXPIRATION_SECONDS
-            })
-        ]);
+        const multipartUpload = await s3Client.send(new CreateMultipartUploadCommand({
+            Bucket: AWS_S3_CUSTOMER_BUCKET,
+            Key: key
+        }));
+        const uploadPromises = [];
+        const form = new multiparty.Form();
 
-        const response = await fetch(putUrl, {
-            method: 'put',
-            headers: {
-                'content-type': req.file.mimetype,
-                'content-length': req.file.size
-            },
-            body: req.file.buffer
+        form.on('part', (part) => {
+            if (!part.filename) {
+                form.handlePart(part);
+            } else {
+                const upload = s3Client.send(new UploadPartCommand({
+                    Bucket: AWS_S3_CUSTOMER_BUCKET,
+                    Key: key,
+                    PartNumber: uploadPromises.length + 1,
+                    UploadId: multipartUpload.UploadId,
+                    Body: part,
+                    ContentLength: part.byteCount
+                }));
+
+                part.on('error', (e) => {
+                    const abort = s3Client.send(new AbortMultipartUploadCommand({
+                        Bucket: AWS_S3_CUSTOMER_BUCKET,
+                        Key: key,
+                        UploadId: multipartUpload.UploadId
+                    }));
+
+                    next(new Error(`Error while uploading file: ${e.message}. Aborted upload: ${abort}.`));
+                });
+
+                uploadPromises.push(upload);
+            }
         });
 
-        if (!response.ok) {
-            console.error(await response.text());
-            throw new Error(response.statusText);
-        }
+        form.on('close', async () => {
+            try {
+                const uploadResults = await Promise.all(uploadPromises);
 
-        res.end(getUrl);
+                await s3Client.send(new CompleteMultipartUploadCommand({
+                    Bucket: AWS_S3_CUSTOMER_BUCKET,
+                    Key: key,
+                    UploadId: multipartUpload.UploadId,
+                    MultipartUpload: {
+                        Parts: uploadResults.map((r, i) => ({
+                            ETag: r.ETag,
+                            PartNumber: i + 1
+                        }))
+                    }
+                }));
+
+                res.end(await getSignedUrl(s3Client, new GetObjectCommand({
+                    Bucket: AWS_S3_CUSTOMER_BUCKET,
+                    Key: key
+                }), {
+                    expiresIn: AWS_S3_CUSTOMER_UPLOAD_EXPIRATION_SECONDS
+                }));
+            } catch (e) {
+                next(e);
+            }
+        });
+
+        form.on('error', (e) => {
+            const abort = s3Client.send(new AbortMultipartUploadCommand({
+                Bucket: AWS_S3_CUSTOMER_BUCKET,
+                Key: key,
+                UploadId: multipartUpload.UploadId
+            }));
+
+            next(new Error(`Error while uploading file: ${e.message}. Aborted upload: ${abort}.`));
+        });
+
+        form.parse(req);
     } catch (e) {
         next(e);
     }
