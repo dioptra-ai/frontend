@@ -112,12 +112,11 @@ IngestionRouter.post('/upload', (req, res, next) => {
 
             try {
                 const file = files['file'][0];
-                const fileStream = fs.createReadStream(file.path);
 
                 await s3Client.send(new PutObjectCommand({
                     Bucket: AWS_S3_CUSTOMER_BUCKET,
                     Key: key,
-                    Body: fileStream,
+                    Body: fs.createReadStream(file.path),
                     ContentType: 'application/json'
                 }));
 

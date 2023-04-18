@@ -1,4 +1,5 @@
 import React from 'react';
+import {useHistory} from 'react-router-dom';
 import baseJSONClient from 'clients/base-json-client';
 import PropTypes from 'prop-types';
 import {Button, Col, Form, Row} from 'react-bootstrap';
@@ -6,6 +7,7 @@ import Select from './select';
 import Spinner from 'components/spinner';
 
 const UploadData = ({onDone}) => {
+    const history = useHistory();
     const [isDataSourceLocal, setIsDataSourceLocal] = React.useState(true);
     const [isLoading, setIsLoading] = React.useState(false);
     const handleSubmit = async (event) => {
@@ -32,7 +34,7 @@ const UploadData = ({onDone}) => {
                 url = formData.get('url');
             }
 
-            await baseJSONClient('/api/ingestion/ingest', {
+            const ingestResponse = await baseJSONClient('/api/ingestion/ingest', {
                 method: 'POST',
                 body: {
                     urls: [url]
@@ -41,7 +43,7 @@ const UploadData = ({onDone}) => {
             });
 
             onDone();
-            alert('Data upload submitted. Reload your browser to see the new data.');
+            history.push(`/settings/uploads/${ingestResponse['id'] || ''}`);
         } catch (e) {
             alert(e.message);
         } finally {
