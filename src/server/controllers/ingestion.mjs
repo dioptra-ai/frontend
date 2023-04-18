@@ -101,11 +101,10 @@ IngestionRouter.get('/executions', async (req, res, next) => {
 IngestionRouter.post('/upload', async (req, res, next) => {
     try {
         const key = `${ENVIRONMENT}/${req.user.requestOrganizationId}/${md5(Math.random().toString())}.ndjson`;
-
-        console.log(`Uploading file to ${key}...`);
         const multipartUpload = await s3Client.send(new CreateMultipartUploadCommand({
             Bucket: AWS_S3_CUSTOMER_BUCKET,
-            Key: key
+            Key: key,
+            ContentType: 'application/x-ndjson'
         }));
         const uploadPromises = [];
         const form = new multiparty.Form();
