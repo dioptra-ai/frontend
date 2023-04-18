@@ -101,6 +101,8 @@ IngestionRouter.get('/executions', async (req, res, next) => {
 IngestionRouter.post('/upload', async (req, res, next) => {
     try {
         const key = `${ENVIRONMENT}/${req.user.requestOrganizationId}/${md5(Math.random().toString())}.ndjson`;
+
+        console.log(`Uploading file to ${key}...`);
         const multipartUpload = await s3Client.send(new CreateMultipartUploadCommand({
             Bucket: AWS_S3_CUSTOMER_BUCKET,
             Key: key
@@ -174,6 +176,7 @@ IngestionRouter.post('/upload', async (req, res, next) => {
 
         form.parse(req);
     } catch (e) {
+        console.error('Error while uploading file: ', e);
         next(e);
     }
 });
