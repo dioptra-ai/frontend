@@ -96,7 +96,7 @@ const UploadData = ({onDone}) => {
             </Row>
             <Row className='mt-3'>
                 <Col>
-                    <Button disabled={isLoading} className='btn btn-primary text-white w-100 px-5 py-3' type='submit'>Submit</Button>
+                    <Button disabled={isLoading} className='btn btn-primary text-white w-100 p-2' type='submit'>Submit</Button>
                 </Col>
             </Row>
             {
