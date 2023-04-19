@@ -20,6 +20,7 @@ import {getHexColor} from 'helpers/color-helper';
 import {mod} from 'helpers/math';
 
 import SegmentationMask from './segmentation-mask';
+import Polyline from './polyline';
 
 const DatapointCard = ({datapoint = {}, onClick, zoomable, showDetails, maxHeight}) => {
     const {predictions = [], groundtruths = [], type, metadata = {}} = datapoint;
@@ -134,16 +135,23 @@ const DatapointCard = ({datapoint = {}, onClick, zoomable, showDetails, maxHeigh
 
                                                         return (
                                                             <>
-                                                                <div key={`pred-${i}-${j}`} className='position-absolute h-100 w-100'>
-                                                                    <SegmentationMask
-                                                                        encodedMask={bbox['encoded_resized_segmentation_mask']}
-                                                                        classNames={[null, bbox['class_name']]}
-                                                                        top={bbox['top']}
-                                                                        left={bbox['left']}
-                                                                        height={bbox['height']}
-                                                                        width={bbox['width']}
-                                                                    />
-                                                                </div>
+                                                                {
+                                                                    bbox['encoded_resized_segmentation_mask'] ? (
+                                                                        <div key={`pred-${i}-${j}`} className='position-absolute h-100 w-100'>
+                                                                            <SegmentationMask
+                                                                                encodedMask={bbox['encoded_resized_segmentation_mask']}
+                                                                                classNames={[null, bbox['class_name']]}
+                                                                            />
+                                                                        </div>
+                                                                    ) : null
+                                                                }
+                                                                {
+                                                                    bbox['coco_polygon'] ? (
+                                                                        <div key={`gt-${i}-${j}`} className='position-absolute h-100 w-100'>
+                                                                            <Polyline closed width={imageW} height={imageH} cocoCoordinates={bbox['coco_polygon']} className={bbox['class_name']} />
+                                                                        </div>
+                                                                    ) : null
+                                                                }
                                                                 <div key={`pred-bbox-${i}-${j}`}
                                                                     className='position-absolute hover-fade'
                                                                     style={{
@@ -207,16 +215,23 @@ const DatapointCard = ({datapoint = {}, onClick, zoomable, showDetails, maxHeigh
 
                                                         return (
                                                             <>
-                                                                <div key={`gt-${i}-${j}`} className='position-absolute h-100 w-100'>
-                                                                    <SegmentationMask
-                                                                        encodedMask={bbox['encoded_resized_segmentation_mask']}
-                                                                        classNames={[null, bbox['class_name']]}
-                                                                        top={bbox['top']}
-                                                                        left={bbox['left']}
-                                                                        height={bbox['height']}
-                                                                        width={bbox['width']}
-                                                                    />
-                                                                </div>
+                                                                {
+                                                                    bbox['encoded_resized_segmentation_mask'] ? (
+                                                                        <div key={`gt-${i}-${j}`} className='position-absolute h-100 w-100'>
+                                                                            <SegmentationMask
+                                                                                encodedMask={bbox['encoded_resized_segmentation_mask']}
+                                                                                classNames={[null, bbox['class_name']]}
+                                                                            />
+                                                                        </div>
+                                                                    ) : null
+                                                                }
+                                                                {
+                                                                    bbox['coco_polygon'] ? (
+                                                                        <div key={`gt-${i}-${j}`} className='position-absolute h-100 w-100'>
+                                                                            <Polyline closed width={imageW} height={imageH} cocoCoordinates={bbox['coco_polygon']} className={bbox['class_name']} />
+                                                                        </div>
+                                                                    ) : null
+                                                                }
                                                                 <div key={`gt-bbox-${i}-${j}`}
                                                                     className='position-absolute'
                                                                     style={{
@@ -388,7 +403,8 @@ const DatapointsPage = ({datapoints, showGroundtruthsInModal, modelNames, select
                                         'encoded_resized_segmentation_class_mask',
                                         'class_name', 'class_names',
                                         'confidence', 'confidences',
-                                        'bboxes.class_name', 'bboxes.confidence', 'bboxes.encoded_resized_segmentation_mask',
+                                        'bboxes.class_name', 'bboxes.confidence',
+                                        'bboxes.encoded_resized_segmentation_mask', 'bboxes.coco_polygon',
                                         'bboxes.top', 'bboxes.left', 'bboxes.width', 'bboxes.height'
                                     ]
                                 }) : Promise.resolve(null),
@@ -402,7 +418,8 @@ const DatapointsPage = ({datapoints, showGroundtruthsInModal, modelNames, select
                                         'created_at', 'task_type',
                                         'encoded_resized_segmentation_class_mask',
                                         'class_name', 'class_names',
-                                        'bboxes.class_name', 'bboxes.encoded_resized_segmentation_mask',
+                                        'bboxes.class_name',
+                                        'bboxes.encoded_resized_segmentation_mask', 'bboxes.coco_polygon',
                                         'bboxes.top', 'bboxes.left', 'bboxes.width', 'bboxes.height'
                                     ]
                                 }) : Promise.resolve(null)
