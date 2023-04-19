@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import {getHexColor} from 'helpers/color-helper';
 import Canvas from 'components/canvas';
 
-const Polyline = ({cocoCoordinates, className, width, height, closed = true, lineWidth = 2}) => {
+const Polyline = ({cocoCoordinates, className, width, height, closed = true, lineWidth = 1}) => {
 
     return (
         <Canvas style={{width: '100%', height: '100%'}}

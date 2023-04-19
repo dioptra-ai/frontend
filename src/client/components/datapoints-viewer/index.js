@@ -4,7 +4,6 @@ import {Button} from 'react-bootstrap';
 import {TransformComponent, TransformWrapper} from 'react-zoom-pan-pinch';
 import {TbZoomCancel, TbZoomIn, TbZoomOut} from 'react-icons/tb';
 import {GrNext, GrPrevious} from 'react-icons/gr';
-import {MdOutlineVerifiedUser} from 'react-icons/md';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import Form from 'react-bootstrap/Form';
@@ -14,20 +13,16 @@ import Async from 'components/async';
 import Modal from 'components/modal';
 import {RenderDatapoint} from 'components/preview-details';
 import SignedImage from 'components/signed-image';
-import Canvas from 'components/canvas';
 import baseJSONClient from 'clients/base-json-client';
-import {getHexColor} from 'helpers/color-helper';
 import {mod} from 'helpers/math';
 
+import BBox from './bbox';
 import SegmentationMask from './segmentation-mask';
-import Polyline from './polyline';
 
 const DatapointCard = ({datapoint = {}, onClick, zoomable, showDetails, maxHeight}) => {
     const {predictions = [], groundtruths = [], type, metadata = {}} = datapoint;
-    const [viewportHeight, setViewportHeight] = useState(0);
     const [viewportLoaded, setViewportLoaded] = useState(false);
-    const handleViewportLoad = (e) => {
-        setViewportHeight(e.target.offsetHeight);
+    const handleViewportLoad = () => {
         setViewportLoaded(true);
     };
     const [showHeatMap, setShowHeatMap] = useState(false);
@@ -57,7 +52,6 @@ const DatapointCard = ({datapoint = {}, onClick, zoomable, showDetails, maxHeigh
     case 'IMAGE': {
         const imageH = metadata.height;
         const imageW = metadata.width;
-        const scale = viewportHeight / imageH;
         const someHeatMap = predictions.some((p) => p.bboxes?.some((b) => b['feature_heatmap']));
 
         return (
@@ -128,73 +122,7 @@ const DatapointCard = ({datapoint = {}, onClick, zoomable, showDetails, maxHeigh
                                                     ) : null
                                                 }
                                                 {
-                                                    // Bounding Boxes.
-                                                    p.bboxes?.map((bbox, j) => {
-                                                        const heatmap = bbox['feature_heatmap'];
-                                                        const heatMapMax = heatmap && Math.max(...heatmap.flat());
-
-                                                        return (
-                                                            <>
-                                                                {
-                                                                    bbox['encoded_resized_segmentation_mask'] ? (
-                                                                        <div key={`pred-${i}-${j}`} className='position-absolute h-100 w-100'>
-                                                                            <SegmentationMask
-                                                                                encodedMask={bbox['encoded_resized_segmentation_mask']}
-                                                                                classNames={[null, bbox['class_name']]}
-                                                                            />
-                                                                        </div>
-                                                                    ) : null
-                                                                }
-                                                                {
-                                                                    bbox['coco_polygon'] ? (
-                                                                        <div key={`gt-${i}-${j}`} className='position-absolute h-100 w-100'>
-                                                                            <Polyline closed width={imageW} height={imageH} cocoCoordinates={bbox['coco_polygon']} className={bbox['class_name']} />
-                                                                        </div>
-                                                                    ) : null
-                                                                }
-                                                                <div key={`pred-bbox-${i}-${j}`}
-                                                                    className='position-absolute hover-fade'
-                                                                    style={{
-                                                                        height: bbox['height'] * scale,
-                                                                        width: bbox['width'] * scale,
-                                                                        top: bbox['top'] * scale,
-                                                                        left: bbox['left'] * scale,
-                                                                        border: '1px dashed',
-                                                                        borderColor: getHexColor(bbox['class_name']),
-                                                                        boxSizing: 'content-box'
-                                                                    }}
-                                                                >
-                                                                    <span className='fs-7 position-absolute px-1 text-nowrap' style={{
-                                                                        backgroundColor: getHexColor(bbox['class_name']),
-                                                                        bottom: bbox['top'] > imageH - bbox['top'] - bbox['height'] ? '100%' : 'unset',
-                                                                        top: bbox['top'] > imageH - bbox['top'] - bbox['height'] ? 'unset' : '100%',
-                                                                        left: bbox['left'] < imageW - bbox['left'] - bbox['width'] ? '100%' : 'unset',
-                                                                        right: bbox['left'] < imageW - bbox['left'] - bbox['width'] ? 'unset' : '100%'
-                                                                    }}
-                                                                    >{bbox['class_name']}</span>
-                                                                    {
-                                                                        heatmap && showHeatMap ? (
-
-                                                                            <Canvas draw={(ctx) => {
-                                                                                const numRows = heatmap.length;
-                                                                                const numCols = heatmap[0].length;
-
-                                                                                ctx.canvas.width = numCols;
-                                                                                ctx.canvas.height = numRows;
-
-                                                                                heatmap.forEach((row, i) => {
-                                                                                    row.forEach((col, j) => {
-                                                                                        ctx.fillStyle = `hsla(${(1 - col / heatMapMax) * 240}, 100%, 50%, 0.3)`;
-                                                                                        ctx.fillRect(j, i, 1, 1);
-                                                                                    });
-                                                                                });
-                                                                            }} />
-                                                                        ) : null
-                                                                    }
-                                                                </div>
-                                                            </>
-                                                        );
-                                                    })
+                                                    p.bboxes?.map((bbox, j) => <BBox imageWidth={imageW} imageHeight={imageH} bbox={bbox} key={j} showHeatMap={showHeatMap} />)
                                                 }
                                             </>
                                         )) : null
@@ -210,52 +138,7 @@ const DatapointCard = ({datapoint = {}, onClick, zoomable, showDetails, maxHeigh
                                                     ) : null
                                                 }
                                                 {
-                                                    // Instance Segmentation groundtruths bounding boxes.
-                                                    g.bboxes?.map((bbox, j) => {
-
-                                                        return (
-                                                            <>
-                                                                {
-                                                                    bbox['encoded_resized_segmentation_mask'] ? (
-                                                                        <div key={`gt-${i}-${j}`} className='position-absolute h-100 w-100'>
-                                                                            <SegmentationMask
-                                                                                encodedMask={bbox['encoded_resized_segmentation_mask']}
-                                                                                classNames={[null, bbox['class_name']]}
-                                                                            />
-                                                                        </div>
-                                                                    ) : null
-                                                                }
-                                                                {
-                                                                    bbox['coco_polygon'] ? (
-                                                                        <div key={`gt-${i}-${j}`} className='position-absolute h-100 w-100'>
-                                                                            <Polyline closed width={imageW} height={imageH} cocoCoordinates={bbox['coco_polygon']} className={bbox['class_name']} />
-                                                                        </div>
-                                                                    ) : null
-                                                                }
-                                                                <div key={`gt-bbox-${i}-${j}`}
-                                                                    className='position-absolute'
-                                                                    style={{
-                                                                        height: bbox['height'] * scale,
-                                                                        width: bbox['width'] * scale,
-                                                                        top: bbox['top'] * scale,
-                                                                        left: bbox['left'] * scale,
-                                                                        border: '1px dashed',
-                                                                        borderColor: getHexColor(bbox['class_name']),
-                                                                        boxSizing: 'content-box'
-                                                                    }}
-                                                                >
-                                                                    <span className='fs-7 position-absolute px-1 text-nowrap' style={{
-                                                                        backgroundColor: getHexColor(bbox['class_name']),
-                                                                        bottom: bbox['top'] > imageH - bbox['top'] - bbox['height'] ? '100%' : 'unset',
-                                                                        top: bbox['top'] > imageH - bbox['top'] - bbox['height'] ? 'unset' : '100%',
-                                                                        left: bbox['left'] < imageW - bbox['left'] - bbox['width'] ? '100%' : 'unset',
-                                                                        right: bbox['left'] < imageW - bbox['left'] - bbox['width'] ? 'unset' : '100%'
-                                                                    }}
-                                                                    ><MdOutlineVerifiedUser />{bbox['class_name']}</span>
-                                                                </div>
-                                                            </>
-                                                        );
-                                                    })
+                                                    g.bboxes?.map((bbox, j) => <BBox imageWidth={imageW} imageHeight={imageH} bbox={bbox} key={j} showHeatMap={showHeatMap}/>)
                                                 }
                                             </>
                                         )) : null
