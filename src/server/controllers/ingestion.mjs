@@ -120,12 +120,14 @@ IngestionRouter.post('/upload', (req, res, next) => {
                     ContentType: 'application/json'
                 }));
 
-                res.end(await getSignedUrl(s3Client, new GetObjectCommand({
-                    Bucket: AWS_S3_CUSTOMER_BUCKET,
-                    Key: key
-                }), {
-                    expiresIn: AWS_S3_CUSTOMER_UPLOAD_EXPIRATION_SECONDS
-                }));
+                res.json({
+                    'url': await getSignedUrl(s3Client, new GetObjectCommand({
+                        Bucket: AWS_S3_CUSTOMER_BUCKET,
+                        Key: key
+                    }), {
+                        expiresIn: AWS_S3_CUSTOMER_UPLOAD_EXPIRATION_SECONDS
+                    })
+                });
             } catch (e) {
                 next(e);
             }

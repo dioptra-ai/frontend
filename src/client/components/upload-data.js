@@ -29,7 +29,7 @@ const UploadData = ({onDone}) => {
                     throw new Error(response.statusText);
                 }
 
-                url = await response.text();
+                url = (await response.json())['url'];
             } else {
                 url = formData.get('url');
             }
