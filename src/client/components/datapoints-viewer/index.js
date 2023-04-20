@@ -18,6 +18,7 @@ import {mod} from 'helpers/math';
 
 import BBox from './bbox';
 import SegmentationMask from './segmentation-mask';
+import Lane from './lane';
 
 const DatapointCard = ({datapoint = {}, onClick, zoomable, showDetails, maxHeight}) => {
     const {predictions = [], groundtruths = [], type, metadata = {}} = datapoint;
@@ -124,6 +125,9 @@ const DatapointCard = ({datapoint = {}, onClick, zoomable, showDetails, maxHeigh
                                                 {
                                                     p.bboxes?.map((bbox, j) => <BBox imageWidth={imageW} imageHeight={imageH} bbox={bbox} key={j} showHeatMap={showHeatMap} />)
                                                 }
+                                                {
+                                                    p.lanes?.map((lane, j) => <Lane imageWidth={imageW} imageHeight={imageH} lane={lane} key={j} />)
+                                                }
                                             </>
                                         )) : null
                                     }
@@ -139,6 +143,9 @@ const DatapointCard = ({datapoint = {}, onClick, zoomable, showDetails, maxHeigh
                                                 }
                                                 {
                                                     g.bboxes?.map((bbox, j) => <BBox imageWidth={imageW} imageHeight={imageH} bbox={bbox} key={j} showHeatMap={showHeatMap}/>)
+                                                }
+                                                {
+                                                    g.lanes?.map((lane, j) => <Lane imageWidth={imageW} imageHeight={imageH} lane={lane} key={j} />)
                                                 }
                                             </>
                                         )) : null
@@ -288,7 +295,8 @@ const DatapointsPage = ({datapoints, showGroundtruthsInModal, modelNames, select
                                         'confidence', 'confidences',
                                         'bboxes.class_name', 'bboxes.confidence',
                                         'bboxes.encoded_resized_segmentation_mask', 'bboxes.coco_polygon',
-                                        'bboxes.top', 'bboxes.left', 'bboxes.width', 'bboxes.height'
+                                        'bboxes.top', 'bboxes.left', 'bboxes.width', 'bboxes.height',
+                                        'lanes.coco_polyline', 'lanes.confidence'
                                     ]
                                 }) : Promise.resolve(null),
                                 showGroundtruthsInModal ? baseJSONClient.post('/api/groundtruths/select', {
@@ -303,7 +311,8 @@ const DatapointsPage = ({datapoints, showGroundtruthsInModal, modelNames, select
                                         'class_name', 'class_names',
                                         'bboxes.class_name',
                                         'bboxes.encoded_resized_segmentation_mask', 'bboxes.coco_polygon',
-                                        'bboxes.top', 'bboxes.left', 'bboxes.width', 'bboxes.height'
+                                        'bboxes.top', 'bboxes.left', 'bboxes.width', 'bboxes.height',
+                                        'lanes.coco_polyline'
                                     ]
                                 }) : Promise.resolve(null)
                             ])}

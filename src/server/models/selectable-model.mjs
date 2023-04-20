@@ -9,7 +9,7 @@ const SAFE_GLOBAL_IDENTIFIERS = new Set(['RANDOM()']);
 const isSafeIdentifier = (identifier) => SAFE_IDENTIFIERS.has(identifier.toUpperCase());
 const isSafeGlobalIdentifier = (identifier) => SAFE_GLOBAL_IDENTIFIERS.has(identifier.toUpperCase());
 const JSONB_ROOT_COLUMNS = new Set(['metadata', 'metrics']);
-const ALL_TABLE_NAMES = new Set(['datapoints', 'predictions', 'groundtruths', 'feature_vectors', 'tags', 'bboxes']);
+const ALL_TABLE_NAMES = new Set(['datapoints', 'predictions', 'groundtruths', 'feature_vectors', 'tags', 'bboxes', 'lanes']);
 
 class SelectableModel {
     static getTableName() {
