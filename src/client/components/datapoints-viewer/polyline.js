@@ -1,8 +1,9 @@
 import PropTypes from 'prop-types';
-import {getHexColor} from 'helpers/color-helper';
+import Color from 'color';
+
 import Canvas from 'components/canvas';
 
-const Polyline = ({cocoCoordinates, className, width, height, closed = false, lineWidth = 1}) => {
+const Polyline = ({cocoCoordinates, color, width, height, closed = false, lineWidth = 1}) => {
 
     return (
         <Canvas style={{width: '100%', height: '100%'}}
@@ -25,11 +26,11 @@ const Polyline = ({cocoCoordinates, className, width, height, closed = false, li
                 });
                 if (closed) {
                     ctx.closePath();
-                    ctx.fillStyle = getHexColor(className, 0.5);
+                    ctx.fillStyle = Color(color).alpha(0.5).string();
                     ctx.fill();
                 }
                 ctx.lineWidth = lineWidth;
-                ctx.strokeStyle = getHexColor(className);
+                ctx.strokeStyle = color;
                 ctx.stroke();
             }}
         />
@@ -38,7 +39,7 @@ const Polyline = ({cocoCoordinates, className, width, height, closed = false, li
 
 Polyline.propTypes = {
     cocoCoordinates: PropTypes.arrayOf(PropTypes.number).isRequired,
-    className: PropTypes.string.isRequired,
+    color: PropTypes.string.isRequired,
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
     closed: PropTypes.bool,

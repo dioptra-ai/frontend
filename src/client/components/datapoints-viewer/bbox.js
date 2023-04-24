@@ -29,7 +29,7 @@ const BBox = ({bbox, imageHeight, imageWidth, showHeatMap}) => {
             {
                 bbox['coco_polygon'] ? (
                     <div className='position-absolute h-100 w-100'>
-                        <Polyline closed width={imageWidth} height={imageHeight} cocoCoordinates={bbox['coco_polygon']} className={bbox['class_name']} />
+                        <Polyline closed width={imageWidth} height={imageHeight} cocoCoordinates={bbox['coco_polygon']} color={getHexColor(bbox['class_name'])} />
                     </div>
                 ) : null
             }

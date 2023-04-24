@@ -19,6 +19,7 @@ import {mod} from 'helpers/math';
 import BBox from './bbox';
 import SegmentationMask from './segmentation-mask';
 import Lane from './lane';
+import {getHexColor} from 'helpers/color-helper';
 
 const DatapointCard = ({datapoint = {}, onClick, zoomable, showDetails, maxHeight}) => {
     const {predictions = [], groundtruths = [], type, metadata = {}} = datapoint;
@@ -126,7 +127,7 @@ const DatapointCard = ({datapoint = {}, onClick, zoomable, showDetails, maxHeigh
                                                     p.bboxes?.map((bbox, j) => <BBox imageWidth={imageW} imageHeight={imageH} bbox={bbox} key={j} showHeatMap={showHeatMap} />)
                                                 }
                                                 {
-                                                    p.lanes?.map((lane, j) => <Lane imageWidth={imageW} imageHeight={imageH} lane={lane} key={j} />)
+                                                    p.lanes?.map((lane, j) => <Lane imageWidth={imageW} imageHeight={imageH} lane={lane} key={j} color={getHexColor('pred')} />)
                                                 }
                                             </>
                                         )) : null
@@ -145,7 +146,7 @@ const DatapointCard = ({datapoint = {}, onClick, zoomable, showDetails, maxHeigh
                                                     g.bboxes?.map((bbox, j) => <BBox imageWidth={imageW} imageHeight={imageH} bbox={bbox} key={j} showHeatMap={showHeatMap}/>)
                                                 }
                                                 {
-                                                    g.lanes?.map((lane, j) => <Lane imageWidth={imageW} imageHeight={imageH} lane={lane} key={j} />)
+                                                    g.lanes?.map((lane, j) => <Lane imageWidth={imageW} imageHeight={imageH} lane={lane} key={j} color={getHexColor('gt')} />)
                                                 }
                                             </>
                                         )) : null
