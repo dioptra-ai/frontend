@@ -54,14 +54,10 @@ PredictionsRouter.post('/select-distinct-model-names', async (req, res, next) =>
 
 PredictionsRouter.post('/delete', async (req, res, next) => {
     try {
-        const predictions = await Prediction.deleteByFilters(
-            req.user.requestOrganizationId,
-            req.body.predictionIds.map((id) => ({
-                'left': 'id',
-                'op': '=',
-                'right': id
-            }))
-        );
+        const predictions = await Prediction.deleteByFilters({
+            ...req.body,
+            organizationId: req.user.requestOrganizationId
+        });
 
         res.json(predictions);
     } catch (e) {

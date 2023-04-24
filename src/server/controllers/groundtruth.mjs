@@ -36,14 +36,10 @@ GroundtruthsRouter.post('/select', async (req, res, next) => {
 
 GroundtruthsRouter.post('/delete', async (req, res, next) => {
     try {
-        const groundtruths = await Groundtruth.deleteByFilters(
-            req.user.requestOrganizationId,
-            req.body.groundtruthIds.map((id) => ({
-                'left': 'id',
-                'op': '=',
-                'right': id
-            }))
-        );
+        const groundtruths = await Groundtruth.deleteByFilters({
+            ...req.body,
+            organizationId: req.user.requestOrganizationId
+        });
 
         res.json(groundtruths);
     } catch (e) {

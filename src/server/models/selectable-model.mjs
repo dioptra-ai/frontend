@@ -299,20 +299,15 @@ class SelectableModel {
         return rows;
     }
 
-    static async deleteById(organizationId, id) {
-        const {rows} = await postgresClient.query(
-            `DELETE FROM ${this.getTableName()} WHERE id = $1 AND organization_id = $2 RETURNING *`,
-            [id, organizationId]
-        );
-
-        return rows[0];
-    }
-
-    static async deleteByFilters(organizationId, filters) {
+    static async deleteByFilters({organizationId, filters, orderBy, desc, limit, offset}) {
         const primaryTable = this.getTableName();
         const {rows} = await postgresClient.query(
             `DELETE FROM ${primaryTable} WHERE organization_id = $1 AND id IN (
-                SELECT id FROM (${this.getSafeSelectQuery({organizationId, filters, selectColumns: [`${primaryTable}.id`]})}) as subquery
+                SELECT id FROM (${
+    this.getSafeSelectQuery({
+        organizationId, filters, orderBy, desc, limit, offset, selectColumns: [`${primaryTable}.id`]
+    })
+}) as subquery
             ) RETURNING *`,
             [organizationId]
         );

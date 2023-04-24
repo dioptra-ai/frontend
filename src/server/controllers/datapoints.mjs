@@ -107,19 +107,12 @@ DatapointsRouter.post('/from-event-uuids', async (req, res, next) => {
     }
 });
 
-DatapointsRouter.delete('/:id', async (req, res, next) => {
-    try {
-        const datapoint = await Datapoint.deleteById(req.user.requestOrganizationId, req.params.id);
-
-        res.json(datapoint);
-    } catch (e) {
-        next(e);
-    }
-});
-
 DatapointsRouter.post('/delete', async (req, res, next) => {
     try {
-        const datapoints = await Datapoint.deleteByFilters(req.user.requestOrganizationId, req.body.filters);
+        const datapoints = await Datapoint.deleteByFilters({
+            ...req.body,
+            organizationId: req.user.requestOrganizationId
+        });
 
         res.json(datapoints);
     } catch (e) {
