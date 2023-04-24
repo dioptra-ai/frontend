@@ -24,9 +24,6 @@ import {getHexColor} from 'helpers/color-helper';
 const DatapointCard = ({datapoint = {}, onClick, zoomable, showDetails, maxHeight}) => {
     const {predictions = [], groundtruths = [], type, metadata = {}} = datapoint;
     const [viewportLoaded, setViewportLoaded] = useState(false);
-    const handleViewportLoad = () => {
-        setViewportLoaded(true);
-    };
     const [showHeatMap, setShowHeatMap] = useState(false);
     const [showPredictions, setShowPredictions] = useState(groundtruths.length === 0);
     const [showGroundtruths, setShowGroundtruths] = useState(groundtruths.length > 0);
@@ -46,9 +43,8 @@ const DatapointCard = ({datapoint = {}, onClick, zoomable, showDetails, maxHeigh
         return acc;
     }, {});
 
-    useEffect(() => {
-        setViewportLoaded(false);
-    }, [datapoint]);
+    console.log('showGroundtruths', showGroundtruths);
+    console.log('viewportLoaded', viewportLoaded);
 
     switch (type) {
     case 'IMAGE': {
@@ -103,7 +99,8 @@ const DatapointCard = ({datapoint = {}, onClick, zoomable, showDetails, maxHeigh
                                 <TransformComponent wrapperStyle={{overflow: 'visible'}}>
                                     <SignedImage
                                         rawUrl={metadata['uri']}
-                                        onLoad={handleViewportLoad}
+                                        onLoad={() => setViewportLoaded(true)}
+                                        onUnload={() => setViewportLoaded(false)}
                                         style={{maxHeight: maxHeight || '100%', maxWidth: '100%'}}
                                     />
                                     {/* eslint-disable-next-line react/no-unknown-property */}
@@ -258,14 +255,25 @@ const DatapointsPage = ({datapoints, showGroundtruthsInModal, modelNames, select
             </Row>
             {datapointInModal ? (
                 <Modal isOpen onClose={() => setDatapointIndexInModal(-1)}
-                    title={selectedDatapoints ? (
-                        <DatapointSelector datapoint={datapointInModal} selectedDatapoints={selectedDatapoints} onSelectedDatapointsChange={onSelectedDatapointsChange} />
-                    ) : null}
-                >
-                    <div className='d-flex'>
-                        <div className='fs-1 p-4 bg-white-blue cursor-pointer d-flex align-items-center mx-2' onClick={handleModalprevious}>
-                            <GrPrevious />
+                    title={(
+                        <div className='d-flex justify-content-between align-items-center'>
+                            <div className='d-flex align-items-center'>
+                                {selectedDatapoints && (
+                                    <DatapointSelector
+                                        datapoint={datapointInModal} selectedDatapoints={selectedDatapoints} onSelectedDatapointsChange={onSelectedDatapointsChange}
+                                    />
+                                )}
+                                <div className='fs-3 p-2 bg-white-blue cursor-pointer d-flex align-items-center mx-2' onClick={handleModalprevious}>
+                                    <GrPrevious />
+                                </div>
+                            </div>
+                            <div className='fs-3 p-2 bg-white-blue cursor-pointer d-flex align-items-center mx-2' onClick={handleModalNext}>
+                                <GrNext />
+                            </div>
                         </div>
+                    )}
+                >
+                    <div className='pt-2'>
                         <Async
                             fetchData={() => Promise.all([
                                 baseJSONClient.post('/api/datapoints/select', {
@@ -326,9 +334,6 @@ const DatapointsPage = ({datapoints, showGroundtruthsInModal, modelNames, select
                                 }}/>
                             )}
                         />
-                        <div className='fs-1 p-4 bg-white-blue cursor-pointer d-flex align-items-center mx-2' onClick={handleModalNext}>
-                            <GrNext />
-                        </div>
                     </div>
                 </Modal>
             ) : null}

@@ -4,7 +4,7 @@ import React, {useEffect, useState} from 'react';
 import Button from 'react-bootstrap/Button';
 import {useHistory} from 'react-router-dom';
 
-const SignedImage = ({rawUrl, ...rest}) => {
+const SignedImage = ({rawUrl, onUnload, ...rest}) => {
     const [signedUrl, setSignedUrl] = useState(rawUrl);
     const [signedImageRequested, setSignedImageRequested] = useState(false);
 
@@ -17,6 +17,11 @@ const SignedImage = ({rawUrl, ...rest}) => {
         setSignedUrl(rawUrl);
         setSignedImageRequested(false);
     }, [rawUrl]);
+
+    useEffect(() => {
+        onUnload?.();
+    }, [signedUrl]);
+
 
     const handleLoadError = async () => {
         if (!signedImageRequested) {
@@ -88,7 +93,8 @@ const SignedImage = ({rawUrl, ...rest}) => {
 };
 
 SignedImage.propTypes = {
-    rawUrl: PropTypes.string
+    rawUrl: PropTypes.string,
+    onUnload: PropTypes.func
 };
 
 export default SignedImage;
