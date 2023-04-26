@@ -25,6 +25,9 @@ const minerStrategyOptions = [{
     value: 'ENTROPY',
     name: 'N Highest Entropy'
 }, {
+    value: 'WEIGHTED ENTROPY',
+    name: 'N Highest Weighted Entropy'
+}, {
     value: 'VARIANCE',
     name: 'N Highest Variance'
 }, {
