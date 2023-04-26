@@ -43,9 +43,6 @@ const DatapointCard = ({datapoint = {}, onClick, zoomable, showDetails, maxHeigh
         return acc;
     }, {});
 
-    console.log('showGroundtruths', showGroundtruths);
-    console.log('viewportLoaded', viewportLoaded);
-
     switch (type) {
     case 'IMAGE': {
         const imageH = metadata.height;
