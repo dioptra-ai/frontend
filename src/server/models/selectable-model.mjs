@@ -8,7 +8,8 @@ const SAFE_IDENTIFIERS = new Set(['*']);
 const SAFE_GLOBAL_IDENTIFIERS = new Set(['RANDOM()']);
 const isSafeIdentifier = (identifier) => SAFE_IDENTIFIERS.has(identifier.toUpperCase());
 const isSafeGlobalIdentifier = (identifier) => SAFE_GLOBAL_IDENTIFIERS.has(identifier.toUpperCase());
-const JSONB_ROOT_COLUMNS = new Set(['metadata', 'metrics']);
+// TODO: remove classifications from this list once we have a classifications table
+const JSONB_ROOT_COLUMNS = new Set(['metadata', 'metrics', 'classifications']);
 const ALL_TABLE_NAMES = new Set(['datapoints', 'predictions', 'groundtruths', 'feature_vectors', 'tags', 'bboxes', 'lanes']);
 
 class SelectableModel {
