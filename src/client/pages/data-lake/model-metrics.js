@@ -14,11 +14,11 @@ import Select from 'components/select';
 import metricsClient from 'clients/metrics';
 
 const SELECTABLE_METRICS = [
-    'ACCURACY',
+    // 'ACCURACY',
     'PRECISION',
     'RECALL',
-    'F1_SCORE',
-    'MEAN_IOU'
+    'F1_SCORE'
+    // 'MEAN_IOU'
 ];
 
 const MetricParam = withDefault(StringParam, SELECTABLE_METRICS[0]);
@@ -74,7 +74,7 @@ const ModelMetrics = ({modelNames, datasetId, datapointFilters}) => {
                                 value: modelMetric['value'],
                                 fill: areMetricsStale ? '#ccc' : getHexColor(modelNames[index])
                             }))}
-                            title={areMetricsStale ? 'Click evaluate to refresh...' : getName(userSelectedMetric)}
+                            title={areMetricsStale ? 'Click evaluate to refresh...' : modelMetrics[0]['title'] || getName(userSelectedMetric)}
                             unit={metricSpecs[0].unit}
                             yAxisTickFormatter={metricSpecs[0].formatter}
                         />
@@ -88,6 +88,10 @@ const ModelMetrics = ({modelNames, datasetId, datapointFilters}) => {
                     refetchOnChanged={[lastEvaluationRequested]}
                     fetchInitially={false}
                     renderData={(modelMetrics) => {
+                        if (!modelMetrics['value_per_class']) {
+                            return null;
+                        }
+
                         const classes = Array.from(new Set(modelMetrics.flatMap((modelMetric) => Object.keys(modelMetric['value_per_class'])))).sort();
                         const unit = metricSpecs[0].unit;
 
@@ -101,7 +105,7 @@ const ModelMetrics = ({modelNames, datasetId, datapointFilters}) => {
                                         [modelNames[index]]: modelMetric['value_per_class'][className]
                                     }), {})
                                 }))}
-                                title={areMetricsStale ? 'Click evaluate to refresh...' : `${getName(userSelectedMetric)} per Class`}
+                                title={areMetricsStale ? 'Click evaluate to refresh...' : modelMetrics[0]['title'] || `${getName(userSelectedMetric)} per Class`}
                                 unit={unit}
                                 yAxisTickFormatter={metricSpecs[0].formatter}
                             >
