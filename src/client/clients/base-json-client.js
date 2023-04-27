@@ -1,6 +1,13 @@
 import mem from 'p-memoize';
 import * as fastq from 'fastq';
 
+export class HttpError extends Error {
+    constructor(status, message) {
+        super(message);
+        this.status = status;
+    }
+}
+
 // Priority queue for fetch requests. This is to prevent the browser from
 // clogging up with requests that are not important.
 const lowPriorityQueue = [];
@@ -37,13 +44,13 @@ const jsonFetch = async (...args) => {
 
     if (responseBody?.error) {
 
-        throw new Error(responseBody.error.message);
+        throw new HttpError(res.status, responseBody.error.message);
     } else if (res.ok) {
 
         return responseBody;
     } else {
 
-        throw new Error(responseBody || res.statusText);
+        throw new HttpError(res.status, responseBody || res.statusText);
     }
 };
 const memoizedFetch = mem(jsonFetch, {

@@ -14,7 +14,7 @@ import {
     YAxis
 } from 'recharts';
 import {VscZoomOut} from 'react-icons/vsc';
-import {SpinnerWrapper} from 'components/spinner';
+import Spinner from 'components/spinner';
 import useTimeGranularity from 'hooks/use-time-granularity';
 import theme from 'styles/theme.module.scss';
 import {formatDateTime} from 'helpers/date-helper';
@@ -152,142 +152,141 @@ const AreaGraph = ({
             className={`${hasBorder ? 'border px-3' : ''} rounded py-3 w-100`}
             style={{userSelect: 'none'}}
         >
-            <SpinnerWrapper>
-                {title && <div className='text-dark bold-text fs-4 px-3 pb-2'>{title}</div>}
-                <div
-                    onMouseEnter={() => setShowBtn(true)}
-                    onMouseLeave={() => setShowBtn(false)}
-                    onMouseMove={() => setShowBtn(true)}
-                    style={{
-                        height: 300,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        position: 'relative'
-                    }}
-                >
-                    {showBtn && (
-                        <OverlayTrigger overlay={
-                            <BootstrapTooltip>
+            <Spinner/>
+            {title && <div className='text-dark bold-text fs-4 px-3 pb-2'>{title}</div>}
+            <div
+                onMouseEnter={() => setShowBtn(true)}
+                onMouseLeave={() => setShowBtn(false)}
+                onMouseMove={() => setShowBtn(true)}
+                style={{
+                    height: 300,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    position: 'relative'
+                }}
+            >
+                {showBtn && (
+                    <OverlayTrigger overlay={
+                        <BootstrapTooltip>
                                 Zoom out
-                            </BootstrapTooltip>
-                        }>
-                            <VscZoomOut
-                                className='cursor-pointer'
-                                onClick={zoomOut}
-                                style={{
-                                    fontSize: 30,
-                                    position: 'absolute',
-                                    right: 40,
-                                    zIndex: 1,
-                                    top: 20
-                                }}
-                            />
-                        </OverlayTrigger>
-                    )}
-                    <ResponsiveContainer height='100%' width='100%'>
-                        <AreaChart
-                            data={filledData}
-                            margin={margin}
-                            onMouseDown={(e) => {
-                                setRefAreaLeft(e.activeLabel);
+                        </BootstrapTooltip>
+                    }>
+                        <VscZoomOut
+                            className='cursor-pointer'
+                            onClick={zoomOut}
+                            style={{
+                                fontSize: 30,
+                                position: 'absolute',
+                                right: 40,
+                                zIndex: 1,
+                                top: 20
                             }}
-                            onMouseMove={(e) => {
-                                if (refAreaLeft) {
-                                    setRefAreaRight(e.activeLabel);
-                                }
-                            }}
-                            onMouseUp={zoomIn}
-                        >
-                            <CartesianGrid strokeDasharray='5 5' stroke={theme.light} />
-                            <defs>
-                                <linearGradient id='color' x1='0' x2='0' y1='0' y2='1'>
-                                    <stop
-                                        offset='10%'
-                                        stopColor={color}
-                                        stopOpacity={0.7}
-                                    />
-                                    <stop
-                                        offset='90%'
-                                        stopColor='#FFFFFF'
-                                        stopOpacity={0.1}
-                                    />
-                                </linearGradient>
-                                <linearGradient id='warning' x1='0' x2='0' y1='0' y2='1'>
-                                    <stop
-                                        offset='10%'
-                                        stopColor={theme.warning}
-                                        stopOpacity={0.9}
-                                    />
-                                    <stop
-                                        offset='90%'
-                                        stopColor='#FFFFFF'
-                                        stopOpacity={0.1}
-                                    />
-                                </linearGradient>
-                            </defs>
-                            <XAxis
-                                dataKey={xDataKey}
-                                domain={domain}
-                                dy={5}
-                                interval='preserveStartEnd'
-                                label={{
-                                    fill: theme.dark,
-                                    value: xAxisName,
-                                    dy: 30,
-                                    fontSize: fontSizes.fs_7
-                                }}
-                                scale='time'
-                                stroke='transparent'
-                                tick={{fill: theme.secondary, fontSize: fontSizes.fs_7}}
-                                tickCount={5}
-                                tickFormatter={(tick) => formatDateTime(tick, granularityMs)
-                                }
-                                type='number'
-                            />
-                            <YAxis
-                                domain={yAxisDomain}
-                                dx={-5}
-                                label={{
-                                    fill: theme.dark,
-                                    value: yAxisName,
-                                    angle: -90,
-                                    dx: -20,
-                                    fontSize: fontSizes.fs_7
-                                }}
-                                stroke='transparent'
-                                tick={{fill: theme.secondary, fontSize: fontSizes.fs_7}}
-                                tickCount={6}
-                                yAxisId='1'
-                                unit={unit}
-                                tickFormatter={formatValue}
-                            />
-                            <Tooltip content={<CustomTooltip formatValue={formatValue}/>} />
-                            <Area
-                                animationDuration={300}
-                                dataKey={yDataKey}
-                                fill='url(#color)'
-                                stroke={color}
-                                strokeWidth={2}
-                                type='linear'
-                                yAxisId='1'
-                                unit={unit}
-                                dot={{
-                                    r: 1,
-                                    strokeWidth: 2
-                                }}
-                            />
-                            {refAreaLeft && refAreaRight ? (
-                                <ReferenceArea
-                                    strokeOpacity={0.3}
-                                    x1={refAreaLeft}
-                                    x2={refAreaRight}
-                                    yAxisId='1'
+                        />
+                    </OverlayTrigger>
+                )}
+                <ResponsiveContainer height='100%' width='100%'>
+                    <AreaChart
+                        data={filledData}
+                        margin={margin}
+                        onMouseDown={(e) => {
+                            setRefAreaLeft(e.activeLabel);
+                        }}
+                        onMouseMove={(e) => {
+                            if (refAreaLeft) {
+                                setRefAreaRight(e.activeLabel);
+                            }
+                        }}
+                        onMouseUp={zoomIn}
+                    >
+                        <CartesianGrid strokeDasharray='5 5' stroke={theme.light} />
+                        <defs>
+                            <linearGradient id='color' x1='0' x2='0' y1='0' y2='1'>
+                                <stop
+                                    offset='10%'
+                                    stopColor={color}
+                                    stopOpacity={0.7}
                                 />
-                            ) : null}
-                        </AreaChart>
-                    </ResponsiveContainer>
-                </div>
-            </SpinnerWrapper>
+                                <stop
+                                    offset='90%'
+                                    stopColor='#FFFFFF'
+                                    stopOpacity={0.1}
+                                />
+                            </linearGradient>
+                            <linearGradient id='warning' x1='0' x2='0' y1='0' y2='1'>
+                                <stop
+                                    offset='10%'
+                                    stopColor={theme.warning}
+                                    stopOpacity={0.9}
+                                />
+                                <stop
+                                    offset='90%'
+                                    stopColor='#FFFFFF'
+                                    stopOpacity={0.1}
+                                />
+                            </linearGradient>
+                        </defs>
+                        <XAxis
+                            dataKey={xDataKey}
+                            domain={domain}
+                            dy={5}
+                            interval='preserveStartEnd'
+                            label={{
+                                fill: theme.dark,
+                                value: xAxisName,
+                                dy: 30,
+                                fontSize: fontSizes.fs_7
+                            }}
+                            scale='time'
+                            stroke='transparent'
+                            tick={{fill: theme.secondary, fontSize: fontSizes.fs_7}}
+                            tickCount={5}
+                            tickFormatter={(tick) => formatDateTime(tick, granularityMs)
+                            }
+                            type='number'
+                        />
+                        <YAxis
+                            domain={yAxisDomain}
+                            dx={-5}
+                            label={{
+                                fill: theme.dark,
+                                value: yAxisName,
+                                angle: -90,
+                                dx: -20,
+                                fontSize: fontSizes.fs_7
+                            }}
+                            stroke='transparent'
+                            tick={{fill: theme.secondary, fontSize: fontSizes.fs_7}}
+                            tickCount={6}
+                            yAxisId='1'
+                            unit={unit}
+                            tickFormatter={formatValue}
+                        />
+                        <Tooltip content={<CustomTooltip formatValue={formatValue}/>} />
+                        <Area
+                            animationDuration={300}
+                            dataKey={yDataKey}
+                            fill='url(#color)'
+                            stroke={color}
+                            strokeWidth={2}
+                            type='linear'
+                            yAxisId='1'
+                            unit={unit}
+                            dot={{
+                                r: 1,
+                                strokeWidth: 2
+                            }}
+                        />
+                        {refAreaLeft && refAreaRight ? (
+                            <ReferenceArea
+                                strokeOpacity={0.3}
+                                x1={refAreaLeft}
+                                x2={refAreaRight}
+                                yAxisId='1'
+                            />
+                        ) : null}
+                    </AreaChart>
+                </ResponsiveContainer>
+            </div>
         </div>
     );
 };

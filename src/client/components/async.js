@@ -2,7 +2,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import * as Sentry from '@sentry/react';
 import PropTypes from 'prop-types';
 
-import {SpinnerWrapper} from 'components/spinner';
+import Spinner from 'components/spinner';
 import Error from 'components/error';
 
 export const AsyncContext = React.createContext();
@@ -15,8 +15,7 @@ const Async = ({
     refetchOnChanged = [],
     fetchInitially = true,
     defaultData,
-    spinner = true,
-    ...rest
+    spinner = true
 }) => {
     const [data, setData] = useState();
     const [loading, setLoading] = useState(false);
@@ -75,9 +74,10 @@ const Async = ({
         <AsyncContext.Provider value={{data, loading, error}}>
             {
                 spinner ? (
-                    <SpinnerWrapper {...rest}>
+                    <>
+                        <Spinner/>
                         {content}
-                    </SpinnerWrapper>
+                    </>
                 ) : content
             }
         </AsyncContext.Provider>

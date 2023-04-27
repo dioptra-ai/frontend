@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import {useThrottle} from '@react-hook/throttle';
 import _ from 'lodash';
 
-import {SpinnerWrapper} from 'components/spinner';
+import Spinner from 'components/spinner';
 
 const inRange = (num, min, max) => num >= min && num <= max;
 
@@ -88,60 +88,59 @@ const HeatMap = ({data, numCellsH, numCellsW, setHeatMapSamples, selectedSamples
 
     return (
         <div className='heat-map'>
-            <SpinnerWrapper>
-                <HeatMapGrid
-                    data={heatmapData}
-                    cellStyle={() => ({
-                        width: '1vw',
-                        height: 'auto',
-                        aspectRatio: '1/1',
-                        borderRadius: 0,
-                        borderWidth: '1px 1px 1px 1px',
-                        borderStyle: 'dashed',
-                        borderColor: '#E5E5E5',
-                        background: 'none'
-                    })}
-                    cellRender={(x, y, value) => (
-                        <button
-                            onMouseDown={() => {
-                                if (x >= 0 && y >= 0 && value >= 0) {
-                                    setRefTopLeft({x, y});
-                                    setMultiSelect(true);
-                                    // setRefBottomRight(null);
-                                }
-                            }}
-                            onMouseUp={() => {
-                                if (value >= 0) handleMouseUp();
-                            }}
-                            onMouseMove={() => {
-                                if (multiSelect && value >= 0) handleMouseMove(x, y);
-                            }}
-                            className={`heat-map-cell ${
-                                selectedPoints.find((point) => point.x === y && point.y === x) ?
-                                    'heat-map-cell-active' :
-                                    ''
-                            }`}
-                            style={{
-                                background: value === 0 ? 'transparent' :
-                                    value <= 50 ?
-                                        `rgba(31, 169, 200, ${1 - (value / 50)})` :
-                                        `rgba(248, 136, 108, ${value / 100})`
-                            }}
-                        />
-                    )}
-                    onClick={handleClick}
-                />
-                <div className='w-100 my-4 d-flex'>
-                    <div className='d-flex align-items-center'>
-                        <div className='heat-map-legend heat-map-legend_red' />
-                        <span className='text-secondary heat-map-legend-text'>Outlier</span>
-                    </div>
-                    <div className='d-flex align-items-center'>
-                        <div className='heat-map-legend heat-map-legend_blue' />
-                        <span className='text-secondary heat-map-legend-text'>Non-Outlier</span>
-                    </div>
+            <Spinner/>
+            <HeatMapGrid
+                data={heatmapData}
+                cellStyle={() => ({
+                    width: '1vw',
+                    height: 'auto',
+                    aspectRatio: '1/1',
+                    borderRadius: 0,
+                    borderWidth: '1px 1px 1px 1px',
+                    borderStyle: 'dashed',
+                    borderColor: '#E5E5E5',
+                    background: 'none'
+                })}
+                cellRender={(x, y, value) => (
+                    <button
+                        onMouseDown={() => {
+                            if (x >= 0 && y >= 0 && value >= 0) {
+                                setRefTopLeft({x, y});
+                                setMultiSelect(true);
+                                // setRefBottomRight(null);
+                            }
+                        }}
+                        onMouseUp={() => {
+                            if (value >= 0) handleMouseUp();
+                        }}
+                        onMouseMove={() => {
+                            if (multiSelect && value >= 0) handleMouseMove(x, y);
+                        }}
+                        className={`heat-map-cell ${
+                            selectedPoints.find((point) => point.x === y && point.y === x) ?
+                                'heat-map-cell-active' :
+                                ''
+                        }`}
+                        style={{
+                            background: value === 0 ? 'transparent' :
+                                value <= 50 ?
+                                    `rgba(31, 169, 200, ${1 - (value / 50)})` :
+                                    `rgba(248, 136, 108, ${value / 100})`
+                        }}
+                    />
+                )}
+                onClick={handleClick}
+            />
+            <div className='w-100 my-4 d-flex'>
+                <div className='d-flex align-items-center'>
+                    <div className='heat-map-legend heat-map-legend_red' />
+                    <span className='text-secondary heat-map-legend-text'>Outlier</span>
                 </div>
-            </SpinnerWrapper>
+                <div className='d-flex align-items-center'>
+                    <div className='heat-map-legend heat-map-legend_blue' />
+                    <span className='text-secondary heat-map-legend-text'>Non-Outlier</span>
+                </div>
+            </div>
         </div>
     );
 };

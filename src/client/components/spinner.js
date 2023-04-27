@@ -6,19 +6,22 @@ const Spinner = ({size = 150}) => (
     <AsyncContext.Consumer>
         {(asyncContext) => (
             (asyncContext?.loading || !asyncContext) ? (
-                <div style={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.7)',
-                    position: 'absolute',
-                    left: 0,
-                    right: 0,
-                    top: 0,
-                    bottom: 0,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    zIndex: 10
-                }}>
-                    <BarLoader loading size={size}/>
+                <div style={{position: 'relative', width: '100%'}}>
+                    <div style={{
+                        backgroundColor: 'rgba(255, 255, 255, 0.7)',
+                        position: 'absolute',
+                        left: 0,
+                        right: 0,
+                        top: 0,
+                        bottom: 0,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 10,
+                        minHeight: 10
+                    }}>
+                        <BarLoader loading size={size}/>
+                    </div>
                 </div>
             ) : null
         )}
@@ -31,14 +34,3 @@ Spinner.propTypes = {
 };
 
 export default Spinner;
-
-export const SpinnerWrapper = ({children, ...rest}) => (
-    <div style={{position: 'relative', width: '100%', minHeight: 10}} {...rest}>
-        <Spinner/>
-        {children}
-    </div>
-);
-
-SpinnerWrapper.propTypes = {
-    children: PropTypes.node
-};
