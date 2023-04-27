@@ -59,9 +59,9 @@ const MinerModal = ({isOpen, onClose, onMinerSaved, defaultMiner = {}}) => {
                         select: {
                             filters: minerFilters
                         },
-                        select_reference: {
+                        select_reference: minerStrategy === 'NEAREST_NEIGHBORS' || minerStrategy === 'CORESET' ? ({
                             filters: referenceFilters
-                        }
+                        }) : null
                     });
 
                     onMinerSaved?.(miner['miner_id']);
@@ -122,33 +122,37 @@ const MinerModal = ({isOpen, onClose, onMinerSaved, defaultMiner = {}}) => {
                         </Col>
                     </Row>
                     <Row className='g-2'>
-                        <Col>
-                            <Form.Label className='mt-3 mb-0 w-100'>Model Name</Form.Label>
-                            <InputGroup className='mt-1'>
-                                <Async fetchData={() => baseJSONClient.post('/api/predictions/select-distinct-model-names', {
-                                    datapointFilters: minerFilters,
-                                    limit: 100
-                                })}
-                                refetchOnChanged={[minerFilters]}
-                                renderData={(data) => {
-                                    return (
-                                        <Form.Control as='select' className={'form-select w-100'} required
-                                            name='model_name'
-                                            defaultValue={defaultMiner['model_name']}
-                                        >
-                                            <option disabled>Select Model Name</option>
-                                            {
-                                                data.map((modelName) => (
-                                                    <option value={modelName} key={modelName}>
-                                                        {modelName}
-                                                    </option>
-                                                ))
-                                            }
-                                        </Form.Control>
-                                    );
-                                }} />
-                            </InputGroup>
-                        </Col>
+                        {
+                            minerStrategy !== 'RANDOM' ? (
+                                <Col>
+                                    <Form.Label className='mt-3 mb-0 w-100'>Model Name</Form.Label>
+                                    <InputGroup className='mt-1'>
+                                        <Async fetchData={() => baseJSONClient.post('/api/predictions/select-distinct-model-names', {
+                                            datapointFilters: minerFilters,
+                                            limit: 100
+                                        })}
+                                        refetchOnChanged={[minerFilters]}
+                                        renderData={(data) => {
+                                            return (
+                                                <Form.Control as='select' className={'form-select w-100'} required
+                                                    name='model_name'
+                                                    defaultValue={defaultMiner['model_name']}
+                                                >
+                                                    <option disabled>Select Model Name</option>
+                                                    {
+                                                        data.map((modelName) => (
+                                                            <option value={modelName} key={modelName}>
+                                                                {modelName}
+                                                            </option>
+                                                        ))
+                                                    }
+                                                </Form.Control>
+                                            );
+                                        }} />
+                                    </InputGroup>
+                                </Col>
+                            ) : null
+                        }
                         {
                             minerStrategy === 'NEAREST_NEIGHBORS' || minerStrategy === 'ACTIVATION' || minerStrategy === 'CORESET' ? (
                                 <Col>
