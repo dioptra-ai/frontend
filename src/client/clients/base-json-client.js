@@ -1,5 +1,6 @@
 import mem from 'p-memoize';
 import * as fastq from 'fastq';
+import pako from 'pako';
 
 export class HttpError extends Error {
     constructor(status, message) {
@@ -32,6 +33,15 @@ const fetchQueue = fastq.promise((fn, priority) => {
 });
 
 const jsonFetch = async (...args) => {
+    const args1 = args[1];
+    const headers = args1?.headers || {};
+    const body = args1?.body;
+
+    if (body && !headers['content-encoding'] && body.length > 1000000) {
+        headers['content-encoding'] = 'gzip';
+        args1.body = pako.gzip(body);
+        console.info(`📦 Gzipped ${args1.method} ${args[0]}: ${body.length.toLocaleString()} B -> ${args1.body.length.toLocaleString()} B\n${body}`);
+    }
     const res = await fetchQueue.push(() => fetch(...args), args[1]?.priority);
 
     let responseBody = await res.text();

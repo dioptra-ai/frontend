@@ -95,6 +95,7 @@
     "node-fetch": "^2.6.1",
     "npm": "^8.19.2",
     "p-memoize": "^7.1.1",
+    "pako": "^2.1.0",
     "passport": "^0.4.1",
     "passport-local": "^1.0.0",
     "pg": "^8.8.0",
