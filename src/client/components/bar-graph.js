@@ -9,9 +9,7 @@ import theme from 'styles/theme.module.scss';
 const BarGraph = ({
     title, bars, unit, yAxisName, xAxisName, verticalIfMoreThan = 10, sortBy = 'name',
     yAxisDomain = ([dataMin, dataMax]) => [Math.min(0, dataMin), Math.max(0, dataMax)],
-    // Probably should be this instead:
-    // yAxisTickFormatter={(v) => Number(v).toLocaleString()}
-    yAxisTickFormatter = (value) => Number(value).toFixed?.(2) || '-',
+    yAxisTickFormatter = (value) => Number((unit === '%' ? 100 : 1) * value).toLocaleString?.() || '-',
     className = '', onClick, children, height, ...rest
 }) => {
     const dataMax = Math.max(...bars.map((i) => i.value));
@@ -71,7 +69,7 @@ const BarGraph = ({
                         <Tooltip
                             contentStyle={{borderRadius: 3, border: 'none', boxShadow: '0px 5px 20px rgba(0, 0, 0, 0.1)'}}
                             wrapperStyle={{outline: 'none'}}
-                            formatter={(value) => Number(value).toLocaleString() + (unit || '')}
+                            formatter={(value) => yAxisTickFormatter(value) + (unit || '')}
                         />
                         {children ||
                                 <>
