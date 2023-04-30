@@ -41,7 +41,8 @@ const DataLakeDistributions = ({filters, datasetId, modelNames}) => {
                                 title={groundtruthDistribution.title || 'Groundtruths'}
                                 verticalIfMoreThan={10}
                                 bars={Object.entries(groundtruthDistribution.histogram).map(([name, value]) => ({
-                                    name, value, fill: getHexColor(name)
+                                    name, value,
+                                    fill: getHexColor(Number.isNaN(Number(name)) ? name : groundtruthDistribution['task_type'])
                                 }))}
                             />
                         </Col>

@@ -121,7 +121,7 @@ const DatapointCard = ({datapoint = {}, onClick, zoomable, showDetails, maxHeigh
                                                     p.bboxes?.map((bbox, j) => <BBox imageWidth={imageW} imageHeight={imageH} bbox={bbox} key={j} showHeatMap={showHeatMap} />)
                                                 }
                                                 {
-                                                    p.lanes?.map((lane, j) => <Lane imageWidth={imageW} imageHeight={imageH} lane={lane} key={j} color={getHexColor('prediction')} />)
+                                                    p.lanes?.map((lane, j) => <Lane imageWidth={imageW} imageHeight={imageH} lane={lane} key={j} color={getHexColor(p['model_name'])} />)
                                                 }
                                             </>
                                         )) : null
@@ -140,7 +140,7 @@ const DatapointCard = ({datapoint = {}, onClick, zoomable, showDetails, maxHeigh
                                                     g.bboxes?.map((bbox, j) => <BBox imageWidth={imageW} imageHeight={imageH} bbox={bbox} key={j} showHeatMap={showHeatMap}/>)
                                                 }
                                                 {
-                                                    g.lanes?.map((lane, j) => <Lane imageWidth={imageW} imageHeight={imageH} lane={lane} key={j} color={getHexColor('groundtruth')} />)
+                                                    g.lanes?.map((lane, j) => <Lane imageWidth={imageW} imageHeight={imageH} lane={lane} key={j} color={getHexColor(g['task_type'])} />)
                                                 }
                                             </>
                                         )) : null
