@@ -101,6 +101,7 @@ const DatasetDiff = () => {
                                                             fill: getHexColor(className)
                                                         }))}
                                                         yAxisTickFormatter={(v) => Number(v).toLocaleString()}
+                                                        verticalIfMoreThan={Infinity}
                                                     />
                                                 </Col>
                                             ) : null
@@ -116,6 +117,7 @@ const DatasetDiff = () => {
                                                             fill: getHexColor(className)
                                                         }))}
                                                         yAxisTickFormatter={(v) => Number(v).toLocaleString()}
+                                                        verticalIfMoreThan={Infinity}
                                                     />
                                                 </Col>
                                             ) : null
