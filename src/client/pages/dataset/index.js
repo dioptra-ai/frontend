@@ -94,7 +94,7 @@ const Dataset = () => {
                                 &nbsp;|&nbsp;
                             <a href='#' onClick={() => setIsDatasetCommitVersionOpen(true)}>Commit</a>
                                 &nbsp;|&nbsp;
-                            <a href='#' style={{color: 'red'}} onClick={async () => {
+                            <a className='link-danger' onClick={async () => {
                                 if (window.confirm('Do you really want to delete this dataset?\nThis action cannot be undone.')) {
                                     await baseJSONClient(`/api/dataset/${datasetId}`, {
                                         method: 'DELETE'

@@ -40,7 +40,7 @@ const DatasetVersionViewer = ({versionId, showDatapointActions}) => {
 
                                             history.go(0);
                                         }
-                                    }} style={{color: 'red'}}>Remove selected datapoints</a>
+                                    }} className='link-danger'>Remove from dataset</a>
                                 ) : null;
                             } : null}
                         />

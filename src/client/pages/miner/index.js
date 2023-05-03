@@ -72,7 +72,7 @@ const Miner = () => {
                             &nbsp;|&nbsp;
                             <a href='#' onClick={() => handleResetMiner(false)}>Reset</a>
                             &nbsp;|&nbsp;
-                            <a href='#' style={{color: 'red'}} onClick={handleDeleteMiner}>Delete</a>
+                            <a className='link-danger' onClick={handleDeleteMiner}>Delete</a>
                         </div>
                         <Container fluid>
                             <div className='text-dark p-3'>
