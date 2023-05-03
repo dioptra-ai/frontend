@@ -3,6 +3,7 @@ import {useHistory} from 'react-router-dom';
 import {ArrayParam, JsonParam, StringParam, useQueryParam, withDefault} from 'use-query-params';
 import {Button, Col, Row} from 'react-bootstrap';
 
+import theme from 'styles/theme.module.scss';
 import baseJSONClient from 'clients/base-json-client';
 import DatapointsViewer from 'components/datapoints-viewer';
 import Menu from 'components/menu';
@@ -108,15 +109,30 @@ const DataLake = () => {
                         <DatapointsViewer
                             filters={filtersWithModelNames} datasetId={datasetId} modelNames={modelNames}
                             renderActionButtons={({selectedDatapoints}) => selectedDatapoints.size ? (
-                                <DatasetSelector
-                                    allowNew title='Add selected to dataset'
-                                    onChange={async (datasetId) => {
-                                        await baseJSONClient.post(`/api/dataset/${datasetId}/add`, {datapointIds: Array.from(selectedDatapoints)});
-                                        history.push(`/dataset/${datasetId}`);
-                                    }}
-                                >
-                                    Add selected to dataset
-                                </DatasetSelector>
+                                <>
+                                    <DatasetSelector
+                                        allowNew title='Add selected to dataset'
+                                        onChange={async (datasetId) => {
+                                            await baseJSONClient.post(`/api/dataset/${datasetId}/add`, {datapointIds: Array.from(selectedDatapoints)});
+                                            history.push(`/dataset/${datasetId}`);
+                                        }}
+                                    >
+                                        Add to dataset
+                                    </DatasetSelector>
+                                    &nbsp;|&nbsp;
+                                    <a style={{color: theme.danger}} className='link-danger' onClick={async () => {
+                                        if (window.confirm(`Are you sure you want to delete ${selectedDatapoints.size} datapoints?`)) {
+                                            await baseJSONClient.post('/api/datapoints/delete', {
+                                                filters: [{
+                                                    left: 'id',
+                                                    op: 'in',
+                                                    right: Array.from(selectedDatapoints)
+                                                }]
+                                            });
+                                            window.location.reload();
+                                        }
+                                    }}>Delete from lake</a>
+                                </>
                             ) : null}
                         />
                     </Col>
