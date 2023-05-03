@@ -90,9 +90,9 @@ const Dataset = () => {
                             />
                             <Link to={`/data-lake?datasetId=${datasetId}`} >See Metrics</Link>
                                 &nbsp;|&nbsp;
-                            <a href='#' onClick={() => setIsDatasetEditOpen(true)}>Edit Name</a>
+                            <a onClick={() => setIsDatasetEditOpen(true)}>Edit Name</a>
                                 &nbsp;|&nbsp;
-                            <a href='#' onClick={() => setIsDatasetCommitVersionOpen(true)}>Commit</a>
+                            <a onClick={() => setIsDatasetCommitVersionOpen(true)}>Commit</a>
                                 &nbsp;|&nbsp;
                             <a className='link-danger' onClick={async () => {
                                 if (window.confirm('Do you really want to delete this dataset?\nThis action cannot be undone.')) {

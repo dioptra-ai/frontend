@@ -210,11 +210,7 @@ const Profile = ({userStore}) => {
                         <div key={apiKey._id}>
                             <pre style={{display: 'inline'}}>{apiKey.awsApiKey}</pre>
                             &nbsp;
-                            <Link
-                                className='cursor-pointer'
-                                to='#'
-                                onClick={() => handleDeleteApiKey(apiKey._id)}
-                            >
+                            <Link className='cursor-pointer' onClick={() => handleDeleteApiKey(apiKey._id)}>
                                 (Delete)
                             </Link>
                         </div>

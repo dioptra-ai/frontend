@@ -86,7 +86,7 @@ const DatasetVersion = () => {
                                         <div>
                                             <Link to={`/dataset/${dataset['uuid']}`}>See Dataset</Link>
                                             &nbsp;|&nbsp;
-                                            <a href='#' onClick={async () => {
+                                            <a onClick={async () => {
                                                 const datapointIds = await baseJSONClient(`/api/dataset/version/${versionId}/datapoint-ids`);
                                                 const data = await baseJSONClient.post('/api/datapoints/select', {
                                                     selectColumns: [

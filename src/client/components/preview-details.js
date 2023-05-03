@@ -36,7 +36,7 @@ export const RenderDatapoint = ({datapoint, parentIndex = 0}) => {
             <div>
                 {datapoint.length ? (
                     <div>
-                        <a href='#' onClick={(e) => {
+                        <a onClick={(e) => {
                             e.stopPropagation();
                             setCollapsed(!collapsed);
                         }}>

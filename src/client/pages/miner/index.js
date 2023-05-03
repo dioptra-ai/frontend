@@ -66,11 +66,11 @@ const Miner = () => {
                         ) : null}
                         <div className='bg-white-blue text-dark p-3'>
                             <h4>{miner['display_name']}</h4>
-                            <a href='#' onClick={() => setIsMinerModalOpen(true)}>Edit</a>
+                            <a onClick={() => setIsMinerModalOpen(true)}>Edit</a>
                             &nbsp;|&nbsp;
-                            <a href='#' onClick={handleRunMiner}>Run</a>
+                            <a onClick={handleRunMiner}>Run</a>
                             &nbsp;|&nbsp;
-                            <a href='#' onClick={() => handleResetMiner(false)}>Reset</a>
+                            <a onClick={() => handleResetMiner(false)}>Reset</a>
                             &nbsp;|&nbsp;
                             <a className='link-danger' onClick={handleDeleteMiner}>Delete</a>
                         </div>
