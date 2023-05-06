@@ -35,9 +35,8 @@ PredictionsRouter.post('/select', async (req, res, next) => {
 });
 
 PredictionsRouter.post('/select-distinct-model-names', async (req, res, next) => {
-
     try {
-        const predictions = await Prediction.selectDistinctModelNames({
+        const modelNames = await Prediction.selectDistinctModelNames({
             organizationId: req.user.requestOrganizationId,
             datapointFilters: req.body.datapointFilters,
             filters: req.body.filters,
@@ -46,7 +45,22 @@ PredictionsRouter.post('/select-distinct-model-names', async (req, res, next) =>
             offset: req.body.offset
         });
 
-        res.json(predictions);
+        res.json(modelNames);
+    } catch (e) {
+        next(e);
+    }
+});
+
+PredictionsRouter.post('/select-distinct-embedding-names', async (req, res, next) => {
+    try {
+        const embeddingNames = await Prediction.selectDistinctEmbeddingNames({
+            organizationId: req.user.requestOrganizationId,
+            datapointFilters: req.body.datapointFilters,
+            datasetId: req.body.datasetId,
+            modelNames: req.body.modelNames
+        });
+
+        res.json(embeddingNames);
     } catch (e) {
         next(e);
     }

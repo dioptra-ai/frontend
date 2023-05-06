@@ -1,13 +1,8 @@
 import {useEffect, useState} from 'react';
-import {useHistory} from 'react-router-dom';
 import {ArrayParam, JsonParam, StringParam, useQueryParam, withDefault} from 'use-query-params';
 import {Button, Col, Row} from 'react-bootstrap';
-
-import theme from 'styles/theme.module.scss';
 import baseJSONClient from 'clients/base-json-client';
-import DatapointsViewer from 'components/datapoints-viewer';
 import Menu from 'components/menu';
-import DatasetSelector from 'pages/dataset/dataset-selector';
 import TopBar from 'pages/common/top-bar';
 import FilterInput from 'pages/common/filter-input';
 import {setupComponent} from 'helpers/component-helper';
@@ -19,6 +14,7 @@ import UploadData from 'components/upload-data';
 import DataLakeDistributions from './distributions';
 import ModelMetrics from './model-metrics';
 import {getHexColor} from 'helpers/color-helper';
+import Explorer from './explorer';
 
 const ArrayParamDefaultEmpty = withDefault(ArrayParam, []);
 const JsonParamDefaultEmptyArray = withDefault(JsonParam, []);
@@ -28,11 +24,11 @@ const DataLake = () => {
     const [datasetId, setDatasetId] = useQueryParam('datasetId', StringParam);
     const [modelNames, setModelNames] = useQueryParam('modelNames', ArrayParamDefaultEmpty);
     const [showUploadDataModal, setShowUploadDataModal] = useState(false);
-    const history = useHistory();
-    const filtersWithModelNames = modelNames.length ? filters.concat([{
-        left: 'predictions.model_name',
+    const [selectedDatapointIds, setSelectedDatapointIds] = useState(new Set());
+    const selectedDatapointsFilters = selectedDatapointIds.size ? filters.concat([{
+        left: 'datapoints.id',
         op: 'in',
-        right: modelNames
+        right: Array.from(selectedDatapointIds)
     }]) : filters;
 
     useEffect(() => {
@@ -41,13 +37,11 @@ const DataLake = () => {
         }
     }, [datasetId]);
 
-
     useEffect(() => {
         if (!datasetId) {
             setModelNames(undefined);
         }
     }, [datasetId]);
-
 
     return (
         <Menu>
@@ -105,44 +99,21 @@ const DataLake = () => {
                 </Row>
                 <Row>
                     <Col md={datasetId ? 7 : 12}>
-                        {datasetId ? null : <div className='text-secondary mt-2 text-center'>Select a dataset for metrics</div>}
-                        <DatapointsViewer
-                            filters={filtersWithModelNames} datasetId={datasetId} modelNames={modelNames}
-                            renderActionButtons={({selectedDatapoints}) => selectedDatapoints.size ? (
-                                <>
-                                    <DatasetSelector
-                                        allowNew title='Add selected to dataset'
-                                        onChange={async (datasetId) => {
-                                            await baseJSONClient.post(`/api/dataset/${datasetId}/add`, {datapointIds: Array.from(selectedDatapoints)});
-                                            history.push(`/dataset/${datasetId}`);
-                                        }}
-                                    >
-                                        Add to dataset
-                                    </DatasetSelector>
-                                    &nbsp;|&nbsp;
-                                    <a style={{color: theme.danger}} className='link-danger' onClick={async () => {
-                                        if (window.confirm(`Are you sure you want to delete ${selectedDatapoints.size} datapoints?`)) {
-                                            await baseJSONClient.post('/api/datapoints/delete', {
-                                                filters: [{
-                                                    left: 'id',
-                                                    op: 'in',
-                                                    right: Array.from(selectedDatapoints)
-                                                }]
-                                            });
-                                            window.location.reload();
-                                        }
-                                    }}>Delete from lake</a>
-                                </>
-                            ) : null}
+                        <Explorer
+                            filters={filters}
+                            datasetId={datasetId}
+                            modelNames={modelNames}
+                            selectedDatapointIds={selectedDatapointIds}
+                            onSelectedDatapointIdsChange={setSelectedDatapointIds}
                         />
                     </Col>
                     {
                         datasetId ? (
                             <Col md={5}>
-                                <DataLakeDistributions filters={filters} datasetId={datasetId} modelNames={modelNames} />
+                                <DataLakeDistributions filters={selectedDatapointsFilters} datasetId={datasetId} modelNames={modelNames} selectedDatapointIds={selectedDatapointIds} />
                                 {
                                     modelNames?.length ? (
-                                        <ModelMetrics filters={filters} datasetId={datasetId} modelNames={modelNames} />
+                                        <ModelMetrics filters={selectedDatapointsFilters} datasetId={datasetId} modelNames={modelNames} selectedDatapointIds={selectedDatapointIds} />
                                     ) : null
                                 }
                             </Col>

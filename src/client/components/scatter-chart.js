@@ -87,7 +87,7 @@ const ScatterChart = ({
     const svgPointSeries = fc.seriesSvgPoint()
         .crossValue(getX)
         .mainValue(getY)
-        .size((d) => isDatapointSelected?.(d) ? 100 : 30)
+        .size((d) => isDatapointSelected?.(d) ? 60 : 30)
         .decorate((selection) => {
             selection.style('fill', (d) => getColor?.(d) || '#000');
             selection.style('stroke', (d) => getColor ? d3.color(getColor(d)).darker() : '#000');
@@ -179,8 +179,8 @@ ScatterChart.propTypes = {
     getPointTitle: PropTypes.func,
     isDatapointSelected: PropTypes.func,
     chartId: PropTypes.string,
-    width: PropTypes.string,
-    height: PropTypes.string,
+    width: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    height: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     onSelectedDataChange: PropTypes.func,
     showAxes: PropTypes.bool
 };

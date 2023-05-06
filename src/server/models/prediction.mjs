@@ -48,6 +48,25 @@ class Prediction extends SelectableModel {
         }
     }
 
+    static async selectDistinctEmbeddingNames({organizationId, datapointFilters, datasetId, modelNames}) {
+        const safeSelectQuery = await Datapoint.getSafeSelectQueryWithDatasetId({organizationId, selectColumns: ['id'], filters: datapointFilters, datasetId});
+
+        const {rows} = await postgresClient.query(
+            `SELECT DISTINCT feature_vectors.model_name
+                FROM feature_vectors
+                LEFT JOIN predictions ON feature_vectors.prediction = predictions.id
+                WHERE feature_vectors.organization_id = $1 AND datapoint IN (
+                        SELECT id FROM (${safeSelectQuery}) AS subquery
+                    )
+                    ${modelNames?.length ? 'AND predictions.model_name = ANY($2)' : ''}
+                    AND feature_vectors.type = 'EMBEDDINGS'
+                ORDER BY feature_vectors.model_name ASC`,
+            [organizationId].concat([modelNames] || [])
+        );
+
+        return rows.map((row) => row['model_name']);
+    }
+
     static async findByDatapointIds(organizationId, datapointIds) {
         if (!datapointIds.length) {
 

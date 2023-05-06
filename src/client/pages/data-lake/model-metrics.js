@@ -23,11 +23,11 @@ const SELECTABLE_METRICS = [
 
 const MetricParam = withDefault(StringParam, SELECTABLE_METRICS[0]);
 
-const ModelMetrics = ({modelNames, datasetId, datapointFilters}) => {
+const ModelMetrics = ({modelNames, datasetId, filters}) => {
     const [userSelectedMetric, setUserSelectedMetric] = useQueryParam('metric', MetricParam);
     const [areMetricsStale, setAreMetricsStale] = useState(true);
     const [lastEvaluationRequested, setLastEvaluationRequested] = useState(null);
-    const metricSpecs = modelNames.map((modelName) => useMetric(userSelectedMetric, modelName, datapointFilters, datasetId));
+    const metricSpecs = modelNames.map((modelName) => useMetric(userSelectedMetric, modelName, filters, datasetId));
     const fetchAllMetricsData = () => Promise.all(metricSpecs.map((metricSpec) => metricSpec.fetchData()));
     const screenComponent = (
         <div style={{
@@ -40,7 +40,7 @@ const ModelMetrics = ({modelNames, datasetId, datapointFilters}) => {
 
     useEffect(() => {
         setAreMetricsStale(true);
-    }, [datapointFilters, datasetId, modelNames, userSelectedMetric]);
+    }, [filters, datasetId, modelNames, userSelectedMetric]);
 
     useEffect(() => {
         setAreMetricsStale(!lastEvaluationRequested);
@@ -129,7 +129,7 @@ const ModelMetrics = ({modelNames, datasetId, datapointFilters}) => {
 ModelMetrics.propTypes = {
     modelNames: PropTypes.arrayOf(PropTypes.string).isRequired,
     datasetId: PropTypes.string,
-    datapointFilters: PropTypes.arrayOf(PropTypes.object)
+    filters: PropTypes.arrayOf(PropTypes.object)
 };
 
 export default ModelMetrics;

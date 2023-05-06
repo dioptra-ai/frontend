@@ -1,3 +1,4 @@
+import assert from 'assert';
 import {postgresClient, postgresTransaction} from './index.mjs';
 
 // dataset.create()                 -> creates a new clean uncommitted version empty
@@ -62,15 +63,13 @@ class Dataset {
     }
 
     static async findUncommittedVersion(organizationId, id) {
+        assert(id, 'Dataset id is required');
         const {rows: [uncommittedVersion]} = await postgresClient.query(
             'SELECT * FROM dataset_versions WHERE dataset_uuid = $1 AND organization_id = $2 AND committed = false',
             [id, organizationId]
         );
 
-        // There must be an uncommitted version.
-        if (!uncommittedVersion) {
-            throw new Error('Could not find the latest version of this dataset.');
-        }
+        assert(uncommittedVersion, 'Could not find the latest version of this dataset.');
 
         return uncommittedVersion;
     }
@@ -97,6 +96,7 @@ class Dataset {
     }
 
     static async findVersions(organizationId, id) {
+        assert(id, 'Dataset id is required');
         const {rows} = await postgresClient.query(
             `SELECT * FROM dataset_versions
             WHERE dataset_versions.dataset_uuid = $1 AND dataset_versions.organization_id = $2
@@ -104,9 +104,7 @@ class Dataset {
             [id, organizationId]
         );
 
-        if (!rows.length) {
-            throw new Error('No versions found.');
-        }
+        assert(rows.length, 'Could not find any versions for this dataset.');
 
         return rows;
     }
