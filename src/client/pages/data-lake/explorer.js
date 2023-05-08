@@ -13,14 +13,8 @@ import LoadingForm from 'components/loading-form';
 import Async from 'components/async';
 import {getHexColor} from 'helpers/color-helper';
 
-const VIEWS = {
-    DATA: 'Data Viewer',
-    CLUSTERING: 'Clustering'
-};
-
 const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelectedDatapointIdsChange}) => {
     const history = useHistory();
-    const [view, setView] = useState(VIEWS.DATA);
     const [selectedEmbeddingsName, setSelectedEmbeddingsName] = useState();
     const [clusteringFormChanged, setClusteringFormChanged] = useState(false);
     const [vectorsWithCoordinates, setVectorsWithCoordinates] = useState();
@@ -49,18 +43,12 @@ const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelec
                 {
                     datasetId ? (
                         <div className='mb-2'>
-                            <Select value={view} onChange={setView}>{
-                                Object.entries(VIEWS).map(([key, value]) => (
-                                    <option key={key} value={value}>{value}</option>
-                                ))
-                            }</Select>
                             {
-                                view === VIEWS.CLUSTERING ? (
+                                datasetId ? (
                                     <LoadingForm className='mt-2' onChange={setClusteringFormChanged} onSubmit={async () => {
                                         const vectors = await baseJSONClient.post('/api/metrics/vectors/reduce-dimensions', {
                                             datapoint_filters: filters,
                                             dataset_id: datasetId,
-                                            model_names: modelNames,
                                             embeddings_name: selectedEmbeddingsName
                                         });
 
@@ -96,7 +84,7 @@ const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelec
                     ) : null
                 }
                 {
-                    view === VIEWS.CLUSTERING ? (
+                    datasetId ? (
                         <div className='mb-2'>
                             {vectorsWithCoordinates ? (
                                 <ScatterChart

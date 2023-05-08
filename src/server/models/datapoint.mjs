@@ -29,15 +29,20 @@ class Datapoint extends SelectableModel {
         return rows;
     }
 
-    static async findVectorIds(organizationId, filters, orderBy, desc, limit, offset, type, modelName) {
+    static async findVectorIds(organizationId, filters, orderBy, desc, limit, offset, type, modelName, datasetId) {
+        let safeSelectQuery = '';
+
+        if (datasetId) {
+            safeSelectQuery = await this.getSafeSelectQueryWithDatasetId({organizationId, filters, orderBy, desc, limit, offset, selectColumns: ['datapoints.id'], datasetId});
+        } else {
+            safeSelectQuery = this.getSafeSelectQuery({organizationId, filters, orderBy, desc, limit, offset, selectColumns: ['datapoints.id']});
+        }
         const {rows} = await postgresClient.query(
             `SELECT feature_vectors.id 
                 FROM feature_vectors 
                 INNER JOIN predictions ON feature_vectors.prediction = predictions.id
                 WHERE predictions.datapoint IN (
-                    SELECT id FROM (
-                        ${this.getSafeSelectQuery({organizationId, filters, orderBy, desc, limit, offset, selectColumns: ['datapoints.id']})}
-                    ) AS subquery
+                    SELECT id FROM (${safeSelectQuery}) AS subquery
                 )
                 AND feature_vectors.type = $1
                 AND feature_vectors.model_name = $2`,

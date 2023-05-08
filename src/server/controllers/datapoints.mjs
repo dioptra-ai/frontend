@@ -88,7 +88,8 @@ DatapointsRouter.post('/find-vector-ids', async (req, res, next) => {
             req.body.limit,
             req.body.offset,
             req.body.type,
-            req.body.modelName
+            req.body.modelName,
+            req.body.datasetId
         );
 
         res.json(vectorIds);

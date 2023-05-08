@@ -61,7 +61,7 @@ class Prediction extends SelectableModel {
                     ${modelNames?.length ? 'AND predictions.model_name = ANY($2)' : ''}
                     AND feature_vectors.type = 'EMBEDDINGS'
                 ORDER BY feature_vectors.model_name ASC`,
-            [organizationId].concat([modelNames] || [])
+            [organizationId].concat(modelNames?.length ? [modelNames] : [])
         );
 
         return rows.map((row) => row['model_name']);
