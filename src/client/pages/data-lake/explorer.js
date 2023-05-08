@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import {useState} from 'react';
 import {useHistory} from 'react-router-dom';
-import {Button, Col, Row} from 'react-bootstrap';
+import {Col, Row} from 'react-bootstrap';
 
 import baseJSONClient from 'clients/base-json-client';
 import theme from 'styles/theme.module.scss';
@@ -45,16 +45,17 @@ const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelec
                         <div className='mb-2'>
                             {
                                 datasetId ? (
-                                    <LoadingForm className='mt-2' onChange={setClusteringFormChanged} onSubmit={async () => {
+                                    <LoadingForm className='mt-2' onChange={() => setClusteringFormChanged(true)} onSubmit={async () => {
                                         const vectors = await baseJSONClient.post('/api/metrics/vectors/reduce-dimensions', {
                                             datapoint_filters: filters,
                                             dataset_id: datasetId,
                                             embeddings_name: selectedEmbeddingsName
                                         });
 
+                                        setClusteringFormChanged(false);
                                         setVectorsWithCoordinates(vectors);
                                     }}>
-                                        <Row>
+                                        <Row className='g-2'>
                                             <Col>
                                                 <Async
                                                     fetchData={() => baseJSONClient.post('/api/predictions/select-distinct-embedding-names', {
@@ -65,7 +66,9 @@ const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelec
                                                     refetchOnChanged={[filters, datasetId, modelNames]}
                                                     renderData={(embeddingNames) => (
                                                         <Select required value={selectedEmbeddingsName} defaultValue='' onChange={setSelectedEmbeddingsName}>
-                                                            <option value='' disabled>Select an embedding</option>
+                                                            <option value='' disabled>{
+                                                                embeddingNames.length ? 'Select an embedding' : 'No embeddings available'
+                                                            }</option>
                                                             {embeddingNames.map((embeddingName) => (
                                                                 <option key={embeddingName} value={embeddingName}>{embeddingName}</option>
                                                             ))}
@@ -74,7 +77,7 @@ const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelec
                                                 />
                                             </Col>
                                             <Col>
-                                                <Button disabled={!clusteringFormChanged} variant='secondary' type='submit' className='w-100'>Evaluate</Button>
+                                                <LoadingForm.Button disabled={!clusteringFormChanged} variant='secondary' type='submit' className='w-100'>Run embeddings analysis</LoadingForm.Button>
                                             </Col>
                                         </Row>
                                     </LoadingForm>
@@ -114,9 +117,7 @@ const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelec
                                         }
                                     }}
                                 />
-                            ) : (
-                                <div className='text-secondary mt-2 text-center'>Evaluate to see clusters</div>
-                            )}
+                            ) : null}
                         </div>
                     ) : null
                 }

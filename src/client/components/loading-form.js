@@ -65,7 +65,7 @@ const LoadingFormButton = ({children, ...rest}) => {
     return (
         <LoadingFormContext.Consumer>
             {({loading}) => loading ? (
-                <Button disabled {...rest}>
+                <Button {...rest} disabled>
                     <div className='position-relative'>
                         {children}
                         <div style={{
