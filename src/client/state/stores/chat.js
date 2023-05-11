@@ -27,13 +27,18 @@ class ChatStore {
         this.m = [...this.m, {role, content}];
     }
 
-    sendUserMessage(content) {
+    async sendUserMessage(content) {
         if (!this.isOpen) {
             this.setIsOpen(true);
             toggleWidget();
         }
+        // TODO - remove
+        toggleMsgLoader();
+        await new Promise((resolve) => setTimeout(resolve, 3000));
 
         addUserMessage(content);
+        // TODO: remove
+        toggleMsgLoader();
 
         this.addMessage('user', content);
         this.getChatResponse();

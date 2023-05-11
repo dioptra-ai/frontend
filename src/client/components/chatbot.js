@@ -14,7 +14,7 @@ const _ChatBot = ({chatStore}) => {
         <>
             <style>{`
             .rcw-widget-container {
-                max-width: 500px;
+                max-width: 370px;
             }
             .rcw-launcher {
                 background-color: ${theme.primary};
