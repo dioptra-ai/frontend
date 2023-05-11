@@ -1,8 +1,12 @@
+import PropTypes from 'prop-types';
 import {Widget as ReactChatWidget} from 'react-chat-widget';
 import 'react-chat-widget/lib/styles.css';
+
+import {setupComponent} from 'helpers/component-helper';
+
 import theme from 'styles/theme.module.scss';
 
-const ChatBot = () => {
+const ChatBot = ({chatStore}) => {
 
     return (
         <>
@@ -17,20 +21,25 @@ const ChatBot = () => {
                 background-color: ${theme.light};
                 color: ${theme.dark};
             }
-            .rcw-message > .rcw-response {
+            .rcw-message > .rcw-message-text {
                 background-color: ${theme.primary};
                 color: white;
             }`}</style>
             <ReactChatWidget
-                title='Data Chatbot'
-                subtitle='Ask me anything!'
-                handleNewUserMessage={(message) => {
-                    console.log('~/dioptra/services/frontend/src/client/components/datapoints-viewer/index.js:75 > ', message);
+                title='DataBot'
+                subtitle={null}
+                handleToggle={(isOpen) => chatStore.setIsOpen(isOpen)}
+                handleNewUserMessage={(content) => {
+                    chatStore.addMessage('user', content);
+                    chatStore.getChatResponse();
                 }}
             />
         </>
     );
 };
 
+ChatBot.propTypes = {
+    chatStore: PropTypes.object.isRequired
+};
 
-export default ChatBot;
+export default setupComponent(ChatBot);

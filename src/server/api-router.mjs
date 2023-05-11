@@ -18,6 +18,7 @@ import PredictionsRouter from './controllers/prediction.mjs';
 import BBoxesRouter from './controllers/bbox.mjs';
 import SuggestionsRouter from './controllers/suggestion.mjs';
 import EventsRouter from './controllers/events.mjs';
+import ChatRouter from './controllers/chat.mjs';
 
 const ApiRouter = express.Router();
 
@@ -40,5 +41,6 @@ ApiRouter.use('/bboxes', BBoxesRouter);
 ApiRouter.use('/suggestions', SuggestionsRouter);
 ApiRouter.use('/dataset', DatasetRouter);
 ApiRouter.use('/events', EventsRouter);
+ApiRouter.use('/chat', ChatRouter);
 
 export default ApiRouter;
