@@ -1,7 +1,8 @@
 import PropTypes from 'prop-types';
 import {Widget as ReactChatWidget} from 'react-chat-widget';
 import 'react-chat-widget/lib/styles.css';
-import {BsChatRightDots} from 'react-icons/bs';
+import {IoMdSend} from 'react-icons/io';
+import {BiBot} from 'react-icons/bi';
 
 import {setupComponent} from 'helpers/component-helper';
 
@@ -27,7 +28,11 @@ const _ChatBot = ({chatStore}) => {
                 color: white;
             }`}</style>
             <ReactChatWidget
-                title='DataBot'
+                title={(
+                    <div className='d-flex justify-content-center align-items-center'>
+                        <BiBot className='fs-1'/>&nbsp;DataBot
+                    </div>
+                )}
                 subtitle={null}
                 handleToggle={(isOpen) => chatStore.setIsOpen(isOpen)}
                 handleNewUserMessage={(content) => {
@@ -48,8 +53,8 @@ const ChatBot = setupComponent(_ChatBot);
 export default ChatBot;
 
 const SendButton = ({chatStore, message}) => (
-    <a onClick={() => chatStore.sendUserMessage(message)}>
-        <BsChatRightDots />
+    <a onClick={() => chatStore.sendUserMessage(message)} title='Send to chat' className='d-inline-flex align-items-center justify-content-center'>
+        <IoMdSend />
     </a>
 );
 

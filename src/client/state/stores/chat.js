@@ -3,7 +3,7 @@ import {addResponseMessage, addUserMessage, toggleMsgLoader, toggleWidget} from 
 import baseJSONClient from 'clients/base-json-client';
 
 class ChatStore {
-    messages = [];
+    m = [];
 
     isOpen = false;
 
@@ -11,14 +11,21 @@ class ChatStore {
         makeAutoObservable(this);
     }
 
+    get messages() {
+
+        return [{
+            role: 'system',
+            content: 'Your name is DataBot.'
+        }, ...this.m];
+    }
+
     setIsOpen(isOpen) {
         this.isOpen = isOpen;
     }
 
     addMessage(role, content) {
-        this.messages = [...this.messages, {role, content}];
+        this.m = [...this.m, {role, content}];
     }
-
 
     sendUserMessage(content) {
         if (!this.isOpen) {
