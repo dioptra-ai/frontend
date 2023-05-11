@@ -5,13 +5,12 @@ import {GrNext, GrPrevious} from 'react-icons/gr';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import Form from 'react-bootstrap/Form';
-import {BsChatRightDots} from 'react-icons/bs';
 
 import Async from 'components/async';
 import Modal from 'components/modal';
+import ChatBot from 'components/chatbot';
 import baseJSONClient from 'clients/base-json-client';
 import {mod} from 'helpers/math';
-import {setupComponent} from 'helpers/component-helper';
 
 import Datapoint from './datapoint';
 
@@ -182,7 +181,7 @@ DatapointsPage.propTypes = {
     onSelectedDatapointsChange: PropTypes.func
 };
 
-const _DatapointsPageActions = ({filters, datasetId, datapoints, selectedDatapoints, onSelectedDatapointsChange, renderActionButtons, chatStore}) => {
+const DatapointsPageActions = ({filters, datasetId, datapoints, selectedDatapoints, onSelectedDatapointsChange, renderActionButtons}) => {
     const selectAllRef = useRef();
     const handleSelectedDatapointsChange = (d) => {
         onSelectedDatapointsChange(new Set(d));
@@ -260,13 +259,9 @@ const _DatapointsPageActions = ({filters, datasetId, datapoints, selectedDatapoi
                             />
                         </div>
                         <div>
-                            <a onClick={() => {
-                                chatStore.sendUserMessage(`Here are the datapoints I selected: ${
-                                    String(selectedDatapoints)
-                                }.`);
-                            }}>
-                                <BsChatRightDots/>
-                            </a>
+                            <ChatBot.SendButton
+                                message={`Here are the datapoints I selected: ${String(selectedDatapoints)}.`}
+                            />
                             &nbsp;|&nbsp;
                             {renderActionButtons?.({selectedDatapoints})}
                         </div>
@@ -277,17 +272,14 @@ const _DatapointsPageActions = ({filters, datasetId, datapoints, selectedDatapoi
     );
 };
 
-_DatapointsPageActions.propTypes = {
+DatapointsPageActions.propTypes = {
     filters: PropTypes.array.isRequired,
     datasetId: PropTypes.string,
     datapoints: PropTypes.array.isRequired,
     selectedDatapoints: PropTypes.instanceOf(Set).isRequired,
     onSelectedDatapointsChange: PropTypes.func,
-    renderActionButtons: PropTypes.func,
-    chatStore: PropTypes.object.isRequired
+    renderActionButtons: PropTypes.func
 };
-
-const DatapointsPageActions = setupComponent(_DatapointsPageActions);
 
 const PAGE_SIZE = 50;
 
