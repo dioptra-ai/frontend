@@ -13,6 +13,9 @@ const _ChatBot = ({chatStore}) => {
     return (
         <>
             <style>{`
+            .rcw-widget-container {
+                max-width: 500px;
+            }
             .rcw-launcher {
                 background-color: ${theme.primary};
             }
@@ -54,7 +57,7 @@ export default ChatBot;
 
 const SendButton = ({chatStore, message}) => (
     <a onClick={() => chatStore.sendUserMessage(message)} title='Send to chat' className='d-inline-flex align-items-center justify-content-center'>
-        <IoMdSend />
+        Send to DataBot <IoMdSend />
     </a>
 );
 

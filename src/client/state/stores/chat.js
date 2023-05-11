@@ -36,6 +36,7 @@ class ChatStore {
         addUserMessage(content);
 
         this.addMessage('user', content);
+        this.getChatResponse();
     }
 
     async getChatResponse() {
