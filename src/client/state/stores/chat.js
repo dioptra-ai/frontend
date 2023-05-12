@@ -13,10 +13,7 @@ class ChatStore {
 
     get messages() {
 
-        return [{
-            role: 'system',
-            content: 'Your name is DataBot.'
-        }, ...this.m];
+        return this.m;
     }
 
     setIsOpen(isOpen) {
@@ -51,9 +48,11 @@ class ChatStore {
             const responseMessage = await baseJSONClient.post('/api/chat/send', {
                 messages: this.messages
             });
+            // Format all URLs in the response message that are preceded by a space (not formatted) to Markdown.
+            const formattedResponse = responseMessage.content.replace(/(\s(https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+~#?&//=]*)))/, ' [$2]($2)');
 
-            addResponseMessage(responseMessage.content);
-            this.addMessage('assistant', responseMessage.content);
+            this.addMessage('assistant', formattedResponse);
+            addResponseMessage(formattedResponse);
         } catch (e) {
             console.error(e);
         } finally {
