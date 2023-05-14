@@ -72,7 +72,7 @@ module.exports = {
             template: './src/client/public/index.html'
         }),
         new webpack.DefinePlugin({
-            _WEBPACK_DEF_FLAG_DISABLE_REGISTER_: true,
+            _WEBPACK_DEF_FLAG_DISABLE_REGISTER_: false,
             _WEBPACK_DEF_COMMIT_REF_: JSON.stringify(process.env.COMMIT_REF)
         })
     ]

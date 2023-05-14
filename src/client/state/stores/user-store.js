@@ -1,8 +1,8 @@
 import {makeAutoObservable} from 'mobx';
 
 import authenticationClient from 'clients/authentication';
-import userClient from 'clients/user';
 import {identify, resetTracking} from 'helpers/tracking';
+import baseJSONClient from 'clients/base-json-client';
 
 class UserStore {
     _userData = null;
@@ -62,11 +62,15 @@ class UserStore {
     }
 
     async tryUpdate(data) {
-        this.userData = await userClient('put', data);
+        this.userData = await baseJSONClient.put('/api/user', data);
     }
 
-    async tryRegister(data) {
-        this.userData = await userClient('post', data);
+    async tryRegister(data, token) {
+        this.userData = await baseJSONClient.post('/api/user', data, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
         this.tryLogin(data);
     }
 }

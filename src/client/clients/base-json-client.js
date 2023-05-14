@@ -69,7 +69,7 @@ const memoizedFetch = mem(jsonFetch, {
 });
 const baseJSONClient = (
     url,
-    {method = 'get', body, headers = {'content-type': 'application/json'}, memoized = false, ...rest} = {}
+    {method = 'get', body, headers = {}, memoized = false, ...rest} = {}
 ) => {
     const fetch = memoized ? memoizedFetch : jsonFetch;
 
@@ -77,7 +77,11 @@ const baseJSONClient = (
         retries: 15,
         retryDelay: 3000,
         retryOn: [503, 504],
-        method, headers,
+        method,
+        headers: {
+            'content-type': 'application/json',
+            ...headers
+        },
         body: body ? JSON.stringify(body) : undefined,
         ...rest
     });
@@ -86,5 +90,6 @@ const baseJSONClient = (
 baseJSONClient.get = (url, options) => baseJSONClient(url, {...options, method: 'get'});
 baseJSONClient.delete = (url, options) => baseJSONClient(url, {...options, method: 'delete'});
 baseJSONClient.post = (url, body, options) => baseJSONClient(url, {...options, body, method: 'post'});
+baseJSONClient.put = (url, body, options) => baseJSONClient(url, {...options, body, method: 'put'});
 
 export default baseJSONClient;

@@ -1,9 +1,16 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import {body} from 'express-validator';
+import {SESv2Client, SendEmailCommand} from '@aws-sdk/client-sesv2';
+import jwt from 'jsonwebtoken';
+import {expressjwt} from 'express-jwt';
+
 import {isAuthenticated} from '../middleware/authentication.mjs';
 import validate from '../middleware/validate.mjs';
 
+const JWT_PRIVATE_KEY = process.env.JWT_PRIVATE_KEY || 'supersecretkey';
+const JWT_ALGORITHM = 'HS256';
+const sesClient = new SESv2Client({region: 'us-east-2'});
 
 const UserRouter = express.Router();
 
@@ -41,6 +48,7 @@ UserRouter.post('/',
     body('username').isEmail(),
     body('password').isLength({min: 5}),
     validate,
+    expressjwt({secret: JWT_PRIVATE_KEY, algorithms: [JWT_ALGORITHM]}),
     async (req, res, next) => {
         try {
             const UserModel = mongoose.model('User');
@@ -66,6 +74,50 @@ UserRouter.post('/',
             next(e);
         }
     });
+
+UserRouter.post('/registration-token', async (req, res, next) => {
+    try {
+        const token = jwt.sign({
+            username: req.body.username
+        }, JWT_PRIVATE_KEY, {
+            expiresIn: '1h',
+            audience: 'dioptra.ai',
+            issuer: 'dioptra.ai',
+            subject: 'registration',
+            algorithm: JWT_ALGORITHM
+        });
+
+        console.log(req.get('origin'));
+        console.log(req.body.username);
+
+        await sesClient.send(new SendEmailCommand({
+            FromEmailAddress: 'hello@dioptra.ai',
+            Destination: {
+                ToAddresses: [req.body.username]
+            },
+            Content: {
+                Simple: {
+                    Subject: {
+                        Data: 'Dioptra.ai Registration'
+                    },
+                    Body: {
+                        Html: {
+                            Data: `
+                                <h1>Hello from Dioptra!</h1>
+                                <p>Click <a href="${req.get('origin')}/register?token=${token}">here</a> to register (this link will expire in 1 hour).</p>
+                            `,
+                            Charset: 'UTF-8'
+                        }
+                    }
+                }
+            }
+        }));
+
+        res.end();
+    } catch (e) {
+        next(e);
+    }
+});
 
 UserRouter.get('/my-memberships', isAuthenticated, async (req, res, next) => {
     try {
