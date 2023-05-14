@@ -49,6 +49,9 @@ const Register = ({userStore}) => {
                 <p className='text-dark bold-text fs-3 mb-4'>Register</p>
                 <LoadingForm autoComplete='off' className='w-100' onSubmit={handleSubmit}>
                     <LoadingForm.Error />
+                    <LoadingForm.Success >
+                        {() => decodedToken ? 'Your account has been created.' : 'A registration link has been sent to your email.'}
+                    </LoadingForm.Success>
                     <Form.Group className='mb-3'>
                         <Form.Label>Email</Form.Label>
                         <InputGroup>
