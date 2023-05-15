@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import {Col, Row} from 'react-bootstrap';
 import {Bar} from 'recharts';
 
+import theme from 'styles/theme.module.scss';
 import BarGraph from 'components/bar-graph';
 import {getHexColor} from 'helpers/color-helper';
 import Async from 'components/async';
@@ -42,7 +43,7 @@ const DataLakeDistributions = ({filters, datasetId, modelNames}) => {
                                 verticalIfMoreThan={10}
                                 bars={Object.entries(groundtruthDistribution.histogram).map(([name, value]) => ({
                                     name, value,
-                                    fill: getHexColor(Number.isNaN(Number(name)) ? name : groundtruthDistribution['task_type'])
+                                    fill: theme.primary
                                 }))}
                             />
                         </Col>

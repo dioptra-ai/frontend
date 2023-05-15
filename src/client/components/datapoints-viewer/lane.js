@@ -6,7 +6,7 @@ const Lane = ({lane, imageHeight, imageWidth, color}) => (
     <div className='position-absolute h-100 w-100'>
         <Polyline
             cocoCoordinates={lane['coco_polyline']}
-            lineWidth={4}
+            lineWidth={8}
             color={color}
             width={imageWidth} height={imageHeight}
         />

@@ -6,6 +6,7 @@ import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
 import Form from 'react-bootstrap/Form';
 
+import theme from 'styles/theme.module.scss';
 import {PerformanceBox} from 'pages/common/performance-per-class';
 import {RenderDatapoint} from 'components/preview-details';
 import SignedImage from 'components/signed-image';
@@ -138,7 +139,7 @@ const Datapoint = ({datapoint = {}, onClick, zoomable, showDetails, maxHeight}) 
                                                         g.bboxes?.map((bbox, j) => <BBox imageWidth={imageW} imageHeight={imageH} bbox={bbox} key={j} showHeatMap={showHeatMap} />)
                                                     }
                                                     {
-                                                        g.lanes?.map((lane, j) => <Lane imageWidth={imageW} imageHeight={imageH} lane={lane} key={j} color={getHexColor(g['task_type'])} />)
+                                                        g.lanes?.map((lane, j) => <Lane imageWidth={imageW} imageHeight={imageH} lane={lane} key={j} color={theme.primary} />)
                                                     }
                                                 </>
                                             )) : null
