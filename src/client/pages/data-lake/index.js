@@ -110,7 +110,7 @@ const DataLake = () => {
                     {
                         datasetId ? (
                             <Col md={5}>
-                                <DataLakeDistributions filters={selectedDatapointsFilters} datasetId={datasetId} modelNames={modelNames} selectedDatapointIds={selectedDatapointIds} />
+                                <DataLakeDistributions filters={selectedDatapointsFilters} setFilters={setFilters} datasetId={datasetId} modelNames={modelNames} selectedDatapointIds={selectedDatapointIds} />
                                 {
                                     modelNames?.length ? (
                                         <ModelMetrics filters={selectedDatapointsFilters} datasetId={datasetId} modelNames={modelNames} selectedDatapointIds={selectedDatapointIds} />

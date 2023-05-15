@@ -9,7 +9,7 @@ import Async from 'components/async';
 import baseJSONClient from 'clients/base-json-client';
 import Error from 'components/error';
 
-const DataLakeDistributions = ({filters, datasetId, modelNames}) => {
+const DataLakeDistributions = ({filters, setFilters, datasetId, modelNames}) => {
     const filtersWithModelNames = modelNames.length ? filters.concat([{
         left: 'predictions.model_name',
         op: 'in',
@@ -39,10 +39,19 @@ const DataLakeDistributions = ({filters, datasetId, modelNames}) => {
                     renderData={(groundtruthDistribution) => groundtruthDistribution.histogram && Object.keys(groundtruthDistribution.histogram).length ? (
                         <Col md={modelNames?.length ? 6 : 12}>
                             <BarGraph
+                                onClick={({groundtruthIds}) => {
+                                    setFilters([{
+                                        left: 'groundtruths.id',
+                                        op: 'in',
+                                        right: groundtruthIds
+                                    }]);
+                                }}
                                 title={groundtruthDistribution.title || 'Groundtruths'}
                                 verticalIfMoreThan={10}
-                                bars={Object.entries(groundtruthDistribution.histogram).map(([name, value]) => ({
-                                    name, value,
+                                bars={Object.entries(groundtruthDistribution.histogram).map(([name, {value, ids}]) => ({
+                                    name,
+                                    value,
+                                    groundtruthIds: ids,
                                     fill: theme.primary
                                 }))}
                             />
@@ -84,14 +93,32 @@ const DataLakeDistributions = ({filters, datasetId, modelNames}) => {
                                             verticalIfMoreThan={10}
                                             bars={classes.map((className) => ({
                                                 name: className,
-                                                ...distributions.reduce((acc, distribution, i) => ({
-                                                    ...acc,
-                                                    [modelNames[i]]: distribution.histogram[className]
-                                                }), {})
+                                                ...distributions.reduce((acc, distribution, i) => {
+                                                    const predictionIds = distribution.histogram[className]?.['ids'] || [];
+
+                                                    return {
+                                                        ...acc,
+                                                        [modelNames[i]]: distribution.histogram[className]?.['value'],
+                                                        predictionIds: predictionIds.concat(acc.predictionIds || [])
+                                                    };
+                                                }, {})
                                             }))}
                                         >
                                             {modelNames.map((modelName) => (
-                                                <Bar key={modelName} maxBarSize={50} minPointSize={2} dataKey={modelName} fill={getHexColor(modelName)} />
+                                                <Bar
+                                                    className='cursor-pointer'
+                                                    key={modelName}
+                                                    maxBarSize={50}
+                                                    minPointSize={2}
+                                                    dataKey={modelName}
+                                                    fill={getHexColor(modelName)}
+                                                    onClick={({predictionIds}) => {
+                                                        setFilters([{
+                                                            left: 'predictions.id',
+                                                            op: 'in',
+                                                            right: predictionIds
+                                                        }]);
+                                                    }} />
                                             ))}
                                         </BarGraph>
                                     </Col>
@@ -125,16 +152,35 @@ const DataLakeDistributions = ({filters, datasetId, modelNames}) => {
                                 return (
                                     <BarGraph
                                         title='Entropies'
+                                        verticalIfMoreThan={Infinity}
                                         bars={bins.map((bin) => ({
                                             name: bin,
-                                            ...distributions.reduce((acc, distribution, i) => ({
-                                                ...acc,
-                                                [modelNames[i]]: distribution.histogram[bin]
-                                            }), {})
+                                            ...distributions.reduce((acc, distribution, i) => {
+                                                const predictionIds = distribution.histogram[bin]?.['ids'] || [];
+
+                                                return {
+                                                    ...acc,
+                                                    [modelNames[i]]: distribution.histogram[bin]?.['value'],
+                                                    predictionIds: predictionIds.concat(acc.predictionIds || [])
+                                                };
+                                            }, {})
                                         }))}
                                     >
                                         {modelNames.map((modelName) => (
-                                            <Bar key={modelName} maxBarSize={50} minPointSize={2} dataKey={modelName} fill={getHexColor(modelName)} />
+                                            <Bar
+                                                className='cursor-pointer'
+                                                key={modelName}
+                                                maxBarSize={50} minPointSize={2}
+                                                dataKey={modelName}
+                                                fill={getHexColor(modelName)}
+                                                onClick={({predictionIds}) => {
+                                                    setFilters([{
+                                                        left: 'predictions.id',
+                                                        op: 'in',
+                                                        right: predictionIds
+                                                    }]);
+                                                }}
+                                            />
                                         ))}
                                     </BarGraph>
                                 );
@@ -150,6 +196,7 @@ const DataLakeDistributions = ({filters, datasetId, modelNames}) => {
 
 DataLakeDistributions.propTypes = {
     filters: PropTypes.array,
+    setFilters: PropTypes.func.isRequired,
     datasetId: PropTypes.string.isRequired,
     modelNames: PropTypes.array
 };
