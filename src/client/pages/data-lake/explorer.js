@@ -16,7 +16,6 @@ import {getHexColor} from 'helpers/color-helper';
 const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelectedDatapointIdsChange}) => {
     const history = useHistory();
     const [selectedEmbeddingsName, setSelectedEmbeddingsName] = useState();
-    const [clusteringFormChanged, setClusteringFormChanged] = useState(false);
     const [vectorsWithCoordinates, setVectorsWithCoordinates] = useState();
     const filtersForSelectedDatapointsAndModels = filters.concat();
 
@@ -45,26 +44,25 @@ const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelec
                         <div className='mb-2'>
                             {
                                 datasetId ? (
-                                    <LoadingForm className='mt-2' onChange={() => setClusteringFormChanged(true)} onSubmit={async () => {
+                                    <LoadingForm className='mt-2' onSubmit={async () => {
                                         const vectors = await baseJSONClient.post('/api/metrics/vectors/reduce-dimensions', {
                                             datapoint_filters: filters,
                                             dataset_id: datasetId,
                                             embeddings_name: selectedEmbeddingsName
                                         });
 
-                                        setClusteringFormChanged(false);
                                         setVectorsWithCoordinates(vectors);
                                     }}>
-                                        <Row className='g-2'>
-                                            <Col>
-                                                <Async
-                                                    fetchData={() => baseJSONClient.post('/api/predictions/select-distinct-embedding-names', {
-                                                        datapointFilters: filters,
-                                                        datasetId,
-                                                        modelNames
-                                                    })}
-                                                    refetchOnChanged={[filters, datasetId, modelNames]}
-                                                    renderData={(embeddingNames) => (
+                                        <Async
+                                            fetchData={() => baseJSONClient.post('/api/predictions/select-distinct-embedding-names', {
+                                                datapointFilters: filters,
+                                                datasetId,
+                                                modelNames
+                                            }, {memoized: true})}
+                                            refetchOnChanged={[filters, datasetId, modelNames]}
+                                            renderData={(embeddingNames) => (
+                                                <Row className='g-2'>
+                                                    <Col>
                                                         <Select required value={selectedEmbeddingsName} defaultValue='' onChange={setSelectedEmbeddingsName}>
                                                             <option value='' disabled>{
                                                                 embeddingNames.length ? 'Select an embedding' : 'No embeddings available'
@@ -73,13 +71,13 @@ const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelec
                                                                 <option key={embeddingName} value={embeddingName}>{embeddingName}</option>
                                                             ))}
                                                         </Select>
-                                                    )}
-                                                />
-                                            </Col>
-                                            <Col>
-                                                <LoadingForm.Button disabled={!clusteringFormChanged} variant='secondary' type='submit' className='w-100'>Run embeddings analysis</LoadingForm.Button>
-                                            </Col>
-                                        </Row>
+                                                    </Col>
+                                                    <Col>
+                                                        <LoadingForm.Button disabled={!embeddingNames.length} variant='secondary' type='submit' className='w-100'>Run embeddings analysis</LoadingForm.Button>
+                                                    </Col>
+                                                </Row>
+                                            )}
+                                        />
                                     </LoadingForm>
                                 ) : null
                             }
