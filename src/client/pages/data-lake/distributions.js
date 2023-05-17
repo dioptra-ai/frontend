@@ -40,7 +40,7 @@ const DataLakeDistributions = ({filters, setFilters, datasetId, modelNames}) => 
                         <Col md={modelNames?.length ? 6 : 12}>
                             <BarGraph
                                 onClick={({groundtruthIds}) => {
-                                    setFilters([{
+                                    setFilters([...filters, {
                                         left: 'groundtruths.id',
                                         op: 'in',
                                         right: groundtruthIds
@@ -113,7 +113,7 @@ const DataLakeDistributions = ({filters, setFilters, datasetId, modelNames}) => 
                                                     dataKey={modelName}
                                                     fill={getHexColor(modelName)}
                                                     onClick={({predictionIds}) => {
-                                                        setFilters([{
+                                                        setFilters([...filters, {
                                                             left: 'predictions.id',
                                                             op: 'in',
                                                             right: predictionIds
@@ -174,7 +174,7 @@ const DataLakeDistributions = ({filters, setFilters, datasetId, modelNames}) => 
                                                 dataKey={modelName}
                                                 fill={getHexColor(modelName)}
                                                 onClick={({predictionIds}) => {
-                                                    setFilters([{
+                                                    setFilters([...filters, {
                                                         left: 'predictions.id',
                                                         op: 'in',
                                                         right: predictionIds

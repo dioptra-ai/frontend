@@ -2,6 +2,7 @@ import {
     autorun,
     makeAutoObservable
 } from 'mobx';
+import {default as truncateStr} from 'truncate';
 
 export class Filter {
     constructor({left = '', op = '', right} = {}) {
@@ -133,16 +134,9 @@ export class Filter {
 
                 if (this.right.length > 0) {
                     if (truncate) {
-                        const firstValue = this.right[0].toString();
-                        const firstDisplayValue = `${firstValue.substring(0, 10)}${firstValue.length > 10 ? '...' : ''}`;
+                        const truncatedRight = truncateStr(this.right.join(', '), 10, {ellipsis: `...(${this.right.length} items)`});
 
-                        if (this.right.length > 1) {
-
-                            return `${this.left} ${this.op} [${firstDisplayValue}, ...]`;
-                        } else {
-
-                            return `${this.left} ${this.op} [${firstDisplayValue}]`;
-                        }
+                        return `${this.left} ${this.op} [${truncatedRight}]`;
                     } else {
 
                         return `${this.left} ${this.op} ${this.right.join(',')}`;
