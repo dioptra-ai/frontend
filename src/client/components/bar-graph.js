@@ -16,7 +16,12 @@ const BarGraph = ({
     const horizontalLayout = numCategories <= verticalIfMoreThan;
 
     const sortedBars = sortBy ? useMemo(() => {
-        return bars.sort((a, b) => a[sortBy] > b[sortBy] ? 1 : -1);
+        return bars.sort((a, b) => {
+            const aValue = Number.isNaN(Number(a[sortBy])) ? a[sortBy] : Number(a[sortBy]);
+            const bValue = Number.isNaN(Number(b[sortBy])) ? b[sortBy] : Number(b[sortBy]);
+
+            return aValue > bValue ? 1 : -1;
+        });
     }, [bars, sortBy]) : bars;
 
     return (
