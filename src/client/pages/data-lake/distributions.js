@@ -85,27 +85,28 @@ const DataLakeDistributions = ({filters, datasetId, modelNames, selectedDatapoin
                     </div>
                 ) : null}
             </div>
+            <hr/>
             <Row className='g-2 mt-4'>
-                <Async
-                    fetchData={async () => {
-                        const datapoints = await baseJSONClient.post('/api/datapoints/select', {
-                            filters: allFilters,
-                            datasetId,
-                            selectColumns: ['id']
-                        }, {memoized: true});
+                <Col md={modelNames?.length ? 6 : 12}>
+                    <Async
+                        fetchData={async () => {
+                            const datapoints = await baseJSONClient.post('/api/datapoints/select', {
+                                filters: allFilters,
+                                datasetId,
+                                selectColumns: ['id']
+                            }, {memoized: true});
 
-                        // TODO: this to return "datapoints" an array of datapoint ids
-                        return baseJSONClient.post('/api/metrics/distribution/groundtruths', {
-                            filters: [{
-                                left: 'datapoint',
-                                op: 'in',
-                                right: datapoints.map((datapoint) => datapoint.id)
-                            }]
-                        }, {memoized: true});
-                    }}
-                    refetchOnChanged={[JSON.stringify(allFilters), datasetId]}
-                    renderData={(groundtruthDistribution) => groundtruthDistribution.histogram && Object.keys(groundtruthDistribution.histogram).length ? (
-                        <Col md={modelNames?.length ? 6 : 12}>
+                            // TODO: this to return "datapoints" an array of datapoint ids
+                            return baseJSONClient.post('/api/metrics/distribution/groundtruths', {
+                                filters: [{
+                                    left: 'datapoint',
+                                    op: 'in',
+                                    right: datapoints.map((datapoint) => datapoint.id)
+                                }]
+                            }, {memoized: true});
+                        }}
+                        refetchOnChanged={[JSON.stringify(allFilters), datasetId]}
+                        renderData={(groundtruthDistribution) => groundtruthDistribution.histogram && Object.keys(groundtruthDistribution.histogram).length ? (
                             <BarGraph
                                 onClick={({datapoints}) => {
                                     onSelectedDatapointIdsChange(new Set(datapoints));
@@ -119,39 +120,39 @@ const DataLakeDistributions = ({filters, datasetId, modelNames, selectedDatapoin
                                     fill: theme.primary
                                 }))}
                             />
-                        </Col>
-                    ) : null
-                    }
-                    renderError={(err) => err.status === 501 ? null : <Error error={err} />}
-                />
-                {
-                    modelNames?.length ? (
-                        <Async
-                            fetchData={async () => {
-                                const datapoints = await baseJSONClient.post('/api/datapoints/select', {
-                                    filters: allFilters,
-                                    datasetId,
-                                    selectColumns: ['id']
-                                }, {memoized: true});
+                        ) : null
+                        }
+                        renderError={(err) => err.status === 501 ? null : <Error error={err} />}
+                    />
+                </Col>
+                <Col md={6}>
+                    {
+                        modelNames?.length ? (
+                            <Async
+                                fetchData={async () => {
+                                    const datapoints = await baseJSONClient.post('/api/datapoints/select', {
+                                        filters: allFilters,
+                                        datasetId,
+                                        selectColumns: ['id']
+                                    }, {memoized: true});
 
-                                return Promise.all(modelNames.map((modelName) => baseJSONClient.post('/api/metrics/distribution/predictions', {
-                                    filters: [{
-                                        left: 'datapoint',
-                                        op: 'in',
-                                        right: datapoints.map((datapoint) => datapoint.id)
-                                    }, {
-                                        left: 'model_name',
-                                        op: '=',
-                                        right: modelName
-                                    }]
-                                }, {memoized: true})));
-                            }}
-                            refetchOnChanged={[JSON.stringify(allFilters), datasetId, modelNames]}
-                            renderData={(distributions) => {
-                                const classes = Array.from(new Set(distributions.flatMap((distribution) => Object.keys(distribution.histogram))));
+                                    return Promise.all(modelNames.map((modelName) => baseJSONClient.post('/api/metrics/distribution/predictions', {
+                                        filters: [{
+                                            left: 'datapoint',
+                                            op: 'in',
+                                            right: datapoints.map((datapoint) => datapoint.id)
+                                        }, {
+                                            left: 'model_name',
+                                            op: '=',
+                                            right: modelName
+                                        }]
+                                    }, {memoized: true})));
+                                }}
+                                refetchOnChanged={[JSON.stringify(allFilters), datasetId, modelNames]}
+                                renderData={(distributions) => {
+                                    const classes = Array.from(new Set(distributions.flatMap((distribution) => Object.keys(distribution.histogram))));
 
-                                return (
-                                    <Col md={6}>
+                                    return (
                                         <BarGraph
                                             title={distributions[0].title || 'Predictions'}
                                             verticalIfMoreThan={10}
@@ -181,13 +182,13 @@ const DataLakeDistributions = ({filters, datasetId, modelNames, selectedDatapoin
                                                     }} />
                                             ))}
                                         </BarGraph>
-                                    </Col>
-                                );
-                            }}
-                            renderError={(err) => err.status === 501 ? null : <Error error={err} />}
-                        />
-                    ) : null
-                }
+                                    );
+                                }}
+                                renderError={(err) => err.status === 501 ? null : <Error error={err} />}
+                            />
+                        ) : null
+                    }
+                </Col>
             </Row>
             {
                 modelNames?.length ? (

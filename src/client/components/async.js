@@ -75,8 +75,8 @@ const Async = ({
             {
                 spinner ? (
                     <>
-                        <Spinner/>
                         {content}
+                        <Spinner/>
                     </>
                 ) : content
             }
