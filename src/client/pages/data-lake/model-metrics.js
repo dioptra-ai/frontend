@@ -129,7 +129,8 @@ const ModelMetrics = ({modelNames, datasetId, filters}) => {
 ModelMetrics.propTypes = {
     modelNames: PropTypes.arrayOf(PropTypes.string).isRequired,
     datasetId: PropTypes.string,
-    filters: PropTypes.arrayOf(PropTypes.object)
+    filters: PropTypes.arrayOf(PropTypes.object),
+    onSelectedDatapointIdsChange: PropTypes.func
 };
 
 export default ModelMetrics;

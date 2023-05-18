@@ -25,17 +25,6 @@ const DataLake = () => {
     const [modelNames, setModelNames] = useQueryParam('modelNames', ArrayParamDefaultEmpty);
     const [showUploadDataModal, setShowUploadDataModal] = useState(false);
     const [selectedDatapointIds, setSelectedDatapointIds] = useState(new Set());
-    const selectedDatapointsFilters = selectedDatapointIds.size ? filters.concat([{
-        left: 'datapoints.id',
-        op: 'in',
-        right: Array.from(selectedDatapointIds)
-    }]) : filters;
-
-    useEffect(() => {
-        if (!datasetId) {
-            setModelNames(undefined);
-        }
-    }, [datasetId]);
 
     useEffect(() => {
         if (!datasetId) {
@@ -101,7 +90,6 @@ const DataLake = () => {
                     <Col md={datasetId ? 7 : 12}>
                         <Explorer
                             filters={filters}
-                            setFilters={setFilters}
                             datasetId={datasetId}
                             modelNames={modelNames}
                             selectedDatapointIds={selectedDatapointIds}
@@ -111,10 +99,12 @@ const DataLake = () => {
                     {
                         datasetId ? (
                             <Col md={5}>
-                                <DataLakeDistributions filters={selectedDatapointsFilters} setFilters={setFilters} datasetId={datasetId} modelNames={modelNames} selectedDatapointIds={selectedDatapointIds} />
+                                <DataLakeDistributions filters={filters} setFilters={setFilters} datasetId={datasetId} modelNames={modelNames} selectedDatapointIds={selectedDatapointIds}
+                                    onSelectedDatapointIdsChange={setSelectedDatapointIds} />
                                 {
                                     modelNames?.length ? (
-                                        <ModelMetrics filters={selectedDatapointsFilters} datasetId={datasetId} modelNames={modelNames} selectedDatapointIds={selectedDatapointIds} />
+                                        <ModelMetrics filters={filters} datasetId={datasetId} modelNames={modelNames} selectedDatapointIds={selectedDatapointIds}
+                                            onSelectedDatapointIdsChange={setSelectedDatapointIds} />
                                     ) : null
                                 }
                             </Col>

@@ -12,37 +12,32 @@ import DatasetSelector from 'pages/dataset/dataset-selector';
 import LoadingForm from 'components/loading-form';
 import Async from 'components/async';
 import {getHexColor} from 'helpers/color-helper';
-import BarGraph from 'components/bar-graph';
-import WhiteScreen from 'components/white_screen';
+import WhiteScreen from 'components/white-screen';
 
-const Explorer = ({filters, setFilters, datasetId, modelNames, selectedDatapointIds, onSelectedDatapointIdsChange}) => {
+const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelectedDatapointIdsChange}) => {
     const history = useHistory();
     const [vectorsWithCoordinates, setVectorsWithCoordinates] = useState();
     const [dimensionReductionIsOutOfDate, setDimensionReductionIsOutOfDate] = useState(false);
-    const [groupedPredictions, setGroupedPredictions] = useState();
-    const [groupAnalysisIsOutOfDate, setGroupAnalysisIsOutOfDate] = useState(false);
-    const filtersForSelectedDatapointsAndModels = filters.concat();
+    const allFilters = filters.concat(modelNames.length ? {
+        left: 'predictions.model_name',
+        op: 'in',
+        right: modelNames
+    } : []);
 
-    if (selectedDatapointIds.size) {
-        filtersForSelectedDatapointsAndModels.push({
-            left: 'datapoints.id',
-            op: 'in',
-            right: Array.from(selectedDatapointIds)
-        });
-    }
+    useEffect(() => {
 
-    if (modelNames.length) {
-        filtersForSelectedDatapointsAndModels.push({
-            left: 'predictions.model_name',
-            op: 'in',
-            right: modelNames
+        baseJSONClient.post('/api/datapoints/select', {
+            selectColumns: ['id'],
+            filters, datasetId
+        }).then((allDatapoints) => {
+
+            onSelectedDatapointIdsChange(new Set(allDatapoints.map((d) => d.id)));
         });
-    }
+    }, [JSON.stringify(filters), datasetId]);
 
     useEffect(() => {
         setDimensionReductionIsOutOfDate(true);
-        setGroupAnalysisIsOutOfDate(true);
-    }, [filters, datasetId, modelNames]);
+    }, [JSON.stringify(filters), datasetId, modelNames]);
 
     return (
         <>
@@ -52,8 +47,8 @@ const Explorer = ({filters, setFilters, datasetId, modelNames, selectedDatapoint
                     datasetId ? (
                         <>
                             <LoadingForm className='my-2' onSubmit={async (_, {selectedEmbeddingsName, selectedAlgorithmName}) => {
-                                const vectorsWithCoords = await baseJSONClient.post('/api/metrics/predictions/vectors/reduce-dimensions', {
-                                    datapoint_filters: filters,
+                                const vectorsWithCoords = await baseJSONClient.post('/api/metrics/vectors/reduce-dimensions', {
+                                    datapoint_filters: allFilters,
                                     dataset_id: datasetId,
                                     embeddings_name: selectedEmbeddingsName,
                                     algorithm_name: selectedAlgorithmName
@@ -82,7 +77,7 @@ const Explorer = ({filters, setFilters, datasetId, modelNames, selectedDatapoint
                                                 </Select>
                                             </Col>
                                             <Col>
-                                                <Select required name='selectedAlgorithmName' defaultValue='umap'>
+                                                <Select required name='selectedAlgorithmName'>
                                                     {['UMAP', 'TSNE'].map((algorithmName) => (
                                                         <option key={algorithmName} value={algorithmName}>{algorithmName}</option>
                                                     ))}
@@ -94,28 +89,6 @@ const Explorer = ({filters, setFilters, datasetId, modelNames, selectedDatapoint
                                         </Row>
                                     )}
                                 />
-                            </LoadingForm>
-                            <LoadingForm className='my-2' onSubmit={async (_, {selectedGroupBy}) => {
-                                const results = await Promise.all(modelNames.map((m) => baseJSONClient.post('/api/metrics/predictions/group', {
-                                    datapoint_filters: filters,
-                                    dataset_id: datasetId,
-                                    model_name: m,
-                                    group_by: selectedGroupBy
-                                })));
-
-                                setGroupedPredictions(results.flat());
-                                setGroupAnalysisIsOutOfDate(false);
-                            }}>
-                                <Row className='g-2'>
-                                    <Col>
-                                        <Select required name='selectedGroupBy'>
-                                            <option value='mislabeling'>Group by Mislabeling Score</option>
-                                        </Select>
-                                    </Col>
-                                    <Col>
-                                        <LoadingForm.Button variant='secondary' type='submit' className='w-100'>Run group analysis</LoadingForm.Button>
-                                    </Col>
-                                </Row>
                             </LoadingForm>
                             <div className='mb-2'>
                                 {vectorsWithCoordinates ? (
@@ -150,43 +123,14 @@ const Explorer = ({filters, setFilters, datasetId, modelNames, selectedDatapoint
                                         {dimensionReductionIsOutOfDate ? (<WhiteScreen>Re-run embeddings analysis</WhiteScreen>) : null}
                                     </div>
                                 ) : null}
-                                {groupedPredictions ? (
-                                    <div className='position-relative'>
-                                        <BarGraph title='Groups'
-                                            bars={groupedPredictions.reduce((acc, {group, id}) => {
-                                                const existing = acc.find((i) => i.name === group);
-
-                                                if (existing) {
-                                                    existing.value += 1;
-                                                    existing.predictionIds.push(id);
-                                                } else {
-                                                    acc.push({
-                                                        name: group,
-                                                        value: 1,
-                                                        predictionIds: [id]
-                                                    });
-                                                }
-
-                                                return acc;
-                                            }, [])}
-                                            sortBy='value'
-                                            onClick={({predictionIds}) => {
-                                                setFilters([...filters, {
-                                                    left: 'predictions.id',
-                                                    op: 'in',
-                                                    right: predictionIds
-                                                }]);
-                                            }}
-                                        />
-                                        {groupAnalysisIsOutOfDate ? (<WhiteScreen>Re-run group analysis</WhiteScreen>) : null}
-                                    </div>
-                                ) : null}
                             </div>
                         </>
                     ) : null
                 }
                 <DatapointsViewer
-                    filters={filtersForSelectedDatapointsAndModels} datasetId={datasetId} modelNames={modelNames}
+                    filters={allFilters} datasetId={datasetId} modelNames={modelNames}
+                    selectedDatapoints={selectedDatapointIds}
+                    onSelectedDatapointsChange={onSelectedDatapointIdsChange}
                     renderActionButtons={({selectedDatapoints}) => selectedDatapoints.size ? (
                         <>
                             <DatasetSelector
@@ -221,7 +165,6 @@ const Explorer = ({filters, setFilters, datasetId, modelNames, selectedDatapoint
 
 Explorer.propTypes = {
     filters: PropTypes.arrayOf(PropTypes.object).isRequired,
-    setFilters: PropTypes.func.isRequired,
     datasetId: PropTypes.string,
     modelNames: PropTypes.arrayOf(PropTypes.string).isRequired,
     selectedDatapointIds: PropTypes.instanceOf(Set).isRequired,

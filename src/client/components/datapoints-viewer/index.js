@@ -8,7 +8,6 @@ import Form from 'react-bootstrap/Form';
 
 import Async from 'components/async';
 import Modal from 'components/modal';
-import ChatBot from 'components/chatbot';
 import baseJSONClient from 'clients/base-json-client';
 import {mod} from 'helpers/math';
 
@@ -195,11 +194,6 @@ const DatapointsPageActions = ({filters, datasetId, datapoints, selectedDatapoin
         onSelectedDatapointsChange(new Set(allDatapoints.map((d) => d.id)));
     };
 
-    // Reset selected datapoints when filters change.
-    useEffect(() => {
-        onSelectedDatapointsChange(new Set());
-    }, [filters, datasetId]);
-
     // Update select all checkbox when selected datapoints change.
     useEffect(() => {
         if (selectAllRef.current) {
@@ -255,10 +249,6 @@ const DatapointsPageActions = ({filters, datasetId, datapoints, selectedDatapoin
                             />
                         </div>
                         <div>
-                            <ChatBot.SendButton
-                                message={`Here are the datapoints I selected: ${String(selectedDatapoints)}.`}
-                            />
-                            &nbsp;|&nbsp;
                             {renderActionButtons?.({selectedDatapoints})}
                         </div>
                     </Col>
@@ -279,14 +269,25 @@ DatapointsPageActions.propTypes = {
 
 const PAGE_SIZE = 50;
 
-const DatapointsViewer = ({filters, datasetId, modelNames, renderActionButtons}) => {
+const DatapointsViewer = ({filters, datasetId, modelNames, renderActionButtons, defaultSelectedDatapoints, onSelectedDatapointsChange, selectedDatapoints}) => {
     const [offset, setOffset] = useState(0);
-    const [selectedDatapoints, setSelectedDatapoints] = useState(renderActionButtons ? new Set() : null);
+    const [uncontrolledSelectedDatapoints, setUncontrolledSelectedDatapoints] = useState(new Set(defaultSelectedDatapoints));
+    const _selectedDatapoints = selectedDatapoints ?? uncontrolledSelectedDatapoints;
+    const handleSelectedDatapointsChange = (datpointIds) => {
+        if (onSelectedDatapointsChange) {
+            onSelectedDatapointsChange(datpointIds);
+        } else {
+            setUncontrolledSelectedDatapoints(datpointIds);
+        }
+    };
 
     useEffect(() => {
         setOffset(0);
-        setSelectedDatapoints(renderActionButtons ? new Set() : null);
-    }, [filters]);
+
+        if (!selectedDatapoints) {
+            handleSelectedDatapointsChange(new Set());
+        }
+    }, [JSON.stringify(filters), datasetId]);
 
     return (
         <>
@@ -305,8 +306,8 @@ const DatapointsViewer = ({filters, datasetId, modelNames, renderActionButtons})
                             <Col xs={12}>
                                 <DatapointsPageActions
                                     filters={filters} datapoints={datapointsPage} datasetId={datasetId}
-                                    onSelectedDatapointsChange={setSelectedDatapoints}
-                                    selectedDatapoints={selectedDatapoints}
+                                    onSelectedDatapointsChange={handleSelectedDatapointsChange}
+                                    selectedDatapoints={_selectedDatapoints}
                                     renderActionButtons={renderActionButtons}
                                 />
                             </Col>
@@ -315,8 +316,8 @@ const DatapointsViewer = ({filters, datasetId, modelNames, renderActionButtons})
                             <DatapointsPage datapoints={datapointsPage}
                                 showGroundtruthsInModal={Boolean(datasetId)}
                                 modelNames={modelNames}
-                                selectedDatapoints={selectedDatapoints}
-                                onSelectedDatapointsChange={setSelectedDatapoints}
+                                selectedDatapoints={_selectedDatapoints}
+                                onSelectedDatapointsChange={handleSelectedDatapointsChange}
                             />
                         </Col>
                     </Row>
@@ -362,7 +363,10 @@ DatapointsViewer.propTypes = {
     filters: PropTypes.arrayOf(PropTypes.object),
     datasetId: PropTypes.string,
     modelNames: PropTypes.arrayOf(PropTypes.string),
-    renderActionButtons: PropTypes.func
+    renderActionButtons: PropTypes.func,
+    defaultSelectedDatapoints: PropTypes.arrayOf(PropTypes.string),
+    onSelectedDatapointsChange: PropTypes.func,
+    selectedDatapoints: PropTypes.instanceOf(Set)
 };
 
 export default DatapointsViewer;

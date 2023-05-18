@@ -1,3 +1,4 @@
+import {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import {Col, Row} from 'react-bootstrap';
 import {Bar} from 'recharts';
@@ -8,25 +9,92 @@ import {getHexColor} from 'helpers/color-helper';
 import Async from 'components/async';
 import baseJSONClient from 'clients/base-json-client';
 import Error from 'components/error';
+import LoadingForm from 'components/loading-form';
+import Select from 'components/select';
+import WhiteScreen from 'components/white-screen';
 
-const DataLakeDistributions = ({filters, setFilters, datasetId, modelNames}) => {
-    const filtersWithModelNames = modelNames.length ? filters.concat([{
+const DataLakeDistributions = ({filters, datasetId, modelNames, selectedDatapointIds, onSelectedDatapointIdsChange}) => {
+    const [groupedDatapoints, setGroupedDatapoints] = useState();
+    const [groupAnalysisIsOutOfDate, setGroupAnalysisIsOutOfDate] = useState(false);
+    const allFilters = filters.concat(selectedDatapointIds.size ? {
+        left: 'datapoints.id',
+        op: 'in',
+        right: Array.from(selectedDatapointIds)
+    } : [], modelNames.length ? {
         left: 'predictions.model_name',
         op: 'in',
         right: modelNames
-    }]) : filters;
+    } : []);
+
+    useEffect(() => {
+        setGroupAnalysisIsOutOfDate(true);
+    }, [filters, datasetId, modelNames]);
 
     return (
         <>
+            <div className='my-2'>
+                <LoadingForm className='my-2' onSubmit={async (_, {selectedGroupBy}) => {
+                    // TODO: This to return datapoints grouped by mislabeling score
+                    const results = await Promise.all(modelNames.map((m) => baseJSONClient.post(`/api/metrics/distribution/${selectedGroupBy}`, {
+                        datapoint_filters: filters,
+                        dataset_id: datasetId,
+                        model_name: m
+                    })));
+
+                    setGroupedDatapoints(results);
+                    setGroupAnalysisIsOutOfDate(false);
+                }}>
+                    <Row className='g-2'>
+                        <Col>
+                            <Select required name='selectedGroupBy'>
+                                <option value='mislabeling'>Group by Mislabeling Score</option>
+                            </Select>
+                        </Col>
+                        <Col>
+                            <LoadingForm.Button variant='secondary' type='submit' className='w-100'>Run group analysis</LoadingForm.Button>
+                        </Col>
+                    </Row>
+                </LoadingForm>
+            </div>
+            <div className='my-2'>
+                {groupedDatapoints ? (
+                    <div className='position-relative'>
+                        <BarGraph title='Groups'
+                            bars={groupedDatapoints.reduce((acc, {group, id}) => {
+                                const existing = acc.find((i) => i.name === group);
+
+                                if (existing) {
+                                    existing.value += 1;
+                                    existing.datapoints.push(id);
+                                } else {
+                                    acc.push({
+                                        name: group,
+                                        value: 1,
+                                        datapoints: [id]
+                                    });
+                                }
+
+                                return acc;
+                            }, [])}
+                            sortBy='value'
+                            onClick={({datapoints}) => {
+                                onSelectedDatapointIdsChange(new Set(datapoints));
+                            }}
+                        />
+                        {groupAnalysisIsOutOfDate ? (<WhiteScreen>Re-run group analysis</WhiteScreen>) : null}
+                    </div>
+                ) : null}
+            </div>
             <Row className='g-2 mt-4'>
                 <Async
                     fetchData={async () => {
                         const datapoints = await baseJSONClient.post('/api/datapoints/select', {
-                            filters: filtersWithModelNames,
+                            filters: allFilters,
                             datasetId,
                             selectColumns: ['id']
                         }, {memoized: true});
 
+                        // TODO: this to return "datapoints" an array of datapoint ids
                         return baseJSONClient.post('/api/metrics/distribution/groundtruths', {
                             filters: [{
                                 left: 'datapoint',
@@ -35,23 +103,19 @@ const DataLakeDistributions = ({filters, setFilters, datasetId, modelNames}) => 
                             }]
                         }, {memoized: true});
                     }}
-                    refetchOnChanged={[filtersWithModelNames, datasetId]}
+                    refetchOnChanged={[JSON.stringify(allFilters), datasetId]}
                     renderData={(groundtruthDistribution) => groundtruthDistribution.histogram && Object.keys(groundtruthDistribution.histogram).length ? (
                         <Col md={modelNames?.length ? 6 : 12}>
                             <BarGraph
-                                onClick={({groundtruthIds}) => {
-                                    setFilters([...filters, {
-                                        left: 'groundtruths.id',
-                                        op: 'in',
-                                        right: groundtruthIds
-                                    }]);
+                                onClick={({datapoints}) => {
+                                    onSelectedDatapointIdsChange(new Set(datapoints));
                                 }}
                                 title={groundtruthDistribution.title || 'Groundtruths'}
                                 verticalIfMoreThan={10}
-                                bars={Object.entries(groundtruthDistribution.histogram).map(([name, {value, ids}]) => ({
+                                bars={Object.entries(groundtruthDistribution.histogram).map(([name, {value, datapoints}]) => ({
                                     name,
                                     value,
-                                    groundtruthIds: ids,
+                                    datapoints,
                                     fill: theme.primary
                                 }))}
                             />
@@ -65,7 +129,7 @@ const DataLakeDistributions = ({filters, setFilters, datasetId, modelNames}) => 
                         <Async
                             fetchData={async () => {
                                 const datapoints = await baseJSONClient.post('/api/datapoints/select', {
-                                    filters: filtersWithModelNames,
+                                    filters: allFilters,
                                     datasetId,
                                     selectColumns: ['id']
                                 }, {memoized: true});
@@ -82,7 +146,7 @@ const DataLakeDistributions = ({filters, setFilters, datasetId, modelNames}) => 
                                     }]
                                 }, {memoized: true})));
                             }}
-                            refetchOnChanged={[filters, datasetId, modelNames]}
+                            refetchOnChanged={[JSON.stringify(allFilters), datasetId, modelNames]}
                             renderData={(distributions) => {
                                 const classes = Array.from(new Set(distributions.flatMap((distribution) => Object.keys(distribution.histogram))));
 
@@ -94,12 +158,12 @@ const DataLakeDistributions = ({filters, setFilters, datasetId, modelNames}) => 
                                             bars={classes.map((className) => ({
                                                 name: className,
                                                 ...distributions.reduce((acc, distribution, i) => {
-                                                    const predictionIds = distribution.histogram[className]?.['ids'] || [];
+                                                    const datapoints = distribution.histogram[className]?.['datapoints'] || [];
 
                                                     return {
                                                         ...acc,
                                                         [modelNames[i]]: distribution.histogram[className]?.['value'],
-                                                        predictionIds: predictionIds.concat(acc.predictionIds || [])
+                                                        datapoints: datapoints.concat(acc.datapoints || [])
                                                     };
                                                 }, {})
                                             }))}
@@ -112,12 +176,8 @@ const DataLakeDistributions = ({filters, setFilters, datasetId, modelNames}) => 
                                                     minPointSize={2}
                                                     dataKey={modelName}
                                                     fill={getHexColor(modelName)}
-                                                    onClick={({predictionIds}) => {
-                                                        setFilters([...filters, {
-                                                            left: 'predictions.id',
-                                                            op: 'in',
-                                                            right: predictionIds
-                                                        }]);
+                                                    onClick={({datapoints}) => {
+                                                        onSelectedDatapointIdsChange(new Set(datapoints));
                                                     }} />
                                             ))}
                                         </BarGraph>
@@ -135,7 +195,7 @@ const DataLakeDistributions = ({filters, setFilters, datasetId, modelNames}) => 
                         <Async
                             fetchData={async () => {
                                 const datapoints = await baseJSONClient.post('/api/datapoints/select', {
-                                    filters: filtersWithModelNames,
+                                    filters: allFilters,
                                     datasetId,
                                     selectColumns: ['id']
                                 }, {memoized: true});
@@ -145,7 +205,7 @@ const DataLakeDistributions = ({filters, setFilters, datasetId, modelNames}) => 
                                     model_name: modelName
                                 }, {memoized: true})));
                             }}
-                            refetchOnChanged={[filters, datasetId, modelNames]}
+                            refetchOnChanged={[JSON.stringify(allFilters), datasetId, modelNames]}
                             renderData={(distributions) => {
                                 const bins = Array.from(new Set(distributions.flatMap((distribution) => Object.keys(distribution.histogram))));
 
@@ -156,12 +216,12 @@ const DataLakeDistributions = ({filters, setFilters, datasetId, modelNames}) => 
                                         bars={bins.map((bin) => ({
                                             name: bin,
                                             ...distributions.reduce((acc, distribution, i) => {
-                                                const predictionIds = distribution.histogram[bin]?.['ids'] || [];
+                                                const datapoints = distribution.histogram[bin]?.['datapoints'] || [];
 
                                                 return {
                                                     ...acc,
                                                     [modelNames[i]]: distribution.histogram[bin]?.['value'],
-                                                    predictionIds: predictionIds.concat(acc.predictionIds || [])
+                                                    datapoints: datapoints.concat(acc.datapoints || [])
                                                 };
                                             }, {})
                                         }))}
@@ -173,12 +233,8 @@ const DataLakeDistributions = ({filters, setFilters, datasetId, modelNames}) => 
                                                 maxBarSize={50} minPointSize={2}
                                                 dataKey={modelName}
                                                 fill={getHexColor(modelName)}
-                                                onClick={({predictionIds}) => {
-                                                    setFilters([...filters, {
-                                                        left: 'predictions.id',
-                                                        op: 'in',
-                                                        right: predictionIds
-                                                    }]);
+                                                onClick={({datapoints}) => {
+                                                    onSelectedDatapointIdsChange(new Set(datapoints));
                                                 }}
                                             />
                                         ))}
@@ -196,9 +252,10 @@ const DataLakeDistributions = ({filters, setFilters, datasetId, modelNames}) => 
 
 DataLakeDistributions.propTypes = {
     filters: PropTypes.array,
-    setFilters: PropTypes.func.isRequired,
     datasetId: PropTypes.string.isRequired,
-    modelNames: PropTypes.array
+    modelNames: PropTypes.array,
+    selectedDatapointIds: PropTypes.arrayOf(PropTypes.string).isRequired,
+    onSelectedDatapointIdsChange: PropTypes.func.isRequired
 };
 
 export default DataLakeDistributions;
