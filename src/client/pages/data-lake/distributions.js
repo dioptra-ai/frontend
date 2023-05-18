@@ -14,8 +14,8 @@ import Select from 'components/select';
 import WhiteScreen from 'components/white-screen';
 
 const DataLakeDistributions = ({filters, datasetId, modelNames, selectedDatapointIds, onSelectedDatapointIdsChange}) => {
-    const [groupedDatapoints, setGroupedDatapoints] = useState();
-    const [groupAnalysisIsOutOfDate, setGroupAnalysisIsOutOfDate] = useState(false);
+    const [groupDistributions, setGroupDistributions] = useState();
+    const [groupDistributionsAreOutOfDate, setGroupDistributionsAreOutOfDate] = useState(false);
     const allFilters = filters.concat(selectedDatapointIds.size ? {
         left: 'datapoints.id',
         op: 'in',
@@ -27,22 +27,21 @@ const DataLakeDistributions = ({filters, datasetId, modelNames, selectedDatapoin
     } : []);
 
     useEffect(() => {
-        setGroupAnalysisIsOutOfDate(true);
-    }, [filters, datasetId, modelNames]);
+        setGroupDistributionsAreOutOfDate(true);
+    }, [JSON.stringify(allFilters), datasetId, modelNames]);
 
     return (
         <>
             <div className='my-2'>
                 <LoadingForm className='my-2' onSubmit={async (_, {selectedGroupBy}) => {
-                    // TODO: This to return datapoints grouped by mislabeling score
                     const results = await Promise.all(modelNames.map((m) => baseJSONClient.post(`/api/metrics/distribution/${selectedGroupBy}`, {
-                        datapoint_filters: filters,
+                        datapoint_filters: allFilters,
                         dataset_id: datasetId,
                         model_name: m
                     })));
 
-                    setGroupedDatapoints(results);
-                    setGroupAnalysisIsOutOfDate(false);
+                    setGroupDistributions(results);
+                    setGroupDistributionsAreOutOfDate(false);
                 }}>
                     <Row className='g-2'>
                         <Col>
@@ -57,36 +56,41 @@ const DataLakeDistributions = ({filters, datasetId, modelNames, selectedDatapoin
                 </LoadingForm>
             </div>
             <div className='my-2'>
-                {groupedDatapoints ? (
+                {groupDistributions ? (
                     <div className='position-relative'>
                         <BarGraph title='Groups'
-                            bars={groupedDatapoints.reduce((acc, {group, id}) => {
-                                const existing = acc.find((i) => i.name === group);
+                            bars={Array.from(new Set(groupDistributions.flatMap((distribution) => Object.keys(distribution.histogram)))).map((name) => ({
+                                name,
+                                ...groupDistributions.reduce((acc, distribution, i) => {
+                                    const datapoints = distribution.histogram[name]?.['datapoints'] || [];
 
-                                if (existing) {
-                                    existing.value += 1;
-                                    existing.datapoints.push(id);
-                                } else {
-                                    acc.push({
-                                        name: group,
-                                        value: 1,
-                                        datapoints: [id]
-                                    });
-                                }
-
-                                return acc;
-                            }, [])}
-                            sortBy='value'
-                            onClick={({datapoints}) => {
-                                onSelectedDatapointIdsChange(new Set(datapoints));
-                            }}
-                        />
-                        {groupAnalysisIsOutOfDate ? (<WhiteScreen>Re-run group analysis</WhiteScreen>) : null}
+                                    return {
+                                        ...acc,
+                                        [modelNames[i]]: distribution.histogram[name]?.['value'],
+                                        datapoints: datapoints.concat(acc.datapoints || [])
+                                    };
+                                }, {})
+                            }))}
+                        >{modelNames.map((modelName) => (
+                                <Bar
+                                    className='cursor-pointer'
+                                    key={modelName}
+                                    maxBarSize={50}
+                                    minPointSize={2}
+                                    dataKey={modelName}
+                                    fill={getHexColor(modelName)}
+                                    onClick={({datapoints}) => {
+                                        onSelectedDatapointIdsChange(new Set(datapoints));
+                                    }}
+                                />
+                            ))}
+                        </BarGraph>
+                        {groupDistributionsAreOutOfDate ? (<WhiteScreen>Re-run group analysis</WhiteScreen>) : null}
                     </div>
                 ) : null}
             </div>
             <hr/>
-            <Row className='g-2 mt-4'>
+            <Row className='g-2 mt-2'>
                 <Col md={modelNames?.length ? 6 : 12}>
                     <Async
                         fetchData={async () => {
@@ -96,7 +100,6 @@ const DataLakeDistributions = ({filters, datasetId, modelNames, selectedDatapoin
                                 selectColumns: ['id']
                             }, {memoized: true});
 
-                            // TODO: this to return "datapoints" an array of datapoint ids
                             return baseJSONClient.post('/api/metrics/distribution/groundtruths', {
                                 filters: [{
                                     left: 'datapoint',
@@ -150,20 +153,20 @@ const DataLakeDistributions = ({filters, datasetId, modelNames, selectedDatapoin
                                 }}
                                 refetchOnChanged={[JSON.stringify(allFilters), datasetId, modelNames]}
                                 renderData={(distributions) => {
-                                    const classes = Array.from(new Set(distributions.flatMap((distribution) => Object.keys(distribution.histogram))));
+                                    const buckets = Array.from(new Set(distributions.flatMap((distribution) => Object.keys(distribution.histogram))));
 
                                     return (
                                         <BarGraph
                                             title={distributions[0].title || 'Predictions'}
                                             verticalIfMoreThan={10}
-                                            bars={classes.map((className) => ({
-                                                name: className,
+                                            bars={buckets.map((bucketName) => ({
+                                                name: bucketName,
                                                 ...distributions.reduce((acc, distribution, i) => {
-                                                    const datapoints = distribution.histogram[className]?.['datapoints'] || [];
+                                                    const datapoints = distribution.histogram[bucketName]?.['datapoints'] || [];
 
                                                     return {
                                                         ...acc,
-                                                        [modelNames[i]]: distribution.histogram[className]?.['value'],
+                                                        [modelNames[i]]: distribution.histogram[bucketName]?.['value'],
                                                         datapoints: datapoints.concat(acc.datapoints || [])
                                                     };
                                                 }, {})

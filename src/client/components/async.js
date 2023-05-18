@@ -74,10 +74,10 @@ const Async = ({
         <AsyncContext.Provider value={{data, loading, error}}>
             {
                 spinner ? (
-                    <>
+                    <div className='d-inline' style={{position: 'relative', width: '100%', height: '100%', minHeight: 10}}>
                         {content}
                         <Spinner/>
-                    </>
+                    </div>
                 ) : content
             }
         </AsyncContext.Provider>
