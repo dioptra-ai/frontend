@@ -7,7 +7,7 @@ const Spinner = ({size = 150}) => (
     <AsyncContext.Consumer>
         {(asyncContext) => (
             (!asyncContext ? (
-                <div style={{position: 'relative', width: '100%', height: '100%', minHeight: 10}}>
+                <div style={{position: 'relative', width: '100%', height: '100%', minHeight: 10, minWidth: 30}}>
                     <div style={{
                         backgroundColor: 'rgba(255, 255, 255, 0.7)',
                         position: 'absolute',
@@ -30,8 +30,7 @@ const Spinner = ({size = 150}) => (
                     alignItems: 'center',
                     justifyContent: 'center',
                     height: '100%',
-                    width: '100%',
-                    minHeight: 10
+                    width: '100%'
                 }}>
                     <BarLoader loading size={size} />
                 </div>

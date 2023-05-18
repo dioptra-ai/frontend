@@ -15,7 +15,8 @@ const Async = ({
     refetchOnChanged = [],
     fetchInitially = true,
     defaultData,
-    spinner = true
+    spinner = true,
+    ...rest
 }) => {
     const [data, setData] = useState();
     const [loading, setLoading] = useState(false);
@@ -73,8 +74,8 @@ const Async = ({
     return (
         <AsyncContext.Provider value={{data, loading, error}}>
             {
-                spinner ? (
-                    <div className='d-inline' style={{position: 'relative', width: '100%', height: '100%', minHeight: 10}}>
+                spinner && loading ? (
+                    <div className='d-flex' style={{position: 'relative', width: '100%', height: '100%', minHeight: 20, minWidth: 100}} {...rest}>
                         {content}
                         <Spinner/>
                     </div>
