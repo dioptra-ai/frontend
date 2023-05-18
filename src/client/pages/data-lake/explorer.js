@@ -51,11 +51,12 @@ const Explorer = ({filters, setFilters, datasetId, modelNames, selectedDatapoint
                 {
                     datasetId ? (
                         <>
-                            <LoadingForm className='my-2' onSubmit={async (_, {selectedEmbeddingsName}) => {
+                            <LoadingForm className='my-2' onSubmit={async (_, {selectedEmbeddingsName, selectedAlgorithmName}) => {
                                 const vectorsWithCoords = await baseJSONClient.post('/api/metrics/predictions/vectors/reduce-dimensions', {
                                     datapoint_filters: filters,
                                     dataset_id: datasetId,
-                                    embeddings_name: selectedEmbeddingsName
+                                    embeddings_name: selectedEmbeddingsName,
+                                    algorithm_name: selectedAlgorithmName
                                 });
 
                                 setVectorsWithCoordinates(vectorsWithCoords);
@@ -77,6 +78,13 @@ const Explorer = ({filters, setFilters, datasetId, modelNames, selectedDatapoint
                                                     }</option>
                                                     {embeddingNames.map((embeddingName) => (
                                                         <option key={embeddingName} value={embeddingName}>{embeddingName}</option>
+                                                    ))}
+                                                </Select>
+                                            </Col>
+                                            <Col>
+                                                <Select required name='selectedAlgorithmName' defaultValue='umap'>
+                                                    {['UMAP', 'TSNE'].map((algorithmName) => (
+                                                        <option key={algorithmName} value={algorithmName}>{algorithmName}</option>
                                                     ))}
                                                 </Select>
                                             </Col>
