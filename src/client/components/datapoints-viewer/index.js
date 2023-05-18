@@ -181,21 +181,6 @@ DatapointsPage.propTypes = {
     onSelectedDatapointsChange: PropTypes.func
 };
 
-const _TODO_REMOVE_HARD_CODED_FOR_DEMO_GET_SUMMARIES = (datapointIds) => {
-    if (datapointIds.has('0017ee1e-e757-4e86-978c-d9cb527cbeda')) {
-        // Cluster 1
-        return 'Scenes of busy streets. Weather is cloudy / overcast. The road is in good condition. Trees and bridges casting shadows. Cars, trucks, pedestrians and bicycle are present. Some cars are parked on the side of the road. Say "received".';
-    } else if (datapointIds.has('00107429-e1e8-4b6f-ae07-c1fdaedcaa79')) {
-        // Cluster 2
-        return 'Scene of busy urban highway. Mostly cars and buses on the scene. No pedestrians. Weather is clear and sunny. Buildings and tree lines are present in most images. Say "received".';
-    } else if (datapointIds.has('001d0d3b-4ee8-49b0-8838-641bf58f372f')) {
-        // Cluster 3
-        return 'Scene of a highway. Low traffic. Road is in good condition. Weather is sunny and clear. Surroundings are mostly tree lines. Cars, buses and some pedestrians are present. Say "received".';
-    } else {
-        return 'Scene of a highway. Low traffic. Road is in good condition. Weather is sunny and clear. Surroundings are mostly tree lines. Cars, buses and some pedestrians are present. Say "received".';
-    }
-};
-
 const DatapointsPageActions = ({filters, datasetId, datapoints, selectedDatapoints, onSelectedDatapointsChange, renderActionButtons}) => {
     const selectAllRef = useRef();
     const handleSelectedDatapointsChange = (d) => {
@@ -271,8 +256,7 @@ const DatapointsPageActions = ({filters, datasetId, datapoints, selectedDatapoin
                         </div>
                         <div>
                             <ChatBot.SendButton
-                                // message={`Here are the datapoints I selected: ${String(selectedDatapoints)}.`}
-                                message={_TODO_REMOVE_HARD_CODED_FOR_DEMO_GET_SUMMARIES(selectedDatapoints)}
+                                message={`Here are the datapoints I selected: ${String(selectedDatapoints)}.`}
                             />
                             &nbsp;|&nbsp;
                             {renderActionButtons?.({selectedDatapoints})}

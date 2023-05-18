@@ -101,6 +101,7 @@ const DataLake = () => {
                     <Col md={datasetId ? 7 : 12}>
                         <Explorer
                             filters={filters}
+                            setFilters={setFilters}
                             datasetId={datasetId}
                             modelNames={modelNames}
                             selectedDatapointIds={selectedDatapointIds}

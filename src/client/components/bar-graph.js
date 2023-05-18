@@ -2,7 +2,6 @@ import {useMemo} from 'react';
 import {Bar, BarChart, Brush, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis} from 'recharts';
 import PropTypes from 'prop-types';
 import fontSizes from '../styles/font-sizes.module.scss';
-import Spinner from 'components/spinner';
 import theme from 'styles/theme.module.scss';
 
 // eslint-disable-next-line complexity
@@ -22,7 +21,6 @@ const BarGraph = ({
 
     return (
         <div className={`border rounded p-3 w-100 ${className}`}>
-            <Spinner/>
             <div className='text-dark bold-text fs-4 px-3 mb-3'>{title}</div>
             <div style={{
                 height: height || horizontalLayout ? 300 : Math.max(300, 25 * numCategories),

@@ -149,29 +149,6 @@ const Datapoint = ({datapoint = {}, onClick, zoomable, showDetails, maxHeight}) 
                             )}
                         </TransformWrapper>
                     </Col>
-                    {
-                        showDetails && predictions?.some((p) => p['task_type'] === 'LANE_DETECTION') ? (
-                            <Col
-                                className='d-flex align-items-center justify-content-center position-relative'
-                                style={{maxHeight: '100%', maxWidth: '100%'}}
-                            >
-                                <img
-                                    style={{maxHeight: 80}}
-                                    src='https://dioptra-public.s3.us-east-2.amazonaws.com/1126190088-612x612.jpg'
-                                />
-                                <div
-                                    className='position-absolute d-flex justify-content-center pt-4'
-                                    style={{
-                                        top: 0, left: 0, width: '100%', height: '100%',
-                                        backgroundColor: 'rgba(255, 255, 255, 0.5)',
-                                        color: 'rgba(0, 0, 0, 0.2)'
-                                    }}
-                                >
-                                    No Birds-Eye View Prediction Found
-                                </div>
-                            </Col>
-                        ) : null
-                    }
                 </Row>
                 {
                     showDetails ? (
