@@ -42,7 +42,7 @@ const DataLakeDistributions = ({filters, datasetId, modelNames, selectedDatapoin
                                     datapoint_filters: allFilters,
                                     dataset_id: datasetId,
                                     model_name: m
-                                })));
+                                }, {memoized: true})));
 
                                 setGroupDistributions(results);
                                 setGroupDistributionsAreOutOfDate(false);
