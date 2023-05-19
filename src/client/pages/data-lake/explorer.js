@@ -41,7 +41,7 @@ const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelec
                                     dataset_id: datasetId,
                                     embeddings_name: selectedEmbeddingsName,
                                     algorithm_name: selectedAlgorithmName
-                                });
+                                }, {memoized: true});
 
                                 setVectorsWithCoordinates(vectorsWithCoords);
                                 setDimensionReductionIsOutOfDate(false);
