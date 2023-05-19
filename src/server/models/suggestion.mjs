@@ -17,9 +17,9 @@ class Suggestion {
 
         let hardcodedSuggestions = [];
 
-        const columnIsJsonb = '';
+        let columnIsJsonb = '';
 
-        const jsonbSuggestions = [];
+        let jsonbSuggestions = [];
 
         if (moreKeyParts.length === 0) {
             tableName = 'datapoints';
