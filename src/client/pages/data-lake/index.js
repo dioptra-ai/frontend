@@ -113,6 +113,8 @@ const DataLake = () => {
                                     }]}
                                     datasetId={datasetId}
                                     modelNames={modelNames}
+                                    selectedDatapointIds={selectedDatapointIds}
+                                    onSelectedDatapointIdsChange={setSelectedDatapointIds}
                                 />
                             </Col>
                             {
