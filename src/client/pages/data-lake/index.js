@@ -106,11 +106,13 @@ const DataLake = () => {
                         <Row>
                             <Col md={datasetId ? 7 : 12}>
                                 <Explorer
-                                    filters={filters}
+                                    filters={[...filters, {
+                                        'left': 'id',
+                                        'op': 'in',
+                                        'right': selectedDatapointIds
+                                    }]}
                                     datasetId={datasetId}
                                     modelNames={modelNames}
-                                    selectedDatapointIds={selectedDatapointIds}
-                                    onSelectedDatapointIdsChange={setSelectedDatapointIds}
                                 />
                             </Col>
                             {
