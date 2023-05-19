@@ -2,7 +2,6 @@ import pgFormat from 'pg-format';
 
 import {postgresClient} from './index.mjs';
 import Datapoint from './datapoint.mjs';
-import {json} from 'd3';
 
 const OMITTED_COLUMNS = ['organization_id'];
 
