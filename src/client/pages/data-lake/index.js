@@ -24,13 +24,28 @@ const DataLake = () => {
     const [datasetId, setDatasetId] = useQueryParam('datasetId', StringParam);
     const [modelNames, setModelNames] = useQueryParam('modelNames', ArrayParamDefaultEmpty);
     const [showUploadDataModal, setShowUploadDataModal] = useState(false);
-    const [selectedDatapointIds, setSelectedDatapointIds] = useState(new Set());
+    const [selectedDatapointIds, setSelectedDatapointIds] = useState(null);
 
     useEffect(() => {
         if (!datasetId) {
             setModelNames(undefined);
         }
     }, [datasetId]);
+
+    useEffect(() => {
+
+        if (datasetId) {
+            baseJSONClient.post('/api/datapoints/select', {
+                selectColumns: ['id'],
+                filters, datasetId
+            }, {memoized: true}).then((allDatapoints) => {
+
+                setSelectedDatapointIds(new Set(allDatapoints.map((d) => d.id)));
+            });
+        } else {
+            setSelectedDatapointIds(new Set());
+        }
+    }, [JSON.stringify(filters), datasetId]);
 
     return (
         <Menu>
@@ -86,31 +101,35 @@ const DataLake = () => {
                         />
                     </Col>
                 </Row>
-                <Row>
-                    <Col md={datasetId ? 7 : 12}>
-                        <Explorer
-                            filters={filters}
-                            datasetId={datasetId}
-                            modelNames={modelNames}
-                            selectedDatapointIds={selectedDatapointIds}
-                            onSelectedDatapointIdsChange={setSelectedDatapointIds}
-                        />
-                    </Col>
-                    {
-                        datasetId ? (
-                            <Col md={5}>
-                                <DataLakeDistributions filters={filters} setFilters={setFilters} datasetId={datasetId} modelNames={modelNames} selectedDatapointIds={selectedDatapointIds}
-                                    onSelectedDatapointIdsChange={setSelectedDatapointIds} />
-                                {
-                                    modelNames?.length ? (
-                                        <ModelMetrics filters={filters} datasetId={datasetId} modelNames={modelNames} selectedDatapointIds={selectedDatapointIds}
-                                            onSelectedDatapointIdsChange={setSelectedDatapointIds} />
-                                    ) : null
-                                }
+                {
+                    selectedDatapointIds ? (
+                        <Row>
+                            <Col md={datasetId ? 7 : 12}>
+                                <Explorer
+                                    filters={filters}
+                                    datasetId={datasetId}
+                                    modelNames={modelNames}
+                                    selectedDatapointIds={selectedDatapointIds}
+                                    onSelectedDatapointIdsChange={setSelectedDatapointIds}
+                                />
                             </Col>
-                        ) : null
-                    }
-                </Row>
+                            {
+                                datasetId ? (
+                                    <Col md={5}>
+                                        <DataLakeDistributions filters={filters} setFilters={setFilters} datasetId={datasetId} modelNames={modelNames} selectedDatapointIds={selectedDatapointIds}
+                                            onSelectedDatapointIdsChange={setSelectedDatapointIds} />
+                                        {
+                                            modelNames?.length ? (
+                                                <ModelMetrics filters={filters} datasetId={datasetId} modelNames={modelNames} selectedDatapointIds={selectedDatapointIds}
+                                                    onSelectedDatapointIdsChange={setSelectedDatapointIds} />
+                                            ) : null
+                                        }
+                                    </Col>
+                                ) : null
+                            }
+                        </Row>
+                    ) : null
+                }
             </div>
         </Menu>
     );

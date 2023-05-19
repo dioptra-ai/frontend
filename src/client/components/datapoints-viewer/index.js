@@ -224,7 +224,7 @@ const DatapointsPageActions = ({filters, datasetId, datapoints, selectedDatapoin
                 selectedDatapoints.size ? (
                     <Col xs={12} className='d-flex justify-content-between'>
                         <div>
-                            <Async className='d-inline' fetchData={() => baseJSONClient.post('/api/datapoints/count', {filters, datasetId})}
+                            <Async className='d-inline' fetchData={() => baseJSONClient.post('/api/datapoints/count', {filters, datasetId}, {memoized: true})}
                                 refetchOnChanged={[JSON.stringify(filters), datasetId]}
                                 renderData={(totalCount) => {
                                     const allDatapointsSelected = totalCount === selectedDatapoints.size;
@@ -325,7 +325,7 @@ const DatapointsViewer = ({filters, datasetId, modelNames, renderActionButtons, 
             />
             <Async
                 spinner={false}
-                fetchData={() => baseJSONClient.post('/api/datapoints/count', {filters, datasetId})}
+                fetchData={() => baseJSONClient.post('/api/datapoints/count', {filters, datasetId}, {memoized: true})}
                 refetchOnChanged={[JSON.stringify(filters), datasetId]}
             >{
                     ({data: totalCount, loading}) => (

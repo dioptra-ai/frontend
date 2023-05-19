@@ -32,66 +32,73 @@ const DataLakeDistributions = ({filters, datasetId, modelNames, selectedDatapoin
 
     return (
         <>
-            <div className='my-2'>
-                <LoadingForm className='my-2' onSubmit={async (_, {selectedGroupBy}) => {
-                    const results = await Promise.all(modelNames.map((m) => baseJSONClient.post(`/api/metrics/distribution/${selectedGroupBy}`, {
-                        datapoint_filters: allFilters,
-                        dataset_id: datasetId,
-                        model_name: m
-                    })));
+            {
+                modelNames.length ? (
+                    <>
 
-                    setGroupDistributions(results);
-                    setGroupDistributionsAreOutOfDate(false);
-                }}>
-                    <Row className='g-2'>
-                        <Col>
-                            <Select required name='selectedGroupBy'>
-                                <option value='mislabeling'>Group by Mislabeling Score</option>
-                            </Select>
-                        </Col>
-                        <Col>
-                            <LoadingForm.Button variant='secondary' type='submit' className='w-100'>Run group analysis</LoadingForm.Button>
-                        </Col>
-                    </Row>
-                </LoadingForm>
-            </div>
-            <div className='my-2'>
-                {groupDistributions ? (
-                    <div className='position-relative'>
-                        <BarGraph title='Groups'
-                            bars={Array.from(new Set(groupDistributions.flatMap((distribution) => Object.keys(distribution.histogram)))).map((name) => ({
-                                name,
-                                ...groupDistributions.reduce((acc, distribution, i) => {
-                                    const datapoints = distribution.histogram[name]?.['datapoints'] || [];
+                        <div className='my-2'>
+                            <LoadingForm className='my-2' onSubmit={async (_, {selectedGroupBy}) => {
+                                const results = await Promise.all(modelNames.map((m) => baseJSONClient.post(`/api/metrics/distribution/${selectedGroupBy}`, {
+                                    datapoint_filters: allFilters,
+                                    dataset_id: datasetId,
+                                    model_name: m
+                                })));
 
-                                    return {
-                                        ...acc,
-                                        [modelNames[i]]: distribution.histogram[name]?.['value'],
-                                        datapoints: datapoints.concat(acc.datapoints || [])
-                                    };
-                                }, {})
-                            }))}
-                        >{modelNames.map((modelName) => (
-                                <Bar
-                                    className='cursor-pointer'
-                                    key={modelName}
-                                    maxBarSize={50}
-                                    minPointSize={2}
-                                    dataKey={modelName}
-                                    fill={getHexColor(modelName)}
-                                    onClick={({datapoints}) => {
-                                        onSelectedDatapointIdsChange(new Set(datapoints));
-                                    }}
-                                />
-                            ))}
-                        </BarGraph>
-                        {groupDistributionsAreOutOfDate ? (<WhiteScreen>Re-run group analysis</WhiteScreen>) : null}
-                    </div>
-                ) : null}
-            </div>
-            <hr/>
+                                setGroupDistributions(results);
+                                setGroupDistributionsAreOutOfDate(false);
+                            }}>
+                                <Row className='g-2'>
+                                    <Col>
+                                        <Select required name='selectedGroupBy'>
+                                            <option value='mislabeling'>Group by Mislabeling Score</option>
+                                        </Select>
+                                    </Col>
+                                    <Col>
+                                        <LoadingForm.Button variant='secondary' type='submit' className='w-100'>Run group analysis</LoadingForm.Button>
+                                    </Col>
+                                </Row>
+                            </LoadingForm>
+                        </div>
+                        <div className='my-2'>
+                            {groupDistributions ? (
+                                <div className='position-relative'>
+                                    <BarGraph title='Groups'
+                                        bars={Array.from(new Set(groupDistributions.flatMap((distribution) => Object.keys(distribution.histogram)))).map((name) => ({
+                                            name,
+                                            ...groupDistributions.reduce((acc, distribution, i) => {
+                                                const datapoints = distribution.histogram[name]?.['datapoints'] || [];
+
+                                                return {
+                                                    ...acc,
+                                                    [modelNames[i]]: distribution.histogram[name]?.['value'],
+                                                    datapoints: datapoints.concat(acc.datapoints || [])
+                                                };
+                                            }, {})
+                                        }))}
+                                    >{modelNames.map((modelName) => (
+                                            <Bar
+                                                className='cursor-pointer'
+                                                key={modelName}
+                                                maxBarSize={50}
+                                                minPointSize={2}
+                                                dataKey={modelName}
+                                                fill={getHexColor(modelName)}
+                                                onClick={({datapoints}) => {
+                                                    onSelectedDatapointIdsChange(new Set(datapoints));
+                                                }}
+                                            />
+                                        ))}
+                                    </BarGraph>
+                                    {groupDistributionsAreOutOfDate ? (<WhiteScreen>Re-run group analysis</WhiteScreen>) : null}
+                                </div>
+                            ) : null}
+                        </div>
+                        <hr />
+                    </>
+                ) : null
+            }
             <Row className='g-2 mt-2'>
-                <Col md={modelNames?.length ? 6 : 12}>
+                <Col md={modelNames.length ? 6 : 12}>
                     <Async
                         fetchData={async () => {
                             const datapoints = await baseJSONClient.post('/api/datapoints/select', {
@@ -128,9 +135,9 @@ const DataLakeDistributions = ({filters, datasetId, modelNames, selectedDatapoin
                         renderError={(err) => err.status === 501 ? null : <Error error={err} />}
                     />
                 </Col>
-                <Col md={6}>
-                    {
-                        modelNames?.length ? (
+                {
+                    modelNames.length ? (
+                        <Col md={6}>
                             <Async
                                 fetchData={async () => {
                                     const datapoints = await baseJSONClient.post('/api/datapoints/select', {
@@ -189,12 +196,12 @@ const DataLakeDistributions = ({filters, datasetId, modelNames, selectedDatapoin
                                 }}
                                 renderError={(err) => err.status === 501 ? null : <Error error={err} />}
                             />
-                        ) : null
-                    }
-                </Col>
+                        </Col>
+                    ) : null
+                }
             </Row>
             {
-                modelNames?.length ? (
+                modelNames.length ? (
                     <div className='mt-2'>
                         <Async
                             fetchData={async () => {

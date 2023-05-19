@@ -25,17 +25,6 @@ const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelec
     } : []);
 
     useEffect(() => {
-
-        baseJSONClient.post('/api/datapoints/select', {
-            selectColumns: ['id'],
-            filters, datasetId
-        }).then((allDatapoints) => {
-
-            onSelectedDatapointIdsChange(new Set(allDatapoints.map((d) => d.id)));
-        });
-    }, [JSON.stringify(filters), datasetId]);
-
-    useEffect(() => {
         setDimensionReductionIsOutOfDate(true);
     }, [JSON.stringify(filters), datasetId, modelNames]);
 
