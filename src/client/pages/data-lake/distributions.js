@@ -19,11 +19,11 @@ const DataLakeDistributions = ({filters, datasetId, modelNames, selectedDatapoin
     const allFilters = filters.concat(selectedDatapointIds.size ? {
         left: 'datapoints.id',
         op: 'in',
-        right: Array.from(selectedDatapointIds)
+        right: Array.from(selectedDatapointIds).sort() // for caching...
     } : [], modelNames.length ? {
         left: 'predictions.model_name',
         op: 'in',
-        right: modelNames
+        right: modelNames.sort()
     } : []);
 
     useEffect(() => {
