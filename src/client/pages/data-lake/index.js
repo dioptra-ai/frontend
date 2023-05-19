@@ -109,7 +109,7 @@ const DataLake = () => {
                                     filters={[...filters, {
                                         'left': 'id',
                                         'op': 'in',
-                                        'right': selectedDatapointIds
+                                        'right': Array.from(selectedDatapointIds)
                                     }]}
                                     datasetId={datasetId}
                                     modelNames={modelNames}
