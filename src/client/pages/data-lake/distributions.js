@@ -258,7 +258,7 @@ DataLakeDistributions.propTypes = {
     filters: PropTypes.array,
     datasetId: PropTypes.string.isRequired,
     modelNames: PropTypes.array,
-    selectedDatapointIds: PropTypes.arrayOf(PropTypes.string).isRequired,
+    selectedDatapointIds: PropTypes.instanceOf(Set).isRequired,
     onSelectedDatapointIdsChange: PropTypes.func.isRequired
 };
 
