@@ -2,6 +2,7 @@ import pgFormat from 'pg-format';
 
 import {postgresClient} from './index.mjs';
 import Datapoint from './datapoint.mjs';
+import {json} from 'd3';
 
 const OMITTED_COLUMNS = ['organization_id'];
 
@@ -15,6 +16,10 @@ class Suggestion {
         let columnName = moreKeyParts.join('.');
 
         let hardcodedSuggestions = [];
+
+        const columnIsJsonb = '';
+
+        const jsonbSuggestions = [];
 
         if (moreKeyParts.length === 0) {
             tableName = 'datapoints';
@@ -35,9 +40,22 @@ class Suggestion {
             [tableName, `%${columnName}%`]
         );
 
+        columnName = columnName.substring(0, columnName.lastIndexOf('.'));
+        columnIsJsonb = (await postgresClient.query(
+            'SELECT data_type FROM information_schema.columns WHERE table_name = $1 AND column_name = $2', [tableName, columnName]
+        ))['rows'][0];
+        columnIsJsonb = columnIsJsonb ? columnIsJsonb['data_type'] : '';
+
+        if (columnIsJsonb === 'jsonb') {
+            jsonbSuggestions = (await postgresClient.query(
+                pgFormat('SELECT DISTINCT jsonb_object_keys(%I) AS value FROM %I', columnName, tableName)
+            ))['rows'].map((row) => `${tableName}.${columnName}.${row['value']}`);
+        }
+
         return [
             ...rows.map((row) => `${tableName}.${row['value']}`),
-            ...hardcodedSuggestions
+            ...hardcodedSuggestions,
+            ...jsonbSuggestions
         ];
     }
 
