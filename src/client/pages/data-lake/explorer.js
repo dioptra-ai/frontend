@@ -18,7 +18,7 @@ const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelec
     const history = useHistory();
     const [vectorsWithCoordinates, setVectorsWithCoordinates] = useState();
     const [dimensionReductionIsOutOfDate, setDimensionReductionIsOutOfDate] = useState(false);
-    const allFilters = filters.concat(modelNames.length ? {
+    const filtersWithModels = filters.concat(modelNames.length ? {
         left: 'predictions.model_name',
         op: 'in',
         right: modelNames
@@ -26,7 +26,7 @@ const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelec
 
     useEffect(() => {
         setDimensionReductionIsOutOfDate(true);
-    }, [JSON.stringify(filters), datasetId, modelNames]);
+    }, [JSON.stringify(filtersWithModels), datasetId]);
 
     return (
         <>
@@ -37,7 +37,7 @@ const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelec
                         <>
                             <LoadingForm className='my-2' onSubmit={async (_, {selectedEmbeddingsName, selectedAlgorithmName}) => {
                                 const vectorsWithCoords = await baseJSONClient.post('/api/metrics/vectors/reduce-dimensions', {
-                                    datapoint_filters: allFilters,
+                                    datapoint_filters: filtersWithModels,
                                     dataset_id: datasetId,
                                     embeddings_name: selectedEmbeddingsName,
                                     algorithm_name: selectedAlgorithmName
@@ -117,9 +117,12 @@ const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelec
                     ) : null
                 }
                 <DatapointsViewer
-                    filters={allFilters} datasetId={datasetId} modelNames={modelNames}
-                    selectedDatapoints={selectedDatapointIds}
-                    onSelectedDatapointsChange={onSelectedDatapointIdsChange}
+                    filters={[...filtersWithModels, ...(selectedDatapointIds.size ? [{
+                        left: 'datapoints.id',
+                        op: 'in',
+                        right: Array.from(selectedDatapointIds)
+                    }] : [])]}
+                    datasetId={datasetId} modelNames={modelNames}
                     renderActionButtons={({selectedDatapoints}) => selectedDatapoints.size ? (
                         <>
                             <DatasetSelector
