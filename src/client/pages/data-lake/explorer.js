@@ -79,43 +79,47 @@ const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelec
                                     )}
                                 />
                             </LoadingForm>
-                            <div className='mb-2'>
-                                {vectorsWithCoordinates ? (
-                                    <div className='position-relative'>
-                                        <ScatterChart
-                                            height={400}
-                                            data={vectorsWithCoordinates}
-                                            onSelectedDataChange={(vectors, e) => {
-                                                if (e?.shiftKey) {
-                                                    const selectedIds = new Set(selectedDatapointIds);
+                            {vectorsWithCoordinates ? (
+                                <div className='mb-2 position-relative'>
+                                    <ScatterChart
+                                        height={400}
+                                        data={vectorsWithCoordinates}
+                                        onSelectedDataChange={(vectors, e) => {
+                                            if (e?.shiftKey) {
+                                                const selectedIds = new Set(selectedDatapointIds);
 
-                                                    if (vectors.length === 1 && selectedIds.has(vectors[0]['datapoint'])) {
-                                                        selectedIds.delete(vectors[0]['datapoint']);
-                                                    } else {
-                                                        vectors.forEach((v) => selectedIds.add(v['datapoint']));
-                                                    }
+                                                if (vectors.length === 1 && selectedIds.has(vectors[0]['datapoint'])) {
+                                                    selectedIds.delete(vectors[0]['datapoint']);
+                                                } else {
+                                                    vectors.forEach((v) => selectedIds.add(v['datapoint']));
+                                                }
 
-                                                    onSelectedDatapointIdsChange(selectedIds);
-                                                } else {
-                                                    onSelectedDatapointIdsChange(new Set(vectors.map((v) => v['datapoint'])));
-                                                }
-                                            }}
-                                            isDatapointSelected={(v) => selectedDatapointIds.has(v['datapoint'])}
-                                            getColor={(v) => {
-                                                if (selectedDatapointIds.has(v['datapoint'])) {
-                                                    return theme.primary;
-                                                } else {
-                                                    return getHexColor('');
-                                                }
-                                            }}
-                                        />
-                                        {dimensionReductionIsOutOfDate ? (<WhiteScreen>Re-run embeddings analysis</WhiteScreen>) : null}
-                                    </div>
-                                ) : null}
-                            </div>
+                                                onSelectedDatapointIdsChange(selectedIds);
+                                            } else {
+                                                onSelectedDatapointIdsChange(new Set(vectors.map((v) => v['datapoint'])));
+                                            }
+                                        }}
+                                        isDatapointSelected={(v) => selectedDatapointIds.has(v['datapoint'])}
+                                        getColor={(v) => {
+                                            if (selectedDatapointIds.has(v['datapoint'])) {
+                                                return theme.primary;
+                                            } else {
+                                                return getHexColor('');
+                                            }
+                                        }}
+                                    />
+                                    {dimensionReductionIsOutOfDate ? (<WhiteScreen>Re-run embeddings analysis</WhiteScreen>) : null}
+                                </div>
+                            ) : null}
                         </>
                     ) : null
                 }
+                {selectedDatapointIds.size ? (
+                    <div className='my-2'>
+                        In focus: {selectedDatapointIds.size.toLocaleString()} datapoints.&nbsp;
+                        <a className='cursor-pointer' onClick={() => onSelectedDatapointIdsChange(new Set())}>Clear</a>
+                    </div>
+                ) : null}
                 <DatapointsViewer
                     filters={[...filtersWithModels, ...(selectedDatapointIds.size ? [{
                         left: 'datapoints.id',
