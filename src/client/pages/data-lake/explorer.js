@@ -13,6 +13,7 @@ import LoadingForm from 'components/loading-form';
 import Async from 'components/async';
 import {getHexColor} from 'helpers/color-helper';
 import WhiteScreen from 'components/white-screen';
+import LoadingLink from 'components/loading-link';
 
 const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelectedDatapointIdsChange}) => {
     const history = useHistory();
@@ -138,9 +139,24 @@ const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelec
                             >
                                 Add to dataset
                             </DatasetSelector>
+                            {
+                                datasetId ? (
+                                    <>
+                                        &nbsp;|&nbsp;
+                                        <LoadingLink onClick={async () => {
+                                            const datasetName = (await baseJSONClient.get(`/api/dataset/${datasetId}`))['display_name'];
+
+                                            if (window.confirm(`Remove ${selectedDatapoints.size} datapoints from "${datasetName}"?`)) {
+                                                await baseJSONClient.post(`/api/dataset/${datasetId}/remove`, {datapointIds: Array.from(selectedDatapoints)});
+                                                window.location.reload();
+                                            }
+                                        }}>Remove from dataset</LoadingLink>
+                                    </>
+                                ) : null
+                            }
                             &nbsp;|&nbsp;
-                            <a style={{color: theme.danger}} className='link-danger' onClick={async () => {
-                                if (window.confirm(`Are you sure you want to delete ${selectedDatapoints.size} datapoints?`)) {
+                            <LoadingLink style={{color: theme.danger}} className='link-danger' onClick={async () => {
+                                if (window.confirm(`Delete ${selectedDatapoints.size} datapoints?`)) {
                                     await baseJSONClient.post('/api/datapoints/delete', {
                                         filters: [{
                                             left: 'id',
@@ -150,7 +166,7 @@ const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelec
                                     });
                                     window.location.reload();
                                 }
-                            }}>Delete from lake</a>
+                            }}>Delete from lake</LoadingLink>
                         </>
                     ) : null}
                 />
