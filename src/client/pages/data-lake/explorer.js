@@ -138,9 +138,24 @@ const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelec
                             >
                                 Add to dataset
                             </DatasetSelector>
+                            {
+                                datasetId ? (
+                                    <>
+                                        &nbsp;|&nbsp;
+                                        <a onClick={async () => {
+                                            const datasetName = (await baseJSONClient.get(`/api/dataset/${datasetId}`))['display_name'];
+
+                                            if (window.confirm(`Remove ${selectedDatapoints.size} datapoints from "${datasetName}"?`)) {
+                                                await baseJSONClient.post(`/api/dataset/${datasetId}/remove`, {datapointIds: Array.from(selectedDatapoints)});
+                                                window.location.reload();
+                                            }
+                                        }}>Remove from dataset</a>
+                                    </>
+                                ) : null
+                            }
                             &nbsp;|&nbsp;
                             <a style={{color: theme.danger}} className='link-danger' onClick={async () => {
-                                if (window.confirm(`Are you sure you want to delete ${selectedDatapoints.size} datapoints?`)) {
+                                if (window.confirm(`Delete ${selectedDatapoints.size} datapoints?`)) {
                                     await baseJSONClient.post('/api/datapoints/delete', {
                                         filters: [{
                                             left: 'id',
