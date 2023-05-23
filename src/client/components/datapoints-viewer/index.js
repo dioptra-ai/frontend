@@ -239,7 +239,7 @@ const DatapointsPageActions = ({filters, datasetId, datapoints, selectedDatapoin
                                             {
                                                 !allDatapointsSelected && onSelectedDatapointsChange ? (
                                                     <a onClick={handleSelectAllDataPoints}>
-                                                        Select all {Number(totalCount).toLocaleString()} datapoints
+                                                        Select all {Number(totalCount).toLocaleString()}
                                                     </a>
                                                 ) : null
                                             }

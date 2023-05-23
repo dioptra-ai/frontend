@@ -17,7 +17,7 @@ const DataLakeDistributions = ({filters, datasetId, modelNames, selectedDatapoin
     const [groupDistributions, setGroupDistributions] = useState();
     const [groupDistributionsAreOutOfDate, setGroupDistributionsAreOutOfDate] = useState(false);
     const allFilters = filters.concat(selectedDatapointIds.size ? {
-        left: 'datapoints.id',
+        left: 'id',
         op: 'in',
         right: Array.from(selectedDatapointIds).sort() // for caching...
     } : [], modelNames.length ? {

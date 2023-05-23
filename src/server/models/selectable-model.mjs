@@ -240,13 +240,18 @@ class SelectableModel {
             if (columnFilters.length > 1) {
                 columnFilters.forEach((filter, i) => {
                     const tableName = this.getColumnTable(filter['left']);
-                    const columnName = filter['left'].split('.')[1];
 
-                    acc.push({
-                        'left': `${tableName}_${i}.${columnName}`,
-                        'op': filter['op'],
-                        'right': filter['right']
-                    });
+                    if (tableName === primaryTable) {
+                        acc.push(filter);
+                    } else {
+                        const columnName = filter['left'].split('.')[1];
+
+                        acc.push({
+                            'left': `${tableName}_${i}.${columnName}`,
+                            'op': filter['op'],
+                            'right': filter['right']
+                        });
+                    }
                 });
             } else {
                 acc.push(columnFilters[0]);
@@ -259,7 +264,11 @@ class SelectableModel {
                 columnFilters.forEach((filter, i) => {
                     const tableName = this.getColumnTable(filter['left']);
 
-                    acc.push(`${tableName} AS ${tableName}_${i}`);
+                    if (tableName === primaryTable) {
+                        acc.push(tableName);
+                    } else {
+                        acc.push(`${tableName} AS ${tableName}_${i}`);
+                    }
                 });
             } else {
                 acc.push(this.getColumnTable(columnFilters[0]['left']));

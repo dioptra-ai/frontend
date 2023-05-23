@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import {useEffect, useState} from 'react';
 import {useHistory} from 'react-router-dom';
 import {Col, Row} from 'react-bootstrap';
+import {JsonParam, useQueryParam, withDefault} from 'use-query-params';
 
 import baseJSONClient from 'clients/base-json-client';
 import theme from 'styles/theme.module.scss';
@@ -15,8 +16,11 @@ import {getHexColor} from 'helpers/color-helper';
 import WhiteScreen from 'components/white-screen';
 import LoadingLink from 'components/loading-link';
 
+const JsonParamDefaultEmptyArray = withDefault(JsonParam, []);
+
 const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelectedDatapointIdsChange}) => {
     const history = useHistory();
+    const [, setFilters] = useQueryParam('filters', JsonParamDefaultEmptyArray);
     const [vectorsWithCoordinates, setVectorsWithCoordinates] = useState();
     const [dimensionReductionIsOutOfDate, setDimensionReductionIsOutOfDate] = useState(false);
     const filtersWithModels = filters.concat(modelNames.length ? {
@@ -123,13 +127,21 @@ const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelec
                 ) : null}
                 <DatapointsViewer
                     filters={[...filtersWithModels, ...(selectedDatapointIds.size ? [{
-                        left: 'datapoints.id',
+                        left: 'id',
                         op: 'in',
                         right: Array.from(selectedDatapointIds)
                     }] : [])]}
                     datasetId={datasetId} modelNames={modelNames}
                     renderActionButtons={({selectedDatapoints}) => selectedDatapoints.size ? (
                         <>
+                            <a onClick={() => {
+                                setFilters([...filters, {
+                                    left: 'id',
+                                    op: 'in',
+                                    right: Array.from(selectedDatapoints)
+                                }]);
+                            }}>Add to filters</a>
+                            &nbsp;|&nbsp;
                             <DatasetSelector
                                 allowNew title='Add selected to dataset'
                                 onChange={async (datasetId) => {
