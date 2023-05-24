@@ -31,7 +31,7 @@ const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelec
 
     useEffect(() => {
         setDimensionReductionIsOutOfDate(true);
-    }, [JSON.stringify(filtersWithModels), datasetId]);
+    }, [JSON.stringify(filters), datasetId]);
 
     return (
         <>
@@ -54,17 +54,18 @@ const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelec
                                 <Async
                                     fetchData={() => baseJSONClient.post('/api/predictions/select-distinct-embedding-names', {
                                         datapointFilters: filters,
-                                        datasetId,
-                                        modelNames
+                                        datasetId
                                     }, {memoized: true})}
-                                    refetchOnChanged={[filters, datasetId, modelNames]}
+                                    refetchOnChanged={[filters, datasetId]}
                                     renderData={(embeddingNames) => (
                                         <Row className='g-2'>
                                             <Col>
                                                 <Select required name='selectedEmbeddingsName' defaultValue=''>
-                                                    <option value='' disabled>{
-                                                        embeddingNames.length ? 'Select an embedding' : 'No embeddings available'
-                                                    }</option>
+                                                    {
+                                                        !embeddingNames.length && (
+                                                            <option value='' disabled>No embeddings available</option>
+                                                        ) || null
+                                                    }
                                                     {embeddingNames.map((embeddingName) => (
                                                         <option key={embeddingName} value={embeddingName}>{embeddingName}</option>
                                                     ))}

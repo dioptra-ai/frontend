@@ -48,7 +48,7 @@ class Prediction extends SelectableModel {
         }
     }
 
-    static async selectDistinctEmbeddingNames({organizationId, datapointFilters, datasetId, modelNames}) {
+    static async selectDistinctEmbeddingNames({organizationId, datapointFilters, datasetId}) {
         const safeSelectQuery = await Datapoint.getSafeSelectQueryWithDatasetId({organizationId, selectColumns: ['id'], filters: datapointFilters, datasetId});
 
         const {rows} = await postgresClient.query(
@@ -58,10 +58,9 @@ class Prediction extends SelectableModel {
                 WHERE feature_vectors.organization_id = $1 AND datapoint IN (
                         SELECT id FROM (${safeSelectQuery}) AS subquery
                     )
-                    ${modelNames?.length ? 'AND predictions.model_name = ANY($2)' : ''}
                     AND feature_vectors.type = 'EMBEDDINGS'
                 ORDER BY feature_vectors.model_name ASC`,
-            [organizationId].concat(modelNames?.length ? [modelNames] : [])
+            [organizationId]
         );
 
         return rows.map((row) => row['model_name']);

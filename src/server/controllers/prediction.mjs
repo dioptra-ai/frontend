@@ -56,8 +56,7 @@ PredictionsRouter.post('/select-distinct-embedding-names', async (req, res, next
         const embeddingNames = await Prediction.selectDistinctEmbeddingNames({
             organizationId: req.user.requestOrganizationId,
             datapointFilters: req.body.datapointFilters,
-            datasetId: req.body.datasetId,
-            modelNames: req.body.modelNames
+            datasetId: req.body.datasetId
         });
 
         res.json(embeddingNames);
