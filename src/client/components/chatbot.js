@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types';
 import {Widget as ReactChatWidget} from 'react-chat-widget';
 import 'react-chat-widget/lib/styles.css';
-import {IoMdSend} from 'react-icons/io';
 import {BiBot} from 'react-icons/bi';
 
 import {setupComponent} from 'helpers/component-helper';
@@ -9,10 +8,6 @@ import {setupComponent} from 'helpers/component-helper';
 import theme from 'styles/theme.module.scss';
 
 const _ChatBot = ({chatStore}) => {
-
-    if (true) { // eslint-disable-line no-constant-condition
-        return null;
-    }
 
     return (
         <>
@@ -61,13 +56,9 @@ export default ChatBot;
 
 const SendButton = ({chatStore, message}) => {
 
-    if (true) { // eslint-disable-line no-constant-condition
-        return null;
-    }
-
     return (
         <a onClick={() => chatStore.sendUserMessage(message)} title='Send to chat' className='d-inline-flex align-items-center justify-content-center'>
-            Send to DataBot <IoMdSend />
+            Send to DataBot
         </a>
     );
 };
