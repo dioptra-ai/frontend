@@ -140,7 +140,7 @@ const DataLakeDistributions = ({filters, datasetId, modelNames, selectedDatapoin
                                 onClick={({datapoints}) => {
                                     onSelectedDatapointIdsChange(new Set(datapoints));
                                 }}
-                                title={tagDistribution.title || 'Tag'}
+                                title={tagDistribution.title}
                                 verticalIfMoreThan={10}
                                 bars={Object.entries(tagDistribution.histogram).map(([name, {value, datapoints}]) => ({
                                     name,
