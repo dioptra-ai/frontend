@@ -11,9 +11,8 @@ const ChatRouter = express.Router();
 ChatRouter.post('/send', async (req, res, next) => {
     try {
         const {messages} = req.body;
-
         const completion = await openai.createChatCompletion({
-            model: 'gpt-3.5-turbo',
+            model: 'gpt-4',
             temperature: 0,
             messages: [{
                 role: 'system',
