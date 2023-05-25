@@ -98,6 +98,32 @@ const DataLakeDistributions = ({filters, datasetId, modelNames, selectedDatapoin
                 ) : null
             }
             <Row className='g-2 mt-2'>
+                <Col md={12}>
+                    <Async
+                        fetchData={() => baseJSONClient.post('/api/metrics/distribution/tags', {
+                            datapoint_filters: allFilters,
+                            dataset_id: datasetId
+                        }, {memoized: true})}
+                        refetchOnChanged={[JSON.stringify(allFilters), datasetId]}
+                        renderData={(tagDistribution) => tagDistribution.histogram && Object.keys(tagDistribution.histogram).length ? (
+                            <BarGraph
+                                onClick={({datapoints}) => {
+                                    onSelectedDatapointIdsChange(new Set(datapoints));
+                                }}
+                                title={tagDistribution.title || 'Tags'}
+                                verticalIfMoreThan={10}
+                                bars={Object.entries(tagDistribution.histogram).map(([name, {value, datapoints}]) => ({
+                                    name,
+                                    value,
+                                    datapoints,
+                                    fill: theme.primary
+                                }))}
+                            />
+                        ) : null
+                        }
+                        renderError={(err) => err.status === 501 ? null : <Error error={err} />}
+                    />
+                </Col>
                 <Col md={modelNames.length ? 6 : 12}>
                     <Async
                         fetchData={async () => {
