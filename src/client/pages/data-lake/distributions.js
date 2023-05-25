@@ -104,8 +104,8 @@ const DataLakeDistributions = ({filters, datasetId, modelNames, selectedDatapoin
                     <div className='my-2'>
                         <Async
                             fetchData={() => baseJSONClient.post('/api/tags/select-distinct-names', {
-                                datapoint_filters: allFilters,
-                                dataset_id: datasetId
+                                datapointFilters: allFilters,
+                                datasetId
                             }, {memoized: true})}
                             refetchOnChanged={[JSON.stringify(allFilters), datasetId]}
                             renderData={(tagNames) => tagNames.length ? (
