@@ -1,17 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+
+<head>
     <meta charset="utf-8" />
     <link rel="icon" href="/95157deec84d878d5db96929e8c16714.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="The metrics engine for better data and better models."
-    />
+    <meta name="description" content="The metrics engine for better data and better models." />
     <title>Dioptra</title>
-  </head>
-  <body>
+</head>
+
+<body>
+    <script>
+        window['DIOPTRA_ENV'] = {};
+        {{#each env}}window['DIOPTRA_ENV']['{{@key}}']='{{this}}';
+        {{/each}}
+    </script>
     <div id="root"></div>
-  </body>
+</body>
 </html>

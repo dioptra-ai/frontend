@@ -9,6 +9,10 @@ import theme from 'styles/theme.module.scss';
 
 const _ChatBot = ({chatStore}) => {
 
+    if (window['DIOPTRA_ENV']['name'] === 'prod') {
+        return null;
+    }
+
     return (
         <>
             <style>{`
@@ -55,6 +59,10 @@ const ChatBot = setupComponent(_ChatBot);
 export default ChatBot;
 
 const SendButton = ({chatStore, message}) => {
+
+    if (window['DIOPTRA_ENV']['name'] === 'prod') {
+        return null;
+    }
 
     return (
         <a onClick={() => chatStore.sendUserMessage(message)} title='Send to chat' className='d-inline-flex align-items-center justify-content-center'>

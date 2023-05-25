@@ -5,6 +5,7 @@ import passport from 'passport';
 import {dirname, join, resolve} from 'path';
 import {fileURLToPath} from 'url';
 import {} from 'dotenv/config';
+import {engine} from 'express-handlebars';
 
 import setupSentry from './src/server/middleware/sentry.mjs';
 import {sessionHandler} from './src/server/middleware/authentication.mjs';
@@ -42,8 +43,16 @@ app.use(morgan(ENVIRONMENT === 'local-dev' ? 'dev' : ':remote-addr - [:date[iso]
 app.use('/api', rateLimit, ApiRouter);
 
 // Serve client on all routes other than /api
+
+app.engine('html', engine({defaultLayout: false, extname: '.html'}));
+app.set('view engine', 'handlebars'); 
+app.set('views', resolve(basePath, 'build'));
 app.get('*', (req, res, next) => {
-    res.sendFile(resolve(basePath, 'build', 'index.html'));
+    res.render(resolve(basePath, 'build/index.html'), {
+        env: {
+            name: ENVIRONMENT
+        }
+    });
 });
 
 app.use(handleErrors);
