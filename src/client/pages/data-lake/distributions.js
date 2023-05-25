@@ -16,6 +16,7 @@ import WhiteScreen from 'components/white-screen';
 const DataLakeDistributions = ({filters, datasetId, modelNames, selectedDatapointIds, onSelectedDatapointIdsChange}) => {
     const [groupDistributions, setGroupDistributions] = useState();
     const [groupDistributionsAreOutOfDate, setGroupDistributionsAreOutOfDate] = useState(false);
+    const [tagDistribution, setTagDistribution] = useState();
     const allFilters = filters.concat(selectedDatapointIds.size ? {
         left: 'id',
         op: 'in',
@@ -28,6 +29,7 @@ const DataLakeDistributions = ({filters, datasetId, modelNames, selectedDatapoin
 
     useEffect(() => {
         setGroupDistributionsAreOutOfDate(true);
+        setTagDistribution();
     }, [JSON.stringify(allFilters), datasetId, modelNames]);
 
     return (
@@ -99,30 +101,56 @@ const DataLakeDistributions = ({filters, datasetId, modelNames, selectedDatapoin
             }
             <Row className='g-2 mt-2'>
                 <Col md={12}>
-                    <Async
-                        fetchData={() => baseJSONClient.post('/api/metrics/distribution/tags', {
-                            datapoint_filters: allFilters,
-                            dataset_id: datasetId
-                        }, {memoized: true})}
-                        refetchOnChanged={[JSON.stringify(allFilters), datasetId]}
-                        renderData={(tagDistribution) => tagDistribution.histogram && Object.keys(tagDistribution.histogram).length ? (
+                    <div className='my-2'>
+                        <Async
+                            fetchData={() => baseJSONClient.post('/api/tags/select-distinct-names', {
+                                datapoint_filters: allFilters,
+                                dataset_id: datasetId
+                            }, {memoized: true})}
+                            refetchOnChanged={[JSON.stringify(allFilters), datasetId]}
+                            renderData={(tagNames) => tagNames.length ? (
+                                <LoadingForm className='my-2' onSubmit={async (_, {selectedTagName}) => {
+                                    const tagDistribution = await baseJSONClient.post('/api/metrics/distribution/tag', {
+                                        datapoint_filters: allFilters,
+                                        dataset_id: datasetId,
+                                        tag_name: selectedTagName
+                                    }, {memoized: true});
+
+                                    setTagDistribution(tagDistribution);
+                                }}>
+                                    <Row className='g-2'>
+                                        <Col>
+                                            <Select required name='selectedTagName'>
+                                                {tagNames.map((tagName) => (
+                                                    <option key={tagName} value={tagName}>{tagName}</option>
+                                                ))}
+                                            </Select>
+                                        </Col>
+                                        <Col>
+                                            <LoadingForm.Button variant='secondary' type='submit' className='w-100'>Show tag distribution</LoadingForm.Button>
+                                        </Col>
+                                    </Row>
+                                </LoadingForm>
+                            ) : null}
+                        />
+                    </div>
+                    {
+                        tagDistribution ? (
                             <BarGraph
                                 onClick={({datapoints}) => {
                                     onSelectedDatapointIdsChange(new Set(datapoints));
                                 }}
-                                title={tagDistribution.title || 'Tags'}
+                                title={tagDistribution.title || 'Tag'}
                                 verticalIfMoreThan={10}
                                 bars={Object.entries(tagDistribution.histogram).map(([name, {value, datapoints}]) => ({
                                     name,
                                     value,
-                                    datapoints,
-                                    fill: theme.primary
+                                    datapoints
                                 }))}
                             />
                         ) : null
-                        }
-                        renderError={(err) => err.status === 501 ? null : <Error error={err} />}
-                    />
+                    }
+                    <hr/>
                 </Col>
                 <Col md={modelNames.length ? 6 : 12}>
                     <Async
