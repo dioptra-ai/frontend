@@ -290,7 +290,7 @@ DatapointsPageActions.propTypes = {
 
 const PAGE_SIZE = 50;
 
-const DatapointsViewer = ({filters, datasetId, modelNames, renderActionButtons, defaultSelectedDatapoints, onSelectedDatapointsChange, selectedDatapoints}) => {
+const DatapointsViewer = ({filters, datasetId, modelNames, renderActionButtons, renderEmpty, defaultSelectedDatapoints, onSelectedDatapointsChange, selectedDatapoints}) => {
     const [offset, setOffset] = useState(0);
     const [uncontrolledSelectedDatapoints, setUncontrolledSelectedDatapoints] = useState(new Set(defaultSelectedDatapoints));
     const _selectedDatapoints = selectedDatapoints ?? uncontrolledSelectedDatapoints;
@@ -321,7 +321,7 @@ const DatapointsViewer = ({filters, datasetId, modelNames, renderActionButtons, 
                     datasetId
                 })}
                 refetchOnChanged={[JSON.stringify(filters), offset, datasetId]}
-                renderData={(datapointsPage) => (
+                renderData={(datapointsPage) => datapointsPage.length ? (
                     <Row className='g-2'>
                         {renderActionButtons ? (
                             <Col xs={12}>
@@ -342,6 +342,10 @@ const DatapointsViewer = ({filters, datasetId, modelNames, renderActionButtons, 
                             />
                         </Col>
                     </Row>
+                ) : renderEmpty?.() ?? (
+                    <div className='d-flex justify-content-center my-5 align-items-center text-secondary'>
+                        No data
+                    </div>
                 )}
             />
             <Async
@@ -356,7 +360,7 @@ const DatapointsViewer = ({filters, datasetId, modelNames, renderActionButtons, 
                                 disabled={offset === 0}
                                 onClick={() => setOffset(offset - PAGE_SIZE)}
                             >
-                                Previous
+                                &lt;
                             </Button>
                             <div className='mx-3'>
                                 {
@@ -370,7 +374,7 @@ const DatapointsViewer = ({filters, datasetId, modelNames, renderActionButtons, 
                                 disabled={!loading && offset + PAGE_SIZE >= totalCount}
                                 onClick={() => setOffset(offset + PAGE_SIZE)}
                             >
-                                Next
+                                &gt;
                             </Button>
                         </div>
                     )

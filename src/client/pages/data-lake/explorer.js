@@ -133,6 +133,11 @@ const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelec
                         right: Array.from(selectedDatapointIds)
                     }] : [])]}
                     datasetId={datasetId} modelNames={modelNames}
+                    renderEmpty={() => (
+                        <div className='text-secondary mt-2 text-center'>
+                            The Data lake is empty. <a href='https://dioptra-public.s3.us-east-2.amazonaws.com/sample_dataset.json' download>Download Sample Data</a>, then use the "Upload Data" button to get started.
+                        </div>
+                    )}
                     renderActionButtons={({selectedDatapoints}) => selectedDatapoints.size ? (
                         <>
                             <a onClick={() => {
