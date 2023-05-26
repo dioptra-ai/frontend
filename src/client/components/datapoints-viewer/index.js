@@ -391,7 +391,8 @@ DatapointsViewer.propTypes = {
     renderActionButtons: PropTypes.func,
     defaultSelectedDatapoints: PropTypes.arrayOf(PropTypes.string),
     onSelectedDatapointsChange: PropTypes.func,
-    selectedDatapoints: PropTypes.instanceOf(Set)
+    selectedDatapoints: PropTypes.instanceOf(Set),
+    renderEmpty: PropTypes.func
 };
 
 export default DatapointsViewer;
