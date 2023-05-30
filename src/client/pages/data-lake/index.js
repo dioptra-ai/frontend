@@ -35,10 +35,10 @@ const DataLake = () => {
     return (
         <Menu>
             <TopBar hideTimePicker />
-            <div className='text-dark p-3'>
+            <div className='text-dark p-3' id='joyride-5'>
                 <div className='d-flex justify-content-between align-items-center mb-2'>
                     <h4 className='0'>Data Lake</h4>
-                    <Button
+                    <Button id='joyride-1'
                         onClick={() => setShowUploadDataModal(true)}
                         variant='secondary' size='s' className='text-nowrap'
                     >Upload Data</Button>

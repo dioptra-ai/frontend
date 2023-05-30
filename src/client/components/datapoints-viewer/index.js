@@ -240,7 +240,7 @@ const DatapointsPageActions = ({filters, datasetId, datapoints, selectedDatapoin
                 selectedDatapoints.size ? (
                     <Col xs={12} className='d-flex justify-content-between'>
                         <div>
-                            <Async className='d-inline' fetchData={() => baseJSONClient.post('/api/datapoints/count', {filters, datasetId}, {memoized: true})}
+                            <Async className='d-inline' fetchData={() => baseJSONClient.post('/api/datapoints/count', {filters, datasetId})}
                                 refetchOnChanged={[JSON.stringify(filters), datasetId]}
                                 renderData={(totalCount) => {
                                     const allDatapointsSelected = totalCount === selectedDatapoints.size;
@@ -292,6 +292,7 @@ const PAGE_SIZE = 50;
 
 const DatapointsViewer = ({filters, datasetId, modelNames, renderActionButtons, renderEmpty, defaultSelectedDatapoints, onSelectedDatapointsChange, selectedDatapoints}) => {
     const [offset, setOffset] = useState(0);
+    const [lastReloadRequestedAt, setLastReloadRequestedAt] = useState(Date.now());
     const [uncontrolledSelectedDatapoints, setUncontrolledSelectedDatapoints] = useState(new Set(defaultSelectedDatapoints));
     const _selectedDatapoints = selectedDatapoints ?? uncontrolledSelectedDatapoints;
     const handleSelectedDatapointsChange = (datpointIds) => {
@@ -300,6 +301,9 @@ const DatapointsViewer = ({filters, datasetId, modelNames, renderActionButtons, 
         } else {
             setUncontrolledSelectedDatapoints(datpointIds);
         }
+    };
+    const handleReload = () => {
+        setLastReloadRequestedAt(Date.now());
     };
 
     useEffect(() => {
@@ -320,7 +324,7 @@ const DatapointsViewer = ({filters, datasetId, modelNames, renderActionButtons, 
                     limit: PAGE_SIZE,
                     datasetId
                 })}
-                refetchOnChanged={[JSON.stringify(filters), offset, datasetId]}
+                refetchOnChanged={[JSON.stringify(filters), offset, datasetId, lastReloadRequestedAt]}
                 renderData={(datapointsPage) => datapointsPage.length ? (
                     <Row className='g-2'>
                         {renderActionButtons ? (
@@ -342,7 +346,7 @@ const DatapointsViewer = ({filters, datasetId, modelNames, renderActionButtons, 
                             />
                         </Col>
                     </Row>
-                ) : renderEmpty?.() ?? (
+                ) : renderEmpty?.({reload: handleReload}) ?? (
                     <div className='d-flex justify-content-center my-5 align-items-center text-secondary'>
                         No data
                     </div>
@@ -350,8 +354,8 @@ const DatapointsViewer = ({filters, datasetId, modelNames, renderActionButtons, 
             />
             <Async
                 spinner={false}
-                fetchData={() => baseJSONClient.post('/api/datapoints/count', {filters, datasetId}, {memoized: true})}
-                refetchOnChanged={[JSON.stringify(filters), datasetId]}
+                fetchData={() => baseJSONClient.post('/api/datapoints/count', {filters, datasetId})}
+                refetchOnChanged={[JSON.stringify(filters), datasetId, lastReloadRequestedAt]}
             >{
                     ({data: totalCount, loading}) => (
                         <div className='d-flex justify-content-center my-5 align-items-center'>

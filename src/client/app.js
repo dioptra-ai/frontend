@@ -3,6 +3,7 @@ import {Redirect, Route, Switch, useLocation} from 'react-router-dom';
 import {Helmet} from 'react-helmet';
 
 import {AuthorizedRouteConfigs} from './configs/route-config';
+import GuidedTour from 'components/guided-tour';
 import Model from 'pages/model';
 import Menu from 'components/menu';
 import Login from 'pages/login';
@@ -83,6 +84,7 @@ const App = () => {
                 )}/>
                 <AuthRoute path='/' renderLoggedIn={() => <Redirect to='/data-lake'/>} renderLoggedOut={() => <Redirect to='/login'/>}/>
             </Switch>
+            <GuidedTour />
         </>
     );
 };

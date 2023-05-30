@@ -133,9 +133,11 @@ const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelec
                         right: Array.from(selectedDatapointIds)
                     }] : [])]}
                     datasetId={datasetId} modelNames={modelNames}
-                    renderEmpty={() => (
+                    renderEmpty={({reload}) => (
                         <div className='text-secondary mt-2 text-center'>
-                            The Data lake is empty. <a href='https://dioptra-public.s3.us-east-2.amazonaws.com/sample_dataset.json' download>Download Sample Data</a>, then use the "Upload Data" button to get started.
+                            <p>
+                                The Data lake is empty. <a id='joyride-6' onClick={reload}>Reload</a> the Data Lake or <a id='joyride-0' href='https://dioptra-public.s3.us-east-2.amazonaws.com/sample_dataset.json' download>Download Sample Data</a>, then use the "Upload Data" button to get started.
+                            </p>
                         </div>
                     )}
                     renderActionButtons={({selectedDatapoints}) => selectedDatapoints.size ? (

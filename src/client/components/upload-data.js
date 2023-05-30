@@ -48,6 +48,7 @@ const UploadData = ({onDone}) => {
             alert(e.message);
         } finally {
             setIsLoading(false);
+            history.push('/settings/uploads');
         }
     };
 
@@ -71,6 +72,7 @@ const UploadData = ({onDone}) => {
                                 <>
                                     <Form.Label className='mt-3 mb-0'>Local File (.ndjson, .jsonl)</Form.Label>
                                     <Form.File
+                                        id='joyride-2'
                                         name='file'
                                         required
                                         className='mt-1'
@@ -98,7 +100,7 @@ const UploadData = ({onDone}) => {
             </Row>
             <Row className='mt-3'>
                 <Col>
-                    <Button disabled={isLoading} className='btn btn-primary text-white w-100 p-2' type='submit'>Submit</Button>
+                    <Button id='joyride-3' disabled={isLoading} className='btn btn-primary text-white w-100 p-2' type='submit'>Submit</Button>
                 </Col>
             </Row>
             {
