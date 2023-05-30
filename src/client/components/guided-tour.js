@@ -101,7 +101,7 @@ const GuidedTour = () => {
             }, {
                 target: '#joyride-5',
                 // "Data Lake" page.
-                content: 'It usually takes a few minutes for the data to be ingested. When the Data Lake is empty, click on "Reload" to load the latest data.'
+                content: 'It can take a few seconds for the data to be ingested. When the Data Lake is empty, click on "Reload" to load the latest data.'
             }]}
             stepIndex={stepIndex}
             styles={{
