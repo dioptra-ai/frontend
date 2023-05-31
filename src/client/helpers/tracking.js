@@ -57,6 +57,10 @@ export const identify = (id) => {
     window.analytics?.identify(id);
 };
 
+export const group = (id) => {
+    window.analytics?.group(id);
+};
+
 export const resetTracking = () => {
     window.analytics?.reset();
 };

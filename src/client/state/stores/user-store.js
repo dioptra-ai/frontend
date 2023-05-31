@@ -1,7 +1,7 @@
 import {makeAutoObservable} from 'mobx';
 
 import authenticationClient from 'clients/authentication';
-import {identify, resetTracking} from 'helpers/tracking';
+import {identify, group, resetTracking} from 'helpers/tracking';
 import baseJSONClient from 'clients/base-json-client';
 
 class UserStore {
@@ -43,6 +43,7 @@ class UserStore {
         if (data !== this._userData) {
             if (data) {
                 identify(data.username);
+                group(data.activeOrganizationMembership?.organization?.name)
             } else {
                 resetTracking();
             }
