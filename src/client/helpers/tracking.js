@@ -44,7 +44,6 @@ export const initializeClickTracking = () => {
                     element.innerText;
 
                 if (trackText) {
-                    console.log('tracking.js:41 trackText', trackText);
                     window.analytics.track(trackText, {});
                 }
             }
