@@ -39,6 +39,9 @@ const GuidedTour = () => {
                 setStepIndex(4);
             } else if (location.pathname.startsWith('/data-lake') && runJoyrideRef.current === true) {
                 setStepIndex(5);
+            } else {
+                handleRunJoyride(false);
+                setStepIndex(0);
             }
         });
 
