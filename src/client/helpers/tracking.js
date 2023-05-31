@@ -1,5 +1,5 @@
 
-if (document.location.host === 'app.dioptra.ai') {
+if (window['DIOPTRA_ENV']['disabledUsageFeedback'] !== 'true') {
 
     /* eslint-disable */
     !(function() {
@@ -32,19 +32,22 @@ if (document.location.host === 'app.dioptra.ai') {
 
 export const initializeClickTracking = () => {
     if (window.analytics) {
-        ['button', '.btn', 'a', '.tab', 'input', 'select', 'li[data-range-key]'].forEach((selector) => {
+        window.addEventListener('click', (event) => {
+            const closestSelector = ['button', '.btn', 'a', '.tab', 'input', 'select', 'li[data-range-key]'].find((selector) => event.target.closest(selector));
+            const element = event.target.closest(closestSelector);
 
-            document.querySelectorAll(selector).forEach((element) => {
-                if (element.getAttribute('listener') !== 'true') {
+            if (element) {
+                const trackText = (element.id ?? `#${element.id}`) || 
+                    element.name || 
+                    element.title ||
+                    element.placeholder || 
+                    element.innerText;
 
-                    element.addEventListener('click', (event) => {
-                        const elementClicked = event.currentTarget;
-
-                        elementClicked.setAttribute('listener', 'true');
-                        window.analytics.track(element.innerText, {});
-                    });
+                if (trackText) {
+                    console.log('tracking.js:41 trackText', trackText);
+                    window.analytics.track(trackText, {});
                 }
-            });
+            }
         });
     }
 };

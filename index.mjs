@@ -50,7 +50,8 @@ app.set('views', resolve(basePath, 'build'));
 app.get('*', (req, res, next) => {
     res.render(resolve(basePath, 'build/index.html'), {
         env: {
-            name: ENVIRONMENT
+            name: ENVIRONMENT,
+            disabledUsageFeedback: process.env.DISABLE_USAGE_FEEDBACK
         }
     });
 });
