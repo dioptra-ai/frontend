@@ -43,7 +43,7 @@ class UserStore {
         if (data !== this._userData) {
             if (data) {
                 identify(data.username);
-                group(data.activeOrganizationMembership?.organization?.name)
+                group(data.organizationMemberships?.organization?.name)
             } else {
                 resetTracking();
             }
