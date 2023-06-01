@@ -8,7 +8,7 @@ import {expressjwt} from 'express-jwt';
 import {isAuthenticated} from '../middleware/authentication.mjs';
 import validate from '../middleware/validate.mjs';
 
-const JWT_PRIVATE_KEY = process.env.JWT_PRIVATE_KEY || 'supersecretkey';
+const JWT_PRIVATE_KEY = process.env.JWT_PRIVATE_KEY;
 const JWT_ALGORITHM = 'HS256';
 const sesClient = new SESv2Client({region: 'us-east-2'});
 

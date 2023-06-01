@@ -51,6 +51,11 @@ spec:
               value: "http://task-engine:8001"
             - name: INGESTION_ENDPOINT
               value: {{ .Values.ingestionEndpoint }}
+            - name: JWT_PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-private-key
+                  key: jwt_private_key
             - name: AWS_S3_CUSTOMER_BUCKET
               value: "dioptra-client-data"
             - name: AWS_S3_CUSTOMER_BUCKET_REGION
