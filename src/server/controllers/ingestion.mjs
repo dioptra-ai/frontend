@@ -18,7 +18,8 @@ const {
     AWS_S3_CUSTOMER_UPLOAD_EXPIRATION_SECONDS = 3600,
     ENVIRONMENT,
     INGESTION_ENDPOINT,
-    AWS_INGESTION_STATE_MACHINE_ARN
+    AWS_INGESTION_STATE_MACHINE_ARN,
+    LOCAL_INGESTION_VOLUME_PATH = '/app/data-upload'
 } = process.env;
 const s3Client = new S3Client({region: AWS_S3_CUSTOMER_BUCKET_REGION});
 
@@ -100,7 +101,8 @@ IngestionRouter.get('/executions', async (req, res, next) => {
 
 IngestionRouter.post('/upload', (req, res, next) => {
     try {
-        const key = `${ENVIRONMENT}/${req.user.requestOrganizationId}/${md5(Math.random().toString())}.ndjson`;
+        const file_name = `${md5(Math.random().toString())}.ndjson`;
+        const key = `${ENVIRONMENT}/${req.user.requestOrganizationId}/${file_name}`;
         const form = new multiparty.Form();
 
         form.parse(req, async (err, fields, files) => {
@@ -113,21 +115,35 @@ IngestionRouter.post('/upload', (req, res, next) => {
             try {
                 const file = files['file'][0];
 
-                await s3Client.send(new PutObjectCommand({
-                    Bucket: AWS_S3_CUSTOMER_BUCKET,
-                    Key: key,
-                    Body: fs.createReadStream(file.path),
-                    ContentType: 'application/json'
-                }));
+                if (ENVIRONMENT === 'local-dev') {
+                    const local_file = `${LOCAL_INGESTION_VOLUME_PATH}/${file_name}`;
 
-                res.json({
-                    'url': await getSignedUrl(s3Client, new GetObjectCommand({
+                    await fs.readFile(file.path, (err, data) => {
+                        if (err) throw err;
+                        fs.writeFile(local_file, data, (err) => {
+                            if (err) throw err;
+                        });
+                    });
+                    res.json({'url': local_file});
+
+                } else {
+
+                    await s3Client.send(new PutObjectCommand({
                         Bucket: AWS_S3_CUSTOMER_BUCKET,
-                        Key: key
-                    }), {
-                        expiresIn: AWS_S3_CUSTOMER_UPLOAD_EXPIRATION_SECONDS
-                    })
-                });
+                        Key: key,
+                        Body: fs.createReadStream(file.path),
+                        ContentType: 'application/json'
+                    }));
+
+                    res.json({
+                        'url': await getSignedUrl(s3Client, new GetObjectCommand({
+                            Bucket: AWS_S3_CUSTOMER_BUCKET,
+                            Key: key
+                        }), {
+                            expiresIn: AWS_S3_CUSTOMER_UPLOAD_EXPIRATION_SECONDS
+                        })
+                    });
+                }
             } catch (e) {
                 next(e);
             }
@@ -141,10 +157,14 @@ IngestionRouter.post('/upload', (req, res, next) => {
 
 IngestionRouter.post('/ingest', async (req, res, next) => {
     try {
-        const firstKey = await mongoose.model('ApiKey').findOne({
+        let firstKey = await mongoose.model('ApiKey').findOne({
             user: req.user._id,
             organization: req.user.requestOrganizationId
         });
+
+        if (ENVIRONMENT === 'local-dev') {
+            firstKey = {'awsApiKey': 'local-dev'};
+        }
 
         if (!firstKey) {
             res.status(401);

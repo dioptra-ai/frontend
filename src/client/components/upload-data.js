@@ -37,7 +37,7 @@ const UploadData = ({onDone}) => {
             const ingestResponse = await baseJSONClient('/api/ingestion/ingest', {
                 method: 'POST',
                 body: {
-                    urls: [url]
+                    url
                 },
                 memoized: false
             });
