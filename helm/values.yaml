@@ -1,3 +1,4 @@
 app:
   port: 4004
   internalPort: 4005
+  openaiOrganization: org-uSZdKnnv17FeGmjt737SzlOa

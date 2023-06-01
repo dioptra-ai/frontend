@@ -61,6 +61,14 @@ spec:
               value: "{{ .Values.app.internalPort }}"
             - name: AWS_API_GATEWAY_PLAN_ID
               value: "{{ .Values.app.awsApiGatewayPlanId }}"
+            - name: OPENAI_ORGANIZATION
+              value: "{{ .Values.app.openaiOrganization }}"
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: openai-key
+                  key: openai_api_key
+                  optional: true
             - name: AWS_ACCESS_KEY_ID
               valueFrom:
                 secretKeyRef:

@@ -1,8 +1,8 @@
 import express from 'express';
 import {Configuration, OpenAIApi} from 'openai';
 const configuration = new Configuration({
-    organization: 'org-uSZdKnnv17FeGmjt737SzlOa',
-    apiKey: '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'
+    organization: process.env.OPENAI_ORGANIZATION,
+    apiKey: process.env.OPENAI_API_KEY
 });
 const openai = new OpenAIApi(configuration);
 
