@@ -34,11 +34,10 @@ const UploadData = ({onDone}) => {
                 url = formData.get('url');
             }
 
+
             const ingestResponse = await baseJSONClient('/api/ingestion/ingest', {
                 method: 'POST',
-                body: {
-                    url
-                },
+                body: window['DIOPTRA_ENV']['name'] === 'local-dev' ? {url} : {urls: [url]},
                 memoized: false
             });
 
