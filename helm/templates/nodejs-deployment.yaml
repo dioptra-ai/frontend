@@ -73,11 +73,6 @@ spec:
                   name: aws-key-frontend
                   key: aws_secret_access_key
                   optional: true
-            # Used for the semi-public documentation.
-            - name: BASIC_USERNAME
-              value: "dioptra"
-            - name: BASIC_PASSWORD
-              value: "!37iM6jJIU8C"
             - name: AWS_INGESTION_STATE_MACHINE_ARN
               value: {{ .Values.awsIngestionStateMachineArn }}
           image: "641017132295.dkr.ecr.us-east-2.amazonaws.com/frontend:{{ .Values.imageTag }}"
