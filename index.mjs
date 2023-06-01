@@ -12,6 +12,7 @@ import {sessionHandler} from './src/server/middleware/authentication.mjs';
 import rateLimit from './src/server/middleware/rate-limit.mjs';
 import ApiRouter from './src/server/api-router.mjs';
 import handleErrors from './src/server/middleware/error.mjs';
+import './src/server/middleware/usage-feedback.mjs';
 import './src/server/models/index.mjs';
 
 const { ENVIRONMENT } = process.env;
