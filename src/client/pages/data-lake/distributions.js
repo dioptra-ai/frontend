@@ -40,7 +40,7 @@ const DataLakeDistributions = ({filters, datasetId, modelNames, selectedDatapoin
 
                         <div className='my-2'>
                             <LoadingForm className='my-2' onSubmit={async (_, {selectedGroupBy}) => {
-                                const results = await Promise.all(modelNames.map((m) => baseJSONClient.post(`/api/metrics/distribution/${selectedGroupBy}`, {
+                                const results = await Promise.all(modelNames.map((m) => baseJSONClient.post(`/api/analytics/distribution/${selectedGroupBy}`, {
                                     datapoint_filters: allFilters,
                                     dataset_id: datasetId,
                                     model_name: m
@@ -110,7 +110,7 @@ const DataLakeDistributions = ({filters, datasetId, modelNames, selectedDatapoin
                             refetchOnChanged={[JSON.stringify(allFilters), datasetId]}
                             renderData={(tagNames) => tagNames.length ? (
                                 <LoadingForm className='my-2' onSubmit={async (_, {selectedTagName}) => {
-                                    const tagDistribution = await baseJSONClient.post('/api/metrics/distribution/tag', {
+                                    const tagDistribution = await baseJSONClient.post('/api/analytics/distribution/tag', {
                                         datapoint_filters: allFilters,
                                         dataset_id: datasetId,
                                         tag_name: selectedTagName
@@ -161,7 +161,7 @@ const DataLakeDistributions = ({filters, datasetId, modelNames, selectedDatapoin
                                 selectColumns: ['id']
                             }, {memoized: true});
 
-                            return baseJSONClient.post('/api/metrics/distribution/groundtruths', {
+                            return baseJSONClient.post('/api/analytics/distribution/groundtruths', {
                                 filters: [{
                                     left: 'datapoint',
                                     op: 'in',
@@ -200,7 +200,7 @@ const DataLakeDistributions = ({filters, datasetId, modelNames, selectedDatapoin
                                         selectColumns: ['id']
                                     }, {memoized: true});
 
-                                    return Promise.all(modelNames.map((modelName) => baseJSONClient.post('/api/metrics/distribution/predictions', {
+                                    return Promise.all(modelNames.map((modelName) => baseJSONClient.post('/api/analytics/distribution/predictions', {
                                         filters: [{
                                             left: 'datapoint',
                                             op: 'in',
@@ -265,7 +265,7 @@ const DataLakeDistributions = ({filters, datasetId, modelNames, selectedDatapoin
                                     selectColumns: ['id']
                                 }, {memoized: true});
 
-                                return Promise.all(modelNames.map((modelName) => baseJSONClient.post('/api/metrics/distribution/entropy', {
+                                return Promise.all(modelNames.map((modelName) => baseJSONClient.post('/api/analytics/distribution/entropy', {
                                     datapoint_ids: datapoints.map((datapoint) => datapoint.id),
                                     model_name: modelName
                                 }, {memoized: true})));

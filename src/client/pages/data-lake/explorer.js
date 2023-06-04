@@ -41,7 +41,7 @@ const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelec
                     datasetId ? (
                         <>
                             <LoadingForm className='my-2' onSubmit={async (_, {selectedEmbeddingsName, selectedAlgorithmName}) => {
-                                const vectorsWithCoords = await baseJSONClient.post('/api/metrics/vectors/reduce-dimensions', {
+                                const vectorsWithCoords = await baseJSONClient.post('/api/analytics/vectors/reduce-dimensions', {
                                     datapoint_filters: filtersWithModels,
                                     dataset_id: datasetId,
                                     embeddings_name: selectedEmbeddingsName,

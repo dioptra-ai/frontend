@@ -1,8 +1,9 @@
-import metricsClient from 'clients/metrics';
 import PropTypes from 'prop-types';
 import React, {useEffect, useState} from 'react';
 import Button from 'react-bootstrap/Button';
 import {useHistory} from 'react-router-dom';
+
+import baseJSONClient from 'clients/base-json-client';
 
 const SignedImage = ({rawUrl, onUnload, ...rest}) => {
     const [signedUrl, setSignedUrl] = useState(rawUrl);
@@ -28,8 +29,8 @@ const SignedImage = ({rawUrl, onUnload, ...rest}) => {
             try {
                 // Wait for more important calls to be made before clogging the browser with
                 // this noisy call.
-                await new Promise((resolve) => setTimeout(resolve, 100));
-                const s = await metricsClient('/signed-url', {
+                await new Promise((resolve) => setTimeout(resolve, 250));
+                const s = await baseJSONClient.post('/api/analytics/signed-url', {
                     url: rawUrl
                 }, {priority: 'low'});
 
