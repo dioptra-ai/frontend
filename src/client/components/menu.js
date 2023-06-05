@@ -6,7 +6,7 @@ import {AiOutlineDatabase} from 'react-icons/ai';
 import {getMatchingRouteConfig} from 'configs/route-config';
 import FontIcon from './font-icon';
 import {MdHelpOutline} from 'react-icons/md';
-import {HiOutlineCube, HiOutlineUserCircle} from 'react-icons/hi';
+import {HiOutlineUserCircle} from 'react-icons/hi';
 import {IoSettingsOutline} from 'react-icons/io5';
 import {BsMinecartLoaded, BsWater} from 'react-icons/bs';
 

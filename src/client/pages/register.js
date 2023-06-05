@@ -10,7 +10,6 @@ import {StringParam, useQueryParam} from 'use-query-params';
 import baseJSONClient from 'clients/base-json-client';
 import Logo from 'components/logo';
 import {setupComponent} from '../helpers/component-helper';
-import {Paths} from '../configs/route-config';
 import LoadingForm from 'components/loading-form';
 
 const Register = ({userStore}) => {

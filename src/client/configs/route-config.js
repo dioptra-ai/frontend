@@ -1,13 +1,11 @@
 import Login from 'pages/login';
 import Home from 'pages/home';
 import Profile from 'pages/profile';
-import Models from 'pages/models-list';
 import BenchmarksList from 'pages/benchmarks-list';
 import Alerts from 'pages/alerts';
 import Settings from 'pages/settings';
 
-export const Paths = (args = {}) => {
-    const {modelId = ':_id'} = args;
+export const Paths = () => {
 
     return {
         HOME: '/home',
