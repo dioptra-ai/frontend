@@ -61,6 +61,9 @@ const GuidedTour = () => {
 
             if (firstElement && stepIndex === 0) {
                 handleRunJoyride(true);
+                setTimeout(() => {
+                    document.querySelector('.react-joyride__beacon').click();
+                }, 100);
                 clearInterval(interval);
             }
         }, 250);
@@ -80,11 +83,11 @@ const GuidedTour = () => {
             steps={[{
                 target: '#joyride-0',
                 // "Download sample data" link.
-                content: 'Let\'s start by downloading some sample data to work with.'
+                content: 'Let\'s start simple: download some sample data to work with.'
             }, {
                 target: '#joyride-1',
                 // Upload Data button.
-                content: 'Now let\'s upload some data to the Data Lake.',
+                content: 'Now let\'s upload it to the Data Lake.',
                 hideFooter: true
             }, {
                 target: '#joyride-2',
