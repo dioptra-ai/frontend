@@ -38,7 +38,7 @@ const Register = ({userStore}) => {
     return _WEBPACK_DEF_FLAG_DISABLE_REGISTER_ ? (
         <Redirect to='/login'/>
     ) : userStore.isAuthenticated ? (
-        <Redirect to={Paths().MODELS} />
+        <Redirect to='/data-lake'/>
     ) : (
         <Container
             className='login fs-6 d-flex align-items-center justify-content-center'

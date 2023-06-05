@@ -12,8 +12,6 @@ export const Paths = (args = {}) => {
     return {
         HOME: '/home',
         LOGIN: '/login',
-        MODELS: '/models',
-        MODEL: `/models/${modelId}`,
         EXPERIMENTATIONS: '/benchmark',
         ALERTS: '/alerts',
         SETTINGS: '/settings',
@@ -26,7 +24,6 @@ export const UnauthorizedRouteConfigs = [
 ];
 export const AuthorizedRouteConfigs = [
     {path: Paths().HOME, isExact: true, component: Home},
-    {path: Paths().MODELS, isExact: true, component: Models},
     {path: Paths().EXPERIMENTATIONS, isExact: true, component: BenchmarksList},
     {path: Paths().ALERTS, isExact: false, component: Alerts},
     {path: Paths().SETTINGS, isExact: false, component: Settings},
