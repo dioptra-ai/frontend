@@ -64,38 +64,42 @@ IngestionRouter.get('/executions/:id', async (req, res, next) => {
 });
 
 IngestionRouter.get('/executions', async (req, res, next) => {
-    try {
-        const paginator = paginateListExecutions({
-            client: new SFNClient({region: 'us-east-2'}),
-            pageSize: 1000
-        }, {
-            stateMachineArn: AWS_INGESTION_STATE_MACHINE_ARN,
-            maxResults: 1000
-        });
-        const executions = [];
+    if (ENVIRONMENT === 'local-dev') {
+        next(new Error('Upload history not available in local-dev mode. Deploy in a cloud environment to view upload history. But you can still upload data!'));
+    } else {
+        try {
+            const paginator = paginateListExecutions({
+                client: new SFNClient({region: 'us-east-2'}),
+                pageSize: 1000
+            }, {
+                stateMachineArn: AWS_INGESTION_STATE_MACHINE_ARN,
+                maxResults: 1000
+            });
+            const executions = [];
 
-        for await (const page of paginator) {
-            for (const e of page.executions) {
+            for await (const page of paginator) {
+                for (const e of page.executions) {
                 // Break if we already have 100 executions or if the execution is older than 24 hours
-                if (executions.length >= 100 || new Date().getTime() - new Date(e['startDate']).getTime() > 24 * 60 * 60 * 1000) {
+                    if (executions.length >= 100 || new Date().getTime() - new Date(e['startDate']).getTime() > 24 * 60 * 60 * 1000) {
 
-                    res.json(executions);
+                        res.json(executions);
 
-                    return;
-                } else if (e['name'].startsWith(`ingestion-${req.user.requestOrganizationId}`)) {
-                    executions.push({
-                        id: Buffer.from(e['executionArn']).toString('base64'),
-                        status: e['status'],
-                        startDate: e['startDate'],
-                        stopDate: e['stopDate']
-                    });
+                        return;
+                    } else if (e['name'].startsWith(`ingestion-${req.user.requestOrganizationId}`)) {
+                        executions.push({
+                            id: Buffer.from(e['executionArn']).toString('base64'),
+                            status: e['status'],
+                            startDate: e['startDate'],
+                            stopDate: e['stopDate']
+                        });
+                    }
                 }
             }
-        }
 
-        res.json(executions);
-    } catch (e) {
-        next(e);
+            res.json(executions);
+        } catch (e) {
+            next(e);
+        }
     }
 });
 
