@@ -8,7 +8,7 @@ import {
 
 import {isAuthenticated} from '../middleware/authentication.mjs';
 
-const {AWS_ACCESS_KEY_ID, AWS_API_GATEWAY_PLAN_ID} = process.env;
+const {AWS_API_GATEWAY_PLAN_ID} = process.env;
 
 const client = new APIGatewayClient({region: 'us-east-2'});
 
@@ -47,8 +47,7 @@ ApiKeyRouter.post('/', async (req, res, next) => {
             value: `__api_key_value__${Date.now()}__`
         };
 
-        if (AWS_ACCESS_KEY_ID) {
-
+        try {
             awsApiKey = await client.send(new CreateApiKeyCommand({
                 enabled: true,
                 name: `${dioptraApiKey._id} (as: ${req.user.username} | ${requestOrganization.name})`,
@@ -64,8 +63,9 @@ ApiKeyRouter.post('/', async (req, res, next) => {
                 // TODO: Change this depending on what plan the organization is on when people are paying us.
                 usagePlanId: AWS_API_GATEWAY_PLAN_ID
             }));
+        } catch (e) {
+            console.warn(`WARNING: Failed to create API key. This might be because we're running in development mode: ${e}`);
         }
-
 
         dioptraApiKey.awsApiKeyId = awsApiKey.id;
         dioptraApiKey.awsApiKey = awsApiKey.value;
@@ -85,10 +85,12 @@ ApiKeyRouter.delete('/:_id', async (req, res, next) => {
             user: req.user._id
         });
 
-        if (AWS_ACCESS_KEY_ID) {
+        try {
             await client.send(new DeleteApiKeyCommand({
                 apiKey: dioptraApiKey.awsApiKeyId
             }));
+        } catch (e) {
+            console.warn(`WARNING: Failed to delete API key ${dioptraApiKey.awsApiKeyId}. This might be because we're running in development mode.`);
         }
 
         res.json(dioptraApiKey);
