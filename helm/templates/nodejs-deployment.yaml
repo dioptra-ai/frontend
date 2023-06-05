@@ -74,18 +74,6 @@ spec:
                   name: openai-key
                   key: openai_api_key
                   optional: true
-            - name: AWS_ACCESS_KEY_ID
-              valueFrom:
-                secretKeyRef:
-                  name: aws-key-frontend
-                  key: aws_access_key_id
-                  optional: true
-            - name: AWS_SECRET_ACCESS_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: aws-key-frontend
-                  key: aws_secret_access_key
-                  optional: true
             - name: AWS_INGESTION_STATE_MACHINE_ARN
               value: {{ .Values.awsIngestionStateMachineArn }}
           image: "641017132295.dkr.ecr.us-east-2.amazonaws.com/frontend:{{ .Values.imageTag }}"
