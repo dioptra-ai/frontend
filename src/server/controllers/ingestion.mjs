@@ -176,6 +176,8 @@ IngestionRouter.post('/ingest', async (req, res, next) => {
             firstKey = await ApiKey.createApiKeyForUser(req.user);
         }
 
+        console.log('firstKey: ', firstKey);
+
         const ingestionResponse = await fetch(INGESTION_ENDPOINT, {
             headers: {
                 'content-type': 'application/json;charset=UTF-8',
