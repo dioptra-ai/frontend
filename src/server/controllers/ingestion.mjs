@@ -167,16 +167,18 @@ IngestionRouter.post('/ingest', async (req, res, next) => {
     const ApiKey = mongoose.model('ApiKey');
 
     try {
-        let firstKey = await ApiKey.findOne({
+        if (!await ApiKey.exists({
+            user: req.user._id,
+            organization: req.user.requestOrganizationId
+        })) {
+            await ApiKey.createApiKeyForUser(req.user);
+            await new Promise((resolve) => setTimeout(resolve, 5000));
+        }
+
+        const firstKey = await ApiKey.findOne({
             user: req.user._id,
             organization: req.user.requestOrganizationId
         });
-
-        if (!firstKey) {
-            firstKey = await ApiKey.createApiKeyForUser(req.user);
-        }
-
-        console.log('firstKey: ', firstKey);
 
         const ingestionResponse = await fetch(INGESTION_ENDPOINT, {
             headers: {

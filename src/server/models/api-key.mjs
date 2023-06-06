@@ -64,6 +64,9 @@ apiKeySchema.statics.createApiKeyForUser = async (user) => {
         }));
     }
 
+    // Wait for propagation... Not sure why this is needed.
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
     dioptraApiKey.awsApiKeyId = awsApiKey.id;
     dioptraApiKey.awsApiKey = awsApiKey.value;
 

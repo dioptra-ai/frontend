@@ -10,6 +10,7 @@ import baseJSONClient from 'clients/base-json-client';
 import {OrganizationSwitchModel, OrganizationUpdateModal} from './profile-modals';
 import MembersTable from './members-table';
 import LoadingForm from 'components/loading-form';
+import LoadingLink from 'components/loading-link';
 
 const apiKeyClient = (method, id = '') => {
     return baseJSONClient(`/api/api-key/${id}`, {method});
@@ -209,24 +210,18 @@ const Profile = ({userStore}) => {
                         <div key={apiKey._id}>
                             <pre style={{display: 'inline'}}>{apiKey.awsApiKey}</pre>
                             &nbsp;
-                            <a className='cursor-pointer' onClick={() => handleDeleteApiKey(apiKey._id)}>
+                            <LoadingLink className='cursor-pointer' onClick={() => handleDeleteApiKey(apiKey._id)}>
                                 (Delete)
-                            </a>
+                            </LoadingLink>
                         </div>
                     ))}
-                    {/* <Alert variant='primary'>
-                        Please reach out to <a className='text-secondary' href={`mailto:hello@dioptra.ai?subject=New API Key request&body=Hello, I would like a new Api key for the organization "${userStore.userData.activeOrganizationMembership.organization.name}". Thank you!`}>hello@dioptra.ai</a> to create an API key.
-                    </Alert> */}
-                    <Button
-                        className='w-100 text-white btn-submit mt-5'
-                        onClick={async () => {
-                            await apiKeyClient('post');
+                    <LoadingLink onClick={async () => {
+                        await apiKeyClient('post');
 
-                            return apiKeyClient('get').then(setApiKeys);
-                        }}
-                    >
-                        Create Api Key
-                    </Button>
+                        return apiKeyClient('get').then(setApiKeys);
+                    }}>
+                        Create New Api Key
+                    </LoadingLink>
                 </div>
             </div>
             <OrganizationUpdateModal
