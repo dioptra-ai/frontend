@@ -164,19 +164,16 @@ IngestionRouter.post('/upload', (req, res, next) => {
 });
 
 IngestionRouter.post('/ingest', async (req, res, next) => {
+    const ApiKey = mongoose.model('ApiKey');
+
     try {
-        let firstKey = await mongoose.model('ApiKey').findOne({
+        let firstKey = await ApiKey.findOne({
             user: req.user._id,
             organization: req.user.requestOrganizationId
         });
 
-        if (ENVIRONMENT === 'local-dev') {
-            firstKey = {'awsApiKey': 'local-dev'};
-        }
-
         if (!firstKey) {
-            res.status(401);
-            throw new Error('At least one API key is needed to ingest data, but none was found for this user.');
+            firstKey = await ApiKey.createApiKeyForUser(req.user);
         }
 
         const ingestionResponse = await fetch(INGESTION_ENDPOINT, {

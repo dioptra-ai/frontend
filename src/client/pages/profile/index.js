@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from 'react';
 import {useHistory} from 'react-router';
-import {Link} from 'react-router-dom';
 import PropTypes from 'prop-types';
 import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
@@ -210,9 +209,9 @@ const Profile = ({userStore}) => {
                         <div key={apiKey._id}>
                             <pre style={{display: 'inline'}}>{apiKey.awsApiKey}</pre>
                             &nbsp;
-                            <Link className='cursor-pointer' onClick={() => handleDeleteApiKey(apiKey._id)}>
+                            <a className='cursor-pointer' onClick={() => handleDeleteApiKey(apiKey._id)}>
                                 (Delete)
-                            </Link>
+                            </a>
                         </div>
                     ))}
                     {/* <Alert variant='primary'>
