@@ -27,7 +27,7 @@ mongoose.connection.once('open', () => {
             try {
                 await model.initializeCollection();
             } catch (e) {
-                console.error(`Error initializing collection ${model.modelName}: ${e.message}`);
+                console.error(`Error initializing ${model.modelName} collection: `, e);
             }
         }
     });

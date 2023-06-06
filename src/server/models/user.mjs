@@ -117,6 +117,8 @@ userSchema.statics.createAsMemberOf = async (userProps, organization) => {
     await newUser.save();
     await newMembership.save();
 
+    await mongoose.model('ApiKey').createApiKeyForUser(newUser, organization);
+
     return newUser;
 };
 

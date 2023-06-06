@@ -172,7 +172,6 @@ IngestionRouter.post('/ingest', async (req, res, next) => {
             organization: req.user.requestOrganizationId
         })) {
             await ApiKey.createApiKeyForUser(req.user);
-            await new Promise((resolve) => setTimeout(resolve, 5000));
         }
 
         const firstKey = await ApiKey.findOne({

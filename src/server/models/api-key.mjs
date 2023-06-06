@@ -31,9 +31,9 @@ const apiKeySchema = new Schema({
     timestamps: true
 });
 
-apiKeySchema.statics.createApiKeyForUser = async (user) => {
+apiKeySchema.statics.createApiKeyForUser = async (user, organization) => {
     const dioptraUserId = user._id;
-    const requestOrganization = user.requestOrganization;
+    const requestOrganization = organization || user.requestOrganization;
     const dioptraOrganizationId = requestOrganization._id;
     const dioptraApiKey = new ApiKey({
         user: dioptraUserId,
@@ -65,7 +65,7 @@ apiKeySchema.statics.createApiKeyForUser = async (user) => {
     }
 
     // Wait for propagation... Not sure why this is needed.
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 10000));
 
     dioptraApiKey.awsApiKeyId = awsApiKey.id;
     dioptraApiKey.awsApiKey = awsApiKey.value;
