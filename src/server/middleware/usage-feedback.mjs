@@ -11,7 +11,7 @@ if (process.env['disabledUsageFeedback'] !== 'true') {
             analytics.track({
                 anonymousId: mac,
                 event: 'Server Started',
-                context: {
+                properties: {
                     version: process.env.COMMIT_REF,
                     environment: process.env.ENVIRONMENT,
                     platform: process.platform,
@@ -22,7 +22,8 @@ if (process.env['disabledUsageFeedback'] !== 'true') {
                     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
                     macAddress: mac,
                     nodeVersion: process.version,
-                    isK8s: process.env.KUBERNETES_SERVICE_HOST !== undefined
+                    isK8s: process.env.KUBERNETES_SERVICE_HOST !== undefined,
+                    hostingOrganization: process.env.DIOPTRA_HOSTING_ORGANIZATION
                 }
             });
         }

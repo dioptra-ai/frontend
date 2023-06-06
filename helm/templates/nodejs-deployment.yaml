@@ -76,6 +76,12 @@ spec:
                   optional: true
             - name: AWS_INGESTION_STATE_MACHINE_ARN
               value: {{ .Values.awsIngestionStateMachineArn }}
+            - name: DIOPTRA_HOSTING_ORGANIZATION
+              valueFrom:
+                secretKeyRef:
+                  name: dioptra-hosting-organization
+                  key: dioptra_hosting_organization
+                  optional: true
           image: "641017132295.dkr.ecr.us-east-2.amazonaws.com/frontend:{{ .Values.imageTag }}"
           name: dioptra-frontend
           ports:
