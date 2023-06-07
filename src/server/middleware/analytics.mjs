@@ -19,6 +19,7 @@ const analytics = async (req, res, next) => {
             })
         });
 
+        res.status(response.status);
         response.body.pipe(res);
     } catch (e) {
         next(e);
