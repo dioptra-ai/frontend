@@ -184,7 +184,10 @@ IngestionRouter.post('/ingest', async (req, res, next) => {
                 'content-type': 'application/json;charset=UTF-8',
                 'x-api-key': firstKey.awsApiKey
             },
-            body: JSON.stringify(req.body),
+            body: JSON.stringify({
+                ...req.body,
+                organization_id: firstKey.organization
+            }),
             method: 'post'
         });
 
