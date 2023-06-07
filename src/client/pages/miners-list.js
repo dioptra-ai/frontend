@@ -6,7 +6,6 @@ import Menu from 'components/menu';
 import Async from 'components/async';
 import MinerModal from 'components/miner-modal';
 import moment from 'moment';
-import TopBar from 'pages/common/top-bar';
 import {useState} from 'react';
 import Table from 'react-bootstrap/Table';
 import baseJSONClient from 'clients/base-json-client';
@@ -23,7 +22,6 @@ const MinersList = () => {
             refetchOnChanged={[lastUpdated]}
             renderData={(miners) => (
                 <Menu>
-                    <TopBar hideTimePicker />
                     <div className='p-4 mt-5'>
                         <div className='d-flex justify-content-between'>
                             <span className='h2 fs-1 text-dark bold-text'>Miners</span>

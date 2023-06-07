@@ -8,7 +8,6 @@ import Select from 'components/select';
 import Async from 'components/async';
 import baseJSONClient from 'clients/base-json-client';
 import Menu from 'components/menu';
-import TopBar from 'pages/common/top-bar';
 import DatapointsViewer from 'components/datapoints-viewer';
 
 const DatasetVersionViewer = ({versionId, showDatapointActions}) => {
@@ -64,7 +63,6 @@ const DatasetVersion = () => {
 
     return (
         <Menu>
-            <TopBar hideTimePicker />
             <div className='bg-white-blue text-dark p-3'>
                 <Async
                     fetchData={() => baseJSONClient(`/api/dataset/version/${versionId}`)}

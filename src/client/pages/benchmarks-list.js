@@ -7,7 +7,6 @@ import {useHistory} from 'react-router-dom';
 import {Button, Form} from 'react-bootstrap';
 
 import Async from 'components/async';
-import TopBar from 'pages/common/top-bar';
 import metricsClient from 'clients/metrics';
 import {setupComponent} from 'helpers/component-helper';
 import ModalComponent from 'components/modal';
@@ -25,7 +24,6 @@ const BenchmarksList = ({filtersStore, modelStore, benchmarkStore}) => {
 
     return (
         <>
-            <TopBar hideTimePicker/>
             <div className='p-4 mt-5'>
                 <div className='d-flex justify-content-between'>
                     <span className='h2 fs-1 text-dark bold-text'>Benchmarks</span>

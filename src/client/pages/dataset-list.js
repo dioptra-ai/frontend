@@ -5,7 +5,6 @@ import {Button, Form, OverlayTrigger, Tooltip} from 'react-bootstrap';
 import {AiOutlineDelete} from 'react-icons/ai';
 
 import Async from 'components/async';
-import TopBar from 'pages/common/top-bar';
 import Menu from 'components/menu';
 import baseJSONClient from 'clients/base-json-client';
 import {DatasetEditModal} from 'components/dataset-modal';
@@ -18,7 +17,6 @@ const DatasetList = () => {
 
     return (
         <Menu>
-            <TopBar hideTimePicker/>
             <div className='p-4 mt-5'>
                 <div className='d-flex justify-content-between'>
                     <span className='h2 fs-1 text-dark bold-text'>Datasets</span>

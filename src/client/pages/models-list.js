@@ -6,7 +6,6 @@ import {AiOutlineDelete} from 'react-icons/ai';
 import PropTypes from 'prop-types';
 import {Link, useHistory} from 'react-router-dom';
 
-import TopBar from 'pages/common/top-bar';
 import {setupComponent} from 'helpers/component-helper';
 import {formatDateTime} from 'helpers/date-helper';
 import FontIcon from 'components/font-icon';
@@ -217,7 +216,6 @@ const Models = ({modelStore}) => {
 
     return (
         <>
-            <TopBar hideTimePicker/>
             <div className='p-4 mt-5'>
                 <div className='d-flex justify-content-between'>
                     <span className='h2 fs-1 text-dark bold-text'>Models</span>

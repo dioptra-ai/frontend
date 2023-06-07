@@ -6,7 +6,6 @@ import Form from 'react-bootstrap/Form';
 import LoadingForm from 'components/loading-form';
 import Async from 'components/async';
 import Menu from 'components/menu';
-import TopBar from 'pages/common/top-bar';
 import baseJSONClient from 'clients/base-json-client';
 import {DatasetCommitModal, DatasetEditModal} from 'components/dataset-modal';
 import Select from 'components/select';
@@ -21,7 +20,6 @@ const Dataset = () => {
 
     return (
         <Menu>
-            <TopBar hideTimePicker />
             <Async
                 fetchData={() => baseJSONClient(`/api/dataset/${datasetId}`)}
                 refetchOnChanged={[datasetId, lastUpdatedOn]}

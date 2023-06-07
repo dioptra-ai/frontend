@@ -7,7 +7,6 @@ import Col from 'react-bootstrap/Col';
 
 import {setupComponent} from 'helpers/component-helper';
 import FilterInput from 'pages/common/filter-input';
-import TopBar from 'pages/common/top-bar';
 import AddAlertPage from 'pages/add-alert';
 import ModelDescription from 'components/model-description';
 import Tabs from 'components/tabs';
@@ -95,7 +94,6 @@ const Model = ({filtersStore, modelStore}) => {
         return <Spinner/>;
     } else return (
         <Menu>
-            <TopBar/>
             <SplitView>
                 {models.map((model, i) => <ModelDescription key={i} {...model}/>)}
             </SplitView>

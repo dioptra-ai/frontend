@@ -1,15 +1,18 @@
 import {useEffect, useState} from 'react';
 import {ArrayParam, JsonParam, StringParam, useQueryParam, withDefault} from 'use-query-params';
 import {Button, Col, Row} from 'react-bootstrap';
+import {BsCart4} from 'react-icons/bs';
+import {Link} from 'react-router-dom';
+
 import baseJSONClient from 'clients/base-json-client';
 import Menu from 'components/menu';
-import TopBar from 'pages/common/top-bar';
 import FilterInput from 'pages/common/filter-input';
 import {setupComponent} from 'helpers/component-helper';
 import Select from 'components/select';
 import Async from 'components/async';
 import ModalComponent from 'components/modal';
 import UploadData from 'components/upload-data';
+import ChatBot from 'components/chatbot';
 
 import DataLakeDistributions from './distributions';
 import ModelMetrics from './model-metrics';
@@ -34,17 +37,31 @@ const DataLake = () => {
 
     return (
         <Menu>
-            <TopBar hideTimePicker />
+            <ChatBot />
+            <ModalComponent isOpen={showUploadDataModal} onClose={() => setShowUploadDataModal(false)} title='Upload Data'>
+                <UploadData onDone={() => setShowUploadDataModal(false)} />
+            </ModalComponent>
             <div className='text-dark p-3' id='joyride-5'>
                 <div className='d-flex justify-content-between align-items-center mb-2'>
                     <h4 className='0'>Data Lake</h4>
-                    <Button id='joyride-1'
-                        onClick={() => setShowUploadDataModal(true)}
-                        variant='secondary' size='s' className='text-nowrap'
-                    >Upload Data</Button>
-                    <ModalComponent isOpen={showUploadDataModal} onClose={() => setShowUploadDataModal(false)} title='Upload Data'>
-                        <UploadData onDone={() => setShowUploadDataModal(false)} />
-                    </ModalComponent>
+                    <div>
+                        <Button id='joyride-1'
+                            onClick={() => setShowUploadDataModal(true)}
+                            variant='secondary' size='s' className='text-nowrap'
+                        >Upload Data</Button>
+                        <Link to='/cart'>
+                            <div className='position-relative click-down btn px-2'>
+                                {
+                                // userStore.userData?.cart.length ? (
+                                //     <div className='position-absolute fs-5 w-100 text-center text-dark' style={{top: -8, left: 0}}>
+                                //         {userStore.userData?.cart.length}
+                                //     </div>
+                                // ) : null
+                                }
+                                <BsCart4 className='fs-3 text-dark' />
+                            </div>
+                        </Link>
+                    </div>
                 </div>
                 <Row className='g-2'>
                     <Col>

@@ -8,7 +8,6 @@ import MinerModal from 'components/miner-modal';
 import Menu from 'components/menu';
 import Async from 'components/async';
 import PreviewDetails from 'components/preview-details';
-import TopBar from 'pages/common/top-bar';
 import baseJSONClient from 'clients/base-json-client';
 import DatasetSelector from 'pages/dataset/dataset-selector';
 import DatapointsViewer from 'components/datapoints-viewer';
@@ -47,7 +46,6 @@ const Miner = () => {
 
     return (
         <Menu>
-            <TopBar hideTimePicker/>
             <Async
                 fetchData={() => baseJSONClient(`/api/tasks/miners/${minerId}`, {memoized: false})}
                 refetchOnChanged={[minerId, lastRequestedRefresh]}

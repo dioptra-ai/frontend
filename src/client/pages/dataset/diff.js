@@ -4,7 +4,6 @@ import {Col, Row} from 'react-bootstrap';
 import baseJSONClient from 'clients/base-json-client';
 import Async from 'components/async';
 import Menu from 'components/menu';
-import TopBar from 'pages/common/top-bar';
 import BarGraph from 'components/bar-graph';
 import {getHexColor} from 'helpers/color-helper';
 import DatapointsViewer from 'components/datapoints-viewer';
@@ -14,7 +13,6 @@ const DatasetDiff = () => {
 
     return (
         <Menu>
-            <TopBar hideTimePicker />
             <Async
                 fetchData={() => baseJSONClient(`/api/dataset/diff/${versionId1}/${versionId2}`)}
                 refetchOnChanged={[versionId1, versionId2]}
