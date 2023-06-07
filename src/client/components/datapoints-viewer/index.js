@@ -264,7 +264,7 @@ const DatapointsPageActions = ({filters, datasetId, datapoints, selectedDatapoin
                                 }}
                             />
                         </div>
-                        <div>
+                        <div className='text-end'>
                             <ChatBot.SendButton
                                 // message={`Here are the datapoints I selected: ${String(selectedDatapoints)}.`}
                                 message={_TODO_REMOVE_HARD_CODED_FOR_DEMO_GET_SUMMARIES(selectedDatapoints)}

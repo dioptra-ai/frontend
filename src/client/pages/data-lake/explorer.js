@@ -16,6 +16,8 @@ import {getHexColor} from 'helpers/color-helper';
 import WhiteScreen from 'components/white-screen';
 import LoadingLink from 'components/loading-link';
 
+const ENV_NAME = window['DIOPTRA_ENV']['name'];
+
 const JsonParamDefaultEmptyArray = withDefault(JsonParam, []);
 
 const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelectedDatapointIdsChange}) => {
@@ -136,7 +138,46 @@ const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelec
                     renderEmpty={({reload}) => (
                         <div className='text-secondary mt-2 text-center'>
                             <p>
-                                The Data lake is empty. <a id='joyride-6' onClick={reload}>Reload</a> the Data Lake or <a id='joyride-0' href='https://dioptra-public.s3.us-east-2.amazonaws.com/sample_dataset.json' download>Download Sample Data</a>, then use the "Upload Data" button to get started.
+                                The Data lake is empty. <a id='joyride-6' onClick={reload}>Reload</a> the Data Lake or Load Demo Data.
+                            </p>
+                            <p>
+                                <LoadingForm onSubmit={async () => {
+                                    const ingestionResult = await baseJSONClient.post('/api/ingestion/ingest',
+                                        ENV_NAME === 'local-dev' ? {
+                                            url: 'https://dioptra-public.s3.us-east-2.amazonaws.com/sample_dataset.json'
+                                        } : {
+                                            urls: ['https://dioptra-public.s3.us-east-2.amazonaws.com/sample_dataset.json']
+                                        });
+
+                                    if (ingestionResult['id']) {
+                                        while (true) { // eslint-disable-line no-constant-condition
+                                            const execution = await baseJSONClient.get(`/api/ingestion/executions/${ingestionResult['id']}`); // eslint-disable-line no-await-in-loop
+
+                                            if (execution['status'] === 'SUCCEEDED') {
+                                                break;
+                                            } else if (execution['status'] === 'FAILED') {
+                                                throw new Error('Ingestion failed');
+                                            } else {
+                                                await new Promise((resolve) => setTimeout(resolve, 1000)); // eslint-disable-line no-await-in-loop
+                                            }
+                                        }
+                                    }
+
+                                    const newDataset = await baseJSONClient.post('/api/dataset', {
+                                        displayName: 'Demo Dataset'
+                                    });
+                                    const allDatapoints = await baseJSONClient.post('/api/datapoints/select', {
+                                        selectColumns: ['id']
+                                    });
+
+                                    await baseJSONClient.post(`/api/dataset/${newDataset['uuid']}/add`, {
+                                        datapointIds: allDatapoints.map((d) => d['id'])
+                                    });
+
+                                    window.location = `/data-lake?datasetId=${newDataset['uuid']}&modelNames=yolov7`;
+                                }}>
+                                    <LoadingForm.Button className='text-white' variant='primary' type='submit'>Load Demo Data</LoadingForm.Button>
+                                </LoadingForm>
                             </p>
                         </div>
                     )}
