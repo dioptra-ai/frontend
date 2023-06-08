@@ -23,7 +23,7 @@ if (process.env['disabledUsageFeedback'] !== 'true') {
                     macAddress: mac,
                     nodeVersion: process.version,
                     isK8s: process.env.KUBERNETES_SERVICE_HOST !== undefined,
-                    hostingOrganization: process.env.DIOPTRA_HOSTING_ORGANIZATION
+                    hostingOrganization: process.env.DIOPTRA_HOSTING_ORGANIZATION || 'unknown'
                 }
             });
         }
