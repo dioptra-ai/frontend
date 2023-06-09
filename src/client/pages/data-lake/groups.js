@@ -62,7 +62,7 @@ const Groups = ({filters, datasetId, modelNames, selectedDatapointIds, onSelecte
                             modelName, datasetId
                         }, {memoized: true})))
                     ])}
-                    refetchOnChanged={[filters, filtersForSelected, datasetId, grouping]}
+                    refetchOnChanged={[filters, filtersForSelected, datasetId, grouping, JSON.stringify(modelNames)]}
                     renderData={([allDistributions, selectedDistributions]) => {
                         // Dedupe buckets and maintain ordering.
                         const buckets = allDistributions.flatMap(({histogram}) => Object.keys(histogram).map((name) => ({
