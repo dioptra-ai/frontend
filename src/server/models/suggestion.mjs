@@ -16,6 +16,10 @@ class Suggestion {
 
         let hardcodedSuggestions = [];
 
+        let columnIsJsonb = '';
+
+        let jsonbSuggestions = [];
+
         if (moreKeyParts.length === 0) {
             tableName = 'datapoints';
             columnName = firstKeyPart;
@@ -35,9 +39,22 @@ class Suggestion {
             [tableName, `%${columnName}%`]
         );
 
+        columnName = columnName.substring(0, columnName.lastIndexOf('.'));
+        columnIsJsonb = (await postgresClient.query(
+            'SELECT data_type FROM information_schema.columns WHERE table_name = $1 AND column_name = $2', [tableName, columnName]
+        ))['rows'][0];
+        columnIsJsonb = columnIsJsonb ? columnIsJsonb['data_type'] : '';
+
+        if (columnIsJsonb === 'jsonb') {
+            jsonbSuggestions = (await postgresClient.query(
+                pgFormat('SELECT DISTINCT jsonb_object_keys(%I) AS value FROM %I', columnName, tableName)
+            ))['rows'].map((row) => `${tableName}.${columnName}.${row['value']}`);
+        }
+
         return [
             ...rows.map((row) => `${tableName}.${row['value']}`),
-            ...hardcodedSuggestions
+            ...hardcodedSuggestions,
+            ...jsonbSuggestions
         ];
     }
 

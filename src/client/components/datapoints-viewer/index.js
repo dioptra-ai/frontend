@@ -137,7 +137,7 @@ const DatapointsPage = ({datapoints, showGroundtruthsInModal, modelNames, select
                                         'bboxes.class_name', 'bboxes.confidence',
                                         'bboxes.encoded_resized_segmentation_mask', 'bboxes.coco_polygon',
                                         'bboxes.top', 'bboxes.left', 'bboxes.width', 'bboxes.height',
-                                        'lanes.coco_polyline', 'lanes.confidence'
+                                        'lanes.coco_polyline', 'lanes.confidence', 'lanes.metrics'
                                     ]
                                 }) : Promise.resolve(null),
                                 showGroundtruthsInModal ? baseJSONClient.post('/api/groundtruths/select', {
