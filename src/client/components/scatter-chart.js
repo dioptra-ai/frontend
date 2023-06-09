@@ -87,7 +87,7 @@ const ScatterChart = ({
     const svgPointSeries = fc.seriesSvgPoint()
         .crossValue(getX)
         .mainValue(getY)
-        .size((d) => isDatapointSelected?.(d) ? 60 : 30)
+        .size((d) => isDatapointSelected?.(d) ? 30 : 15)
         .decorate((selection) => {
             selection.style('fill', (d) => getColor?.(d) || '#000');
             selection.style('stroke', (d) => getColor ? d3.color(getColor(d)).darker() : '#000');

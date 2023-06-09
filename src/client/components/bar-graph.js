@@ -9,7 +9,7 @@ const BarGraph = ({
     title, bars, unit, yAxisName, xAxisName, verticalIfMoreThan = 10, sortBy = 'name',
     yAxisDomain = ([dataMin, dataMax]) => [Math.min(0, dataMin), Math.max(0, dataMax)],
     yAxisTickFormatter = (value) => Number((unit === '%' ? 100 : 1) * value).toLocaleString?.() || '-',
-    className = '', onClick, children, height, ...rest
+    className = '', onClick, children, height, renderTooltip, ...rest
 }) => {
     const dataMax = Math.max(...bars.map((i) => i.value));
     const numCategories = Array.from(new Set(bars.map((i) => i.name))).length;
@@ -73,6 +73,7 @@ const BarGraph = ({
                             contentStyle={{borderRadius: 3, border: 'none', boxShadow: '0px 5px 20px rgba(0, 0, 0, 0.1)'}}
                             wrapperStyle={{outline: 'none'}}
                             formatter={(value) => yAxisTickFormatter(value) + (unit || '')}
+                            content={renderTooltip}
                         />
                         {children ||
                                 <>
@@ -102,7 +103,8 @@ BarGraph.propTypes = {
     children: PropTypes.node,
     yAxisTickFormatter: PropTypes.func,
     verticalIfMoreThan: PropTypes.number,
-    sortBy: PropTypes.string
+    sortBy: PropTypes.string,
+    renderTooltip: PropTypes.func
 };
 
 export default BarGraph;

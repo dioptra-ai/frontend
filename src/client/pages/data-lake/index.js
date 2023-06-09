@@ -14,10 +14,10 @@ import ModalComponent from 'components/modal';
 import UploadData from 'components/upload-data';
 import ChatBot from 'components/chatbot';
 
-import DataLakeDistributions from './distributions';
 import ModelMetrics from './model-metrics';
 import {getHexColor} from 'helpers/color-helper';
 import Explorer from './explorer';
+import DatalakeGroups from './groups';
 
 const ArrayParamDefaultEmpty = withDefault(ArrayParam, []);
 const JsonParamDefaultEmptyArray = withDefault(JsonParam, []);
@@ -116,7 +116,7 @@ const DataLake = () => {
                     {
                         datasetId ? (
                             <Col md={5}>
-                                <DataLakeDistributions filters={filters} setFilters={setFilters} datasetId={datasetId} modelNames={modelNames} selectedDatapointIds={selectedDatapointIds}
+                                <DatalakeGroups filters={filters} setFilters={setFilters} datasetId={datasetId} modelNames={modelNames} selectedDatapointIds={selectedDatapointIds}
                                     onSelectedDatapointIdsChange={setSelectedDatapointIds} />
                                 {
                                     modelNames?.length ? (

@@ -1,0 +1,182 @@
+import React from 'react';
+import PropTypes from 'prop-types';
+import {Bar, Cell} from 'recharts';
+
+import baseJSONClient from 'clients/base-json-client';
+import Async from 'components/async';
+import Select from 'components/select';
+import BarGraph from 'components/bar-graph';
+import {getHexColor} from 'helpers/color-helper';
+
+const Groups = ({filters, datasetId, modelNames, selectedDatapointIds, onSelectedDatapointIdsChange}) => {
+    const [grouping, setGrouping] = React.useState('groundtruths');
+    const filtersForAllModels = filters.concat(modelNames.length ? {
+        left: 'predictions.model_name',
+        op: 'in',
+        right: modelNames.sort()
+    } : []);
+    const filtersForSelected = filters.concat(selectedDatapointIds.size ? {
+        left: 'id',
+        op: 'in',
+        right: Array.from(selectedDatapointIds).sort()
+    } : []);
+
+    return (
+        <div className='my-2'>
+            <Async
+                fetchData={() => baseJSONClient.post('/api/tags/select-distinct-names', {
+                    datapointFilters: filtersForAllModels,
+                    datasetId
+                }, {memoized: true})}
+                refetchOnChanged={[filtersForAllModels, datasetId]}
+                renderData={(allTagNames) => (
+                    <Select value={grouping} onChange={setGrouping} disabled={!datasetId}>
+                        <option value='groundtruths'>Groundtruths</option>
+                        {
+                            modelNames.length ? (
+                                <>
+                                    <option value='predictions'>Predictions</option>
+                                    <option value='entropy'>Entropy</option>
+                                    {/* <option value='mislabeling'>Mislabeling Score</option> */}
+                                </>
+                            ) : null
+                        }
+                        {allTagNames.map((tagName) => (
+                            <option key={`tag/${tagName}`} value={`tag/${tagName}`}>
+                                tags.name = {tagName}
+                            </option>
+                        ))}
+                    </Select>
+                )}
+            />
+            <div className='my-2'>
+                <Async
+                    fetchData={() => Promise.all([
+                    // First element = distributions for all datapoints
+                        Promise.all((modelNames.length ? modelNames : [undefined]).map((modelName) => baseJSONClient.post(`/api/analytics/distribution/${grouping}`, {
+                            filters, modelName, datasetId
+                        }, {memoized: true}))),
+                        // Second element = distributions for selected datapoints
+                        Promise.all((modelNames.length ? modelNames : [undefined]).map((modelName) => baseJSONClient.post(`/api/analytics/distribution/${grouping}`, {
+                            filters: filtersForSelected,
+                            modelName, datasetId
+                        }, {memoized: true})))
+                    ])}
+                    refetchOnChanged={[filters, filtersForSelected, datasetId, grouping]}
+                    renderData={([allDistributions, selectedDistributions]) => {
+                        // Dedupe buckets and maintain ordering.
+                        const buckets = allDistributions.flatMap(({histogram}) => Object.keys(histogram).map((name) => ({
+                            name,
+                            index: histogram[name].index
+                        })).sort((a, b) => a.index - b.index)).map(({name}) => name);
+                        const bars = buckets.map((name, index) => ({
+                            name, index,
+                            selectedValues: selectedDistributions.map(({histogram}) => histogram[name]),
+                            allValues: allDistributions.map(({histogram}) => histogram[name])
+                        }));
+
+                        return (
+                            <BarGraph
+                                title={allDistributions[0]?.title}
+                                bars={bars}
+                                sortBy='index'
+                                renderTooltip={({active, payload, label}) => {
+
+                                    return (active && payload?.length) ? (
+                                        <div className='bg-white border rounded p-2'>
+                                            <div className='bold-text fs-4'>{label}</div>
+                                            <div className='fs-6'>
+                                                {
+                                                    // First half of the values are for selected datapoints.
+                                                    payload.slice(0, payload.length / 2).map(({name, value}, i) => {
+                                                        const totalValue = payload[payload.length / 2 + i].value + value;
+
+                                                        return (
+                                                            <div key={name} className='d-flex align-items-center'>
+                                                                <div className='me-2' style={{width: 10, height: 10, backgroundColor: getHexColor(modelNames[i])}}/>
+                                                                <div className='me-2'>{name}</div>
+                                                                <div className='me-2'>{value.toLocaleString()}</div>
+                                                                <div className='me-2'>{(value / totalValue).toLocaleString(undefined, {style: 'percent'})}</div>
+                                                            </div>
+                                                        );
+                                                    })
+                                                }
+                                            </div>
+                                        </div>
+                                    ) : null;
+                                }}
+                            >
+                                {modelNames.length ? modelNames.map((modelName, i) => (
+                                    <Bar key={`selected:${modelName}`} className='cursor-pointer'
+                                        dataKey={({selectedValues}) => {
+                                            return (selectedValues[i]?.['value'] || 0);
+                                        }}
+                                        stackId={modelName}
+                                        onClick={({selectedValues}) => {
+                                            onSelectedDatapointIdsChange(new Set(selectedValues[i]?.['datapoints'] || []));
+                                        }}
+                                    >
+                                        {
+                                            bars.map(({name}) => (
+                                                <Cell key={name} fill={getHexColor(name)}/>
+                                            ))
+                                        }
+                                    </Bar>
+                                )) : (
+                                    <Bar key='selected' className='cursor-pointer'
+                                        dataKey={({selectedValues}) => {
+                                            return (selectedValues[0]?.['value'] || 0);
+                                        }}
+                                        stackId='all'
+                                        onClick={({selectedValues}) => {
+                                            onSelectedDatapointIdsChange(new Set(selectedValues[0]?.['datapoints'] || []));
+                                        }}
+                                    >
+                                        {
+                                            bars.map(({name}) => (
+                                                <Cell key={name} fill={getHexColor(name)}/>
+                                            ))
+                                        }
+                                    </Bar>
+                                )}
+                                {modelNames.length ? modelNames.map((modelName, i) => (
+                                    <Bar key={`all:${modelName}`} className='cursor-pointer'
+                                        dataKey={({allValues, selectedValues}) => {
+                                            return (allValues[i]?.['value'] || 0) - (selectedValues[i]?.['value'] || 0);
+                                        }}
+                                        stackId={modelName}
+                                        fill='#999'
+                                        onClick={({allValues}) => {
+                                            onSelectedDatapointIdsChange(new Set(allValues[i]?.['datapoints'] || []));
+                                        }}
+                                    />
+                                )) : (
+                                    <Bar key='all' className='cursor-pointer'
+                                        dataKey={({allValues, selectedValues}) => {
+                                            return (allValues[0]?.['value'] || 0) - (selectedValues[0]?.['value'] || 0);
+                                        }}
+                                        stackId='all'
+                                        fill='#999'
+                                        onClick={({allValues}) => {
+                                            onSelectedDatapointIdsChange(new Set(allValues[0]?.['datapoints'] || []));
+                                        }}
+                                    />
+                                )}
+                            </BarGraph>
+                        );
+                    }}
+                />
+            </div>
+        </div>
+    );
+};
+
+Groups.propTypes = {
+    filters: PropTypes.object.isRequired,
+    datasetId: PropTypes.string,
+    modelNames: PropTypes.arrayOf(PropTypes.string).isRequired,
+    selectedDatapointIds: PropTypes.object.isRequired,
+    onSelectedDatapointIdsChange: PropTypes.func.isRequired
+};
+
+export default Groups;
