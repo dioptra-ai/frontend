@@ -104,7 +104,7 @@ const DataLake = () => {
                     </Col>
                 </Row>
                 <Row>
-                    <Col md={datasetId ? 7 : 12}>
+                    <Col md={datasetId ? 8 : 12}>
                         <Explorer
                             filters={filters}
                             datasetId={datasetId}
@@ -115,7 +115,7 @@ const DataLake = () => {
                     </Col>
                     {
                         datasetId ? (
-                            <Col md={5}>
+                            <Col md={4}>
                                 <DatalakeGroups filters={filters} setFilters={setFilters} datasetId={datasetId} modelNames={modelNames} selectedDatapointIds={selectedDatapointIds}
                                     onSelectedDatapointIdsChange={setSelectedDatapointIds} />
                                 {

@@ -90,7 +90,7 @@ const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelec
                             {vectorsWithCoordinates ? (
                                 <div className='mb-2 position-relative'>
                                     <ScatterChart
-                                        height={400}
+                                        height={600}
                                         data={vectorsWithCoordinates}
                                         onSelectedDataChange={(vectors, e) => {
                                             if (e?.shiftKey) {
