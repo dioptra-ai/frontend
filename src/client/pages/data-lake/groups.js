@@ -15,11 +15,6 @@ const Groups = ({filters, datasetId, modelNames, selectedDatapointIds, onSelecte
         op: 'in',
         right: modelNames.sort()
     } : []);
-    const filtersForSelected = filters.concat(selectedDatapointIds.size ? {
-        left: 'id',
-        op: 'in',
-        right: Array.from(selectedDatapointIds).sort()
-    } : []);
 
     return (
         <div className='my-2'>
@@ -51,25 +46,16 @@ const Groups = ({filters, datasetId, modelNames, selectedDatapointIds, onSelecte
             />
             <div className='my-2'>
                 <Async
-                    fetchData={() => Promise.all([
-                    // First element = distributions for all datapoints
-                        Promise.all((modelNames.length ? modelNames : [undefined]).map((modelName) => baseJSONClient.post(`/api/analytics/distribution/${grouping}`, {
-                            filters, modelName, datasetId
-                        }, {memoized: true}))),
-                        // Second element = distributions for selected datapoints
-                        Promise.all((modelNames.length ? modelNames : [undefined]).map((modelName) => baseJSONClient.post(`/api/analytics/distribution/${grouping}`, {
-                            filters: filtersForSelected,
-                            modelName, datasetId
-                        }, {memoized: true})))
-                    ])}
-                    refetchOnChanged={[filters, filtersForSelected, datasetId, grouping, JSON.stringify(modelNames)]}
-                    renderData={([allDistributions, selectedDistributions]) => {
+                    fetchData={() => Promise.all((modelNames.length ? modelNames : [undefined]).map((modelName) => baseJSONClient.post(`/api/analytics/distribution/${grouping}`, {
+                        filters, modelName, datasetId
+                    }, {memoized: true})))}
+                    refetchOnChanged={[filters, grouping, datasetId]}
+                    renderData={(allDistributions) => {
                         // Dedupe buckets and maintain ordering.
                         const bars = allDistributions.flatMap(({histogram}) => Object.keys(histogram).map((name) => ({
                             name,
                             index: histogram[name].index,
-                            selectedValues: selectedDistributions.map(({histogram}) => histogram[name]),
-                            allValues: allDistributions.map(({histogram}) => histogram[name])
+                            allBuckets: allDistributions.map(({histogram}) => histogram[name])
                         })).sort((a, b) => a.index - b.index));
 
                         return (
@@ -105,12 +91,13 @@ const Groups = ({filters, datasetId, modelNames, selectedDatapointIds, onSelecte
                             >
                                 {(modelNames.length ? modelNames : [undefined]).map((modelName, i) => (
                                     <Bar key={`selected:${modelName}`} className='cursor-pointer'
-                                        dataKey={({selectedValues}) => {
-                                            return (selectedValues[i]?.['value'] || 0);
+                                        dataKey={({allBuckets}) => {
+                                            return allBuckets[i]?.['datapoints']?.filter((id) => !selectedDatapointIds.size || selectedDatapointIds.has(id)).length;
                                         }}
                                         stackId={String(modelName)}
-                                        onClick={({selectedValues}) => {
-                                            onSelectedDatapointIdsChange(new Set(selectedValues[i]?.['datapoints'] || []));
+                                        onClick={({allBuckets}) => {
+
+                                            onSelectedDatapointIdsChange(new Set((allBuckets[i]?.['datapoints'] || []).filter((id) => !selectedDatapointIds.size || selectedDatapointIds.has(id))));
                                         }}
                                     >
                                         {
@@ -126,13 +113,13 @@ const Groups = ({filters, datasetId, modelNames, selectedDatapointIds, onSelecte
                                 ))}
                                 {(modelNames.length ? modelNames : [undefined]).map((modelName, i) => (
                                     <Bar key={`all:${modelName}`} className='cursor-pointer'
-                                        dataKey={({allValues, selectedValues}) => {
-                                            return (allValues[i]?.['value'] || 0) - (selectedValues[i]?.['value'] || 0);
+                                        dataKey={({allBuckets}) => {
+                                            return (allBuckets[i]?.['datapoints']?.filter((id) => selectedDatapointIds.size && !selectedDatapointIds.has(id)) || []).length;
                                         }}
                                         stackId={String(modelName)}
                                         fill='#999'
-                                        onClick={({allValues}) => {
-                                            onSelectedDatapointIdsChange(new Set(allValues[i]?.['datapoints'] || []));
+                                        onClick={({allBuckets}) => {
+                                            onSelectedDatapointIdsChange(new Set((allBuckets[i]?.['datapoints'] || [])));
                                         }}
                                     />
                                 ))}
