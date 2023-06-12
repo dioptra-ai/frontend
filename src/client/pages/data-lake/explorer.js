@@ -23,7 +23,7 @@ const JsonParamDefaultEmptyArray = withDefault(JsonParam, []);
 const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelectedDatapointIdsChange}) => {
     const history = useHistory();
     const [grouping, setGrouping] = useState('');
-    const [groupedDatapoints, setGroupedDatapoints] = useState();
+    const [colorPerDatapointId, setColorPerDatapointId] = useState();
     const [, setFilters] = useQueryParam('filters', JsonParamDefaultEmptyArray);
     const [vectorsWithCoordinates, setVectorsWithCoordinates] = useState();
     const [dimensionReductionIsOutOfDate, setDimensionReductionIsOutOfDate] = useState(false);
@@ -41,29 +41,28 @@ const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelec
         (async () => {
             if (grouping) {
                 const distributions = await Promise.all((modelNames.length ? modelNames : [undefined]).map((modelName) => baseJSONClient.post(`/api/analytics/distribution/${grouping}`, {
-                    filters: filters.concat(selectedDatapointIds.size ? [{
-                        left: 'id',
-                        op: 'in',
-                        right: Array.from(selectedDatapointIds).sort()
-                    }] : []),
-                    datasetId, modelName
+                    filters, datasetId, modelName
                 }, {memoized: true})));
-                const groupedDatapoints = distributions.reduce((acc, {histogram}) => {
-                    Object.entries(histogram).forEach(([groupName, {datapoints}]) => {
-                        datapoints.forEach((datapoint) => {
-                            acc[datapoint] = groupName;
+                const datapointColors = distributions.reduce((acc, {histogram}, i) => {
+                    Object.entries(histogram).forEach(([groupName, group], _, allGroups) => {
+                        group.datapoints.forEach((datapointId) => {
+                            if (group.index === undefined) {
+                                acc[datapointId] = getHexColor(groupName);
+                            } else {
+                                acc[datapointId] = getHexColor(modelNames[i], 1 - group.index / allGroups.length);
+                            }
                         });
                     });
 
                     return acc;
                 }, {});
 
-                setGroupedDatapoints(groupedDatapoints);
+                setColorPerDatapointId(datapointColors);
             } else {
-                setGroupedDatapoints();
+                setColorPerDatapointId();
             }
         })();
-    }, [grouping, JSON.stringify(filters), datasetId, selectedDatapointIds]);
+    }, [grouping, JSON.stringify(filters), datasetId]);
 
     return (
         <>
@@ -168,9 +167,10 @@ const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelec
                                         }}
                                         isDatapointSelected={(v) => selectedDatapointIds.has(v['datapoint'])}
                                         getColor={(v) => {
-                                            if (groupedDatapoints) {
+                                            if (colorPerDatapointId) {
                                                 if (selectedDatapointIds.has(v['datapoint']) || selectedDatapointIds.size === 0) {
-                                                    return getHexColor(groupedDatapoints[v['datapoint']]);
+
+                                                    return colorPerDatapointId[v['datapoint']] || getHexColor('');
                                                 } else {
                                                     return getHexColor('');
                                                 }
