@@ -43,13 +43,13 @@ const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelec
                 const distributions = await Promise.all((modelNames.length ? modelNames : [undefined]).map((modelName) => baseJSONClient.post(`/api/analytics/distribution/${grouping}`, {
                     filters, datasetId, modelName
                 }, {memoized: true})));
-                const datapointColors = distributions.reduce((acc, {histogram}, i) => {
+                const datapointColors = distributions.reduce((acc, {histogram}) => {
                     Object.entries(histogram).forEach(([groupName, group], _, allGroups) => {
                         group.datapoints.forEach((datapointId) => {
                             if (group.index === undefined) {
                                 acc[datapointId] = getHexColor(groupName);
                             } else {
-                                acc[datapointId] = getHexColor(modelNames[i], Math.max(0.1, group.index / allGroups.length));
+                                acc[datapointId] = `hsla(${100 - group.index / allGroups.length * 100}, 100%, 50%, 1)`;
                             }
                         });
                     });

@@ -102,7 +102,7 @@ const Groups = ({filters, datasetId, modelNames, selectedDatapointIds, onSelecte
                                     >
                                         {
                                             bars.map(({name, index}) => {
-                                                const fill = index === undefined ? getHexColor(name) : getHexColor(modelName, Math.max(0.1, index / bars.length));
+                                                const fill = index === undefined ? getHexColor(name) : `hsla(${100 - index * 100 / bars.length}, 100%, 50%, 1)`;
 
                                                 return (
                                                     <Cell key={name} fill={fill}/>
