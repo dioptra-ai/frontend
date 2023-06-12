@@ -49,7 +49,7 @@ const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelec
                             if (group.index === undefined) {
                                 acc[datapointId] = getHexColor(groupName);
                             } else {
-                                acc[datapointId] = getHexColor(modelNames[i], 1 - group.index / allGroups.length);
+                                acc[datapointId] = getHexColor(modelNames[i], Math.max(0.1, group.index / allGroups.length));
                             }
                         });
                     });
