@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import Form from 'react-bootstrap/Form';
 
-const Select = ({options = [], onChange, children, className, ...rest}) => {
+const Select = ({options = [], onChange, children, className = '', ...rest}) => {
 
     return (
         <Form.Control as='select' className={`${className} form-select w-100`} {...rest} onChange={(e) => {

@@ -25,8 +25,8 @@ const BarGraph = ({
     }, [bars, sortBy]) : bars;
 
     return (
-        <div className={`border rounded p-3 w-100 ${className}`}>
-            <div className='text-dark bold-text fs-4 px-3 mb-3'>{title}</div>
+        <div className={`border rounded p-2 w-100 ${className}`}>
+            <div className='text-dark bold-text fs-4 px-2 mb-2'>{title}</div>
             <div style={{
                 height: height || horizontalLayout ? 300 : Math.max(300, 25 * numCategories),
                 maxHeight: '50vh',

@@ -22,10 +22,12 @@ const JsonParamDefaultEmptyArray = withDefault(JsonParam, []);
 
 const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelectedDatapointIdsChange}) => {
     const history = useHistory();
+    const [grouping, setGrouping] = useState('');
+    const [groupedDatapoints, setGroupedDatapoints] = useState();
     const [, setFilters] = useQueryParam('filters', JsonParamDefaultEmptyArray);
     const [vectorsWithCoordinates, setVectorsWithCoordinates] = useState();
     const [dimensionReductionIsOutOfDate, setDimensionReductionIsOutOfDate] = useState(false);
-    const filtersWithModels = filters.concat(modelNames.length ? {
+    const filtersForAllModels = filters.concat(modelNames.length ? {
         left: 'predictions.model_name',
         op: 'in',
         right: modelNames
@@ -34,6 +36,34 @@ const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelec
     useEffect(() => {
         setDimensionReductionIsOutOfDate(true);
     }, [JSON.stringify(filters), datasetId]);
+
+    useEffect(() => {
+        (async () => {
+            if (grouping) {
+                const distributions = await Promise.all((modelNames.length ? modelNames : [undefined]).map((modelName) => baseJSONClient.post(`/api/analytics/distribution/${grouping}`, {
+                    filters: filters.concat(selectedDatapointIds.size ? [{
+                        left: 'id',
+                        op: 'in',
+                        right: Array.from(selectedDatapointIds).sort()
+                    }] : []),
+                    datasetId, modelName
+                }, {memoized: true})));
+                const groupedDatapoints = distributions.reduce((acc, {histogram}) => {
+                    Object.entries(histogram).forEach(([groupName, {datapoints}]) => {
+                        datapoints.forEach((datapoint) => {
+                            acc[datapoint] = groupName;
+                        });
+                    });
+
+                    return acc;
+                }, {});
+
+                setGroupedDatapoints(groupedDatapoints);
+            } else {
+                setGroupedDatapoints();
+            }
+        })();
+    }, [grouping, JSON.stringify(filters), datasetId, selectedDatapointIds]);
 
     return (
         <>
@@ -44,7 +74,7 @@ const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelec
                         <>
                             <LoadingForm className='my-2' onSubmit={async (_, {selectedEmbeddingsName, selectedAlgorithmName}) => {
                                 const vectorsWithCoords = await baseJSONClient.post('/api/analytics/vectors/reduce-dimensions', {
-                                    datapoint_filters: filtersWithModels,
+                                    datapoint_filters: filtersForAllModels,
                                     dataset_id: datasetId,
                                     embeddings_name: selectedEmbeddingsName,
                                     algorithm_name: selectedAlgorithmName
@@ -89,6 +119,35 @@ const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelec
                             </LoadingForm>
                             {vectorsWithCoordinates ? (
                                 <div className='mb-2 position-relative'>
+                                    <div className='position-absolute m-3' style={{top: 0, left: 0, zIndex: 1}}>
+                                        <Async
+                                            fetchData={() => baseJSONClient.post('/api/tags/select-distinct-names', {
+                                                datapointFilters: filtersForAllModels,
+                                                datasetId
+                                            }, {memoized: true})}
+                                            refetchOnChanged={[filtersForAllModels, datasetId]}
+                                            renderData={(allTagNames) => (
+                                                <Select className='fs-5' value={grouping} onChange={setGrouping}>
+                                                    <option value=''>Color by...</option>
+                                                    <option value='groundtruths'>Groundtruths</option>
+                                                    {
+                                                        modelNames.length ? (
+                                                            <>
+                                                                <option value='predictions'>Predictions</option>
+                                                                <option value='entropy'>Entropy</option>
+                                                                {/* <option value='mislabeling'>Mislabeling Score</option> */}
+                                                            </>
+                                                        ) : null
+                                                    }
+                                                    {allTagNames.map((tagName) => (
+                                                        <option key={`tag/${tagName}`} value={`tag/${tagName}`}>
+                                                            tags.name = {tagName}
+                                                        </option>
+                                                    ))}
+                                                </Select>
+                                            )}
+                                        />
+                                    </div>
                                     <ScatterChart
                                         height={600}
                                         data={vectorsWithCoordinates}
@@ -109,7 +168,13 @@ const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelec
                                         }}
                                         isDatapointSelected={(v) => selectedDatapointIds.has(v['datapoint'])}
                                         getColor={(v) => {
-                                            if (selectedDatapointIds.has(v['datapoint'])) {
+                                            if (groupedDatapoints) {
+                                                if (selectedDatapointIds.has(v['datapoint']) || selectedDatapointIds.size === 0) {
+                                                    return getHexColor(groupedDatapoints[v['datapoint']]);
+                                                } else {
+                                                    return getHexColor('');
+                                                }
+                                            } else if (selectedDatapointIds.has(v['datapoint'])) {
                                                 return theme.primary;
                                             } else {
                                                 return getHexColor('');
@@ -129,7 +194,7 @@ const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelec
                     </div>
                 ) : null}
                 <DatapointsViewer
-                    filters={[...filtersWithModels, ...(selectedDatapointIds.size ? [{
+                    filters={[...filtersForAllModels, ...(selectedDatapointIds.size ? [{
                         left: 'id',
                         op: 'in',
                         right: Array.from(selectedDatapointIds)

@@ -41,7 +41,7 @@ const DataLake = () => {
             <ModalComponent isOpen={showUploadDataModal} onClose={() => setShowUploadDataModal(false)} title='Upload Data'>
                 <UploadData onDone={() => setShowUploadDataModal(false)} />
             </ModalComponent>
-            <div className='text-dark p-3' id='joyride-5'>
+            <div className='text-dark p-2' id='joyride-5'>
                 <div className='d-flex justify-content-between align-items-center mb-2'>
                     <h4 className='0'>Data Lake</h4>
                     <div>
@@ -63,7 +63,7 @@ const DataLake = () => {
                         </Link>
                     </div>
                 </div>
-                <Row className='g-2'>
+                <Row className='g-1'>
                     <Col>
                         <FilterInput value={filters} onChange={setFilters} />
                     </Col>

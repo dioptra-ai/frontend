@@ -172,7 +172,7 @@ const Groups = ({filters, datasetId, modelNames, selectedDatapointIds, onSelecte
 };
 
 Groups.propTypes = {
-    filters: PropTypes.object.isRequired,
+    filters: PropTypes.arrayOf(PropTypes.object).isRequired,
     datasetId: PropTypes.string,
     modelNames: PropTypes.arrayOf(PropTypes.string).isRequired,
     selectedDatapointIds: PropTypes.object.isRequired,
