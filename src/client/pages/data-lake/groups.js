@@ -129,7 +129,7 @@ const Groups = ({filters, datasetId, modelNames, selectedDatapointIds, onSelecte
                                         dataKey={({allValues, selectedValues}) => {
                                             return (allValues[i]?.['value'] || 0) - (selectedValues[i]?.['value'] || 0);
                                         }}
-                                        stackId={modelName}
+                                        stackId={String(modelName)}
                                         fill='#999'
                                         onClick={({allValues}) => {
                                             onSelectedDatapointIdsChange(new Set(allValues[i]?.['datapoints'] || []));
