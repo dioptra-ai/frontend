@@ -62,7 +62,7 @@ const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelec
                 setColorPerDatapointId();
             }
         })();
-    }, [grouping, JSON.stringify(filters), datasetId]);
+    }, [grouping, JSON.stringify(filters), datasetId, modelNames]);
 
     return (
         <>

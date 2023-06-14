@@ -49,7 +49,7 @@ const Groups = ({filters, datasetId, modelNames, selectedDatapointIds, onSelecte
                     fetchData={() => Promise.all((modelNames.length ? modelNames : [undefined]).map((modelName) => baseJSONClient.post(`/api/analytics/distribution/${grouping}`, {
                         filters, modelName, datasetId
                     }, {memoized: true})))}
-                    refetchOnChanged={[filters, grouping, datasetId]}
+                    refetchOnChanged={[filters, grouping, datasetId, modelNames]}
                     renderData={(allDistributions) => {
                         // Dedupe buckets and maintain ordering.
                         const bars = allDistributions.flatMap(({histogram}) => Object.keys(histogram).map((name) => ({
