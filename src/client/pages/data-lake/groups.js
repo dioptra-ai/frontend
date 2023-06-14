@@ -19,23 +19,32 @@ const Groups = ({filters, datasetId, modelNames, selectedDatapointIds, onSelecte
     return (
         <div className='my-2'>
             <Async
-                fetchData={() => baseJSONClient.post('/api/tags/select-distinct-names', {
-                    datapointFilters: filtersForAllModels,
-                    datasetId
-                }, {memoized: true})}
+                fetchData={() => Promise.all([
+                    baseJSONClient.post('/api/tags/select-distinct-names', {
+                        datapointFilters: filtersForAllModels,
+                        datasetId
+                    }, {memoized: true}),
+                    baseJSONClient.post('/api/predictions/select-distinct-metrics', {
+                        datapointFilters: filtersForAllModels,
+                        datasetId
+                    }, {memoized: true})
+                ])}
                 refetchOnChanged={[filtersForAllModels, datasetId]}
-                renderData={(allTagNames) => (
+                renderData={([allTagNames, allMetricNames]) => (
                     <Select value={grouping} onChange={setGrouping} disabled={!datasetId}>
                         <option value='groundtruths'>Groundtruths</option>
-                        {
-                            modelNames.length ? (
-                                <>
-                                    <option value='predictions'>Predictions</option>
-                                    <option value='entropy'>Entropy</option>
-                                    {/* <option value='mislabeling'>Mislabeling Score</option> */}
-                                </>
-                            ) : null
-                        }
+                        {modelNames.length ? (
+                            <>
+                                <option value='predictions'>Predictions</option>
+                                <option value='entropy'>Entropy</option>
+                                {/* <option value='mislabeling'>Mislabeling Score</option> */}
+                            </>
+                        ) : null}
+                        {allMetricNames.map((metricName) => (
+                            <option key={metricName} value={metricName}>
+                                {metricName}
+                            </option>
+                        ))}
                         {allTagNames.map((tagName) => (
                             <option key={`tag/${tagName}`} value={`tag/${tagName}`}>
                                 tags.name = {tagName}

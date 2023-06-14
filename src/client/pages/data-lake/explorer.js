@@ -120,12 +120,18 @@ const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelec
                                 <div className='mb-2 position-relative'>
                                     <div className='position-absolute m-3' style={{top: 0, left: 0, zIndex: 1}}>
                                         <Async
-                                            fetchData={() => baseJSONClient.post('/api/tags/select-distinct-names', {
-                                                datapointFilters: filtersForAllModels,
-                                                datasetId
-                                            }, {memoized: true})}
+                                            fetchData={() => Promise.all([
+                                                baseJSONClient.post('/api/tags/select-distinct-names', {
+                                                    datapointFilters: filtersForAllModels,
+                                                    datasetId
+                                                }, {memoized: true}),
+                                                baseJSONClient.post('/api/predictions/select-distinct-metrics', {
+                                                    datapointFilters: filtersForAllModels,
+                                                    datasetId
+                                                }, {memoized: true})
+                                            ])}
                                             refetchOnChanged={[filtersForAllModels, datasetId]}
-                                            renderData={(allTagNames) => (
+                                            renderData={([allTagNames, allMetricNames]) => (
                                                 <Select className='fs-5' value={grouping} onChange={setGrouping}>
                                                     <option value=''>Color by...</option>
                                                     <option value='groundtruths'>Groundtruths</option>
@@ -138,6 +144,11 @@ const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelec
                                                             </>
                                                         ) : null
                                                     }
+                                                    {allMetricNames.map((metricName) => (
+                                                        <option key={metricName} value={metricName}>
+                                                            {metricName}
+                                                        </option>
+                                                    ))}
                                                     {allTagNames.map((tagName) => (
                                                         <option key={`tag/${tagName}`} value={`tag/${tagName}`}>
                                                             tags.name = {tagName}

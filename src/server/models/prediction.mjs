@@ -66,6 +66,29 @@ class Prediction extends SelectableModel {
         return rows.map((row) => row['model_name']);
     }
 
+    static async selectDistinctMetrics({organizationId, datapointFilters, datasetId}) {
+        const safeSelectQuery = await Datapoint.getSafeSelectQueryWithDatasetId({organizationId, selectColumns: ['id'], filters: datapointFilters, datasetId});
+
+        const {rows} = await postgresClient.query(
+            `SELECT jsonb_object_keys(predictions.metrics) AS metric
+                FROM predictions
+                WHERE datapoint IN (SELECT id FROM (${safeSelectQuery}) AS subquery)
+                UNION
+                SELECT jsonb_object_keys(completions.metrics) AS metric
+                FROM completions
+                JOIN predictions ON completions.prediction = predictions.id
+                WHERE predictions.datapoint IN (SELECT id FROM (${safeSelectQuery}) AS subquery)
+                UNION
+                SELECT jsonb_object_keys(bboxes.metrics) AS metric
+                FROM bboxes
+                JOIN predictions ON bboxes.prediction = predictions.id
+                WHERE predictions.datapoint IN (SELECT id FROM (${safeSelectQuery}) AS subquery)
+                ORDER BY metric ASC`
+        );
+
+        return rows.map((row) => row['metric']);
+    }
+
     static async findByDatapointIds(organizationId, datapointIds) {
         if (!datapointIds.length) {
 

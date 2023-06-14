@@ -65,6 +65,20 @@ PredictionsRouter.post('/select-distinct-embedding-names', async (req, res, next
     }
 });
 
+PredictionsRouter.post('/select-distinct-metrics', async (req, res, next) => {
+    try {
+        const metrics = await Prediction.selectDistinctMetrics({
+            organizationId: req.user.requestOrganizationId,
+            datapointFilters: req.body.datapointFilters,
+            datasetId: req.body.datasetId
+        });
+
+        res.json(metrics);
+    } catch (e) {
+        next(e);
+    }
+});
+
 PredictionsRouter.post('/delete', async (req, res, next) => {
     try {
         const predictions = await Prediction.deleteByFilters({
