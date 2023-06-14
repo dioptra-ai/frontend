@@ -10,7 +10,7 @@ const isSafeIdentifier = (identifier) => SAFE_IDENTIFIERS.has(identifier.toUpper
 const isSafeGlobalIdentifier = (identifier) => SAFE_GLOBAL_IDENTIFIERS.has(identifier.toUpperCase());
 // TODO: remove classifications from this list once we have a classifications table
 const JSONB_ROOT_COLUMNS = new Set(['metadata', 'metrics', 'classifications']);
-const ALL_TABLE_NAMES = new Set(['datapoints', 'predictions', 'groundtruths', 'feature_vectors', 'tags', 'bboxes', 'lanes']);
+const ALL_TABLE_NAMES = new Set(['datapoints', 'predictions', 'groundtruths', 'feature_vectors', 'tags', 'bboxes', 'lanes', 'completions']);
 
 class SelectableModel {
     static getTableName() {

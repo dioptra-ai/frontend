@@ -69,11 +69,13 @@ const DatapointsPage = ({datapoints, showGroundtruthsInModal, modelNames, select
         };
     }, [datapointIndexInModal]);
 
+    const getDatapointBreakpoints = (d) => d['type'] === 'IMAGE' ? {xs: 4, md: 3, lg: 2} : {xs: 12, md: 6, lg: 4};
+
     return (
         <>
             <Row className='g-2'>
                 {datapoints.map((datapoint, i) => (
-                    <Col key={datapoint.id} xs={4} md={3} lg={2}>
+                    <Col key={datapoint.id} {...getDatapointBreakpoints(datapoint)}>
                         <div className='p-2 bg-white-blue border rounded' >
                             {
                                 selectedDatapoints ? (
@@ -137,7 +139,8 @@ const DatapointsPage = ({datapoints, showGroundtruthsInModal, modelNames, select
                                         'bboxes.class_name', 'bboxes.confidence',
                                         'bboxes.encoded_resized_segmentation_mask', 'bboxes.coco_polygon',
                                         'bboxes.top', 'bboxes.left', 'bboxes.width', 'bboxes.height',
-                                        'lanes.coco_polyline', 'lanes.confidence'
+                                        'lanes.coco_polyline', 'lanes.confidence',
+                                        'completions.text', 'completions.confidence', 'completions.metrics'
                                     ]
                                 }) : Promise.resolve(null),
                                 showGroundtruthsInModal ? baseJSONClient.post('/api/groundtruths/select', {
@@ -153,7 +156,8 @@ const DatapointsPage = ({datapoints, showGroundtruthsInModal, modelNames, select
                                         'bboxes.class_name',
                                         'bboxes.encoded_resized_segmentation_mask', 'bboxes.coco_polygon',
                                         'bboxes.top', 'bboxes.left', 'bboxes.width', 'bboxes.height',
-                                        'lanes.coco_polyline'
+                                        'lanes.coco_polyline',
+                                        'completions.text'
                                     ]
                                 }) : Promise.resolve(null)
                             ])}

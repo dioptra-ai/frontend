@@ -170,6 +170,35 @@ const Datapoint = ({datapoint = {}, onClick, zoomable, showDetails, maxHeight}) 
             </>
         );
     }
+    case 'TEXT': {
+
+        return (
+            <Row onClick={onClick} className='g-2 overflow-auto my-2' style={{maxHeight: maxHeight || '100%'}}>
+                <Col>
+                    <pre style={{whiteSpace: 'break-spaces'}}>{datapoint['text']}</pre>
+                </Col>
+                {predictions.length ? <hr/> : null}
+                {
+                    predictions?.map((p, i) => (
+                        <Col key={i} as={Row} className='g-2'>
+                            {p['completions']?.map((c, i) => (
+                                <Col key={i} xs={12}>
+                                    <pre style={{whiteSpace: 'break-spaces'}}>{c['text']}</pre>
+                                    <div>
+                                        <RenderDatapoint datapoint={{
+                                            model_name: p['model_name'],
+                                            confidence: c['confidence'],
+                                            metrics: c['metrics']
+                                        }} />
+                                    </div>
+                                </Col>
+                            ))}
+                        </Col>
+                    ))
+                }
+            </Row>
+        );
+    }
     default:
         return <RenderDatapoint datapoint={datapoint} />;
     }
