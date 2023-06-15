@@ -177,16 +177,37 @@ const Datapoint = ({datapoint = {}, onClick, zoomable, showDetails, maxHeight}) 
                 <Col>
                     <pre style={{whiteSpace: 'break-spaces'}}>{datapoint['text']}</pre>
                 </Col>
+                {groundtruths.length ? <hr/> : null}
+                {
+                    groundtruths?.map((g, i) => (
+                        <Col key={i} as={Row} className='g-2'>
+                            {g['completions']?.map((c, i) => (
+                                <Col key={i} xs={12}>
+                                    <div>
+                                        <div className='badge' style={{backgroundColor: theme.secondary}}>
+                                            ground truth
+                                        </div>
+                                    </div>
+                                    <pre style={{whiteSpace: 'break-spaces'}}>{c['text']}</pre>
+                                </Col>
+                            ))}
+                        </Col>
+                    ))
+                }
                 {predictions.length ? <hr/> : null}
                 {
                     predictions?.map((p, i) => (
                         <Col key={i} as={Row} className='g-2'>
                             {p['completions']?.map((c, i) => (
                                 <Col key={i} xs={12}>
+                                    <div>
+                                        <div className='badge' style={{backgroundColor: getHexColor(p['model_name'])}}>
+                                            model name: {p['model_name']}
+                                        </div>
+                                    </div>
                                     <pre style={{whiteSpace: 'break-spaces'}}>{c['text']}</pre>
                                     <div>
                                         <RenderDatapoint datapoint={{
-                                            model_name: p['model_name'],
                                             confidence: c['confidence'],
                                             metrics: c['metrics']
                                         }} />
