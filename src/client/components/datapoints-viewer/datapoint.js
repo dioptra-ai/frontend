@@ -198,7 +198,7 @@ const Datapoint = ({datapoint = {}, onClick, zoomable, showDetails, maxHeight}) 
                 {predictions.length ? <hr/> : null}
                 {
                     predictions?.map((p, i) => (
-                        <Col key={i} as={Row} className='g-2'>
+                        <Col xs={12} key={i} as={Row} className='g-2'>
                             {p['completions']?.map((c, i) => (
                                 <Col key={i} xs={12}>
                                     <div className='badge' style={{backgroundColor: getHexColor(p['model_name'])}}>

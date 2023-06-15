@@ -64,34 +64,36 @@ const Groups = ({filters, datasetId, modelNames, selectedDatapointIds, onSelecte
                     refetchOnChanged={[filters, grouping, datasetId, modelNames]}
                     renderData={(allDistributions) => {
                         // Dedupe buckets and maintain ordering.
-                        const bars = allDistributions.flatMap(({histogram}) => Object.keys(histogram).map((name) => ({
+                        const bucketNames = new Set(allDistributions.flatMap(({histogram}) => Object.keys(histogram)));
+                        const buckets = Array.from(bucketNames).map((name) => ({
                             name,
-                            index: histogram[name].index,
-                            allBuckets: allDistributions.map(({histogram}) => histogram[name])
-                        })).sort((a, b) => a.index - b.index));
+                            index: allDistributions.find(({histogram}) => histogram[name]?.index !== undefined)?.histogram[name].index,
+                            bars: allDistributions.map(({histogram}) => histogram[name])
+                        })).sort((a, b) => a.index - b.index);
 
                         return (
                             <BarGraph
                                 title={allDistributions[0]?.title}
-                                bars={bars}
+                                bars={buckets}
                                 sortBy='index'
                                 renderTooltip={({active, payload, label}) => {
 
-                                    return (active && payload?.length) ? (
+                                    return active ? (
                                         <div className='bg-white border rounded p-2'>
                                             <div className='bold-text fs-4'>{label}</div>
                                             <div className='fs-6'>
                                                 {
-                                                    // First half of the values are for selected datapoints.
-                                                    payload.slice(0, payload.length / 2).map(({name, value}, i) => {
-                                                        const totalValue = payload[payload.length / 2 + i].value + value;
+                                                    // selected / unselected bars alternate in payload.
+                                                    Array(payload?.length / 2).fill().map((_, i) => {
+                                                        const selected = payload[2 * i];
+                                                        const unselected = payload[2 * i + 1];
 
                                                         return (
-                                                            <div key={name} className='d-flex align-items-center'>
+                                                            <div key={modelNames[i]} className='d-flex align-items-center'>
                                                                 <div className='me-2' style={{width: 10, height: 10, backgroundColor: getHexColor(modelNames[i])}}/>
-                                                                <div className='me-2'>{name}</div>
-                                                                <div className='me-2'>{value.toLocaleString()}</div>
-                                                                <div className='me-2'>{(value / totalValue).toLocaleString(undefined, {style: 'percent'})}</div>
+                                                                <div className='me-2'>{modelNames[i]}</div>
+                                                                <div className='me-2'>{selected.value.toLocaleString()}</div>
+                                                                <div className='me-2'>{(selected.value / (selected.value + unselected.value)).toLocaleString(undefined, {style: 'percent'})}</div>
                                                             </div>
                                                         );
                                                     })
@@ -102,38 +104,40 @@ const Groups = ({filters, datasetId, modelNames, selectedDatapointIds, onSelecte
                                 }}
                             >
                                 {(modelNames.length ? modelNames : [undefined]).map((modelName, i) => (
-                                    <Bar key={`selected:${modelName}`} className='cursor-pointer'
-                                        dataKey={({allBuckets}) => {
-                                            return allBuckets[i]?.['datapoints']?.filter((id) => !selectedDatapointIds.size || selectedDatapointIds.has(id)).length;
-                                        }}
-                                        stackId={String(modelName)}
-                                        onClick={({allBuckets}) => {
+                                    <>
+                                        <Bar key={`selected:${modelName}`} className='cursor-pointer'
+                                            dataKey={({bars}) => {
 
-                                            onSelectedDatapointIdsChange(new Set((allBuckets[i]?.['datapoints'] || []).filter((id) => !selectedDatapointIds.size || selectedDatapointIds.has(id))));
-                                        }}
-                                    >
-                                        {
-                                            bars.map(({name, index}) => {
-                                                const fill = index === undefined ? getHexColor(name) : isGroupColorDesc ? `hsla(${100 * (1 - index / bars.length)}, 100%, 50%, 1)` : `hsla(${100 * index / bars.length}, 100%, 50%, 1)`;
+                                                return bars[i]?.['datapoints'].filter((id) => !selectedDatapointIds.size || selectedDatapointIds.has(id)).length || 0;
+                                            }}
+                                            stackId={String(modelName)}
+                                            onClick={({bars}) => {
 
-                                                return (
-                                                    <Cell key={name} fill={fill}/>
-                                                );
-                                            })
-                                        }
-                                    </Bar>
-                                ))}
-                                {(modelNames.length ? modelNames : [undefined]).map((modelName, i) => (
-                                    <Bar key={`all:${modelName}`} className='cursor-pointer'
-                                        dataKey={({allBuckets}) => {
-                                            return (allBuckets[i]?.['datapoints']?.filter((id) => selectedDatapointIds.size && !selectedDatapointIds.has(id)) || []).length;
-                                        }}
-                                        stackId={String(modelName)}
-                                        fill='#999'
-                                        onClick={({allBuckets}) => {
-                                            onSelectedDatapointIdsChange(new Set((allBuckets[i]?.['datapoints'] || [])));
-                                        }}
-                                    />
+                                                onSelectedDatapointIdsChange(new Set((bars[i]?.['datapoints'].filter((id) => !selectedDatapointIds.size || selectedDatapointIds.has(id))) || []));
+                                            }}
+                                        >
+                                            {
+                                                buckets.map(({name, index}) => {
+                                                    const fill = index === undefined ? getHexColor(name) : isGroupColorDesc ? `hsla(${100 * (1 - index / buckets.length)}, 100%, 50%, 1)` : `hsla(${100 * index / buckets.length}, 100%, 50%, 1)`;
+
+                                                    return (
+                                                        <Cell key={name} fill={fill}/>
+                                                    );
+                                                })
+                                            }
+                                        </Bar>
+                                        <Bar key={`unselected:${modelName}`} className='cursor-pointer'
+                                            dataKey={({bars}) => {
+
+                                                return (bars[i]?.['datapoints']?.filter((id) => selectedDatapointIds.size && !selectedDatapointIds.has(id)) || []).length || 0;
+                                            }}
+                                            stackId={String(modelName)}
+                                            fill='#999'
+                                            onClick={({bars}) => {
+                                                onSelectedDatapointIdsChange(new Set((bars[i]?.['datapoints']) || []));
+                                            }}
+                                        />
+                                    </>
                                 ))}
                             </BarGraph>
                         );
