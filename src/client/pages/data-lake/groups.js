@@ -84,7 +84,7 @@ const Groups = ({filters, datasetId, modelNames, selectedDatapointIds, onSelecte
                                             <div className='fs-6'>
                                                 {
                                                     // selected / unselected bars alternate in payload.
-                                                    Array(payload?.length / 2).fill().map((_, i) => {
+                                                    payload?.length ? Array(payload.length / 2).fill().map((_, i) => {
                                                         const selected = payload[2 * i];
                                                         const unselected = payload[2 * i + 1];
 
@@ -96,7 +96,7 @@ const Groups = ({filters, datasetId, modelNames, selectedDatapointIds, onSelecte
                                                                 <div className='me-2'>{(selected.value / (selected.value + unselected.value)).toLocaleString(undefined, {style: 'percent'})}</div>
                                                             </div>
                                                         );
-                                                    })
+                                                    }) : null
                                                 }
                                             </div>
                                         </div>
@@ -111,9 +111,11 @@ const Groups = ({filters, datasetId, modelNames, selectedDatapointIds, onSelecte
                                                 return bars[i]?.['datapoints'].filter((id) => !selectedDatapointIds.size || selectedDatapointIds.has(id)).length || 0;
                                             }}
                                             stackId={String(modelName)}
-                                            onClick={({bars}) => {
+                                            onClick={({bars}, _, e) => {
 
-                                                onSelectedDatapointIdsChange(new Set((bars[i]?.['datapoints'].filter((id) => !selectedDatapointIds.size || selectedDatapointIds.has(id))) || []));
+                                                if (!e.shiftKey) { // If shift, don't change selection since this is additive.
+                                                    onSelectedDatapointIdsChange(new Set((bars[i]?.['datapoints'].filter((id) => !selectedDatapointIds.size || selectedDatapointIds.has(id))) || []));
+                                                }
                                             }}
                                         >
                                             {
@@ -133,8 +135,14 @@ const Groups = ({filters, datasetId, modelNames, selectedDatapointIds, onSelecte
                                             }}
                                             stackId={String(modelName)}
                                             fill='#999'
-                                            onClick={({bars}) => {
-                                                onSelectedDatapointIdsChange(new Set((bars[i]?.['datapoints']) || []));
+                                            onClick={({bars}, _, e) => {
+                                                const newSelectedDatapointIds = new Set(bars[i]?.['datapoints']);
+
+                                                if (e.shiftKey) {
+                                                    onSelectedDatapointIdsChange(new Set([...selectedDatapointIds, ...newSelectedDatapointIds]));
+                                                } else {
+                                                    onSelectedDatapointIdsChange(newSelectedDatapointIds);
+                                                }
                                             }}
                                         />
                                     </>
