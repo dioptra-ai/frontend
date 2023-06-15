@@ -52,7 +52,8 @@ app.get('*', (req, res, next) => {
     res.render(resolve(basePath, 'build/index.html'), {
         env: {
             name: ENVIRONMENT,
-            disabledUsageFeedback: process.env.DISABLE_USAGE_FEEDBACK
+            disabledUsageFeedback: process.env.DISABLE_USAGE_FEEDBACK,
+            hostingOrganization: process.env.DIOPTRA_HOSTING_ORGANIZATION || 'unknown'
         }
     });
 });

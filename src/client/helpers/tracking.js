@@ -31,7 +31,7 @@ if (window['DIOPTRA_ENV']['disabledUsageFeedback'] !== 'true') {
 }
 
 export const initializeClickTracking = () => {
-    if (window.analytics) {
+    if (window.analytics) {            
         window.addEventListener('click', (event) => {
             const closestSelector = ['button', '.btn', 'a', '.tab', 'input', 'select', 'li[data-range-key]'].find((selector) => event.target.closest(selector));
             const element = event.target.closest(closestSelector);
@@ -56,7 +56,9 @@ export const trackPage = () => {
 };
 
 export const identify = (id) => {
-    window.analytics?.identify(id);
+    window.analytics?.identify(id, {
+        hostingOrganization: window['DIOPTRA_ENV']['hostingOrganization'] || 'unknown'
+    });
 };
 
 export const group = (id) => {

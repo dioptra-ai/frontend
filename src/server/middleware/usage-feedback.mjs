@@ -5,7 +5,7 @@ import {Analytics} from '@segment/analytics-node';
 
 const analytics = new Analytics({writeKey: 'rMMWIHH5QB7uaQvdCuoMPak8edlF6mwJ'});
 
-if (process.env['disabledUsageFeedback'] !== 'true') {
+if (process.env.DISABLE_USAGE_FEEDBACK !== 'true') {
     macaddress.one((err, mac) => {
         if (!err) {
             analytics.track({
