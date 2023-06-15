@@ -175,6 +175,9 @@ const Datapoint = ({datapoint = {}, onClick, zoomable, showDetails, maxHeight}) 
         return (
             <Row onClick={onClick} className='g-2 overflow-auto my-2' style={{maxHeight: maxHeight || '100%'}}>
                 <Col>
+                    <div className='badge' style={{backgroundColor: theme.secondary}}>
+                        prompt
+                    </div>
                     <pre style={{whiteSpace: 'break-spaces'}}>{datapoint['text']}</pre>
                 </Col>
                 {groundtruths.length ? <hr/> : null}
@@ -183,10 +186,8 @@ const Datapoint = ({datapoint = {}, onClick, zoomable, showDetails, maxHeight}) 
                         <Col key={i} as={Row} className='g-2'>
                             {g['completions']?.map((c, i) => (
                                 <Col key={i} xs={12}>
-                                    <div>
-                                        <div className='badge' style={{backgroundColor: theme.secondary}}>
+                                    <div className='badge' style={{backgroundColor: theme.secondary}}>
                                             ground truth
-                                        </div>
                                     </div>
                                     <pre style={{whiteSpace: 'break-spaces'}}>{c['text']}</pre>
                                 </Col>
@@ -200,10 +201,8 @@ const Datapoint = ({datapoint = {}, onClick, zoomable, showDetails, maxHeight}) 
                         <Col key={i} as={Row} className='g-2'>
                             {p['completions']?.map((c, i) => (
                                 <Col key={i} xs={12}>
-                                    <div>
-                                        <div className='badge' style={{backgroundColor: getHexColor(p['model_name'])}}>
+                                    <div className='badge' style={{backgroundColor: getHexColor(p['model_name'])}}>
                                             model name: {p['model_name']}
-                                        </div>
                                     </div>
                                     <pre style={{whiteSpace: 'break-spaces'}}>{c['text']}</pre>
                                     <div>
