@@ -17,6 +17,7 @@ import WhiteScreen from 'components/white-screen';
 import LoadingLink from 'components/loading-link';
 
 const ENV_NAME = window['DIOPTRA_ENV']['name'];
+const getColorScaleDesc = (grouping) => new Set(['entropy', 'mislabeling', 'hallucination_score']).has(grouping);
 
 const JsonParamDefaultEmptyArray = withDefault(JsonParam, []);
 
@@ -32,6 +33,7 @@ const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelec
         op: 'in',
         right: modelNames
     } : []);
+    const isGroupColorDesc = getColorScaleDesc(grouping);
 
     useEffect(() => {
         setDimensionReductionIsOutOfDate(true);
@@ -48,8 +50,10 @@ const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelec
                         group.datapoints.forEach((datapointId) => {
                             if (group.index === undefined) {
                                 acc[datapointId] = getHexColor(groupName);
+                            } else if (isGroupColorDesc) {
+                                acc[datapointId] = `hsla(${100 * (1 - group.index / allGroups.length)}, 100%, 50%, 1)`;
                             } else {
-                                acc[datapointId] = `hsla(${100 - group.index / allGroups.length * 100}, 100%, 50%, 1)`;
+                                acc[datapointId] = `hsla(${100 * group.index / allGroups.length}, 100%, 50%, 1)`;
                             }
                         });
                     });

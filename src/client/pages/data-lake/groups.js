@@ -8,6 +8,8 @@ import Select from 'components/select';
 import BarGraph from 'components/bar-graph';
 import {getHexColor} from 'helpers/color-helper';
 
+const getColorScaleDesc = (grouping) => new Set(['entropy', 'mislabeling', 'hallucination_score']).has(grouping);
+
 const Groups = ({filters, datasetId, modelNames, selectedDatapointIds, onSelectedDatapointIdsChange}) => {
     const [grouping, setGrouping] = React.useState('groundtruths');
     const filtersForAllModels = filters.concat(modelNames.length ? {
@@ -15,6 +17,7 @@ const Groups = ({filters, datasetId, modelNames, selectedDatapointIds, onSelecte
         op: 'in',
         right: modelNames.sort()
     } : []);
+    const isGroupColorDesc = getColorScaleDesc(grouping);
 
     return (
         <div className='my-2'>
@@ -111,7 +114,7 @@ const Groups = ({filters, datasetId, modelNames, selectedDatapointIds, onSelecte
                                     >
                                         {
                                             bars.map(({name, index}) => {
-                                                const fill = index === undefined ? getHexColor(name) : `hsla(${100 - index * 100 / bars.length}, 100%, 50%, 1)`;
+                                                const fill = index === undefined ? getHexColor(name) : isGroupColorDesc ? `hsla(${100 * (1 - index / bars.length)}, 100%, 50%, 1)` : `hsla(${100 * index / bars.length}, 100%, 50%, 1)`;
 
                                                 return (
                                                     <Cell key={name} fill={fill}/>
