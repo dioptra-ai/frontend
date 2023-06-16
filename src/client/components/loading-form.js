@@ -106,7 +106,7 @@ const LoadingFormSuccess = ({children, ...rest}) => (
     <LoadingFormContext.Consumer>
         {({success}) => success ? (
             <Alert variant='success' {...rest} className='overflow-hidden'>
-                {children?.(success) || success || 'Success'}
+                {children instanceof Function && children(success) || children || success || 'Success'}
             </Alert>
         ) : null}
     </LoadingFormContext.Consumer>
@@ -117,3 +117,19 @@ LoadingFormSuccess.propTypes = {
 };
 
 LoadingForm.Success = LoadingFormSuccess;
+
+const LoadingFormLoading = ({children}) => (
+    <LoadingFormContext.Consumer>
+        {({loading}) => loading ? (
+            <Alert variant='info'>
+                {children instanceof Function && children() || children || 'Loading...'}
+            </Alert>
+        ) : null}
+    </LoadingFormContext.Consumer>
+);
+
+LoadingFormLoading.propTypes = {
+    children: PropTypes.func
+};
+
+LoadingForm.Loading = LoadingFormLoading;

@@ -69,13 +69,13 @@ const UploadData = ({onDone}) => {
                         {
                             isDataSourceLocal ? (
                                 <>
-                                    <Form.Label className='mt-3 mb-0'>Local File (.ndjson, .jsonl)</Form.Label>
+                                    <Form.Label className='mt-3 mb-0'>Local File (.ndjson, .jsonl, .gz. .bz2)</Form.Label>
                                     <Form.File
                                         id='joyride-2'
                                         name='file'
                                         required
                                         className='mt-1'
-                                        accept='.json,.ndjson,.jsonl'
+                                        accept='.json,.ndjson,.jsonl,.gz,.bz2'
                                     />
                                 </>
                             ) : (

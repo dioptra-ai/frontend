@@ -105,11 +105,7 @@ IngestionRouter.get('/executions', async (req, res, next) => {
 
 IngestionRouter.post('/upload', (req, res, next) => {
     try {
-        const fileName = `${md5(Math.random().toString())}.ndjson`;
-        const key = `${ENVIRONMENT}/${req.user.requestOrganizationId}/${fileName}`;
-        const form = new multiparty.Form();
-
-        form.parse(req, async (err, fields, files) => {
+        new multiparty.Form().parse(req, async (err, fields, files) => {
             if (err) {
                 next(err);
 
@@ -118,6 +114,8 @@ IngestionRouter.post('/upload', (req, res, next) => {
 
             try {
                 const file = files['file'][0];
+                const fileName = `${md5(Math.random().toString())}.${file.originalFilename.split('.').pop()}`;
+                const key = `${ENVIRONMENT}/${req.user.requestOrganizationId}/${fileName}`;
 
                 if (ENVIRONMENT === 'local-dev') {
                     const local_file = `${LOCAL_INGESTION_VOLUME_PATH}/${fileName}`;

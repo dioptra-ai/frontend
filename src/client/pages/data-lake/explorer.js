@@ -34,6 +34,41 @@ const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelec
         right: modelNames
     } : []);
     const isGroupColorDesc = getColorScaleDesc(grouping);
+    const handleLoadDemoData = async (fileURL, selectModel) => {
+        const ingestionResult = await baseJSONClient.post('/api/ingestion/ingest',
+            ENV_NAME === 'local-dev' ? {
+                url: fileURL
+            } : {
+                urls: [fileURL]
+            });
+
+        if (ingestionResult['id']) {
+            while (true) { // eslint-disable-line no-constant-condition
+                const execution = await baseJSONClient.get(`/api/ingestion/executions/${ingestionResult['id']}`); // eslint-disable-line no-await-in-loop
+
+                if (execution['status'] === 'SUCCEEDED') {
+                    break;
+                } else if (execution['status'] === 'FAILED') {
+                    throw new Error('Ingestion failed');
+                } else {
+                    await new Promise((resolve) => setTimeout(resolve, 1000)); // eslint-disable-line no-await-in-loop
+                }
+            }
+        }
+
+        const newDataset = await baseJSONClient.post('/api/dataset', {
+            displayName: 'Demo Dataset'
+        });
+        const allDatapoints = await baseJSONClient.post('/api/datapoints/select', {
+            selectColumns: ['id']
+        });
+
+        await baseJSONClient.post(`/api/dataset/${newDataset['uuid']}/add`, {
+            datapointIds: allDatapoints.map((d) => d['id'])
+        });
+
+        window.location = `/data-lake?datasetId=${newDataset['uuid']}&modelNames=${selectModel}`;
+    };
 
     useEffect(() => {
         setDimensionReductionIsOutOfDate(true);
@@ -220,43 +255,19 @@ const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelec
                             <p>
                                 The Data lake is empty. <a id='joyride-6' onClick={reload}>Reload</a> the Data Lake or Load Demo Data.
                             </p>
-                            <p>
-                                <LoadingForm onSubmit={async () => {
-                                    const ingestionResult = await baseJSONClient.post('/api/ingestion/ingest',
-                                        ENV_NAME === 'local-dev' ? {
-                                            url: 'https://dioptra-public.s3.us-east-2.amazonaws.com/sample_dataset.json'
-                                        } : {
-                                            urls: ['https://dioptra-public.s3.us-east-2.amazonaws.com/sample_dataset.json']
-                                        });
-
-                                    if (ingestionResult['id']) {
-                                        while (true) { // eslint-disable-line no-constant-condition
-                                            const execution = await baseJSONClient.get(`/api/ingestion/executions/${ingestionResult['id']}`); // eslint-disable-line no-await-in-loop
-
-                                            if (execution['status'] === 'SUCCEEDED') {
-                                                break;
-                                            } else if (execution['status'] === 'FAILED') {
-                                                throw new Error('Ingestion failed');
-                                            } else {
-                                                await new Promise((resolve) => setTimeout(resolve, 1000)); // eslint-disable-line no-await-in-loop
-                                            }
-                                        }
-                                    }
-
-                                    const newDataset = await baseJSONClient.post('/api/dataset', {
-                                        displayName: 'Demo Dataset'
-                                    });
-                                    const allDatapoints = await baseJSONClient.post('/api/datapoints/select', {
-                                        selectColumns: ['id']
-                                    });
-
-                                    await baseJSONClient.post(`/api/dataset/${newDataset['uuid']}/add`, {
-                                        datapointIds: allDatapoints.map((d) => d['id'])
-                                    });
-
-                                    window.location = `/data-lake?datasetId=${newDataset['uuid']}&modelNames=yolov7`;
-                                }}>
-                                    <LoadingForm.Button className='text-white' variant='primary' type='submit'>Load Demo Data</LoadingForm.Button>
+                            <p className='d-flex justify-content-center align-items-center'>
+                                <LoadingForm onSubmit={() => handleLoadDemoData('https://dioptra-public.s3.us-east-2.amazonaws.com/sample_dataset.json', 'yolov7')}>
+                                    <LoadingForm.Button className='text-white' variant='secondary' type='submit'>Load Demo Data: Object Detection</LoadingForm.Button>
+                                    <LoadingForm.Loading>
+                                        This could take a minute... Please don't navigate away.
+                                    </LoadingForm.Loading>
+                                </LoadingForm>
+                                &nbsp;|&nbsp;
+                                <LoadingForm onSubmit={() => handleLoadDemoData('https://dioptra-public.s3.us-east-2.amazonaws.com/completions.ndjson.gz', 'llama-answer')}>
+                                    <LoadingForm.Button className='text-white' variant='secondary' type='submit'>Load Demo Data: Text Completion</LoadingForm.Button>
+                                    <LoadingForm.Loading>
+                                        This could take a minute... Please don't navigate away.
+                                    </LoadingForm.Loading>
                                 </LoadingForm>
                             </p>
                         </div>
