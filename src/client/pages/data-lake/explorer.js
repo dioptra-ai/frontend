@@ -257,14 +257,14 @@ const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelec
                             </p>
                             <p className='d-flex justify-content-center align-items-center'>
                                 <LoadingForm onSubmit={() => handleLoadDemoData('https://dioptra-public.s3.us-east-2.amazonaws.com/sample_dataset.json', 'yolov7')}>
-                                    <LoadingForm.Button className='text-white' variant='secondary' type='submit'>Load Demo Data: Object Detection</LoadingForm.Button>
+                                    <LoadingForm.Button className='text-white' variant='secondary' type='submit'>Load Object Detection Demo Dataset</LoadingForm.Button>
                                     <LoadingForm.Loading>
                                         This could take a minute... Please don't navigate away.
                                     </LoadingForm.Loading>
                                 </LoadingForm>
                                 &nbsp;|&nbsp;
                                 <LoadingForm onSubmit={() => handleLoadDemoData('https://dioptra-public.s3.us-east-2.amazonaws.com/completions.ndjson.gz', 'llama-answer')}>
-                                    <LoadingForm.Button className='text-white' variant='secondary' type='submit'>Load Demo Data: Text Completion</LoadingForm.Button>
+                                    <LoadingForm.Button className='text-white' variant='secondary' type='submit'>Load LLM Demo Dataset</LoadingForm.Button>
                                     <LoadingForm.Loading>
                                         This could take a minute... Please don't navigate away.
                                     </LoadingForm.Loading>
