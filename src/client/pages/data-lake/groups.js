@@ -8,7 +8,7 @@ import Select from 'components/select';
 import BarGraph from 'components/bar-graph';
 import {getHexColor} from 'helpers/color-helper';
 
-const getColorScaleDesc = (grouping) => new Set(['entropy', 'mislabeling', 'hallucination_score']).has(grouping);
+const getColorScaleDesc = (grouping) => new Set(['entropy', 'mislabeling', 'hallucination_score', 'drift_score']).has(grouping);
 
 const Groups = ({filters, datasetId, modelNames, selectedDatapointIds, onSelectedDatapointIdsChange}) => {
     const [grouping, setGrouping] = React.useState('groundtruths');
