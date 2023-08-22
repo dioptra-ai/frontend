@@ -17,7 +17,7 @@ import WhiteScreen from 'components/white-screen';
 import LoadingLink from 'components/loading-link';
 
 const ENV_NAME = window['DIOPTRA_ENV']['name'];
-const getColorScaleDesc = (grouping) => new Set(['entropy', 'mislabeling', 'hallucination_score']).has(grouping);
+const getColorScaleDesc = (grouping) => new Set(['entropy', 'mislabeling', 'hallucination_score', 'drift_score']).has(grouping);
 
 const JsonParamDefaultEmptyArray = withDefault(JsonParam, []);
 
