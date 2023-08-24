@@ -101,6 +101,7 @@ const DatapointsPage = ({datapoints, showGroundtruthsInModal, modelNames, select
                                     <GrPrevious />
                                 </div>
                             </div>
+                            <div>{datapointInModal.id}</div>
                             <div className='fs-3 p-2 bg-white-blue cursor-pointer d-flex align-items-center mx-2' onClick={handleModalNext}>
                                 <GrNext />
                             </div>

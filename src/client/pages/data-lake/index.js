@@ -71,7 +71,7 @@ const DataLake = () => {
                             fetchData={() => baseJSONClient('/api/dataset')}
                             renderData={(datasets) => (
                                 <Select value={datasetId} onChange={setDatasetId} name='select-dataset'>
-                                    <option value=''>No Dataset Selected</option>
+                                    <option value=''>No dataset selected</option>
                                     {datasets.map((dataset) => (
                                         <option key={dataset['uuid']} value={dataset['uuid']}>
                                             {dataset['display_name']}

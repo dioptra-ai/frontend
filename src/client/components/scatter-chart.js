@@ -37,11 +37,11 @@ const tranformBrushSelection = (selection, xScale, yScale) => {
     return {xDomain, yDomain};
 };
 const ScatterChart = ({
-    data, onSelectedDataChange, showAxes,
+    data, referenceData, onSelectedDataChange, showAxes,
     getX = (d) => d.x, getY = (d) => d.y, getColor, getPointTitle, isDatapointSelected,
     chartId = `chart-${nanoid()}`, width = '100%', height = '100%'
 }) => {
-    const dataMap = data.reduce((acc, d) => {
+    const pruneData = (data) => data.reduce((acc, d) => {
         const x = getX(d);
         const y = getY(d);
 
@@ -55,7 +55,9 @@ const ScatterChart = ({
 
         return acc;
     }, {});
-    const prunedData = Object.values(dataMap).map((d) => Object.values(d)).flat();
+
+    const prunedData = Object.values(pruneData(data)).map((d) => Object.values(d)).flat();
+    const prunedReferenceData = referenceData ? Object.values(pruneData(referenceData)).map((d) => Object.values(d)).flat() : [];
     const brushRef = useRef(null);
     const brush = d3.brush().keyModifiers(false)
         .on('start', function () {
@@ -78,12 +80,14 @@ const ScatterChart = ({
                 onSelectedDataChange?.([...filteredData], e.sourceEvent);
 
                 d3.select(brushRef.current).call(brush.move, null);
+            } else if (e.sourceEvent) {
+                onSelectedDataChange?.([], e.sourceEvent);
             }
         });
     const xExtent = fc.extentLinear().pad([0.10, 0.10]).accessors([getX]);
     const yExtent = fc.extentLinear().pad([0.10, 0.10]).accessors([getY]);
-    const xScale = d3.scaleLinear().domain(xExtent(prunedData));
-    const yScale = d3.scaleLinear().domain(yExtent(prunedData));
+    const xScale = d3.scaleLinear().domain(xExtent(prunedData.concat(prunedReferenceData)));
+    const yScale = d3.scaleLinear().domain(yExtent(prunedData.concat(prunedReferenceData)));
     const svgPointSeries = fc.seriesSvgPoint()
         .crossValue(getX)
         .mainValue(getY)
@@ -99,6 +103,14 @@ const ScatterChart = ({
                 selection.append('title').text((d) => getPointTitle(d));
             }
         });
+    const svgreferencePointSeries = fc.seriesSvgPoint()
+        .crossValue(getX)
+        .mainValue(getY)
+        .size(15)
+        .decorate((selection) => {
+            selection.style('fill', '#800080');
+            selection.style('stroke', '#800080');
+        });
     const svgGridSeries = fc.annotationSvgGridline()
         .xScale(xScale)
         .yScale(yScale)
@@ -109,8 +121,10 @@ const ScatterChart = ({
     const xAxisJoin = fc.dataJoin('g', 'x-axis');
     const yAxisJoin = fc.dataJoin('g', 'y-axis');
     const svgSeries = fc.seriesSvgMulti().series([svgGridSeries, svgPointSeries]);
+    const svgreferenceSeries = fc.seriesSvgMulti().series([svgreferencePointSeries]);
     const renderData = () => {
         const chart = fc.chartCartesian(xScale, yScale).svgPlotArea(svgSeries);
+        const referenceChart = fc.chartCartesian(xScale, yScale).svgPlotArea(svgreferenceSeries);
 
         if (showAxes) {
             const container = document.querySelector('d3fc-svg');
@@ -134,21 +148,31 @@ const ScatterChart = ({
                         .call((g) => g.select('.domain').remove());
                 });
         }
-
         d3.select(`#${chartId}`)
             .datum(prunedData.sort((p1) => isDatapointSelected?.(p1) ? 1 : -1)) // Selected => on top.
             .call(chart);
+
+        d3.select(`#${chartId}-reference`)
+            .datum(prunedReferenceData)
+            .call(referenceChart);
 
         if (onSelectedDataChange) {
             d3.select(`#${chartId} svg`).call(brush);
         }
     };
 
-    React.useEffect(renderData, [prunedData]);
+    React.useEffect(renderData, [prunedData, prunedReferenceData]);
 
     return (
         <>
-            <div id={chartId} style={{width, height, minHeight: 400}} onClick={(e) => onSelectedDataChange?.([], e)}/>
+            <div id={chartId} style={{width, height, minHeight: 400}} onClick={(e) => onSelectedDataChange?.([], e)} />
+            <div id={`${chartId}-reference`} style={{
+                width, height, minHeight: 400,
+                position: 'absolute',
+                inset: 0,
+                opacity: 0.5,
+                pointerEvents: 'none'
+            }} />
             <style>{`
                 .point:hover {
                     cursor: ${onSelectedDataChange ? 'pointer' : getPointTitle ? 'help' : 'default'};
@@ -173,6 +197,7 @@ const ScatterChart = ({
 
 ScatterChart.propTypes = {
     data: PropTypes.array.isRequired,
+    referenceData: PropTypes.array,
     getX: PropTypes.func,
     getY: PropTypes.func,
     getColor: PropTypes.func,

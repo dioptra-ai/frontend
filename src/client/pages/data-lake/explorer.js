@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import {useEffect, useState} from 'react';
 import {useHistory} from 'react-router-dom';
 import {Col, Row} from 'react-bootstrap';
-import {JsonParam, useQueryParam, withDefault} from 'use-query-params';
+import {JsonParam, StringParam, useQueryParam, withDefault} from 'use-query-params';
 
 import baseJSONClient from 'clients/base-json-client';
 import theme from 'styles/theme.module.scss';
@@ -24,6 +24,10 @@ const JsonParamDefaultEmptyArray = withDefault(JsonParam, []);
 const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelectedDatapointIdsChange}) => {
     const history = useHistory();
     const [grouping, setGrouping] = useState('');
+    const [groupingLoading, setGroupingLoading] = useState(false);
+    const [refDatasetId, setRefDatasetId] = useQueryParam('refDatasetId', StringParam);
+    const [selectedEmbeddingsName, setSelectedEmbeddingsName] = useState('');
+    const [selectedAlgorithmName, setSelectedAlgorithmName] = useState('');
     const [colorPerDatapointId, setColorPerDatapointId] = useState();
     const [, setFilters] = useQueryParam('filters', JsonParamDefaultEmptyArray);
     const [vectorsWithCoordinates, setVectorsWithCoordinates] = useState();
@@ -71,37 +75,42 @@ const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelec
     };
 
     useEffect(() => {
-        setDimensionReductionIsOutOfDate(true);
-    }, [JSON.stringify(filters), datasetId]);
-
-    useEffect(() => {
         (async () => {
-            if (grouping) {
-                const distributions = await Promise.all((modelNames.length ? modelNames : [undefined]).map((modelName) => baseJSONClient.post(`/api/analytics/distribution/${grouping}`, {
-                    filters, datasetId, modelName
-                }, {memoized: true})));
-                const datapointColors = distributions.reduce((acc, {histogram}) => {
-                    Object.entries(histogram).forEach(([groupName, group], _, allGroups) => {
-                        group.datapoints.forEach((datapointId) => {
-                            if (group.index === undefined) {
-                                acc[datapointId] = getHexColor(groupName);
-                            } else if (isGroupColorDesc) {
-                                acc[datapointId] = `hsla(${100 * (1 - group.index / allGroups.length)}, 100%, 50%, 1)`;
-                            } else {
-                                acc[datapointId] = `hsla(${100 * group.index / allGroups.length}, 100%, 50%, 1)`;
-                            }
+            try {
+                if (grouping) {
+                    setGroupingLoading(true);
+                    const distributions = await Promise.all((modelNames.length ? modelNames : [undefined]).map((modelName) => baseJSONClient.post(`/api/analytics/distribution/${grouping}`, {
+                        filters, datasetId, modelName
+                    }, {memoized: true})));
+                    const datapointColors = distributions.reduce((acc, {histogram}) => {
+                        Object.entries(histogram).forEach(([groupName, group], _, allGroups) => {
+                            group.datapoints.forEach((datapointId) => {
+                                if (group.index === undefined) {
+                                    acc[datapointId] = getHexColor(groupName);
+                                } else if (isGroupColorDesc) {
+                                    acc[datapointId] = `hsla(${100 * (1 - group.index / allGroups.length)}, 100%, 50%, 1)`;
+                                } else {
+                                    acc[datapointId] = `hsla(${100 * group.index / allGroups.length}, 100%, 50%, 1)`;
+                                }
+                            });
                         });
-                    });
 
-                    return acc;
-                }, {});
+                        return acc;
+                    }, {});
 
-                setColorPerDatapointId(datapointColors);
-            } else {
-                setColorPerDatapointId();
+                    setColorPerDatapointId(datapointColors);
+                } else {
+                    setColorPerDatapointId();
+                }
+            } finally {
+                setGroupingLoading(false);
             }
         })();
     }, [grouping, JSON.stringify(filters), datasetId, modelNames]);
+
+    useEffect(() => {
+        setDimensionReductionIsOutOfDate(true);
+    }, [datasetId, refDatasetId, JSON.stringify(filtersForAllModels), selectedEmbeddingsName, selectedAlgorithmName]);
 
     return (
         <>
@@ -111,9 +120,12 @@ const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelec
                     datasetId ? (
                         <>
                             <LoadingForm className='my-2' onSubmit={async (_, {selectedEmbeddingsName, selectedAlgorithmName}) => {
+                                setSelectedEmbeddingsName(selectedEmbeddingsName);
+                                setSelectedAlgorithmName(selectedAlgorithmName);
+
                                 const vectorsWithCoords = await baseJSONClient.post('/api/analytics/vectors/reduce-dimensions', {
                                     datapoint_filters: filtersForAllModels,
-                                    dataset_id: datasetId,
+                                    dataset_ids: [datasetId, refDatasetId].filter(Boolean),
                                     embeddings_name: selectedEmbeddingsName,
                                     algorithm_name: selectedAlgorithmName
                                 }, {memoized: true});
@@ -121,15 +133,15 @@ const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelec
                                 setVectorsWithCoordinates(vectorsWithCoords);
                                 setDimensionReductionIsOutOfDate(false);
                             }}>
-                                <Async
-                                    fetchData={() => baseJSONClient.post('/api/predictions/select-distinct-embedding-names', {
-                                        datapointFilters: filters,
-                                        datasetId
-                                    }, {memoized: true})}
-                                    refetchOnChanged={[filters, datasetId]}
-                                    renderData={(embeddingNames) => (
-                                        <Row className='g-2'>
-                                            <Col>
+                                <Row className='g-2'>
+                                    <Col>
+                                        <Async
+                                            fetchData={() => baseJSONClient.post('/api/predictions/select-distinct-embedding-names', {
+                                                datapointFilters: filters,
+                                                datasetId
+                                            }, {memoized: true})}
+                                            refetchOnChanged={[filters, datasetId]}
+                                            renderData={(embeddingNames) => (
                                                 <Select required name='selectedEmbeddingsName' defaultValue=''>
                                                     {
                                                         !embeddingNames.length && (
@@ -140,66 +152,91 @@ const Explorer = ({filters, datasetId, modelNames, selectedDatapointIds, onSelec
                                                         <option key={embeddingName} value={embeddingName}>{embeddingName}</option>
                                                     ))}
                                                 </Select>
-                                            </Col>
-                                            <Col>
-                                                <Select required name='selectedAlgorithmName'>
-                                                    {['UMAP', 'TSNE'].map((algorithmName) => (
-                                                        <option key={algorithmName} value={algorithmName}>{algorithmName}</option>
-                                                    ))}
-                                                </Select>
-                                            </Col>
-                                            <Col>
-                                                <LoadingForm.Button disabled={!embeddingNames.length} variant='secondary' type='submit' className='w-100'>Run embeddings analysis</LoadingForm.Button>
-                                            </Col>
-                                        </Row>
-                                    )}
-                                />
-                            </LoadingForm>
-                            {vectorsWithCoordinates ? (
-                                <div className='mb-2 position-relative'>
-                                    <div className='position-absolute m-3' style={{top: 0, left: 0, zIndex: 1}}>
+                                            )}
+                                        />
+                                    </Col>
+                                    <Col>
+                                        <Select required name='selectedAlgorithmName'>
+                                            {['UMAP', 'TSNE'].map((algorithmName) => (
+                                                <option key={algorithmName} value={algorithmName}>{algorithmName}</option>
+                                            ))}
+                                        </Select>
+                                    </Col>
+                                    <Col>
                                         <Async
-                                            fetchData={() => Promise.all([
-                                                baseJSONClient.post('/api/tags/select-distinct-names', {
-                                                    datapointFilters: filtersForAllModels,
-                                                    datasetId
-                                                }, {memoized: true}),
-                                                baseJSONClient.post('/api/predictions/select-distinct-metrics', {
-                                                    datapointFilters: filtersForAllModels,
-                                                    datasetId
-                                                }, {memoized: true})
-                                            ])}
-                                            refetchOnChanged={[filtersForAllModels, datasetId]}
-                                            renderData={([allTagNames, allMetricNames]) => (
-                                                <Select className='fs-5' value={grouping} onChange={setGrouping}>
-                                                    <option value=''>Color by...</option>
-                                                    <option value='groundtruths'>Groundtruths</option>
-                                                    {
-                                                        modelNames.length ? (
-                                                            <>
-                                                                <option value='predictions'>Predictions</option>
-                                                                <option value='entropy'>Entropy</option>
-                                                                {/* <option value='mislabeling'>Mislabeling Score</option> */}
-                                                            </>
-                                                        ) : null
-                                                    }
-                                                    {allMetricNames.map((metricName) => (
-                                                        <option key={metricName} value={metricName}>
-                                                            {metricName}
-                                                        </option>
-                                                    ))}
-                                                    {allTagNames.map((tagName) => (
-                                                        <option key={`tag/${tagName}`} value={`tag/${tagName}`}>
-                                                            tags.name = {tagName}
+                                            fetchData={() => baseJSONClient('/api/dataset')}
+                                            renderData={(datasets) => (
+                                                <Select value={refDatasetId} onChange={setRefDatasetId} name='select-ref-dataset'>
+                                                    <option value=''>No reference dataset</option>
+                                                    {datasets.map((dataset) => (
+                                                        <option key={dataset['uuid']} value={dataset['uuid']}>
+                                                            {dataset['display_name']}
                                                         </option>
                                                     ))}
                                                 </Select>
                                             )}
                                         />
+                                    </Col>
+                                    <Col>
+                                        <LoadingForm.Button variant='secondary' type='submit' className='w-100'>Run embeddings analysis</LoadingForm.Button>
+                                    </Col>
+                                </Row>
+                            </LoadingForm>
+                            {vectorsWithCoordinates ? (
+                                <div className='mb-2 position-relative'>
+                                    <div className='position-absolute m-3' style={{top: 0, left: 0, zIndex: 1}}>
+                                        <Row className='g-1'>
+                                            <Col>
+                                                <Async
+                                                    fetchData={() => Promise.all([
+                                                        baseJSONClient.post('/api/tags/select-distinct-names', {
+                                                            datapointFilters: filtersForAllModels,
+                                                            datasetId
+                                                        }, {memoized: true}),
+                                                        baseJSONClient.post('/api/predictions/select-distinct-metrics', {
+                                                            datapointFilters: filtersForAllModels,
+                                                            datasetId
+                                                        }, {memoized: true})
+                                                    ])}
+                                                    refetchOnChanged={[filtersForAllModels, datasetId]}
+                                                    renderData={([allTagNames, allMetricNames]) => (
+                                                        <Select disabled={groupingLoading} className='fs-5' value={groupingLoading ? 'loading' : grouping} onChange={setGrouping}>
+                                                            <option value=''>Color by...</option>
+                                                            {
+                                                                groupingLoading ? (
+                                                                    <option value='loading'>Loading...</option>
+                                                                ) : null
+                                                            }
+                                                            <option value='groundtruths'>Groundtruths</option>
+                                                            {
+                                                                modelNames.length ? (
+                                                                    <>
+                                                                        <option value='predictions'>Predictions</option>
+                                                                        <option value='entropy'>Entropy</option>
+                                                                        {/* <option value='mislabeling'>Mislabeling Score</option> */}
+                                                                    </>
+                                                                ) : null
+                                                            }
+                                                            {allMetricNames.map((metricName) => (
+                                                                <option key={metricName} value={metricName}>
+                                                                    {metricName}
+                                                                </option>
+                                                            ))}
+                                                            {allTagNames.map((tagName) => (
+                                                                <option key={`tag/${tagName}`} value={`tag/${tagName}`}>
+                                                                    tags.name = {tagName}
+                                                                </option>
+                                                            ))}
+                                                        </Select>
+                                                    )}
+                                                />
+                                            </Col>
+                                        </Row>
                                     </div>
                                     <ScatterChart
                                         height={600}
-                                        data={vectorsWithCoordinates}
+                                        data={vectorsWithCoordinates.filter((v) => v['dataset'] === datasetId)}
+                                        referenceData={vectorsWithCoordinates.filter((v) => v['dataset'] === refDatasetId)}
                                         onSelectedDataChange={(vectors, e) => {
                                             if (e?.shiftKey) {
                                                 const selectedIds = new Set(selectedDatapointIds);
